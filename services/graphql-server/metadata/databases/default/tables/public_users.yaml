@@ -67,6 +67,15 @@ select_permissions:
               _eq: X-Hasura-Company-Id
           - parent_company_id:
               _eq: X-Hasura-Parent-Company-Id
+          - _exists:
+              _where:
+                company:
+                  company_vendor_partnerships:
+                    company_id:
+                      _eq: X-Hasura-Company-Id
+              _table:
+                schema: public
+                name: users
   - role: company_read_only
     permission:
       columns:
@@ -89,6 +98,15 @@ select_permissions:
               _eq: X-Hasura-Company-Id
           - parent_company_id:
               _eq: X-Hasura-Parent-Company-Id
+          - _exists:
+              _where:
+                company:
+                  company_vendor_partnerships:
+                    company_id:
+                      _eq: X-Hasura-Company-Id
+              _table:
+                schema: public
+                name: users
 update_permissions:
   - role: bank_admin
     permission:

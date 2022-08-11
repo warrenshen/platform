@@ -242,3 +242,14 @@ fragment PaymentLimited on payments {
     full_name
   }
 }
+
+fragment VendorChangeRequestLimited on vendor_change_requests {
+  id
+  status
+  category
+  updated_at
+  created_at
+  requesting_user_id
+  requested_vendor_id
+  request_info
+}

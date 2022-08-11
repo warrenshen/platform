@@ -571,3 +571,15 @@ fragment CustomerSurveillanceResult on customer_surveillance_results {
   surveillance_status
   surveillance_info
 }
+
+fragment VendorChangeRequest on vendor_change_requests {
+  id
+  status
+  category
+  is_deleted
+  approved_at
+  created_at
+  deleted_at
+  ...VendorChangeRequestLimited
+}
+

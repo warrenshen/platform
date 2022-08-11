@@ -1,3 +1,75 @@
 table:
   schema: public
   name: vendor_change_requests
+object_relationships:
+  - name: approved_by_user
+    using:
+      foreign_key_constraint_on: approved_by_user_id
+  - name: requested_vendor
+    using:
+      foreign_key_constraint_on: requested_vendor_id
+  - name: requesting_company
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: companies
+        insertion_order: null
+        column_mapping:
+          requesting_company_id: id
+  - name: requesting_user
+    using:
+      foreign_key_constraint_on: requesting_user_id
+  - name: reviewed_by_user
+    using:
+      foreign_key_constraint_on: reviewed_by_user_id
+insert_permissions:
+  - role: company_admin
+    permission:
+      check: {}
+      columns:
+        - approved_at
+        - approved_by_user_id
+        - category
+        - created_at
+        - id
+        - request_info
+        - requested_vendor_id
+        - status
+        - updated_at
+      backend_only: false
+select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+        - id
+        - requesting_user_id
+        - requested_vendor_id
+        - approved_at
+        - approved_by_user_id
+        - reviewed_by_user_id
+        - is_deleted
+        - updated_at
+        - created_at
+        - deleted_at
+        - status
+        - category
+        - request_info
+      filter: {}
+  - role: bank_read_only
+    permission:
+      columns:
+        - is_deleted
+        - request_info
+        - category
+        - status
+        - approved_at
+        - created_at
+        - deleted_at
+        - updated_at
+        - approved_by_user_id
+        - id
+        - requested_vendor_id
+        - requesting_user_id
+        - reviewed_by_user_id
+      filter: {}

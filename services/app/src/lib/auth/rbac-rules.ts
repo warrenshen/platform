@@ -288,6 +288,7 @@ const rules: Rules = {
       Action.EditLineOfCredit,
 
       Action.EditUserAccountSettings,
+      Action.EditVendor,
     ],
     dynamic: [],
   },

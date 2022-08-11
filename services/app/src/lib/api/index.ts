@@ -38,6 +38,10 @@ export const companyRoutes = {
     "/companies/mark_company_partnership_complete",
   moveToActionRequired: "/companies/move_to_action_required",
   upsertCustomMessages: "/companies/upsert_custom_messages",
+  approveVendorChange: "/companies/approve_vendor_change",
+  deleteVendorChange: "/companies/delete_vendor_change",
+  createEditVendorContacts: "/companies/create_edit_vendor_contacts",
+  createChangeVendorContacts: "/companies/create_change_vendor_contacts",
 };
 
 export const companySettingsRoutes = {

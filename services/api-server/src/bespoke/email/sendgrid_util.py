@@ -92,6 +92,8 @@ class TemplateNames(object):
 	ALERT_FOR_WEEKLY_SCHEDULED_AUTO_GENERATED_REPAYMENTS = "alert_for_weekly_scheduled_auto_generated_repayments"
 	ALERT_FOR_EXPIRED_BORROWING_BASE_CERTIFICATION = "alert_for_expired_borrowing_base_certification"
 
+	ALERT_VENDOR_CHANGE_REQUEST_APPROVED = "alert_vendor_change_request_approved"
+	ALERT_VENDOR_CHANGE_REQUEST = "alert_vendor_change_request"
 TemplateConfigDict = TypedDict('TemplateConfigDict', {
 	'id': str,
 	'requires_secure_link': bool
@@ -281,6 +283,14 @@ _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
 	},
 	TemplateNames.ALERT_FOR_EXPIRED_BORROWING_BASE_CERTIFICATION: {
 		'id': 'd-e961f0fe064344c484e5d1cc346816a7',
+		'requires_secure_link': False,
+	},
+	TemplateNames.ALERT_VENDOR_CHANGE_REQUEST: {
+		'id': 'd-ec64173c81c1402cb2704a086d4906a8',
+		'requires_secure_link': False,
+	},
+	TemplateNames.ALERT_VENDOR_CHANGE_REQUEST_APPROVED: {
+		'id': 'd-b7176e8321654799b8d4b96af4cba24f',
 		'requires_secure_link': False,
 	},
 }

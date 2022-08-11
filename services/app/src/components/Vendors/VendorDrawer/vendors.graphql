@@ -1,0 +1,55 @@
+query GetVendorPartnership($id: uuid!) {
+  company_vendor_partnerships_by_pk(id: $id) {
+    ...VendorPartnershipLimited
+    company {
+      ...Company
+      ...AllCompanyUsersForBank
+    }
+    vendor {
+      id
+      settings {
+        id
+      }
+      users (
+        where: {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+      ) {
+        id
+        ...Contact
+      }
+    }
+  }
+}
+
+query GetVendorContacts($id: uuid!) {
+  company_vendor_partnerships_by_pk(id: $id) {
+    ...VendorPartnershipLimited
+    company {
+      ...Company
+    }
+    vendor {
+      id
+      users(
+        where: {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+      ) {
+        id
+        ...Contact
+        ...User
+      }
+    }
+    vendor_contacts {
+      id
+      ...CompanyVendorContact
+    }
+  }
+}
+

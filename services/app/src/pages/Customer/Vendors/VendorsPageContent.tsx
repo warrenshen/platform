@@ -1,11 +1,14 @@
 import { Box, Typography } from "@material-ui/core";
 import PartnershipsAwaitingApprovalDataGrid from "components/Partnerships/PartnershipsAwaitingApprovalDataGrid";
 import Can from "components/Shared/Can";
+import ModalButton from "components/Shared/Modal/ModalButton";
 import PageContent from "components/Shared/Page/PageContent";
 import AddVendorButton from "components/Vendors/AddVendorButton";
+import EditVendorModal from "components/Vendors/EditVendorModal";
 import VendorPartnershipsDataGrid from "components/Vendors/VendorPartnershipsDataGrid";
 import {
   Companies,
+  VendorPartnershipLimitedFragment,
   useGetPartnershipRequestsAndInvitesByRequestingCompanyIdQuery,
   useGetVendorPartnershipsByCompanyIdQuery,
 } from "generated/graphql";
@@ -15,6 +18,7 @@ import { formatDatetimeString } from "lib/date";
 import { ProductTypeEnum } from "lib/enum";
 import { isVendorAgreementProductType } from "lib/settings";
 import { sortBy } from "lodash";
+import { useMemo, useState } from "react";
 
 interface Props {
   companyId: Companies["id"];
@@ -74,6 +78,26 @@ export default function CustomerVendorsPageContent({
     );
   }
 
+  const [selectedVendorIds, setSelectedVendorIds] = useState<
+    VendorPartnershipLimitedFragment[]
+  >([]);
+
+  const selectedVendor = useMemo(
+    () =>
+      selectedVendorIds.length === 1
+        ? vendorPartnerships.find(
+            (vendorPartnership) =>
+              vendorPartnership.id === selectedVendorIds[0].id
+          )
+        : null,
+    [vendorPartnerships, selectedVendorIds]
+  );
+
+  const selectedVendorId = useMemo(
+    () => (!!selectedVendor?.id ? selectedVendor.id : null),
+    [selectedVendor]
+  );
+
   const awaitingInvitations: PartnershipAwatingApproval[] =
     awaitingPartnershipsAndInvitationsData &&
     awaitingPartnershipsAndInvitationsData?.company_partnership_invitations
@@ -125,7 +149,6 @@ export default function CustomerVendorsPageContent({
     ...awaitingInvitations,
     ...awaitingPartnerships,
   ];
-
   return (
     <PageContent title={"Vendors"}>
       <Box mb={2}>
@@ -144,10 +167,31 @@ export default function CustomerVendorsPageContent({
         />
       </Box>
       <h2>Approved</h2>
+      {/* edit vendor here pass in multi select*/}
+      <Can perform={Action.EditVendor}>
+        <Box mb={2} display="flex" flexDirection="row-reverse">
+          <ModalButton
+            isDisabled={selectedVendorIds.length !== 1}
+            label={"Edit Vendors"}
+            modal={({ handleClose }) => (
+              <EditVendorModal
+                vendorPartnershipId={selectedVendorId}
+                handleClose={() => {
+                  refetch();
+                  setSelectedVendorIds([]);
+                  handleClose();
+                }}
+              />
+            )}
+          />
+        </Box>
+      </Can>
       <Box display="flex">
         <VendorPartnershipsDataGrid
+          isMultiSelectEnabled={true}
           isVendorAgreementVisible={isVendorAgreementProductType(productType)}
           vendorPartnerships={vendorPartnerships}
+          setSelectedVendorIds={setSelectedVendorIds}
         />
       </Box>
     </PageContent>

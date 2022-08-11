@@ -105,3 +105,79 @@ query GetPartnershipRequestsAndInvitesByRequestingCompanyId(
     }
   }
 }
+
+subscription GetPartnershipChangeRequestsForBank {
+  vendor_change_requests(
+    order_by: [{ created_at: asc }]
+    where: {
+      _or: [{ is_deleted: { _is_null: true } }, { is_deleted: { _eq: false } }]
+    }
+  ) {
+    ...VendorChangeRequest
+    approved_by_user {
+      id 
+      full_name
+    }
+    reviewed_by_user {
+      id 
+      full_name
+    }
+    requesting_user {
+      id
+      full_name
+      company {
+        id
+        name
+      }
+    }
+    requested_vendor {
+      id
+      name
+    }
+    requesting_company {
+      id
+      name
+    }
+  }
+}
+
+query GetPartnershipChangeDetailsById($requestId: uuid!) {
+  vendor_change_requests_by_pk(id:$requestId) 
+    {
+    ...VendorChangeRequest
+    approved_by_user {
+      id 
+      full_name
+    }
+    reviewed_by_user {
+      id 
+      full_name
+    }
+    requesting_user {
+      id
+      full_name 
+      company {
+        id
+      }
+    }
+    requested_vendor {
+      id
+      name
+      users {
+        id
+        ...User
+      }
+      company_vendor_partnerships_by_vendor {
+        id
+        company {
+          id 
+          name
+        }
+      }
+    }
+    requesting_company {
+      id
+      name
+    }
+  }
+}

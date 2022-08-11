@@ -7,6 +7,7 @@ import {
   CompanySettingsInsertInput,
   ContractsInsertInput,
   UsersInsertInput,
+  VendorChangeRequests,
 } from "generated/graphql";
 import {
   CustomMutationResponse,
@@ -409,6 +410,127 @@ export async function moveToActionRequiredMutation(
         return {
           status: "ERROR",
           msg: "Could not move to action required",
+        };
+      }
+    );
+}
+
+type ApproveVendorContactChangeMutationReq = {
+  variables: {
+    vendor_change_request_id: VendorChangeRequests["id"];
+  };
+};
+
+export async function approveVendorContactChangeMutation(
+  req: ApproveVendorContactChangeMutationReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(companyRoutes.approveVendorChange, req.variables)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not change vendor contact",
+        };
+      }
+    );
+}
+
+type DeleteVendorChangeRequestMutationReq = {
+  variables: {
+    vendor_change_request_id: VendorChangeRequests["id"];
+  };
+};
+
+export async function deleteVendorChangeRequestMutation(
+  req: DeleteVendorChangeRequestMutationReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(companyRoutes.deleteVendorChange, req.variables)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not create delete vendor change request",
+        };
+      }
+    );
+}
+
+export type CreateEditVendorContactsRequestMutationReq = {
+  variables: {
+    requested_vendor_id: string;
+    vendor_user_id: string;
+    first_name: string;
+    last_name: string;
+    phone_number: string;
+    email: string;
+    requesting_company_id: Companies["id"];
+  };
+};
+
+export async function createEditVendorContactsRequestMutation(
+  req: CreateEditVendorContactsRequestMutationReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(companyRoutes.createEditVendorContacts, req.variables)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not create a request to edit vendor contact information",
+        };
+      }
+    );
+}
+
+export type CreateChangeVendorContactsRequestMutationReq = {
+  variables: {
+    requested_vendor_id: string;
+    requesting_company_id: Companies["id"];
+    new_users: string[];
+    delete_users: string[];
+  };
+};
+
+export async function createChangeVendorContactsRequestMutation(
+  req: CreateChangeVendorContactsRequestMutationReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(companyRoutes.createChangeVendorContacts, req.variables)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not create a request to change vendor contacts",
         };
       }
     );

@@ -20,3 +20,39 @@ select_permissions:
         - partnership_id
         - vendor_user_id
       filter: {}
+  - role: company_admin
+    permission:
+      columns:
+        - id
+        - partnership_id
+        - vendor_user_id
+      filter:
+        _or:
+          - id:
+              _eq: X-Hasura-Company-Id
+          - partnership_id:
+              _eq: X-Hasura-Company-Id
+          - _exists:
+              _where:
+                _exists:
+                  _where:
+                    company_id:
+                      _eq: X-Hasura-Company-Id
+                  _table:
+                    schema: public
+                    name: company_vendor_partnerships
+              _table:
+                schema: public
+                name: company_vendor_contacts
+  - role: company_read_only
+    permission:
+      columns:
+        - id
+        - partnership_id
+        - vendor_user_id
+      filter:
+        _or:
+          - id:
+              _eq: X-Hasura-Company-Id
+          - partnership_id:
+              _eq: X-Hasura-Company-Id

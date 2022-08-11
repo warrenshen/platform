@@ -21725,6 +21725,7 @@ export type PurchaseOrders = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   /** An object relationship */
@@ -21906,6 +21907,7 @@ export type PurchaseOrdersBoolExp = {
   _or?: Maybe<Array<PurchaseOrdersBoolExp>>;
   amount?: Maybe<NumericComparisonExp>;
   amount_funded?: Maybe<NumericComparisonExp>;
+  amount_updated_at?: Maybe<TimestamptzComparisonExp>;
   approved_at?: Maybe<TimestamptzComparisonExp>;
   approved_by_user_id?: Maybe<UuidComparisonExp>;
   approving_user_id?: Maybe<UsersBoolExp>;
@@ -21961,6 +21963,7 @@ export type PurchaseOrdersInsertInput = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   approving_user_id?: Maybe<UsersObjRelInsertInput>;
@@ -22008,6 +22011,7 @@ export type PurchaseOrdersMaxFields = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -22042,6 +22046,7 @@ export type PurchaseOrdersMaxOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
+  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   bank_incomplete_note?: Maybe<OrderBy>;
@@ -22076,6 +22081,7 @@ export type PurchaseOrdersMinFields = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -22110,6 +22116,7 @@ export type PurchaseOrdersMinOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
+  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   bank_incomplete_note?: Maybe<OrderBy>;
@@ -22165,6 +22172,7 @@ export type PurchaseOrdersOnConflict = {
 export type PurchaseOrdersOrderBy = {
   amount?: Maybe<OrderBy>;
   amount_funded?: Maybe<OrderBy>;
+  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   approving_user_id?: Maybe<UsersOrderBy>;
@@ -22212,6 +22220,8 @@ export enum PurchaseOrdersSelectColumn {
   Amount = "amount",
   /** column name */
   AmountFunded = "amount_funded",
+  /** column name */
+  AmountUpdatedAt = "amount_updated_at",
   /** column name */
   ApprovedAt = "approved_at",
   /** column name */
@@ -22273,6 +22283,7 @@ export type PurchaseOrdersSetInput = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -22378,6 +22389,8 @@ export enum PurchaseOrdersUpdateColumn {
   Amount = "amount",
   /** column name */
   AmountFunded = "amount_funded",
+  /** column name */
+  AmountUpdatedAt = "amount_updated_at",
   /** column name */
   ApprovedAt = "approved_at",
   /** column name */
@@ -27432,6 +27445,8 @@ export type UuidComparisonExp = {
 /** columns and relationships of "vendor_change_requests" */
 export type VendorChangeRequests = {
   approved_at?: Maybe<Scalars["timestamptz"]>;
+  /** An object relationship */
+  approved_by_user?: Maybe<Users>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   category: Scalars["String"];
   created_at: Scalars["timestamptz"];
@@ -27439,8 +27454,17 @@ export type VendorChangeRequests = {
   id: Scalars["uuid"];
   is_deleted?: Maybe<Scalars["Boolean"]>;
   request_info: Scalars["json"];
+  /** An object relationship */
+  requested_vendor: Companies;
   requested_vendor_id: Scalars["uuid"];
+  /** An object relationship */
+  requesting_company?: Maybe<Companies>;
+  requesting_company_id?: Maybe<Scalars["uuid"]>;
+  /** An object relationship */
+  requesting_user: Users;
   requesting_user_id: Scalars["uuid"];
+  /** An object relationship */
+  reviewed_by_user?: Maybe<Users>;
   reviewed_by_user_id?: Maybe<Scalars["uuid"]>;
   status: Scalars["String"];
   updated_at: Scalars["timestamptz"];
@@ -27476,6 +27500,7 @@ export type VendorChangeRequestsBoolExp = {
   _not?: Maybe<VendorChangeRequestsBoolExp>;
   _or?: Maybe<Array<VendorChangeRequestsBoolExp>>;
   approved_at?: Maybe<TimestamptzComparisonExp>;
+  approved_by_user?: Maybe<UsersBoolExp>;
   approved_by_user_id?: Maybe<UuidComparisonExp>;
   category?: Maybe<StringComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
@@ -27483,8 +27508,13 @@ export type VendorChangeRequestsBoolExp = {
   id?: Maybe<UuidComparisonExp>;
   is_deleted?: Maybe<BooleanComparisonExp>;
   request_info?: Maybe<JsonComparisonExp>;
+  requested_vendor?: Maybe<CompaniesBoolExp>;
   requested_vendor_id?: Maybe<UuidComparisonExp>;
+  requesting_company?: Maybe<CompaniesBoolExp>;
+  requesting_company_id?: Maybe<UuidComparisonExp>;
+  requesting_user?: Maybe<UsersBoolExp>;
   requesting_user_id?: Maybe<UuidComparisonExp>;
+  reviewed_by_user?: Maybe<UsersBoolExp>;
   reviewed_by_user_id?: Maybe<UuidComparisonExp>;
   status?: Maybe<StringComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
@@ -27499,6 +27529,7 @@ export enum VendorChangeRequestsConstraint {
 /** input type for inserting data into table "vendor_change_requests" */
 export type VendorChangeRequestsInsertInput = {
   approved_at?: Maybe<Scalars["timestamptz"]>;
+  approved_by_user?: Maybe<UsersObjRelInsertInput>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   category?: Maybe<Scalars["String"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
@@ -27506,8 +27537,13 @@ export type VendorChangeRequestsInsertInput = {
   id?: Maybe<Scalars["uuid"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
   request_info?: Maybe<Scalars["json"]>;
+  requested_vendor?: Maybe<CompaniesObjRelInsertInput>;
   requested_vendor_id?: Maybe<Scalars["uuid"]>;
+  requesting_company?: Maybe<CompaniesObjRelInsertInput>;
+  requesting_company_id?: Maybe<Scalars["uuid"]>;
+  requesting_user?: Maybe<UsersObjRelInsertInput>;
   requesting_user_id?: Maybe<Scalars["uuid"]>;
+  reviewed_by_user?: Maybe<UsersObjRelInsertInput>;
   reviewed_by_user_id?: Maybe<Scalars["uuid"]>;
   status?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
@@ -27522,6 +27558,7 @@ export type VendorChangeRequestsMaxFields = {
   deleted_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   requested_vendor_id?: Maybe<Scalars["uuid"]>;
+  requesting_company_id?: Maybe<Scalars["uuid"]>;
   requesting_user_id?: Maybe<Scalars["uuid"]>;
   reviewed_by_user_id?: Maybe<Scalars["uuid"]>;
   status?: Maybe<Scalars["String"]>;
@@ -27537,6 +27574,7 @@ export type VendorChangeRequestsMinFields = {
   deleted_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   requested_vendor_id?: Maybe<Scalars["uuid"]>;
+  requesting_company_id?: Maybe<Scalars["uuid"]>;
   requesting_user_id?: Maybe<Scalars["uuid"]>;
   reviewed_by_user_id?: Maybe<Scalars["uuid"]>;
   status?: Maybe<Scalars["String"]>;
@@ -27561,6 +27599,7 @@ export type VendorChangeRequestsOnConflict = {
 /** Ordering options when selecting data from "vendor_change_requests". */
 export type VendorChangeRequestsOrderBy = {
   approved_at?: Maybe<OrderBy>;
+  approved_by_user?: Maybe<UsersOrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   category?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
@@ -27568,8 +27607,13 @@ export type VendorChangeRequestsOrderBy = {
   id?: Maybe<OrderBy>;
   is_deleted?: Maybe<OrderBy>;
   request_info?: Maybe<OrderBy>;
+  requested_vendor?: Maybe<CompaniesOrderBy>;
   requested_vendor_id?: Maybe<OrderBy>;
+  requesting_company?: Maybe<CompaniesOrderBy>;
+  requesting_company_id?: Maybe<OrderBy>;
+  requesting_user?: Maybe<UsersOrderBy>;
   requesting_user_id?: Maybe<OrderBy>;
+  reviewed_by_user?: Maybe<UsersOrderBy>;
   reviewed_by_user_id?: Maybe<OrderBy>;
   status?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
@@ -27601,6 +27645,8 @@ export enum VendorChangeRequestsSelectColumn {
   /** column name */
   RequestedVendorId = "requested_vendor_id",
   /** column name */
+  RequestingCompanyId = "requesting_company_id",
+  /** column name */
   RequestingUserId = "requesting_user_id",
   /** column name */
   ReviewedByUserId = "reviewed_by_user_id",
@@ -27621,6 +27667,7 @@ export type VendorChangeRequestsSetInput = {
   is_deleted?: Maybe<Scalars["Boolean"]>;
   request_info?: Maybe<Scalars["json"]>;
   requested_vendor_id?: Maybe<Scalars["uuid"]>;
+  requesting_company_id?: Maybe<Scalars["uuid"]>;
   requesting_user_id?: Maybe<Scalars["uuid"]>;
   reviewed_by_user_id?: Maybe<Scalars["uuid"]>;
   status?: Maybe<Scalars["String"]>;
@@ -27647,6 +27694,8 @@ export enum VendorChangeRequestsUpdateColumn {
   RequestInfo = "request_info",
   /** column name */
   RequestedVendorId = "requested_vendor_id",
+  /** column name */
+  RequestingCompanyId = "requesting_company_id",
   /** column name */
   RequestingUserId = "requesting_user_id",
   /** column name */
@@ -30232,6 +30281,44 @@ export type GetMetrcDownloadSummaryQuery = {
   >;
 };
 
+export type GetVendorPartnershipQueryVariables = Exact<{
+  id: Scalars["uuid"];
+}>;
+
+export type GetVendorPartnershipQuery = {
+  company_vendor_partnerships_by_pk?: Maybe<
+    {
+      company: CompanyFragment & AllCompanyUsersForBankFragment;
+      vendor?: Maybe<
+        Pick<Vendors, "id"> & {
+          settings?: Maybe<Pick<CompanySettings, "id">>;
+          users: Array<Pick<Users, "id"> & ContactFragment>;
+        }
+      >;
+    } & VendorPartnershipLimitedFragment
+  >;
+};
+
+export type GetVendorContactsQueryVariables = Exact<{
+  id: Scalars["uuid"];
+}>;
+
+export type GetVendorContactsQuery = {
+  company_vendor_partnerships_by_pk?: Maybe<
+    {
+      company: CompanyFragment;
+      vendor?: Maybe<
+        Pick<Vendors, "id"> & {
+          users: Array<Pick<Users, "id"> & ContactFragment & UserFragment>;
+        }
+      >;
+      vendor_contacts: Array<
+        Pick<CompanyVendorContacts, "id"> & CompanyVendorContactFragment
+      >;
+    } & VendorPartnershipLimitedFragment
+  >;
+};
+
 export type GetVendorCompanyFileAttachmentsQueryVariables = Exact<{
   company_id: Scalars["uuid"];
 }>;
@@ -30476,6 +30563,36 @@ export type CompanyVendorPartnershipForVendorQuery = {
   company_vendor_partnerships: Array<
     Pick<CompanyVendorPartnerships, "id"> & {
       vendor_bank_account?: Maybe<BankAccountForVendorFragment>;
+    }
+  >;
+};
+
+export type CompanyVendorPartnershipForCustomerQueryVariables = Exact<{
+  id: Scalars["uuid"];
+}>;
+
+export type CompanyVendorPartnershipForCustomerQuery = {
+  company_vendor_partnerships: Array<
+    Pick<CompanyVendorPartnerships, "id"> & {
+      vendor_bank_account?: Maybe<BankAccountForVendorFragment>;
+      company: Pick<Companies, "id" | "name">;
+      vendor?: Maybe<
+        Pick<Vendors, "id" | "name"> & {
+          users: Array<Pick<Users, "id"> & UserFragment>;
+        }
+      >;
+    }
+  >;
+};
+
+export type GetVendorPartnershipForContactsForCustomersQueryVariables = Exact<{
+  id: Scalars["uuid"];
+}>;
+
+export type GetVendorPartnershipForContactsForCustomersQuery = {
+  company_vendor_contacts: Array<
+    Pick<CompanyVendorContacts, "id" | "vendor_user_id"> & {
+      user: Pick<Users, "id"> & UserFragment;
     }
   >;
 };
@@ -30860,6 +30977,18 @@ export type CustomerSurveillanceResultFragment = Pick<
   | "surveillance_info"
 >;
 
+export type VendorChangeRequestFragment = Pick<
+  VendorChangeRequests,
+  | "id"
+  | "status"
+  | "category"
+  | "is_deleted"
+  | "approved_at"
+  | "created_at"
+  | "deleted_at"
+> &
+  VendorChangeRequestLimitedFragment;
+
 export type CompanySettingsLimitedFragment = Pick<
   CompanySettings,
   | "id"
@@ -31031,6 +31160,18 @@ export type PaymentLimitedFragment = Pick<
   settled_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
 };
 
+export type VendorChangeRequestLimitedFragment = Pick<
+  VendorChangeRequests,
+  | "id"
+  | "status"
+  | "category"
+  | "updated_at"
+  | "created_at"
+  | "requesting_user_id"
+  | "requested_vendor_id"
+  | "request_info"
+>;
+
 export type GetCustomersWithMetadataQueryVariables = Exact<{
   date?: Maybe<Scalars["date"]>;
 }>;
@@ -31152,6 +31293,49 @@ export type GetPartnershipRequestsAndInvitesByRequestingCompanyIdQuery = {
       CompanyPartnershipInvitations,
       "id" | "email" | "metadata_info" | "requested_at"
     > & { submitted_by_user?: Maybe<Pick<Users, "id" | "full_name">> }
+  >;
+};
+
+export type GetPartnershipChangeRequestsForBankSubscriptionVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetPartnershipChangeRequestsForBankSubscription = {
+  vendor_change_requests: Array<
+    {
+      approved_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
+      reviewed_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
+      requesting_user: Pick<Users, "id" | "full_name"> & {
+        company?: Maybe<Pick<Companies, "id" | "name">>;
+      };
+      requested_vendor: Pick<Companies, "id" | "name">;
+      requesting_company?: Maybe<Pick<Companies, "id" | "name">>;
+    } & VendorChangeRequestFragment
+  >;
+};
+
+export type GetPartnershipChangeDetailsByIdQueryVariables = Exact<{
+  requestId: Scalars["uuid"];
+}>;
+
+export type GetPartnershipChangeDetailsByIdQuery = {
+  vendor_change_requests_by_pk?: Maybe<
+    {
+      approved_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
+      reviewed_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
+      requesting_user: Pick<Users, "id" | "full_name"> & {
+        company?: Maybe<Pick<Companies, "id">>;
+      };
+      requested_vendor: Pick<Companies, "id" | "name"> & {
+        users: Array<Pick<Users, "id"> & UserFragment>;
+        company_vendor_partnerships_by_vendor: Array<
+          Pick<CompanyVendorPartnerships, "id"> & {
+            company: Pick<Companies, "id" | "name">;
+          }
+        >;
+      };
+      requesting_company?: Maybe<Pick<Companies, "id" | "name">>;
+    } & VendorChangeRequestFragment
   >;
 };
 
@@ -32449,6 +32633,31 @@ export const DebtFacilityEventFragmentDoc = gql`
     event_date
     event_payload
   }
+`;
+export const VendorChangeRequestLimitedFragmentDoc = gql`
+  fragment VendorChangeRequestLimited on vendor_change_requests {
+    id
+    status
+    category
+    updated_at
+    created_at
+    requesting_user_id
+    requested_vendor_id
+    request_info
+  }
+`;
+export const VendorChangeRequestFragmentDoc = gql`
+  fragment VendorChangeRequest on vendor_change_requests {
+    id
+    status
+    category
+    is_deleted
+    approved_at
+    created_at
+    deleted_at
+    ...VendorChangeRequestLimited
+  }
+  ${VendorChangeRequestLimitedFragmentDoc}
 `;
 export const GetAdvancesDocument = gql`
   subscription GetAdvances {
@@ -42176,6 +42385,170 @@ export type GetMetrcDownloadSummaryQueryResult = Apollo.QueryResult<
   GetMetrcDownloadSummaryQuery,
   GetMetrcDownloadSummaryQueryVariables
 >;
+export const GetVendorPartnershipDocument = gql`
+  query GetVendorPartnership($id: uuid!) {
+    company_vendor_partnerships_by_pk(id: $id) {
+      ...VendorPartnershipLimited
+      company {
+        ...Company
+        ...AllCompanyUsersForBank
+      }
+      vendor {
+        id
+        settings {
+          id
+        }
+        users(
+          where: {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+        ) {
+          id
+          ...Contact
+        }
+      }
+    }
+  }
+  ${VendorPartnershipLimitedFragmentDoc}
+  ${CompanyFragmentDoc}
+  ${AllCompanyUsersForBankFragmentDoc}
+  ${ContactFragmentDoc}
+`;
+
+/**
+ * __useGetVendorPartnershipQuery__
+ *
+ * To run a query within a React component, call `useGetVendorPartnershipQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetVendorPartnershipQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetVendorPartnershipQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetVendorPartnershipQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetVendorPartnershipQuery,
+    GetVendorPartnershipQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetVendorPartnershipQuery,
+    GetVendorPartnershipQueryVariables
+  >(GetVendorPartnershipDocument, baseOptions);
+}
+export function useGetVendorPartnershipLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetVendorPartnershipQuery,
+    GetVendorPartnershipQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetVendorPartnershipQuery,
+    GetVendorPartnershipQueryVariables
+  >(GetVendorPartnershipDocument, baseOptions);
+}
+export type GetVendorPartnershipQueryHookResult = ReturnType<
+  typeof useGetVendorPartnershipQuery
+>;
+export type GetVendorPartnershipLazyQueryHookResult = ReturnType<
+  typeof useGetVendorPartnershipLazyQuery
+>;
+export type GetVendorPartnershipQueryResult = Apollo.QueryResult<
+  GetVendorPartnershipQuery,
+  GetVendorPartnershipQueryVariables
+>;
+export const GetVendorContactsDocument = gql`
+  query GetVendorContacts($id: uuid!) {
+    company_vendor_partnerships_by_pk(id: $id) {
+      ...VendorPartnershipLimited
+      company {
+        ...Company
+      }
+      vendor {
+        id
+        users(
+          where: {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+        ) {
+          id
+          ...Contact
+          ...User
+        }
+      }
+      vendor_contacts {
+        id
+        ...CompanyVendorContact
+      }
+    }
+  }
+  ${VendorPartnershipLimitedFragmentDoc}
+  ${CompanyFragmentDoc}
+  ${ContactFragmentDoc}
+  ${UserFragmentDoc}
+  ${CompanyVendorContactFragmentDoc}
+`;
+
+/**
+ * __useGetVendorContactsQuery__
+ *
+ * To run a query within a React component, call `useGetVendorContactsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetVendorContactsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetVendorContactsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetVendorContactsQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetVendorContactsQuery,
+    GetVendorContactsQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetVendorContactsQuery,
+    GetVendorContactsQueryVariables
+  >(GetVendorContactsDocument, baseOptions);
+}
+export function useGetVendorContactsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetVendorContactsQuery,
+    GetVendorContactsQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetVendorContactsQuery,
+    GetVendorContactsQueryVariables
+  >(GetVendorContactsDocument, baseOptions);
+}
+export type GetVendorContactsQueryHookResult = ReturnType<
+  typeof useGetVendorContactsQuery
+>;
+export type GetVendorContactsLazyQueryHookResult = ReturnType<
+  typeof useGetVendorContactsLazyQuery
+>;
+export type GetVendorContactsQueryResult = Apollo.QueryResult<
+  GetVendorContactsQuery,
+  GetVendorContactsQueryVariables
+>;
 export const GetVendorCompanyFileAttachmentsDocument = gql`
   query GetVendorCompanyFileAttachments($company_id: uuid!) {
     companies_by_pk(id: $company_id) {
@@ -43289,6 +43662,147 @@ export type CompanyVendorPartnershipForVendorQueryResult = Apollo.QueryResult<
   CompanyVendorPartnershipForVendorQuery,
   CompanyVendorPartnershipForVendorQueryVariables
 >;
+export const CompanyVendorPartnershipForCustomerDocument = gql`
+  query CompanyVendorPartnershipForCustomer($id: uuid!) {
+    company_vendor_partnerships(where: { id: { _eq: $id } }) {
+      id
+      vendor_bank_account {
+        ...BankAccountForVendor
+      }
+      company {
+        id
+        name
+      }
+      vendor {
+        id
+        name
+        users(
+          where: {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+        ) {
+          id
+          ...User
+        }
+      }
+    }
+  }
+  ${BankAccountForVendorFragmentDoc}
+  ${UserFragmentDoc}
+`;
+
+/**
+ * __useCompanyVendorPartnershipForCustomerQuery__
+ *
+ * To run a query within a React component, call `useCompanyVendorPartnershipForCustomerQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCompanyVendorPartnershipForCustomerQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCompanyVendorPartnershipForCustomerQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useCompanyVendorPartnershipForCustomerQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    CompanyVendorPartnershipForCustomerQuery,
+    CompanyVendorPartnershipForCustomerQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    CompanyVendorPartnershipForCustomerQuery,
+    CompanyVendorPartnershipForCustomerQueryVariables
+  >(CompanyVendorPartnershipForCustomerDocument, baseOptions);
+}
+export function useCompanyVendorPartnershipForCustomerLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    CompanyVendorPartnershipForCustomerQuery,
+    CompanyVendorPartnershipForCustomerQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    CompanyVendorPartnershipForCustomerQuery,
+    CompanyVendorPartnershipForCustomerQueryVariables
+  >(CompanyVendorPartnershipForCustomerDocument, baseOptions);
+}
+export type CompanyVendorPartnershipForCustomerQueryHookResult = ReturnType<
+  typeof useCompanyVendorPartnershipForCustomerQuery
+>;
+export type CompanyVendorPartnershipForCustomerLazyQueryHookResult = ReturnType<
+  typeof useCompanyVendorPartnershipForCustomerLazyQuery
+>;
+export type CompanyVendorPartnershipForCustomerQueryResult = Apollo.QueryResult<
+  CompanyVendorPartnershipForCustomerQuery,
+  CompanyVendorPartnershipForCustomerQueryVariables
+>;
+export const GetVendorPartnershipForContactsForCustomersDocument = gql`
+  query GetVendorPartnershipForContactsForCustomers($id: uuid!) {
+    company_vendor_contacts(where: { partnership_id: { _eq: $id } }) {
+      id
+      vendor_user_id
+      user {
+        id
+        ...User
+      }
+    }
+  }
+  ${UserFragmentDoc}
+`;
+
+/**
+ * __useGetVendorPartnershipForContactsForCustomersQuery__
+ *
+ * To run a query within a React component, call `useGetVendorPartnershipForContactsForCustomersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetVendorPartnershipForContactsForCustomersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetVendorPartnershipForContactsForCustomersQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetVendorPartnershipForContactsForCustomersQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetVendorPartnershipForContactsForCustomersQuery,
+    GetVendorPartnershipForContactsForCustomersQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetVendorPartnershipForContactsForCustomersQuery,
+    GetVendorPartnershipForContactsForCustomersQueryVariables
+  >(GetVendorPartnershipForContactsForCustomersDocument, baseOptions);
+}
+export function useGetVendorPartnershipForContactsForCustomersLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetVendorPartnershipForContactsForCustomersQuery,
+    GetVendorPartnershipForContactsForCustomersQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetVendorPartnershipForContactsForCustomersQuery,
+    GetVendorPartnershipForContactsForCustomersQueryVariables
+  >(GetVendorPartnershipForContactsForCustomersDocument, baseOptions);
+}
+export type GetVendorPartnershipForContactsForCustomersQueryHookResult =
+  ReturnType<typeof useGetVendorPartnershipForContactsForCustomersQuery>;
+export type GetVendorPartnershipForContactsForCustomersLazyQueryHookResult =
+  ReturnType<typeof useGetVendorPartnershipForContactsForCustomersLazyQuery>;
+export type GetVendorPartnershipForContactsForCustomersQueryResult =
+  Apollo.QueryResult<
+    GetVendorPartnershipForContactsForCustomersQuery,
+    GetVendorPartnershipForContactsForCustomersQueryVariables
+  >;
 export const GetCustomersWithMetadataDocument = gql`
   query GetCustomersWithMetadata($date: date) {
     customers: companies(
@@ -44022,6 +44536,169 @@ export type GetPartnershipRequestsAndInvitesByRequestingCompanyIdQueryResult =
     GetPartnershipRequestsAndInvitesByRequestingCompanyIdQuery,
     GetPartnershipRequestsAndInvitesByRequestingCompanyIdQueryVariables
   >;
+export const GetPartnershipChangeRequestsForBankDocument = gql`
+  subscription GetPartnershipChangeRequestsForBank {
+    vendor_change_requests(
+      order_by: [{ created_at: asc }]
+      where: {
+        _or: [
+          { is_deleted: { _is_null: true } }
+          { is_deleted: { _eq: false } }
+        ]
+      }
+    ) {
+      ...VendorChangeRequest
+      approved_by_user {
+        id
+        full_name
+      }
+      reviewed_by_user {
+        id
+        full_name
+      }
+      requesting_user {
+        id
+        full_name
+        company {
+          id
+          name
+        }
+      }
+      requested_vendor {
+        id
+        name
+      }
+      requesting_company {
+        id
+        name
+      }
+    }
+  }
+  ${VendorChangeRequestFragmentDoc}
+`;
+
+/**
+ * __useGetPartnershipChangeRequestsForBankSubscription__
+ *
+ * To run a query within a React component, call `useGetPartnershipChangeRequestsForBankSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetPartnershipChangeRequestsForBankSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPartnershipChangeRequestsForBankSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetPartnershipChangeRequestsForBankSubscription(
+  baseOptions?: Apollo.SubscriptionHookOptions<
+    GetPartnershipChangeRequestsForBankSubscription,
+    GetPartnershipChangeRequestsForBankSubscriptionVariables
+  >
+) {
+  return Apollo.useSubscription<
+    GetPartnershipChangeRequestsForBankSubscription,
+    GetPartnershipChangeRequestsForBankSubscriptionVariables
+  >(GetPartnershipChangeRequestsForBankDocument, baseOptions);
+}
+export type GetPartnershipChangeRequestsForBankSubscriptionHookResult =
+  ReturnType<typeof useGetPartnershipChangeRequestsForBankSubscription>;
+export type GetPartnershipChangeRequestsForBankSubscriptionResult =
+  Apollo.SubscriptionResult<GetPartnershipChangeRequestsForBankSubscription>;
+export const GetPartnershipChangeDetailsByIdDocument = gql`
+  query GetPartnershipChangeDetailsById($requestId: uuid!) {
+    vendor_change_requests_by_pk(id: $requestId) {
+      ...VendorChangeRequest
+      approved_by_user {
+        id
+        full_name
+      }
+      reviewed_by_user {
+        id
+        full_name
+      }
+      requesting_user {
+        id
+        full_name
+        company {
+          id
+        }
+      }
+      requested_vendor {
+        id
+        name
+        users {
+          id
+          ...User
+        }
+        company_vendor_partnerships_by_vendor {
+          id
+          company {
+            id
+            name
+          }
+        }
+      }
+      requesting_company {
+        id
+        name
+      }
+    }
+  }
+  ${VendorChangeRequestFragmentDoc}
+  ${UserFragmentDoc}
+`;
+
+/**
+ * __useGetPartnershipChangeDetailsByIdQuery__
+ *
+ * To run a query within a React component, call `useGetPartnershipChangeDetailsByIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPartnershipChangeDetailsByIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPartnershipChangeDetailsByIdQuery({
+ *   variables: {
+ *      requestId: // value for 'requestId'
+ *   },
+ * });
+ */
+export function useGetPartnershipChangeDetailsByIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetPartnershipChangeDetailsByIdQuery,
+    GetPartnershipChangeDetailsByIdQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetPartnershipChangeDetailsByIdQuery,
+    GetPartnershipChangeDetailsByIdQueryVariables
+  >(GetPartnershipChangeDetailsByIdDocument, baseOptions);
+}
+export function useGetPartnershipChangeDetailsByIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetPartnershipChangeDetailsByIdQuery,
+    GetPartnershipChangeDetailsByIdQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetPartnershipChangeDetailsByIdQuery,
+    GetPartnershipChangeDetailsByIdQueryVariables
+  >(GetPartnershipChangeDetailsByIdDocument, baseOptions);
+}
+export type GetPartnershipChangeDetailsByIdQueryHookResult = ReturnType<
+  typeof useGetPartnershipChangeDetailsByIdQuery
+>;
+export type GetPartnershipChangeDetailsByIdLazyQueryHookResult = ReturnType<
+  typeof useGetPartnershipChangeDetailsByIdLazyQuery
+>;
+export type GetPartnershipChangeDetailsByIdQueryResult = Apollo.QueryResult<
+  GetPartnershipChangeDetailsByIdQuery,
+  GetPartnershipChangeDetailsByIdQueryVariables
+>;
 export const GetUserByIdDocument = gql`
   query GetUserById($id: uuid!) {
     users_by_pk(id: $id) {

@@ -48,6 +48,9 @@ interface Props {
     | VendorPartnershipFragment
     | VendorPartnershipLimitedFragment
   )[];
+  isMultiSelectEnabled?: boolean;
+  setSelectedVendorIds?: (vendorId: VendorPartnershipFragment["id"]) => void;
+  selectedVendorIds?: VendorPartnershipFragment["id"][];
 }
 
 export default function VendorPartnershipsDataGrid({
@@ -56,6 +59,9 @@ export default function VendorPartnershipsDataGrid({
   isRoleBankUser = false,
   isVendorAgreementVisible = true,
   vendorPartnerships,
+  isMultiSelectEnabled = false,
+  setSelectedVendorIds,
+  selectedVendorIds,
 }: Props) {
   const [selectedVendorPartnershipId, setSelectedVendorPartnershipId] =
     useState<CompanyVendorPartnerships["id"] | null>(null);
@@ -85,7 +91,9 @@ export default function VendorPartnershipsDataGrid({
         width: ColumnWidths.Open,
         cellRender: (params: ValueFormatterParams) => (
           <ClickableDataGridCell
-            onClick={() => setSelectedVendorPartnershipId(params.row.data.id)}
+            onClick={() => {
+              setSelectedVendorPartnershipId(params.row.data.id);
+            }}
             label={"OPEN"}
           />
         ),
@@ -151,6 +159,20 @@ export default function VendorPartnershipsDataGrid({
         width: ColumnWidths.Checkbox,
         cellRender: verificationCellRenderer,
       },
+      {
+        dataField: "phone_number",
+        caption: "Phone Number",
+        alignment: "center",
+        width: ColumnWidths.Type,
+        cellRender: verificationCellRenderer,
+      },
+      {
+        dataField: "email",
+        caption: "Email",
+        alignment: "center",
+        width: ColumnWidths.Type,
+        cellRender: verificationCellRenderer,
+      },
     ],
     [
       isDrilldownByCustomer,
@@ -163,13 +185,23 @@ export default function VendorPartnershipsDataGrid({
 
   // Example of columns sorting callback
   const onSortingChanged = (index: number, order: string) => {
-    console.log(index, order);
+    // Stub in case needed
   };
 
   // Example of columns filtering callback
   const onFilteringChanged = (index: number, value: string) => {
-    console.log(index, value);
+    // Stub in case needed
   };
+
+  const handleSelectionChanged = useMemo(
+    () =>
+      ({ selectedRowsData }: any) =>
+        setSelectedVendorIds &&
+        setSelectedVendorIds(
+          selectedRowsData as VendorPartnershipLimitedFragment[]
+        ),
+    [setSelectedVendorIds]
+  );
 
   return (
     <>
@@ -180,11 +212,14 @@ export default function VendorPartnershipsDataGrid({
         />
       )}
       <ControlledDataGrid
+        select={isMultiSelectEnabled}
         isExcelExport={isExcelExport}
         pager
         dataSource={rows}
         onSortingChanged={onSortingChanged}
         onFilteringChanged={onFilteringChanged}
+        onSelectionChanged={handleSelectionChanged}
+        selectedRowKeys={selectedVendorIds}
         columns={columns}
       />
     </>

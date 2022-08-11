@@ -4,20 +4,21 @@ from typing import Any, cast
 
 from bespoke import errors
 from bespoke.audit import events
-from bespoke.companies import create_company_util, partnership_util
+from bespoke.companies import create_company_util, partnership_util, vendor_change_util
 from bespoke.db import db_constants, models
-from bespoke.db.models import session_scope
+from bespoke.db.models import session_scope, User
 from bespoke.db.db_constants import TwoFactorMessageMethod, CompanyType, PartnershipRequestType
 from bespoke.date import date_util
 from bespoke.email import sendgrid_util
 from bespoke.finance import contract_util
-from server.config import Config
+from server.config import Config, get_config
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from server.views.common import auth_util, handler_util
 from server.views.common.auth_util import UserSession
 
 handler = Blueprint('companies', __name__)
+config = get_config()
 
 class CreateCustomerView(MethodView):
 	decorators = [auth_util.bank_admin_required]
@@ -961,6 +962,227 @@ class UpsertDealOwnerView(MethodView):
 			'status': 'OK'
 		}), 200)
 
+
+class ApproveVendorChangeView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		form = json.loads(request.data)
+		user_session = UserSession.from_session()
+		sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
+
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'vendor_change_request_id',
+		]
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in request')
+
+		vendor_change_request_id = form['vendor_change_request_id']
+		with session_scope(current_app.session_maker) as session:
+
+			data_for_template, err = vendor_change_util.approve_vendor_change_request(
+				session = session,
+				vendor_change_request_id = vendor_change_request_id,
+				bank_admin_user_id = user_session.get_user_id(),
+			)
+			if err:
+				raise err
+
+			template_data = {
+				'request_category': data_for_template['request_category'],
+				'customer_name': data_for_template['user_name'],
+				'vendor_name': data_for_template['vendor_name'],
+			}
+
+			_, err = sendgrid_client.send(
+				sendgrid_util.TemplateNames.ALERT_VENDOR_CHANGE_REQUEST_APPROVED,
+				template_data, 
+				recipients = [ data_for_template['user_email'] ],
+				cc_recipients = [ config.NO_REPLY_EMAIL_ADDRESS ]
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK',
+		}))
+
+class DeleteVendorChangeView(MethodView):
+	decorators = [auth_util.login_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		form = json.loads(request.data)
+		user_session = UserSession.from_session()
+
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'vendor_change_request_id',
+		]
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in request')
+
+		vendor_change_request_id = form['vendor_change_request_id']
+
+		with session_scope(current_app.session_maker) as session:
+
+			_, err = vendor_change_util.delete_vendor_change_request(
+				session=session,
+				vendor_change_request_id=vendor_change_request_id,
+				bank_admin_user_id=user_session.get_user_id(),
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK',
+		}))
+
+class CreateEditVendorContactsView(MethodView):
+	decorators = [auth_util.login_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		form = json.loads(request.data)
+		user_session = UserSession.from_session()
+		sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
+
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'requested_vendor_id',
+			'first_name',
+			'last_name',
+			'phone_number',
+			'email',
+			'vendor_user_id',
+			'requesting_company_id',
+		]
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in vendor contact info change request')
+
+		with session_scope(current_app.session_maker) as session:
+
+			data_for_template, err = vendor_change_util.create_edit_vendor_change_request(
+				session = session,
+				requested_vendor_id = form['requested_vendor_id'],
+				requesting_user_id = user_session.get_user_id(),
+				vendor_user_id = form['vendor_user_id'], 
+				first_name = form['first_name'],
+				last_name = form['last_name'],
+				email = form['email'],
+				phone_number = form['phone_number'],
+				requesting_company_id = form['requesting_company_id']
+			)
+			if err:
+				raise err
+
+			template_data = {
+				'customer_name': data_for_template['customer_name'],
+				'partner_name': data_for_template['vendor_name'],
+				'change_type': "change vendor contact info"
+			}
+
+			_, err = sendgrid_client.send(
+				sendgrid_util.TemplateNames.ALERT_VENDOR_CHANGE_REQUEST,
+				template_data, 
+				recipients = sendgrid_client.get_bank_notify_email_addresses()
+			)
+
+		return make_response(json.dumps({
+			'status': 'OK',
+		}))
+
+class CreateChangeVendorContactsView(MethodView):
+	decorators = [auth_util.login_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		form = json.loads(request.data)
+		user_session = UserSession.from_session()
+
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'requested_vendor_id',
+			'requesting_company_id',
+			'new_users',
+			'delete_users'
+		]
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in request')
+
+		with session_scope(current_app.session_maker) as session:
+
+			_, err = vendor_change_util.create_change_vendor_change_request(
+				session=session,
+				requested_vendor_id=form['requested_vendor_id'],
+				requesting_user_id=user_session.get_user_id(),
+				new_users=form['new_users'],
+				delete_users=form['delete_users'],
+				requesting_company_id=form['requesting_company_id']
+			)
+			if err:
+				raise err
+
+		#  email here
+		sendgrid_client = cast(
+				sendgrid_util.Client,
+				current_app.sendgrid_client,
+			)
+
+		user = cast(
+			models.User,
+			session.query(models.User).filter(
+				models.User.id == user_session.get_user_id()
+			).first())
+
+		vendor = cast(
+			models.Company,
+			session.query(models.Company).filter(
+				models.Company.id == form['requested_vendor_id']
+			).first())
+
+
+		# move vendor to util function
+		# move user to util function
+		# if request from bank user
+		#     look for function usage of models_util.get_active_users
+		# else
+		#     just use the requesting user's email for recipients
+
+		template_data = {
+			'customer_name': user.first_name,
+			'partner_name': vendor.name,
+			'change_type': "change vendor contacts"
+		}
+
+		_, err = sendgrid_client.send(
+			sendgrid_util.TemplateNames.ALERT_VENDOR_CHANGE_REQUEST,
+			template_data, 
+			recipients = sendgrid_client.get_bank_notify_email_addresses(),
+		)
+
+		return make_response(json.dumps({
+			'status': 'OK',
+		}))
+
 handler.add_url_rule(
 	'/create_customer', view_func=CreateCustomerView.as_view(name='create_customer_view'))
 
@@ -1014,3 +1236,15 @@ handler.add_url_rule(
 
 handler.add_url_rule(
 	'/approve_partnership', view_func=ApprovePartnershipView.as_view(name='approve_partnership_view'))
+
+handler.add_url_rule(
+	'/approve_vendor_change', view_func=ApproveVendorChangeView.as_view(name='approve_vendor_change_view'))
+
+handler.add_url_rule(
+	'/delete_vendor_change', view_func=DeleteVendorChangeView.as_view(name='delete_vendor_change_view'))
+
+handler.add_url_rule(
+	'/create_edit_vendor_contacts', view_func=CreateEditVendorContactsView.as_view(name='create_edit_vendor_contacts_view'))
+
+handler.add_url_rule(
+	'/create_change_vendor_contacts', view_func=CreateChangeVendorContactsView.as_view(name='create_change_vendor_contacts_view'))

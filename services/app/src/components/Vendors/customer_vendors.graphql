@@ -74,3 +74,48 @@ query CompanyVendorPartnershipForVendor($companyId: uuid!, $vendorId: uuid!) {
     }
   }
 }
+
+query CompanyVendorPartnershipForCustomer($id: uuid!) {
+  company_vendor_partnerships(
+    where: 
+      { id: { _eq: $id } }
+  ) {
+    id
+    vendor_bank_account {
+      ...BankAccountForVendor
+    }
+    company {
+      id
+      name
+    }
+    vendor {
+      id 
+      name
+      users(
+        where: {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+      ) {
+        id
+        ...User
+      }
+    }
+  }
+}
+
+query GetVendorPartnershipForContactsForCustomers($id: uuid!) {
+  company_vendor_contacts(
+    where: 
+      { partnership_id: { _eq: $id } }
+  ) { 
+    id
+    vendor_user_id 
+    user {
+      id
+      ...User
+    }
+  }
+}

@@ -3,6 +3,7 @@ import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
 import PartnershipsActionRequiredTab from "pages/Bank/Partnerships/ActionRequiredTab";
 import PartnershipsClosedTab from "pages/Bank/Partnerships/ClosedTab";
+import ContactChangeTab from "pages/Bank/Partnerships/ContactChangeTab";
 import InvitedTab from "pages/Bank/Partnerships/InvitedTab";
 import { useState } from "react";
 import styled from "styled-components";
@@ -38,14 +39,17 @@ function BankPartnershipsPage() {
             <Tab label="Action Required" />
             <Tab label="Closed Requests" />
             <Tab label="Pending Vendor Invites" />
+            <Tab label="Pending Contact Changes" />
           </Tabs>
           <SectionSpace />
           {selectedTabIndex === 0 ? (
             <PartnershipsActionRequiredTab />
           ) : selectedTabIndex === 1 ? (
             <PartnershipsClosedTab />
-          ) : (
+          ) : selectedTabIndex === 2 ? (
             <InvitedTab />
+          ) : (
+            <ContactChangeTab />
           )}
         </Container>
       </PageContent>

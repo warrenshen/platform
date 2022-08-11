@@ -1676,6 +1676,7 @@ class VendorChangeRequests(Base):
 	approved_at = Column(DateTime, nullable=True)
 	approved_by_user_id = cast(GUID, Column(GUID, ForeignKey('users.id'), nullable=True))
 	reviewed_by_user_id = cast(GUID, Column(GUID, ForeignKey('users.id'), nullable=True))
+	requesting_company_id = cast(GUID, Column(GUID, ForeignKey('companies.id'), nullable=True))
 
 	category = Column(String, nullable=False) # enum: VendorChangeRequestsCategoryEnum
 	status = Column(String, nullable=False) # enum: VendorChangeRequestsStatusEnum

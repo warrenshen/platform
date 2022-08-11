@@ -988,12 +988,25 @@ export enum AsyncJobNameEnum {
 
 export enum VendorChangeRequestsStatusEnum {
   ApprovalRequested = "approval_requested",
-  InReview = "in_review",
+  //InReview = "in_review",
   Approved = "approved",
-  Rejected = "rejected",
+  //Rejected = "rejected",
 }
+
+export const VendorChangeRequestsStatusToLabel = {
+  [VendorChangeRequestsStatusEnum.ApprovalRequested]: "Approval Requested",
+  //[VendorChangeRequestsStatusEnum.InReview]: "In Review",
+  [VendorChangeRequestsStatusEnum.Approved]: "Approved",
+  //[VendorChangeRequestsStatusEnum.Rejected]: "Rejected",
+};
 
 export enum VendorChangeRequestsCategoryEnum {
   PartnershipContactChange = "partnership_contact_change",
   ContactInfoChange = "contact_info_change",
 }
+
+export const VendorChangeRequestsCategoryToLabel = {
+  [VendorChangeRequestsCategoryEnum.PartnershipContactChange]:
+    "Partnership Contact Change",
+  [VendorChangeRequestsCategoryEnum.ContactInfoChange]: "Contact Info Change",
+};
