@@ -6,7 +6,7 @@ import argparse
 import os
 import sys
 from os import path
-from typing import cast
+from typing import cast, List
 
 # Path hack before we try to import bespoke
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
@@ -88,6 +88,20 @@ def main(
 					approved_at=date_util.now() if from_vendor_partnership.approved_at != None else None,
 				)
 				session.add(new_to_vendor_partnership)
+				session.flush()
+
+				# Copy over partnership contacts
+				from_vendor_contacts = cast(
+					List[models.CompanyVendorContact],
+					session.query(models.CompanyVendorContact).filter(
+						models.CompanyVendorContact.partnership_id == from_vendor_partnership.id
+					).all())
+
+				for from_vendor_contact in from_vendor_contacts:
+					session.add(models.CompanyVendorContact(
+						partnership_id = str(new_to_vendor_partnership.id),
+						vendor_user_id = str(from_vendor_contact.vendor_user_id),
+					))
 
 		print(f'Successful copy!')
 
