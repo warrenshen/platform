@@ -473,7 +473,7 @@ export default function CreateUpdatePurchaseOrderModal({
     !purchaseOrderFiles ||
     (!!purchaseOrder.is_cannabis && purchaseOrderCannabisFiles.length <= 0);
   const isPrimaryActionDisabled = isActionTypeUpdate
-    ? isSecondaryActionDisabled
+    ? isSecondaryActionDisabled || !isDueDateValid
     : isSecondaryActionDisabled ||
       (isMetrcBased && isPrimaryActionDisabledMetrc) ||
       (!isMetrcBased && isPrimaryActionDisabledManual);

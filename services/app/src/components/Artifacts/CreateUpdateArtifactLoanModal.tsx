@@ -12,6 +12,7 @@ import {
   LoansInsertInput,
   Scalars,
   useGetLoanForCustomerQuery,
+  useGetPurchaseOrderForCustomerQuery,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -24,6 +25,7 @@ import {
 } from "lib/enum";
 import { Artifact } from "lib/finance/loans/artifacts";
 import { formatCurrency } from "lib/number";
+import { isPurchaseOrderDueDateValid } from "lib/purchaseOrders";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useMemo, useState } from "react";
 
@@ -162,7 +164,6 @@ export default function CreateUpdateArtifactLoanModal({
     }
   };
 
-  const isDialogReady = !isExistingLoanLoading;
   const isFormValid = !!loan.artifact_id;
   const isFormLoading = isSaveLoanLoading || isSubmitLoanLoading;
   const isSaveDraftDisabled = !isFormValid || isFormLoading;
@@ -189,6 +190,27 @@ export default function CreateUpdateArtifactLoanModal({
     disabledSubmitReasons.push("Amount is not specified");
   }
 
+  const { data, loading: isPurchaseOrderLoading } =
+    useGetPurchaseOrderForCustomerQuery({
+      variables: {
+        id: loan.artifact_id,
+      },
+    });
+
+  const purchaseOrder = data?.purchase_orders_by_pk;
+
+  const { isDueDateValid } = isPurchaseOrderDueDateValid(
+    purchaseOrder?.order_date,
+    purchaseOrder?.net_terms
+  );
+
+  if (!isDueDateValid) {
+    disabledSubmitReasons.push(
+      "You may only fund purchase orders with a due date within the past 60 days"
+    );
+  }
+
+  const isDialogReady = !isExistingLoanLoading && !isPurchaseOrderLoading;
   const isSaveSubmitDisabled = disabledSubmitReasons.length > 0;
 
   // If the purchase order ID is being passed in through the props, this means that the
