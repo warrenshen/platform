@@ -262,6 +262,12 @@ fragment PurchaseOrder on purchase_orders {
   ...PurchaseOrderLimited
 }
 
+fragment PurchaseOrderNew on purchase_orders {
+  id
+  bank_note
+  ...PurchaseOrderLimitedNew
+}
+
 fragment PurchaseOrderForDebtFacility on purchase_orders {
   id
   bank_note

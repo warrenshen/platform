@@ -7,19 +7,19 @@ import {
   makeStyles,
 } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
-import CreateMultiplePurchaseOrdersLoansModal from "components/Loan/CreateMultiplePurchaseOrdersLoansModal";
-import CreateUpdatePurchaseOrderLoanModal from "components/Loan/CreateUpdatePurchaseOrderLoanModal";
-import ClosePurchaseOrderModal from "components/PurchaseOrder/ClosePurchaseOrderModal";
+import ArchivePurchaseOrderModal from "components/PurchaseOrder/ArchivePurchaseOrderModal";
 import CreateUpdatePurchaseOrderModalNew from "components/PurchaseOrder/CreateUpdatePurchaseOrderModalNew";
 import DeletePurchaseOrderModal from "components/PurchaseOrder/DeletePurchaseOrderModal";
+import EditFinancialRequestPurchaseOrderModal from "components/PurchaseOrder/EditFinancialRequestPurchaseOrderModal";
 import PurchaseOrdersDataGrid from "components/PurchaseOrder/PurchaseOrdersDataGrid";
+import PurchaseOrdersDataGridNew from "components/PurchaseOrder/PurchaseOrdersDataGridNew";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import {
   Companies,
-  PurchaseOrderFragment,
+  PurchaseOrderNewFragment,
   PurchaseOrders,
-  useGetOpenPurchaseOrdersByCompanyIdQuery,
+  useGetOpenPurchaseOrdersByCompanyIdNewQuery,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -58,7 +58,7 @@ export default function CustomerPurchaseOrdersOpenTabNew({
   const classes = useStyles();
   const snackbar = useSnackbar();
 
-  const { data, error, refetch } = useGetOpenPurchaseOrdersByCompanyIdQuery({
+  const { data, error, refetch } = useGetOpenPurchaseOrdersByCompanyIdNewQuery({
     fetchPolicy: "network-only",
     variables: {
       company_id: companyId,
@@ -102,7 +102,7 @@ export default function CustomerPurchaseOrdersOpenTabNew({
   );
 
   const handleSelectPurchaseOrders = useMemo(
-    () => (purchaseOrders: PurchaseOrderFragment[]) =>
+    () => (purchaseOrders: PurchaseOrderNewFragment[]) =>
       setSelectedNotApprovedPurchaseOrderIds(
         purchaseOrders.map((purchaseOrder) => purchaseOrder.id)
       ),
@@ -132,7 +132,7 @@ export default function CustomerPurchaseOrdersOpenTabNew({
   );
 
   const handleSelectApprovedPurchaseOrders = useMemo(
-    () => (purchaseOrders: PurchaseOrderFragment[]) =>
+    () => (purchaseOrders: PurchaseOrderNewFragment[]) =>
       setSelectedApprovedPurchaseOrderIds(
         purchaseOrders.map((purchaseOrder) => purchaseOrder.id)
       ),
@@ -291,102 +291,45 @@ export default function CustomerPurchaseOrdersOpenTabNew({
         >
           <Typography variant="h6">Ready to Request Financing</Typography>
           <Box my={2} display="flex" flexDirection="row-reverse">
-            <Can perform={Action.FundPurchaseOrders}>
-              <Box>
-                <ModalButton
-                  isDisabled={selectedApprovedPurchaseOrderIds.length <= 0}
-                  label={"Request PO Financing"}
-                  modal={({ handleClose }) => {
-                    const handler = () => {
+            <Box mr={2}>
+              <ModalButton
+                isDisabled={!selectedApprovedPurchaseOrder}
+                label={"Edit Financing Request"}
+                variant={"outlined"}
+                modal={({ handleClose }) => (
+                  <EditFinancialRequestPurchaseOrderModal
+                    purchaseOrderId={selectedApprovedPurchaseOrder?.id}
+                    handleClose={() => {
                       refetch();
                       handleClose();
                       setSelectedApprovedPurchaseOrderIds([]);
-                    };
-                    return selectedApprovedPurchaseOrderIds.length > 1 ? (
-                      <CreateMultiplePurchaseOrdersLoansModal
-                        companyId={companyId}
-                        artifactIds={selectedApprovedPurchaseOrderIds}
-                        handleClose={handler}
-                      />
-                    ) : (
-                      <CreateUpdatePurchaseOrderLoanModal
-                        actionType={ActionType.New}
-                        companyId={companyId}
-                        productType={productType}
-                        loanId={null}
-                        artifactId={selectedApprovedPurchaseOrderIds[0]}
-                        handleClose={handler}
-                      />
-                    );
-                  }}
-                />
-              </Box>
-            </Can>
-            <Can perform={Action.EditPurchaseOrders}>
-              <Box mr={2}>
-                <ModalButton
-                  isDisabled={!selectedApprovedPurchaseOrder}
-                  label={"Edit PO"}
-                  modal={({ handleClose }) => (
-                    <CreateUpdatePurchaseOrderModalNew
-                      actionType={ActionType.Update}
-                      companyId={companyId}
-                      purchaseOrderId={selectedApprovedPurchaseOrder?.id}
-                      productType={productType}
-                      handleClose={() => {
-                        refetch();
-                        handleClose();
-                        setSelectedApprovedPurchaseOrderIds([]);
-                      }}
-                    />
-                  )}
-                />
-              </Box>
-            </Can>
-            <Can perform={Action.ClosePurchaseOrders}>
-              <Box mr={2}>
-                <ModalButton
-                  isDisabled={!selectedApprovedPurchaseOrder}
-                  label={"Close PO"}
-                  variant={"outlined"}
-                  modal={({ handleClose }) => (
-                    <ClosePurchaseOrderModal
-                      purchaseOrder={selectedApprovedPurchaseOrder || null}
-                      handleClose={() => {
-                        refetch();
-                        handleClose();
-                        setSelectedApprovedPurchaseOrderIds([]);
-                      }}
-                    />
-                  )}
-                />
-              </Box>
-            </Can>
-            {!!selectedApprovedPurchaseOrder && (
-              <Can perform={Action.DeletePurchaseOrders}>
-                <Box mr={2}>
-                  <ModalButton
-                    isDisabled={!selectedApprovedPurchaseOrder}
-                    label={"Delete PO"}
-                    variant={"outlined"}
-                    modal={({ handleClose }) => (
-                      <DeletePurchaseOrderModal
-                        purchaseOrderId={selectedApprovedPurchaseOrder?.id}
-                        handleClose={() => {
-                          refetch();
-                          handleClose();
-                          setSelectedApprovedPurchaseOrderIds([]);
-                        }}
-                      />
-                    )}
+                    }}
                   />
-                </Box>
-              </Can>
-            )}
+                )}
+              />
+            </Box>
+            <Box mr={2}>
+              <ModalButton
+                isDisabled={!selectedApprovedPurchaseOrder}
+                label={"Archive"}
+                variant={"outlined"}
+                modal={({ handleClose }) => (
+                  <ArchivePurchaseOrderModal
+                    purchaseOrderId={selectedApprovedPurchaseOrder?.id}
+                    handleClose={() => {
+                      refetch();
+                      handleClose();
+                      setSelectedApprovedPurchaseOrderIds([]);
+                    }}
+                  />
+                )}
+              />
+            </Box>
           </Box>
-          <PurchaseOrdersDataGrid
+          <PurchaseOrdersDataGridNew
             isCompanyVisible={false}
             purchaseOrders={approvedPurchaseOrders}
+            isFilteringEnabled={true}
             selectedPurchaseOrderIds={selectedApprovedPurchaseOrderIds}
             handleSelectPurchaseOrders={handleSelectApprovedPurchaseOrders}
           />

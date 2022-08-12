@@ -810,6 +810,7 @@ export type BankAccounts = {
   company?: Maybe<Companies>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  file_id?: Maybe<Scalars["uuid"]>;
   id: Scalars["uuid"];
   intermediary_account_name?: Maybe<Scalars["String"]>;
   intermediary_account_number?: Maybe<Scalars["String"]>;
@@ -922,6 +923,7 @@ export type BankAccountsBoolExp = {
   company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
+  file_id?: Maybe<UuidComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   intermediary_account_name?: Maybe<StringComparisonExp>;
   intermediary_account_number?: Maybe<StringComparisonExp>;
@@ -967,6 +969,7 @@ export type BankAccountsInsertInput = {
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  file_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
   intermediary_account_name?: Maybe<Scalars["String"]>;
   intermediary_account_number?: Maybe<Scalars["String"]>;
@@ -1000,6 +1003,7 @@ export type BankAccountsMaxFields = {
   bank_name?: Maybe<Scalars["String"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  file_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
   intermediary_account_name?: Maybe<Scalars["String"]>;
   intermediary_account_number?: Maybe<Scalars["String"]>;
@@ -1030,6 +1034,7 @@ export type BankAccountsMaxOrderBy = {
   bank_name?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
+  file_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   intermediary_account_name?: Maybe<OrderBy>;
   intermediary_account_number?: Maybe<OrderBy>;
@@ -1060,6 +1065,7 @@ export type BankAccountsMinFields = {
   bank_name?: Maybe<Scalars["String"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  file_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
   intermediary_account_name?: Maybe<Scalars["String"]>;
   intermediary_account_number?: Maybe<Scalars["String"]>;
@@ -1090,6 +1096,7 @@ export type BankAccountsMinOrderBy = {
   bank_name?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
+  file_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   intermediary_account_name?: Maybe<OrderBy>;
   intermediary_account_number?: Maybe<OrderBy>;
@@ -1148,6 +1155,7 @@ export type BankAccountsOrderBy = {
   company?: Maybe<CompaniesOrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
+  file_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   intermediary_account_name?: Maybe<OrderBy>;
   intermediary_account_number?: Maybe<OrderBy>;
@@ -1199,6 +1207,8 @@ export enum BankAccountsSelectColumn {
   CompanyId = "company_id",
   /** column name */
   CreatedAt = "created_at",
+  /** column name */
+  FileId = "file_id",
   /** column name */
   Id = "id",
   /** column name */
@@ -1254,6 +1264,7 @@ export type BankAccountsSetInput = {
   can_wire?: Maybe<Scalars["Boolean"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  file_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
   intermediary_account_name?: Maybe<Scalars["String"]>;
   intermediary_account_number?: Maybe<Scalars["String"]>;
@@ -1300,6 +1311,8 @@ export enum BankAccountsUpdateColumn {
   CompanyId = "company_id",
   /** column name */
   CreatedAt = "created_at",
+  /** column name */
+  FileId = "file_id",
   /** column name */
   Id = "id",
   /** column name */
@@ -7121,6 +7134,8 @@ export type CustomerSurveillanceResultsBoolExp = {
 
 /** unique or primary key constraints on table "customer_surveillance_results" */
 export enum CustomerSurveillanceResultsConstraint {
+  /** unique or primary key constraint */
+  CompanyProductQualificationsCompanyIdQualifyingDateKey = "company_product_qualifications_company_id_qualifying_date_key",
   /** unique or primary key constraint */
   CompanyProductQualificationsPkey = "company_product_qualifications_pkey",
 }
@@ -29301,6 +29316,19 @@ export type GetOpenPurchaseOrdersByCompanyIdQuery = {
   purchase_orders: Array<PurchaseOrderLimitedFragment>;
 };
 
+export type GetOpenPurchaseOrdersByCompanyIdNewQueryVariables = Exact<{
+  company_id: Scalars["uuid"];
+}>;
+
+export type GetOpenPurchaseOrdersByCompanyIdNewQuery = {
+  companies_by_pk?: Maybe<
+    Pick<Companies, "id"> & {
+      settings?: Maybe<Pick<CompanySettings, "id" | "has_autofinancing">>;
+    }
+  >;
+  purchase_orders: Array<PurchaseOrderLimitedNewFragment>;
+};
+
 export type GetClosedPurchaseOrdersByCompanyIdQueryVariables = Exact<{
   company_id: Scalars["uuid"];
 }>;
@@ -30731,6 +30759,12 @@ export type VendorFragment = Pick<
 export type PurchaseOrderFragment = Pick<PurchaseOrders, "id" | "bank_note"> &
   PurchaseOrderLimitedFragment;
 
+export type PurchaseOrderNewFragment = Pick<
+  PurchaseOrders,
+  "id" | "bank_note"
+> &
+  PurchaseOrderLimitedNewFragment;
+
 export type PurchaseOrderForDebtFacilityFragment = Pick<
   PurchaseOrders,
   "id" | "bank_note"
@@ -31054,6 +31088,39 @@ export type PurchaseOrderLimitedFragment = Pick<
   | "is_cannabis"
   | "is_metrc_based"
   | "status"
+  | "rejection_note"
+  | "bank_rejection_note"
+  | "bank_incomplete_note"
+  | "incompleted_at"
+  | "rejected_at"
+  | "customer_note"
+  | "created_at"
+  | "requested_at"
+  | "rejected_by_user_id"
+  | "approved_at"
+  | "approved_by_user_id"
+  | "funded_at"
+  | "closed_at"
+> & {
+  company: Pick<Companies, "id"> & CompanyLimitedFragment;
+  vendor?: Maybe<Pick<Vendors, "id"> & VendorLimitedFragment>;
+};
+
+export type PurchaseOrderLimitedNewFragment = Pick<
+  PurchaseOrders,
+  | "id"
+  | "company_id"
+  | "vendor_id"
+  | "order_number"
+  | "order_date"
+  | "delivery_date"
+  | "net_terms"
+  | "amount"
+  | "amount_funded"
+  | "is_cannabis"
+  | "is_metrc_based"
+  | "status"
+  | "new_purchase_order_status"
   | "rejection_note"
   | "bank_rejection_note"
   | "bank_incomplete_note"
@@ -32009,6 +32076,54 @@ export const VendorFragmentDoc = gql`
     ...VendorLimited
   }
   ${VendorLimitedFragmentDoc}
+`;
+export const PurchaseOrderLimitedNewFragmentDoc = gql`
+  fragment PurchaseOrderLimitedNew on purchase_orders {
+    id
+    company_id
+    vendor_id
+    order_number
+    order_date
+    delivery_date
+    net_terms
+    amount
+    amount_funded
+    is_cannabis
+    is_metrc_based
+    status
+    new_purchase_order_status
+    rejection_note
+    bank_rejection_note
+    bank_incomplete_note
+    incompleted_at
+    rejected_at
+    customer_note
+    created_at
+    requested_at
+    rejected_by_user_id
+    approved_at
+    approved_by_user_id
+    funded_at
+    closed_at
+    company {
+      id
+      ...CompanyLimited
+    }
+    vendor {
+      id
+      ...VendorLimited
+    }
+  }
+  ${CompanyLimitedFragmentDoc}
+  ${VendorLimitedFragmentDoc}
+`;
+export const PurchaseOrderNewFragmentDoc = gql`
+  fragment PurchaseOrderNew on purchase_orders {
+    id
+    bank_note
+    ...PurchaseOrderLimitedNew
+  }
+  ${PurchaseOrderLimitedNewFragmentDoc}
 `;
 export const LoanLimitedFragmentDoc = gql`
   fragment LoanLimited on loans {
@@ -38759,6 +38874,84 @@ export type GetOpenPurchaseOrdersByCompanyIdLazyQueryHookResult = ReturnType<
 export type GetOpenPurchaseOrdersByCompanyIdQueryResult = Apollo.QueryResult<
   GetOpenPurchaseOrdersByCompanyIdQuery,
   GetOpenPurchaseOrdersByCompanyIdQueryVariables
+>;
+export const GetOpenPurchaseOrdersByCompanyIdNewDocument = gql`
+  query GetOpenPurchaseOrdersByCompanyIdNew($company_id: uuid!) {
+    companies_by_pk(id: $company_id) {
+      id
+      settings {
+        id
+        has_autofinancing
+      }
+    }
+    purchase_orders(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { company_id: { _eq: $company_id } }
+          { funded_at: { _is_null: true } }
+          { closed_at: { _is_null: true } }
+        ]
+      }
+    ) {
+      ...PurchaseOrderLimitedNew
+    }
+  }
+  ${PurchaseOrderLimitedNewFragmentDoc}
+`;
+
+/**
+ * __useGetOpenPurchaseOrdersByCompanyIdNewQuery__
+ *
+ * To run a query within a React component, call `useGetOpenPurchaseOrdersByCompanyIdNewQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOpenPurchaseOrdersByCompanyIdNewQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOpenPurchaseOrdersByCompanyIdNewQuery({
+ *   variables: {
+ *      company_id: // value for 'company_id'
+ *   },
+ * });
+ */
+export function useGetOpenPurchaseOrdersByCompanyIdNewQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetOpenPurchaseOrdersByCompanyIdNewQuery,
+    GetOpenPurchaseOrdersByCompanyIdNewQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetOpenPurchaseOrdersByCompanyIdNewQuery,
+    GetOpenPurchaseOrdersByCompanyIdNewQueryVariables
+  >(GetOpenPurchaseOrdersByCompanyIdNewDocument, baseOptions);
+}
+export function useGetOpenPurchaseOrdersByCompanyIdNewLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetOpenPurchaseOrdersByCompanyIdNewQuery,
+    GetOpenPurchaseOrdersByCompanyIdNewQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetOpenPurchaseOrdersByCompanyIdNewQuery,
+    GetOpenPurchaseOrdersByCompanyIdNewQueryVariables
+  >(GetOpenPurchaseOrdersByCompanyIdNewDocument, baseOptions);
+}
+export type GetOpenPurchaseOrdersByCompanyIdNewQueryHookResult = ReturnType<
+  typeof useGetOpenPurchaseOrdersByCompanyIdNewQuery
+>;
+export type GetOpenPurchaseOrdersByCompanyIdNewLazyQueryHookResult = ReturnType<
+  typeof useGetOpenPurchaseOrdersByCompanyIdNewLazyQuery
+>;
+export type GetOpenPurchaseOrdersByCompanyIdNewQueryResult = Apollo.QueryResult<
+  GetOpenPurchaseOrdersByCompanyIdNewQuery,
+  GetOpenPurchaseOrdersByCompanyIdNewQueryVariables
 >;
 export const GetClosedPurchaseOrdersByCompanyIdDocument = gql`
   query GetClosedPurchaseOrdersByCompanyId($company_id: uuid!) {

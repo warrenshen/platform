@@ -25,6 +25,16 @@ export function computePurchaseOrderDueDateDateStringClient(
   return !!dueDateDate ? dateAsDateStringClient(dueDateDate) : "-";
 }
 
+export function computePurchaseOrderDueDateDateClient(
+  purchaseOrder: PurchaseOrderFragment
+) {
+  const dueDateDate = computePurchaseOrderDueDate(
+    purchaseOrder.order_date,
+    purchaseOrder.net_terms as number
+  );
+  return !!dueDateDate ? dueDateDate : null;
+}
+
 export function isPurchaseOrderDueDateValid(
   orderDate: string | null | undefined,
   netTerms: number | null | undefined

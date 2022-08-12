@@ -126,6 +126,43 @@ fragment PurchaseOrderLimited on purchase_orders {
   }
 }
 
+fragment PurchaseOrderLimitedNew on purchase_orders {
+  id
+  company_id
+  vendor_id
+  order_number
+  order_date
+  delivery_date
+  net_terms
+  amount
+  amount_funded
+  is_cannabis
+  is_metrc_based
+  status
+  new_purchase_order_status
+  rejection_note
+  bank_rejection_note
+  bank_incomplete_note
+  incompleted_at
+  rejected_at
+  customer_note
+  created_at
+  requested_at
+  rejected_by_user_id
+  approved_at
+  approved_by_user_id
+  funded_at
+  closed_at
+  company {
+    id
+    ...CompanyLimited
+  }
+  vendor {
+    id
+    ...VendorLimited
+  }
+}
+
 fragment InvoiceLimited on invoices {
   id
   company_id
