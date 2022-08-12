@@ -129,23 +129,24 @@ class CalculateRepaymentEffectView(MethodView):
 		items_covered = form['items_covered']
 		should_pay_principal_first = form.get('should_pay_principal_first')
 
-		# NOTE: Fetching information is likely a slow task, so we probably want to
-		# turn this into an async operation.
-		effect_resp, err = repayment_util.calculate_repayment_effect(
-			company_id,
-			payment_option,
-			amount,
-			deposit_date,
-			settlement_date,
-			items_covered,
-			should_pay_principal_first,
-			current_app.session_maker,
-		)
-		if err:
-			return handler_util.make_error_response(err)
+		with models.session_scope(current_app.session_maker) as session:
+			# NOTE: Fetching information is likely a slow task, so we probably want to
+			# turn this into an async operation.
+			effect_resp, err = repayment_util.calculate_repayment_effect(
+				session,
+				company_id,
+				payment_option,
+				amount,
+				deposit_date,
+				settlement_date,
+				items_covered,
+				should_pay_principal_first,
+			)
+			if err:
+				return handler_util.make_error_response(err)
 
-		effect_resp['status'] = 'OK'
-		return make_response(json.dumps(effect_resp))
+			effect_resp['status'] = 'OK'
+			return make_response(json.dumps(effect_resp))
 
 class CreateRepaymentView(MethodView):
 	decorators = [auth_util.login_required]

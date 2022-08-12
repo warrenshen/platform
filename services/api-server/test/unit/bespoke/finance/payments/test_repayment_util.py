@@ -110,88 +110,88 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 					for tx in transaction_list:
 						_apply_transaction(tx, session, loan_not_selected)
 
-		resp, err = repayment_util.calculate_repayment_effect(
-			company_id=company_id,
-			payment_option=test['payment_option'],
-			amount=test['payment_input_amount'],
-			deposit_date=test['deposit_date'],
-			settlement_date=test['settlement_date'],
-			items_covered={
-				'loan_ids': loan_ids,
-				'to_account_fees': test['to_account_fees'] if 'to_account_fees' in test else 0.0,
-			},
-			should_pay_principal_first=False,
-			session_maker=session_maker
-		)
-		if test.get('in_err_msg'):
-			self.assertIsNotNone(err)
-			self.assertIn(test['in_err_msg'], err.msg)
-			return
-
-		self.assertIsNone(err)
-		self.assertEqual('OK', resp.get('status'), msg=err)
-
-		test_helper.assertIsCurrencyRounded(self, resp['data']['amount_to_pay']) # Ensure this number is always down to 2 digits
-		self.assertEqual(test['expected_amount_to_pay'], resp['data']['amount_to_pay'])
-
-		test_helper.assertIsCurrencyRounded(self, resp['data']['amount_to_account_fees'])
-		if 'expected_amount_to_account_fees' in test:
-			self.assertAlmostEqual(
-				test['expected_amount_to_account_fees'],
-				resp['data']['amount_to_account_fees']
+			resp, err = repayment_util.calculate_repayment_effect(
+				session=session,
+				company_id=company_id,
+				payment_option=test['payment_option'],
+				amount=test['payment_input_amount'],
+				deposit_date=test['deposit_date'],
+				settlement_date=test['settlement_date'],
+				items_covered={
+					'loan_ids': loan_ids,
+					'to_account_fees': test['to_account_fees'] if 'to_account_fees' in test else 0.0,
+				},
+				should_pay_principal_first=False,
 			)
-		else:
+			if test.get('in_err_msg'):
+				self.assertIsNotNone(err)
+				self.assertIn(test['in_err_msg'], err.msg)
+				return
+
+			self.assertIsNone(err)
+			self.assertEqual('OK', resp.get('status'), msg=err)
+
+			test_helper.assertIsCurrencyRounded(self, resp['data']['amount_to_pay']) # Ensure this number is always down to 2 digits
+			self.assertEqual(test['expected_amount_to_pay'], resp['data']['amount_to_pay'])
+
+			test_helper.assertIsCurrencyRounded(self, resp['data']['amount_to_account_fees'])
+			if 'expected_amount_to_account_fees' in test:
+				self.assertAlmostEqual(
+					test['expected_amount_to_account_fees'],
+					resp['data']['amount_to_account_fees']
+				)
+			else:
+				self.assertAlmostEqual(
+					0.0,
+					resp['data']['amount_to_account_fees']
+				)
+
+			test_helper.assertIsCurrencyRounded(self, resp['data']['amount_as_credit_to_user'])
 			self.assertAlmostEqual(
-				0.0,
-				resp['data']['amount_to_account_fees']
+				test['expected_amount_as_credit_to_user'],
+				resp['data']['amount_as_credit_to_user']
 			)
 
-		test_helper.assertIsCurrencyRounded(self, resp['data']['amount_as_credit_to_user'])
-		self.assertAlmostEqual(
-			test['expected_amount_as_credit_to_user'],
-			resp['data']['amount_as_credit_to_user']
-		)
+			# Assert on the expected loans afterwards
+			self.assertEqual(len(test['expected_loans_to_show']), len(resp['data']['loans_to_show']))
 
-		# Assert on the expected loans afterwards
-		self.assertEqual(len(test['expected_loans_to_show']), len(resp['data']['loans_to_show']))
+			# Loans to show will be organized by the loan_ids order passed in
+			#resp['loans_to_show'].sort(key=lambda l: l['before_loan_balance']['amount'])
 
-		# Loans to show will be organized by the loan_ids order passed in
-		#resp['loans_to_show'].sort(key=lambda l: l['before_loan_balance']['amount'])
+			for i in range(len(resp['data']['loans_to_show'])):
+				loan_to_show = resp['data']['loans_to_show'][i]
+				expected_loan_to_show = test['expected_loans_to_show'][i]
+				expected = expected_loan_to_show
+				actual = cast(Dict, loan_to_show)
+				self.assertEqual(loan_ids[i], actual['loan_id']) # assert same loan order, but use loan_ids because the loans get created in the test
+				test_helper.assertDeepAlmostEqual(self, expected['transaction'], actual['transaction'])
+				test_helper.assertDeepAlmostEqual(self, expected['before_loan_balance'], actual['before_loan_balance'])
+				test_helper.assertDeepAlmostEqual(self, expected['after_loan_balance'], actual['after_loan_balance'])
 
-		for i in range(len(resp['data']['loans_to_show'])):
-			loan_to_show = resp['data']['loans_to_show'][i]
-			expected_loan_to_show = test['expected_loans_to_show'][i]
-			expected = expected_loan_to_show
-			actual = cast(Dict, loan_to_show)
-			self.assertEqual(loan_ids[i], actual['loan_id']) # assert same loan order, but use loan_ids because the loans get created in the test
-			test_helper.assertDeepAlmostEqual(self, expected['transaction'], actual['transaction'])
-			test_helper.assertDeepAlmostEqual(self, expected['before_loan_balance'], actual['before_loan_balance'])
-			test_helper.assertDeepAlmostEqual(self, expected['after_loan_balance'], actual['after_loan_balance'])
+				test_helper.assertIsCurrencyRounded(self, loan_to_show['transaction']['amount'])
+				test_helper.assertIsCurrencyRounded(self, loan_to_show['transaction']['to_principal'])
+				test_helper.assertIsCurrencyRounded(self, loan_to_show['transaction']['to_interest'])
+				test_helper.assertIsCurrencyRounded(self, loan_to_show['transaction']['to_fees'])
 
-			test_helper.assertIsCurrencyRounded(self, loan_to_show['transaction']['amount'])
-			test_helper.assertIsCurrencyRounded(self, loan_to_show['transaction']['to_principal'])
-			test_helper.assertIsCurrencyRounded(self, loan_to_show['transaction']['to_interest'])
-			test_helper.assertIsCurrencyRounded(self, loan_to_show['transaction']['to_fees'])
+			# Assert on which loans ended up in the past due but not selected
+			# category
+			self.assertEqual(len(test['expected_past_due_but_not_selected_indices']), len(resp['data']['loans_past_due_but_not_selected']))
+			resp['data']['loans_past_due_but_not_selected'].sort(key = lambda l: l['before_loan_balance']['amount'])
 
-		# Assert on which loans ended up in the past due but not selected
-		# category
-		self.assertEqual(len(test['expected_past_due_but_not_selected_indices']), len(resp['data']['loans_past_due_but_not_selected']))
-		resp['data']['loans_past_due_but_not_selected'].sort(key = lambda l: l['before_loan_balance']['amount'])
+			for i in range(len(resp['data']['loans_past_due_but_not_selected'])):
+				actual = cast(Dict, resp['data']['loans_past_due_but_not_selected'][i])
+				cur_loan_id_past_due = resp['data']['loans_past_due_but_not_selected'][i]['loan_id']
+				expected_loan_id_past_due = loan_ids_not_selected[test['expected_past_due_but_not_selected_indices'][i]]
+				self.assertEqual(expected_loan_id_past_due, cur_loan_id_past_due)
 
-		for i in range(len(resp['data']['loans_past_due_but_not_selected'])):
-			actual = cast(Dict, resp['data']['loans_past_due_but_not_selected'][i])
-			cur_loan_id_past_due = resp['data']['loans_past_due_but_not_selected'][i]['loan_id']
-			expected_loan_id_past_due = loan_ids_not_selected[test['expected_past_due_but_not_selected_indices'][i]]
-			self.assertEqual(expected_loan_id_past_due, cur_loan_id_past_due)
-
-			# NOTE: getting lazy, but assuming that we are testing with no interest and fees
-			# calculations, and are only asserting on the amounts, e.g., the principal
-			amount = test['expected_past_due_but_not_selected_amounts'][i]
-			outstanding_principal = test['expected_past_due_but_not_selected_principal'][i]
-			self.assertAlmostEqual(amount, actual['before_loan_balance']['amount'])
-			self.assertAlmostEqual(outstanding_principal, actual['before_loan_balance']['outstanding_principal_balance'])
-			self.assertAlmostEqual(amount, actual['after_loan_balance']['amount'])
-			self.assertAlmostEqual(outstanding_principal, actual['after_loan_balance']['outstanding_principal_balance'])
+				# NOTE: getting lazy, but assuming that we are testing with no interest and fees
+				# calculations, and are only asserting on the amounts, e.g., the principal
+				amount = test['expected_past_due_but_not_selected_amounts'][i]
+				outstanding_principal = test['expected_past_due_but_not_selected_principal'][i]
+				self.assertAlmostEqual(amount, actual['before_loan_balance']['amount'])
+				self.assertAlmostEqual(outstanding_principal, actual['before_loan_balance']['outstanding_principal_balance'])
+				self.assertAlmostEqual(amount, actual['after_loan_balance']['amount'])
+				self.assertAlmostEqual(outstanding_principal, actual['after_loan_balance']['outstanding_principal_balance'])
 
 
 	def test_custom_amount_single_loan_before_maturity_no_transactions(self) -> None:

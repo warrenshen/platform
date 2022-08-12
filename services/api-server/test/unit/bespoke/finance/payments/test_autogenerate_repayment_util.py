@@ -10,6 +10,8 @@ from bespoke.db import models, models_util, queries
 from bespoke.db.db_constants import FeatureFlagEnum, PaymentType, PaymentMethodEnum, ProductType
 from bespoke.db.models import session_scope
 from bespoke.finance.payments import autogenerate_repayment_util
+from bespoke_test.contract import contract_test_helper
+from bespoke_test.contract.contract_test_helper import ContractInputDict
 from bespoke_test.db import db_unittest
 from dateutil import parser
 
@@ -530,6 +532,7 @@ class TestGenerateRepaymentsForMatureLoans(db_unittest.TestCase):
 		self,
 		session: Session,
 		customer_ids: List[str],
+		contract_ids: List[str],
 		collections_bank_account_ids: List[str],
 		setup_loans: bool,
 		customer_opt_in_flag: bool = True,
@@ -538,6 +541,7 @@ class TestGenerateRepaymentsForMatureLoans(db_unittest.TestCase):
 		for i in range(len(customer_ids)):
 			session.add(models.Company(
 				id = customer_ids[i],
+				contract_id = contract_ids[i],
 				parent_company_id = uuid.uuid4(),
 				name = f"Test Company {i}",
 				is_customer = True,
@@ -551,6 +555,27 @@ class TestGenerateRepaymentsForMatureLoans(db_unittest.TestCase):
 					FeatureFlagEnum.OVERRIDE_REPAYMENT_AUTOGENERATION: bank_override_flag
 				},
 				is_autogenerate_repayments_enabled = customer_opt_in_flag,
+			))
+
+			session.add(models.Contract( # type: ignore
+				id = contract_ids[i],
+				company_id = customer_ids[i],
+				start_date = get_relative_date(TODAY, -90),
+				end_date = get_relative_date(TODAY, 300),
+				adjusted_end_date = get_relative_date(TODAY, 300),
+				product_type = ProductType.INVENTORY_FINANCING,
+				is_deleted = None,
+				product_config = contract_test_helper.create_contract_config(
+					product_type = ProductType.INVENTORY_FINANCING,
+					input_dict = ContractInputDict(
+						wire_fee = 25.0,
+						interest_rate = 0.05,
+						maximum_principal_amount = 120000.01,
+						max_days_until_repayment = 60,
+						late_fee_structure = '{"1-14":0.25,"15-29":0.5,"30+":1}',
+						preceeding_business_day = True,
+					)
+				)
 			))
 
 			session.add(models.FinancialSummary(
@@ -600,14 +625,17 @@ class TestGenerateRepaymentsForMatureLoans(db_unittest.TestCase):
 			]
 			bot_user_id = str(uuid.uuid4())
 			customer_ids = []
+			contract_ids = []
 			collections_bank_account_ids = []
 			for i in range(4):
 				customer_ids.append(str(uuid.uuid4()))
+				contract_ids.append(str(uuid.uuid4()))
 				collections_bank_account_ids.append(str(uuid.uuid4()))
 
 			self.setup_data(
 				session,
 				customer_ids,
+				contract_ids,
 				collections_bank_account_ids,
 				setup_loans = True,
 			)
@@ -643,18 +671,13 @@ class TestGenerateRepaymentsForMatureLoans(db_unittest.TestCase):
 				company_settings_lookup,
 				loans_for_repayment,
 				bot_user_id,
-				TODAY_DATE
+				TODAY_DATE,
 			)
 
-			for i in range(4):
+			for i in range(len(email_alert_data)):
 				self.assertEqual(models_util.is_valid_uuid(email_alert_data[i]["repayment_id"]), True)
 				self.assertEqual(email_alert_data[i]["per_loan_alert_data"][0]["interest"], 1500)
 				self.assertEqual(email_alert_data[i]["per_loan_alert_data"][0]["late_fees"], 500)
-			
-				requested_amount = email_alert_data[i]["per_loan_alert_data"][0]["principal"] + \
-					email_alert_data[i]["per_loan_alert_data"][0]["interest"] + \
-					email_alert_data[i]["per_loan_alert_data"][0]["late_fees"]
-				self.assertEqual(email_alert_data[i]["requested_amount"], requested_amount)
 
 			self.assertIsNone(alert_data_err)
 
@@ -662,14 +685,17 @@ class TestGenerateRepaymentsForMatureLoans(db_unittest.TestCase):
 		with session_scope(self.session_maker) as session:
 			bot_user_id = str(uuid.uuid4())
 			customer_ids = []
+			contract_ids = []
 			collections_bank_account_ids = []
 			for i in range(4):
 				customer_ids.append(str(uuid.uuid4()))
+				contract_ids.append(str(uuid.uuid4()))
 				collections_bank_account_ids.append(str(uuid.uuid4()))
 
 			self.setup_data(
 				session,
 				customer_ids,
+				contract_ids,
 				collections_bank_account_ids,
 				setup_loans = False,
 			)
@@ -680,7 +706,7 @@ class TestGenerateRepaymentsForMatureLoans(db_unittest.TestCase):
 				cast(Dict[str, models.CompanySettings], {}),
 				cast(Dict[str, List[models.Loan]], {}),
 				bot_user_id,
-				TODAY_DATE
+				TODAY_DATE,
 			)
 			if err:
 				raise err

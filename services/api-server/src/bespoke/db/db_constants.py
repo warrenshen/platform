@@ -252,6 +252,12 @@ class PaymentType(object):
 	REPAYMENT_OF_ACCOUNT_FEE = 'repayment_account_fee' # Repayment of account fee
 	USER_CREDIT_TO_ACCOUNT_FEE = 'user_credit_towards_account_fee' # User credit is applied to an account-level fee
 
+class PaymentOption(object):
+  IN_FULL = 'pay_in_full'
+  MINIMUM_DUE = 'pay_minimum_due'
+  CUSTOM_AMOUNT = 'custom_amount'
+  UNKNOWN = 'unknown'
+
 class TransactionSubType(object):
 	CUSTOM_FEE = 'custom_fee'
 	MINIMUM_INTEREST_FEE = 'minimum_interest_fee'

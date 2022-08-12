@@ -1,14 +1,15 @@
 import datetime
 import logging
 from decimal import Decimal
-from typing import Any, Dict, List, Tuple, cast
+from typing import Any, Callable, Dict, List, Tuple, cast
 
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models, model_types, queries
-from bespoke.db.db_constants import FeatureFlagEnum, PaymentType, PaymentMethodEnum
+from bespoke.db.db_constants import FeatureFlagEnum, PaymentType, PaymentMethodEnum, PaymentOption
 from bespoke.finance import number_util
 from bespoke.finance.loans.loan_calculator import (LoanUpdateDict)
+from bespoke.finance.payments import repayment_util
 from bespoke.finance.payments.payment_util import RepaymentOption
 from bespoke.finance.reports import loan_balances
 from sqlalchemy.orm.session import Session
@@ -256,26 +257,42 @@ def generate_repayments_for_mature_loans(
 	company_settings_lookup: Dict[str, models.CompanySettings],
 	per_company_loans: Dict[str, List[models.Loan]],
 	submitted_by_user_id: str,
-	today_date: datetime.date,
+	today_date: datetime.date
 ) -> Tuple[ List[Dict[str, Any]], errors.Error ]:
 	alert_data: List[Dict[str, Any]] = []
 	deposit_date = date_util.get_nearest_business_day(
 		today_date + datetime.timedelta(days = 1), 
 		preceeding = False
 	)
+	deposit_date_str = date_util.date_to_db_str(deposit_date)
+	settlement_date = date_util.get_nearest_business_day(
+		deposit_date + datetime.timedelta(days = 1), 
+		preceeding = False
+	)
+	settlement_date_str = date_util.date_to_db_str(settlement_date)
 
 	for company_id in per_company_loans:
 		loans = per_company_loans[company_id]
 	
 		requested_amount = 0.0
+		requested_to_principal = 0.0
+		requested_to_interest = 0.0
+		requested_to_late_fees = 0.0
 		requested_loan_ids: List[str] = []
 		per_loan_alert_data: List[Dict[str, Any]] = []
 		for loan in loans:
 			principal = float(loan.outstanding_principal_balance) if loan.outstanding_principal_balance is not None else 0.0
+			requested_to_principal += principal
+
 			interest = float(loan.outstanding_interest) if loan.outstanding_interest is not None else 0.0
+			requested_to_interest += interest
+
 			late_fees = float(loan.outstanding_fees) if loan.outstanding_fees is not None else 0.0
+			requested_to_late_fees += late_fees
+
 			loan_repayment_amount = principal + interest + late_fees
 			requested_amount += loan_repayment_amount
+			
 			requested_loan_ids.append(str(loan.id))
 			per_loan_alert_data.append({
 				"loan_identifier": f"{customer_lookup[str(loan.company_id)].identifier}-{loan.disbursement_identifier}",
@@ -286,19 +303,47 @@ def generate_repayments_for_mature_loans(
 				"maturity_date": loan.adjusted_maturity_date,
 			})
 
+		repayment_effect, err = repayment_util.calculate_repayment_effect(
+			session = session,
+			company_id = company_id,
+			payment_option = PaymentOption.IN_FULL,
+			amount = requested_amount,
+			deposit_date = deposit_date_str,
+			settlement_date = settlement_date_str,
+			items_covered = {
+				'loan_ids': requested_loan_ids,
+				'requested_to_principal': requested_to_principal,
+				'requested_to_interest': requested_to_interest,
+				'requested_to_late_fees': requested_to_late_fees,
+				'requested_to_account_fees': 0.0,
+			},
+			should_pay_principal_first = False,
+		)
+		if err:
+			return None, err
+
+		repayment_data = repayment_effect['data']
+		final_requested_amount = repayment_data['amount_to_pay']
+		final_principal_amount = repayment_data['payable_amount_principal']
+		final_interest_amount = repayment_data['payable_amount_interest']
+		final_late_fees_amount = repayment_data['payable_amount_late_fees']
+
 		repayment = models.Payment()
 		repayment.company_id = str(loan.company_id)
 		repayment.type = PaymentType.REPAYMENT
 		repayment.method = PaymentMethodEnum.REVERSE_DRAFT_ACH
 		repayment.requested_payment_date = deposit_date
 		repayment.deposit_date = deposit_date
-		repayment.requested_amount = Decimal(requested_amount)
+		repayment.requested_amount = Decimal(final_requested_amount)
 		repayment.items_covered = cast(model_types.PaymentItemsCoveredDict, {
-			"loan_ids": requested_loan_ids,
-			"payment_option": RepaymentOption.PAY_IN_FULL,
-			"requested_to_interest": 0.0,
-			"requested_to_principal": 0.0,
-			"requested_to_late_fees": 0.0,
+			'loan_ids': requested_loan_ids,
+			'payment_option': RepaymentOption.PAY_IN_FULL,
+			'requested_to_principal': final_principal_amount,
+			'requested_to_interest': final_interest_amount,
+			'requested_to_late_fees': final_late_fees_amount,
+			'forecasted_principal': final_principal_amount,
+			'forecasted_interest': final_interest_amount,
+			'forecasted_late_fees': final_late_fees_amount,
 		})
 		repayment.company_bank_account_id = str(company_settings_lookup[str(loan.company_id)].collections_bank_account_id)
 		repayment.submitted_at = date_util.now()
@@ -311,7 +356,7 @@ def generate_repayments_for_mature_loans(
 			"customer_id": str(loan.company_id),
 			"customer_name": customer_lookup[str(loan.company_id)].name,
 			"repayment_id": str(repayment.id),
-			"requested_amount": requested_amount,
+			"requested_amount": final_requested_amount,
 			"per_loan_alert_data": per_loan_alert_data,
 			"deposit_date": deposit_date,
 		})
