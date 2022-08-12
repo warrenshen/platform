@@ -77,7 +77,7 @@ export default function BlazePreapprovalCard({ blazePreapproval }: Props) {
                 )
               }
             >
-              Apply Now
+              View Offer
             </StyledButton>
           </Box>
         </>

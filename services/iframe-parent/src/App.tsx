@@ -7,16 +7,16 @@ const ValidEmbedUrl = "http://localhost:3005";
 // its callback twice in development environment in strict mode.
 let IsEventListenerAdded = false;
 
-// const ValidAuthPayloadNotQualifying = {
-//   auth_key: "$pbkdf2-sha256$29000$ejluaXdnNm8zZHZqNHFibzM2d2k$nzmhxCI4Yv1gV5jGyhsLygrnQYDTAJwJnxKaK9RwbsM",
-//   company_id: "51a4f761be986934ed269e43",
-//   shop_id: "51a4f761be986934ed269e5e",
-//   user_id: "51a4f956be986934ed269ff2",
-//   user_role: 1,
-//   user_email: "blaze-user-51a4f956be986934ed269ff2@bespokefinancial.com",
-//   user_first_name: "Warren",
-//   user_last_name: "Shen",
-// };
+const ValidAuthPayloadNotQualifying = {
+  auth_key: "$pbkdf2-sha256$29000$ejluaXdnNm8zZHZqNHFibzM2d2k$nzmhxCI4Yv1gV5jGyhsLygrnQYDTAJwJnxKaK9RwbsM",
+  company_id: "51a4f761be986934ed269e43",
+  shop_id: "51a4f761be986934ed269e5e",
+  user_id: "51a4f956be986934ed269ff2",
+  user_role: 1,
+  user_email: "blaze-user-51a4f956be986934ed269ff2@bespokefinancial.com",
+  user_first_name: "Warren",
+  user_last_name: "Shen",
+};
 
 const ValidAuthPayloadPreapproved = {
   auth_key: "$pbkdf2-sha256$29000$ejluaXdnNm8zZHZqNHFibzM2d2k$Pt0yc+/7HqF55XxxanmLXiQr4tjH3RsT1zTyzgjCNGk",
@@ -29,19 +29,19 @@ const ValidAuthPayloadPreapproved = {
   user_last_name: "Shen",
 };
 
-// const ValidAuthPayloadBorrower = {
-//   auth_key: "$pbkdf2-sha256$29000$ejluaXdnNm8zZHZqNHFibzM2d2k$Pt0yc+/7HqF55XxxanmLXiQr4tjH3RsT1zTyzgjCNGk",
-//   company_id: "73c4f761be986934ed269e43",
-//   shop_id: "73c4f761be986934ed269e5e",
-//   user_id: "73c4f956be986934ed269ff2",
-//   user_role: 1,
-//   user_email: "blaze-user-73c4f956be986934ed269ff2@bespokefinancial.com",
-//   user_first_name: "Warren",
-//   user_last_name: "Shen",
-// };
+const ValidAuthPayloadBorrower = {
+  auth_key: "$pbkdf2-sha256$29000$ejluaXdnNm8zZHZqNHFibzM2d2k$pHJBVvueZdCDdOs4xYryYuRl.WXWGKS3/1vFviG58vM",
+  company_id: "73c4f761be986934ed269e43",
+  shop_id: "73c4f761be986934ed269e5e",
+  user_id: "73c4f956be986934ed269ff2",
+  user_role: 1,
+  user_email: "blaze-user-73c4f956be986934ed269ff2@bespokefinancial.com",
+  user_first_name: "Warren",
+  user_last_name: "Shen",
+};
 
 // Developer note: change this variable value to test out different cases.
-const AuthPayload = ValidAuthPayloadPreapproved;
+const AuthPayload = ValidAuthPayloadBorrower;
 
 export default function App() {
   useEffect(() => {

@@ -1,3 +1,4 @@
+import { ThemeProvider, createMuiTheme } from "@material-ui/core/styles";
 import * as Sentry from "@sentry/react";
 import axios from "axios";
 import BlazePreapprovalPage from "components/Blaze/BlazePreapprovalPage";
@@ -27,6 +28,18 @@ import { ReactNode, useCallback, useEffect, useState } from "react";
 
 const JWTClaimsKey = "https://hasura.io/jwt/claims";
 const ValidBlazeOrigin = process.env.REACT_APP_BESPOKE_BLAZE_PARENT_ORIGIN;
+
+const BespokePrimaryMain = "#769362";
+const BlazePrimaryMain = "#2cb2dc";
+
+const BespokePrimaryLight = "#dae6d3";
+const BlazePrimaryLight = "#e3f2fd";
+
+const BespokeContrastText = "#ffffff";
+const BlazeContrastText = "#ffffff";
+
+const BespokeTypographyFontFamily = ["Inter", "sans-serif"];
+const BlazeTypographyFontFamily = ["Roboto", "sans-serif"];
 
 // Global boolean to track if "message" event listener is already added.
 // This is necessary since useEffect with an empty dependency array calls
@@ -414,6 +427,32 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
     }
   }, [authenticateBlazeUser, setUserFromAccessToken]);
 
+  // Set theme values dynamically based on whether App is in embedded mode or not.
+  const theme = createMuiTheme({
+    palette: {
+      primary: {
+        main: user.isEmbeddedModule ? BlazePrimaryMain : BespokePrimaryMain,
+        light: user.isEmbeddedModule ? BlazePrimaryLight : BespokePrimaryLight,
+        contrastText: user.isEmbeddedModule
+          ? BlazeContrastText
+          : BespokeContrastText,
+      },
+    },
+    typography: {
+      fontFamily: (user.isEmbeddedModule
+        ? BlazeTypographyFontFamily
+        : BespokeTypographyFontFamily
+      ).join(","),
+      // TODO: customize letter spacing.
+      // body1: {
+      //   letterSpacing: 14,
+      // },
+      button: {
+        textTransform: "none",
+      },
+    },
+  });
+
   const isAppReady =
     (user.isEmbeddedModule && !!blazeAuthStatus) ||
     (!user.isEmbeddedModule && !isTokenLoading);
@@ -437,14 +476,16 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
         signOut,
       }}
     >
-      {isBlazePreapprovalPage ? (
-        <BlazePreapprovalPage
-          isAuthenticateBlazeUserLoading={isAuthenticateBlazeUserLoading}
-          blazePreapproval={blazePreapproval}
-        />
-      ) : (
-        props.children
-      )}
+      <ThemeProvider theme={theme}>
+        {isBlazePreapprovalPage ? (
+          <BlazePreapprovalPage
+            isAuthenticateBlazeUserLoading={isAuthenticateBlazeUserLoading}
+            blazePreapproval={blazePreapproval}
+          />
+        ) : (
+          props.children
+        )}
+      </ThemeProvider>
     </CurrentUserContext.Provider>
   ) : (
     <></>

@@ -476,7 +476,7 @@ class AuthenticateBlazeUserView(MethodView):
 			existing_blaze_shop_entry = cast(
 				models.BlazeShopEntry,
 				session.query(models.BlazeShopEntry).filter(
-					models.BlazePreapproval.external_blaze_shop_id == external_blaze_shop_id
+					models.BlazeShopEntry.external_blaze_shop_id == external_blaze_shop_id
 				).first())
 
 			if existing_blaze_shop_entry:

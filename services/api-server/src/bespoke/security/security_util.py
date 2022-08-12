@@ -160,6 +160,8 @@ def verify_blaze_auth_payload(
 	  that matches hash_output if and only if actor knows the secret key.
 	"""
 	hash_input = external_blaze_company_id + external_blaze_shop_id + external_blaze_user_id + str(external_blaze_user_role)
+	# Developer note: print out hash_output if you want to view the correct value for auth_key.
+	# hash_output = sha256.using(salt=str.encode(secret_key)).hash(hash_input)
 	return sha256.using(salt=str.encode(secret_key)).verify(hash_input, auth_key) # type: ignore
 
 
