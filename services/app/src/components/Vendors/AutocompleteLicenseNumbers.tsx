@@ -1,7 +1,10 @@
+import { QueryLazyOptions } from "@apollo/client";
 import { TextField } from "@material-ui/core";
 import Autocomplete, {
   createFilterOptions,
 } from "@material-ui/lab/Autocomplete";
+import { Exact } from "generated/graphql";
+import { DebouncedFunc } from "lodash";
 
 import LicenseNumberCard from "./LicenseNumberCard";
 
@@ -18,10 +21,22 @@ export interface LicenseNumberOptionType {
 interface Props {
   selectableLicenseNumbers: LicenseNumberOptionType[];
   onChange: (event: any, newValue: any) => void;
+  debouncedLoadCompanyLicenses: DebouncedFunc<
+    (
+      options?:
+        | QueryLazyOptions<
+            Exact<{
+              license_number_search: string;
+            }>
+          >
+        | undefined
+    ) => void
+  >;
 }
 
 function AutocompleteLicenseNumbers({
   onChange,
+  debouncedLoadCompanyLicenses,
   selectableLicenseNumbers,
 }: Props) {
   return (
@@ -43,6 +58,12 @@ function AutocompleteLicenseNumbers({
           });
         }
         return filteredOptions;
+      }}
+      onInputChange={(_, newInputValue) => {
+        newInputValue.length > 3 &&
+          debouncedLoadCompanyLicenses({
+            variables: { license_number_search: newInputValue + "%" },
+          });
       }}
       renderInput={(params) => {
         return (

@@ -8210,7 +8210,7 @@ export type EbbaApplications = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamp"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
   status: RequestStatusEnum;
@@ -8329,7 +8329,7 @@ export type EbbaApplicationsBoolExp = {
   monthly_accounts_receivable?: Maybe<NumericComparisonExp>;
   monthly_cash?: Maybe<NumericComparisonExp>;
   monthly_inventory?: Maybe<NumericComparisonExp>;
-  rejected_at?: Maybe<TimestampComparisonExp>;
+  rejected_at?: Maybe<TimestamptzComparisonExp>;
   rejection_note?: Maybe<StringComparisonExp>;
   requested_at?: Maybe<TimestamptzComparisonExp>;
   status?: Maybe<RequestStatusEnumComparisonExp>;
@@ -8373,7 +8373,7 @@ export type EbbaApplicationsInsertInput = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamp"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
   status?: Maybe<RequestStatusEnum>;
@@ -8398,7 +8398,7 @@ export type EbbaApplicationsMaxFields = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamp"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
   submitted_by_user_id?: Maybe<Scalars["uuid"]>;
@@ -8444,7 +8444,7 @@ export type EbbaApplicationsMinFields = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamp"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
   submitted_by_user_id?: Maybe<Scalars["uuid"]>;
@@ -8592,7 +8592,7 @@ export type EbbaApplicationsSetInput = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamp"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
   status?: Maybe<RequestStatusEnum>;
@@ -28330,7 +28330,7 @@ export type GetAllCompanyLicensesQuery = {
 };
 
 export type GetCompanyLicensesForVendorOnboardingQueryVariables = Exact<{
-  [key: string]: never;
+  license_number_search: Scalars["String"];
 }>;
 
 export type GetCompanyLicensesForVendorOnboardingQuery = {
@@ -33719,14 +33719,20 @@ export type GetAllCompanyLicensesQueryResult = Apollo.QueryResult<
   GetAllCompanyLicensesQueryVariables
 >;
 export const GetCompanyLicensesForVendorOnboardingDocument = gql`
-  query GetCompanyLicensesForVendorOnboarding {
+  query GetCompanyLicensesForVendorOnboarding($license_number_search: String!) {
     company_licenses(
       where: {
-        _or: [
-          { is_deleted: { _is_null: true } }
-          { is_deleted: { _eq: false } }
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { license_number: { _ilike: $license_number_search } }
         ]
       }
+      limit: 20
     ) {
       ...CompanyLicense
     }
@@ -33746,11 +33752,12 @@ export const GetCompanyLicensesForVendorOnboardingDocument = gql`
  * @example
  * const { data, loading, error } = useGetCompanyLicensesForVendorOnboardingQuery({
  *   variables: {
+ *      license_number_search: // value for 'license_number_search'
  *   },
  * });
  */
 export function useGetCompanyLicensesForVendorOnboardingQuery(
-  baseOptions?: Apollo.QueryHookOptions<
+  baseOptions: Apollo.QueryHookOptions<
     GetCompanyLicensesForVendorOnboardingQuery,
     GetCompanyLicensesForVendorOnboardingQueryVariables
   >

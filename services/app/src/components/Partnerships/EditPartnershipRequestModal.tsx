@@ -12,12 +12,13 @@ import {
 import CreateUpdateVendorPartnershipRequestForm from "components/Vendors/CreateUpdateVendorPartnershipRequestForm";
 import {
   useGetAllArtifactRelationsQuery,
-  useGetCompanyLicensesForVendorOnboardingQuery,
+  useGetCompanyLicensesForVendorOnboardingLazyQuery,
 } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
 import { updatePartnershipRequestNewMutation } from "lib/api/companies";
 import { PartnershipRequestType } from "lib/enum";
 import { isEmailValid } from "lib/validation";
+import { debounce } from "lodash";
 import { CreateVendorInput } from "pages/Anonymous/VendorForm";
 import { useState } from "react";
 
@@ -54,8 +55,10 @@ export default function EditPartnershipRequestModal({
     fetchPolicy: "network-only",
   });
 
-  const { data: licensesData } =
-    useGetCompanyLicensesForVendorOnboardingQuery();
+  const [loadCompanyLicenses, { data: licensesData }] =
+    useGetCompanyLicensesForVendorOnboardingLazyQuery();
+
+  const debouncedLoadCompanyLicenses = debounce(loadCompanyLicenses, 1000);
 
   const vendors = data?.vendors || [];
 
@@ -165,6 +168,7 @@ export default function EditPartnershipRequestModal({
       </DialogTitle>
       <DialogContent>
         <CreateUpdateVendorPartnershipRequestForm
+          debouncedLoadCompanyLicenses={debouncedLoadCompanyLicenses}
           companyId={partnerRequest.requesting_company.id}
           companyName={partnerRequest.requesting_company.name}
           vendorInput={vendorInput}

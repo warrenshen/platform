@@ -10,7 +10,7 @@ import CreateUpdateVendorPartnershipRequestForm from "components/Vendors/CreateU
 import {
   Companies,
   useGetCompanyForVendorOnboardingQuery,
-  useGetCompanyLicensesForVendorOnboardingQuery,
+  useGetCompanyLicensesForVendorOnboardingLazyQuery,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -18,6 +18,7 @@ import { createPartnershipRequestNewMutation } from "lib/api/companies";
 import { BankAccountType, PartnershipRequestType } from "lib/enum";
 import { anonymousRoutes, routes } from "lib/routes";
 import { isEmailValid } from "lib/validation";
+import { debounce } from "lodash";
 import { useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 
@@ -124,8 +125,10 @@ export default function VendorFormPage() {
     },
   });
 
-  const { data: licensesData } =
-    useGetCompanyLicensesForVendorOnboardingQuery();
+  const [loadCompanyLicenses, { data: licensesData }] =
+    useGetCompanyLicensesForVendorOnboardingLazyQuery();
+
+  const debouncedLoadCompanyLicenses = debounce(loadCompanyLicenses, 1000);
 
   if (error) {
     console.log({ error });
@@ -243,6 +246,7 @@ export default function VendorFormPage() {
           vendorInput={vendorInput}
           setVendorInput={setVendorInput}
           selectableLicenseNumbers={licensesData?.company_licenses}
+          debouncedLoadCompanyLicenses={debouncedLoadCompanyLicenses}
           isUpdate={false}
         />
         <Box className={classes.actionButtonWrapper} mt={4}>

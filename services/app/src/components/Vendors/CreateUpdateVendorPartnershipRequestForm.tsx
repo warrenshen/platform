@@ -1,3 +1,4 @@
+import { QueryLazyOptions } from "@apollo/client";
 import {
   Box,
   Checkbox,
@@ -12,6 +13,7 @@ import PhoneInput from "components/Shared/FormInputs/PhoneInput";
 import AutocompleteVendors from "components/Vendors/AutocompleteVendors";
 import {
   BankAccounts,
+  Exact,
   FileFragment,
   GetAllArtifactRelationsQuery,
   GetCompanyLicensesForVendorOnboardingQuery,
@@ -21,6 +23,7 @@ import {
 import { FileTypeEnum } from "lib/enum";
 import { BankAccountType } from "lib/enum";
 import { isEmailValid } from "lib/validation";
+import { DebouncedFunc } from "lodash";
 import { CreateVendorInput } from "pages/Anonymous/VendorForm";
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
 
@@ -36,6 +39,17 @@ interface Props {
   isUpdate: boolean;
   selectableVendors?: GetAllArtifactRelationsQuery["vendors"];
   selectableLicenseNumbers?: GetCompanyLicensesForVendorOnboardingQuery["company_licenses"];
+  debouncedLoadCompanyLicenses: DebouncedFunc<
+    (
+      options?:
+        | QueryLazyOptions<
+            Exact<{
+              license_number_search: string;
+            }>
+          >
+        | undefined
+    ) => void
+  >;
   isMoved?: boolean;
 }
 
@@ -47,6 +61,7 @@ export default function CreateUpdateVendorPartnershipRequestForm({
   isUpdate,
   selectableVendors = [],
   selectableLicenseNumbers = [],
+  debouncedLoadCompanyLicenses,
   isMoved = false,
 }: Props) {
   const [selectedVendor, setSelectedVendor] = useState<Vendors | null>();
@@ -431,6 +446,7 @@ export default function CreateUpdateVendorPartnershipRequestForm({
         <>
           <Box display="flex" flexDirection="column" mt={2}>
             <AutocompleteLicenseNumbers
+              debouncedLoadCompanyLicenses={debouncedLoadCompanyLicenses}
               selectableLicenseNumbers={
                 selectableLicenseNumbers as LicenseNumberOptionType[]
               }
