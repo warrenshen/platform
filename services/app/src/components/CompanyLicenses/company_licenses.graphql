@@ -76,6 +76,6 @@ query GetCompanyLicensesForVendorOnboarding($license_number_search: String!) {
     }
     limit: 20
   ) {
-    ...CompanyLicense
+    ...CompanyLicenseLimitedAnonymous
   }
 }

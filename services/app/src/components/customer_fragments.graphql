@@ -24,6 +24,15 @@ fragment CompanyLicenseLimited on company_licenses {
   license_number
 }
 
+fragment CompanyLicenseLimitedAnonymous on company_licenses {
+  id
+  license_number
+  license_category
+  legal_name
+  us_state
+}
+
+
 fragment BankAccountLimited on bank_accounts {
   id
   is_cannabis_compliant

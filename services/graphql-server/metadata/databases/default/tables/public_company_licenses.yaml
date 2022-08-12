@@ -12,6 +12,16 @@ object_relationships:
     using:
       foreign_key_constraint_on: file_id
 select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - id
+        - is_deleted
+        - legal_name
+        - license_category
+        - license_number
+        - us_state
+      filter: {}
   - role: bank_admin
     permission:
       columns:
