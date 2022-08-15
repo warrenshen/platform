@@ -54,6 +54,8 @@ describe("Sign in: multilocation customer user", () => {
 
       // Open the second location
       cy.dataCy("select-location-button-1").click();
+
+      cy.url().should("include", "overview");
     }
   );
 });

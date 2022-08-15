@@ -220,7 +220,7 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
     const response = await authenticatedApi.post(
       authRoutes.undoImpersonation,
       {
-        impersonatorUserId: user.impersonatorUserId,
+        impersonator_user_id: user.impersonatorUserId,
       },
       {
         headers: {
