@@ -30,6 +30,7 @@ export default function BankLoansAllTab() {
     <Container>
       <Box display="flex" flexDirection="column">
         <BankLoansDataGrid
+          isDebtFacilityStatusVisible
           isDisbursementIdentifierVisible
           isMaturityVisible
           isReportingVisible

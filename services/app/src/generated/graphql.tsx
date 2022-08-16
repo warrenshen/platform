@@ -28908,6 +28908,7 @@ export type GetLoansForBankSubscription = {
   loans: Array<
     Pick<Loans, "id"> & {
       loan_report?: Maybe<LoanReportFragment>;
+      company: Pick<Companies, "debt_facility_status">;
     } & LoanFragment &
       LoanArtifactFragment
   >;
@@ -36992,6 +36993,9 @@ export const GetLoansForBankDocument = gql`
       ...LoanArtifact
       loan_report {
         ...LoanReport
+      }
+      company {
+        debt_facility_status
       }
     }
   }

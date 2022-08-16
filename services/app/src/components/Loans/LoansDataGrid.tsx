@@ -27,6 +27,8 @@ import {
 import { parseDateStringServer } from "lib/date";
 import {
   AllLoanStatuses,
+  DebtFacilityCompanyStatusEnum,
+  DebtFacilityCompanyStatusToLabel,
   LoanPaymentStatusEnum,
   LoanStatusEnum,
   LoanStatusToLabel,
@@ -50,6 +52,7 @@ interface Props {
   isArtifactVisible?: boolean;
   isArtifactBankNoteVisible?: boolean;
   isCompanyVisible?: boolean;
+  isDebtFacilityStatusVisible?: boolean;
   isDaysPastDueVisible?: boolean;
   isDisbursementIdentifierVisible?: boolean;
   isExcelExport?: boolean;
@@ -129,6 +132,7 @@ export default function LoansDataGrid({
   isArtifactVisible = false,
   isArtifactBankNoteVisible = false,
   isCompanyVisible = false,
+  isDebtFacilityStatusVisible = false,
   isDaysPastDueVisible = false,
   isDisbursementIdentifierVisible = false,
   isExcelExport = true,
@@ -258,6 +262,28 @@ export default function LoansDataGrid({
             }
           />
         ),
+      },
+      {
+        visible: isDebtFacilityStatusVisible,
+        dataField: "company.debt_facility_status",
+        caption: "Debt Facility Status",
+        width: ColumnWidths.ProductType,
+        lookup: {
+          dataSource: {
+            store: {
+              type: "array",
+              data: Object.values(DebtFacilityCompanyStatusEnum).map(
+                (debtFacilityStatus) => ({
+                  debt_facility_status: debtFacilityStatus,
+                  label: DebtFacilityCompanyStatusToLabel[debtFacilityStatus],
+                })
+              ),
+              key: "debt_facility_status",
+            },
+          },
+          valueExpr: "debt_facility_status",
+          displayExpr: "label",
+        },
       },
       {
         visible: isCompanyVisible,
@@ -424,7 +450,7 @@ export default function LoansDataGrid({
       },
       {
         visible: isMaturityVisible,
-        caption: "Oustanding Fees",
+        caption: "Outstanding Late Fees",
         dataField: "outstanding_fees",
         format: {
           type: "currency",
@@ -471,7 +497,7 @@ export default function LoansDataGrid({
       },
       {
         visible: isReportingVisible,
-        caption: "Total Fees Paid",
+        caption: "Total Late Fees Paid",
         dataField: "total_fees_paid",
         format: {
           type: "currency",
@@ -485,6 +511,7 @@ export default function LoansDataGrid({
       isArtifactVisible,
       isArtifactBankNoteVisible,
       isCompanyVisible,
+      isDebtFacilityStatusVisible,
       isDaysPastDueVisible,
       isDisbursementIdentifierVisible,
       isMaturityVisible,

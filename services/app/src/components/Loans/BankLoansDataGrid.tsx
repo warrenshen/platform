@@ -7,6 +7,7 @@ import { useState } from "react";
 
 interface Props {
   isDaysPastDueVisible?: boolean;
+  isDebtFacilityStatusVisible?: boolean;
   isDisbursementIdentifierVisible?: boolean;
   isMaturityVisible?: boolean;
   isMultiSelectEnabled?: boolean;
@@ -20,6 +21,7 @@ interface Props {
 
 export default function BankLoansDataGrid({
   isDaysPastDueVisible = false,
+  isDebtFacilityStatusVisible = false,
   isDisbursementIdentifierVisible = false,
   isMaturityVisible = false,
   isMultiSelectEnabled = false,
@@ -48,6 +50,7 @@ export default function BankLoansDataGrid({
         isArtifactVisible
         isArtifactBankNoteVisible
         isCompanyVisible
+        isDebtFacilityStatusVisible={isDebtFacilityStatusVisible}
         isDaysPastDueVisible={isDaysPastDueVisible}
         isDisbursementIdentifierVisible={isDisbursementIdentifierVisible}
         isFilteringEnabled

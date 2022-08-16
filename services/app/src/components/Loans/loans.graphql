@@ -16,6 +16,9 @@ subscription GetLoansForBank {
     loan_report {
       ...LoanReport
     }
+    company {
+      debt_facility_status
+  }
   }
 }
 
