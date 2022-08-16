@@ -106,10 +106,9 @@ export default function RepaymentsDataGrid({
       },
       {
         visible: isCompanyVisible,
+        dataField: "company.name",
         caption: "Customer Name",
-        height: 40,
         minWidth: ColumnWidths.MinWidth,
-        calculateCellValue: ({ company }: any) => company?.name,
         cellRender: (params: ValueFormatterParams) =>
           handleClickCustomer ? (
             <ClickableDataGridCell
@@ -320,6 +319,7 @@ export default function RepaymentsDataGrid({
       isExcelExport={isExcelExport}
       dataSource={rows}
       columns={columns}
+      filtering={{ enable: true }}
       ref={(ref) => setDataGrid(ref)}
       selectedRowKeys={selectedPaymentIds}
       onSelectionChanged={handleSelectionChanged}

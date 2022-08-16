@@ -95,6 +95,7 @@ subscription GetSubmittedPayments {
         { reversed_at: { _is_null: true } }
       ]
     }
+      order_by: [{ requested_payment_date: asc }]
   ) {
     id
     ...Payment
