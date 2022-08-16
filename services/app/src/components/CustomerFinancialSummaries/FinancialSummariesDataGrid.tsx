@@ -7,8 +7,13 @@ import {
   GetFinancialSummariesByCompanyIdQuery,
 } from "generated/graphql";
 import { parseDateStringServer } from "lib/date";
-import { ProductTypeEnum, ProductTypeToLabel } from "lib/enum";
-import { formatPercentage } from "lib/number";
+import {
+  DebtFacilityCompanyStatusEnum,
+  DebtFacilityCompanyStatusToLabel,
+  ProductTypeEnum,
+  ProductTypeToLabel,
+} from "lib/enum";
+import { CurrencyPrecision, PercentPrecision } from "lib/number";
 import { formatRowModel } from "lib/tables";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
@@ -20,20 +25,28 @@ function getRows(financialSummaries: FinancialSummaryFragment[]): RowsProp {
       adjusted_total_limit: financialSummary.adjusted_total_limit,
       available_limit: financialSummary.available_limit,
       daily_interest_rate: financialSummary.daily_interest_rate,
-      date: parseDateStringServer(financialSummary.date),
+      date: !!financialSummary.date
+        ? parseDateStringServer(financialSummary.date)
+        : null,
+      holding_account_balance:
+        !!financialSummary?.account_level_balance_payload.hasOwnProperty(
+          "credits_total"
+        )
+          ? financialSummary.account_level_balance_payload["credits_total"]
+          : null,
       interest_accrued_today: financialSummary.interest_accrued_today,
       late_fees_accrued_today: financialSummary.late_fees_accrued_today,
       minimum_interest_amount: financialSummary.minimum_interest_amount,
       minimum_interest_amount_display:
         !!financialSummary?.minimum_interest_amount
           ? financialSummary.minimum_interest_amount
-          : "-",
+          : null,
       minimum_interest_duration: financialSummary.minimum_interest_duration,
       minimum_interest_remaining: financialSummary.minimum_interest_remaining,
       minimum_interest_remaining_display:
         !!financialSummary?.minimum_interest_remaining
           ? financialSummary.minimum_interest_amount
-          : "-",
+          : null,
       product_type:
         ProductTypeToLabel[financialSummary.product_type as ProductTypeEnum],
       total_amount_to_pay_interest_on:
@@ -47,13 +60,12 @@ function getRows(financialSummaries: FinancialSummaryFragment[]): RowsProp {
         financialSummary.total_outstanding_principal_for_interest,
       total_outstanding_principal_past_due:
         financialSummary.total_outstanding_principal_past_due,
-      total_outstanding_principal_percentage_past_due: formatPercentage(
+      total_outstanding_principal_percentage_past_due:
         !!financialSummary.total_outstanding_principal &&
-          financialSummary.total_outstanding_principal > 0
+        financialSummary.total_outstanding_principal > 0
           ? financialSummary.total_outstanding_principal_past_due /
-              financialSummary.total_outstanding_principal
-          : 0
-      ),
+            financialSummary.total_outstanding_principal
+          : 0,
     });
   });
 }
@@ -111,166 +123,197 @@ export default function FinancialSummariesDataGrid({
         width: ColumnWidths.ProductType,
       },
       {
+        dataField: "company.debt_facility_status",
+        caption: "Debt Facility Status",
+        width: ColumnWidths.ProductType,
+        lookup: {
+          dataSource: {
+            store: {
+              type: "array",
+              data: Object.values(DebtFacilityCompanyStatusEnum).map(
+                (debtFacilityStatus) => ({
+                  debt_facility_status: debtFacilityStatus,
+                  label: DebtFacilityCompanyStatusToLabel[debtFacilityStatus],
+                })
+              ),
+              key: "debt_facility_status",
+            },
+          },
+          valueExpr: "debt_facility_status",
+          displayExpr: "label",
+        },
+      },
+      {
         dataField: "total_outstanding_principal",
         caption: "Principal Balance (PB)",
-        width: ColumnWidths.Currency,
-        alignment: "right",
         format: {
           type: "currency",
-          precision: 2,
+          precision: CurrencyPrecision,
         },
+        width: ColumnWidths.Currency,
+        alignment: "right",
       },
       {
         dataField: "total_outstanding_interest",
         caption: "Outstanding Interest",
-        width: ColumnWidths.Currency,
-        alignment: "right",
         format: {
           type: "currency",
-          precision: 2,
+          precision: CurrencyPrecision,
         },
+        width: ColumnWidths.Currency,
+        alignment: "right",
       },
       {
         dataField: "total_outstanding_late_fees",
         caption: "Outstanding Late Fees",
-        width: ColumnWidths.Currency,
-        alignment: "right",
         format: {
           type: "currency",
-          precision: 2,
+          precision: CurrencyPrecision,
         },
+        width: ColumnWidths.Currency,
+        alignment: "right",
       },
       {
         dataField: "total_outstanding_account_fees",
         caption: "Outstanding Account Fees",
-        width: ColumnWidths.Currency,
-        alignment: "right",
         format: {
           type: "currency",
-          precision: 2,
+          precision: CurrencyPrecision,
         },
+        width: ColumnWidths.Currency,
+        alignment: "right",
       },
       {
         dataField: "total_outstanding_principal_for_interest",
         caption: "PB Including Clearance Days",
-        width: ColumnWidths.Currency,
-        alignment: "right",
         format: {
           type: "currency",
-          precision: 2,
+          precision: CurrencyPrecision,
         },
+        width: ColumnWidths.Currency,
+        alignment: "right",
       },
       {
         dataField: "total_amount_to_pay_interest_on",
         caption: "Amount To Pay Interest On",
-        width: ColumnWidths.Currency,
-        alignment: "right",
         format: {
           type: "currency",
-          precision: 2,
+          precision: CurrencyPrecision,
         },
+        width: ColumnWidths.Currency,
+        alignment: "right",
       },
       {
         dataField: "daily_interest_rate",
         caption: "Daily Interest Rate",
-        width: ColumnWidths.Currency,
-        alignment: "right",
         format: {
           type: "currency",
-          precision: 2,
+          precision: CurrencyPrecision,
         },
+        width: ColumnWidths.Currency,
+        alignment: "right",
       },
       {
         dataField: "interest_accrued_today",
         caption: "Interest Accrued Today",
-        width: ColumnWidths.Currency,
-        alignment: "right",
         format: {
           type: "currency",
-          precision: 2,
+          precision: CurrencyPrecision,
         },
+        width: ColumnWidths.Currency,
+        alignment: "right",
       },
       {
         dataField: "late_fees_accrued_today",
         caption: "Late Fees Accrued Today",
-        width: ColumnWidths.Currency,
-        alignment: "right",
         format: {
           type: "currency",
-          precision: 2,
+          precision: CurrencyPrecision,
         },
+        width: ColumnWidths.Currency,
+        alignment: "right",
       },
       {
         dataField: "total_outstanding_principal_past_due",
         caption: "Outstanding Principal Past Due",
-        width: ColumnWidths.Currency,
-        alignment: "right",
         format: {
           type: "currency",
-          precision: 2,
+          precision: CurrencyPrecision,
         },
+        width: ColumnWidths.Currency,
+        alignment: "right",
       },
       {
         dataField: "total_outstanding_principal_percentage_past_due",
         caption: "Outstanding Principal % Past Due",
-        width: ColumnWidths.Currency,
-        alignment: "right",
         format: {
-          type: "currency",
-          precision: 2,
+          type: "percent",
+          precision: PercentPrecision,
         },
+        minWidth: ColumnWidths.Currency,
+        alignment: "right",
       },
       {
         dataField: "available_limit",
         caption: "Available Limit",
-        width: ColumnWidths.Currency,
-        alignment: "right",
         format: {
           type: "currency",
-          precision: 2,
+          precision: CurrencyPrecision,
         },
+        width: ColumnWidths.Currency,
+        alignment: "right",
       },
       {
         dataField: "adjusted_total_limit",
         caption: "Total Limit",
-        width: ColumnWidths.Currency,
-        alignment: "right",
         format: {
           type: "currency",
-          precision: 2,
+          precision: CurrencyPrecision,
         },
+        width: ColumnWidths.Currency,
+        alignment: "right",
       },
       {
         dataField: "minimum_interest_duration",
         caption: "Minimum Interest Duration",
-        width: ColumnWidths.Currency,
-        alignment: "right",
         format: {
           type: "currency",
-          precision: 2,
+          precision: CurrencyPrecision,
         },
+        width: ColumnWidths.Currency,
+        alignment: "right",
       },
       {
         dataField: "minimum_interest_amount",
         caption: "Minimum Interest Amount",
         calculateDisplayValue: "minimum_interest_amount_display",
-        width: ColumnWidths.Currency,
-        alignment: "right",
         format: {
           type: "currency",
-          precision: 2,
+          precision: CurrencyPrecision,
         },
+        width: ColumnWidths.Currency,
+        alignment: "right",
       },
       {
         dataField: "minimum_interest_remaining",
         caption: "Minimum Interest Remaining",
         calculateDisplayValue: "minimum_interest_remaining_display",
-        width: ColumnWidths.Currency,
-        alignment: "right",
         format: {
           type: "currency",
-          precision: 2,
+          precision: CurrencyPrecision,
         },
+        width: ColumnWidths.Currency,
+        alignment: "right",
+      },
+      {
+        dataField: "holding_account_balance",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
+        caption: "Holding Account Balance",
+        width: ColumnWidths.Currency,
+        alignment: "right",
       },
     ],
     [isCustomerNameFixed, isProductTypeVisible, handleClickCustomer]

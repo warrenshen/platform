@@ -44,6 +44,7 @@ query GetActiveFinancialSummariesByDate($date: date!) {
     company {
       id
       name
+      debt_facility_status
     }
   }
 }
