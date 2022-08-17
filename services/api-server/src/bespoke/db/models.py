@@ -288,7 +288,7 @@ class CompanySettings(Base):
 	two_factor_message_method = Column(Text)
 	feature_flags_payload = Column(JSON)
 	custom_messages_payload = Column(JSON)
-	is_dummy_account = Column(Boolean, default=False)
+	is_dummy_account = Column(Boolean, default=False) # Whether company is a demo company (fake company for internal testing) or not.
 	client_success_user_id = cast(GUID, Column(GUID, ForeignKey('users.id'))) # used for commission
 	business_development_user_id = cast(GUID, Column(GUID, ForeignKey('users.id'))) # used for commission
 	underwriter_user_id = cast(GUID, Column(GUID, ForeignKey('users.id')))
