@@ -1,6 +1,6 @@
 import { Box } from "@material-ui/core";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
-import UpdatePurchaseOrderBankNoteModal from "components/PurchaseOrder/UpdatePurchaseOrderBankNoteModal";
+import UpdatePurchaseOrderBankNoteModal from "components/PurchaseOrder/v2/UpdatePurchaseOrderBankNoteModal";
 import { Companies, LoanFragment, Loans } from "generated/graphql";
 import { PartnerEnum } from "lib/enum";
 import { useState } from "react";

@@ -1,7 +1,7 @@
 import { Box, Theme, createStyles, makeStyles } from "@material-ui/core";
 import CreateUpdatePurchaseOrderModal from "components/PurchaseOrder/CreateUpdatePurchaseOrderModal";
-import PurchaseOrdersDataGrid from "components/PurchaseOrder/PurchaseOrdersDataGrid";
-import ReopenPurchaseOrderModal from "components/PurchaseOrder/ReopenPurchaseOrderModal";
+import ArchivePurchaseOrderModalNew from "components/PurchaseOrder/v2/ArchivePurchaseOrderModalNew";
+import PurchaseOrdersDataGridNew from "components/PurchaseOrder/v2/PurchaseOrdersDataGridNew";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import {
@@ -11,7 +11,11 @@ import {
   useGetClosedPurchaseOrdersByCompanyIdQuery,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
-import { ActionType, ProductTypeEnum } from "lib/enum";
+import {
+  ActionType,
+  ClosedNewPurchaseOrderStatuses,
+  ProductTypeEnum,
+} from "lib/enum";
 import { useMemo, useState } from "react";
 import styled from "styled-components";
 
@@ -90,51 +94,57 @@ export default function CustomerPurchaseOrdersClosedTabNew({
       <Box flex={1} display="flex" flexDirection="column" width="100%">
         <Box className={classes.section}>
           <Box my={2} display="flex" flexDirection="row-reverse">
-            <Can perform={Action.EditPurchaseOrders}>
-              <Box>
-                <ModalButton
-                  isDisabled={!selectedPurchaseOrder}
-                  label={"Edit PO"}
-                  modal={({ handleClose }) => (
-                    <CreateUpdatePurchaseOrderModal
-                      actionType={ActionType.Update}
-                      companyId={companyId}
-                      purchaseOrderId={selectedPurchaseOrder?.id}
-                      productType={productType}
-                      handleClose={() => {
-                        refetch();
-                        handleClose();
-                        setSelectedPurchaseOrderIds([]);
-                      }}
+            {selectedPurchaseOrderIds.length > 0 && (
+              <>
+                <Can perform={Action.EditPurchaseOrders}>
+                  <Box>
+                    <ModalButton
+                      isDisabled={!selectedPurchaseOrder}
+                      label={"Edit PO"}
+                      modal={({ handleClose }) => (
+                        <CreateUpdatePurchaseOrderModal
+                          actionType={ActionType.Update}
+                          companyId={companyId}
+                          purchaseOrderId={selectedPurchaseOrder?.id}
+                          productType={productType}
+                          handleClose={() => {
+                            refetch();
+                            handleClose();
+                            setSelectedPurchaseOrderIds([]);
+                          }}
+                        />
+                      )}
                     />
-                  )}
-                />
-              </Box>
-            </Can>
-            <Can perform={Action.ReopenPurchaseOrders}>
-              <Box mr={2}>
-                <ModalButton
-                  isDisabled={!selectedPurchaseOrder}
-                  label={"Reopen PO"}
-                  variant={"outlined"}
-                  modal={({ handleClose }) => (
-                    <ReopenPurchaseOrderModal
-                      purchaseOrder={selectedPurchaseOrder || null}
-                      handleClose={() => {
-                        refetch();
-                        handleClose();
-                        setSelectedPurchaseOrderIds([]);
-                      }}
+                  </Box>
+                </Can>
+                <Can perform={Action.ReopenPurchaseOrders}>
+                  <Box mr={2}>
+                    <ModalButton
+                      isDisabled={!selectedPurchaseOrder}
+                      label={"Unarchive"}
+                      variant={"outlined"}
+                      modal={({ handleClose }) => (
+                        <ArchivePurchaseOrderModalNew
+                          purchaseOrder={selectedPurchaseOrder || null}
+                          action={Action.ReopenPurchaseOrders}
+                          handleClose={() => {
+                            refetch();
+                            handleClose();
+                            setSelectedPurchaseOrderIds([]);
+                          }}
+                        />
+                      )}
                     />
-                  )}
-                />
-              </Box>
-            </Can>
+                  </Box>
+                </Can>
+              </>
+            )}
           </Box>
-          <PurchaseOrdersDataGrid
+          <PurchaseOrdersDataGridNew
             isCompanyVisible={false}
             purchaseOrders={purchaseOrders}
             selectedPurchaseOrderIds={selectedPurchaseOrderIds}
+            selectablePurchaseOrderStatuses={ClosedNewPurchaseOrderStatuses}
             handleSelectPurchaseOrders={handleSelectPurchaseOrders}
           />
         </Box>

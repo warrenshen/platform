@@ -37,6 +37,20 @@ code {
   top: 30% !important;
 }
 
+/* Purchase Order Flow V2 Datagrid Custom Styles */
+.purchase-orders-data-grid-new .dx-checkbox-checked .dx-checkbox-icon {
+  background-color: #8EAB79 
+}
+
+.purchase-orders-data-grid-new .dx-checkbox-indeterminate .dx-checkbox-icon {
+  background-color: #8EAB79 
+}
+
+.purchase-orders-data-grid-new .dx-checkbox-icon {
+  border: 1px solid #D5D3D0;
+  border-radius: 4px;
+}
+
 #root {
   height: 100%;
 }

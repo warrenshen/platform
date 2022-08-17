@@ -18,6 +18,7 @@ export const ColumnWidths = {
   ProductType: 180,
   MetrcId: 140,
   Status: 170,
+  StatusChip: 300,
   Type: 160,
   UsState: 90,
   UserName: 130,

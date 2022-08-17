@@ -29325,6 +29325,14 @@ export type GetClosedPurchaseOrdersByCompanyIdQuery = {
   purchase_orders: Array<PurchaseOrderLimitedFragment>;
 };
 
+export type GetClosedPurchaseOrdersByCompanyIdNewQueryVariables = Exact<{
+  company_id: Scalars["uuid"];
+}>;
+
+export type GetClosedPurchaseOrdersByCompanyIdNewQuery = {
+  purchase_orders: Array<PurchaseOrderLimitedNewFragment>;
+};
+
 export type GetFundablePurchaseOrdersByCompanyIdQueryVariables = Exact<{
   company_id: Scalars["uuid"];
 }>;
@@ -31121,6 +31129,7 @@ export type PurchaseOrderLimitedFragment = Pick<
   | "is_cannabis"
   | "is_metrc_based"
   | "status"
+  | "new_purchase_order_status"
   | "rejection_note"
   | "bank_rejection_note"
   | "bank_incomplete_note"
@@ -32283,6 +32292,7 @@ export const PurchaseOrderLimitedFragmentDoc = gql`
     is_cannabis
     is_metrc_based
     status
+    new_purchase_order_status
     rejection_note
     bank_rejection_note
     bank_incomplete_note
@@ -39101,6 +39111,81 @@ export type GetClosedPurchaseOrdersByCompanyIdQueryResult = Apollo.QueryResult<
   GetClosedPurchaseOrdersByCompanyIdQuery,
   GetClosedPurchaseOrdersByCompanyIdQueryVariables
 >;
+export const GetClosedPurchaseOrdersByCompanyIdNewDocument = gql`
+  query GetClosedPurchaseOrdersByCompanyIdNew($company_id: uuid!) {
+    purchase_orders(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { company_id: { _eq: $company_id } }
+          {
+            _or: [
+              { closed_at: { _is_null: false } }
+              { funded_at: { _is_null: false } }
+            ]
+          }
+        ]
+      }
+    ) {
+      ...PurchaseOrderLimitedNew
+    }
+  }
+  ${PurchaseOrderLimitedNewFragmentDoc}
+`;
+
+/**
+ * __useGetClosedPurchaseOrdersByCompanyIdNewQuery__
+ *
+ * To run a query within a React component, call `useGetClosedPurchaseOrdersByCompanyIdNewQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetClosedPurchaseOrdersByCompanyIdNewQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetClosedPurchaseOrdersByCompanyIdNewQuery({
+ *   variables: {
+ *      company_id: // value for 'company_id'
+ *   },
+ * });
+ */
+export function useGetClosedPurchaseOrdersByCompanyIdNewQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetClosedPurchaseOrdersByCompanyIdNewQuery,
+    GetClosedPurchaseOrdersByCompanyIdNewQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetClosedPurchaseOrdersByCompanyIdNewQuery,
+    GetClosedPurchaseOrdersByCompanyIdNewQueryVariables
+  >(GetClosedPurchaseOrdersByCompanyIdNewDocument, baseOptions);
+}
+export function useGetClosedPurchaseOrdersByCompanyIdNewLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetClosedPurchaseOrdersByCompanyIdNewQuery,
+    GetClosedPurchaseOrdersByCompanyIdNewQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetClosedPurchaseOrdersByCompanyIdNewQuery,
+    GetClosedPurchaseOrdersByCompanyIdNewQueryVariables
+  >(GetClosedPurchaseOrdersByCompanyIdNewDocument, baseOptions);
+}
+export type GetClosedPurchaseOrdersByCompanyIdNewQueryHookResult = ReturnType<
+  typeof useGetClosedPurchaseOrdersByCompanyIdNewQuery
+>;
+export type GetClosedPurchaseOrdersByCompanyIdNewLazyQueryHookResult =
+  ReturnType<typeof useGetClosedPurchaseOrdersByCompanyIdNewLazyQuery>;
+export type GetClosedPurchaseOrdersByCompanyIdNewQueryResult =
+  Apollo.QueryResult<
+    GetClosedPurchaseOrdersByCompanyIdNewQuery,
+    GetClosedPurchaseOrdersByCompanyIdNewQueryVariables
+  >;
 export const GetFundablePurchaseOrdersByCompanyIdDocument = gql`
   query GetFundablePurchaseOrdersByCompanyId($company_id: uuid!) {
     purchase_orders(

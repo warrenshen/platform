@@ -1,7 +1,7 @@
 import { Box, Button, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
-import PurchaseOrderFormManualNew from "components/PurchaseOrder/PurchaseOrderFormManualNew";
-import PurchaseOrderFormMetrcNew from "components/PurchaseOrder/PurchaseOrderFormMetrcNew";
+import PurchaseOrderFormManualNew from "components/PurchaseOrder/v2/PurchaseOrderFormManualNew";
+import PurchaseOrderFormMetrcNew from "components/PurchaseOrder/v2/PurchaseOrderFormMetrcNew";
 import MetrcLogo from "components/Shared/Images/MetrcLogo.png";
 import { ReactComponent as KeyboardIcon } from "components/Shared/Layout/Icons/Keyboard.svg";
 import Modal from "components/Shared/Modal/Modal";

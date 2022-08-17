@@ -112,6 +112,7 @@ fragment PurchaseOrderLimited on purchase_orders {
   is_cannabis
   is_metrc_based
   status
+  new_purchase_order_status
   rejection_note
   bank_rejection_note
   bank_incomplete_note

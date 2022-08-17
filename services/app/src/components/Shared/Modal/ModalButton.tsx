@@ -9,6 +9,8 @@ interface Props {
   size?: "small" | "medium" | "large" | undefined;
   textAlign?: "left" | "center" | "right";
   variant?: "text" | "outlined" | "contained" | undefined;
+  startIcon?: React.ReactNode;
+  endIcon?: React.ReactNode;
   handleClick?: ({ handleOpen }: { handleOpen: () => void }) => void;
   modal: ({ handleClose }: { handleClose: () => void }) => ReactNode;
 }
@@ -21,6 +23,8 @@ export default function ModalButton({
   size,
   textAlign = "center",
   variant,
+  startIcon,
+  endIcon,
   handleClick,
   modal,
 }: Props) {
@@ -39,6 +43,8 @@ export default function ModalButton({
           minWidth: 0,
           textAlign,
         }}
+        startIcon={startIcon}
+        endIcon={endIcon}
         onClick={() => {
           if (handleClick) {
             handleClick({ handleOpen: () => setIsOpen(true) });

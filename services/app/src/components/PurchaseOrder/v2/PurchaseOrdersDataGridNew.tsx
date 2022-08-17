@@ -2,16 +2,17 @@ import { Box, Button, Tooltip, Typography } from "@material-ui/core";
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import CommentIcon from "@material-ui/icons/Comment";
 import PurchaseOrderDrawer from "components/PurchaseOrder/PurchaseOrderDrawer";
-import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
+import PurchaseOrderStatusChip from "components/Shared/Chip/PurchaseOrderStatusChip";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
-import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
+import ProgressBarDataGridCell from "components/Shared/DataGrid/ProgressBarDataGridCell";
+import ClickableDataGridCell from "components/Shared/DataGrid/v2/ClickableDataGridCell";
 import MetrcLogo from "components/Shared/Images/MetrcLogo.png";
 import {
   Companies,
-  PurchaseOrderNewFragment,
+  PurchaseOrderFragment,
   PurchaseOrders,
   RequestStatusEnum,
 } from "generated/graphql";
@@ -21,12 +22,12 @@ import {
   NewPurchaseOrderStatus,
   NewPurchaseOrderStatusToLabel,
 } from "lib/enum";
-import { CurrencyPrecision } from "lib/number";
-import { computePurchaseOrderDueDateDateClient } from "lib/purchaseOrders";
+import { CurrencyPrecision, formatCurrency } from "lib/number";
+import { computePurchaseOrderDueDateDateStringClientNew } from "lib/purchaseOrders";
 import { ColumnWidths, formatRowModel, truncateString } from "lib/tables";
 import { useMemo, useState } from "react";
 
-const getProperNote = (purchaseOrder: PurchaseOrderNewFragment) => {
+const getProperNote = (purchaseOrder: PurchaseOrderFragment) => {
   if (purchaseOrder?.status === RequestStatusEnum.Rejected) {
     return purchaseOrder?.bank_rejection_note || purchaseOrder?.rejection_note;
   }
@@ -35,22 +36,25 @@ const getProperNote = (purchaseOrder: PurchaseOrderNewFragment) => {
     : purchaseOrder?.bank_note;
 };
 
-function getRows(purchaseOrders: PurchaseOrderNewFragment[]): RowsProp {
+function getRows(purchaseOrders: PurchaseOrderFragment[]): RowsProp {
   return purchaseOrders.map((purchaseOrder) => {
     return formatRowModel({
       ...purchaseOrder,
+      bank_note: truncateString(getProperNote(purchaseOrder) || ""),
       company_name: purchaseOrder.company.name,
-      vendor_name: getCompanyDisplayName(purchaseOrder.vendor),
-      status: purchaseOrder.new_purchase_order_status,
+      customer_note: truncateString(purchaseOrder?.customer_note || "-"),
+      due_date: computePurchaseOrderDueDateDateStringClientNew(purchaseOrder),
+      percent_funded:
+        ((purchaseOrder.amount_funded || 0) / (purchaseOrder.amount || 1)) *
+        100,
       order_date: !!purchaseOrder.order_date
         ? parseDateStringServer(purchaseOrder.order_date)
         : null,
-      due_date: computePurchaseOrderDueDateDateClient(purchaseOrder),
-      customer_note: truncateString(purchaseOrder?.customer_note || "-"),
-      bank_note: truncateString(getProperNote(purchaseOrder) || ""),
       requested_at: !!purchaseOrder.requested_at
-        ? parseDateStringServer(purchaseOrder.requested_at)
+        ? parseDateStringServer(purchaseOrder.requested_at, true)
         : null,
+      status: purchaseOrder.status,
+      vendor_name: getCompanyDisplayName(purchaseOrder.vendor),
     });
   });
 }
@@ -63,15 +67,16 @@ interface Props {
   isExcelExport?: boolean;
   isMultiSelectEnabled?: boolean;
   isFilteringEnabled?: boolean;
-  purchaseOrders: PurchaseOrderNewFragment[];
+  purchaseOrders: PurchaseOrderFragment[];
   actionItems?: DataGridActionItem[];
   selectedPurchaseOrderIds?: PurchaseOrders["id"][];
+  selectablePurchaseOrderStatuses: NewPurchaseOrderStatus[];
   handleClickCustomer?: (customerId: Companies["id"]) => void;
   handleClickPurchaseOrderBankNote?: (
     purchaseOrderId: PurchaseOrders["id"]
   ) => void;
   handleSelectPurchaseOrders?: (
-    purchaseOrders: PurchaseOrderNewFragment[]
+    purchaseOrders: PurchaseOrderFragment[]
   ) => void;
 }
 
@@ -86,6 +91,7 @@ export default function PurchaseOrdersDataGridNew({
   purchaseOrders,
   actionItems,
   selectedPurchaseOrderIds,
+  selectablePurchaseOrderStatuses,
   handleClickCustomer,
   handleClickPurchaseOrderBankNote,
   handleSelectPurchaseOrders,
@@ -128,26 +134,34 @@ export default function PurchaseOrdersDataGridNew({
         ),
       },
       {
-        dataField: "status",
-        caption: "Confirmation Status",
-        width: 250,
+        dataField: "new_purchase_order_status",
+        caption: "Status",
+        width: ColumnWidths.StatusChip,
         alignment: "center",
+        cellRender: (params: ValueFormatterParams) => {
+          return (
+            <PurchaseOrderStatusChip
+              purchaseOrderStatus={
+                params.row.data
+                  .new_purchase_order_status as NewPurchaseOrderStatus
+              }
+            />
+          );
+        },
         lookup: {
           dataSource: {
             store: {
               type: "array",
-              data: [
-                NewPurchaseOrderStatus.ReadyToRequestFinancing,
-                NewPurchaseOrderStatus.PendingApprovalByBespoke,
-                NewPurchaseOrderStatus.FinancingRequestApproved,
-              ].map((d) => ({
-                status: d,
-                label: NewPurchaseOrderStatusToLabel[d],
-              })),
-              key: "status",
+              data: selectablePurchaseOrderStatuses.map(
+                (purchaseOrderStatus) => ({
+                  new_purchase_order_status: purchaseOrderStatus,
+                  label: NewPurchaseOrderStatusToLabel[purchaseOrderStatus],
+                })
+              ),
+              key: "new_purchase_order_status",
             },
           },
-          valueExpr: "status",
+          valueExpr: "new_purchase_order_status",
           displayExpr: "label",
         },
       },
@@ -170,51 +184,56 @@ export default function PurchaseOrdersDataGridNew({
         dataField: "vendor_name",
         caption: "Vendor Name",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) => (
-          <TextDataGridCell label={params.row.data.vendor_name} />
-        ),
       },
       {
         dataField: "requested_at",
-        format: "shortDate",
         caption: "Date Submitted",
         width: ColumnWidths.Date,
         alignment: "center",
+        format: "shortDate",
       },
       {
+        caption: "Amount",
         dataField: "amount",
+        width: ColumnWidths.Currency,
+        alignment: "right",
         format: {
           type: "currency",
           precision: CurrencyPrecision,
         },
-        caption: "Amount",
-        width: ColumnWidths.Currency,
-        alignment: "right",
       },
       {
         visible: isApprovedByVendor,
         caption: "Amount Funded",
         dataField: "amount_funded",
+        width: ColumnWidths.Currency,
         format: {
           type: "currency",
           precision: CurrencyPrecision,
         },
-        width: ColumnWidths.Currency,
         alignment: "right",
+        cellRender: (params: ValueFormatterParams) => (
+          <ProgressBarDataGridCell
+            percentValue={params.row.data.percent_funded}
+            tooltipLabel={`${formatCurrency(
+              params.row.data.amount_funded || 0
+            )} funded`}
+          />
+        ),
       },
       {
-        dataField: "order_date",
-        format: "shortDate",
         caption: "PO Date",
+        dataField: "order_date",
         width: ColumnWidths.Date,
         alignment: "center",
+        format: "shortDate",
       },
       {
-        dataField: "due_date",
-        format: "shortDate",
         caption: "Due Date",
+        dataField: "due_date",
         width: ColumnWidths.Date,
         alignment: "center",
+        format: "shortDate",
       },
       {
         visible: isCustomerNoteVisible,
@@ -260,6 +279,7 @@ export default function PurchaseOrdersDataGridNew({
       isApprovedByVendor,
       isCustomerNoteVisible,
       actionItems,
+      selectablePurchaseOrderStatuses,
       handleClickCustomer,
       handleClickPurchaseOrderBankNote,
     ]
@@ -272,16 +292,21 @@ export default function PurchaseOrdersDataGridNew({
 
   const handleSelectionChanged = useMemo(
     () =>
-      ({ selectedRowsData }: any) =>
+      ({ selectedRowsData }: any) => {
         handleSelectPurchaseOrders &&
-        handleSelectPurchaseOrders(
-          selectedRowsData as PurchaseOrderNewFragment[]
-        ),
+          handleSelectPurchaseOrders(
+            selectedRowsData as PurchaseOrderFragment[]
+          );
+      },
     [handleSelectPurchaseOrders]
   );
 
   return (
-    <Box display="flex" flexDirection="column">
+    <Box
+      display="flex"
+      flexDirection="column"
+      className="purchase-orders-data-grid-new"
+    >
       {!!selectedPurchaseOrderId && (
         <PurchaseOrderDrawer
           purchaseOrderId={selectedPurchaseOrderId}

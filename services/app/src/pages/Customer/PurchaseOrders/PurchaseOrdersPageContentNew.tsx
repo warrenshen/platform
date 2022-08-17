@@ -1,9 +1,13 @@
-import { Tab, Tabs } from "@material-ui/core";
+import { Box, Tab, Tabs } from "@material-ui/core";
+import AddIcon from "@material-ui/icons/Add";
+import CreateUpdatePurchaseOrderModalNew from "components/PurchaseOrder/v2/CreateUpdatePurchaseOrderModalNew";
+import ModalButton from "components/Shared/Modal/ModalButton";
 import PageContent from "components/Shared/Page/PageContent";
 import { Companies } from "generated/graphql";
 import {
-  CustomerPurchaseOrdersTabLabel,
-  CustomerPurchaseOrdersTabLabels,
+  ActionType,
+  CustomerPurchaseOrdersTabLabelNew,
+  CustomerPurchaseOrdersTabLabelsNew,
   ProductTypeEnum,
 } from "lib/enum";
 import CustomerPurchaseOrdersClosedTabNew from "pages/Customer/PurchaseOrders/PurchaseOrdersClosedTabNew";
@@ -16,9 +20,9 @@ interface Props {
 }
 
 const PurchaseOrderComponentMap: {
-  [key in CustomerPurchaseOrdersTabLabel]: (props: Props) => JSX.Element;
+  [key in CustomerPurchaseOrdersTabLabelNew]: (props: Props) => JSX.Element;
 } = {
-  [CustomerPurchaseOrdersTabLabel.ActivePOs]: ({
+  [CustomerPurchaseOrdersTabLabelNew.Active]: ({
     companyId,
     productType,
   }: Props) => (
@@ -27,7 +31,7 @@ const PurchaseOrderComponentMap: {
       productType={productType}
     />
   ),
-  [CustomerPurchaseOrdersTabLabel.ClosedPOs]: ({
+  [CustomerPurchaseOrdersTabLabelNew.Archived]: ({
     companyId,
     productType,
   }: Props) => (
@@ -48,7 +52,26 @@ export default function CustomerPurchaseOrdersPageContent({
     <PageContent
       title={"Purchase Orders New"}
       subtitle={
-        "Create new POs, edit existing POs, and request financing for approved POs."
+        "Create, edit, and request financing for Purchase Orders (POs)."
+      }
+      customerActions={
+        <Box>
+          <ModalButton
+            label={"Add PO"}
+            startIcon={<AddIcon />}
+            modal={({ handleClose }) => (
+              <CreateUpdatePurchaseOrderModalNew
+                actionType={ActionType.New}
+                purchaseOrderId={null}
+                companyId={companyId}
+                productType={productType}
+                handleClose={() => {
+                  handleClose();
+                }}
+              />
+            )}
+          />
+        </Box>
       }
     >
       <Tabs
@@ -57,14 +80,14 @@ export default function CustomerPurchaseOrdersPageContent({
         textColor="primary"
         onChange={(_: any, value: number) => setSelectedTabIndex(value)}
       >
-        {CustomerPurchaseOrdersTabLabels.map(
-          (label: CustomerPurchaseOrdersTabLabel) => (
+        {CustomerPurchaseOrdersTabLabelsNew.map(
+          (label: CustomerPurchaseOrdersTabLabelNew) => (
             <Tab key={label} label={label} />
           )
         )}
       </Tabs>
       {PurchaseOrderComponentMap[
-        CustomerPurchaseOrdersTabLabels[selectedTabIndex]
+        CustomerPurchaseOrdersTabLabelsNew[selectedTabIndex]
       ]({
         companyId,
         productType,

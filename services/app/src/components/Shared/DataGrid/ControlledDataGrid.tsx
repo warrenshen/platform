@@ -176,6 +176,7 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
               fixed,
               visible,
               dataField,
+              dataType,
               caption,
               width,
               minWidth,
@@ -195,6 +196,7 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
               visible={visible}
               caption={caption}
               dataField={dataField}
+              dataType={dataType}
               width={width}
               minWidth={minWidth}
               alignment={alignment}

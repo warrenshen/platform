@@ -4,6 +4,7 @@ import {
   dateAsDateStringClient,
   dateAsDateStringServer,
   dateStringPlusXDaysDate,
+  parseDateStringServer,
 } from "lib/date";
 
 export function computePurchaseOrderDueDate(
@@ -25,14 +26,16 @@ export function computePurchaseOrderDueDateDateStringClient(
   return !!dueDateDate ? dateAsDateStringClient(dueDateDate) : "-";
 }
 
-export function computePurchaseOrderDueDateDateClient(
+export function computePurchaseOrderDueDateDateStringClientNew(
   purchaseOrder: PurchaseOrderFragment
 ) {
   const dueDateDate = computePurchaseOrderDueDate(
     purchaseOrder.order_date,
     purchaseOrder.net_terms as number
   );
-  return !!dueDateDate ? dueDateDate : null;
+  return !!dueDateDate
+    ? parseDateStringServer(dateAsDateStringServer(dueDateDate))
+    : null;
 }
 
 export function isPurchaseOrderDueDateValid(

@@ -207,16 +207,36 @@ export const BankVendorsTabLabels = [
 export enum NewPurchaseOrderStatus {
   Draft = "draft",
   PendingApprovalByVendor = "pending_approval_by_vendor",
+  PendingApprovalByBespoke = "pending_approval_by_bespoke",
   ChangesRequestedByVendor = "changes_requested_by_vendor",
   ChangesRequestedByBespoke = "changes_requested_by_bespoke",
   ReadyToRequestFinancing = "ready_to_request_financing",
-  PendingApprovalByBespoke = "pending_approval_by_bespoke",
   FinancingRequestApproved = "financing_request_approved",
   FullyFinanced = "fully_financed",
   Archived = "archived",
   RejectedByVendor = "rejected_by_vendor",
   RejectedByBespoke = "rejected_by_bespoke",
 }
+
+export const NotReadyNewPurchaseOrderStatuses = [
+  NewPurchaseOrderStatus.Draft,
+  NewPurchaseOrderStatus.PendingApprovalByVendor,
+  NewPurchaseOrderStatus.ChangesRequestedByVendor,
+  NewPurchaseOrderStatus.ChangesRequestedByBespoke,
+];
+
+export const ReadyNewPurchaseOrderStatuses = [
+  NewPurchaseOrderStatus.PendingApprovalByBespoke,
+  NewPurchaseOrderStatus.ReadyToRequestFinancing,
+  NewPurchaseOrderStatus.FinancingRequestApproved,
+];
+
+export const ClosedNewPurchaseOrderStatuses = [
+  NewPurchaseOrderStatus.FullyFinanced,
+  NewPurchaseOrderStatus.Archived,
+  NewPurchaseOrderStatus.RejectedByVendor,
+  NewPurchaseOrderStatus.RejectedByBespoke,
+];
 
 export const NewPurchaseOrderStatusToLabel = {
   [NewPurchaseOrderStatus.Draft]: "Draft",
@@ -328,9 +348,19 @@ export enum CustomerPurchaseOrdersTabLabel {
   ClosedPOs = "Closed POs",
 }
 
+export enum CustomerPurchaseOrdersTabLabelNew {
+  Active = "Active",
+  Archived = "Archived",
+}
+
 export const CustomerPurchaseOrdersTabLabels = [
   CustomerPurchaseOrdersTabLabel.ActivePOs,
   CustomerPurchaseOrdersTabLabel.ClosedPOs,
+];
+
+export const CustomerPurchaseOrdersTabLabelsNew = [
+  CustomerPurchaseOrdersTabLabelNew.Active,
+  CustomerPurchaseOrdersTabLabelNew.Archived,
 ];
 
 export const PaymentTypeToLabel = {

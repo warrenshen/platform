@@ -170,6 +170,30 @@ query GetClosedPurchaseOrdersByCompanyId($company_id: uuid!) {
   }
 }
 
+query GetClosedPurchaseOrdersByCompanyIdNew($company_id: uuid!) {
+  purchase_orders(
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { company_id: { _eq: $company_id } }
+        {
+          _or: [
+            { closed_at: { _is_null: false } }
+            { funded_at: { _is_null: false } }
+          ]
+        }
+      ]
+    }
+  ) {
+    ...PurchaseOrderLimitedNew
+  }
+}
+
 query GetFundablePurchaseOrdersByCompanyId($company_id: uuid!) {
   purchase_orders(
     where: {
