@@ -981,10 +981,30 @@ export enum AsyncJobStatusEnum {
   Completed = "completed",
 }
 
+export const AsyncJobStatusToLabel = {
+  [AsyncJobStatusEnum.Queued]: "Queued",
+  [AsyncJobStatusEnum.InProgress]: "In Progress",
+  [AsyncJobStatusEnum.Failed]: "Failed",
+  [AsyncJobStatusEnum.Completed]: "Completed",
+};
+
+export const AsyncJobStatuses = [
+  AsyncJobStatusEnum.Queued,
+  AsyncJobStatusEnum.InProgress,
+  AsyncJobStatusEnum.Failed,
+  AsyncJobStatusEnum.Completed,
+];
+
 export enum AsyncJobNameEnum {
   // TODO: fill out once jobs are transferred
   Dummy = "dummy",
 }
+
+export const AsyncJobNameEnumToLabel = {
+  [AsyncJobNameEnum.Dummy]: "Dummy",
+};
+
+export const AsyncJobNames = [AsyncJobNameEnum.Dummy];
 
 export enum VendorChangeRequestsStatusEnum {
   ApprovalRequested = "approval_requested",

@@ -224,6 +224,10 @@ export const debtFacilityRoutes = {
   checkPastDue: "debt_facility/check_for_past_due_loans_in_debt_facility",
 };
 
+export const asyncJobRoutes = {
+  deleteAsyncJob: "async_jobs/delete-job",
+};
+
 const api = axios.create({
   baseURL: process.env.REACT_APP_BESPOKE_API_ENDPOINT,
 });

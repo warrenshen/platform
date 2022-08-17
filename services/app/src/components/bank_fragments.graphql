@@ -589,3 +589,21 @@ fragment VendorChangeRequest on vendor_change_requests {
   ...VendorChangeRequestLimited
 }
 
+fragment AsyncJob on async_jobs {
+  id
+  name
+  queued_at
+  started_at
+  ended_at
+  submitted_by_user_id
+  submitted_by_user {
+    id
+    full_name
+  }
+  status
+  is_high_priority
+  job_payload
+  retry_payload
+  err_details
+  num_retries
+}

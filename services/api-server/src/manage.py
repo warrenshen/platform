@@ -34,6 +34,7 @@ from server.views import (
 	two_factor,
 	users,
 	report_generation,
+	async_jobs,
 )
 from server.views.api import licenses as licenses_api
 from server.views.finance import credits, fees, liens
@@ -85,6 +86,7 @@ app.register_blueprint(files.handler, url_prefix='/files')
 app.register_blueprint(licenses.handler, url_prefix='/licenses')
 app.register_blueprint(two_factor.handler, url_prefix='/two_factor')
 app.register_blueprint(users.handler, url_prefix='/users')
+app.register_blueprint(async_jobs.handler, url_prefix='/async_jobs')
 
 # Third-party APIs
 app.register_blueprint(inventory.handler, url_prefix='/inventory')

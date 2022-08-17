@@ -29535,6 +29535,30 @@ export type GetMetrcDownloadSummariesByMetrcApiKeyIdQuery = {
   >;
 };
 
+export type GetOpenAsyncJobsSubscriptionVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetOpenAsyncJobsSubscription = {
+  async_jobs: Array<Pick<AsyncJobs, "id"> & AsyncJobFragment>;
+};
+
+export type GetCompletedAsyncJobsSubscriptionVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetCompletedAsyncJobsSubscription = {
+  async_jobs: Array<Pick<AsyncJobs, "id"> & AsyncJobFragment>;
+};
+
+export type GetAsyncJobByIdQueryVariables = Exact<{
+  id: Scalars["uuid"];
+}>;
+
+export type GetAsyncJobByIdQuery = {
+  async_jobs_by_pk?: Maybe<Pick<AsyncJobs, "id"> & AsyncJobFragment>;
+};
+
 export type GetCompanySettingsQueryVariables = Exact<{
   company_settings_id: Scalars["uuid"];
 }>;
@@ -31010,6 +31034,22 @@ export type VendorChangeRequestFragment = Pick<
   | "deleted_at"
 > &
   VendorChangeRequestLimitedFragment;
+
+export type AsyncJobFragment = Pick<
+  AsyncJobs,
+  | "id"
+  | "name"
+  | "queued_at"
+  | "started_at"
+  | "ended_at"
+  | "submitted_by_user_id"
+  | "status"
+  | "is_high_priority"
+  | "job_payload"
+  | "retry_payload"
+  | "err_details"
+  | "num_retries"
+> & { submitted_by_user?: Maybe<Pick<Users, "id" | "full_name">> };
 
 export type CompanySettingsLimitedFragment = Pick<
   CompanySettings,
@@ -32766,6 +32806,26 @@ export const VendorChangeRequestFragmentDoc = gql`
     ...VendorChangeRequestLimited
   }
   ${VendorChangeRequestLimitedFragmentDoc}
+`;
+export const AsyncJobFragmentDoc = gql`
+  fragment AsyncJob on async_jobs {
+    id
+    name
+    queued_at
+    started_at
+    ended_at
+    submitted_by_user_id
+    submitted_by_user {
+      id
+      full_name
+    }
+    status
+    is_high_priority
+    job_payload
+    retry_payload
+    err_details
+    num_retries
+  }
 `;
 export const CompanyLicenseLimitedAnonymousFragmentDoc = gql`
   fragment CompanyLicenseLimitedAnonymous on company_licenses {
@@ -40046,6 +40106,164 @@ export type GetMetrcDownloadSummariesByMetrcApiKeyIdQueryResult =
     GetMetrcDownloadSummariesByMetrcApiKeyIdQuery,
     GetMetrcDownloadSummariesByMetrcApiKeyIdQueryVariables
   >;
+export const GetOpenAsyncJobsDocument = gql`
+  subscription GetOpenAsyncJobs {
+    async_jobs(
+      order_by: [{ queued_at: desc }]
+      where: {
+        _or: [
+          { is_deleted: { _is_null: true } }
+          { is_deleted: { _eq: false } }
+        ]
+        status: { _neq: "completed" }
+      }
+    ) {
+      id
+      ...AsyncJob
+    }
+  }
+  ${AsyncJobFragmentDoc}
+`;
+
+/**
+ * __useGetOpenAsyncJobsSubscription__
+ *
+ * To run a query within a React component, call `useGetOpenAsyncJobsSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetOpenAsyncJobsSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOpenAsyncJobsSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetOpenAsyncJobsSubscription(
+  baseOptions?: Apollo.SubscriptionHookOptions<
+    GetOpenAsyncJobsSubscription,
+    GetOpenAsyncJobsSubscriptionVariables
+  >
+) {
+  return Apollo.useSubscription<
+    GetOpenAsyncJobsSubscription,
+    GetOpenAsyncJobsSubscriptionVariables
+  >(GetOpenAsyncJobsDocument, baseOptions);
+}
+export type GetOpenAsyncJobsSubscriptionHookResult = ReturnType<
+  typeof useGetOpenAsyncJobsSubscription
+>;
+export type GetOpenAsyncJobsSubscriptionResult =
+  Apollo.SubscriptionResult<GetOpenAsyncJobsSubscription>;
+export const GetCompletedAsyncJobsDocument = gql`
+  subscription GetCompletedAsyncJobs {
+    async_jobs(
+      order_by: [{ ended_at: desc }]
+      where: {
+        _or: [
+          { is_deleted: { _is_null: true } }
+          { is_deleted: { _eq: false } }
+        ]
+        status: { _eq: "completed" }
+      }
+    ) {
+      id
+      ...AsyncJob
+    }
+  }
+  ${AsyncJobFragmentDoc}
+`;
+
+/**
+ * __useGetCompletedAsyncJobsSubscription__
+ *
+ * To run a query within a React component, call `useGetCompletedAsyncJobsSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetCompletedAsyncJobsSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCompletedAsyncJobsSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetCompletedAsyncJobsSubscription(
+  baseOptions?: Apollo.SubscriptionHookOptions<
+    GetCompletedAsyncJobsSubscription,
+    GetCompletedAsyncJobsSubscriptionVariables
+  >
+) {
+  return Apollo.useSubscription<
+    GetCompletedAsyncJobsSubscription,
+    GetCompletedAsyncJobsSubscriptionVariables
+  >(GetCompletedAsyncJobsDocument, baseOptions);
+}
+export type GetCompletedAsyncJobsSubscriptionHookResult = ReturnType<
+  typeof useGetCompletedAsyncJobsSubscription
+>;
+export type GetCompletedAsyncJobsSubscriptionResult =
+  Apollo.SubscriptionResult<GetCompletedAsyncJobsSubscription>;
+export const GetAsyncJobByIdDocument = gql`
+  query GetAsyncJobById($id: uuid!) {
+    async_jobs_by_pk(id: $id) {
+      id
+      ...AsyncJob
+    }
+  }
+  ${AsyncJobFragmentDoc}
+`;
+
+/**
+ * __useGetAsyncJobByIdQuery__
+ *
+ * To run a query within a React component, call `useGetAsyncJobByIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAsyncJobByIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAsyncJobByIdQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetAsyncJobByIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetAsyncJobByIdQuery,
+    GetAsyncJobByIdQueryVariables
+  >
+) {
+  return Apollo.useQuery<GetAsyncJobByIdQuery, GetAsyncJobByIdQueryVariables>(
+    GetAsyncJobByIdDocument,
+    baseOptions
+  );
+}
+export function useGetAsyncJobByIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetAsyncJobByIdQuery,
+    GetAsyncJobByIdQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetAsyncJobByIdQuery,
+    GetAsyncJobByIdQueryVariables
+  >(GetAsyncJobByIdDocument, baseOptions);
+}
+export type GetAsyncJobByIdQueryHookResult = ReturnType<
+  typeof useGetAsyncJobByIdQuery
+>;
+export type GetAsyncJobByIdLazyQueryHookResult = ReturnType<
+  typeof useGetAsyncJobByIdLazyQuery
+>;
+export type GetAsyncJobByIdQueryResult = Apollo.QueryResult<
+  GetAsyncJobByIdQuery,
+  GetAsyncJobByIdQueryVariables
+>;
 export const GetCompanySettingsDocument = gql`
   query GetCompanySettings($company_settings_id: uuid!) {
     company_settings_by_pk(id: $company_settings_id) {

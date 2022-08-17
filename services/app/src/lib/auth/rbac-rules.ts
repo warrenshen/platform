@@ -104,6 +104,9 @@ export enum Action {
   ResolveDebtFacilityLoan = "debt_facility:resolve_loan",
   UpdateDebtFacilityAssignedDate = "debt_facility:update_assigned_date",
   CheckDebtFacilityForPastDue = "debt_facility:check_for_past_due",
+
+  // Async Jobs
+  DeleteAsyncJob = "async_jobs:delete_job",
 }
 
 export interface ActionData {
@@ -246,6 +249,8 @@ const rules: Rules = {
       Action.ResolveDebtFacilityLoan,
       Action.UpdateDebtFacilityAssignedDate,
       Action.CheckDebtFacilityForPastDue,
+
+      Action.DeleteAsyncJob,
     ],
     dynamic: [],
   },

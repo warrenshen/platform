@@ -41,9 +41,12 @@ def delete_job(
 			models.AsyncJobs.id == job_id
 		).first())
 
-	delete_job.is_deleted = True
-	delete_job.deleted_at = date_util.now()
-	delete_job.updated_at = date_util.now()
+	if delete_job.status != AsyncJobStatusEnum.IN_PROGRESS:
+		delete_job.is_deleted = True
+		delete_job.deleted_at = date_util.now()
+		delete_job.updated_at = date_util.now()
+	else:
+		return None, errors.Error(f"{job_id} is in progress and cannot be deleted.")
 
 	return True, None
 

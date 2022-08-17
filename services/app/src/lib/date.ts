@@ -3,12 +3,17 @@ import {
   addDays,
   addMonths,
   differenceInDays,
+  differenceInMilliseconds,
   differenceInMonths,
   eachDayOfInterval,
   format,
+  formatDuration,
   getYear,
   isBefore,
   lastDayOfMonth,
+  millisecondsToHours,
+  millisecondsToMinutes,
+  millisecondsToSeconds,
   parse,
   parseISO,
   subMonths,
@@ -48,9 +53,17 @@ export function dateAsDateStringServer(date: Date) {
   }
 }
 
-export function parseDateStringServer(dateString: string) {
+export function parseDateStringServer(
+  dateString: string,
+  isDatetime: boolean = false
+) {
   try {
-    return parseISO(dateString);
+    if (isDatetime) {
+      const shortDateString = format(parseISO(dateString), DateFormatServer);
+      return parseISO(shortDateString);
+    } else {
+      return parseISO(dateString);
+    }
   } catch (error) {
     throw new Error(
       `Could not parse the date string "${dateString}. Error message: "${error}`
@@ -370,4 +383,25 @@ export const getDatesInRange = (startDate: string, endDate: string) => {
     start: parseDateStringServer(startDate),
     end: parseDateStringServer(endDate),
   });
+};
+
+export const getTimeInbetweenDates = (
+  laterDate: string,
+  earlierDate: string,
+  isZeroDisplayed: boolean = false,
+  delimiter: string = " "
+) => {
+  const diff = differenceInMilliseconds(
+    parseDateStringServer(laterDate),
+    parseDateStringServer(earlierDate)
+  );
+
+  const seconds = millisecondsToSeconds(diff) % 60;
+  const minutes = millisecondsToMinutes(diff) % 60;
+  const hours = millisecondsToHours(diff) % 24;
+
+  return formatDuration(
+    { hours: hours, minutes: minutes, seconds: seconds },
+    { zero: isZeroDisplayed, delimiter: delimiter }
+  );
 };

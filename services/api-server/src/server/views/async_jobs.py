@@ -60,7 +60,7 @@ class EnqueueJobView(MethodView):
 		}), 200)
 
 class DeleteJobView(MethodView):
-	decorators = [auth_util.requires_async_magic_header]
+	decorators = [auth_util.bank_admin_required]
 
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
@@ -72,14 +72,14 @@ class DeleteJobView(MethodView):
 		user_session = auth_util.UserSession.from_session()
 		
 		required_keys = [
-			'job_id',
+			'async_job_id',
 		]
 
 		for key in required_keys:
 			if key not in form:
 				return handler_util.make_error_response(f'Missing {key} in request')
 
-		job_id = form['job_id']
+		job_id = form['async_job_id']
 
 		with session_scope(current_app.session_maker) as session:
 			_, err = async_jobs_util.delete_job(
