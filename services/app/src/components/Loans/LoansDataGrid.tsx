@@ -1,4 +1,4 @@
-import { Box, Button, Tooltip, Typography } from "@material-ui/core";
+import { Box, Button, Typography } from "@material-ui/core";
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import CommentIcon from "@material-ui/icons/Comment";
 import InvoiceDrawer from "components/Invoices/InvoiceDrawer";
@@ -11,7 +11,7 @@ import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
-import MetrcLogo from "components/Shared/Images/MetrcLogo.png";
+import PurchaseOrderIdentifierDataGridCell from "components/Shared/DataGrid/PurchaseOrderIdentifierDataGridCell";
 import {
   Companies,
   Invoices,
@@ -325,28 +325,13 @@ export default function LoansDataGrid({
         minWidth: ColumnWidths.MinWidth,
         cellRender: (params: ValueFormatterParams) =>
           params.row.data.purchase_order ? (
-            <>
-              <ClickableDataGridCell
-                onClick={() => {
-                  setSelectedPurchaseOrderId(params.row.data.purchase_order.id);
-                }}
-                label={params.row.data.artifact_name}
-              />
-              {params.row.data.purchase_order.is_metrc_based && (
-                <Tooltip
-                  arrow
-                  interactive
-                  title={"Purchase order created from Metrc manifest"}
-                >
-                  <img
-                    src={MetrcLogo}
-                    alt="Metrc Logo"
-                    width={24}
-                    height={24}
-                  />
-                </Tooltip>
-              )}
-            </>
+            <PurchaseOrderIdentifierDataGridCell
+              onClick={() => {
+                setSelectedPurchaseOrderId(params.row.data.purchase_order.id);
+              }}
+              artifactName={params.row.data.artifact_name}
+              isMetrcBased={params.row.data.purchase_order.is_metrc_based}
+            />
           ) : params.row.data.invoice ? (
             <ClickableDataGridCell
               onClick={() => {
