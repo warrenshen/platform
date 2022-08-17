@@ -28,3 +28,28 @@ export async function deleteAsyncJobMutation(
       }
     );
 }
+
+export type ChangeAsyncJobPriorityReq = {
+  variables: {
+    async_job_ids: AsyncJobs["id"][];
+    priority: boolean;
+  };
+};
+
+export async function changeAsyncJobPriorityMutation(
+  req: ChangeAsyncJobPriorityReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(asyncJobRoutes.changeAsyncJobPriority, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.error(error);
+        return {
+          status: "ERROR",
+          msg: "Could not change async jobs priority",
+        };
+      }
+    );
+}

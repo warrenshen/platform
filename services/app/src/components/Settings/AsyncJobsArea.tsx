@@ -1,5 +1,6 @@
 import { Box, Tab, Tabs, Typography } from "@material-ui/core";
 import AsyncJobsDataGrid from "components/Settings/AsyncJobsDataGrid";
+import ChangeAsyncJobPriorityModal from "components/Settings/ChangeAsyncJobPriorityModal";
 import DeleteAsyncJobModal from "components/Settings/DeleteAsyncJobModal";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
@@ -30,29 +31,58 @@ function OpenAsyncJobsTab() {
     ? selectedAsyncJobs[0].status
     : null;
 
+  const selectJobPriority = selectedAsyncJobs.map(
+    (job) => job.is_high_priority
+  );
+
+  const allSameJobPriority = selectJobPriority.every(
+    (priority) => priority === selectJobPriority[0]
+  );
+
   const isDeleteDisabled =
     selectedAsyncJobs.length !== 1 ||
     jobStatus === AsyncJobStatusEnum.InProgress;
 
+  const isChangeJobPriorityDisabled =
+    selectedAsyncJobs.length < 1 || !allSameJobPriority;
+
   return (
     <>
       <Box display="flex" flexDirection="row-reverse">
-        <Can perform={Action.DeleteAsyncJob}>
-          <Box mr={2}>
+        <Box>
+          <Can perform={Action.ChangeAsyncJobPriority}>
             <ModalButton
-              isDisabled={isDeleteDisabled}
-              label={"Delete Job"}
+              isDisabled={isChangeJobPriorityDisabled}
+              label={"Change Priority"}
               modal={({ handleClose }) => (
-                <DeleteAsyncJobModal
-                  asyncJob={selectedAsyncJobs[0]}
+                <ChangeAsyncJobPriorityModal
+                  asyncJobs={selectedAsyncJobs}
                   handleClose={() => {
                     handleClose();
                   }}
                 />
               )}
             />
-          </Box>
-        </Can>
+          </Can>
+        </Box>
+        <Box>
+          <Can perform={Action.DeleteAsyncJob}>
+            <Box mr={2}>
+              <ModalButton
+                isDisabled={isDeleteDisabled}
+                label={"Delete Job"}
+                modal={({ handleClose }) => (
+                  <DeleteAsyncJobModal
+                    asyncJob={selectedAsyncJobs[0]}
+                    handleClose={() => {
+                      handleClose();
+                    }}
+                  />
+                )}
+              />
+            </Box>
+          </Can>
+        </Box>
       </Box>
       <Box display="flex" mt={3}>
         {asyncJobs.length > 0 ? (

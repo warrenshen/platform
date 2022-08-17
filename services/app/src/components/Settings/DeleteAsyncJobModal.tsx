@@ -16,7 +16,6 @@ import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { deleteAsyncJobMutation } from "lib/api/asyncJobs";
 import { formatDatetimeString } from "lib/date";
-import { useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -43,7 +42,6 @@ interface Props {
 function DeleteAsyncJobModal({ asyncJob, handleClose }: Props) {
   const snackbar = useSnackbar();
   const classes = useStyles();
-  const [errMsg, setErrMsg] = useState("");
 
   const [deleteAsyncJob, { loading: isDeleteAsyncJobLoading }] =
     useCustomMutation(deleteAsyncJobMutation);
@@ -56,7 +54,6 @@ function DeleteAsyncJobModal({ asyncJob, handleClose }: Props) {
     });
 
     if (response.status !== "OK") {
-      setErrMsg(response.msg);
       snackbar.showError(`Could not delete job. Error: ${response.msg}`);
     } else {
       snackbar.showSuccess("Async job deleted.");
@@ -96,7 +93,6 @@ function DeleteAsyncJobModal({ asyncJob, handleClose }: Props) {
               value={formatDatetimeString(asyncJob.queued_at)}
             />
           </Box>
-          {errMsg && <Typography>Error: {errMsg}</Typography>}
         </Box>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>

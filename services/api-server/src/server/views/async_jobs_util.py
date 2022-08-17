@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Dict, Tuple, cast
+from typing import Any, Dict, Tuple, cast, List
 
 from bespoke import errors
 from bespoke.date import date_util
@@ -47,6 +47,28 @@ def delete_job(
 		delete_job.updated_at = date_util.now()
 	else:
 		return None, errors.Error(f"{job_id} is in progress and cannot be deleted.")
+
+	return True, None
+
+@errors.return_error_tuple
+def change_job_priority(
+	session: Session,
+	job_ids: List[str],
+	priority: bool,
+) -> Tuple[bool, errors.Error]:
+
+	change_jobs = cast(
+		List[models.AsyncJobs],
+		session.query(models.AsyncJobs).filter(
+			models.AsyncJobs.id.in_(job_ids)
+		).all())
+
+	for job in change_jobs:
+		if job.status != AsyncJobStatusEnum.IN_PROGRESS:
+			job.is_high_priority = priority
+			job.updated_at = date_util.now()
+		else:
+			return None, errors.Error(f"{job.id} is in progress and can not be changed.")
 
 	return True, None
 

@@ -95,6 +95,44 @@ class DeleteJobView(MethodView):
 			'status': 'OK'
 		}), 200)
 
+class ChangeJobPriorityView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		logging.info("Received async job priorities change request")
+
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+		
+		required_keys = [
+			'async_job_ids',
+			'priority',
+		]
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in async job priorities change request')
+
+		job_ids = form['async_job_ids']
+		priority = form['priority']
+
+		with session_scope(current_app.session_maker) as session:
+			_, err = async_jobs_util.change_job_priority(
+				session = session,
+				job_ids = job_ids,
+				priority = priority,
+			)
+			if err:
+				raise err
+
+		logging.info(f"Changed async jobs priority {job_ids}")
+
+		return make_response(json.dumps({
+			'status': 'OK'
+		}), 200)
+
 handler.add_url_rule(
 	'/enqueue-job',
 	view_func=EnqueueJobView.as_view(name='enqueue_job_view'))
@@ -102,3 +140,8 @@ handler.add_url_rule(
 handler.add_url_rule(
 	'/delete-job',
 	view_func=DeleteJobView.as_view(name='delete_job_view'))
+
+handler.add_url_rule(
+	'/change-job-priority',
+	view_func=ChangeJobPriorityView.as_view(name='change_job_priority_view'))
+

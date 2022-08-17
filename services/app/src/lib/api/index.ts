@@ -226,6 +226,7 @@ export const debtFacilityRoutes = {
 
 export const asyncJobRoutes = {
   deleteAsyncJob: "async_jobs/delete-job",
+  changeAsyncJobPriority: "async_jobs/change-job-priority",
 };
 
 const api = axios.create({
