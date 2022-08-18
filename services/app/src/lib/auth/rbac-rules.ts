@@ -108,6 +108,7 @@ export enum Action {
 
   // Async Jobs
   DeleteAsyncJob = "async_jobs:delete_job",
+  RetryAsyncJob = "async_jobs:retry_job",
   ChangeAsyncJobPriority = "async_jobs:change_job_priority",
 }
 
@@ -254,6 +255,7 @@ const rules: Rules = {
       Action.CheckDebtFacilityForPastDue,
 
       Action.DeleteAsyncJob,
+      Action.RetryAsyncJob,
       Action.ChangeAsyncJobPriority,
     ],
     dynamic: [],

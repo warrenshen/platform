@@ -53,3 +53,27 @@ export async function changeAsyncJobPriorityMutation(
       }
     );
 }
+
+export type RetryAsyncJobReq = {
+  variables: {
+    async_job_ids: AsyncJobs["id"][];
+  };
+};
+
+export async function retryAsyncJobMutation(
+  req: RetryAsyncJobReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(asyncJobRoutes.retryAsyncJob, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.error(error);
+        return {
+          status: "ERROR",
+          msg: "Could not retry async jobs",
+        };
+      }
+    );
+}

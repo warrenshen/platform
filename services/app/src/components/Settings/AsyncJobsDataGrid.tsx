@@ -26,6 +26,7 @@ interface Props {
   handleSelectAsyncJobs?: (asyncJobs: AsyncJobs[]) => void;
   actionItems?: DataGridActionItem[];
   isFilteringEnabled?: boolean;
+  isRetryPayloadVisible?: boolean;
 }
 
 export default function AsyncJobsDataGrid({
@@ -38,6 +39,7 @@ export default function AsyncJobsDataGrid({
   handleSelectAsyncJobs,
   actionItems,
   isFilteringEnabled = true,
+  isRetryPayloadVisible = false,
 }: Props) {
   function getRows(asyncJobs: AsyncJobFragment[]): RowsProp {
     return asyncJobs.map((asyncJob) => {
@@ -157,8 +159,14 @@ export default function AsyncJobsDataGrid({
         dataField: "run_time",
         minWidth: ColumnWidths.Datetime,
       },
+      {
+        visible: isRetryPayloadVisible,
+        caption: "Retry Payload",
+        dataField: "retry_payload",
+        minWidth: ColumnWidths.Comment,
+      },
     ],
-    [isCompletedJob]
+    [isCompletedJob, isRetryPayloadVisible]
   );
 
   const handleSelectionChanged = useMemo(

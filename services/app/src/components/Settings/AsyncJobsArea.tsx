@@ -2,6 +2,7 @@ import { Box, Tab, Tabs, Typography } from "@material-ui/core";
 import AsyncJobsDataGrid from "components/Settings/AsyncJobsDataGrid";
 import ChangeAsyncJobPriorityModal from "components/Settings/ChangeAsyncJobPriorityModal";
 import DeleteAsyncJobModal from "components/Settings/DeleteAsyncJobModal";
+import RetryAsyncJobModal from "components/Settings/RetryAsyncJobModal";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import {
@@ -39,9 +40,15 @@ function OpenAsyncJobsTab() {
     (priority) => priority === selectJobPriority[0]
   );
 
+  const allSameStatus = selectedAsyncJobs.every(
+    (job) => job.status === AsyncJobStatusEnum.Failed
+  );
+
   const isDeleteDisabled =
     selectedAsyncJobs.length !== 1 ||
     jobStatus === AsyncJobStatusEnum.InProgress;
+
+  const isRetryAsyncDisabled = selectedAsyncJobs.length < 1 || !allSameStatus;
 
   const isChangeJobPriorityDisabled =
     selectedAsyncJobs.length < 1 || !allSameJobPriority;
@@ -63,6 +70,24 @@ function OpenAsyncJobsTab() {
                 />
               )}
             />
+          </Can>
+        </Box>
+        <Box>
+          <Can perform={Action.RetryAsyncJob}>
+            <Box mr={2}>
+              <ModalButton
+                isDisabled={isRetryAsyncDisabled}
+                label={"Retry"}
+                modal={({ handleClose }) => (
+                  <RetryAsyncJobModal
+                    asyncJobs={selectedAsyncJobs}
+                    handleClose={() => {
+                      handleClose();
+                    }}
+                  />
+                )}
+              />
+            </Box>
           </Can>
         </Box>
         <Box>

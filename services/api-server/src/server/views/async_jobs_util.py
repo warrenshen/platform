@@ -73,6 +73,28 @@ def change_job_priority(
 	return True, None
 
 @errors.return_error_tuple
+def retry_job(
+	session: Session,
+	job_ids: List[str],
+) -> Tuple[bool, errors.Error]:
+
+	retry_jobs = cast(
+		List[models.AsyncJobs],
+		session.query(models.AsyncJobs).filter(
+			models.AsyncJobs.id.in_(job_ids)
+		).all())
+
+	for job in retry_jobs:
+		if job.status == AsyncJobStatusEnum.FAILED:
+			job.queued_at = date_util.now()
+			job.status = AsyncJobStatusEnum.QUEUED
+			job.updated_at = date_util.now()
+		else:
+			return None, errors.Error(f"{job.id} is not failed and can not be changed.")
+
+	return True, None
+
+@errors.return_error_tuple
 def dummy_job(
 	job_payload: Dict[str, Any],
 ) -> Tuple[bool, errors.Error]:

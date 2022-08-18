@@ -133,6 +133,41 @@ class ChangeJobPriorityView(MethodView):
 			'status': 'OK'
 		}), 200)
 
+class RetryJobView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		logging.info("Received async job retry request")
+
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+		
+		required_keys = [
+			'async_job_ids',
+		]
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in async job retry request')
+
+		job_ids = form['async_job_ids']
+
+		with session_scope(current_app.session_maker) as session:
+			_, err = async_jobs_util.retry_job(
+				session = session,
+				job_ids = job_ids,
+			)
+			if err:
+				raise err
+
+		logging.info(f"Retried async jobs with {job_ids}")
+
+		return make_response(json.dumps({
+			'status': 'OK'
+		}), 200)
+
 handler.add_url_rule(
 	'/enqueue-job',
 	view_func=EnqueueJobView.as_view(name='enqueue_job_view'))
@@ -145,3 +180,6 @@ handler.add_url_rule(
 	'/change-job-priority',
 	view_func=ChangeJobPriorityView.as_view(name='change_job_priority_view'))
 
+handler.add_url_rule(
+	'/retry-job',
+	view_func=RetryJobView.as_view(name='retry_job_view'))
