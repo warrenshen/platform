@@ -1,12 +1,11 @@
-import { Box } from "@material-ui/core";
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
-import DatetimeDataGridCell from "components/Shared/DataGrid/DatetimeDataGridCell";
 import { CompanyPartnershipRequests } from "generated/graphql";
-import { ColumnWidths } from "lib/tables";
+import { parseDateStringServer } from "lib/date";
+import { ColumnWidths, formatRowModel } from "lib/tables";
 import { useMemo } from "react";
 
 interface Props {
@@ -24,23 +23,25 @@ interface Props {
 }
 
 function getRows(requests: any[]): RowsProp {
-  return requests.map((request) => ({
-    ...request,
-    requesting_company: {
-      ...request.requesting_company,
-    },
-    requested_by_user: {
-      ...request.requested_by_user,
-    },
-    license_ids: request.license_info
-      ? request.license_info.license_ids.join(", ")
-      : "",
-  }));
+  return requests.map((request) => {
+    return formatRowModel({
+      ...request,
+      created_at: !!request?.created_at
+        ? parseDateStringServer(request.created_at)
+        : null,
+      licenses: !!request?.license_info?.license_ids?.[0]
+        ? request.license_info.license_ids.join(", ")
+        : null,
+      settled_at: !!request?.settled_at
+        ? parseDateStringServer(request.settled_at)
+        : null,
+    });
+  });
 }
 
 export default function PartnershipsDataGrid({
   isExcelExport = true,
-  isFilteringEnabled = false,
+  isFilteringEnabled = true,
   isMultiSelectEnabled = false,
   isSortingDisabled = false,
   pager = true,
@@ -98,12 +99,7 @@ export default function PartnershipsDataGrid({
         dataField: "created_at",
         width: ColumnWidths.Type,
         alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
-          <DatetimeDataGridCell
-            isTimeVisible
-            datetimeString={params.row.data.created_at}
-          />
-        ),
+        format: "longDateLongTime",
       },
       {
         caption: "Closed At",
@@ -111,21 +107,13 @@ export default function PartnershipsDataGrid({
         width: ColumnWidths.Type,
         alignment: "center",
         visible: isClosedTab,
-        cellRender: (params: ValueFormatterParams) => (
-          <DatetimeDataGridCell
-            isTimeVisible
-            datetimeString={params.row.data.settled_at}
-          />
-        ),
+        format: "longDateLongTime",
       },
       {
         caption: "License IDs",
-        dataField: "license_info",
+        dataField: "licenses",
         width: ColumnWidths.Type,
         alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
-          <Box>{params.row.data.license_ids}</Box>
-        ),
       },
     ],
     [actionItems, isClosedTab]

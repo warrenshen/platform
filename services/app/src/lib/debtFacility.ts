@@ -5,6 +5,7 @@ import {
 } from "generated/graphql";
 import {
   DayInMilliseconds,
+  dateAsDateStringServer,
   dateStringPlusXDaysDate,
   parseDateStringServer,
   withinNDaysOfNowOrBefore,
@@ -264,6 +265,15 @@ export const getDaysPastDue = (
   );
   const maturityDate = getMaturityDate(loan, productType);
 
+  // Here we strip the timestamp off so that we don't have worry about
+  // funky edge cases and timezones since we only care about calendar
+  // days in PST in this scenario
+  const closedDate = !!loan?.closed_at
+    ? parseDateStringServer(
+        dateAsDateStringServer(parseDateStringServer(loan.closed_at))
+      )
+    : null;
+
   // adjusted_maturity_date is nullable, while the debt facility report should
   // never pick up a loan without a maturity date, we're taking an extra step here
   // for extra safety in case requirements ever change
@@ -274,25 +284,12 @@ export const getDaysPastDue = (
   // If the loan is already repaid, then DPD should be zero
   // if it was paid on time, otherwise the days late from
   // when it was paid
-  if (!!loan.closed_at && loan.closed_at < currentReportDate.getTime()) {
-    // Multiple calls to parseDateStringServer may seem odd, but it strips the timestamp off
-    // so I don't have worry about funky edge cases and timezones since
-    // we only care about calendar days in PST in this scenario
-    const closedDate = parseDateStringServer(
-      parseDateStringServer(loan.closed_at).toDateString()
+  if (!!closedDate && closedDate < currentReportDate) {
+    const daysPaidPastDue = Math.floor(
+      (closedDate.valueOf() - maturityDate.valueOf()) / DayInMilliseconds
     );
 
-    const daysPaidPastDue =
-      closedDate < currentReportDate
-        ? Math.floor(
-            (closedDate.valueOf() - maturityDate.valueOf()) / DayInMilliseconds
-          )
-        : Math.floor(
-            (currentReportDate.valueOf() - maturityDate.valueOf()) /
-              DayInMilliseconds
-          );
-
-    return daysPaidPastDue;
+    return daysPaidPastDue > 0 ? daysPaidPastDue : 0;
   } else {
     const daysPastDue = Math.floor(
       (currentReportDate.valueOf() - maturityDate.valueOf()) / DayInMilliseconds
@@ -522,7 +519,7 @@ export const getLoanMonth = (
   loan: OpenLoanForDebtFacilityFragment
 ): Maybe<number> => {
   return !!loan.origination_date
-    ? parseDateStringServer(loan.origination_date).getMonth()
+    ? parseDateStringServer(loan.origination_date).getMonth() + 1
     : null;
 };
 

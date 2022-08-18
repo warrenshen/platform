@@ -135,7 +135,7 @@ function ActionRequiredTab() {
       >
         <PartnershipsDataGrid
           isClosedTab={false}
-          isFilteringEnabled={false}
+          isFilteringEnabled
           isMultiSelectEnabled
           partnershipRequests={partnershipRequests}
           selectedRequestIds={selectedRequestIds}
