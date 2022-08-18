@@ -43179,7 +43179,14 @@ export const GetVendorPartnershipForBankDocument = gql`
         id
         ...BankAccount
       }
-      vendor_contacts {
+      vendor_contacts(
+        where: {
+          _or: [
+            { user: { is_deleted: { _is_null: true } } }
+            { user: { is_deleted: { _eq: false } } }
+          ]
+        }
+      ) {
         id
         ...CompanyVendorContact
       }
@@ -44254,7 +44261,19 @@ export type CompanyVendorPartnershipForCustomerQueryResult = Apollo.QueryResult<
 >;
 export const GetVendorPartnershipForContactsForCustomersDocument = gql`
   query GetVendorPartnershipForContactsForCustomers($id: uuid!) {
-    company_vendor_contacts(where: { partnership_id: { _eq: $id } }) {
+    company_vendor_contacts(
+      where: {
+        _and: [
+          { partnership_id: { _eq: $id } }
+          {
+            _or: [
+              { user: { is_deleted: { _is_null: true } } }
+              { user: { is_deleted: { _eq: false } } }
+            ]
+          }
+        ]
+      }
+    ) {
       id
       vendor_user_id
       user {

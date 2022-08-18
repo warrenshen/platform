@@ -109,7 +109,17 @@ query CompanyVendorPartnershipForCustomer($id: uuid!) {
 query GetVendorPartnershipForContactsForCustomers($id: uuid!) {
   company_vendor_contacts(
     where: 
-      { partnership_id: { _eq: $id } }
+    {
+      _and: [
+        { partnership_id: { _eq: $id } }
+        {
+          _or: [
+            { user : { is_deleted: { _is_null: true } } }
+            { user : { is_deleted: { _eq: false } } }
+          ]
+        }
+      ]
+    }
   ) { 
     id
     vendor_user_id 

@@ -47,7 +47,7 @@ query GetVendorPartnershipForBank($id: uuid!) {
           ...BankAccount
         }
       }
-      users (
+      users(
         where: {
           _or: [
             { is_deleted: { _is_null: true } }
@@ -66,7 +66,14 @@ query GetVendorPartnershipForBank($id: uuid!) {
       id
       ...BankAccount
     }
-    vendor_contacts {
+    vendor_contacts(
+      where: {
+        _or: [
+          { user: { is_deleted: { _is_null: true } } }
+          { user: { is_deleted: { _eq: false } } }
+        ]
+      }
+    ) {
       id
       ...CompanyVendorContact
     }
@@ -118,7 +125,7 @@ query GetNotApprovedVendorPartnershipsForBank {
   company_vendor_partnerships(
     where: { approved_at: { _is_null: true } }
     order_by: { vendor: { name: asc } }
-    ) {
+  ) {
     ...VendorPartnership
     company {
       id
@@ -138,7 +145,7 @@ query GetApprovedVendorPartnershipsForBank {
   company_vendor_partnerships(
     where: { approved_at: { _is_null: false } }
     order_by: { vendor: { name: asc } }
-    ) {
+  ) {
     ...VendorPartnership
     company {
       id
