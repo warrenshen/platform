@@ -5,7 +5,7 @@ from typing import Callable, cast, List, Tuple
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models
-from bespoke.db.db_constants import PaymentType
+from bespoke.db.db_constants import ClientSurveillanceCategoryEnum, PaymentType, RequestStatusEnum
 
 from sqlalchemy import or_, and_
 from sqlalchemy.orm.session import Session
@@ -132,6 +132,35 @@ def get_company_settings_for_target_companies(
         return None, errors.Error("No company settings found for the provided companies")
 
     return company_settings, None
+
+# ###############################
+# Ebba Applications
+# ###############################
+
+def get_approved_financial_reports_by_company_id(
+    session: Session,
+    company_id: str,
+) -> Tuple[ List[models.EbbaApplication], errors.Error ]:
+    filters = [
+        models.EbbaApplication.company_id == company_id,
+        models.EbbaApplication.category == ClientSurveillanceCategoryEnum.FINANCIAL_REPORT,
+        models.EbbaApplication.status == RequestStatusEnum.APPROVED,
+    ]
+
+    # fmt: off
+    financial_reports = cast(
+        List[models.EbbaApplication],
+        session.query(models.EbbaApplication).filter(
+            *filters
+        ).order_by(
+            models.EbbaApplication.application_date.desc()
+        ).all())
+    # fmt: on
+
+    # no need to check for if financial_reports is none
+    # as that is not an error state
+
+    return financial_reports, None
 
 # ###############################
 # Financial Summaries

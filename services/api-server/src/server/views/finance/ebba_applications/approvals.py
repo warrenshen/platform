@@ -4,7 +4,7 @@ from typing import Any, cast, Dict, List
 from bespoke import errors
 from bespoke.audit import events
 from bespoke.date import date_util
-from bespoke.db import models, models_util
+from bespoke.db import models, models_util, queries
 from bespoke.db.db_constants import ClientSurveillanceCategoryEnum, RequestStatusEnum
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
@@ -76,7 +76,16 @@ class RespondToEbbaApplicationApprovalRequest(MethodView):
 				if ebba_application.category == ClientSurveillanceCategoryEnum.BORROWING_BASE:
 					company_settings.active_borrowing_base_id = ebba_application.id
 				elif ebba_application.category == ClientSurveillanceCategoryEnum.FINANCIAL_REPORT:
-					company_settings.active_financial_report_id = ebba_application.id
+					financial_reports, err = queries.get_approved_financial_reports_by_company_id(
+						session,
+						str(ebba_application.company_id),
+					)
+					if err:
+						raise err
+
+
+					company_settings.active_financial_report_id = ebba_application.id if financial_reports is None \
+						and len(financial_reports) > 0 else financial_reports[0].id
 				else:
 					raise errors.Error('Application category is invalid')
 			else:
