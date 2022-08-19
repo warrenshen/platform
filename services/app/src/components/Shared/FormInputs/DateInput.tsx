@@ -21,6 +21,7 @@ interface Props {
   disablePast?: boolean;
   disabledBefore?: string; // Disable days before this date.
   required?: boolean;
+  keyboardIcon?: React.ReactNode;
   onChange?: (value: string | null) => void;
 }
 
@@ -81,6 +82,7 @@ export default function DateInput(props: Props) {
         KeyboardButtonProps={{
           "aria-label": "change date",
         }}
+        keyboardIcon={props.keyboardIcon}
       />
     </MuiPickersUtilsProvider>
   );

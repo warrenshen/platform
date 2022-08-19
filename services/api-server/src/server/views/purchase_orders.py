@@ -1,11 +1,12 @@
 import json
+import os
 from typing import Any, Callable, List, cast
 
 from bespoke import errors
 from bespoke.audit import events
 from bespoke.date import date_util
 from bespoke.db import models, models_util
-from bespoke.db.db_constants import RequestStatusEnum
+from bespoke.db.db_constants import RequestStatusEnum, TwoFactorLinkType
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from bespoke.finance import number_util
@@ -14,7 +15,7 @@ from bespoke.finance.purchase_orders import purchase_orders_util
 from bespoke.security import security_util, two_factor_util
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
-from server.config import Config
+from server.config import Config, is_test_env
 from server.views.common import auth_util, handler_util
 
 handler = Blueprint('purchase_orders', __name__)
@@ -66,8 +67,18 @@ class CreateUpdateAsDraftNewView(MethodView):
 			return handler_util.make_error_response("Access Denied", status_code=403)
 
 		with session_scope(current_app.session_maker) as session:
-			purchase_order_id, err = purchase_orders_util.create_update_purchase_order_new(
-				data, session)
+			purchase_order_id, template_data, err = purchase_orders_util.create_update_purchase_order_new(
+				session,
+				data,
+			)
+			if err:
+				raise err
+			
+			_, err = current_app.sendgrid_client.send(
+				template_name=sendgrid_util.TemplateNames.CUSTOMER_CREATED_PURCHASE_ORDER,
+				template_data=template_data,
+				recipients=current_app.app_config.BANK_NOTIFY_EMAIL_ADDRESSES,
+			)
 			if err:
 				raise err
 
@@ -201,19 +212,68 @@ class CreateUpdateAndSubmitNewView(MethodView):
 			return handler_util.make_error_response("Access Denied", status_code=403)
 
 		with session_scope(current_app.session_maker) as session:
-			purchase_order_id, err = purchase_orders_util.create_update_purchase_order_new(
+			purchase_order_id, template_data, err = purchase_orders_util.create_update_purchase_order_new(
+				session,
 				data,
-				session
 			)
 			if err:
 				raise err
 
-			purchase_order_id, err = purchase_orders_util.submit_purchase_order_for_approval_new(
-				purchase_order_id,
-				session
+			_, err = current_app.sendgrid_client.send(
+				template_name=sendgrid_util.TemplateNames.CUSTOMER_CREATED_PURCHASE_ORDER_NEW,
+				template_data=template_data,
+				recipients=current_app.app_config.BANK_NOTIFY_EMAIL_ADDRESSES,
 			)
 			if err:
 				raise err
+
+			purchase_order, vendor_users, is_vendor_missing_bank_account, err = purchase_orders_util.submit_purchase_order_for_approval_new(
+				session,
+				purchase_order_id,
+			)
+			if err:
+				raise err
+			
+			form_info = cast(Callable, models.TwoFactorFormInfoDict)(
+				type=TwoFactorLinkType.CONFIRM_PURCHASE_ORDER,
+				payload={
+					'purchase_order_id': purchase_order_id
+				}
+			)
+			two_factor_payload = sendgrid_util.TwoFactorPayloadDict(
+				form_info=form_info,
+				expires_at=date_util.hours_from_today(24 * 7)
+			)
+
+			# Send the email to the vendor for them to approve or reject this purchase order
+			# Get the vendor_id and find its users
+			_, err = current_app.sendgrid_client.send(
+				template_name=sendgrid_util.TemplateNames.VENDOR_TO_APPROVE_PURCHASE_ORDER_NEW,
+				template_data=template_data,
+				# Todo : Update this before rolling out to customers
+				recipients=[user['email'] for user in vendor_users]
+						if not (is_test_env(os.environ.get("FLASK_ENV")))
+						else current_app.app_config.BANK_NOTIFY_EMAIL_ADDRESSES,
+				two_factor_payload=two_factor_payload,
+				is_new_secure_link=True,
+			)
+			if err:
+				raise err
+
+			# If vendor does NOT have a bank account set up yet,
+			# send an email to the Bespoke team letting them know about this.
+			if is_vendor_missing_bank_account:
+				template_data = {
+					'vendor_name': purchase_order.vendor.get_display_name(),
+					'customer_name': purchase_order.company.get_display_name(),
+				}
+				_, err = current_app.sendgrid_client.send(
+					template_name=sendgrid_util.TemplateNames.CUSTOMER_REQUESTED_APPROVAL_NO_VENDOR_BANK_ACCOUNT_NEW,
+					template_data=template_data,
+					recipients=current_app.app_config.BANK_NOTIFY_EMAIL_ADDRESSES + current_app.app_config.OPS_EMAIL_ADDRESSES,
+				)
+				if err:
+					raise err
 
 		return make_response(json.dumps({
 			'status': 'OK',

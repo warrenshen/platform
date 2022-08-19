@@ -15,6 +15,11 @@ import {
   PurchaseOrderFileTypeEnum,
   PurchaseOrdersInsertInput,
 } from "generated/graphql";
+import {
+  CustomCheckboxChecked,
+  CustomCheckboxUnchecked,
+  DateInputIcon,
+} from "icons/index";
 import { dateAsDateStringClient } from "lib/date";
 import { FileTypeEnum } from "lib/enum";
 import { isPurchaseOrderDueDateValid } from "lib/purchaseOrders";
@@ -55,7 +60,7 @@ export default function PurchaseOrderForm({
 
   return (
     <>
-      <Box display="flex" flexDirection="column" mt={4}>
+      <Box display="flex" flexDirection="column" mt={2}>
         <TextField
           data-cy={"purchase-order-form-input-order-number"}
           label="PO Number"
@@ -68,7 +73,7 @@ export default function PurchaseOrderForm({
           }
         />
       </Box>
-      <Box display="flex" flexDirection="column" mt={4}>
+      <Box display="flex" flexDirection="column" mt={2}>
         <DateInput
           dataCy={"purchase-order-form-input-order-date"}
           id="order-date-date-picker"
@@ -80,9 +85,10 @@ export default function PurchaseOrderForm({
               order_date: value,
             })
           }
+          keyboardIcon={<DateInputIcon />}
         />
       </Box>
-      <Box display="flex" flexDirection="column" mt={4}>
+      <Box display="flex" flexDirection="column" mt={3}>
         <FormControlLabel
           control={
             <Checkbox
@@ -95,13 +101,15 @@ export default function PurchaseOrderForm({
                 })
               }
               color="primary"
+              icon={<CustomCheckboxUnchecked />}
+              checkedIcon={<CustomCheckboxChecked />}
             />
           }
           label={"Is payment due on receipt (COD)?"}
         />
       </Box>
       {isNetTermsVisible && (
-        <Box display="flex" flexDirection="column" mt={1}>
+        <Box display="flex" flexDirection="column" mt={2}>
           <AutocompleteInput
             dataCy={"purchase-order-form-input-net-terms"}
             id={"net-terms"}
@@ -122,12 +130,11 @@ export default function PurchaseOrderForm({
         </Box>
       )}
       {isDueDateVisible && (
-        <Box mt={1}>
-          <Typography
-            variant="subtitle1"
-            color={isDueDateValid ? "primary" : "secondary"}
-          >
-            {`PO Due Date: ${dateAsDateStringClient(dueDateDate as Date)}`}
+        <Box mt={0.5} ml={3}>
+          <Typography variant="subtitle1" color="textPrimary">
+            <strong>{`PO Due Date: ${dateAsDateStringClient(
+              dueDateDate as Date
+            )}`}</strong>
           </Typography>
           {!isDueDateValid && (
             <Typography variant="subtitle1" color="secondary">
@@ -140,7 +147,7 @@ export default function PurchaseOrderForm({
           )}
         </Box>
       )}
-      <Box display="flex" flexDirection="column" mt={4}>
+      <Box display="flex" flexDirection="column" mt={3}>
         <CurrencyInput
           dataCy={"purchase-order-form-input-amount"}
           label="Amount"
@@ -153,7 +160,7 @@ export default function PurchaseOrderForm({
           }
         />
       </Box>
-      <Box display="flex" flexDirection="column" mt={4}>
+      <Box display="flex" flexDirection="column" mt={2}>
         <TextField
           data-cy={"purchase-order-form-input-customer-note"}
           multiline
@@ -168,9 +175,9 @@ export default function PurchaseOrderForm({
           }
         />
       </Box>
-      <Box display="flex" flexDirection="column" mt={4}>
+      <Box display="flex" flexDirection="column" mt={2}>
         <Box mb={1}>
-          <Typography variant="subtitle1" color="textSecondary">
+          <Typography variant="subtitle1" color="textPrimary">
             Purchase Order File Attachment(s)
           </Typography>
           <Typography variant="body2" color="textSecondary">

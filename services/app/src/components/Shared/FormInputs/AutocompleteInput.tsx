@@ -66,7 +66,9 @@ export default function AutocompleteInput({
           {...params}
           label={label}
           variant="outlined"
-          helperText={!value ? "Type to enter a custom number" : ""}
+          helperText={
+            !value ? "Select number, or type to enter a custom number" : ""
+          }
         />
       )}
       onChange={(event, option) => {

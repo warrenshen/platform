@@ -820,6 +820,7 @@ class PurchaseOrder(Artifact):
 	amount = Column(Numeric)
 	amount_funded = Column(Numeric)
 	status = Column(String)
+	new_purchase_order_status = Column(String)
 	requested_at = Column(DateTime)
 	approved_at = Column(DateTime)
 	approved_by_user_id =  cast(GUID, Column(GUID, ForeignKey('users.id')))

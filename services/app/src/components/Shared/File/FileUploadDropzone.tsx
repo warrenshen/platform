@@ -6,7 +6,7 @@ import {
   createStyles,
   makeStyles,
 } from "@material-ui/core";
-import CloudUploadIcon from "@material-ui/icons/CloudUpload";
+import AddIcon from "@material-ui/icons/Add";
 import * as Sentry from "@sentry/react";
 import axios from "axios";
 import { FileFragment } from "generated/graphql";
@@ -19,12 +19,14 @@ const useStyles = makeStyles((theme: Theme) =>
     container: {
       width: "100%",
       minWidth: 450,
-      border: "1px dotted black",
+      border: "1px dotted #D4D3D0",
+      borderRadius: "4px",
     },
     dropzone: {
       "&:hover": {
         cursor: "pointer",
       },
+      backgroundColor: "#F6F5F3",
     },
   })
 );
@@ -321,11 +323,11 @@ export default function FileUploadDropzone({
             <Typography color="secondary" align="center">
               {message}
             </Typography>
-            <Box display="flex" alignItems="center">
+            <Box display="flex" flexDirection="column" alignItems="center">
               <Box display="flex" mr={1}>
-                <CloudUploadIcon />
+                <AddIcon style={{ color: "#ABAAA9" }} />
               </Box>
-              <Typography color="textPrimary">
+              <Typography color="textSecondary">
                 {isDragActive
                   ? "Drop the files here ..."
                   : `Drag-and-drop file${

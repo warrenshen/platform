@@ -10,6 +10,7 @@ import {
   PurchaseOrdersInsertInput,
   Vendors,
 } from "generated/graphql";
+import { CustomCheckboxChecked, CustomCheckboxUnchecked } from "icons";
 import { FileTypeEnum } from "lib/enum";
 import { useMemo } from "react";
 
@@ -87,6 +88,8 @@ export default function PurchaseOrderFormManual({
                 })
               }
               color="primary"
+              icon={<CustomCheckboxUnchecked />}
+              checkedIcon={<CustomCheckboxChecked />}
             />
           }
           label={"Does this order include cannabis or derivatives?"}

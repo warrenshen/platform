@@ -8,7 +8,7 @@ from typing import Callable, Dict, List, Optional, Tuple, cast
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
-from bespoke.db.db_constants import RequestStatusEnum
+from bespoke.db.db_constants import RequestStatusEnum, NewPurchaseOrderStatus
 from bespoke.companies import partnership_util
 from bespoke.email import sendgrid_util
 from bespoke.finance import number_util
@@ -71,6 +71,7 @@ class PurchaseOrderData:
 			is_metrc_based=self.is_metrc_based,
 			customer_note=self.customer_note,
 			status=db_constants.RequestStatusEnum.DRAFTED,
+			new_purchase_order_status=db_constants.NewPurchaseOrderStatus.DRAFT,
 		)
 
 	@staticmethod
@@ -342,9 +343,9 @@ def create_update_purchase_order(
 
 @errors.return_error_tuple
 def create_update_purchase_order_new(
+	session: Session,
 	request: PurchaseOrderUpsertRequest,
-	session: Session
-) -> Tuple[str, errors.Error]:
+) -> Tuple[str, dict, errors.Error]:
 	is_create_purchase_order = False
 
 	if not request.purchase_order.company_id:
@@ -479,30 +480,14 @@ def create_update_purchase_order_new(
 			purchase_order_metrc_transfer_dicts.append(new_purchase_order_metrc_transfer.as_dict())
 
 	if is_create_purchase_order:
-		sendgrid_client = cast(
-			sendgrid_util.Client,
-			current_app.sendgrid_client,
-		)
-
 		template_data = {
 			'customer_name': customer.get_display_name(),
 			'vendor_name': vendor.get_display_name(),
 			'purchase_order_number': purchase_order.order_number,
 			'purchase_order_amount': number_util.to_dollar_format(float(purchase_order.amount)) if purchase_order.amount else None,
 		}
-		_, err = sendgrid_client.send(
-			template_name=sendgrid_util.TemplateNames.CUSTOMER_CREATED_PURCHASE_ORDER,
-			template_data=template_data,
-			recipients=(
-				["user@customer.com"]
-				if is_test_env(os.environ.get("FLASK_ENV"))
-				else current_app.app_config.BANK_NOTIFY_EMAIL_ADDRESSES
-			),
-		)
-		if err:
-			raise err
 
-	return purchase_order_id, None
+	return purchase_order_id, template_data, None
 
 @errors.return_error_tuple
 def submit_purchase_order_for_approval(
@@ -663,9 +648,9 @@ def submit_purchase_order_for_approval(
 
 @errors.return_error_tuple
 def submit_purchase_order_for_approval_new(
+	session: Session,
 	purchase_order_id: str,
-	session: Session
-) -> Tuple[str, errors.Error]:
+) -> Tuple[models.PurchaseOrder, List[partnership_util.ContactDict], bool, errors.Error]:
 	is_vendor_missing_bank_account = False
 
 	purchase_order = cast(
@@ -763,61 +748,8 @@ def submit_purchase_order_for_approval_new(
 				raise errors.Error('Purchase order cannabis file attachment(s) are required')
 
 	purchase_order.status = RequestStatusEnum.APPROVAL_REQUESTED
+	purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.PENDING_APPROVAL_BY_VENDOR
 	purchase_order.requested_at = date_util.now()
 	purchase_order.incompleted_at = None
 
-	sendgrid_client = cast(
-		sendgrid_util.Client,
-		current_app.sendgrid_client,
-	)
-
-	form_info = cast(Callable, models.TwoFactorFormInfoDict)(
-		type=db_constants.TwoFactorLinkType.CONFIRM_PURCHASE_ORDER,
-		payload={
-			'purchase_order_id': purchase_order_id
-		}
-	)
-	two_factor_payload = sendgrid_util.TwoFactorPayloadDict(
-		form_info=form_info,
-		expires_at=date_util.hours_from_today(24 * 7)
-	)
-
-	# Send the email to the vendor for them to approve or reject this purchase order
-	# Get the vendor_id and find its users
-	template_data = {
-		'vendor_name': vendor.get_display_name(),
-		'customer_name': customer.get_display_name(),
-	}
-	_, err = sendgrid_client.send(
-		template_name=sendgrid_util.TemplateNames.VENDOR_TO_APPROVE_PURCHASE_ORDER,
-		template_data=template_data,
-		# Todo : Update this before rolling out to customers
-		recipients=[user['email'] for user in vendor_users]
-				if not is_test_env(os.environ.get("FLASK_ENV"))
-				else current_app.app_config.BANK_NOTIFY_EMAIL_ADDRESSES,
-		two_factor_payload=two_factor_payload,
-		is_new_secure_link=True,
-	)
-	if err:
-		raise err
-
-	# If vendor does NOT have a bank account set up yet,
-	# send an email to the Bespoke team letting them know about this.
-	if is_vendor_missing_bank_account:
-		template_data = {
-			'vendor_name': vendor.get_display_name(),
-			'customer_name': customer.get_display_name(),
-		}
-		_, err = sendgrid_client.send(
-			template_name=sendgrid_util.TemplateNames.CUSTOMER_REQUESTED_APPROVAL_NO_VENDOR_BANK_ACCOUNT,
-			template_data=template_data,
-			recipients=(
-				["user@customer.com"]
-				if is_test_env(os.environ.get("FLASK_ENV"))
-				else current_app.app_config.BANK_NOTIFY_EMAIL_ADDRESSES
-			) + current_app.app_config.OPS_EMAIL_ADDRESSES,
-		)
-		if err:
-			raise err
-
-	return purchase_order_id, None
+	return purchase_order, vendor_users, is_vendor_missing_bank_account, None

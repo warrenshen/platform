@@ -25,6 +25,7 @@ class TemplateNames(object):
 	VENDOR_APPROVED_NOTIFY_CUSTOMER = 'vendor_approved_notify_customer'
 	VENDOR_APPROVED_NOTIFY_VENDOR = 'vendor_approved_notify_vendor' # to vendor
 	VENDOR_TO_APPROVE_PURCHASE_ORDER = 'vendor_to_approve_purchase_order' # to vendor
+	VENDOR_TO_APPROVE_PURCHASE_ORDER_NEW = 'vendor_to_approve_purchase_order_new' # to vendor
 
 	# Email sent to the client which is used to onboard the vendor.
 	CLIENT_SENT_VENDOR_ONBOARDING_FORM = 'client_sent_vendor_onboarding_form'
@@ -33,8 +34,10 @@ class TemplateNames(object):
 
 	# Email sent to Bespoke when a customer requests approval from a vendor who does not have a bank account set up.
 	CUSTOMER_REQUESTED_APPROVAL_NO_VENDOR_BANK_ACCOUNT = 'customer_requested_approval_no_vendor_bank_account'
+	CUSTOMER_REQUESTED_APPROVAL_NO_VENDOR_BANK_ACCOUNT_NEW = 'customer_requested_approval_no_vendor_bank_account_new'
 
 	CUSTOMER_CREATED_PURCHASE_ORDER = 'customer_created_purchase_order'
+	CUSTOMER_CREATED_PURCHASE_ORDER_NEW = 'customer_created_purchase_order_new'
 	VENDOR_APPROVED_PURCHASE_ORDER = 'vendor_approved_purchase_order'
 	VENDOR_REJECTED_PURCHASE_ORDER = 'vendor_rejected_purchase_order'
 	BANK_REJECTED_PURCHASE_ORDER = 'bank_rejected_purchase_order'
@@ -124,6 +127,10 @@ _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
 		'id': 'd-17349ff8699a44f18da7144452d3731a',
 		'requires_secure_link': True
 	},
+	TemplateNames.VENDOR_TO_APPROVE_PURCHASE_ORDER_NEW: {
+		'id': 'd-ffeb4e6b09164685923f9caabc6ad57f',
+		'requires_secure_link': True
+	},
 	TemplateNames.CLIENT_SENT_VENDOR_ONBOARDING_FORM: {
 		'id': 'd-aeba307f19ee4562902baf3557f3cebe',
 		'requires_secure_link': False
@@ -136,9 +143,17 @@ _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
 		'id': 'd-9d47d43627704e85b422f351db2769bc',
 		'requires_secure_link': False
 	},
+	TemplateNames.CUSTOMER_REQUESTED_APPROVAL_NO_VENDOR_BANK_ACCOUNT_NEW: {
+		'id': 'd-8e487c63da9349f4901cc5207e460bfa',
+		'requires_secure_link': False
+	},
 
 	TemplateNames.CUSTOMER_CREATED_PURCHASE_ORDER: {
 		'id': 'd-508802292a1d4f42b01caa7afa0290be',
+		'requires_secure_link': False
+	},
+	TemplateNames.CUSTOMER_CREATED_PURCHASE_ORDER_NEW: {
+		'id': 'd-c46eb652fc064728b90546fbacd80334',
 		'requires_secure_link': False
 	},
 	TemplateNames.VENDOR_APPROVED_PURCHASE_ORDER: {

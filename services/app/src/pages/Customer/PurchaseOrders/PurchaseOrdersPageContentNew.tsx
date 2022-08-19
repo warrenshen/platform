@@ -42,7 +42,7 @@ const PurchaseOrderComponentMap: {
   ),
 };
 
-export default function CustomerPurchaseOrdersPageContent({
+export default function CustomerPurchaseOrdersPageContentNew({
   companyId,
   productType,
 }: Props) {
@@ -58,6 +58,7 @@ export default function CustomerPurchaseOrdersPageContent({
         <Box>
           <ModalButton
             label={"Add PO"}
+            dataCy={"create-purchase-order-button"}
             startIcon={<AddIcon />}
             modal={({ handleClose }) => (
               <CreateUpdatePurchaseOrderModalNew

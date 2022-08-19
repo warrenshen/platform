@@ -1,14 +1,9 @@
 import { Box, Button, Typography } from "@material-ui/core";
-import { Alert } from "@material-ui/lab";
 import PurchaseOrderFormManualNew from "components/PurchaseOrder/v2/PurchaseOrderFormManualNew";
 import PurchaseOrderFormMetrcNew from "components/PurchaseOrder/v2/PurchaseOrderFormMetrcNew";
 import MetrcLogo from "components/Shared/Images/MetrcLogo.png";
 import { ReactComponent as KeyboardIcon } from "components/Shared/Layout/Icons/Keyboard.svg";
 import Modal from "components/Shared/Modal/Modal";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
 import {
   Companies,
   Files,
@@ -32,10 +27,15 @@ import {
 } from "lib/api/purchaseOrders";
 import { isFeatureFlagEnabled } from "lib/companies";
 import { todayMinusXDaysDateStringServer } from "lib/date";
-import { ActionType, FeatureFlagEnum, ProductTypeEnum } from "lib/enum";
+import {
+  ActionType,
+  FeatureFlagEnum,
+  NewPurchaseOrderStatus,
+  ProductTypeEnum,
+} from "lib/enum";
 import { isPurchaseOrderDueDateValid } from "lib/purchaseOrders";
 import { isNull, mergeWith, uniqBy } from "lodash";
-import { useContext, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import styled from "styled-components";
 
 const Buttons = styled.div`
@@ -87,11 +87,6 @@ export default function CreateUpdatePurchaseOrderModalNew({
 
   const isActionTypeUpdate = actionType === ActionType.Update;
 
-  const {
-    user: { role },
-  } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
-
   // Default PurchaseOrder for CREATE case.
   const newPurchaseOrder: PurchaseOrdersInsertInput = {
     vendor_id: null,
@@ -103,6 +98,7 @@ export default function CreateUpdatePurchaseOrderModalNew({
     is_metrc_based: null, // null = not known yet
     customer_note: null,
     status: RequestStatusEnum.Drafted,
+    new_purchase_order_status: NewPurchaseOrderStatus.Draft,
   };
 
   const [purchaseOrder, setPurchaseOrder] = useState(newPurchaseOrder);
@@ -342,6 +338,7 @@ export default function CreateUpdatePurchaseOrderModalNew({
       is_metrc_based: isMetrcBased,
       customer_note: purchaseOrder.customer_note,
       status: RequestStatusEnum.Drafted,
+      new_purchase_order_status: NewPurchaseOrderStatus.Draft,
     };
   };
 
@@ -487,7 +484,7 @@ export default function CreateUpdatePurchaseOrderModalNew({
       dataCy={"create-purchase-order-modal"}
       isPrimaryActionDisabled={isPrimaryActionDisabled}
       isSecondaryActionDisabled={isSecondaryActionDisabled}
-      title={`${isActionTypeUpdate ? "Edit" : "Create"} Purchase Order New`}
+      title={`${isActionTypeUpdate ? "Edit" : "Create"} Purchase Order`}
       contentWidth={600}
       primaryActionText={isActionTypeUpdate ? "Save" : "Save and Submit"}
       secondaryActionText={!isActionTypeUpdate ? "Save as Draft" : null}
@@ -497,18 +494,6 @@ export default function CreateUpdatePurchaseOrderModalNew({
       }
       handleSecondaryAction={!isActionTypeUpdate ? handleClickSaveDraft : null}
     >
-      {isBankUser && (
-        <Box mt={2} mb={6}>
-          <Alert severity="warning">
-            <Typography variant="body1">
-              {`Warning: you are ${
-                isActionTypeUpdate ? "editing" : "creating"
-              } a purchase order on behalf of this
-                customer (only bank admins can do this).`}
-            </Typography>
-          </Alert>
-        </Box>
-      )}
       {isMetrcEnabled &&
         (isMetrcBased === null ? (
           <Box display="flex" flexDirection="column" mb={4}>

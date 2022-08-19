@@ -174,7 +174,7 @@ class AddCompanyView(MethodView):
 		session_maker, err = run_cypress_preflight_checks()
 		if err:
 			raise err
-
+	
 		form = json.loads(request.data)
 		if not form:
 			return handler_util.make_error_response("No data provided")

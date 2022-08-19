@@ -214,7 +214,7 @@ export default function PurchaseOrderFormMetrcNew({
       {!isLabResultsPassed && (
         <Box display="flex" flexDirection="column" mt={4}>
           <Box mb={1}>
-            <Typography variant="subtitle1" color="textSecondary">
+            <Typography variant="subtitle1" color="textPrimary">
               Cannabis File Attachments
             </Typography>
             <Typography variant="body2" color="textSecondary">

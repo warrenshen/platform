@@ -12,10 +12,10 @@ const File = styled.div`
   justify-content: space-between;
   align-items: center;
 
-  height: 36px;
+  height: 56px;
   margin-bottom: 8px;
   border: 1px solid rgba(95, 90, 84, 0.2);
-  border-radius: 3px;
+  border-radius: 4px;
 `;
 
 const FileLink = styled(Link)`
@@ -99,7 +99,7 @@ function FileDownloadThumnail({
           href={fileWithSignedUrl.url}
           target={"_blank"}
         >
-          <Box mr={1}>
+          <Box mr={1} ml={0.5}>
             <InsertDriveFileIcon />
           </Box>
           <FileLinkText>{fileWithSignedUrl.name}</FileLinkText>

@@ -42,6 +42,7 @@ export const customerRoutes = {
   overview: "/1/overview",
   payments: "/1/payments",
   purchaseOrders: "/1/purchase-orders",
+  // purchaseOrdersNew: "/1/purchase-orders-new",
   settings: "/1/settings",
   vendors: "/1/vendors",
   invoices: "/1/invoices",
