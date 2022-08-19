@@ -1,3 +1,8 @@
+- name: async_jobs_orchestration_handler
+  webhook: '{{ASYNC_SERVER_BASE_URL}}/async_jobs/kick-off-handler'
+  schedule: '* * * * *'
+  include_in_metadata: true
+  payload: {}
 - name: auto_generate_loan_repayments
   webhook: '{{ASYNC_SERVER_BASE_URL}}/autogenerate/autogenerate_repayment'
   schedule: 0 9 * * 1-5

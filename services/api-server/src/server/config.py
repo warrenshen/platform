@@ -104,6 +104,7 @@ class Config(object):
 		self.DEV_DOMAIN = os.environ.get('DEV_DOMAIN', 'http://localhost:3005')
 
 		self.BOT_USER_ID = os.environ.get('BOT_USER_ID')
+		self.ASYNC_JOB_CAPACITY = os.environ.get('ASYNC_JOB_CAPACITY')
 
 	def get_security_config(self) -> security_util.ConfigDict:
 		return security_util.ConfigDict(

@@ -1,6 +1,8 @@
 import logging
-from typing import Any, Dict, Tuple, cast, List
+import random
+import time
 
+from typing import Any, Callable, Dict, Tuple, cast, List
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models
@@ -17,7 +19,7 @@ def add_job_to_queue(
 	job_payload: Dict[str, Any],
 ) -> Tuple[bool, errors.Error]:
 
-	new_job = models.AsyncJobs( # type: ignore
+	new_job = models.AsyncJob( # type: ignore
 		name = job_name,
 		submitted_by_user_id = submitted_by_user_id,
 		status = AsyncJobStatusEnum.QUEUED,
@@ -36,9 +38,9 @@ def delete_job(
 ) -> Tuple[bool, errors.Error]:
 
 	delete_job = cast(
-		models.AsyncJobs,
-		session.query(models.AsyncJobs).filter(
-			models.AsyncJobs.id == job_id
+		models.AsyncJob,
+		session.query(models.AsyncJob).filter(
+			models.AsyncJob.id == job_id
 		).first())
 
 	if delete_job.status != AsyncJobStatusEnum.IN_PROGRESS:
@@ -58,9 +60,9 @@ def change_job_priority(
 ) -> Tuple[bool, errors.Error]:
 
 	change_jobs = cast(
-		List[models.AsyncJobs],
-		session.query(models.AsyncJobs).filter(
-			models.AsyncJobs.id.in_(job_ids)
+		List[models.AsyncJob],
+		session.query(models.AsyncJob).filter(
+			models.AsyncJob.id.in_(job_ids)
 		).all())
 
 	for job in change_jobs:
@@ -79,9 +81,9 @@ def retry_job(
 ) -> Tuple[bool, errors.Error]:
 
 	retry_jobs = cast(
-		List[models.AsyncJobs],
-		session.query(models.AsyncJobs).filter(
-			models.AsyncJobs.id.in_(job_ids)
+		List[models.AsyncJob],
+		session.query(models.AsyncJob).filter(
+			models.AsyncJob.id.in_(job_ids)
 		).all())
 
 	for job in retry_jobs:
@@ -95,11 +97,78 @@ def retry_job(
 	return True, None
 
 @errors.return_error_tuple
+def kick_off_handler(
+	session: Session,
+	available_job_number: int,
+) -> Tuple[List[str], errors.Error]:
+
+	max_failed_attempts = 3
+
+	currently_running_jobs = cast(
+		List[models.AsyncJob],
+		session.query(models.AsyncJob).filter(
+			models.AsyncJob.status == AsyncJobStatusEnum.IN_PROGRESS
+		).order_by(
+			models.AsyncJob.queued_at.desc()
+		).all())
+
+	number_of_running_jobs = len(currently_running_jobs)
+	if number_of_running_jobs == available_job_number:
+		return [], None
+
+	queued_jobs = cast(
+		List[models.AsyncJob],
+		session.query(models.AsyncJob).filter(
+			models.AsyncJob.status == AsyncJobStatusEnum.QUEUED
+		).filter(
+			cast(Callable, models.AsyncJob.is_deleted.isnot)(True)
+		).order_by(
+			models.AsyncJob.is_high_priority.desc()
+		).order_by(
+			models.AsyncJob.queued_at.asc()
+		).all())
+
+	number_of_queued_jobs = len(queued_jobs)
+	number_of_jobs_available = available_job_number - number_of_running_jobs
+	starting_jobs = queued_jobs[:min(number_of_queued_jobs, number_of_jobs_available)]
+
+	for job in starting_jobs:
+
+		job.status = AsyncJobStatusEnum.IN_PROGRESS
+		job.updated_at = date_util.now()
+		job.started_at = date_util.now()
+		session.commit()
+		payload = job.retry_payload if job.num_retries != 0 and job.retry_payload is not None else job.job_payload
+		payload = cast(Dict[str, Any], payload)
+		job_success, err_msg = ASYNC_JOBS[job.name](payload)
+
+		if job_success:
+			job.status = AsyncJobStatusEnum.COMPLETED
+		else:
+			if job.num_retries >= max_failed_attempts:
+				job.status = AsyncJobStatusEnum.FAILED
+			else:
+				job.status = AsyncJobStatusEnum.QUEUED
+				job.queued_at = date_util.now()
+			job.num_retries += 1
+			job.err_details = [str(err_msg)]
+
+		job.ended_at = date_util.now()
+		job.updated_at = date_util.now()
+		session.commit()
+
+	return [job.id for job in starting_jobs], None
+
+@errors.return_error_tuple
 def dummy_job(
 	job_payload: Dict[str, Any],
 ) -> Tuple[bool, errors.Error]:
 
-	logging.info("dummy job has been run")
+	# if random.randint(1, 100) < 50:
+	# 	return False, errors.Error("Error")
+	time.sleep(42)
+
+	logging.info(f"dummy job with has been run")
 
 	return True, None
 

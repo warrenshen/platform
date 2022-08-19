@@ -7,6 +7,7 @@ import {
   differenceInMonths,
   eachDayOfInterval,
   format,
+  formatDistanceToNow,
   formatDuration,
   getYear,
   isBefore,
@@ -396,12 +397,23 @@ export const getTimeInbetweenDates = (
     parseDateStringServer(earlierDate)
   );
 
+  const milliseconds = diff % 1000;
   const seconds = millisecondsToSeconds(diff) % 60;
   const minutes = millisecondsToMinutes(diff) % 60;
   const hours = millisecondsToHours(diff) % 24;
+  return seconds === 0 && minutes === 0 && hours === 0
+    ? milliseconds + " milliseconds"
+    : formatDuration(
+        { hours: hours, minutes: minutes, seconds: seconds },
+        { zero: isZeroDisplayed, delimiter: delimiter }
+      );
+};
 
-  return formatDuration(
-    { hours: hours, minutes: minutes, seconds: seconds },
-    { zero: isZeroDisplayed, delimiter: delimiter }
-  );
+export const getTimeFromDateToNow = (
+  date: string,
+  includeSeconds: boolean = false
+) => {
+  return formatDistanceToNow(parseDateStringServer(date), {
+    includeSeconds: includeSeconds,
+  });
 };

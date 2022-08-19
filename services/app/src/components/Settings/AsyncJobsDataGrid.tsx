@@ -4,7 +4,11 @@ import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridC
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import { DataGridActionItem } from "components/Shared/DataGrid/DataGridActionMenu";
 import { AsyncJobFragment, AsyncJobs } from "generated/graphql";
-import { getTimeInbetweenDates, parseDateStringServer } from "lib/date";
+import {
+  getTimeFromDateToNow,
+  getTimeInbetweenDates,
+  parseDateStringServer,
+} from "lib/date";
 import {
   AsyncJobNameEnum,
   AsyncJobNameEnumToLabel,
@@ -46,19 +50,24 @@ export default function AsyncJobsDataGrid({
       return formatRowModel({
         ...asyncJob,
         end_time: !!asyncJob?.ended_at
-          ? parseDateStringServer(asyncJob.ended_at, true)
+          ? parseDateStringServer(asyncJob.ended_at)
           : null,
         high_priority: !!asyncJob?.is_high_priority && true,
         id: !!asyncJob?.id ? asyncJob.id : null,
         name: !!asyncJob?.name ? (asyncJob.name as AsyncJobNameEnum) : null,
         queued_time: !!asyncJob?.queued_at
-          ? parseDateStringServer(asyncJob.queued_at, true)
+          ? parseDateStringServer(asyncJob.queued_at)
+          : null,
+        running_time: !!asyncJob?.started_at
+          ? asyncJob.started_at >= asyncJob.ended_at || !asyncJob?.ended_at
+            ? getTimeFromDateToNow(asyncJob.started_at, true)
+            : null
           : null,
         run_time: !!asyncJob?.ended_at
           ? getTimeInbetweenDates(asyncJob.ended_at, asyncJob.started_at)
           : null,
         start_time: !!asyncJob?.started_at
-          ? parseDateStringServer(asyncJob.started_at, true)
+          ? parseDateStringServer(asyncJob.started_at)
           : null,
         status: !!asyncJob?.status
           ? (asyncJob.status as AsyncJobStatusEnum)
@@ -109,7 +118,7 @@ export default function AsyncJobsDataGrid({
       {
         caption: "Queued Time",
         dataField: "queued_time",
-        format: "shortDate",
+        format: "longDateLongTime",
         minWidth: ColumnWidths.Datetime,
       },
       {
@@ -144,13 +153,19 @@ export default function AsyncJobsDataGrid({
       {
         caption: "Start Time",
         dataField: "start_time",
-        format: "shortDate",
+        format: "longDateLongTime",
         minWidth: ColumnWidths.Datetime,
       },
       {
         caption: "End Time",
         dataField: "end_time",
-        format: "shortDate",
+        format: "longDateLongTime",
+        minWidth: ColumnWidths.Datetime,
+      },
+      {
+        visible: !isCompletedJob,
+        caption: "Running Time",
+        dataField: "running_time",
         minWidth: ColumnWidths.Datetime,
       },
       {

@@ -168,6 +168,33 @@ class RetryJobView(MethodView):
 			'status': 'OK'
 		}), 200)
 
+class KickOffHandlerView(MethodView):
+	decorators = [auth_util.requires_async_magic_header]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		logging.info("Received async job kick off handler request")
+		cfg = cast(Config, current_app.app_config)
+
+		with session_scope(current_app.session_maker) as session:
+			in_progress_job_ids, err = async_jobs_util.kick_off_handler(
+				session = session,
+				available_job_number = int(cfg.ASYNC_JOB_CAPACITY)
+			)
+			if err:
+				raise err
+
+		if len(in_progress_job_ids) != 0:
+			logging.info(f"Started Jobs with ids: {in_progress_job_ids}")
+
+		return make_response(json.dumps({
+			'status': 'OK'
+		}), 200)
+
+handler.add_url_rule(
+	'/kick-off-handler',
+	view_func=KickOffHandlerView.as_view(name='kick_off_handler_view'))
+
 handler.add_url_rule(
 	'/enqueue-job',
 	view_func=EnqueueJobView.as_view(name='enqueue_job_view'))

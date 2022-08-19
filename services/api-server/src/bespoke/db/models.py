@@ -1640,7 +1640,7 @@ class BlazeUser(Base):
 	external_blaze_user_id = Column(Text, nullable=False) # Blaze shop == Bespoke company.
 	user_id = cast(GUID, Column(GUID, ForeignKey('users.id'), nullable=False))
 
-class AsyncJobs(Base):
+class AsyncJob(Base):
 
 	__tablename__ = "async_jobs"
 
