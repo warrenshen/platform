@@ -311,6 +311,30 @@ def get_payments(
 
     return payments, None
 
+def get_open_repayments_by_company_ids(
+    session: Session,
+    company_ids: List[str],
+) -> Tuple[ List[models.Payment], errors.Error ]:
+    filters = [
+        cast(Callable, models.Payment.is_deleted.isnot)(True),
+        models.Payment.company_id.in_(company_ids),
+        models.Payment.settled_at == None,
+        models.Payment.type == PaymentType.REPAYMENT,
+    ]
+
+    # fmt: off
+    payments = cast(
+        List[models.Payment],
+        session.query(models.Payment).filter(
+            *filters
+        ).all())
+    # fmt: on
+
+    # no need to check for payments is none
+    # that is not inherently an error state
+
+    return payments, None
+
 # ###############################
 # Purchase Orders
 # ###############################

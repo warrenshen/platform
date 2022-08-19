@@ -1,12 +1,13 @@
 import datetime
 import logging
 from decimal import Decimal
-from typing import Any, Callable, Dict, List, Tuple, cast
+from typing import Any, Callable, Dict, List, Set, Tuple, cast
 
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models, model_types, queries
 from bespoke.db.db_constants import FeatureFlagEnum, PaymentType, PaymentMethodEnum, PaymentOption
+from bespoke.db.model_types import PaymentItemsCoveredDict
 from bespoke.finance import number_util
 from bespoke.finance.loans.loan_calculator import (LoanUpdateDict)
 from bespoke.finance.payments import repayment_util
@@ -92,9 +93,9 @@ def find_mature_loans_without_open_repayments(
 	# to process reverse draft aches. If we just set days = 2 in
 	# a single call, it runs into issues with weekends and holidays
 	target_maturity_date = date_util.add_biz_days(
-			today_date, 
-			days_to_add = 2
-		)
+		today_date, 
+		days_to_add = 2
+	)
 
 	loans, err = queries.get_open_mature_loans_for_target_customers(
 		session,
@@ -110,64 +111,37 @@ def find_mature_loans_without_open_repayments(
 	for loan in loans:
 		all_loan_ids.append(str(loan.id))
 
-	# We will be using the transactions to map from the
-	# loan to the respective repayments
-	transactions, err = queries.get_transactions(
+	# Grab the open repayments so we can determine
+	# which loans already have an open repayment
+	open_repayments, err = queries.get_open_repayments_by_company_ids(
 		session,
-		all_loan_ids,
-		is_repayment = True,
+		customer_ids,
 	)
 	if err:
 		return None, err
-
-	all_payment_ids: List[str] = []
-	loan_to_payments_lookup: Dict[ str, List[str] ] = {}
-	for transaction in transactions:
-		loan_id = str(transaction.loan_id)
-		payment_id = str(transaction.payment_id)
-
-		all_payment_ids.append(payment_id)
-
-		if loan_id not in loan_to_payments_lookup:
-			loan_to_payments_lookup[loan_id] = []
-		loan_to_payments_lookup[loan_id].append(payment_id)
-
-	# This section filters out the settled repayments
-	# so we can determine which loans don't have
-	# an open repayment at the moment
-	open_payments, err = queries.get_payments(
-		session,
-		all_payment_ids,
-		is_unsettled = True,
-	)
-	if err:
-		return None, err
-
-
-	open_payment_ids = []
-	for payment in open_payments:
-		open_payment_ids.append(str(payment.id))
 	
-	# Now that we have filtered out the settled
-	# repayments, here is where we determine
-	# which loans need repayments
+	all_loans_with_open_repayment_ids: Set[str] = set()
+	for open_repayment in open_repayments:
+		items_covered = cast(PaymentItemsCoveredDict, open_repayment.items_covered)
+		loan_ids = items_covered["loan_ids"] if "loan_ids" in items_covered else []
+		
+		for loan_id in loan_ids:
+			all_loans_with_open_repayment_ids.add(loan_id)
+	
+	# Now that we pulled the loan_ids from the items_covered
+	# column of the open repayments, we can filter out those
+	# loans as they already have a repayment in the pipe
 	filtered_per_company_loans: Dict[str, List[models.Loan]] = {}
 	for loan in loans:
-		open_match_found = False
 		loan_id = str(loan.id)
 
-		if loan_id in loan_to_payments_lookup:
-			payment_ids = loan_to_payments_lookup[loan_id]
-			for payment_id in payment_ids:
-				if payment_id in open_payment_ids:
-					open_match_found = True
-					break
+		if loan_id in all_loans_with_open_repayment_ids:
+			continue
 
-		if open_match_found is False:
-			company_id = str(loan.company_id)
-			if company_id not in filtered_per_company_loans:
-				filtered_per_company_loans[company_id] = []
-			filtered_per_company_loans[company_id].append(loan)
+		company_id = str(loan.company_id)
+		if company_id not in filtered_per_company_loans:
+			filtered_per_company_loans[company_id] = []
+		filtered_per_company_loans[company_id].append(loan)
 
 	return filtered_per_company_loans, None
 
@@ -260,9 +234,9 @@ def generate_repayments_for_mature_loans(
 	today_date: datetime.date
 ) -> Tuple[ List[Dict[str, Any]], errors.Error ]:
 	alert_data: List[Dict[str, Any]] = []
-	deposit_date = date_util.get_nearest_business_day(
-		today_date + datetime.timedelta(days = 1), 
-		preceeding = False
+	deposit_date = date_util.add_biz_days(
+		today_date, 
+		days_to_add = 2
 	)
 	deposit_date_str = date_util.date_to_db_str(deposit_date)
 	settlement_date = date_util.get_nearest_business_day(
