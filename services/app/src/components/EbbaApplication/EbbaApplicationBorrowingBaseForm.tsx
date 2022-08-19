@@ -126,8 +126,8 @@ export default function EbbaApplicationBorrowingBaseForm({
       {isAccountsReceivableVisible && (
         <Box display="flex" flexDirection="column" mt={4}>
           <Typography variant="subtitle2">
-            As of the borrowing base date specified above, how much accounts
-            receivable do you have?
+            As of the borrowing base date specified above, how much AR do you
+            have under 30 days?
           </Typography>
           <Box mt={1}>
             <FormControl className={classes.inputField}>
