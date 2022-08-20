@@ -44,19 +44,8 @@ query GetTransactionsForLoan($loan_id: uuid!) {
       ]
     }
   ) {
-    ...Transaction
-    payment {
-      id
-      ...Payment
-      company {
-        id
-        name
-        contract {
-          id
-          product_type
-        }
-      }
-    }
+    id
+    ...TransactionExtended
   }
 }
 

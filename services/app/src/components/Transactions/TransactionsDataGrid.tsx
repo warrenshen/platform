@@ -1,48 +1,68 @@
-import { ValueFormatterParams } from "@material-ui/data-grid";
+import { RowsProp } from "@material-ui/data-grid";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
-import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
-import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
-import DatetimeDataGridCell from "components/Shared/DataGrid/DatetimeDataGridCell";
-import { TransactionFragment } from "generated/graphql";
-import { ColumnWidths } from "lib/tables";
+import { TransactionExtendedFragment } from "generated/graphql";
+import { parseDateStringServer } from "lib/date";
+import { PaymentTypeEnum, PaymentTypeToLabel } from "lib/enum";
+import { CurrencyPrecision } from "lib/number";
+import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
+import { ColumnWidths, formatRowModel } from "lib/tables";
 import { useMemo } from "react";
 
 interface Props {
-  transactions: TransactionFragment[];
+  transactions: TransactionExtendedFragment[];
   isMiniTable?: Boolean;
   isExcelExport?: boolean;
 }
+
+const getRows = (transactions: TransactionExtendedFragment[]): RowsProp => {
+  return transactions.map((transaction) => {
+    return formatRowModel({
+      ...transaction,
+      company_name: !!transaction?.payment?.company?.name
+        ? transaction.payment.company.name
+        : null,
+      company_url: !!transaction?.payment?.company?.id
+        ? getBankCompanyRoute(
+            transaction.payment.company.id,
+            BankCompanyRouteEnum.Overview
+          )
+        : null,
+      created_at: !!transaction?.created_at
+        ? parseDateStringServer(transaction.created_at)
+        : null,
+      cy_identifier: !!transaction?.payment?.company?.name
+        ? `${transaction.payment.company.name.replace("-", "")}-button`
+        : "",
+      effective_date: !!transaction?.effective_date
+        ? parseDateStringServer(transaction.effective_date)
+        : null,
+    });
+  });
+};
 
 function TransactionsDataGrid({
   transactions,
   isMiniTable = false,
   isExcelExport = true,
 }: Props) {
-  const rows = transactions;
+  const rows = useMemo(() => getRows(transactions), [transactions]);
 
   const columns = useMemo(
     () => [
       {
         caption: "Created At",
         dataField: "created_at",
+        format: "longDateLongTime",
         width: ColumnWidths.Date,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <DatetimeDataGridCell
-            isTimeVisible
-            datetimeString={params.row.data.created_at}
-          />
-        ),
       },
       {
         caption: "Effective Date",
         dataField: "effective_date",
+        format: "shortDate",
         width: ColumnWidths.Date,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <DateDataGridCell dateString={params.row.data.effective_date} />
-        ),
       },
       {
         dataField: "id",
@@ -61,10 +81,11 @@ function TransactionsDataGrid({
         dataField: "payment.company.name",
         visible: !isMiniTable,
         width: 140,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: ({ value, data }: { value: string; data: any }) => (
           <ClickableDataGridCell
-            label={params.row.data.payment.company.name}
-            onClick={() => {}}
+            dataCy={data.cy_identifier}
+            url={data.company_url}
+            label={value}
           />
         ),
       },
@@ -72,42 +93,60 @@ function TransactionsDataGrid({
         dataField: "type",
         caption: "Type",
         width: 140,
+        lookup: {
+          dataSource: {
+            store: {
+              type: "array",
+              data: Object.values(PaymentTypeEnum).map((paymentType) => ({
+                type: paymentType,
+                label: PaymentTypeToLabel[paymentType],
+              })),
+              key: "type",
+            },
+          },
+          valueExpr: "type",
+          displayExpr: "label",
+        },
       },
       {
         caption: "Amount",
         dataField: "amount",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.amount} />
-        ),
       },
       {
         caption: "To Principal",
         dataField: "to_principal",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.to_principal} />
-        ),
       },
       {
         caption: "To Interest",
         dataField: "to_interest",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.to_interest} />
-        ),
       },
       {
         caption: "To Fees",
         dataField: "to_fees",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.to_fees} />
-        ),
       },
     ],
     [isMiniTable]
@@ -117,6 +156,7 @@ function TransactionsDataGrid({
     <ControlledDataGrid
       pager
       dataSource={rows}
+      filtering={{ enable: true }}
       columns={columns}
       isExcelExport={isExcelExport}
     />

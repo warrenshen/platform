@@ -34,7 +34,9 @@ def main(is_test_run: bool = True) -> None:
 			try:
 				companies = cast(
 					List[models.Company],
-					session.query(models.Company).order_by(
+					session.query(models.Company).filter(
+			            models.Company.is_customer == True
+			        ).order_by(
 						models.Company.name.asc()
 					).offset(
 						current_page * BATCH_SIZE
@@ -67,12 +69,13 @@ def main(is_test_run: bool = True) -> None:
 					if err:
 						raise err
 					
-					company_settings = company_settings_lookup[str(company.id)]
-					if financial_reports is not None and \
-						len(financial_reports) > 0 and \
-						str(financial_reports[0].id) != company_settings.active_financial_report_id:
-						print(f'Correcting the active financial certification for { company.name } to application with id: { str(financial_reports[0].id) }')
-						company_settings.active_financial_report_id = financial_reports[0].id
+					if str(company.id) in company_settings_lookup:
+						company_settings = company_settings_lookup[str(company.id)]
+						if financial_reports is not None and \
+							len(financial_reports) > 0 and \
+							str(financial_reports[0].id) != company_settings.active_financial_report_id:
+							print(f'Correcting the active financial certification for { company.name } to application with id: { str(financial_reports[0].id) }')
+							company_settings.active_financial_report_id = financial_reports[0].id
 
 			except Exception as e:
 				print(e)

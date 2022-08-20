@@ -439,6 +439,23 @@ fragment Transaction on transactions {
   to_fees
 }
 
+fragment TransactionExtended on transactions {
+  id
+  ...Transaction
+  payment {
+    id
+    ...Payment
+    company {
+      id
+      name
+      contract {
+        id
+        product_type
+      }
+    }
+  }
+}
+
 fragment BankFinancialSummary on bank_financial_summaries {
   id
   updated_at
