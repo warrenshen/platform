@@ -4,23 +4,22 @@ import EbbaApplicationStatusChip from "components/EbbaApplication/EbbaApplicatio
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
-import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
-import DatetimeDataGridCell from "components/Shared/DataGrid/DatetimeDataGridCell";
 import {
   EbbaApplicationFragment,
   EbbaApplications,
   GetOpenEbbaApplicationsByCategoryQuery,
   RequestStatusEnum,
 } from "generated/graphql";
+import { parseDateStringServer } from "lib/date";
 import {
   BankEbbaTabLabel,
   CustomerSurveillanceCategoryEnum,
   ProductTypeEnum,
   ProductTypeToLabel,
 } from "lib/enum";
-import { formatCurrency } from "lib/number";
+import { CurrencyPrecision, formatCurrency } from "lib/number";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
-import { ColumnWidths } from "lib/tables";
+import { ColumnWidths, formatRowModel } from "lib/tables";
 import { useMemo, useState } from "react";
 
 interface Props {
@@ -67,8 +66,16 @@ export default function EbbaApplicationsDataGrid({
             ]
           : null;
 
-        return {
+        return formatRowModel({
           ...ebbaApplication,
+          amount_custom: ebbaApplication.amount_custom || "-",
+          amount_custom_note: ebbaApplication.amount_custom_note || "-",
+          application_date: !!ebbaApplication.application_date
+            ? parseDateStringServer(ebbaApplication.application_date)
+            : "-",
+          approved_at: !!ebbaApplication.approved_at
+            ? parseDateStringServer(ebbaApplication.approved_at, true)
+            : "-",
           calculated_borrowing_base: formatCurrency(
             ebbaApplication.calculated_borrowing_base
           ),
@@ -78,12 +85,15 @@ export default function EbbaApplicationsDataGrid({
               ? BankEbbaTabLabel.BorrowingBase
               : BankEbbaTabLabel.FinancialReports,
           company_name: ebbaApplication.company?.name,
-          expiration_date: ebbaApplication.expires_date,
-          submitted_by_name: ebbaApplication.submitted_by_user?.full_name,
-          amount_custom_note: ebbaApplication.amount_custom_note || "-",
-          amount_custom: ebbaApplication.amount_custom || "-",
+          created_at: !!ebbaApplication.created_at
+            ? parseDateStringServer(ebbaApplication.created_at, true)
+            : "-",
+          expiration_date: !!ebbaApplication.expires_date
+            ? parseDateStringServer(ebbaApplication.expires_date)
+            : "-",
           product_type: productType,
-        };
+          submitted_by_name: ebbaApplication.submitted_by_user?.full_name,
+        });
       }),
     [ebbaApplications]
   );
@@ -174,12 +184,7 @@ export default function EbbaApplicationsDataGrid({
         caption: "Approved At",
         width: ColumnWidths.Datetime,
         alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
-          <DatetimeDataGridCell
-            isTimeVisible
-            datetimeString={params.row.data.approved_at}
-          />
-        ),
+        format: "shortDate",
       },
       {
         dataField: "submitted_by_name",
@@ -191,21 +196,14 @@ export default function EbbaApplicationsDataGrid({
         caption: "Submitted At",
         width: ColumnWidths.Date,
         alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
-          <DatetimeDataGridCell
-            isTimeVisible={false}
-            datetimeString={params.row.data.created_at}
-          />
-        ),
+        format: "shortDate",
       },
       {
         dataField: "application_date",
         caption: "Certification Date",
         width: ColumnWidths.Date,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <DateDataGridCell dateString={params.row.data.application_date} />
-        ),
+        format: "shortDate",
       },
       {
         visible: isExpirationDateVisible,
@@ -213,9 +211,7 @@ export default function EbbaApplicationsDataGrid({
         caption: "Expiration Date",
         width: ColumnWidths.Date,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <DateDataGridCell dateString={params.row.data.expiration_date} />
-        ),
+        format: "shortDate",
       },
       {
         visible: isBorrowingBaseFieldsVisible,
@@ -242,9 +238,10 @@ export default function EbbaApplicationsDataGrid({
         caption: "Inventory Balance",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.monthly_inventory} />
-        ),
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
       },
       {
         visible: isBorrowingBaseFieldsVisible,
@@ -252,9 +249,10 @@ export default function EbbaApplicationsDataGrid({
         caption: "Cash in Deposit Accounts",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.monthly_cash} />
-        ),
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
       },
       {
         visible: isBorrowingBaseFieldsVisible,
@@ -262,9 +260,10 @@ export default function EbbaApplicationsDataGrid({
         caption: "Cash in DACA Deposit Accounts",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.amount_cash_in_daca} />
-        ),
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
       },
       {
         visible: isBorrowingBaseAdjustmentAmountVisible,

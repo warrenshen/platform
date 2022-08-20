@@ -70,6 +70,9 @@ const CustomerSurveillanceStatusUpdateForm = ({
                 const matchedSurveillanceStatus = !!surveillanceMatch
                   ? (surveillanceMatch.surveillance_status as SurveillanceStatusEnum)
                   : null;
+                const matchedSurveillanceInfo = !!surveillanceMatch
+                  ? surveillanceMatch.surveillance_info
+                  : {};
                 const matchedBankNote = !!surveillanceMatch
                   ? surveillanceMatch.bank_note
                   : null;
@@ -81,6 +84,7 @@ const CustomerSurveillanceStatusUpdateForm = ({
                   bank_note: matchedBankNote || "",
                   qualifying_product: matchedQualifyingProduct,
                   qualifying_date: value,
+                  surveillance_info: matchedSurveillanceInfo,
                   surveillance_status: matchedSurveillanceStatus || null,
                 });
               }}
