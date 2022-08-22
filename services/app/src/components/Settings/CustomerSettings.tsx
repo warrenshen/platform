@@ -142,6 +142,7 @@ export default function CustomerSettings({
           <Can perform={Action.AddBankAccount}>
             <Box>
               <ModalButton
+                dataCy={"add-bank-account-button"}
                 label={"Add Bank Account"}
                 modal={({ handleClose }) => (
                   <CreateUpdateBankAccountModal
@@ -159,6 +160,7 @@ export default function CustomerSettings({
           <Can perform={Action.EditBankAccount}>
             <Box mr={2}>
               <ModalButton
+                dataCy={"edit-bank-account-button"}
                 isDisabled={selectedBankAccountIds.length !== 1}
                 label={"Edit Bank Account"}
                 modal={({ handleClose }) => (
@@ -179,6 +181,7 @@ export default function CustomerSettings({
           <Can perform={Action.DeleteBankAccount}>
             <Box mr={2}>
               <ModalButton
+                dataCy={"delete-bank-account-button"}
                 isDisabled={selectedBankAccountIds.length !== 1}
                 label={"Delete Bank Account"}
                 variant={"outlined"}
@@ -196,7 +199,7 @@ export default function CustomerSettings({
           </Can>
         </Box>
 
-        <Box display="flex" mt={3}>
+        <Box data-cy="bank-accounts-data-grid" display="flex" mt={3}>
           <BankAccountsDataGrid
             bankAccounts={bankAccounts}
             selectedBankAccountIds={selectedBankAccountIds}

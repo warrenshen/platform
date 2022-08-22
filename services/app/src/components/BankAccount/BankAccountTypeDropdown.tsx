@@ -16,6 +16,7 @@ export default function BankAccountTypeDropdown({
         Bank Account Type
       </InputLabel>
       <Select
+        data-cy="bank-account-type-dropdown"
         id="select-bank-account-type"
         labelId="select-bank-account-type-label"
         value={bankAccountType ? bankAccountType : ""}
@@ -27,7 +28,11 @@ export default function BankAccountTypeDropdown({
           <em>None</em>
         </MenuItem>
         {Object.keys(BankAccountType).map((key) => (
-          <MenuItem key={key} value={key}>
+          <MenuItem
+            data-cy={"bank-account-type-dropdown-item"}
+            key={key}
+            value={key}
+          >
             {key}
           </MenuItem>
         ))}

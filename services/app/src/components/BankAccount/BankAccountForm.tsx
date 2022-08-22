@@ -117,6 +117,7 @@ export default function BankAccountForm({
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
             <TextField
+              data-cy="bank-account-form-ach-default-memo"
               label="ACH Default Memo"
               className={classes.form}
               value={bankAccount.ach_default_memo}
@@ -135,6 +136,7 @@ export default function BankAccountForm({
         <FormControlLabel
           control={
             <Checkbox
+              data-cy="bank-account-form-wire-checkbox-container"
               checked={!!bankAccount.can_wire}
               onChange={(event: ChangeEvent<HTMLInputElement>) =>
                 setBankAccount({
@@ -165,6 +167,7 @@ export default function BankAccountForm({
             <FormControlLabel
               control={
                 <Checkbox
+                  data-cy="bank-account-form-intermediary-wire-checkbox-container"
                   checked={!!bankAccount.is_wire_intermediary}
                   onChange={(event: ChangeEvent<HTMLInputElement>) =>
                     setBankAccount({
@@ -187,6 +190,7 @@ export default function BankAccountForm({
             <Box ml={4}>
               <Box display="flex" flexDirection="column" mt={2}>
                 <TextField
+                  data-cy="bank-account-form-intermediary-bank-name"
                   className={classes.form}
                   required
                   label="Intermediary Bank Name"
@@ -202,6 +206,7 @@ export default function BankAccountForm({
               </Box>
               <Box display="flex" flexDirection="column" mt={2}>
                 <TextField
+                  data-cy="bank-account-form-intermediary-bank-address"
                   className={classes.form}
                   required
                   label="Intermediary Bank Address"
@@ -217,6 +222,7 @@ export default function BankAccountForm({
               </Box>
               <Box display="flex" flexDirection="column" mt={2}>
                 <TextField
+                  data-cy="bank-account-form-intermediary-bank-account-name"
                   className={classes.form}
                   required
                   label="Intermediary Account Name"
@@ -232,6 +238,7 @@ export default function BankAccountForm({
               </Box>
               <Box display="flex" flexDirection="column" mt={2}>
                 <TextField
+                  data-cy="bank-account-form-intermediary-bank-account-number"
                   className={classes.form}
                   required
                   label="Intermediary Account Number"
@@ -249,6 +256,7 @@ export default function BankAccountForm({
           )}
           <Box display="flex" flexDirection="column" mt={2}>
             <TextField
+              data-cy="bank-account-form-wire-routing-number"
               label="Wire Routing Number"
               required
               value={bankAccount.wire_routing_number}
@@ -260,6 +268,7 @@ export default function BankAccountForm({
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
             <TextField
+              data-cy="bank-account-form-recipient-address"
               label="Recipient Address"
               required
               className={classes.form}
@@ -272,6 +281,7 @@ export default function BankAccountForm({
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
             <TextField
+              data-cy="bank-account-form-recipient-address2"
               label="Recipient Address 2"
               required
               className={classes.form}
@@ -284,6 +294,7 @@ export default function BankAccountForm({
           </Box>
           <Box display="flex" flexDirection="column" mt={2}>
             <TextField
+              data-cy="bank-account-form-wire-default-memo"
               label="Wire Default Memo"
               className={classes.form}
               value={bankAccount.wire_default_memo}
@@ -341,6 +352,7 @@ export default function BankAccountForm({
           <FormControlLabel
             control={
               <Checkbox
+                data-cy="bank-account-form-is-verified"
                 checked={isVerified}
                 onChange={(event: ChangeEvent<HTMLInputElement>) => {
                   setBankAccount({
@@ -362,6 +374,7 @@ export default function BankAccountForm({
         <Box ml={4}>
           <Box display="flex" flexDirection="column" mt={2}>
             <DateInput
+              dataCy={"bank-account-form-verified-date-picker"}
               id="date-picker-verified-date"
               label="Verified Date"
               value={bankAccount.verified_date}

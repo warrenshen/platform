@@ -37,6 +37,7 @@ export default function DeleteBankAccountModal({
 
   return (
     <Modal
+      dataCy={"delete-bank-account-modal"}
       isPrimaryActionDisabled={isDeleteBankAccountMutationLoading}
       title={"Delete Bank Account"}
       primaryActionText={"Confirm"}
