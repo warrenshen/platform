@@ -7,9 +7,9 @@ import {
   makeStyles,
 } from "@material-ui/core";
 import ArchivePurchaseOrderModal from "components/PurchaseOrder/ArchivePurchaseOrderModal";
-import EditFinancialRequestPurchaseOrderModal from "components/PurchaseOrder/EditFinancialRequestPurchaseOrderModal";
 import ArchivePurchaseOrderModalNew from "components/PurchaseOrder/v2/ArchivePurchaseOrderModalNew";
 import CreateUpdatePurchaseOrderModalNew from "components/PurchaseOrder/v2/CreateUpdatePurchaseOrderModalNew";
+import EditFinancialRequestPurchaseOrderModal from "components/PurchaseOrder/v2/EditFinancialRequestPurchaseOrderModal";
 import PurchaseOrdersDataGridNew from "components/PurchaseOrder/v2/PurchaseOrdersDataGridNew";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";

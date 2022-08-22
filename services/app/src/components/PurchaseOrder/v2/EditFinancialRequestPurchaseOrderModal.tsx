@@ -18,7 +18,8 @@ interface Props {
   handleClose: () => void;
 }
 
-function EditFinancialRequestPurchaseOrderModal({
+// This will be the parent component
+function EditFinancingRequestPurchaseOrderModal({
   purchaseOrderId,
   handleClose,
 }: Props) {
@@ -77,4 +78,4 @@ function EditFinancialRequestPurchaseOrderModal({
   ) : null;
 }
 
-export default EditFinancialRequestPurchaseOrderModal;
+export default EditFinancingRequestPurchaseOrderModal;
