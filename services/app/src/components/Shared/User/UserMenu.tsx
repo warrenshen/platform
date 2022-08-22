@@ -137,6 +137,7 @@ export default function UserMenu({ isLocationsPage }: Props) {
         </Box>
       </Box>
       <Menu
+        data-cy={"user-context-menu"}
         anchorEl={anchorEl}
         keepMounted
         open={Boolean(anchorEl)}
@@ -150,7 +151,10 @@ export default function UserMenu({ isLocationsPage }: Props) {
           Profile
         </MenuItem>
         {!isRoleBankUser(user?.role) && !!impersonatorUserId && (
-          <MenuItem onClick={handleUndoImpersonationClick}>
+          <MenuItem
+            data-cy={"undo-impersonation-button"}
+            onClick={handleUndoImpersonationClick}
+          >
             Undo impersonation
           </MenuItem>
         )}

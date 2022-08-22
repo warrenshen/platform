@@ -73,6 +73,7 @@ const ImpersonateBankUserArea = () => {
         </Box>
 
         <Button
+          data-cy={"impersonate-user-button"}
           disabled={selectedUsers.length !== 1}
           color="primary"
           size="medium"
@@ -82,7 +83,7 @@ const ImpersonateBankUserArea = () => {
           Impersonate User
         </Button>
       </Box>
-      <Box display="flex" mt={3}>
+      <Box data-cy={"impersonate-users-data-grid"} display="flex" mt={3}>
         {data?.users?.length ? (
           <UsersDataGrid
             isMultiSelectEnabled
