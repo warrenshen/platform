@@ -14,7 +14,6 @@ import {
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import JsonFormInput from "components/Shared/FormInputs/JsonFormInput";
-import { format, parse } from "date-fns";
 import { ContractsInsertInput } from "generated/graphql";
 import {
   ContractTermNames,
@@ -25,7 +24,7 @@ import {
   getContractTermIsHiddenIfNull,
   isProductConfigFieldInvalid,
 } from "lib/contracts";
-import { DateFormatServer } from "lib/date";
+import { dateAsDateStringServer, parseDateStringServer } from "lib/date";
 import {
   AllProductTypes,
   ProductTypeEnum,
@@ -427,20 +426,19 @@ export default function ContractTermsForm({
           label="Start Date"
           value={contract.start_date}
           onChange={(value) => {
-            // Set start date and end date (one year after start date).
-            const startDateObject = value
-              ? parse(value, DateFormatServer, new Date())
+            // Set end date to one year after the start date (passed in as `value`)
+            const endDate = !!value ? parseDateStringServer(value) : null;
+            if (!!endDate) {
+              endDate.setFullYear(endDate.getFullYear() + 1);
+            }
+            const endDateString = !!endDate
+              ? dateAsDateStringServer(endDate)
               : null;
-            const endDateObject = startDateObject
-              ? startDateObject.setFullYear(startDateObject.getFullYear() + 1)
-              : null;
-            const endDate = endDateObject
-              ? format(endDateObject, DateFormatServer)
-              : null;
+
             setContract({
               ...contract,
               start_date: value,
-              end_date: endDate,
+              end_date: endDateString,
             });
           }}
         />
