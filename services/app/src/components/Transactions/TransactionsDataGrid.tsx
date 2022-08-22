@@ -16,7 +16,22 @@ interface Props {
 }
 
 const getRows = (transactions: TransactionExtendedFragment[]): RowsProp => {
+  const typeToPrefix: Record<string, string> = {
+    [PaymentTypeEnum.Advance]: "A",
+    [PaymentTypeEnum.Repayment]: "R",
+  };
+
   return transactions.map((transaction) => {
+    const accountFees =
+      !!transaction?.payment?.items_covered &&
+      transaction.payment.items_covered.hasOwnProperty(
+        "requested_to_account_fees"
+      )
+        ? transaction.payment.items_covered["requested_to_account_fees"]
+        : null;
+    const accountFeesDisplay =
+      !!accountFees || accountFees === 0 ? accountFees : "-";
+
     return formatRowModel({
       ...transaction,
       company_name: !!transaction?.payment?.company?.name
@@ -37,6 +52,15 @@ const getRows = (transactions: TransactionExtendedFragment[]): RowsProp => {
       effective_date: !!transaction?.effective_date
         ? parseDateStringServer(transaction.effective_date)
         : null,
+      to_account_fees: accountFees,
+      to_account_fees_display: accountFeesDisplay,
+      to_holding_account: 0, // to be completed when repayment flow has been refactored
+      transaction_number:
+        !!transaction?.type && !!transaction?.payment?.settlement_identifier
+          ? `${typeToPrefix[transaction.type]}-${
+              transaction.payment.settlement_identifier
+            }`
+          : null,
     });
   });
 };
@@ -58,7 +82,7 @@ function TransactionsDataGrid({
         alignment: "right",
       },
       {
-        caption: "Effective Date",
+        caption: "Deposit Date",
         dataField: "effective_date",
         format: "shortDate",
         width: ColumnWidths.Date,
@@ -74,6 +98,11 @@ function TransactionsDataGrid({
         dataField: "payment.id",
         caption: "Payment ID",
         visible: !isMiniTable,
+        width: 140,
+      },
+      {
+        dataField: "transaction_number",
+        caption: "Transaction #",
         width: 140,
       },
       {
@@ -139,7 +168,7 @@ function TransactionsDataGrid({
         alignment: "right",
       },
       {
-        caption: "To Fees",
+        caption: "To Late Fees",
         dataField: "to_fees",
         format: {
           type: "currency",
@@ -148,6 +177,27 @@ function TransactionsDataGrid({
         width: ColumnWidths.Currency,
         alignment: "right",
       },
+      {
+        caption: "To Account Fees",
+        dataField: "to_account_fees",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
+        calculateDisplayValue: "to_account_fees_display",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+      },
+      // {
+      //   caption: "To Holding Account",
+      //   dataField: "to_holding_account",
+      //   format: {
+      //     type: "currency",
+      //     precision: CurrencyPrecision,
+      //   },
+      //   width: ColumnWidths.Currency,
+      //   alignment: "right",
+      // },
     ],
     [isMiniTable]
   );
