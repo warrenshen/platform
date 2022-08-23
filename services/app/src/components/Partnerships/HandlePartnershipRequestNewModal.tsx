@@ -280,6 +280,7 @@ export default function HandlePartnershipRequestNewModal({
         <FormControlLabel
           control={
             <Checkbox
+              data-cy={"existing-user-checkbox"}
               checked={canUseExistingUser}
               onChange={(event: ChangeEvent<HTMLInputElement>) =>
                 setCanUseExistingUser(event.target.checked)
@@ -301,7 +302,7 @@ export default function HandlePartnershipRequestNewModal({
           please select this existing company in the dropdown below. If you do
           not select a company below, a NEW company will be created.
         </Typography>
-        <Box mt={4}>
+        <Box mt={4} data-cy={"vendor-dropdown"}>
           <AutocompleteCompany
             textFieldLabel="Select existing company (search by name or license)"
             onChange={(selectedCompanyId) =>
