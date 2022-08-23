@@ -7,23 +7,33 @@ import {
 } from "lib/enum";
 import styled from "styled-components";
 
-const Chip = styled.div<{ backgroundColor: string }>`
+const Chip = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
 
   flex: 1;
 
-  width: 150px;
-  padding: 6px 0px;
-  border-radius: 18px;
-  background-color: ${(props) => props.backgroundColor};
-  color: white;
+  width: fit-content;
+  height: 30px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  background-color: #f6f5f3;
+  color: #2c2a27;
 `;
 
 const Text = styled(Typography)`
   font-size: 14px;
   font-weight: 500;
+  line-height: 133.3%;
+`;
+
+const Dot = styled.div<{ $dotColor: string }>`
+  width: 10px;
+  height: 10px;
+  background-color: ${(props) => props.$dotColor};
+  border-radius: 24px;
+  margin: 0 11px 0 0;
 `;
 
 interface Props {
@@ -31,24 +41,27 @@ interface Props {
 }
 
 const StatusToColor = {
-  [NewPurchaseOrderStatus.Draft]: "#bdc3c7", // Gray
-  [NewPurchaseOrderStatus.PendingApprovalByVendor]: "#f1c40f", // Yellow
-  [NewPurchaseOrderStatus.ChangesRequestedByVendor]: "#e67e22", // Orange
-  [NewPurchaseOrderStatus.ChangesRequestedByBespoke]: "rgba(118, 147, 98, 1)", // Green
-  [NewPurchaseOrderStatus.ReadyToRequestFinancing]: "#e66e22", // Orange
-  [NewPurchaseOrderStatus.PendingApprovalByBespoke]: "#e66e22", // Orange
-  [NewPurchaseOrderStatus.FinancingRequestApproved]: "#e66e22", // Orange
-  [NewPurchaseOrderStatus.FullyFinanced]: "#e66e22", // Orange
-  [NewPurchaseOrderStatus.Archived]: "#e66e22", // Orange
-  [NewPurchaseOrderStatus.RejectedByVendor]: "#e66e22", // Orange
-  [NewPurchaseOrderStatus.RejectedByBespoke]: "#e66e22", // Orange
+  // Not Ready
+  [NewPurchaseOrderStatus.Draft]: "#939393", // Gray
+  [NewPurchaseOrderStatus.PendingApprovalByVendor]: "#ffc96b;", // Yellow
+  [NewPurchaseOrderStatus.ChangesRequestedByVendor]: "#ee95a1", // light Pink
+  [NewPurchaseOrderStatus.ChangesRequestedByBespoke]: "#d6709b", // Pink
+  // Ready
+  [NewPurchaseOrderStatus.ReadyToRequestFinancing]: "#6da7C0", // Periwinkle
+  [NewPurchaseOrderStatus.FinancingPendingApproval]: "#cf8937", // Sand
+  [NewPurchaseOrderStatus.FinancingRequestApproved]: "#7dcb9d", // Seafoam Green
+  // Closed
+  [NewPurchaseOrderStatus.Archived]: "#594ca4", // Blue
+  [NewPurchaseOrderStatus.RejectedByVendor]: "#c85d56", // dark Pink
+  [NewPurchaseOrderStatus.RejectedByBespoke]: "#a4453f", // Red
 };
 
 export default function PurchaseOrderStatusChip({
   purchaseOrderStatus,
 }: Props) {
   return (
-    <Chip backgroundColor={StatusToColor[purchaseOrderStatus]}>
+    <Chip>
+      <Dot $dotColor={StatusToColor[purchaseOrderStatus]}></Dot>
       <Text>{NewPurchaseOrderStatusToLabel[purchaseOrderStatus]}</Text>
     </Chip>
   );

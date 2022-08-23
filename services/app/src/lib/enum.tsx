@@ -205,14 +205,16 @@ export const BankVendorsTabLabels = [
 ];
 
 export enum NewPurchaseOrderStatus {
+  // Not Ready
   Draft = "draft",
   PendingApprovalByVendor = "pending_approval_by_vendor",
-  PendingApprovalByBespoke = "pending_approval_by_bespoke",
   ChangesRequestedByVendor = "changes_requested_by_vendor",
   ChangesRequestedByBespoke = "changes_requested_by_bespoke",
+  // Ready
   ReadyToRequestFinancing = "ready_to_request_financing",
+  FinancingPendingApproval = "financing_pending_approval",
   FinancingRequestApproved = "financing_request_approved",
-  FullyFinanced = "fully_financed",
+  // Closed
   Archived = "archived",
   RejectedByVendor = "rejected_by_vendor",
   RejectedByBespoke = "rejected_by_bespoke",
@@ -226,31 +228,32 @@ export const NotReadyNewPurchaseOrderStatuses = [
 ];
 
 export const ReadyNewPurchaseOrderStatuses = [
-  NewPurchaseOrderStatus.PendingApprovalByBespoke,
   NewPurchaseOrderStatus.ReadyToRequestFinancing,
+  NewPurchaseOrderStatus.FinancingPendingApproval,
   NewPurchaseOrderStatus.FinancingRequestApproved,
 ];
 
 export const ClosedNewPurchaseOrderStatuses = [
-  NewPurchaseOrderStatus.FullyFinanced,
   NewPurchaseOrderStatus.Archived,
   NewPurchaseOrderStatus.RejectedByVendor,
   NewPurchaseOrderStatus.RejectedByBespoke,
 ];
 
 export const NewPurchaseOrderStatusToLabel = {
+  // Not Ready
   [NewPurchaseOrderStatus.Draft]: "Draft",
   [NewPurchaseOrderStatus.PendingApprovalByVendor]:
     "Pending approval by vendor",
   [NewPurchaseOrderStatus.ChangesRequestedByVendor]:
     "Changes requested by vendor",
   [NewPurchaseOrderStatus.ChangesRequestedByBespoke]: "Changes requested by BF",
+  // Ready
   [NewPurchaseOrderStatus.ReadyToRequestFinancing]:
     "Ready to request financing",
-  [NewPurchaseOrderStatus.PendingApprovalByBespoke]: "Pending approval by BF",
+  [NewPurchaseOrderStatus.FinancingPendingApproval]:
+    "Financing pending approval",
   [NewPurchaseOrderStatus.FinancingRequestApproved]:
     "Financing request approved",
-  [NewPurchaseOrderStatus.FullyFinanced]: "Fully financed",
   [NewPurchaseOrderStatus.Archived]: "Archived",
   [NewPurchaseOrderStatus.RejectedByVendor]: "Rejected by vendor",
   [NewPurchaseOrderStatus.RejectedByBespoke]: "Rejected by BF",

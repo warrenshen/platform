@@ -28,6 +28,7 @@ import {
   NewPurchaseOrderStatus,
   NotReadyNewPurchaseOrderStatuses,
   ProductTypeEnum,
+  ReadyNewPurchaseOrderStatuses,
 } from "lib/enum";
 import { useMemo, useState } from "react";
 import styled from "styled-components";
@@ -319,7 +320,7 @@ export default function CustomerPurchaseOrdersOpenTabNew({
             isFilteringEnabled={true}
             selectedPurchaseOrderIds={selectedApprovedPurchaseOrderIds}
             handleSelectPurchaseOrders={handleSelectApprovedPurchaseOrders}
-            selectablePurchaseOrderStatuses={NotReadyNewPurchaseOrderStatuses}
+            selectablePurchaseOrderStatuses={ReadyNewPurchaseOrderStatuses}
           />
         </Box>
       </Box>

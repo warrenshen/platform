@@ -137,7 +137,7 @@ export default function PurchaseOrdersDataGridNew({
         dataField: "new_purchase_order_status",
         caption: "Status",
         width: ColumnWidths.StatusChip,
-        alignment: "center",
+        alignment: "left",
         cellRender: (params: ValueFormatterParams) => {
           return (
             <PurchaseOrderStatusChip

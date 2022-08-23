@@ -19,35 +19,40 @@ code {
     monospace;
 }
 
-.dx-datagrid .dx-row:not(.dx-header-row) > td,
-.dx-datagrid .dx-row:not(.dx-header-row) > tr > td {
-  padding-top: 1px !important;
-  padding-bottom: 1px !important;
-  height: 50px !important;
+.dx-datagrid .dx-datagrid-rowsview .dx-datagrid-content .dx-datagrid-table .dx-row:not(.dx-header-row) > td{
+  padding-top: 1px;
+  padding-bottom: 1px;
+  height: 50px;
 }
 
-.dx-datagrid .dx-header-row > td,
-.dx-datagrid .dx-header-row > tr > td {
-  font-size: 14px !important;
-  font-weight: 400 !important;
+.dx-datagrid .dx-datagrid-headers .dx-datagrid-table .dx-row > td {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 136.8%;
+  color: #2c2a27;
+  text-align: left;
 }
 
-.dx-datagrid .dx-checkbox-indeterminate .dx-checkbox-icon::before {
-  content: "+" !important;
-  top: 30% !important;
+.dx-datagrid .dx-header-row .dx-checkbox-checked .dx-checkbox-icon::before {
+  content: "+";
+  top: 30%;
+}
+
+.dx-datagrid .dx-datagrid-export-button .dx-icon-export-excel-button::before {
+  content: url("./icons/ExcelIcon.svg");
 }
 
 /* Purchase Order Flow V2 Datagrid Custom Styles */
 .purchase-orders-data-grid-new .dx-checkbox-checked .dx-checkbox-icon {
-  background-color: #8EAB79 
+  background-color: #8eab79 
 }
 
 .purchase-orders-data-grid-new .dx-checkbox-indeterminate .dx-checkbox-icon {
-  background-color: #8EAB79 
+  background-color: #8eab79 
 }
 
 .purchase-orders-data-grid-new .dx-checkbox-icon {
-  border: 1px solid #D5D3D0;
+  border: 1px solid #d5d3d0;
   border-radius: 4px;
 }
 
