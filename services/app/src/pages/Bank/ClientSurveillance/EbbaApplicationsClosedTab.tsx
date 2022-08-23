@@ -1,7 +1,7 @@
 import { Box, TextField } from "@material-ui/core";
 import CreateUpdateBorrowingBaseCertificationModal from "components/EbbaApplication/CreateUpdateBorrowingBaseCertificationModal";
 import CreateUpdateFinancialReportCertificationModal from "components/EbbaApplication/CreateUpdateFinancialReportCertificationModal";
-import EbbaApplicationsDataGrid from "components/EbbaApplications/EbbaApplicationsDataGrid";
+import UpdateEbbaApplicationBankNoteModal from "components/EbbaApplications/UpdateEbbaApplicationsBankNoteModal";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import {
   EbbaApplicationFragment,
@@ -17,6 +17,8 @@ import {
 import { filter } from "lodash";
 import { useMemo, useState } from "react";
 
+import BankEbbaApplicationsDataGrid from "./BankEbbaApplicationsDataGrid";
+
 export default function EbbaApplicationsClosedTab() {
   const { data, error, refetch } = useGetClosedEbbaApplicationsQuery({
     fetchPolicy: "network-only",
@@ -28,6 +30,10 @@ export default function EbbaApplicationsClosedTab() {
   }
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [
+    selectedUpdateEbbaApplicationBankNoteId,
+    setSelectedUpdateEbbaApplicationBankNoteId,
+  ] = useState<string>("");
 
   const ebbaApplications = useMemo(
     () =>
@@ -64,10 +70,11 @@ export default function EbbaApplicationsClosedTab() {
   );
 
   const handleSelectEbbaApplications = useMemo(
-    () => (ebbaApplications: EbbaApplicationFragment[]) =>
+    () => (ebbaApplications: EbbaApplicationFragment[]) => {
       setSelectedEbbaApplicationIds(
         ebbaApplications.map((ebbaApplication) => ebbaApplication.id)
-      ),
+      );
+    },
     [setSelectedEbbaApplicationIds]
   );
 
@@ -79,6 +86,14 @@ export default function EbbaApplicationsClosedTab() {
         alignItems="flex-end"
         mb={2}
       >
+        {!!selectedUpdateEbbaApplicationBankNoteId && (
+          <UpdateEbbaApplicationBankNoteModal
+            ebbaApplication={ebbaApplications.find(
+              (ebba) => ebba.id === selectedUpdateEbbaApplicationBankNoteId
+            )}
+            handleClose={() => setSelectedUpdateEbbaApplicationBankNoteId("")}
+          />
+        )}
         <Box display="flex">
           <TextField
             autoFocus
@@ -125,7 +140,7 @@ export default function EbbaApplicationsClosedTab() {
         </Box>
       </Box>
       <Box display="flex" flexDirection="column">
-        <EbbaApplicationsDataGrid
+        <BankEbbaApplicationsDataGrid
           isApprovedAtVisible
           isBorrowingBaseFieldsVisible
           isCategoryVisible

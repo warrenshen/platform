@@ -1,7 +1,6 @@
 import { Box, TextField, Typography } from "@material-ui/core";
 import CreateUpdateFinancialReportCertificationModal from "components/EbbaApplication/CreateUpdateFinancialReportCertificationModal";
 import DeleteEbbaApplicationModal from "components/EbbaApplication/DeleteEbbaApplicationModal";
-import EbbaApplicationsDataGrid from "components/EbbaApplications/EbbaApplicationsDataGrid";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import {
   EbbaApplicationFragment,
@@ -16,6 +15,8 @@ import {
 } from "lib/enum";
 import { filter } from "lodash";
 import { useMemo, useState } from "react";
+
+import BankEbbaApplicationsDataGrid from "./BankEbbaApplicationsDataGrid";
 
 export default function EbbaApplicationsFinancialReportsTab() {
   const { data, error, refetch } = useGetOpenEbbaApplicationsByCategoryQuery({
@@ -152,7 +153,7 @@ export default function EbbaApplicationsFinancialReportsTab() {
       </Box>
       <Box display="flex" flexDirection="column" mb={2}>
         <Typography variant={"h6"}>Not Dispensary Financing</Typography>
-        <EbbaApplicationsDataGrid
+        <BankEbbaApplicationsDataGrid
           isCompanyVisible
           isExpirationDateVisible
           isMultiSelectEnabled
@@ -165,7 +166,7 @@ export default function EbbaApplicationsFinancialReportsTab() {
       </Box>
       <Box display="flex" flexDirection="column">
         <Typography variant={"h6"}>Dispensary Financing</Typography>
-        <EbbaApplicationsDataGrid
+        <BankEbbaApplicationsDataGrid
           isCompanyVisible
           isExpirationDateVisible
           isMultiSelectEnabled

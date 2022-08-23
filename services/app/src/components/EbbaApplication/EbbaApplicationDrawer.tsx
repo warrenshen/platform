@@ -128,6 +128,27 @@ export default function EbbaApplicationDrawer({
             </Typography>
           </Box>
         )}
+        {!!ebbaApplication.approved_at && ebbaApplication.approved_by_user && (
+          <Box display="flex" flexDirection="column" mt={2}>
+            <Typography variant="subtitle2" color="textSecondary">
+              Approved By
+            </Typography>
+            <Typography variant={"body1"}>
+              {ebbaApplication.approved_by_user.full_name}
+            </Typography>
+          </Box>
+        )}
+        {ebbaApplication.status === RequestStatusEnum.Rejected &&
+          ebbaApplication.rejected_by_user && (
+            <Box display="flex" flexDirection="column" mt={2}>
+              <Typography variant="subtitle2" color="textSecondary">
+                Rejected By
+              </Typography>
+              <Typography variant={"body1"}>
+                {ebbaApplication.rejected_by_user.full_name}
+              </Typography>
+            </Box>
+          )}
         {ebbaApplication.status === RequestStatusEnum.Rejected && (
           <Box display="flex" flexDirection="column" mt={2}>
             <Typography variant="subtitle2" color="textSecondary">

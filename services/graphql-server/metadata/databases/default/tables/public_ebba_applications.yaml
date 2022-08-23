@@ -2,9 +2,15 @@ table:
   schema: public
   name: ebba_applications
 object_relationships:
+  - name: approved_by_user
+    using:
+      foreign_key_constraint_on: approved_by_user_id
   - name: company
     using:
       foreign_key_constraint_on: company_id
+  - name: rejected_by_user
+    using:
+      foreign_key_constraint_on: rejected_by_user_id
   - name: submitted_by_user
     using:
       foreign_key_constraint_on: submitted_by_user_id
@@ -54,27 +60,30 @@ select_permissions:
   - role: bank_admin
     permission:
       columns:
-        - id
-        - company_id
-        - application_date
-        - created_at
-        - updated_at
-        - monthly_accounts_receivable
-        - monthly_inventory
-        - monthly_cash
-        - status
-        - requested_at
-        - rejected_at
-        - rejection_note
-        - approved_at
-        - calculated_borrowing_base
-        - expires_date
         - amount_cash_in_daca
-        - is_deleted
-        - submitted_by_user_id
-        - category
         - amount_custom
         - amount_custom_note
+        - application_date
+        - approved_at
+        - approved_by_user_id
+        - bank_note
+        - calculated_borrowing_base
+        - category
+        - company_id
+        - created_at
+        - expires_date
+        - id
+        - is_deleted
+        - monthly_accounts_receivable
+        - monthly_cash
+        - monthly_inventory
+        - rejected_at
+        - rejected_by_user_id
+        - rejection_note
+        - requested_at
+        - status
+        - submitted_by_user_id
+        - updated_at
       filter: {}
   - role: bank_read_only
     permission:

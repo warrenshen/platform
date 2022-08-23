@@ -1,7 +1,6 @@
 import { Box, TextField } from "@material-ui/core";
 import CreateUpdateBorrowingBaseCertificationModal from "components/EbbaApplication/CreateUpdateBorrowingBaseCertificationModal";
 import DeleteEbbaApplicationModal from "components/EbbaApplication/DeleteEbbaApplicationModal";
-import EbbaApplicationsDataGrid from "components/EbbaApplications/EbbaApplicationsDataGrid";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import {
   EbbaApplicationFragment,
@@ -12,6 +11,8 @@ import { getCompanyDisplayName } from "lib/companies";
 import { ActionType, CustomerSurveillanceCategoryEnum } from "lib/enum";
 import { filter } from "lodash";
 import { useMemo, useState } from "react";
+
+import BankEbbaApplicationsDataGrid from "./BankEbbaApplicationsDataGrid";
 
 export default function EbbaApplicationsBorrowingBaseTab() {
   const { data, error, refetch } = useGetOpenEbbaApplicationsByCategoryQuery({
@@ -118,13 +119,14 @@ export default function EbbaApplicationsBorrowingBaseTab() {
         </Box>
       </Box>
       <Box display="flex" flexDirection="column">
-        <EbbaApplicationsDataGrid
+        <BankEbbaApplicationsDataGrid
           isBorrowingBaseFieldsVisible
           isCompanyVisible
           isExpirationDateVisible
           isMultiSelectEnabled
           isBorrowingBaseAdjustmentAmountVisible
           isBorrowingBaseAdjustmentNoteVisible
+          isRejectedAtVisible
           ebbaApplications={ebbaApplications}
           selectedEbbaApplicationIds={selectedEbbaApplicationIds}
           handleSelectEbbaApplications={handleSelectEbbaApplications}

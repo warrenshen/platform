@@ -121,6 +121,7 @@ export type AddBorrowingBaseReq = {
     amount_cash_in_daca: number;
     amount_custom: number;
     amount_custom_note: string;
+    bank_note: string;
     calculated_borrowing_base: number;
     expires_date: string;
     ebba_application_files: EbbaApplicationFilesInsertInput[];
@@ -156,6 +157,7 @@ export type UpdateBorrowingBaseReq = {
     amount_cash_in_daca: number;
     amount_custom: number;
     amount_custom_note: string;
+    bank_note: string;
     calculated_borrowing_base: number;
     expires_date: string;
     ebbaApplicationFiles: EbbaApplicationFilesInsertInput[];
@@ -175,6 +177,36 @@ export async function updateBorrowingBaseMutation(
         return {
           status: "ERROR",
           msg: "Could not update borrowing base",
+        };
+      }
+    );
+}
+
+export type UpdateBorrowingBaseBankNoteReq = {
+  variables: {
+    companyId: string;
+    ebbaApplicationId: string;
+    bankNote: string;
+  };
+};
+
+export async function updateBorrowingBaseBankNoteMutation(
+  req: UpdateBorrowingBaseBankNoteReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(ebbaApplicationsRoutes.updateBorrowingBaseBankNote, req.variables)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not edit repayment bank note for the loan",
         };
       }
     );

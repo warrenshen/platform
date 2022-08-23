@@ -64,6 +64,12 @@ query GetOpenEbbaApplicationsByCategory($category: String!) {
   ) {
     id
     ...EbbaApplication
+    bank_note
+    rejected_at
+    rejected_by_user {
+      id
+      full_name
+    }
     company {
       id
       name
@@ -96,6 +102,11 @@ query GetClosedEbbaApplications {
   ) {
     id
     ...EbbaApplication
+    approved_by_user {
+      id
+      full_name
+    }
+    bank_note
     company {
       id
       name

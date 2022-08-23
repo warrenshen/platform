@@ -102,6 +102,8 @@ export const ebbaApplicationsRoutes = {
   addBorrowingBase: "finance/ebba_applications/approvals/add_borrowing_base",
   updateBorrowingBase:
     "finance/ebba_applications/approvals/update_borrowing_base",
+  updateBorrowingBaseBankNote:
+    "finance/ebba_applications/approvals/update_bank_note",
 };
 
 export const purchaseOrdersRoutes = {

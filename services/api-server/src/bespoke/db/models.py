@@ -1282,6 +1282,8 @@ class EbbaApplication(Base):
 	application_date = Column(Date)
 	is_deleted = Column(Boolean, nullable=False, default=False)
 	submitted_by_user_id = Column(GUID)
+	approved_by_user_id = Column(GUID)
+	rejected_by_user_id = Column(GUID)
 
 	monthly_accounts_receivable = Column(Numeric) # Component of borrowing base.
 	monthly_inventory = Column(Numeric) # Component of borrowing base.
@@ -1289,6 +1291,7 @@ class EbbaApplication(Base):
 	amount_cash_in_daca = Column(Numeric) # Component of borrowing base.
 	amount_custom = Column(Numeric) # Component of borrowing base: custom amount only bank user can change.
 	amount_custom_note = Column(Text)
+	bank_note = Column(Text)
 
 	calculated_borrowing_base = Column(Numeric)
 	rejection_note = Column(Text)

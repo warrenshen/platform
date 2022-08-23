@@ -4,6 +4,7 @@ import CreateUpdateBorrowingBaseCertificationModal from "components/EbbaApplicat
 import DeleteEbbaApplicationModal from "components/EbbaApplication/DeleteEbbaApplicationModal";
 import EbbaApplicationCard from "components/EbbaApplication/EbbaApplicationCard";
 import EbbaApplicationsDataGrid from "components/EbbaApplications/EbbaApplicationsDataGrid";
+import UpdateEbbaApplicationBankNoteModal from "components/EbbaApplications/UpdateEbbaApplicationsBankNoteModal";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import PageContent from "components/Shared/Page/PageContent";
@@ -79,6 +80,18 @@ export default function BorrowingBasePageContent({
         ebbaApplications.map((ebbaApplication) => ebbaApplication.id)
       ),
     [setSelectedEbbaApplicationIds]
+  );
+  // State for Bank Note Modal
+  const [
+    selectedEbbaApplicationIdForBankNote,
+    setSelectedEbbaApplicationIdForBankNote,
+  ] = useState(null);
+
+  const handleClickEbbaApplicationBankNote = useMemo(
+    () => (ebbaApplicationId: EbbaApplicationFragment["id"]) => {
+      setSelectedEbbaApplicationIdForBankNote(ebbaApplicationId);
+    },
+    []
   );
 
   return (
@@ -196,12 +209,26 @@ export default function BorrowingBasePageContent({
               />
             </Box>
           </Box>
+          {!!selectedEbbaApplicationIdForBankNote && (
+            <UpdateEbbaApplicationBankNoteModal
+              ebbaApplication={
+                !!selectedEbbaApplicationIdForBankNote &&
+                ebbaApplications.find(
+                  (ebba) => ebba.id === selectedEbbaApplicationIdForBankNote
+                )
+              }
+              handleClose={() => setSelectedEbbaApplicationIdForBankNote(null)}
+            />
+          )}
           <EbbaApplicationsDataGrid
             isBorrowingBaseFieldsVisible
             isMultiSelectEnabled
             ebbaApplications={ebbaApplications}
             selectedEbbaApplicationIds={selectedEbbaApplicationIds}
             handleSelectEbbaApplications={handleSelectEbbaApplications}
+            handleClickBorrowingBaseBankNote={
+              handleClickEbbaApplicationBankNote
+            }
           />
         </Box>
       </Box>

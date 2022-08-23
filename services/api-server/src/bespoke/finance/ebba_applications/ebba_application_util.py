@@ -178,6 +178,7 @@ def add_borrowing_base(
 	amount_cash_in_daca: float,
 	amount_custom: float,
 	amount_custom_note: str,
+	bank_note: str,
 	calculated_borrowing_base: float,
 	expires_date: str,
 	ebba_application_files: List[Dict[str, str]]
@@ -196,6 +197,7 @@ def add_borrowing_base(
 		amount_cash_in_daca = amount_cash_in_daca,
 		amount_custom = amount_custom,
 		amount_custom_note = amount_custom_note,
+		bank_note = bank_note,
 		calculated_borrowing_base = calculated_borrowing_base,
 		expires_date = date_util.load_datetime_str(expires_date)
 	)
@@ -223,6 +225,7 @@ def update_borrowing_base(
 	amount_cash_in_daca: float,
 	amount_custom: float,
 	amount_custom_note: str,
+	bank_note: str,
 	calculated_borrowing_base: float,
 	expires_date: str,
 	ebba_application_files: List[Dict[str, str]]
@@ -247,6 +250,7 @@ def update_borrowing_base(
 	ebba_application.amount_cash_in_daca = Decimal(amount_cash_in_daca) if amount_cash_in_daca is not None else None
 	ebba_application.amount_custom = Decimal(amount_custom) if amount_custom is not None else None
 	ebba_application.amount_custom_note = amount_custom_note if amount_custom_note is not None else None
+	ebba_application.bank_note = bank_note if bank_note is not None else None
 	ebba_application.calculated_borrowing_base = Decimal(calculated_borrowing_base)
 	ebba_application.expires_date = date_util.load_datetime_str(expires_date)
 
@@ -275,3 +279,28 @@ def update_borrowing_base(
 			files_added_count += 1
 
 	return ebba_application, files_removed_count, files_added_count, None
+
+def update_borrowing_base_bank_note(
+	session: Session,
+	user: models.User,
+	ebba_application_id: str,
+	bank_note: str,
+) -> Tuple[models.EbbaApplication, errors.Error]:
+
+	if user.role != db_constants.UserRoles.BANK_ADMIN:
+		return None, errors.Error("User not authorized to change Borrowing Base Bank Note")
+
+	ebba_application = cast(
+		models.EbbaApplication,
+		session.query(models.EbbaApplication).filter(
+			models.EbbaApplication.id == ebba_application_id
+		).first())
+	
+	if not ebba_application:
+		return None, errors.Error('No ebba application matching the provided id.')
+
+	ebba_application.bank_note = bank_note if bank_note is not None else None
+
+	session.flush()
+
+	return ebba_application, None

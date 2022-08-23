@@ -63,6 +63,7 @@ export default function CreateUpdateBorrowingBaseCertificationModal({
   );
 
   const isCustomAmountVisible = isBankUser; // Only bank users can edit custom amount / note.
+  const isBankNoteVisible = isBankUser;
 
   // Default EbbaApplication for CREATE case.
   const newEbbaApplication = {
@@ -73,6 +74,7 @@ export default function CreateUpdateBorrowingBaseCertificationModal({
     amount_cash_in_daca: null,
     amount_custom: null,
     amount_custom_note: "",
+    bank_note: "",
     calculated_borrowing_base: null,
     company_id: companyId,
   } as EbbaApplicationsInsertInput;
@@ -164,6 +166,9 @@ export default function CreateUpdateBorrowingBaseCertificationModal({
             amount_custom_note: isCustomAmountVisible
               ? ebbaApplication.amount_custom_note
               : undefined,
+            bank_note: isBankNoteVisible
+              ? ebbaApplication.bank_note
+              : undefined,
             calculated_borrowing_base: calculatedBorrowingBase,
             expires_date: computedExpiresDate,
             ebba_application_files: ebbaApplicationFiles,
@@ -184,6 +189,9 @@ export default function CreateUpdateBorrowingBaseCertificationModal({
               : undefined,
             amount_custom_note: isCustomAmountVisible
               ? ebbaApplication.amount_custom_note
+              : undefined,
+            bank_note: isBankNoteVisible
+              ? ebbaApplication.bank_note
               : undefined,
             calculated_borrowing_base: calculatedBorrowingBase,
             expires_date: computedExpiresDate,
@@ -249,6 +257,7 @@ export default function CreateUpdateBorrowingBaseCertificationModal({
         isCashVisible={isCashVisible}
         isCashInDacaVisible={isCashInDacaVisible}
         isCustomAmountVisible={isCustomAmountVisible}
+        isBankNoteVisible={isBankNoteVisible}
         companyId={companyId}
         frozenFileIds={frozenFileIds}
         calculatedBorrowingBase={calculatedBorrowingBase}

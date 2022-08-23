@@ -168,6 +168,7 @@ class TestAddBorrowingBaseView(db_unittest.TestCase):
 			amount_cash_in_daca = 1000
 			amount_custom = 14
 			amount_custom_note = "Unit test note"
+			bank_note = "Unit test bank note"
 			calculated_borrowing_base = 4514
 			expires_date = date_util.date_to_db_str(TODAY_DATE)
 
@@ -181,6 +182,7 @@ class TestAddBorrowingBaseView(db_unittest.TestCase):
 				amount_cash_in_daca,
 				amount_custom,
 				amount_custom_note,
+				bank_note,
 				calculated_borrowing_base,
 				expires_date,
 				ebba_application_files
@@ -220,6 +222,7 @@ class TestUpdateBorrowingBaseView(db_unittest.TestCase):
 			amount_cash_in_daca1 = 1000
 			amount_custom1 = 14
 			amount_custom_note1 = "Unit test note"
+			bank_note1 = "Unit test bank note"
 			calculated_borrowing_base1 = 4514
 			expires_date1 = date_util.date_to_db_str(TODAY)
 
@@ -234,6 +237,7 @@ class TestUpdateBorrowingBaseView(db_unittest.TestCase):
 				amount_cash_in_daca1,
 				amount_custom1,
 				amount_custom_note1,
+				bank_note1,
 				calculated_borrowing_base1,
 				expires_date1,
 				ebba_application_files1
@@ -250,6 +254,7 @@ class TestUpdateBorrowingBaseView(db_unittest.TestCase):
 			amount_cash_in_daca2 = 2000
 			amount_custom2 = 28
 			amount_custom_note2 = "Unit test note2"
+			bank_note2 = "Unit test bank note2"
 			calculated_borrowing_base2 = 9028
 			expires_date2 = date_util.datetime_to_str(get_relative_date(TODAY, 10))
 
@@ -264,6 +269,7 @@ class TestUpdateBorrowingBaseView(db_unittest.TestCase):
 				amount_cash_in_daca2,
 				amount_custom2,
 				amount_custom_note2,
+				bank_note2,
 				calculated_borrowing_base2,
 				expires_date2,
 				ebba_application_files2
@@ -279,6 +285,7 @@ class TestUpdateBorrowingBaseView(db_unittest.TestCase):
 			self.assertNotEqual(amount_cash_in_daca1, ebba_application2.amount_cash_in_daca)
 			self.assertNotEqual(amount_custom1, ebba_application2.amount_custom)
 			self.assertNotEqual(amount_custom_note1, ebba_application2.amount_custom_note)
+			self.assertNotEqual(bank_note1, ebba_application2.bank_note)
 			self.assertNotEqual(calculated_borrowing_base1, ebba_application2.calculated_borrowing_base)
 			self.assertNotEqual(expires_date1, ebba_application2.expires_date)
 			
@@ -311,6 +318,7 @@ class TestUpdateBorrowingBaseView(db_unittest.TestCase):
 			amount_cash_in_daca1 = 1000
 			amount_custom1 = 14
 			amount_custom_note1 = "Unit test note"
+			bank_note1 = "Unit test bank note"
 			calculated_borrowing_base1 = 4514
 			expires_date1 = date_util.date_to_db_str(TODAY)
 
@@ -325,6 +333,7 @@ class TestUpdateBorrowingBaseView(db_unittest.TestCase):
 				amount_cash_in_daca1,
 				amount_custom1,
 				amount_custom_note1,
+				bank_note1,
 				calculated_borrowing_base1,
 				expires_date1,
 				ebba_application_files1
@@ -341,6 +350,7 @@ class TestUpdateBorrowingBaseView(db_unittest.TestCase):
 			amount_cash_in_daca2 = 2000
 			amount_custom2 = 28
 			amount_custom_note2 = "Unit test note2"
+			bank_note2 = "Unite test bank note2"
 			calculated_borrowing_base2 = 9028
 			expires_date2 = date_util.datetime_to_str(get_relative_date(TODAY, 10))
 
@@ -355,6 +365,7 @@ class TestUpdateBorrowingBaseView(db_unittest.TestCase):
 				amount_cash_in_daca2,
 				amount_custom2,
 				amount_custom_note2,
+				bank_note2,
 				calculated_borrowing_base2,
 				expires_date2,
 				ebba_application_files2
@@ -396,3 +407,74 @@ class TestSubmitEbbaApplicationView(db_unittest.TestCase):
 
 			self.assertEqual(is_success, False)
 			self.assertIn("Application month is required", err.msg)
+
+class TestUpdateBorrowingBaseBankNote(db_unittest.TestCase):
+	def test_update_borrowing_base_bank_note_happy_path(self) -> None:
+		with session_scope(self.session_maker) as session:
+			company_id = str(uuid.uuid4())
+			user = setup_for_ebba_application_test(session, company_id)
+			# only bank_admin users can update bank note
+			user.role = db_constants.UserRoles.BANK_ADMIN
+
+			application_date1 = date_util.date_to_db_str(TODAY_DATE)
+			monthly_accounts_receivable1 = 10000
+			monthly_inventory1 = 3000
+			monthly_cash1 = 4000
+			amount_cash_in_daca1 = 1000
+			amount_custom1 = 14
+			amount_custom_note1 = "Unit test note"
+			bank_note1 = "Unit test bank note"
+			calculated_borrowing_base1 = 4514
+			expires_date1 = date_util.date_to_db_str(TODAY)
+
+			# easier to just use the add function than create a new setup function for the update test
+			ebba_application1, _, err = ebba_application_util.add_borrowing_base(
+				session,
+				company_id,
+				application_date1,
+				monthly_accounts_receivable1,
+				monthly_inventory1,
+				monthly_cash1,
+				amount_cash_in_daca1,
+				amount_custom1,
+				amount_custom_note1,
+				bank_note1,
+				calculated_borrowing_base1,
+				expires_date1,
+				[]
+			)
+
+			bank_note2 = "Unit test bank note2"
+
+			ebba_application2, err = ebba_application_util.update_borrowing_base_bank_note(
+				session,
+				user,
+				str(ebba_application1.id),
+				bank_note2,
+			)
+
+			self.assertNotEqual(ebba_application2, None)
+			self.assertEqual(ebba_application2.status, RequestStatusEnum.APPROVAL_REQUESTED)
+			self.assertEqual(ebba_application2.category, ClientSurveillanceCategoryEnum.BORROWING_BASE)
+			self.assertEqual(date_util.load_date_str(application_date1), ebba_application2.application_date)
+			self.assertEqual(monthly_accounts_receivable1, ebba_application2.monthly_accounts_receivable)
+			self.assertEqual(monthly_inventory1, ebba_application2.monthly_inventory)
+			self.assertEqual(monthly_cash1, ebba_application2.monthly_cash)
+			self.assertEqual(amount_cash_in_daca1, ebba_application2.amount_cash_in_daca)
+			self.assertEqual(amount_custom1, ebba_application2.amount_custom)
+			self.assertEqual(amount_custom_note1, ebba_application2.amount_custom_note)
+			self.assertNotEqual(bank_note1, ebba_application2.bank_note)
+			self.assertEqual(calculated_borrowing_base1, ebba_application2.calculated_borrowing_base)
+			self.assertEqual(date_util.load_datetime_str(expires_date1), ebba_application2.expires_date)
+			
+			self.assertEqual(err, None)
+
+			is_success, err = ebba_application_util.submit_ebba_application_for_approval(
+				session,
+				ebba_application2,
+				company_id,
+				str(user.id)
+			)
+
+			self.assertEqual(is_success, True)
+			self.assertEqual(err, None)	

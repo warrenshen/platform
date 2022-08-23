@@ -38,6 +38,7 @@ interface Props {
   isCashVisible: boolean;
   isCashInDacaVisible: boolean;
   isCustomAmountVisible: boolean;
+  isBankNoteVisible: boolean;
   companyId: Companies["id"];
   frozenFileIds?: Files["id"][];
   calculatedBorrowingBase: number | null;
@@ -56,6 +57,7 @@ export default function EbbaApplicationBorrowingBaseForm({
   isCashVisible,
   isCashInDacaVisible,
   isCustomAmountVisible,
+  isBankNoteVisible,
   companyId,
   frozenFileIds,
   calculatedBorrowingBase,
@@ -276,6 +278,21 @@ export default function EbbaApplicationBorrowingBaseForm({
           you entered above and your current active contract with Bespoke.
         </Typography>
       </Box>
+      {isBankNoteVisible && (
+        <Box display="flex" flexDirection="column" mt={4}>
+          <TextField
+            disabled={isEditDisabled}
+            label={"Bank Description / Note"}
+            value={ebbaApplication.bank_note}
+            onChange={({ target: { value } }) =>
+              setEbbaApplication({
+                ...ebbaApplication,
+                bank_note: value,
+              })
+            }
+          />
+        </Box>
+      )}
       <Box display="flex" flexDirection="column" mt={4}>
         <Box mb={1}>
           <Typography variant="subtitle1" color="textSecondary">

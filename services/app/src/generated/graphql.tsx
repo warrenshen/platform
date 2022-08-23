@@ -90,7 +90,7 @@ export type StringComparisonExp = {
 export type AsyncJobs = {
   created_at: Scalars["timestamptz"];
   deleted_at?: Maybe<Scalars["timestamptz"]>;
-  ended_at?: Maybe<Scalars["timestamp"]>;
+  ended_at?: Maybe<Scalars["timestamptz"]>;
   err_details?: Maybe<Scalars["json"]>;
   id: Scalars["uuid"];
   is_deleted?: Maybe<Scalars["Boolean"]>;
@@ -162,7 +162,7 @@ export type AsyncJobsBoolExp = {
   _or?: Maybe<Array<AsyncJobsBoolExp>>;
   created_at?: Maybe<TimestamptzComparisonExp>;
   deleted_at?: Maybe<TimestamptzComparisonExp>;
-  ended_at?: Maybe<TimestampComparisonExp>;
+  ended_at?: Maybe<TimestamptzComparisonExp>;
   err_details?: Maybe<JsonComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   is_deleted?: Maybe<BooleanComparisonExp>;
@@ -194,7 +194,7 @@ export type AsyncJobsIncInput = {
 export type AsyncJobsInsertInput = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   deleted_at?: Maybe<Scalars["timestamptz"]>;
-  ended_at?: Maybe<Scalars["timestamp"]>;
+  ended_at?: Maybe<Scalars["timestamptz"]>;
   err_details?: Maybe<Scalars["json"]>;
   id?: Maybe<Scalars["uuid"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
@@ -215,7 +215,7 @@ export type AsyncJobsInsertInput = {
 export type AsyncJobsMaxFields = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   deleted_at?: Maybe<Scalars["timestamptz"]>;
-  ended_at?: Maybe<Scalars["timestamp"]>;
+  ended_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   name?: Maybe<Scalars["String"]>;
   num_retries?: Maybe<Scalars["Int"]>;
@@ -230,7 +230,7 @@ export type AsyncJobsMaxFields = {
 export type AsyncJobsMinFields = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   deleted_at?: Maybe<Scalars["timestamptz"]>;
-  ended_at?: Maybe<Scalars["timestamp"]>;
+  ended_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   name?: Maybe<Scalars["String"]>;
   num_retries?: Maybe<Scalars["Int"]>;
@@ -322,7 +322,7 @@ export enum AsyncJobsSelectColumn {
 export type AsyncJobsSetInput = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   deleted_at?: Maybe<Scalars["timestamptz"]>;
-  ended_at?: Maybe<Scalars["timestamp"]>;
+  ended_at?: Maybe<Scalars["timestamptz"]>;
   err_details?: Maybe<Scalars["json"]>;
   id?: Maybe<Scalars["uuid"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
@@ -5621,6 +5621,7 @@ export type CompanySettings = {
   metrc_api_key?: Maybe<MetrcApiKeys>;
   metrc_api_key_id?: Maybe<Scalars["uuid"]>;
   payor_agreement_docusign_template?: Maybe<Scalars["String"]>;
+  revenue_end_date?: Maybe<Scalars["date"]>;
   two_factor_message_method?: Maybe<Scalars["String"]>;
   /** An object relationship */
   underwriter_user?: Maybe<Users>;
@@ -5628,6 +5629,7 @@ export type CompanySettings = {
   updated_at: Scalars["timestamptz"];
   vendor_agreement_docusign_template?: Maybe<Scalars["String"]>;
   vendor_onboarding_link?: Maybe<Scalars["String"]>;
+  write_off_date?: Maybe<Scalars["date"]>;
 };
 
 /** Settings are configuration details associated with a company, but are not within a time range like contracts are */
@@ -5716,12 +5718,14 @@ export type CompanySettingsBoolExp = {
   metrc_api_key?: Maybe<MetrcApiKeysBoolExp>;
   metrc_api_key_id?: Maybe<UuidComparisonExp>;
   payor_agreement_docusign_template?: Maybe<StringComparisonExp>;
+  revenue_end_date?: Maybe<DateComparisonExp>;
   two_factor_message_method?: Maybe<StringComparisonExp>;
   underwriter_user?: Maybe<UsersBoolExp>;
   underwriter_user_id?: Maybe<UuidComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
   vendor_agreement_docusign_template?: Maybe<StringComparisonExp>;
   vendor_onboarding_link?: Maybe<StringComparisonExp>;
+  write_off_date?: Maybe<DateComparisonExp>;
 };
 
 /** unique or primary key constraints on table "company_settings" */
@@ -5795,12 +5799,14 @@ export type CompanySettingsInsertInput = {
   metrc_api_key?: Maybe<MetrcApiKeysObjRelInsertInput>;
   metrc_api_key_id?: Maybe<Scalars["uuid"]>;
   payor_agreement_docusign_template?: Maybe<Scalars["String"]>;
+  revenue_end_date?: Maybe<Scalars["date"]>;
   two_factor_message_method?: Maybe<Scalars["String"]>;
   underwriter_user?: Maybe<UsersObjRelInsertInput>;
   underwriter_user_id?: Maybe<Scalars["uuid"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_agreement_docusign_template?: Maybe<Scalars["String"]>;
   vendor_onboarding_link?: Maybe<Scalars["String"]>;
+  write_off_date?: Maybe<Scalars["date"]>;
 };
 
 /** aggregate max on columns */
@@ -5826,11 +5832,13 @@ export type CompanySettingsMaxFields = {
   id?: Maybe<Scalars["uuid"]>;
   metrc_api_key_id?: Maybe<Scalars["uuid"]>;
   payor_agreement_docusign_template?: Maybe<Scalars["String"]>;
+  revenue_end_date?: Maybe<Scalars["date"]>;
   two_factor_message_method?: Maybe<Scalars["String"]>;
   underwriter_user_id?: Maybe<Scalars["uuid"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_agreement_docusign_template?: Maybe<Scalars["String"]>;
   vendor_onboarding_link?: Maybe<Scalars["String"]>;
+  write_off_date?: Maybe<Scalars["date"]>;
 };
 
 /** order by max() on columns of table "company_settings" */
@@ -5856,11 +5864,13 @@ export type CompanySettingsMaxOrderBy = {
   id?: Maybe<OrderBy>;
   metrc_api_key_id?: Maybe<OrderBy>;
   payor_agreement_docusign_template?: Maybe<OrderBy>;
+  revenue_end_date?: Maybe<OrderBy>;
   two_factor_message_method?: Maybe<OrderBy>;
   underwriter_user_id?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   vendor_agreement_docusign_template?: Maybe<OrderBy>;
   vendor_onboarding_link?: Maybe<OrderBy>;
+  write_off_date?: Maybe<OrderBy>;
 };
 
 /** aggregate min on columns */
@@ -5886,11 +5896,13 @@ export type CompanySettingsMinFields = {
   id?: Maybe<Scalars["uuid"]>;
   metrc_api_key_id?: Maybe<Scalars["uuid"]>;
   payor_agreement_docusign_template?: Maybe<Scalars["String"]>;
+  revenue_end_date?: Maybe<Scalars["date"]>;
   two_factor_message_method?: Maybe<Scalars["String"]>;
   underwriter_user_id?: Maybe<Scalars["uuid"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_agreement_docusign_template?: Maybe<Scalars["String"]>;
   vendor_onboarding_link?: Maybe<Scalars["String"]>;
+  write_off_date?: Maybe<Scalars["date"]>;
 };
 
 /** order by min() on columns of table "company_settings" */
@@ -5916,11 +5928,13 @@ export type CompanySettingsMinOrderBy = {
   id?: Maybe<OrderBy>;
   metrc_api_key_id?: Maybe<OrderBy>;
   payor_agreement_docusign_template?: Maybe<OrderBy>;
+  revenue_end_date?: Maybe<OrderBy>;
   two_factor_message_method?: Maybe<OrderBy>;
   underwriter_user_id?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   vendor_agreement_docusign_template?: Maybe<OrderBy>;
   vendor_onboarding_link?: Maybe<OrderBy>;
+  write_off_date?: Maybe<OrderBy>;
 };
 
 /** response of any mutation on the table "company_settings" */
@@ -5977,12 +5991,14 @@ export type CompanySettingsOrderBy = {
   metrc_api_key?: Maybe<MetrcApiKeysOrderBy>;
   metrc_api_key_id?: Maybe<OrderBy>;
   payor_agreement_docusign_template?: Maybe<OrderBy>;
+  revenue_end_date?: Maybe<OrderBy>;
   two_factor_message_method?: Maybe<OrderBy>;
   underwriter_user?: Maybe<UsersOrderBy>;
   underwriter_user_id?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   vendor_agreement_docusign_template?: Maybe<OrderBy>;
   vendor_onboarding_link?: Maybe<OrderBy>;
+  write_off_date?: Maybe<OrderBy>;
 };
 
 /** primary key columns input for table: company_settings */
@@ -6039,6 +6055,8 @@ export enum CompanySettingsSelectColumn {
   /** column name */
   PayorAgreementDocusignTemplate = "payor_agreement_docusign_template",
   /** column name */
+  RevenueEndDate = "revenue_end_date",
+  /** column name */
   TwoFactorMessageMethod = "two_factor_message_method",
   /** column name */
   UnderwriterUserId = "underwriter_user_id",
@@ -6048,6 +6066,8 @@ export enum CompanySettingsSelectColumn {
   VendorAgreementDocusignTemplate = "vendor_agreement_docusign_template",
   /** column name */
   VendorOnboardingLink = "vendor_onboarding_link",
+  /** column name */
+  WriteOffDate = "write_off_date",
 }
 
 /** input type for updating data in table "company_settings" */
@@ -6080,11 +6100,13 @@ export type CompanySettingsSetInput = {
   is_dummy_account?: Maybe<Scalars["Boolean"]>;
   metrc_api_key_id?: Maybe<Scalars["uuid"]>;
   payor_agreement_docusign_template?: Maybe<Scalars["String"]>;
+  revenue_end_date?: Maybe<Scalars["date"]>;
   two_factor_message_method?: Maybe<Scalars["String"]>;
   underwriter_user_id?: Maybe<Scalars["uuid"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_agreement_docusign_template?: Maybe<Scalars["String"]>;
   vendor_onboarding_link?: Maybe<Scalars["String"]>;
+  write_off_date?: Maybe<Scalars["date"]>;
 };
 
 /** update columns of table "company_settings" */
@@ -6128,6 +6150,8 @@ export enum CompanySettingsUpdateColumn {
   /** column name */
   PayorAgreementDocusignTemplate = "payor_agreement_docusign_template",
   /** column name */
+  RevenueEndDate = "revenue_end_date",
+  /** column name */
   TwoFactorMessageMethod = "two_factor_message_method",
   /** column name */
   UnderwriterUserId = "underwriter_user_id",
@@ -6137,6 +6161,8 @@ export enum CompanySettingsUpdateColumn {
   VendorAgreementDocusignTemplate = "vendor_agreement_docusign_template",
   /** column name */
   VendorOnboardingLink = "vendor_onboarding_link",
+  /** column name */
+  WriteOffDate = "write_off_date",
 }
 
 /** columns and relationships of "company_type" */
@@ -8199,7 +8225,7 @@ export type EbbaApplications = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamp"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   /** An object relationship */
   rejected_by_user?: Maybe<Users>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
@@ -8324,7 +8350,7 @@ export type EbbaApplicationsBoolExp = {
   monthly_accounts_receivable?: Maybe<NumericComparisonExp>;
   monthly_cash?: Maybe<NumericComparisonExp>;
   monthly_inventory?: Maybe<NumericComparisonExp>;
-  rejected_at?: Maybe<TimestampComparisonExp>;
+  rejected_at?: Maybe<TimestamptzComparisonExp>;
   rejected_by_user?: Maybe<UsersBoolExp>;
   rejected_by_user_id?: Maybe<UuidComparisonExp>;
   rejection_note?: Maybe<StringComparisonExp>;
@@ -8373,7 +8399,7 @@ export type EbbaApplicationsInsertInput = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamp"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejected_by_user?: Maybe<UsersObjRelInsertInput>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
@@ -8402,7 +8428,7 @@ export type EbbaApplicationsMaxFields = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamp"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -8454,7 +8480,7 @@ export type EbbaApplicationsMinFields = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamp"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -8619,7 +8645,7 @@ export type EbbaApplicationsSetInput = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamp"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -21779,7 +21805,6 @@ export type PurchaseOrders = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
-  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   /** An object relationship */
@@ -21961,7 +21986,6 @@ export type PurchaseOrdersBoolExp = {
   _or?: Maybe<Array<PurchaseOrdersBoolExp>>;
   amount?: Maybe<NumericComparisonExp>;
   amount_funded?: Maybe<NumericComparisonExp>;
-  amount_updated_at?: Maybe<TimestamptzComparisonExp>;
   approved_at?: Maybe<TimestamptzComparisonExp>;
   approved_by_user_id?: Maybe<UuidComparisonExp>;
   approving_user_id?: Maybe<UsersBoolExp>;
@@ -22017,7 +22041,6 @@ export type PurchaseOrdersInsertInput = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
-  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   approving_user_id?: Maybe<UsersObjRelInsertInput>;
@@ -22065,7 +22088,6 @@ export type PurchaseOrdersMaxFields = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
-  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -22100,7 +22122,6 @@ export type PurchaseOrdersMaxOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
-  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   bank_incomplete_note?: Maybe<OrderBy>;
@@ -22135,7 +22156,6 @@ export type PurchaseOrdersMinFields = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
-  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -22170,7 +22190,6 @@ export type PurchaseOrdersMinOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
-  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   bank_incomplete_note?: Maybe<OrderBy>;
@@ -22226,7 +22245,6 @@ export type PurchaseOrdersOnConflict = {
 export type PurchaseOrdersOrderBy = {
   amount?: Maybe<OrderBy>;
   amount_funded?: Maybe<OrderBy>;
-  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   approving_user_id?: Maybe<UsersOrderBy>;
@@ -22274,8 +22292,6 @@ export enum PurchaseOrdersSelectColumn {
   Amount = "amount",
   /** column name */
   AmountFunded = "amount_funded",
-  /** column name */
-  AmountUpdatedAt = "amount_updated_at",
   /** column name */
   ApprovedAt = "approved_at",
   /** column name */
@@ -22337,7 +22353,6 @@ export type PurchaseOrdersSetInput = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
-  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -22443,8 +22458,6 @@ export enum PurchaseOrdersUpdateColumn {
   Amount = "amount",
   /** column name */
   AmountFunded = "amount_funded",
-  /** column name */
-  AmountUpdatedAt = "amount_updated_at",
   /** column name */
   ApprovedAt = "approved_at",
   /** column name */
@@ -28630,7 +28643,9 @@ export type GetEbbaApplicationQueryVariables = Exact<{
 
 export type GetEbbaApplicationQuery = {
   ebba_applications_by_pk?: Maybe<
-    Pick<EbbaApplications, "id"> & {
+    Pick<EbbaApplications, "id" | "bank_note"> & {
+      approved_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
+      rejected_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
       company: Pick<Companies, "id" | "name">;
       ebba_application_files: Array<EbbaApplicationFileFragment>;
     } & EbbaApplicationFragment
@@ -28666,7 +28681,8 @@ export type GetOpenEbbaApplicationsByCategoryQueryVariables = Exact<{
 
 export type GetOpenEbbaApplicationsByCategoryQuery = {
   ebba_applications: Array<
-    Pick<EbbaApplications, "id"> & {
+    Pick<EbbaApplications, "id" | "bank_note" | "rejected_at"> & {
+      rejected_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
       company: Pick<Companies, "id" | "name"> & {
         contract?: Maybe<Pick<Contracts, "id" | "product_type">>;
       };
@@ -28683,7 +28699,8 @@ export type GetClosedEbbaApplicationsQueryVariables = Exact<{
 
 export type GetClosedEbbaApplicationsQuery = {
   ebba_applications: Array<
-    Pick<EbbaApplications, "id"> & {
+    Pick<EbbaApplications, "id" | "bank_note"> & {
+      approved_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
       company: Pick<Companies, "id" | "name"> & {
         contract?: Maybe<Pick<Contracts, "id" | "product_type">>;
       };
@@ -35355,6 +35372,15 @@ export const GetEbbaApplicationDocument = gql`
     ebba_applications_by_pk(id: $id) {
       id
       ...EbbaApplication
+      approved_by_user {
+        id
+        full_name
+      }
+      rejected_by_user {
+        id
+        full_name
+      }
+      bank_note
       company {
         id
         name
@@ -35567,6 +35593,12 @@ export const GetOpenEbbaApplicationsByCategoryDocument = gql`
     ) {
       id
       ...EbbaApplication
+      bank_note
+      rejected_at
+      rejected_by_user {
+        id
+        full_name
+      }
       company {
         id
         name
@@ -35650,6 +35682,11 @@ export const GetClosedEbbaApplicationsDocument = gql`
     ) {
       id
       ...EbbaApplication
+      approved_by_user {
+        id
+        full_name
+      }
+      bank_note
       company {
         id
         name

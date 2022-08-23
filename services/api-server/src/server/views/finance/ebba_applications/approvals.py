@@ -24,6 +24,7 @@ class RespondToEbbaApplicationApprovalRequest(MethodView):
 	def post(self, **kwargs: Any) -> Response:
 		cfg = cast(Config, current_app.app_config)
 		sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
+		user_session = auth_util.UserSession.from_session()
 
 		form = json.loads(request.data)
 		if not form:
@@ -69,6 +70,7 @@ class RespondToEbbaApplicationApprovalRequest(MethodView):
 			if new_request_status == RequestStatusEnum.APPROVED:
 				ebba_application.status = RequestStatusEnum.APPROVED
 				ebba_application.approved_at = date_util.now()
+				ebba_application.approved_by_user_id = user_session.get_user_id()
 				action_type = 'Approved'
 
 				# Set company's active borrowing_base or financial_report to this one,
@@ -105,6 +107,7 @@ class RespondToEbbaApplicationApprovalRequest(MethodView):
 				ebba_application.status = RequestStatusEnum.REJECTED
 				ebba_application.rejected_at = date_util.now()
 				ebba_application.rejection_note = rejection_note
+				ebba_application.rejected_by_user_id = user_session.get_user_id()
 				action_type = 'Rejected'
 
 			customer_users = models_util.get_active_users(
@@ -395,6 +398,7 @@ class AddBorrowingBaseView(MethodView):
 		amount_cash_in_daca: float = float(form['amount_cash_in_daca']) if form['amount_cash_in_daca'] is not None else None 
 		amount_custom: float = float(form['amount_custom']) if 'amount_custom' in form and form['amount_custom'] is not None else None
 		amount_custom_note: str = form['amount_custom_note'] if 'amount_custom_note' in form else None
+		bank_note: str = form['bank_note'] if 'bank_note' in form else None
 		calculated_borrowing_base: float = form['calculated_borrowing_base']
 		expires_date: str = form['expires_date']
 		ebba_application_files: List[Dict[str, str]] = form['ebba_application_files']
@@ -410,6 +414,7 @@ class AddBorrowingBaseView(MethodView):
 				amount_cash_in_daca,
 				amount_custom,
 				amount_custom_note,
+				bank_note,
 				calculated_borrowing_base,
 				expires_date,
 				ebba_application_files
@@ -475,6 +480,7 @@ class UpdateBorrowingBaseView(MethodView):
 		amount_cash_in_daca: float = float(form['amount_cash_in_daca']) if form['amount_cash_in_daca'] is not None else None
 		amount_custom: float = float(form['amount_custom']) if 'amount_custom' in form and form['amount_custom'] is not None else None
 		amount_custom_note: str = form['amount_custom_note'] if 'amount_custom_note' in form else None
+		bank_note: str = form['bank_note'] if 'bank_note' in form else None
 		calculated_borrowing_base: float = form['calculated_borrowing_base']
 		expires_date: str = form['expires_date']
 		ebba_application_files: List[Dict[str, str]] = form['ebba_application_files']
@@ -498,6 +504,7 @@ class UpdateBorrowingBaseView(MethodView):
 				amount_cash_in_daca,
 				amount_custom,
 				amount_custom_note,
+				bank_note,
 				calculated_borrowing_base,
 				expires_date,
 				ebba_application_files
@@ -526,6 +533,55 @@ class UpdateBorrowingBaseView(MethodView):
 			'status': 'OK',
 			'msg': 'Financial Report updated'
 		}), 200)
+
+class UpdateEbbaApplicationBankNoteView(MethodView):
+	decorators = [auth_util.login_required]
+
+	@events.wrap(events.Actions.EBBA_APPLICATION_BANK_NOTE_UPDATE)
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'companyId',
+			'ebbaApplicationId',
+			'bankNote',
+		]
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(
+					'Missing key {} from handle payment request'.format(key))
+
+		ebba_application_id = form['ebbaApplicationId']
+		company_id = form['companyId']
+		bank_note = form['bankNote']
+
+		user_session = auth_util.UserSession.from_session()
+		if not user_session.is_bank_or_this_company_admin(company_id):
+			return handler_util.make_error_response('Access Denied')
+
+		with session_scope(current_app.session_maker) as session:
+			user = cast(
+				models.User,
+				session.query(models.User).filter(
+					models.User.id == user_session.get_user_id()
+				).first())
+			_, err = ebba_application_util.update_borrowing_base_bank_note(
+				session,
+				user,
+				ebba_application_id,
+				bank_note,
+			)
+			if err:
+				handler_util.make_error_response(err)
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': 'Ebba Application Updated'
+		}), 200)
+
 
 handler.add_url_rule(
 	'/respond_to_approval_request',
@@ -560,4 +616,9 @@ handler.add_url_rule(
 handler.add_url_rule(
 	'/update_borrowing_base',
 	view_func=UpdateBorrowingBaseView.as_view(name='update_borrowing_base')
+)
+
+handler.add_url_rule(
+	'/update_bank_note',
+	view_func=UpdateEbbaApplicationBankNoteView.as_view(name='update_bank_note')
 )

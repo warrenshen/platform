@@ -49,6 +49,7 @@ class Actions(object):
 	EBBA_APPLICATION_DELETE = 'ebba_application_delete'
 	EBBA_APPLICATION_ADD = 'ebba_application_add'
 	EBBA_APPLICATION_UPDATE = 'ebba_application_update'
+	EBBA_APPLICATION_BANK_NOTE_UPDATE = 'ebba_application_bank_note_update'
 
 	LOGIN_CREATE = 'login_create'
 

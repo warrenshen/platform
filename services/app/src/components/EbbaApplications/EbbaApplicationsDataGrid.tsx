@@ -1,9 +1,15 @@
+import { Box, Button } from "@material-ui/core";
 import { ValueFormatterParams } from "@material-ui/data-grid";
+import CommentIcon from "@material-ui/icons/Comment";
 import EbbaApplicationDrawer from "components/EbbaApplication/EbbaApplicationDrawer";
 import EbbaApplicationStatusChip from "components/EbbaApplication/EbbaApplicationStatusChip";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
 import {
   EbbaApplicationFragment,
   EbbaApplications,
@@ -20,10 +26,11 @@ import {
 import { CurrencyPrecision, formatCurrency } from "lib/number";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { ColumnWidths, formatRowModel } from "lib/tables";
-import { useMemo, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 
 interface Props {
   isApprovedAtVisible?: boolean;
+  isRejectedAtVisible?: boolean;
   isBorrowingBaseFieldsVisible?: boolean;
   isCategoryVisible?: boolean;
   isCompanyVisible?: boolean;
@@ -37,10 +44,12 @@ interface Props {
   handleSelectEbbaApplications?: (
     ebbaApplications: EbbaApplicationFragment[]
   ) => void;
+  handleClickBorrowingBaseBankNote?: (ebbaApplicationId: string) => void;
 }
 
 export default function EbbaApplicationsDataGrid({
   isApprovedAtVisible = false,
+  isRejectedAtVisible = false,
   isBorrowingBaseFieldsVisible = false,
   isCategoryVisible = false,
   isCompanyVisible = false,
@@ -52,10 +61,16 @@ export default function EbbaApplicationsDataGrid({
   ebbaApplications,
   selectedEbbaApplicationIds,
   handleSelectEbbaApplications,
+  handleClickBorrowingBaseBankNote,
 }: Props) {
   const [selectedEbbaApplicationId, setSelectedEbbaApplicationId] = useState<
     EbbaApplications["id"] | null
   >(null);
+
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
+  const isBankUser = isRoleBankUser(role);
 
   const rows = useMemo(
     () =>
@@ -92,6 +107,9 @@ export default function EbbaApplicationsDataGrid({
             ? parseDateStringServer(ebbaApplication.expires_date)
             : "-",
           product_type: productType,
+          rejected_at:
+            ebbaApplication.rejected_at &&
+            parseDateStringServer(ebbaApplication.rejected_at),
           submitted_by_name: ebbaApplication.submitted_by_user?.full_name,
         });
       }),
@@ -180,9 +198,29 @@ export default function EbbaApplicationsDataGrid({
       },
       {
         visible: isApprovedAtVisible,
+        dataField: "approved_by_user.full_name",
+        caption: "Approved By",
+        width: ColumnWidths.UserName,
+      },
+      {
+        visible: isApprovedAtVisible,
         dataField: "approved_at",
         caption: "Approved At",
         width: ColumnWidths.Datetime,
+        alignment: "center",
+        format: "shortDate",
+      },
+      {
+        visible: isRejectedAtVisible,
+        dataField: "rejected_by_user.full_name",
+        caption: "Rejected By",
+        width: ColumnWidths.UserName,
+      },
+      {
+        visible: isRejectedAtVisible,
+        dataField: "rejected_at",
+        caption: "Rejected At",
+        width: ColumnWidths.Date,
         alignment: "center",
         format: "shortDate",
       },
@@ -279,15 +317,43 @@ export default function EbbaApplicationsDataGrid({
         width: ColumnWidths.Date,
         alignment: "right",
       },
+      {
+        visible: isBankUser,
+        caption: "Bank Note",
+        dataField: "bank_note",
+        width: 100,
+        alignment: "center",
+        cellRender: (params: ValueFormatterParams) => (
+          <Button
+            color="default"
+            variant="text"
+            style={{
+              minWidth: 0,
+              textAlign: "left",
+            }}
+            onClick={() => {
+              !!handleClickBorrowingBaseBankNote &&
+                handleClickBorrowingBaseBankNote(params.row.data.id);
+            }}
+          >
+            <Box display="flex" alignItems="center">
+              <CommentIcon />
+            </Box>
+          </Button>
+        ),
+      },
     ],
     [
       isApprovedAtVisible,
+      isRejectedAtVisible,
       isBorrowingBaseFieldsVisible,
       isBorrowingBaseAdjustmentAmountVisible,
       isBorrowingBaseAdjustmentNoteVisible,
       isCategoryVisible,
       isCompanyVisible,
       isExpirationDateVisible,
+      isBankUser,
+      handleClickBorrowingBaseBankNote,
     ]
   );
 
