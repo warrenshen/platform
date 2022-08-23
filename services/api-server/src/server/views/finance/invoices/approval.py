@@ -133,10 +133,11 @@ class RespondToApprovalRequestView(MethodView):
 					raise err
 
 				submit_resp, err = approval_util.submit_for_approval_if_has_autofinancing(
+					session=session,
 					company_id=str(invoice.company_id),
 					amount=float(invoice.subtotal_amount) * advance_rate,
 					artifact_id=str(invoice.id),
-					session=session
+					requested_by_user_id=user_session.get_user_id(),
 				)
 				if err:
 					raise err

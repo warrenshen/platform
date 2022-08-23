@@ -179,13 +179,16 @@ def _handle_approval_email(
 	session: Session,
 	customer_name: str,
 	loan_dicts: List[models.LoanDict],
-	triggered_by_autofinancing: bool) -> errors.Error:
+	requested_by_user_id: str,
+	triggered_by_autofinancing: bool
+	) -> errors.Error:
 	responses = []
 
 	for loan in loan_dicts:
 		response, err = approval_util.submit_for_approval(
-			loan["id"],
 			session,
+			loan["id"],
+			requested_by_user_id=requested_by_user_id,
 			triggered_by_autofinancing=triggered_by_autofinancing,
 		)
 		if err:
@@ -220,6 +223,7 @@ class UpsertPurchaseOrdersLoansView(MethodView):
 		user_session = auth_util.UserSession.from_session()
 		form = json.loads(request.data)
 		company_id = form["company_id"]
+		requested_by_user_id = user_session.get_user_id()
 
 		# If the user is not a company admin, they cannot call this route
 		if not user_session.is_bank_or_this_company_admin(company_id):
@@ -265,6 +269,7 @@ class UpsertPurchaseOrdersLoansView(MethodView):
 						identifier=str(loan_identifier),
 						amount=item.loan.amount,
 						requested_payment_date=item.loan.requested_payment_date,
+						requested_by_user_id=requested_by_user_id,
 					)
 					session.add(loan)
 
@@ -288,6 +293,7 @@ class UpsertPurchaseOrdersLoansView(MethodView):
 					session,
 					customer_name,
 					loan_dicts,
+					requested_by_user_id=requested_by_user_id,
 					triggered_by_autofinancing=False,
 				)
 				if err:

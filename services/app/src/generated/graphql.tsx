@@ -11760,6 +11760,8 @@ export type Loans = {
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
+  /** An object relationship */
+  requested_by_user?: Maybe<Users>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
   /** The date the customer requests the loan to arrive to the recipient bank account (a better name for this column is requested_deposit_date) */
   requested_payment_date?: Maybe<Scalars["date"]>;
@@ -11895,6 +11897,7 @@ export type LoansBoolExp = {
   rejected_by_user_id?: Maybe<UuidComparisonExp>;
   rejection_note?: Maybe<StringComparisonExp>;
   requested_at?: Maybe<TimestamptzComparisonExp>;
+  requested_by_user?: Maybe<UsersBoolExp>;
   requested_by_user_id?: Maybe<UuidComparisonExp>;
   requested_payment_date?: Maybe<DateComparisonExp>;
   status?: Maybe<StringComparisonExp>;
@@ -11960,6 +11963,7 @@ export type LoansInsertInput = {
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
+  requested_by_user?: Maybe<UsersObjRelInsertInput>;
   requested_by_user_id?: Maybe<Scalars["uuid"]>;
   /** The date the customer requests the loan to arrive to the recipient bank account (a better name for this column is requested_deposit_date) */
   requested_payment_date?: Maybe<Scalars["date"]>;
@@ -12184,6 +12188,7 @@ export type LoansOrderBy = {
   rejected_by_user_id?: Maybe<OrderBy>;
   rejection_note?: Maybe<OrderBy>;
   requested_at?: Maybe<OrderBy>;
+  requested_by_user?: Maybe<UsersOrderBy>;
   requested_by_user_id?: Maybe<OrderBy>;
   requested_payment_date?: Maybe<OrderBy>;
   status?: Maybe<OrderBy>;
@@ -31270,7 +31275,10 @@ export type LoanLimitedFragment = Pick<
   | "rejected_at"
   | "funded_at"
   | "closed_at"
-> & { company: Pick<Companies, "id" | "identifier"> & CompanyLimitedFragment };
+> & {
+  company: Pick<Companies, "id" | "identifier"> & CompanyLimitedFragment;
+  requested_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
+};
 
 export type LoanArtifactLimitedFragment = Pick<
   Loans,
@@ -32236,6 +32244,10 @@ export const LoanLimitedFragmentDoc = gql`
       id
       identifier
       ...CompanyLimited
+    }
+    requested_by_user {
+      id
+      full_name
     }
   }
   ${CompanyLimitedFragmentDoc}

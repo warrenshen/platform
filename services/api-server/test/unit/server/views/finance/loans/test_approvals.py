@@ -84,10 +84,11 @@ class TestSubmitForApproval(db_unittest.TestCase):
 
 		with session_scope(session_maker) as session:
 			resp, err = approval_util.submit_for_approval(
-				loan_id=loan_id,
 				session=session,
+				loan_id=loan_id,
 				triggered_by_autofinancing=False,
-				now_for_test=test['now_for_test']
+				requested_by_user_id=str(uuid.uuid4()),
+				now_for_test=test['now_for_test'],
 			)
 			if test.get('in_err_msg'):
 				self.assertIn(test['in_err_msg'], err.msg if err else '')
@@ -493,11 +494,12 @@ class TestSubmitViaAutoFinancing(db_unittest.TestCase):
 
 		with session_scope(session_maker) as session:
 			resp, err = approval_util.submit_for_approval_if_has_autofinancing(
+				session=session,
 				company_id=company_id,
 				amount=artifact_amount,
 				artifact_id=artifact_id,
-				session=session,
-				now_for_test=test['now_for_test']
+				now_for_test=test['now_for_test'],
+				requested_by_user_id=str(uuid.uuid4()),
 			)
 			if test.get('in_err_msg'):
 				self.assertIn(test['in_err_msg'], err.msg if err else '')

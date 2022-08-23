@@ -56,6 +56,9 @@ function getRows(
     disbursement_identifier: createLoanDisbursementIdentifier(loan),
     artifact_name: getLoanArtifactName(loan),
     days_past_due: getDaysPastDue(loan),
+    requesting_user: !!loan?.requested_by_user?.full_name
+      ? loan.requested_by_user.full_name
+      : null,
   }));
 }
 
@@ -131,6 +134,11 @@ export default function ArtifactLoansDataGrid({
             paymentStatus={params.value as LoanPaymentStatusEnum}
           />
         ),
+      },
+      {
+        dataField: "requesting_user",
+        caption: "Requesting User",
+        minWidth: ColumnWidths.MinWidth,
       },
       {
         caption: "Amount",

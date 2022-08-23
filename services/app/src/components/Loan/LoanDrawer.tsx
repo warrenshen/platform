@@ -284,6 +284,16 @@ export default function LoanDrawer({ loanId, handleClose }: Props) {
           <Typography variant={"body1"}>{loan.company?.name}</Typography>
         </Box>
       )}
+      {isBankUser && (
+        <Box display="flex" flexDirection="column" mt={2}>
+          <Typography variant="subtitle2" color="textSecondary">
+            Requesting User
+          </Typography>
+          <Typography variant={"body1"}>
+            {loan?.requested_by_user?.full_name || ""}
+          </Typography>
+        </Box>
+      )}
       {loan.loan_type === LoanTypeEnum.LineOfCredit && (
         <>
           <Box display="flex" flexDirection="column" mt={2}>

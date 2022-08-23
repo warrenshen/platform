@@ -340,7 +340,7 @@ class RespondToApprovalRequestView(MethodView):
 		rejected_by_user_id = data['rejected_by_user_id'] if 'rejected_by_user_id' in data else None
 
 		user_session = auth_util.UserSession.from_session()
-
+		requested_by_user_id = user_session.get_user_id()
 		with session_scope(current_app.session_maker) as session:
 			if user_session.is_bank_admin():
 				user = session.query(models.User) \
@@ -409,10 +409,11 @@ class RespondToApprovalRequestView(MethodView):
 
 			if action_type == 'Approved':
 				submit_resp, err = approval_util.submit_for_approval_if_has_autofinancing(
+					session=session,
 					company_id=str(purchase_order.company_id),
 					amount=float(purchase_order.amount),
 					artifact_id=str(purchase_order.id),
-					session=session
+					requested_by_user_id=requested_by_user_id,
 				)
 				if err:
 					if err.msg.find("psycopg2.errors.ForeignKeyViolation"):
@@ -600,10 +601,12 @@ class RespondToApprovalRequestNewView(MethodView):
 
 			if action_type == 'Approved':
 				submit_resp, err = approval_util.submit_for_approval_if_has_autofinancing(
+					session=session,
 					company_id=str(purchase_order.company_id),
 					amount=float(purchase_order.amount),
 					artifact_id=str(purchase_order.id),
-					session=session
+					requested_by_user_id=user_session.get_user_id(),
+
 				)
 				if err:
 					if err.msg.find("psycopg2.errors.ForeignKeyViolation"):

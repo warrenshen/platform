@@ -229,6 +229,10 @@ fragment LoanLimited on loans {
     identifier
     ...CompanyLimited
   }
+  requested_by_user {
+    id
+    full_name
+  }
 }
 
 # The core fields for when the artifact related to a loan is shown.

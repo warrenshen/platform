@@ -1064,6 +1064,7 @@ class Loan(Base):
 	payment_status = Column(String)
 
 	requested_at = Column(DateTime)
+	requested_by_user_id = Column(GUID)
 	closed_at = Column(DateTime)
 
 	rejected_at = Column(DateTime)

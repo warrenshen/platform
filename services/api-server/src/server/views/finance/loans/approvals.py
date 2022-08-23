@@ -216,6 +216,7 @@ class SubmitForApprovalView(MethodView):
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
 		cfg = cast(Config, current_app.app_config)
+		user_session = auth_util.UserSession.from_session()
 		sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
 
 		form = json.loads(request.data)
@@ -234,6 +235,7 @@ class SubmitForApprovalView(MethodView):
 		loan_id = form['loan_id']
 		loan_type = form['loan_type']
 		requested_payment_date = date_util.load_date_str(form['requested_payment_date'])
+		requested_by_user_id = user_session.get_user_id()
 
 		with session_scope(current_app.session_maker) as session:
 			loan_id, err = approval_util.save_loan(
@@ -244,14 +246,16 @@ class SubmitForApprovalView(MethodView):
 				loan_id,
 				loan_type,
 				requested_payment_date,
+				requested_by_user_id,
 			)
 			if err:
 				raise err
 
 			resp, err = approval_util.submit_for_approval(
-				loan_id, 
 				session, 
-				triggered_by_autofinancing=False
+				loan_id, 
+				triggered_by_autofinancing=False,
+				requested_by_user_id=requested_by_user_id,
 			)
 			if err:
 				raise err
@@ -277,6 +281,7 @@ class SubmitLoCForApprovalView(MethodView):
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
 		cfg = cast(Config, current_app.app_config)
+		user_session = auth_util.UserSession.from_session()
 		sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
 
 		data = json.loads(request.data)
@@ -284,13 +289,17 @@ class SubmitLoCForApprovalView(MethodView):
 			return handler_util.make_error_response('No data provided')
 
 		loan_id = data['loan_id']
+		requested_by_user_id = user_session.get_user_id()
 
 		if not loan_id:
 			return handler_util.make_error_response('No Loan ID provided')
 
 		with session_scope(current_app.session_maker) as session:
 			resp, err = approval_util.submit_for_approval(
-				loan_id, session, triggered_by_autofinancing=False)
+				session, 
+				loan_id, 
+				requested_by_user_id=requested_by_user_id, 
+				triggered_by_autofinancing=False)
 			if err:
 				raise err
 
@@ -310,6 +319,7 @@ class SaveLoanView(MethodView):
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
 		cfg = cast(Config, current_app.app_config)
+		user_session = auth_util.UserSession.from_session()
 		form = json.loads(request.data)
 		if not form:
 			return handler_util.make_error_response('No data provided')
@@ -326,7 +336,7 @@ class SaveLoanView(MethodView):
 		loan_id = form['loan_id']
 		loan_type = form['loan_type']
 		requested_payment_date = date_util.load_date_str(form['requested_payment_date'])
-
+		requested_by_user_id = user_session.get_user_id()
 		with session_scope(current_app.session_maker) as session:
 			loan_id, err = approval_util.save_loan(
 				session,
@@ -336,6 +346,7 @@ class SaveLoanView(MethodView):
 				loan_id,
 				loan_type,
 				requested_payment_date,
+				requested_by_user_id,
 			)
 			if err:
 				raise err

@@ -152,6 +152,7 @@ def save_loan(
 	loan_id: str,
 	loan_type: str,
 	requested_payment_date: datetime.date,
+	requested_by_user_id: str,
 ) -> Tuple[str, errors.Error]:
 	company, err = queries.get_company_by_id(
 		session,
@@ -179,6 +180,7 @@ def save_loan(
 			loan_type = loan_type,
 			requested_payment_date = requested_payment_date,
 			status = LoanStatusEnum.DRAFTED,
+			requested_by_user_id=requested_by_user_id,
 		)
 	else:
 		loan.amount = decimal.Decimal(amount)
@@ -192,9 +194,10 @@ def save_loan(
 
 @errors.return_error_tuple
 def submit_for_approval(
-	loan_id: str,
 	session: Session,
+	loan_id: str,
 	triggered_by_autofinancing: bool,
+	requested_by_user_id: str,
 	now_for_test: datetime.datetime = None,
 	preloaded_financial_summary: models.FinancialSummary = None
 ) -> Tuple[SubmitForApprovalRespDict, errors.Error]:
@@ -325,7 +328,7 @@ def submit_for_approval(
 	loan.requested_at = date_util.now()
 	# Reset loan approval status.
 	loan.status = models_util.compute_loan_approval_status(loan)
-
+	loan.requested_by_user_id = requested_by_user_id
 	return SubmitForApprovalRespDict(
 		triggered_by_autofinancing=triggered_by_autofinancing,
 		customer_name=customer_name,
@@ -346,7 +349,11 @@ def submit_for_approval(
 """
 @errors.return_error_tuple
 def submit_for_approval_if_has_autofinancing(
-	company_id: str, amount: float, artifact_id: str, session: Session,
+	session: Session,
+	company_id: str, 
+	amount: float, 
+	artifact_id: str, 
+	requested_by_user_id: str,
 	now_for_test: datetime.datetime = None) -> Tuple[SubmitForApprovalRespDict, errors.Error]:
 
 	err_details = {
@@ -418,17 +425,19 @@ def submit_for_approval_if_has_autofinancing(
 	loan.amount = decimal.Decimal(amount)
 	# Set loan approval status.
 	loan.status = models_util.compute_loan_approval_status(loan)
+	loan.requested_by_user_id = requested_by_user_id
 
 	session.add(loan)
 	session.flush()
 	loan_id = str(loan.id)
 
 	resp, err = submit_for_approval(
-		loan_id, 
 		session, 
+		loan_id, 
 		triggered_by_autofinancing=True, 
 		now_for_test=now_for_test,
-		preloaded_financial_summary=financial_summary
+		preloaded_financial_summary=financial_summary,
+		requested_by_user_id=requested_by_user_id,
 	)
 	if err:
 		raise err
