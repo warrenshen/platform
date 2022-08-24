@@ -362,9 +362,20 @@ class AsyncJobStatusEnum(object):
 	FAILED = 'failed'
 	COMPLETED = 'completed'
 
+AsyncJobStatusEnumToLabel = {
+	AsyncJobStatusEnum.QUEUED: 'Queued',
+	AsyncJobStatusEnum.IN_PROGRESS: 'In Progress',
+	AsyncJobStatusEnum.FAILED: 'Failed',
+	AsyncJobStatusEnum.COMPLETED: 'Completed',
+}
+
 class AsyncJobNameEnum(object):
 	# TODO: fill out once jobs are transferred
 	DUMMY = "dummy"
+
+AsyncJobNameEnumToLabel = {
+	AsyncJobNameEnum.DUMMY: 'Dummy',
+}
 
 # Vendor Change Requests
 class VendorChangeRequestsStatusEnum(object):

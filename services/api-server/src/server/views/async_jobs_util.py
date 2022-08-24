@@ -9,6 +9,7 @@ from bespoke.db import models
 from bespoke.db.db_constants import (AsyncJobStatusEnum)
 from sqlalchemy.orm.session import Session
 from bespoke.db.db_constants import AsyncJobNameEnum
+from bespoke.slack import slack_util
 
 @errors.return_error_tuple
 def add_job_to_queue(
@@ -156,6 +157,7 @@ def kick_off_handler(
 		job.ended_at = date_util.now()
 		job.updated_at = date_util.now()
 		session.commit()
+		slack_util.send_slack_message(job)
 
 	return [job.id for job in starting_jobs], None
 
