@@ -6,10 +6,10 @@ import {
   createStyles,
   makeStyles,
 } from "@material-ui/core";
-import ArchivePurchaseOrderModal from "components/PurchaseOrder/ArchivePurchaseOrderModal";
 import ArchivePurchaseOrderModalNew from "components/PurchaseOrder/v2/ArchivePurchaseOrderModalNew";
 import CreateUpdatePurchaseOrderModalNew from "components/PurchaseOrder/v2/CreateUpdatePurchaseOrderModalNew";
-import EditFinancialRequestPurchaseOrderModal from "components/PurchaseOrder/v2/EditFinancialRequestPurchaseOrderModal";
+import ManagePurchaseOrderFinancingModal from "components/PurchaseOrder/v2/ManagePurchaseOrderFinancingModal";
+import ManagePurchaseOrderFinancingModalMultiple from "components/PurchaseOrder/v2/ManagePurchaseOrderFinancingModalMultiple";
 import PurchaseOrdersDataGridNew from "components/PurchaseOrder/v2/PurchaseOrdersDataGridNew";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
@@ -118,6 +118,45 @@ export default function CustomerPurchaseOrdersOpenTabNew({
   );
 
   // Approved POs
+  const [
+    selectedApprovedPurchaseOrdersMap,
+    setSelectedApprovedPurchaseOrdersMap,
+  ] = useState<{ [key in NewPurchaseOrderStatus]?: PurchaseOrders["id"][] }>(
+    {}
+  );
+  const handleSelectApprovedPurchaseOrdersNew = useMemo(
+    () => (purchaseOrders: PurchaseOrderNewFragment[]) => {
+      const selectedPurchaseOrdersMap = purchaseOrders.reduce((accum, elem) => {
+        const purchaseOrderStatus = elem.new_purchase_order_status as string;
+        if (accum.hasOwnProperty(purchaseOrderStatus)) {
+          accum[purchaseOrderStatus].push(elem.id);
+          return accum;
+        } else {
+          accum[purchaseOrderStatus] = [elem.id];
+          return accum;
+        }
+      }, {} as any);
+      setSelectedApprovedPurchaseOrdersMap(selectedPurchaseOrdersMap);
+    },
+    []
+  );
+
+  const selectedApprovedPurchaseOrderIds = useMemo(
+    () => Object.values(selectedApprovedPurchaseOrdersMap).flat(),
+    [selectedApprovedPurchaseOrdersMap]
+  );
+
+  const selectedApprovedPurchaseOrder = useMemo(
+    () =>
+      selectedApprovedPurchaseOrderIds.length === 1
+        ? purchaseOrders.find(
+            (purchaseOrder) =>
+              purchaseOrder.id === selectedApprovedPurchaseOrderIds[0]
+          )
+        : null,
+    [purchaseOrders, selectedApprovedPurchaseOrderIds]
+  );
+
   const approvedPurchaseOrders = useMemo(
     () => purchaseOrders.filter((purchaseOrder) => !!purchaseOrder.approved_at),
     [purchaseOrders]
@@ -125,30 +164,6 @@ export default function CustomerPurchaseOrdersOpenTabNew({
   const notApprovedPurchaseOrders = useMemo(
     () => purchaseOrders.filter((purchaseOrder) => !purchaseOrder.approved_at),
     [purchaseOrders]
-  );
-
-  const [
-    selectedApprovedPurchaseOrderIds,
-    setSelectedApprovedPurchaseOrderIds,
-  ] = useState<PurchaseOrders["id"][]>([]);
-
-  const selectedApprovedPurchaseOrder = useMemo(
-    () =>
-      selectedApprovedPurchaseOrderIds.length === 1
-        ? approvedPurchaseOrders.find(
-            (approvedPurchaseOrder) =>
-              approvedPurchaseOrder.id === selectedApprovedPurchaseOrderIds[0]
-          )
-        : null,
-    [approvedPurchaseOrders, selectedApprovedPurchaseOrderIds]
-  );
-
-  const handleSelectApprovedPurchaseOrders = useMemo(
-    () => (purchaseOrders: PurchaseOrderNewFragment[]) =>
-      setSelectedApprovedPurchaseOrderIds(
-        purchaseOrders.map((purchaseOrder) => purchaseOrder.id)
-      ),
-    [setSelectedApprovedPurchaseOrderIds]
   );
 
   const [submitPurchaseOrder, { loading: isSubmitPurchaseOrderLoading }] =
@@ -279,48 +294,104 @@ export default function CustomerPurchaseOrdersOpenTabNew({
         >
           <Typography variant="h6">Ready to Request Financing</Typography>
           <Box my={2} display="flex" flexDirection="row-reverse">
-            <Box mr={2}>
-              <ModalButton
-                isDisabled={!selectedApprovedPurchaseOrder}
-                label={"Edit Financing Request"}
-                variant={"outlined"}
-                modal={({ handleClose }) => (
-                  <EditFinancialRequestPurchaseOrderModal
-                    purchaseOrderId={selectedApprovedPurchaseOrder?.id}
-                    handleClose={() => {
-                      refetch();
-                      handleClose();
-                      setSelectedApprovedPurchaseOrderIds([]);
-                    }}
+            {selectedApprovedPurchaseOrdersMap.hasOwnProperty(
+              NewPurchaseOrderStatus.ReadyToRequestFinancing
+            ) && (
+              <Can perform={Action.FundPurchaseOrders}>
+                <Box mr={2}>
+                  <ModalButton
+                    isDisabled={
+                      Object.keys(selectedApprovedPurchaseOrdersMap).length > 1
+                    }
+                    label={"Request Financing"}
+                    modal={({ handleClose }) =>
+                      selectedApprovedPurchaseOrder ? (
+                        <ManagePurchaseOrderFinancingModal
+                          purchaseOrderId={selectedApprovedPurchaseOrder?.id}
+                          handleClose={() => {
+                            refetch();
+                            handleClose();
+                            setSelectedApprovedPurchaseOrdersMap({});
+                          }}
+                        />
+                      ) : (
+                        <ManagePurchaseOrderFinancingModalMultiple
+                          purchaseOrderIds={selectedApprovedPurchaseOrderIds}
+                          handleClose={() => {
+                            refetch();
+                            handleClose();
+                            setSelectedApprovedPurchaseOrdersMap({});
+                          }}
+                        />
+                      )
+                    }
                   />
-                )}
-              />
-            </Box>
-            <Box mr={2}>
-              <ModalButton
-                isDisabled={!selectedApprovedPurchaseOrder}
-                label={"Archive"}
-                variant={"outlined"}
-                modal={({ handleClose }) => (
-                  <ArchivePurchaseOrderModal
-                    purchaseOrderId={selectedApprovedPurchaseOrder?.id}
-                    handleClose={() => {
-                      refetch();
-                      handleClose();
-                      setSelectedApprovedPurchaseOrderIds([]);
-                    }}
+                </Box>
+              </Can>
+            )}
+            {(selectedApprovedPurchaseOrdersMap.hasOwnProperty(
+              NewPurchaseOrderStatus.FinancingPendingApproval
+            ) ||
+              selectedApprovedPurchaseOrdersMap.hasOwnProperty(
+                NewPurchaseOrderStatus.FinancingRequestApproved
+              )) && (
+              <Can perform={Action.FundPurchaseOrders}>
+                <Box mr={2}>
+                  <ModalButton
+                    isDisabled={
+                      !(
+                        selectedApprovedPurchaseOrder &&
+                        (selectedApprovedPurchaseOrder.new_purchase_order_status ===
+                          NewPurchaseOrderStatus.FinancingPendingApproval ||
+                          NewPurchaseOrderStatus.FinancingRequestApproved)
+                      )
+                    }
+                    label={"Edit Financing"}
+                    modal={({ handleClose }) => (
+                      <ManagePurchaseOrderFinancingModal
+                        purchaseOrderId={selectedApprovedPurchaseOrder?.id}
+                        handleClose={() => {
+                          refetch();
+                          handleClose();
+                          setSelectedApprovedPurchaseOrdersMap({});
+                        }}
+                      />
+                    )}
                   />
-                )}
-              />
-            </Box>
+                </Box>
+              </Can>
+            )}
+            {Object.keys(selectedApprovedPurchaseOrdersMap).length > 0 && (
+              <Can perform={Action.ArchivePurchaseOrders}>
+                <Box mr={2}>
+                  <ModalButton
+                    isDisabled={!selectedApprovedPurchaseOrder}
+                    label="Archive"
+                    variant="outlined"
+                    color="default"
+                    modal={({ handleClose }) => (
+                      <ArchivePurchaseOrderModalNew
+                        purchaseOrder={selectedApprovedPurchaseOrder}
+                        action={Action.ArchivePurchaseOrders}
+                        handleClose={() => {
+                          refetch();
+                          handleClose();
+                          setSelectedApprovedPurchaseOrdersMap({});
+                        }}
+                      />
+                    )}
+                  />
+                </Box>
+              </Can>
+            )}
           </Box>
           <PurchaseOrdersDataGridNew
             isCompanyVisible={false}
             purchaseOrders={approvedPurchaseOrders}
             isFilteringEnabled={true}
             selectedPurchaseOrderIds={selectedApprovedPurchaseOrderIds}
-            handleSelectPurchaseOrders={handleSelectApprovedPurchaseOrders}
             selectablePurchaseOrderStatuses={ReadyNewPurchaseOrderStatuses}
+            handleSelectPurchaseOrders={handleSelectApprovedPurchaseOrdersNew}
           />
         </Box>
       </Box>

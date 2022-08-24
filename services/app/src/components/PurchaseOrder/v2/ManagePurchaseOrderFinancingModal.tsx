@@ -2,15 +2,10 @@ import { Box, Typography } from "@material-ui/core";
 import PurchaseOrderInfoCard from "components/PurchaseOrder/PurchaseOrderInfoCard";
 import Modal from "components/Shared/Modal/Modal";
 import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
-import {
   PurchaseOrders,
   useGetPurchaseOrderForCustomerQuery,
 } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
-import { useContext } from "react";
 
 interface Props {
   purchaseOrderId: PurchaseOrders["id"];
@@ -23,11 +18,6 @@ function ManagePurchaseOrderFinancingModal({
   handleClose,
 }: Props) {
   const snackbar = useSnackbar();
-
-  const {
-    user: { role },
-  } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
 
   const { data, loading: isExistingPurchaseOrderLoading } =
     useGetPurchaseOrderForCustomerQuery({
