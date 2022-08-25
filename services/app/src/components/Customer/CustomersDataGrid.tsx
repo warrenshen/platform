@@ -13,6 +13,8 @@ import {
   DebtFacilityCompanyStatusToLabel,
   ProductTypeEnum,
   ProductTypeToLabel,
+  SurveillanceStatusEnum,
+  SurveillanceStatusToLabel,
 } from "lib/enum";
 import { CurrencyPrecision, PercentPrecision } from "lib/number";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
@@ -22,6 +24,7 @@ import { Dispatch, SetStateAction, useMemo } from "react";
 interface Props {
   isDebtFacilityVisible?: boolean;
   isMultiSelectEnabled?: boolean;
+  isSurveillanceStatusVisible?: boolean;
   customers: CustomersWithMetadataFragment[];
   selectedCompanyIds: Companies["id"][];
   setSelectedCompanyIds: Dispatch<SetStateAction<Companies["id"][]>>;
@@ -92,6 +95,10 @@ function getRows(customers: CustomersWithMetadataFragment[]): RowsProp {
           ]
         : "None",
       state: !!company?.state ? company.state : null,
+      surveillance_status: !!company?.most_recent_surveillance_result?.[0]
+        ?.surveillance_status
+        ? company.most_recent_surveillance_result[0].surveillance_status
+        : null,
       total_outstanding_interest: !!company?.financial_summaries?.[0]
         ? company.financial_summaries[0].total_outstanding_interest
         : null,
@@ -108,6 +115,7 @@ function getRows(customers: CustomersWithMetadataFragment[]): RowsProp {
 export default function CustomersDataGrid({
   isDebtFacilityVisible = false,
   isMultiSelectEnabled = false,
+  isSurveillanceStatusVisible = false,
   customers,
   selectedCompanyIds,
   setSelectedCompanyIds,
@@ -168,6 +176,28 @@ export default function CustomersDataGrid({
             },
           },
           valueExpr: "debt_facility_status",
+          displayExpr: "label",
+        },
+      },
+      {
+        visible: isSurveillanceStatusVisible,
+        dataField: "surveillance_status",
+        caption: "Surveillance Status",
+        width: ColumnWidths.ProductType,
+        lookup: {
+          dataSource: {
+            store: {
+              type: "array",
+              data: Object.values(SurveillanceStatusEnum).map(
+                (surveillanceStatus) => ({
+                  surveillance_status: surveillanceStatus,
+                  label: SurveillanceStatusToLabel[surveillanceStatus],
+                })
+              ),
+              key: "surveillance_status",
+            },
+          },
+          valueExpr: "surveillance_status",
           displayExpr: "label",
         },
       },
@@ -265,7 +295,7 @@ export default function CustomersDataGrid({
         alignment: "right",
       },
     ],
-    [isDebtFacilityVisible]
+    [isDebtFacilityVisible, isSurveillanceStatusVisible]
   );
 
   const handleSelectCompanies = useMemo(

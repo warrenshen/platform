@@ -810,7 +810,6 @@ export type BankAccounts = {
   company?: Maybe<Companies>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
-  file_id?: Maybe<Scalars["uuid"]>;
   id: Scalars["uuid"];
   intermediary_account_name?: Maybe<Scalars["String"]>;
   intermediary_account_number?: Maybe<Scalars["String"]>;
@@ -923,7 +922,6 @@ export type BankAccountsBoolExp = {
   company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
-  file_id?: Maybe<UuidComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   intermediary_account_name?: Maybe<StringComparisonExp>;
   intermediary_account_number?: Maybe<StringComparisonExp>;
@@ -969,7 +967,6 @@ export type BankAccountsInsertInput = {
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
-  file_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
   intermediary_account_name?: Maybe<Scalars["String"]>;
   intermediary_account_number?: Maybe<Scalars["String"]>;
@@ -1003,7 +1000,6 @@ export type BankAccountsMaxFields = {
   bank_name?: Maybe<Scalars["String"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
-  file_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
   intermediary_account_name?: Maybe<Scalars["String"]>;
   intermediary_account_number?: Maybe<Scalars["String"]>;
@@ -1034,7 +1030,6 @@ export type BankAccountsMaxOrderBy = {
   bank_name?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
-  file_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   intermediary_account_name?: Maybe<OrderBy>;
   intermediary_account_number?: Maybe<OrderBy>;
@@ -1065,7 +1060,6 @@ export type BankAccountsMinFields = {
   bank_name?: Maybe<Scalars["String"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
-  file_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
   intermediary_account_name?: Maybe<Scalars["String"]>;
   intermediary_account_number?: Maybe<Scalars["String"]>;
@@ -1096,7 +1090,6 @@ export type BankAccountsMinOrderBy = {
   bank_name?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
-  file_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   intermediary_account_name?: Maybe<OrderBy>;
   intermediary_account_number?: Maybe<OrderBy>;
@@ -1155,7 +1148,6 @@ export type BankAccountsOrderBy = {
   company?: Maybe<CompaniesOrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
-  file_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   intermediary_account_name?: Maybe<OrderBy>;
   intermediary_account_number?: Maybe<OrderBy>;
@@ -1207,8 +1199,6 @@ export enum BankAccountsSelectColumn {
   CompanyId = "company_id",
   /** column name */
   CreatedAt = "created_at",
-  /** column name */
-  FileId = "file_id",
   /** column name */
   Id = "id",
   /** column name */
@@ -1264,7 +1254,6 @@ export type BankAccountsSetInput = {
   can_wire?: Maybe<Scalars["Boolean"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
-  file_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
   intermediary_account_name?: Maybe<Scalars["String"]>;
   intermediary_account_number?: Maybe<Scalars["String"]>;
@@ -1311,8 +1300,6 @@ export enum BankAccountsUpdateColumn {
   CompanyId = "company_id",
   /** column name */
   CreatedAt = "created_at",
-  /** column name */
-  FileId = "file_id",
   /** column name */
   Id = "id",
   /** column name */
@@ -7160,8 +7147,6 @@ export type CustomerSurveillanceResultsBoolExp = {
 
 /** unique or primary key constraints on table "customer_surveillance_results" */
 export enum CustomerSurveillanceResultsConstraint {
-  /** unique or primary key constraint */
-  CompanyProductQualificationsCompanyIdQualifyingDateKey = "company_product_qualifications_company_id_qualifying_date_key",
   /** unique or primary key constraint */
   CompanyProductQualificationsPkey = "company_product_qualifications_pkey",
 }
@@ -30761,6 +30746,9 @@ export type CustomersWithMetadataFragment = Pick<Companies, "id"> & {
   ebba_applications: Array<
     Pick<EbbaApplications, "id"> & EbbaApplicationFragment
   >;
+  most_recent_surveillance_result: Array<
+    Pick<CustomerSurveillanceResults, "id"> & CustomerSurveillanceResultFragment
+  >;
 } & CustomerForBankFragment;
 
 export type CustomerSurveillanceFragment = {
@@ -31958,6 +31946,17 @@ export const EbbaApplicationFragmentDoc = gql`
     }
   }
 `;
+export const CustomerSurveillanceResultFragmentDoc = gql`
+  fragment CustomerSurveillanceResult on customer_surveillance_results {
+    id
+    bank_note
+    qualifying_product
+    qualifying_date
+    company_id
+    surveillance_status
+    surveillance_info
+  }
+`;
 export const CustomersWithMetadataFragmentDoc = gql`
   fragment CustomersWithMetadata on companies {
     id
@@ -31978,22 +31977,25 @@ export const CustomersWithMetadataFragmentDoc = gql`
       id
       ...EbbaApplication
     }
+    most_recent_surveillance_result: customer_surveillance_results(
+      limit: 1
+      order_by: { qualifying_date: desc }
+      where: {
+        _or: [
+          { is_deleted: { _is_null: true } }
+          { is_deleted: { _eq: false } }
+        ]
+      }
+    ) {
+      id
+      ...CustomerSurveillanceResult
+    }
   }
   ${CustomerForBankFragmentDoc}
   ${FinancialSummaryFragmentDoc}
   ${CompanySettingsFragmentDoc}
   ${EbbaApplicationFragmentDoc}
-`;
-export const CustomerSurveillanceResultFragmentDoc = gql`
-  fragment CustomerSurveillanceResult on customer_surveillance_results {
-    id
-    bank_note
-    qualifying_product
-    qualifying_date
-    company_id
-    surveillance_status
-    surveillance_info
-  }
+  ${CustomerSurveillanceResultFragmentDoc}
 `;
 export const CustomerSurveillanceFragmentDoc = gql`
   fragment CustomerSurveillance on companies {

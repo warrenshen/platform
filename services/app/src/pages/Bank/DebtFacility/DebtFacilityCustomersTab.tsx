@@ -150,6 +150,7 @@ export default function DebtFacilityCustomersTab() {
           <CustomersDataGrid
             isDebtFacilityVisible
             isMultiSelectEnabled
+            isSurveillanceStatusVisible
             customers={customers}
             selectedCompanyIds={selectedCompanyIds}
             setSelectedCompanyIds={setSelectedCompanyIds}
