@@ -41,6 +41,10 @@ query GetMetrcTransfersByCompanyId($company_id: uuid!) {
   ) {
     id
     ...MetrcTransfer
+    metrc_deliveries {
+      id
+      ...MetrcDelivery
+    }
   }
 }
 

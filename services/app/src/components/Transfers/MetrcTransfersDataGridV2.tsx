@@ -1,10 +1,8 @@
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
-import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
-import DatetimeDataGridCell from "components/Shared/DataGrid/DatetimeDataGridCell";
 import MetrcTransferDrawerLauncher from "components/Transfers/MetrcTransferDrawerLauncher";
 import { GetMetrcTransfersByUsStateManifestNumberQuery } from "generated/graphql";
-// import { getCompanyDisplayName } from "lib/companies";
+import { parseDateStringServer } from "lib/date";
 import { ColumnWidths } from "lib/tables";
 import { flatten } from "lodash";
 import { useMemo } from "react";
@@ -26,8 +24,12 @@ export default function MetrcTransfersDataGrid({
             return {
               id: metrcDelivery.id,
               manifest_number: metrcTransfer.manifest_number,
-              last_modified_at: metrcTransfer.last_modified_at,
-              created_date: metrcTransfer.created_date,
+              last_modified_at: !!metrcTransfer?.last_modified_at
+                ? parseDateStringServer(metrcTransfer.last_modified_at)
+                : null,
+              created_date: !!metrcTransfer?.created_date
+                ? parseDateStringServer(metrcTransfer.created_date)
+                : null,
               lab_results_status: metrcTransfer.lab_results_status,
               shipper_facility_license_number:
                 metrcTransfer.shipper_facility_license_number,
@@ -66,21 +68,14 @@ export default function MetrcTransfersDataGrid({
         caption: "Last Modified At",
         width: ColumnWidths.Datetime,
         alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
-          <DatetimeDataGridCell
-            isTimeVisible
-            datetimeString={params.row.data.last_modified_at}
-          />
-        ),
+        format: "longDateLongTime",
       },
       {
         caption: "Created Date",
         dataField: "created_date",
         width: ColumnWidths.Date,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <DateDataGridCell dateString={params.row.data.created_date} />
-        ),
+        format: "shortDate",
       },
       {
         dataField: "lab_results_status",
@@ -107,16 +102,6 @@ export default function MetrcTransfersDataGrid({
         caption: "Recipient Facility Name",
         minWidth: ColumnWidths.MinWidth,
       },
-      // {
-      //   dataField: "destination_license",
-      //   caption: "Destination License",
-      //   minWidth: ColumnWidths.MinWidth,
-      // },
-      // {
-      //   dataField: "destination_facility",
-      //   caption: "Destination Facility",
-      //   minWidth: ColumnWidths.MinWidth,
-      // },
       {
         dataField: "shipment_type_name",
         caption: "Shipment Type Name",
