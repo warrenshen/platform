@@ -34,6 +34,7 @@ import {
   CompanyVendorPartnerships,
   Contracts,
   FinancialSummaries,
+  PurchaseOrders,
 } from "@app/generated/graphql";
 import { format } from "date-fns";
 
@@ -649,6 +650,84 @@ function addFinancialSummary({
   });
 }
 
+function addPurchaseOrder({
+  amount,
+  amount_funded,
+  amount_updated_at,
+  approved_at,
+  approved_by_user_id,
+  bank_incomplete_note,
+  bank_note,
+  bank_rejection_note,
+  closed_at,
+  company_id,
+  created_at,
+  customer_note,
+  delivery_date,
+  funded_at,
+  id,
+  incompleted_at,
+  is_cannabis,
+  is_deleted,
+  is_metrc_based,
+  net_terms,
+  new_purchase_order_status,
+  order_date,
+  order_number,
+  rejected_at,
+  rejected_by_user_id,
+  rejection_note,
+  requested_at,
+  status,
+  updated_at,
+  vendor_id,
+}: PurcaseOrders) {
+  cy.request(
+    "POST",
+    `${Cypress.env("apiServerUrl")}/cypress/add_purchase_order`,
+    {
+      amount: amount || null,
+      amount_funded: amount_funded || null,
+      amount_updated_at: amount_updated_at || null,
+      approved_at: approved_at || null,
+      approved_by_user_id: approved_by_user_id || null,
+      bank_incomplete_note: bank_incomplete_note || null,
+      bank_note: bank_note || null,
+      bank_rejection_note: bank_rejection_note || null,
+      closed_at: closed_at || null,
+      company_id: company_id || null,
+      created_at: created_at || null,
+      customer_note: customer_note || null,
+      delivery_date: delivery_date || null,
+      funded_at: funded_at || null,
+      id: id || null,
+      incompleted_at: incompleted_at || null,
+      is_cannabis: is_cannabis || null,
+      is_deleted: is_deleted || null,
+      is_metrc_based: is_metrc_based || null,
+      net_terms: net_terms || null,
+      new_purchase_order_status: new_purchase_order_status || null,
+      order_date: order_date || null,
+      order_number: order_number || null,
+      rejected_at: rejected_at || null,
+      rejected_by_user_id: rejected_by_user_id || null,
+      rejection_note: rejection_note || null,
+      requested_at: requested_at || null,
+      status: status || null,
+      updated_at: updated_at || null,
+      vendor_id: vendor_id || null,
+    }
+  ).then((response) => {
+    const purchaseOrderId = !!response?.body?.data?.purchase_order_id
+      ? response.body.data.purchase_order_id
+      : null;
+
+    return cy.wrap({
+      purchaseOrderId: purchaseOrderId,
+    });
+  });
+}
+
 function addUser({
   company_id,
   company_role,
@@ -717,6 +796,7 @@ Cypress.Commands.add(
   addCompanyVendorPartnership
 );
 Cypress.Commands.add("addFinancialSummary", addFinancialSummary);
+Cypress.Commands.add("addPurchaseOrder", addPurchaseOrder);
 Cypress.Commands.add("addUser", addUser);
 
 // ///////////////////////////////

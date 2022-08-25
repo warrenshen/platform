@@ -294,6 +294,7 @@ export default function CustomerPurchaseOrdersOpenTab({
             <Can perform={Action.FundPurchaseOrders}>
               <Box>
                 <ModalButton
+                  dataCy={"request-purchase-order-financing-button"}
                   isDisabled={selectedApprovedPurchaseOrderIds.length <= 0}
                   label={"Request PO Financing"}
                   modal={({ handleClose }) => {

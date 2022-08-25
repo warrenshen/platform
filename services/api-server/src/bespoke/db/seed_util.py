@@ -544,6 +544,74 @@ def create_financial_summary(
 
     return financial_summary, None
 
+def create_purchase_order(
+    session: Session,
+    amount: float,
+    amount_funded: float,
+    amount_updated_at: datetime.datetime,
+    approved_at: datetime.datetime,
+    approved_by_user_id: str,
+    bank_incomplete_note: str,
+    bank_note: str,
+    bank_rejection_note: str,
+    closed_at: datetime.datetime,
+    company_id: str,
+    customer_note: str,
+    delivery_date: datetime.date,
+    funded_at: datetime.datetime,
+    id: str,
+    incompleted_at: datetime.datetime,
+    is_cannabis: bool,
+    is_deleted: bool,
+    is_metrc_based: bool,
+    net_terms: int,
+    new_purchase_order_status: str,
+    order_date: datetime.date,
+    order_number: str,
+    rejected_at: datetime.datetime,
+    rejected_by_user_id: str,
+    rejection_note: str,
+    requested_at: datetime.datetime,
+    status: str,
+    vendor_id: str,
+) -> Tuple[models.PurchaseOrder, errors.Error]:
+    purchase_order = models.PurchaseOrder( # type: ignore
+        amount = Decimal(amount),
+        amount_funded = Decimal(amount_funded),
+        #amount_updated_at = amount_updated_at,
+        approved_at = approved_at,
+        approved_by_user_id = approved_by_user_id,
+        bank_incomplete_note = bank_incomplete_note,
+        bank_note = bank_note,
+        bank_rejection_note = bank_rejection_note,
+        closed_at = closed_at,
+        company_id = company_id,
+        customer_note = customer_note,
+        delivery_date = delivery_date,
+        funded_at = funded_at,
+        incompleted_at = incompleted_at,
+        is_cannabis = is_cannabis,
+        is_deleted = is_deleted,
+        is_metrc_based = is_metrc_based,
+        net_terms = net_terms,
+        new_purchase_order_status = new_purchase_order_status,
+        order_date = order_date,
+        order_number = order_number,
+        rejected_at = rejected_at,
+        rejected_by_user_id = rejected_by_user_id,
+        rejection_note = rejection_note,
+        requested_at = requested_at,
+        status = status,
+        vendor_id = vendor_id,
+    )
+    if id is not None:
+        purchase_order.id = id
+
+    session.add(purchase_order)
+    session.flush()
+
+    return purchase_order, None
+
 def create_user(
     session: Session,
     id: str,

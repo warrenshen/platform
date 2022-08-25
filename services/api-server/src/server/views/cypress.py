@@ -13,7 +13,7 @@ from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models, seed_util
 from bespoke.db.db_constants import ProductType, TwoFactorMessageMethod, LoginMethod, \
-	BankAccountType
+	BankAccountType, RequestStatusEnum, NewPurchaseOrderStatus
 from bespoke.db.models import session_scope
 from bespoke.db.seed import setup_db_test
 from server.views.common import handler_util
@@ -784,6 +784,111 @@ class AddFinancialSummaryView(MethodView):
 			},
 		}))
 
+class AddPurchaseOrderView(MethodView):
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		session_maker, err = run_cypress_preflight_checks()
+		if err:
+			raise err
+		
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response("No data provided")
+
+		models_relationships_to_ignore = [
+			'approved_by_user',
+			'company',
+			'rejected_by_user',
+			'vendor',
+		]
+
+		required_keys = [attr for attr in dir(models.PurchaseOrder()) if not callable(getattr(models.PurchaseOrder(), attr)) \
+			and not attr.startswith('_') and attr != 'metadata' and attr not in models_relationships_to_ignore]
+
+		for key in required_keys:
+			if key not in form:
+				logging.info(key)
+				return handler_util.make_error_response(f'Missing {key} in response to creating a purchase order for a Cypress test')
+
+		amount = get_field_or_default(form, 'amount', 1000.00)
+		amount_funded = get_field_or_default(form, 'amount_funded', 0.0)
+		amount_updated_at = get_field_or_default(form, 'amount_updated_at', None)
+		approved_at = get_field_or_default(form, 'approved_at', date_util.now())
+		approved_by_user_id = get_field_or_default(form, 'approved_by_user_id', None)
+		bank_incomplete_note = get_field_or_default(form, 'bank_incomplete_note', None)
+		bank_note = get_field_or_default(form, 'bank_note', None)
+		bank_rejection_note = get_field_or_default(form, 'bank_rejection_note', None)
+		closed_at = get_field_or_default(form, 'closed_at', None)
+		company_id = get_field_or_default(form, 'company_id', None)
+		customer_note = get_field_or_default(form, 'customer_note', None)
+		delivery_date = get_field_or_default(form, 'delivery_date', None)
+		funded_at = get_field_or_default(form, 'funded_at', None)
+		id = get_field_or_default(form, 'id', None)
+		incompleted_at = get_field_or_default(form, 'incompleted_at', None)
+		is_cannabis = get_field_or_default(form, 'is_cannabis', True)
+		is_deleted = get_field_or_default(form, 'is_deleted', None)
+		is_metrc_based = get_field_or_default(form, 'is_metrc_based', False)
+		net_terms = get_field_or_default(form, 'net_terms', 60)
+		new_purchase_order_status = get_field_or_default(form, 'new_purchase_order_status', NewPurchaseOrderStatus.DRAFT)
+		order_date = get_field_or_default(form, 'order_date', date_util.now_as_date())
+		order_number = get_field_or_default(form, 'order_number', "Cypress-1")
+		rejected_at = get_field_or_default(form, 'rejected_at', None)
+		rejected_by_user_id = get_field_or_default(form, 'rejected_by_user_id', None)
+		rejection_note = get_field_or_default(form, 'rejection_note', None)
+		requested_at = get_field_or_default(form, 'requested_at', date_util.now())
+		status = get_field_or_default(form, 'status', RequestStatusEnum.DRAFTED)
+		vendor_id = get_field_or_default(form, 'vendor_id', None)
+
+		purchase_order_id = ''
+		with session_scope(session_maker) as session:
+			logging.info('Adding purchase order for cypress test...')
+
+			purchase_order, err = seed_util.create_purchase_order(
+				session,
+				amount,
+				amount_funded,
+				amount_updated_at,
+				approved_at,
+				approved_by_user_id,
+				bank_incomplete_note,
+				bank_note,
+				bank_rejection_note,
+				closed_at,
+				company_id,
+				customer_note,
+				delivery_date,
+				funded_at,
+				id,
+				incompleted_at,
+				is_cannabis,
+				is_deleted,
+				is_metrc_based,
+				net_terms,
+				new_purchase_order_status,
+				order_date,
+				order_number,
+				rejected_at,
+				rejected_by_user_id,
+				rejection_note,
+				requested_at,
+				status,
+				vendor_id,
+			)
+			if err:
+				raise err
+
+			purchase_order_id = str(purchase_order.id)
+
+			logging.info('Finished adding purchase order for cypress test...')
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': 'Success',
+			'data': {
+				'purchase_order_id': purchase_order_id,
+			},
+		}))
+
 class AddUserView(MethodView):
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
@@ -896,6 +1001,11 @@ handler.add_url_rule(
 handler.add_url_rule(
 	'/add_financial_summary',
 	view_func=AddFinancialSummaryView.as_view(name='add_financial_summary_view'),
+)
+
+handler.add_url_rule(
+	'/add_purchase_order',
+	view_func=AddPurchaseOrderView.as_view(name='add_purchase_order_view'),
 )
 
 handler.add_url_rule(

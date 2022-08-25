@@ -252,6 +252,7 @@ export default function CreateUpdateArtifactLoanModal({
 
   return (
     <Modal
+      dataCy={"create-update-artifact-loan-modal"}
       isPrimaryActionDisabled={isSaveSubmitDisabled}
       isSecondaryActionDisabled={isSaveDraftDisabled}
       title={

@@ -154,6 +154,16 @@ def save_loan(
 	requested_payment_date: datetime.date,
 	requested_by_user_id: str,
 ) -> Tuple[str, errors.Error]:
+	# We check to make sure that the requested
+	# payment date falls on a non-holiday weekday
+	# first before making any db queries
+	nearest_business_day = date_util.get_nearest_business_day(
+		requested_payment_date,
+		preceeding = False
+	)
+	if nearest_business_day != requested_payment_date:
+		return None, errors.Error("Please request a payment date that does not fall on a weekend or holiday")
+
 	company, err = queries.get_company_by_id(
 		session,
 		company_id,
