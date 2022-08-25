@@ -353,7 +353,7 @@ export default function SettleRepaymentSelectLoans({
             />
           }
           label={
-            "Apply repayment in the following non-standard order: principal, interest, fees?"
+            "Apply repayment to loans in the following non-standard order: principal, interest, fees?"
           }
         />
         <Box display="flex" flexDirection="column" mt={2}>
