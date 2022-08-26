@@ -6,18 +6,20 @@ import os
 import sys
 import time
 from os import path
-from typing import Any,  Callable, Dict, List, cast
+from typing import Any, Callable, Dict, List, cast
+
+from sqlalchemy.orm.session import Session
 
 # Path hack before we try to import bespoke
-sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
-sys.path.append(path.realpath(path.join(path.dirname(__file__), "../")))
+sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../../src")))
+sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../")))
 
 from bespoke.db import db_constants, metrc_models_util, models
 
 def _add_company_deliveries(
 	metrc_transfers: List[models.MetrcTransfer],
 	metrc_deliveries: List[models.MetrcDelivery],
-	session: Any,
+	session: Session,
 	is_test_run: bool,
 ) -> None:
 	metrc_transfer_index = 0
@@ -76,11 +78,6 @@ def _add_company_deliveries(
 
 		for metrc_delivery in metrc_deliveries:
 			delivery_row_id = str(metrc_delivery.id)
-
-			# key = (transfer_row_id, delivery_row_id)
-			# if key in existing_company_deliveries:
-			# 	print(f'NOTE: {key} (transfer_row_id, delivery_row_id) already was backfilled into CompanyDelivery')
-			# 	continue
 
 			shipper_license_number = metrc_transfer.shipper_facility_license_number
 			shipper_company_id = license_number_to_company_id.get(shipper_license_number, None)
@@ -180,7 +177,7 @@ def main(is_test_run: bool = True) -> None:
 
 	while not is_done:
 		with models.session_scope(session_maker) as session:
-			print(f'[Page {current_page + 1}] Trying to add company deliveries from metrc deliveries...')
+			print(f'[Page {current_page + 1}] Trying to create missing company deliveries for metrc deliveries...')
 
 			try:
 				metrc_transfers_batch = cast(
