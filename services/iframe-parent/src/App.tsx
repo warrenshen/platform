@@ -41,7 +41,7 @@ const ValidAuthPayloadBorrower = {
 };
 
 // Developer note: change this variable value to test out different cases.
-const AuthPayload = ValidAuthPayloadBorrower;
+const AuthPayload = ValidAuthPayloadPreapproved;
 
 export default function App() {
   useEffect(() => {
