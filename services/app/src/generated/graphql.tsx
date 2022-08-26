@@ -28509,7 +28509,7 @@ export type GetFinancialSummariesByCompanyIdQueryVariables = Exact<{
 export type GetFinancialSummariesByCompanyIdQuery = {
   financial_summaries: Array<
     Pick<FinancialSummaries, "id"> & {
-      company: Pick<Companies, "id" | "name">;
+      company: Pick<Companies, "id" | "name" | "debt_facility_status">;
     } & FinancialSummaryFragment
   >;
 };
@@ -28993,7 +28993,17 @@ export type GetNotFundedLoansForBankSubscriptionVariables = Exact<{
 }>;
 
 export type GetNotFundedLoansForBankSubscription = {
-  loans: Array<Pick<Loans, "id"> & LoanFragment & LoanArtifactFragment>;
+  loans: Array<
+    Pick<Loans, "id"> & {
+      company: {
+        most_recent_surveillance_result: Array<
+          Pick<CustomerSurveillanceResults, "id"> &
+            CustomerSurveillanceResultFragment
+        >;
+      };
+    } & LoanFragment &
+      LoanArtifactFragment
+  >;
 };
 
 export type GetFundedLoansForBankSubscriptionVariables = Exact<{
@@ -34473,6 +34483,7 @@ export const GetFinancialSummariesByCompanyIdDocument = gql`
       company {
         id
         name
+        debt_facility_status
       }
     }
   }
@@ -37259,10 +37270,26 @@ export const GetNotFundedLoansForBankDocument = gql`
       id
       ...Loan
       ...LoanArtifact
+      company {
+        most_recent_surveillance_result: customer_surveillance_results(
+          limit: 1
+          order_by: { qualifying_date: desc }
+          where: {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+        ) {
+          id
+          ...CustomerSurveillanceResult
+        }
+      }
     }
   }
   ${LoanFragmentDoc}
   ${LoanArtifactFragmentDoc}
+  ${CustomerSurveillanceResultFragmentDoc}
 `;
 
 /**

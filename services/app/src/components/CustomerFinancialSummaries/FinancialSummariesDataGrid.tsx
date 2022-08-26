@@ -1,4 +1,5 @@
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import DebtFacilityCompanyStatusChip from "components/Shared/Chip/DebtFacilityCompanyStatusChip";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import {
@@ -20,6 +21,7 @@ import { useMemo } from "react";
 
 function getRows(financialSummaries: FinancialSummaryFragment[]): RowsProp {
   return financialSummaries.map((financialSummary) => {
+    console.log(financialSummary);
     return formatRowModel({
       ...financialSummary,
       adjusted_total_limit: financialSummary.adjusted_total_limit,
@@ -142,6 +144,13 @@ export default function FinancialSummariesDataGrid({
           valueExpr: "debt_facility_status",
           displayExpr: "label",
         },
+        cellRender: (params: ValueFormatterParams) => (
+          <DebtFacilityCompanyStatusChip
+            debtFacilityCompanyStatus={
+              params.row.data.company.debt_facility_status
+            }
+          />
+        ),
       },
       {
         dataField: "total_outstanding_principal",

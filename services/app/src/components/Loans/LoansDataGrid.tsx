@@ -1,9 +1,11 @@
 import { Box, Button, Typography } from "@material-ui/core";
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import CommentIcon from "@material-ui/icons/Comment";
+import CustomerSurveillanceStatusChip from "components/CustomerSurveillance/CustomerSurveillanceStatusChip";
 import InvoiceDrawer from "components/Invoices/InvoiceDrawer";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
 import PurchaseOrderDrawer from "components/PurchaseOrder/PurchaseOrderDrawer";
+import DebtFacilityCompanyStatusChip from "components/Shared/Chip/DebtFacilityCompanyStatusChip";
 import LoanPaymentStatusChip from "components/Shared/Chip/LoanPaymentStatusChip";
 import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
@@ -30,9 +32,12 @@ import {
   DebtFacilityCompanyStatusEnum,
   DebtFacilityCompanyStatusToLabel,
   LoanPaymentStatusEnum,
+  LoanPaymentStatusToLabel,
   LoanStatusEnum,
   LoanStatusToLabel,
   PartnerEnum,
+  SurveillanceStatusEnum,
+  SurveillanceStatusToLabel,
 } from "lib/enum";
 import {
   createLoanCustomerIdentifier,
@@ -46,7 +51,9 @@ import { CurrencyPrecision } from "lib/number";
 import { ColumnWidths, formatRowModel, truncateString } from "lib/tables";
 import { useEffect, useMemo, useState } from "react";
 
-type Loan = LoanFragment & (LoanArtifactFragment | LoanArtifactLimitedFragment);
+type Loan = LoanFragment & {
+  loan_report?: Maybe<LoanReportFragment>;
+} & (LoanArtifactFragment | LoanArtifactLimitedFragment);
 
 interface Props {
   isArtifactVisible?: boolean;
@@ -62,6 +69,7 @@ interface Props {
   isReportingVisible?: boolean;
   isSortingDisabled?: boolean;
   isStatusVisible?: boolean;
+  isSurveillanceStatusVisible?: boolean;
   partnerType?: PartnerEnum;
   pager?: boolean;
   matureDays?: number;
@@ -77,11 +85,20 @@ interface Props {
   handleSelectLoans?: (loans: LoanFragment[]) => void;
 }
 
-function getRows(
-  loans: (LoanFragment & {
-    loan_report?: Maybe<LoanReportFragment>;
-  } & (LoanArtifactFragment | LoanArtifactLimitedFragment))[]
-): RowsProp {
+function getSurveillanceResult(loan: any) {
+  /*
+    This function and it's `any` annotation is a temporary measure to allow
+    the loan's action required tab to display the surveillance status before
+    we have a chance to refactor the types passed into the LoansDataGrid - which
+    will be a much more expansive change
+  */
+  return !!loan?.company?.most_recent_surveillance_result?.[0]
+    ?.surveillance_status
+    ? loan.company.most_recent_surveillance_result[0].surveillance_status
+    : null;
+}
+
+function getRows(loans: Loan[]): RowsProp {
   return loans.map((loan) => {
     return formatRowModel({
       ...loan,
@@ -101,6 +118,7 @@ function getRows(
         ? loan.loan_report.financing_day_limit
         : null,
       maturing_in_days: getDaysUntilMaturity(loan),
+      most_recent_surveillance_status: getSurveillanceResult(loan),
       origination_date: !!loan?.origination_date
         ? parseDateStringServer(loan.origination_date)
         : null,
@@ -142,6 +160,7 @@ export default function LoansDataGrid({
   isReportingVisible = false,
   isSortingDisabled = false,
   isStatusVisible = true,
+  isSurveillanceStatusVisible = false,
   pager = true,
   matureDays = 0,
   pageSize = 10,
@@ -255,6 +274,22 @@ export default function LoansDataGrid({
         caption: "Repayment Status",
         width: ColumnWidths.Status,
         alignment: "center",
+        lookup: {
+          dataSource: {
+            store: {
+              type: "array",
+              data: Object.values(LoanPaymentStatusEnum).map(
+                (loanPaymentStatus) => ({
+                  loan_payment_status: loanPaymentStatus,
+                  label: LoanPaymentStatusToLabel[loanPaymentStatus],
+                })
+              ),
+              key: "loan_payment_status",
+            },
+          },
+          valueExpr: "loan_payment_status",
+          displayExpr: "label",
+        },
         cellRender: (params: ValueFormatterParams) => (
           <LoanPaymentStatusChip
             paymentStatus={
@@ -284,6 +319,40 @@ export default function LoansDataGrid({
           valueExpr: "debt_facility_status",
           displayExpr: "label",
         },
+        cellRender: (params: ValueFormatterParams) => (
+          <DebtFacilityCompanyStatusChip
+            debtFacilityCompanyStatus={
+              params.row.data.company.debt_facility_status
+            }
+          />
+        ),
+      },
+      {
+        visible: isSurveillanceStatusVisible,
+        dataField: "most_recent_surveillance_status",
+        caption: "Surveillance Status",
+        width: ColumnWidths.ProductType,
+        lookup: {
+          dataSource: {
+            store: {
+              type: "array",
+              data: Object.values(SurveillanceStatusEnum).map(
+                (surveillanceStatus) => ({
+                  surveillance_status: surveillanceStatus,
+                  label: SurveillanceStatusToLabel[surveillanceStatus],
+                })
+              ),
+              key: "surveillance_status",
+            },
+          },
+          valueExpr: "surveillance_status",
+          displayExpr: "label",
+        },
+        cellRender: (params: ValueFormatterParams) => (
+          <CustomerSurveillanceStatusChip
+            surveillanceStatus={params.row.data.most_recent_surveillance_status}
+          />
+        ),
       },
       {
         visible: isCompanyVisible,
@@ -502,6 +571,7 @@ export default function LoansDataGrid({
       isMaturityVisible,
       isReportingVisible,
       isStatusVisible,
+      isSurveillanceStatusVisible,
       actionItems,
       partnerType,
       handleClickCustomer,

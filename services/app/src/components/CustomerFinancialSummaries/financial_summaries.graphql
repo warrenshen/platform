@@ -8,6 +8,7 @@ query GetFinancialSummariesByCompanyId($companyId: uuid!) {
     company {
       id
       name
+      debt_facility_status
     }
   }
 }

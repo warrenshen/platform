@@ -17,7 +17,7 @@ export const ColumnWidths = {
   PhoneNumber: 150,
   ProductType: 180,
   MetrcId: 140,
-  Status: 170,
+  Status: 210,
   StatusChip: 300,
   Type: 160,
   UsState: 90,

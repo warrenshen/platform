@@ -12,6 +12,7 @@ interface Props {
   isMaturityVisible?: boolean;
   isMultiSelectEnabled?: boolean;
   isReportingVisible?: boolean;
+  isSurveillanceStatusVisible?: boolean;
   matureDays?: number;
   loans: LoanFragment[];
   selectedLoanIds?: Loans["id"][];
@@ -26,6 +27,7 @@ export default function BankLoansDataGrid({
   isMaturityVisible = false,
   isMultiSelectEnabled = false,
   isReportingVisible,
+  isSurveillanceStatusVisible = false,
   matureDays,
   loans,
   selectedLoanIds,
@@ -57,6 +59,7 @@ export default function BankLoansDataGrid({
         isMaturityVisible={isMaturityVisible}
         isMultiSelectEnabled={isMultiSelectEnabled}
         isReportingVisible={isReportingVisible}
+        isSurveillanceStatusVisible={isSurveillanceStatusVisible}
         partnerType={PartnerEnum.BOTH}
         matureDays={matureDays}
         loans={loans}

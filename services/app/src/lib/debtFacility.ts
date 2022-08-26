@@ -614,9 +614,9 @@ export const reduceLineOfCreditLoans = (
                     a.outstanding_principal_balance +
                     b.outstanding_principal_balance,
                   payment_status:
-                    a.payment_status === LoanPaymentStatusEnum.PARTIALLY_PAID ||
-                    b.payment_status === LoanPaymentStatusEnum.PARTIALLY_PAID
-                      ? LoanPaymentStatusEnum.PARTIALLY_PAID
+                    a.payment_status === LoanPaymentStatusEnum.PartiallyPaid ||
+                    b.payment_status === LoanPaymentStatusEnum.PartiallyPaid
+                      ? LoanPaymentStatusEnum.PartiallyPaid
                       : LoanStatusEnum.Funded,
                   transactions: a["transactions"].concat(b["transactions"]),
                 } as OpenLoanForDebtFacilityFragment;

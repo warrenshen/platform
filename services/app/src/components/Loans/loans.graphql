@@ -44,6 +44,21 @@ subscription GetNotFundedLoansForBank {
     id
     ...Loan
     ...LoanArtifact
+    company{
+      most_recent_surveillance_result: customer_surveillance_results(
+        limit: 1
+        order_by: { qualifying_date: desc }
+        where: {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+      ) {
+        id
+        ...CustomerSurveillanceResult
+      }
+    }
   }
 }
 

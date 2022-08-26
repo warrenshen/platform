@@ -1,4 +1,6 @@
-import { RowsProp } from "@material-ui/data-grid";
+import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import CustomerSurveillanceStatusChip from "components/CustomerSurveillance/CustomerSurveillanceStatusChip";
+import DebtFacilityCompanyStatusChip from "components/Shared/Chip/DebtFacilityCompanyStatusChip";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import {
@@ -178,6 +180,11 @@ export default function CustomersDataGrid({
           valueExpr: "debt_facility_status",
           displayExpr: "label",
         },
+        cellRender: (params: ValueFormatterParams) => (
+          <DebtFacilityCompanyStatusChip
+            debtFacilityCompanyStatus={params.row.data.debt_facility_status}
+          />
+        ),
       },
       {
         visible: isSurveillanceStatusVisible,
@@ -200,6 +207,11 @@ export default function CustomersDataGrid({
           valueExpr: "surveillance_status",
           displayExpr: "label",
         },
+        cellRender: (params: ValueFormatterParams) => (
+          <CustomerSurveillanceStatusChip
+            surveillanceStatus={params.row.data.surveillance_status}
+          />
+        ),
       },
       {
         dataField: "contract_name",

@@ -1,25 +1,5 @@
-import { Box, Typography } from "@material-ui/core";
+import StatusChip from "components/Shared/Chip/StatusChip";
 import { SurveillanceStatusEnum, SurveillanceStatusToLabel } from "lib/enum";
-import styled from "styled-components";
-
-const Chip = styled.div<{ backgroundColor: string }>`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  flex: 1;
-
-  width: 150px;
-  padding: 6px 0px;
-  border-radius: 18px;
-  background-color: ${(props) => props.backgroundColor};
-  color: white;
-`;
-
-const Text = styled(Typography)`
-  font-size: 14px;
-  font-weight: 500;
-`;
 
 interface Props {
   surveillanceStatus: SurveillanceStatusEnum;
@@ -40,38 +20,13 @@ export default function CustomerSurveillanceStatusChip({
   surveillanceStatus,
 }: Props) {
   return (
-    <Box height={33}>
-      <Chip
-        backgroundColor={
-          StatusToColor[
-            [
-              SurveillanceStatusEnum.GoodStanding,
-              SurveillanceStatusEnum.OnProbation,
-              SurveillanceStatusEnum.OnPause,
-              SurveillanceStatusEnum.Defaulted,
-              SurveillanceStatusEnum.Onboarding,
-              SurveillanceStatusEnum.Inactive,
-              SurveillanceStatusEnum.InReview,
-            ].includes(surveillanceStatus)
-              ? surveillanceStatus
-              : "Default"
-          ]
-        }
-      >
-        <Text>
-          {[
-            SurveillanceStatusEnum.GoodStanding,
-            SurveillanceStatusEnum.OnProbation,
-            SurveillanceStatusEnum.OnPause,
-            SurveillanceStatusEnum.Defaulted,
-            SurveillanceStatusEnum.Onboarding,
-            SurveillanceStatusEnum.Inactive,
-            SurveillanceStatusEnum.InReview,
-          ].includes(surveillanceStatus)
-            ? SurveillanceStatusToLabel[surveillanceStatus]
-            : "No Status"}
-        </Text>
-      </Chip>
-    </Box>
+    <>
+      {!!surveillanceStatus && (
+        <StatusChip
+          color={StatusToColor[surveillanceStatus]}
+          text={SurveillanceStatusToLabel[surveillanceStatus]}
+        />
+      )}
+    </>
   );
 }

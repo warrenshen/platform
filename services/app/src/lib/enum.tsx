@@ -396,18 +396,20 @@ export const PaymentStatusToLabel = {
 };
 
 export enum LoanPaymentStatusEnum {
-  PARTIALLY_PAID = "partially_paid",
-  PENDING = "pending",
-  SCHEDULED = "scheduled",
-  CLOSED = "closed",
+  NoPayment = "no_payment",
+  PartiallyPaid = "partially_paid",
+  Pending = "pending",
+  Scheduled = "scheduled",
+  Closed = "closed",
 }
 
 // PaymentStatus internal name to label
 export const LoanPaymentStatusToLabel = {
-  [LoanPaymentStatusEnum.PARTIALLY_PAID]: "Partially Paid",
-  [LoanPaymentStatusEnum.PENDING]: "Payment Pending",
-  [LoanPaymentStatusEnum.SCHEDULED]: "Payment Scheduled",
-  [LoanPaymentStatusEnum.CLOSED]: "Closed",
+  [LoanPaymentStatusEnum.NoPayment]: "No Payment",
+  [LoanPaymentStatusEnum.PartiallyPaid]: "Partially Paid",
+  [LoanPaymentStatusEnum.Pending]: "Payment Pending",
+  [LoanPaymentStatusEnum.Scheduled]: "Payment Scheduled",
+  [LoanPaymentStatusEnum.Closed]: "Closed",
 };
 
 export enum LoanStatusEnum {
@@ -885,7 +887,6 @@ export enum DebtFacilityCompanyStatusEnum {
   OnProbation = "on_probation",
   OutOfCompliance = "out_of_compliance",
   Defaulting = "defaulting",
-  // must be default state for dispensary financing clients
   IneligibleForFacility = "ineligible_for_facility",
   Waiver = "waiver_company",
 }
@@ -895,8 +896,7 @@ export const DebtFacilityCompanyStatusToLabel = {
   [DebtFacilityCompanyStatusEnum.OnProbation]: "Probation",
   [DebtFacilityCompanyStatusEnum.OutOfCompliance]: "Paused",
   [DebtFacilityCompanyStatusEnum.Defaulting]: "Defaulted",
-  [DebtFacilityCompanyStatusEnum.IneligibleForFacility]:
-    "Ineligible for Facility",
+  [DebtFacilityCompanyStatusEnum.IneligibleForFacility]: "Ineligible",
   [DebtFacilityCompanyStatusEnum.Waiver]: "Waiver",
 };
 

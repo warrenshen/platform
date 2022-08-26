@@ -178,6 +178,7 @@ export default function BankLoansActionRequiredTab() {
       <Box display="flex" flexDirection="column">
         <BankLoansDataGrid
           isMultiSelectEnabled={check(role, Action.SelectLoan)}
+          isSurveillanceStatusVisible
           loans={loans}
           selectedLoanIds={selectedLoanIds}
           handleClickCustomer={(customerId) =>
