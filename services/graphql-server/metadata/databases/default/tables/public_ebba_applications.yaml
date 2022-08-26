@@ -113,54 +113,56 @@ select_permissions:
   - role: company_admin
     permission:
       columns:
-        - is_deleted
-        - application_date
-        - expires_date
         - amount_cash_in_daca
         - amount_custom
+        - amount_custom_note
+        - application_date
+        - approved_at
+        - bank_note
         - calculated_borrowing_base
+        - category
+        - company_id
+        - created_at
+        - expires_date
+        - id
+        - is_deleted
         - monthly_accounts_receivable
         - monthly_cash
         - monthly_inventory
-        - amount_custom_note
-        - category
-        - rejection_note
-        - status
         - rejected_at
-        - approved_at
-        - created_at
+        - rejection_note
         - requested_at
-        - updated_at
-        - company_id
-        - id
+        - status
         - submitted_by_user_id
+        - updated_at
       filter:
         company_id:
           _eq: X-Hasura-Company-Id
   - role: company_read_only
     permission:
       columns:
-        - is_deleted
-        - application_date
-        - expires_date
         - amount_cash_in_daca
         - amount_custom
+        - amount_custom_note
+        - application_date
+        - approved_at
+        - bank_note
         - calculated_borrowing_base
+        - category
+        - company_id
+        - created_at
+        - expires_date
+        - id
+        - is_deleted
         - monthly_accounts_receivable
         - monthly_cash
         - monthly_inventory
-        - amount_custom_note
-        - category
-        - rejection_note
-        - status
         - rejected_at
-        - approved_at
-        - created_at
+        - rejection_note
         - requested_at
-        - updated_at
-        - company_id
-        - id
+        - status
         - submitted_by_user_id
+        - updated_at
       filter:
         company_id:
           _eq: X-Hasura-Company-Id
