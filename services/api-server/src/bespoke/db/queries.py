@@ -5,7 +5,7 @@ from typing import Callable, cast, List, Tuple
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models
-from bespoke.db.db_constants import ClientSurveillanceCategoryEnum, PaymentType, RequestStatusEnum
+from bespoke.db.db_constants import ClientSurveillanceCategoryEnum, LoanTypeEnum, PaymentType, RequestStatusEnum
 
 from sqlalchemy import or_, and_
 from sqlalchemy.orm.session import Session
@@ -198,15 +198,36 @@ def get_financial_summaries_for_target_customers(
 # Loans
 # ###############################
 
-def get_loan_by_id(
+def get_loan(
     session: Session,
-    loan_id: str,
+    loan_id: str = None,
+    artifact_id: str = None,
+    amount: float = None,
+    is_funded: bool = False,
+    loan_type: str = LoanTypeEnum.INVENTORY,
 ) -> Tuple[ models.Loan, errors.Error ]:
+    filters = [
+        cast(Callable, models.Loan.is_deleted.isnot)(True),
+        models.Loan.loan_type == loan_type,
+    ]
+
+    if loan_id is not None:
+        filters.append(models.Loan.id == loan_id)
+
+    if artifact_id is not None:
+        filters.append(models.Loan.artifact_id == artifact_id)
+
+    if amount is not None:
+        filters.append(models.Loan.amount == amount)
+
+    if not is_funded:
+        filters.append(models.Loan.funded_at == None)
+
     # fmt: off
     loan = cast(
         models.Loan,
         session.query(models.Loan).filter(
-            models.Loan.id == loan_id
+            *filters
         ).first())
     # fmt: on
 

@@ -86,14 +86,14 @@ export const requestFinancing = ({
   // we add a business day for the happy path case to make sure we're always
   // requesting a valid date
   const requestedPaymentDate = isHappyPath
-    ? addBusinessDays(getNextDayOfWeek(now, 6), 1)
+    ? addBusinessDays(getNextDayOfWeek(now, 6), 2)
     : getNextDayOfWeek(now, 6);
   const requestedPaymentDateString =
     dateAsDateStringClient(requestedPaymentDate);
 
   cy.clock(now, ["Date"]);
 
-  // Go to Customer > Borrowing Base
+  // Go to Customer > Purchase Orders
   cy.dataCy("sidebar-item-purchase-orders").click();
   cy.url().should("include", "purchase-orders");
 
@@ -103,7 +103,6 @@ export const requestFinancing = ({
 
   cy.dataCy("request-purchase-order-financing-button").click();
 
-  //cy.dataCy("artifact-loan-request-payment-date").type("05/07/2022");
   cy.dataCy("artifact-loan-request-payment-date").type(
     requestedPaymentDateString
   );

@@ -151,7 +151,7 @@ function LoansNotFunded({
         </Can>
       </Box>
       <Box className={classes.sectionSpace} />
-      <Box display="flex" flex={1}>
+      <Box data-cy={"not-funded-loans-datagrid"} display="flex" flex={1}>
         <PolymorphicLoansDataGrid
           isApprovalStatusVisible
           isDisbursementIdentifierVisible={isBankUser}

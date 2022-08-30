@@ -38606,7 +38606,19 @@ export const GetPurchaseOrderForCustomerDocument = gql`
     purchase_orders_by_pk(id: $id) {
       id
       ...PurchaseOrderLimited
-      loans(where: { loan_type: { _eq: purchase_order } }) {
+      loans(
+        where: {
+          _and: [
+            { loan_type: { _eq: purchase_order } }
+            {
+              _or: [
+                { is_deleted: { _is_null: true } }
+                { is_deleted: { _eq: false } }
+              ]
+            }
+          ]
+        }
+      ) {
         id
         ...LoanLimited
       }

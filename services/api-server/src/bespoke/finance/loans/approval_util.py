@@ -144,7 +144,7 @@ def approve_loans(
 	return ApproveLoansRespDict(status='OK'), None
 
 @errors.return_error_tuple
-def save_loan(
+def create_or_update_loan(
 	session: Session,
 	amount: float,
 	artifact_id: str,
@@ -174,9 +174,10 @@ def save_loan(
 	# We skip error handling if a loan does not exist
 	# as this flow is used to save both brand new loan
 	# drafts and updates to existing unfunded loans
-	loan, _ = queries.get_loan_by_id(
+	loan, _ = queries.get_loan(
 		session,
-		loan_id,
+		artifact_id = artifact_id,
+		amount = amount,
 	)
 	if not loan:
 		next_identifier = int(company.latest_loan_identifier) + 1
@@ -192,12 +193,13 @@ def save_loan(
 			status = LoanStatusEnum.DRAFTED,
 			requested_by_user_id=requested_by_user_id,
 		)
+		session.add(loan)
 	else:
 		loan.amount = decimal.Decimal(amount)
 		loan.loan_type = loan_type
 		loan.requested_payment_date = requested_payment_date
 
-	session.add(loan)
+	
 	session.flush()
 
 	return str(loan.id), None

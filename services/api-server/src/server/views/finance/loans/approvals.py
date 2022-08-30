@@ -238,7 +238,7 @@ class SubmitForApprovalView(MethodView):
 		requested_by_user_id = user_session.get_user_id()
 
 		with session_scope(current_app.session_maker) as session:
-			loan_id, err = approval_util.save_loan(
+			loan_id, err = approval_util.create_or_update_loan(
 				session,
 				amount,
 				artifact_id,
@@ -338,7 +338,7 @@ class SaveLoanView(MethodView):
 		requested_payment_date = date_util.load_date_str(form['requested_payment_date'])
 		requested_by_user_id = user_session.get_user_id()
 		with session_scope(current_app.session_maker) as session:
-			loan_id, err = approval_util.save_loan(
+			loan_id, err = approval_util.create_or_update_loan(
 				session,
 				amount,
 				artifact_id,
