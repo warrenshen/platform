@@ -169,9 +169,9 @@ export enum BankPurchaseOrdersTabLabel {
 }
 
 export const BankPurchaseOrdersTabLabels = [
+  BankPurchaseOrdersTabLabel.NotConfirmedPOs,
   BankPurchaseOrdersTabLabel.DraftedPOs,
   BankPurchaseOrdersTabLabel.IncompletePOs,
-  BankPurchaseOrdersTabLabel.NotConfirmedPOs,
   BankPurchaseOrdersTabLabel.ConfirmedPOs,
   BankPurchaseOrdersTabLabel.AllPOs,
 ];
@@ -199,9 +199,9 @@ export enum BankVendorsTabLabel {
 }
 
 export const BankVendorsTabLabels = [
+  BankVendorsTabLabel.All,
   BankVendorsTabLabel.NotApproved,
   BankVendorsTabLabel.Approved,
-  BankVendorsTabLabel.All,
 ];
 
 export enum NewPurchaseOrderStatus {
