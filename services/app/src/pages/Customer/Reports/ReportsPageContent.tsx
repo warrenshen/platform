@@ -3,7 +3,7 @@ import ReportLoansDataGrid from "components/Reports/ReportLoansDataGrid";
 import PageContent from "components/Shared/Page/PageContent";
 import {
   LoanTypeEnum,
-  useGetFundedLoansByCompanyAndLoanTypeQuery,
+  useGetOpenFundedLoansByCompanyAndLoanTypeQuery,
 } from "generated/graphql";
 import { isLoanComingOrPastDue } from "lib/date";
 import { ProductTypeEnum, ProductTypeToLoanType } from "lib/enum";
@@ -20,7 +20,7 @@ export default function CustomerReportsPageContent({
   const loanType = ProductTypeToLoanType[productType];
 
   const { data: loansData, error: loansError } =
-    useGetFundedLoansByCompanyAndLoanTypeQuery({
+    useGetOpenFundedLoansByCompanyAndLoanTypeQuery({
       skip: !loanType,
       fetchPolicy: "network-only",
       variables: {

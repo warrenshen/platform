@@ -20,7 +20,7 @@ import {
   Loans,
   PaymentsInsertInput,
   PayorFragment,
-  useGetFundedLoansByCompanyAndLoanTypeQuery,
+  useGetOpenFundedLoansByCompanyAndLoanTypeQuery,
 } from "generated/graphql";
 import { ProductTypeEnum, ProductTypeToLoanType } from "lib/enum";
 import { useMemo } from "react";
@@ -68,7 +68,7 @@ export default function SettleRepaymentSelectLoans({
       ? ProductTypeToLoanType[productType as ProductTypeEnum]
       : null;
 
-  const { data, error } = useGetFundedLoansByCompanyAndLoanTypeQuery({
+  const { data, error } = useGetOpenFundedLoansByCompanyAndLoanTypeQuery({
     skip: !payment || !loanType,
     fetchPolicy: "network-only",
     variables: {

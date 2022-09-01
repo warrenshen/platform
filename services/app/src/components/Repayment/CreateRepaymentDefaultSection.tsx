@@ -15,7 +15,7 @@ import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import {
   LoanTypeEnum,
   PaymentsInsertInput,
-  useGetFundedLoansByCompanyAndLoanTypeQuery,
+  useGetOpenFundedLoansByCompanyAndLoanTypeQuery,
 } from "generated/graphql";
 import {
   CustomerPaymentOptions,
@@ -46,7 +46,7 @@ export default function CreateRepaymentDefaultSection({
   // Select Loans
   const loanType = ProductTypeToLoanType[productType];
 
-  const { data, error } = useGetFundedLoansByCompanyAndLoanTypeQuery({
+  const { data, error } = useGetOpenFundedLoansByCompanyAndLoanTypeQuery({
     skip: !payment || !loanType,
     fetchPolicy: "network-only",
     variables: {

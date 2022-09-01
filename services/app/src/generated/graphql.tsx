@@ -29059,12 +29059,12 @@ export type GetAllLoansForCompanyQuery = {
   >;
 };
 
-export type GetFundedLoansByCompanyAndLoanTypeQueryVariables = Exact<{
+export type GetOpenFundedLoansByCompanyAndLoanTypeQueryVariables = Exact<{
   companyId: Scalars["uuid"];
   loanType: LoanTypeEnum;
 }>;
 
-export type GetFundedLoansByCompanyAndLoanTypeQuery = {
+export type GetOpenFundedLoansByCompanyAndLoanTypeQuery = {
   loans: Array<
     Pick<Loans, "id"> & LoanLimitedFragment & LoanArtifactLimitedFragment
   >;
@@ -37631,8 +37631,8 @@ export type GetAllLoansForCompanyQueryResult = Apollo.QueryResult<
   GetAllLoansForCompanyQuery,
   GetAllLoansForCompanyQueryVariables
 >;
-export const GetFundedLoansByCompanyAndLoanTypeDocument = gql`
-  query GetFundedLoansByCompanyAndLoanType(
+export const GetOpenFundedLoansByCompanyAndLoanTypeDocument = gql`
+  query GetOpenFundedLoansByCompanyAndLoanType(
     $companyId: uuid!
     $loanType: loan_type_enum!
   ) {
@@ -37648,6 +37648,7 @@ export const GetFundedLoansByCompanyAndLoanTypeDocument = gql`
           { company_id: { _eq: $companyId } }
           { loan_type: { _eq: $loanType } }
           { origination_date: { _is_null: false } }
+          { closed_at: { _is_null: true } }
         ]
       }
       order_by: [
@@ -37667,54 +37668,54 @@ export const GetFundedLoansByCompanyAndLoanTypeDocument = gql`
 `;
 
 /**
- * __useGetFundedLoansByCompanyAndLoanTypeQuery__
+ * __useGetOpenFundedLoansByCompanyAndLoanTypeQuery__
  *
- * To run a query within a React component, call `useGetFundedLoansByCompanyAndLoanTypeQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetFundedLoansByCompanyAndLoanTypeQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetOpenFundedLoansByCompanyAndLoanTypeQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOpenFundedLoansByCompanyAndLoanTypeQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetFundedLoansByCompanyAndLoanTypeQuery({
+ * const { data, loading, error } = useGetOpenFundedLoansByCompanyAndLoanTypeQuery({
  *   variables: {
  *      companyId: // value for 'companyId'
  *      loanType: // value for 'loanType'
  *   },
  * });
  */
-export function useGetFundedLoansByCompanyAndLoanTypeQuery(
+export function useGetOpenFundedLoansByCompanyAndLoanTypeQuery(
   baseOptions: Apollo.QueryHookOptions<
-    GetFundedLoansByCompanyAndLoanTypeQuery,
-    GetFundedLoansByCompanyAndLoanTypeQueryVariables
+    GetOpenFundedLoansByCompanyAndLoanTypeQuery,
+    GetOpenFundedLoansByCompanyAndLoanTypeQueryVariables
   >
 ) {
   return Apollo.useQuery<
-    GetFundedLoansByCompanyAndLoanTypeQuery,
-    GetFundedLoansByCompanyAndLoanTypeQueryVariables
-  >(GetFundedLoansByCompanyAndLoanTypeDocument, baseOptions);
+    GetOpenFundedLoansByCompanyAndLoanTypeQuery,
+    GetOpenFundedLoansByCompanyAndLoanTypeQueryVariables
+  >(GetOpenFundedLoansByCompanyAndLoanTypeDocument, baseOptions);
 }
-export function useGetFundedLoansByCompanyAndLoanTypeLazyQuery(
+export function useGetOpenFundedLoansByCompanyAndLoanTypeLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
-    GetFundedLoansByCompanyAndLoanTypeQuery,
-    GetFundedLoansByCompanyAndLoanTypeQueryVariables
+    GetOpenFundedLoansByCompanyAndLoanTypeQuery,
+    GetOpenFundedLoansByCompanyAndLoanTypeQueryVariables
   >
 ) {
   return Apollo.useLazyQuery<
-    GetFundedLoansByCompanyAndLoanTypeQuery,
-    GetFundedLoansByCompanyAndLoanTypeQueryVariables
-  >(GetFundedLoansByCompanyAndLoanTypeDocument, baseOptions);
+    GetOpenFundedLoansByCompanyAndLoanTypeQuery,
+    GetOpenFundedLoansByCompanyAndLoanTypeQueryVariables
+  >(GetOpenFundedLoansByCompanyAndLoanTypeDocument, baseOptions);
 }
-export type GetFundedLoansByCompanyAndLoanTypeQueryHookResult = ReturnType<
-  typeof useGetFundedLoansByCompanyAndLoanTypeQuery
+export type GetOpenFundedLoansByCompanyAndLoanTypeQueryHookResult = ReturnType<
+  typeof useGetOpenFundedLoansByCompanyAndLoanTypeQuery
 >;
-export type GetFundedLoansByCompanyAndLoanTypeLazyQueryHookResult = ReturnType<
-  typeof useGetFundedLoansByCompanyAndLoanTypeLazyQuery
->;
-export type GetFundedLoansByCompanyAndLoanTypeQueryResult = Apollo.QueryResult<
-  GetFundedLoansByCompanyAndLoanTypeQuery,
-  GetFundedLoansByCompanyAndLoanTypeQueryVariables
->;
+export type GetOpenFundedLoansByCompanyAndLoanTypeLazyQueryHookResult =
+  ReturnType<typeof useGetOpenFundedLoansByCompanyAndLoanTypeLazyQuery>;
+export type GetOpenFundedLoansByCompanyAndLoanTypeQueryResult =
+  Apollo.QueryResult<
+    GetOpenFundedLoansByCompanyAndLoanTypeQuery,
+    GetOpenFundedLoansByCompanyAndLoanTypeQueryVariables
+  >;
 export const GetLoansByLoanIdsDocument = gql`
   query GetLoansByLoanIds($loan_ids: [uuid!]!) {
     loans(where: { id: { _in: $loan_ids } }) {
