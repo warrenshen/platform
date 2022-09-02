@@ -274,7 +274,9 @@ def process_coming_due_loan_chunk(
 				_, err = sendgrid_client.send(
 					template_name=sendgrid_util.TemplateNames.REPORT_LOANS_COMING_DUE,
 					template_data=template_data,
-					recipients=[contact_user.email],
+					# TODO: uncomment once job is running
+					# recipients=[contact_user.email],
+					recipients=["do-not-reply-development@bespokefinancial.com"],
 					filter_out_contact_only=True,
 					cc_recipients=[config.NO_REPLY_EMAIL_ADDRESS]
 				)
@@ -395,7 +397,9 @@ def process_past_due_loan_chunk(
 			_, err = sendgrid_client.send(
 				template_name=sendgrid_util.TemplateNames.REPORT_LOANS_PAST_DUE,
 				template_data=template_data,
-				recipients=[contact_user.email],
+				# TODO: uncomment once job is running
+				# recipients=[contact_user.email],
+				recipients=["do-not-reply-development@bespokefinancial.com"],
 				filter_out_contact_only=True,
 				cc_recipients=[config.NO_REPLY_EMAIL_ADDRESS]
 			)
