@@ -11,6 +11,7 @@ from bespoke.db import models
 from bespoke.db.db_constants import LoanStatusEnum, LoanTypeEnum
 from bespoke.email import sendgrid_util
 from bespoke.finance.loans import approval_util
+from bespoke.finance.purchase_orders import purchase_orders_util
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from server.config import Config
@@ -270,6 +271,7 @@ class UpsertPurchaseOrdersLoansView(MethodView):
 						amount=item.loan.amount,
 						requested_payment_date=item.loan.requested_payment_date,
 						requested_by_user_id=requested_by_user_id,
+						requested_at=date_util.now()
 					)
 					session.add(loan)
 
@@ -287,6 +289,8 @@ class UpsertPurchaseOrdersLoansView(MethodView):
 
 				loan_dicts.append(loan.as_dict())
 				loan_events.append(event)
+			
+				purchase_orders_util.update_purchase_order_status(session, item.artifact.id)
 
 			if upsert.status == LoanStatusEnum.APPROVAL_REQUESTED:
 				err = _handle_approval_email(

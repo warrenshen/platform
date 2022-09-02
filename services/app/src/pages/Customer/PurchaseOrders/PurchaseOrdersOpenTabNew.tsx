@@ -316,6 +316,7 @@ export default function CustomerPurchaseOrdersOpenTabNew({
                         />
                       ) : (
                         <ManagePurchaseOrderFinancingModalMultiple
+                          companyId={companyId}
                           purchaseOrderIds={selectedApprovedPurchaseOrderIds}
                           handleClose={() => {
                             refetch();

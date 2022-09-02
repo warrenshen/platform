@@ -129,14 +129,16 @@ class CompanyDebtFacilityStatus(object):
 	WAIVER = 'waiver_company'
 
 class NewPurchaseOrderStatus(object):
+	# Not Ready
 	DRAFT = "draft"
 	PENDING_APPROVAL_BY_VENDOR = "pending_approval_by_vendor"
 	CHANGES_REQUESTED_BY_VENDOR = "changes_requested_by_vendor"
 	CHANGES_REQUESTED_BY_BESPOKE = "changes_requested_by_bespoke"
+	# Ready
 	READY_TO_REQUEST_FINANCING = "ready_to_request_financing"
-	PENDING_APPROVAL_BY_BESPOKE = "pending_approval_by_bespoke"
+	FINANCING_PENDING_APPROVAL = "financing_pending_approval"
 	FINANCING_REQUEST_APPROVED = "financing_request_approved"
-	FULLY_FINANCED = "fully_financed"
+	# Closed
 	ARCHIVED = "archived"
 	REJECTED_BY_VENDOR = "rejected_by_vendor"
 	REJECTED_BY_BESPOKE = "rejected_by_bespoke"
@@ -179,6 +181,9 @@ class LoanStatusEnum(object):
 	CLOSED = 'closed'
 	DRAFTED = 'drafted'
 	REJECTED = 'rejected'
+	FUNDED = 'funded'
+	CLOSED = 'closed'
+	CLOSING = 'closing'
 
 class LoanTypeEnum(object):
 	LINE_OF_CREDIT = 'line_of_credit'

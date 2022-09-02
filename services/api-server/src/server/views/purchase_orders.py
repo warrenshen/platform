@@ -6,7 +6,7 @@ from bespoke import errors
 from bespoke.audit import events
 from bespoke.date import date_util
 from bespoke.db import models, models_util
-from bespoke.db.db_constants import RequestStatusEnum, TwoFactorLinkType
+from bespoke.db.db_constants import RequestStatusEnum, TwoFactorLinkType, NewPurchaseOrderStatus
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from bespoke.finance import number_util
@@ -369,6 +369,7 @@ class RespondToApprovalRequestView(MethodView):
 				).first())
 
 			if new_request_status == RequestStatusEnum.APPROVED:
+				purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.READY_TO_REQUEST_FINANCING
 				purchase_order.status = RequestStatusEnum.APPROVED
 				purchase_order.approved_at = date_util.now()
 				purchase_order.approved_by_user_id = approved_by_user_id
@@ -561,6 +562,7 @@ class RespondToApprovalRequestNewView(MethodView):
 				).first())
 
 			if new_request_status == RequestStatusEnum.APPROVED:
+				purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.READY_TO_REQUEST_FINANCING
 				purchase_order.status = RequestStatusEnum.APPROVED
 				purchase_order.approved_at = date_util.now()
 				purchase_order.approved_by_user_id = approved_by_user_id

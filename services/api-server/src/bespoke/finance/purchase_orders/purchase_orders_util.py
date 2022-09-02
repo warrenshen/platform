@@ -8,7 +8,7 @@ from typing import Callable, Dict, List, Optional, Tuple, cast
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import db_constants, models
-from bespoke.db.db_constants import RequestStatusEnum, NewPurchaseOrderStatus
+from bespoke.db.db_constants import RequestStatusEnum, NewPurchaseOrderStatus, LoanStatusEnum
 from bespoke.companies import partnership_util
 from bespoke.email import sendgrid_util
 from bespoke.finance import number_util
@@ -753,3 +753,47 @@ def submit_purchase_order_for_approval_new(
 	purchase_order.incompleted_at = None
 
 	return purchase_order, vendor_users, is_vendor_missing_bank_account, None
+
+@errors.return_error_tuple
+def update_purchase_order_status(
+	session: Session,
+	purchase_order_id: str,
+) -> Tuple[bool, errors.Error]:
+	purchase_order = cast(
+		models.PurchaseOrder,
+		session.query(models.PurchaseOrder).get(purchase_order_id)
+	)
+
+	loans = cast(
+		List[models.Loan],
+		session.query(models.Loan).filter(
+			models.Loan.artifact_id == str(purchase_order_id)
+		).filter(
+			# models.Loan.is_deleted == None
+			cast(Callable, models.Loan.is_deleted.isnot)(True)
+		).all()
+	)
+
+	# Loan Statuses => Purchase Order
+	# APPROVED + APPROVED => FINANCING_REQUEST_APPROVED
+	# APPROVAL_REQUESTED + APPROVED => FINANCING_PENDING_APPROVAL
+	# FUNDED (partial), no other loans => READY_TO_REQUEST_FINANCING
+	# FUNDED (partial), other loans (follows above logic) => FINANCING_REQUEST_APPROVED or FINANCING_PENDING_APPROVAL
+	# FUNDED (fully) => ARCHIVED
+	amount_funded = float(purchase_order.amount_funded) if purchase_order.amount_funded else float(0)
+	all_loan_statuses = set([loan.status for loan in loans])
+	if number_util.float_eq(amount_funded, float(purchase_order.amount)):
+		purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.ARCHIVED
+		return True, None
+	elif LoanStatusEnum.APPROVED in all_loan_statuses and LoanStatusEnum.APPROVAL_REQUESTED not in all_loan_statuses:
+		purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.FINANCING_REQUEST_APPROVED
+		return True, None
+	elif LoanStatusEnum.APPROVAL_REQUESTED in all_loan_statuses:
+		purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.FINANCING_PENDING_APPROVAL
+		return True, None
+	elif len(all_loan_statuses) == 0 or purchase_order.amount_funded > 0:
+		purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.READY_TO_REQUEST_FINANCING
+		return True, None
+	else:
+		return None, errors.Error("Could not update status for purchase_order_id: " + purchase_order_id)
+

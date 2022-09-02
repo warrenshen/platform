@@ -11,6 +11,7 @@ from bespoke.email import sendgrid_util
 from bespoke.finance import financial_summary_util
 from bespoke.finance import contract_util
 from bespoke.finance.loans import sibling_util
+from bespoke.finance.purchase_orders import purchase_orders_util
 from mypy_extensions import TypedDict
 from sqlalchemy.orm import Session
 
@@ -140,6 +141,11 @@ def approve_loans(
 
 			# Draw down the limit for calculation purposes
 			company_id_to_available_limit[loan.company_id] -= loan.amount
+
+			if loan.loan_type == LoanTypeEnum.INVENTORY:
+				_, err = purchase_orders_util.update_purchase_order_status(session, purchase_order.id)
+				if err:
+					raise err
 
 	return ApproveLoansRespDict(status='OK'), None
 

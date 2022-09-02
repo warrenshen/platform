@@ -20,7 +20,7 @@ import {
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { respondToPurchaseOrderApprovalRequestMutation } from "lib/api/purchaseOrders";
+import { respondToPurchaseOrderApprovalRequestNewMutation } from "lib/api/purchaseOrders";
 import { useContext } from "react";
 
 import { CurrentUserContext } from "../../contexts/CurrentUserContext";
@@ -62,15 +62,15 @@ function ApprovePurchaseOrderModal({ purchaseOrder, handleClose }: Props) {
     });
 
   const [
-    respondToApprovalRequest,
+    respondToApprovalRequestNew,
     { loading: isRespondToApprovalRequestLoading },
-  ] = useCustomMutation(respondToPurchaseOrderApprovalRequestMutation);
+  ] = useCustomMutation(respondToPurchaseOrderApprovalRequestNewMutation);
 
   const vendorBankAccount =
     data?.company_vendor_partnerships[0]?.vendor_bank_account || null;
 
   const handleClickApprove = async () => {
-    const response = await respondToApprovalRequest({
+    const response = await respondToApprovalRequestNew({
       variables: {
         purchase_order_id: purchaseOrder.id,
         new_request_status: RequestStatusEnum.Approved,

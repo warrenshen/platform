@@ -1,12 +1,13 @@
 import datetime
-from typing import Dict, List, cast
+from decimal import Decimal
+from typing import Dict, List, Tuple, cast
 from sqlalchemy.orm.session import Session
 import uuid
 
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models
-from bespoke.db.db_constants import (RequestStatusEnum, NewPurchaseOrderStatus)
+from bespoke.db.db_constants import (RequestStatusEnum, NewPurchaseOrderStatus, LoanTypeEnum, LoanStatusEnum)
 from bespoke.db.models import session_scope
 from bespoke.finance.purchase_orders import purchase_orders_util
 from bespoke_test.db import db_unittest
@@ -14,9 +15,10 @@ from sqlalchemy.orm.session import Session
 
 
 DEFAULT_ORDER_NUMBER = '88888888'
-DEFAULT_AMOUNT = 888.88
+DEFAULT_AMOUNT = 888.0
 DEFAULT_NET_TERMS = 0
 TODAY_DB_STR = '2022-08-18'
+LOAN_PAYMENT_DATE = '2022-09-08'
 
 def get_relative_date(base_date: datetime.datetime, offset: int) -> datetime.datetime:
 	return base_date + date_util.timedelta(days=offset)
@@ -60,6 +62,34 @@ def setup_company_and_user_for_purchase_order_test(
 
 	return user
 
+def setup_loan_for_purchase_order(
+	session: Session,
+	company_id: str,
+	purchase_order_id: str,
+	requested_by_user_id: str,
+	amount: float,
+	identifier: str,
+	status: str,
+	loan_type: str=LoanTypeEnum.INVENTORY,
+	requested_payment_date: datetime.date=date_util.load_date_str(LOAN_PAYMENT_DATE),
+) -> models.Loan:
+	loan = models.Loan(# type: ignore
+		company_id = company_id,
+		loan_type = loan_type,
+		status=status,
+		artifact_id=purchase_order_id,
+		origination_date=None,
+		identifier = identifier,
+		amount = amount,
+		requested_payment_date=requested_payment_date,
+		requested_by_user_id=requested_by_user_id,
+		requested_at=date_util.now()
+	)
+	session.add(loan)
+	session.flush()
+	return loan
+
+
 def setup_existing_purchase_order(
 	session: Session,
 	purchase_order_id: str,
@@ -93,6 +123,28 @@ def setup_existing_purchase_order(
 
 def generate_purchase_order_files(file_types: List[str]) -> List[Dict[str, str]]:
 	return [{ 'file_type': file_type, 'file_id': str(uuid.uuid4()) } for file_type in file_types]
+
+
+def setup_data_for_update_purchase_order_status_test(session: Session) -> Tuple[str, str, models.User, models.PurchaseOrder]:
+	company_id = str(uuid.uuid4())
+	vendor_company_id = str(uuid.uuid4())
+	purchase_order_id = str(uuid.uuid4())
+	purchase_order_files = generate_purchase_order_files(['purchase_order', 'cannabis'])
+	
+	user = setup_company_and_user_for_purchase_order_test(
+		session,
+		company_id,
+		vendor_company_id,
+	)
+
+	purchase_order = setup_existing_purchase_order(
+		session,
+		purchase_order_id,
+		company_id,
+		vendor_company_id,
+		purchase_order_files,
+	)
+	return company_id, vendor_company_id, user, purchase_order
 
 
 class TestCreateUpdatePurchaseOrderNew(db_unittest.TestCase):
@@ -150,7 +202,6 @@ class TestCreateUpdatePurchaseOrderNew(db_unittest.TestCase):
 			self.assertEqual(created_purchase_order.status, RequestStatusEnum.DRAFTED)
 			self.assertEqual(created_purchase_order.new_purchase_order_status, NewPurchaseOrderStatus.DRAFT)
 
-
 class TestSubmitPurchaseOrderForApprovalNew(db_unittest.TestCase):
 	def test_submit_purchase_order_for_approval_new_happy_path(self) -> None:
 		with session_scope(self.session_maker) as session:
@@ -183,5 +234,175 @@ class TestSubmitPurchaseOrderForApprovalNew(db_unittest.TestCase):
 			self.assertEqual(updated_purchase_order.status, RequestStatusEnum.APPROVAL_REQUESTED)
 
 
+class TestUpdatePurchaseOrderStatus(db_unittest.TestCase):
+	def test_approval_requested_loan_equals_financing_pending_approval(self) -> None:
+		with session_scope(self.session_maker) as session:
+			company_id, _, user, purchase_order = setup_data_for_update_purchase_order_status_test(session)
 
-			
+			# APPROVAL_REQUESTED LOAN
+			setup_loan_for_purchase_order(
+				session=session,
+				company_id=company_id,
+				purchase_order_id=purchase_order.id,
+				requested_by_user_id=user.id,
+				amount=111.00,
+				identifier="id1",
+				status=LoanStatusEnum.APPROVAL_REQUESTED
+			)
+			_, err = purchase_orders_util.update_purchase_order_status(session, purchase_order.id)
+			self.assertEqual(err, None)
+			self.assertEqual(NewPurchaseOrderStatus.FINANCING_PENDING_APPROVAL, purchase_order.new_purchase_order_status)
+	
+	def test_approval_requested_and_approved_loan_equals_financing_pending_approval(self) -> None:
+		with session_scope(self.session_maker) as session:
+			company_id, _, user, purchase_order = setup_data_for_update_purchase_order_status_test(session)
+
+			# 1 APPROVAL_REQUESTED LOAN
+			setup_loan_for_purchase_order(
+				session=session,
+				company_id=company_id,
+				purchase_order_id=purchase_order.id,
+				requested_by_user_id=user.id,
+				amount=111.00,
+				identifier="id1",
+				status=LoanStatusEnum.APPROVAL_REQUESTED
+			)
+
+			# 1 APPROVED LOAN
+			setup_loan_for_purchase_order(
+				session=session,
+				company_id=company_id,
+				purchase_order_id=purchase_order.id,
+				requested_by_user_id=user.id,
+				amount=222.00,
+				identifier="id2",
+				status=LoanStatusEnum.APPROVED
+			)
+			_, err = purchase_orders_util.update_purchase_order_status(session, purchase_order.id)
+			self.assertEqual(err, None)
+			self.assertEqual(NewPurchaseOrderStatus.FINANCING_PENDING_APPROVAL, purchase_order.new_purchase_order_status)
+
+	def test_two_approved_loan_equals_financing_request_approved(self) -> None:
+		with session_scope(self.session_maker) as session:
+			company_id, _, user, purchase_order = setup_data_for_update_purchase_order_status_test(session)
+
+			# 1 APPROVAL_REQUESTED LOAN
+			setup_loan_for_purchase_order(
+				session=session,
+				company_id=company_id,
+				purchase_order_id=purchase_order.id,
+				requested_by_user_id=user.id,
+				amount=111.00,
+				identifier="id1",
+				status=LoanStatusEnum.APPROVED
+			)
+
+			# 1 APPROVED LOAN
+			setup_loan_for_purchase_order(
+				session=session,
+				company_id=company_id,
+				purchase_order_id=purchase_order.id,
+				requested_by_user_id=user.id,
+				amount=222.00,
+				identifier="id2",
+				status=LoanStatusEnum.APPROVED
+			)
+			_, err = purchase_orders_util.update_purchase_order_status(session, purchase_order.id)
+			self.assertEqual(err, None)
+			self.assertEqual(NewPurchaseOrderStatus.FINANCING_REQUEST_APPROVED, purchase_order.new_purchase_order_status)
+
+	def test_partially_funded_with_aproval_requested_and_approved_loan_equals_financing_pending_approval(self) -> None:
+		with session_scope(self.session_maker) as session:
+			company_id, _, user, purchase_order = setup_data_for_update_purchase_order_status_test(session)
+
+			# 1 APPROVAL_REQUESTED LOAN
+			setup_loan_for_purchase_order(
+				session=session,
+				company_id=company_id,
+				purchase_order_id=purchase_order.id,
+				requested_by_user_id=user.id,
+				amount=111.00,
+				identifier="id1",
+				status=LoanStatusEnum.APPROVAL_REQUESTED
+			)
+
+			# 1 APPROVED LOAN
+			setup_loan_for_purchase_order(
+				session=session,
+				company_id=company_id,
+				purchase_order_id=purchase_order.id,
+				requested_by_user_id=user.id,
+				amount=222.00,
+				identifier="id2",
+				status=LoanStatusEnum.APPROVED
+			)
+			_, err = purchase_orders_util.update_purchase_order_status(session, purchase_order.id)
+			self.assertEqual(err, None)
+			self.assertEqual(NewPurchaseOrderStatus.FINANCING_PENDING_APPROVAL, purchase_order.new_purchase_order_status)
+
+	def test_partially_funded_with_approved_loan_equals_financing_request_approved(self) -> None:
+		with session_scope(self.session_maker) as session:
+			company_id, _, user, purchase_order = setup_data_for_update_purchase_order_status_test(session)
+
+			# 1 APPROVED LOAN
+			setup_loan_for_purchase_order(
+				session=session,
+				company_id=company_id,
+				purchase_order_id=purchase_order.id,
+				requested_by_user_id=user.id,
+				amount=111.00,
+				identifier="id1",
+				status=LoanStatusEnum.APPROVED
+			)
+
+			# 1 APPROVED LOAN
+			setup_loan_for_purchase_order(
+				session=session,
+				company_id=company_id,
+				purchase_order_id=purchase_order.id,
+				requested_by_user_id=user.id,
+				amount=222.00,
+				identifier="id2",
+				status=LoanStatusEnum.APPROVED
+			)
+			_, err = purchase_orders_util.update_purchase_order_status(session, purchase_order.id)
+			self.assertEqual(err, None)
+			self.assertEqual(NewPurchaseOrderStatus.FINANCING_REQUEST_APPROVED, purchase_order.new_purchase_order_status)
+
+	def test_partially_funded_with_no_outstanding_loans(self) -> None:
+		with session_scope(self.session_maker) as session:
+			company_id, _, user, purchase_order = setup_data_for_update_purchase_order_status_test(session)
+
+			# 1 PARTIALLY LOAN
+			setup_loan_for_purchase_order(
+				session=session,
+				company_id=company_id,
+				purchase_order_id=purchase_order.id,
+				requested_by_user_id=user.id,
+				amount=111.00,
+				identifier="id1",
+				status=LoanStatusEnum.APPROVED
+			)
+			purchase_order.amount_funded = Decimal(555)
+			_, err = purchase_orders_util.update_purchase_order_status(session, purchase_order.id)
+			self.assertEqual(err, None)
+			self.assertEqual(NewPurchaseOrderStatus.FINANCING_REQUEST_APPROVED, purchase_order.new_purchase_order_status)
+
+	def test_fully_funded_equals_archived(self) -> None:
+		with session_scope(self.session_maker) as session:
+			company_id, _, user, purchase_order = setup_data_for_update_purchase_order_status_test(session)
+
+			# 1 FULLY FUNDED LOAN
+			setup_loan_for_purchase_order(
+				session=session,
+				company_id=company_id,
+				purchase_order_id=purchase_order.id,
+				requested_by_user_id=user.id,
+				amount=888.00,
+				identifier="id1",
+				status=LoanStatusEnum.APPROVED
+			)
+			purchase_order.amount_funded = Decimal(888)
+			_, err = purchase_orders_util.update_purchase_order_status(session, purchase_order.id)
+			self.assertEqual(err, None)
+			self.assertEqual(NewPurchaseOrderStatus.ARCHIVED, purchase_order.new_purchase_order_status)
