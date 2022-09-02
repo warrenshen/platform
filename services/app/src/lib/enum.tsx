@@ -1029,15 +1029,22 @@ export const AsyncJobStatuses = [
 ];
 
 export enum AsyncJobNameEnum {
-  // TODO: fill out once jobs are transferred
   Dummy = "dummy",
+  LoansComingDue = "loans_coming_due",
+  LoansPastDue = "loans_past_due",
 }
 
 export const AsyncJobNameEnumToLabel = {
   [AsyncJobNameEnum.Dummy]: "Dummy",
+  [AsyncJobNameEnum.LoansComingDue]: "Loans Coming Due",
+  [AsyncJobNameEnum.LoansPastDue]: "Loans Past Due",
 };
 
-export const AsyncJobNames = [AsyncJobNameEnum.Dummy];
+export const AsyncJobNames = [
+  AsyncJobNameEnum.Dummy,
+  AsyncJobNameEnum.LoansComingDue,
+  AsyncJobNameEnum.LoansPastDue,
+];
 
 export enum VendorChangeRequestsStatusEnum {
   ApprovalRequested = "approval_requested",

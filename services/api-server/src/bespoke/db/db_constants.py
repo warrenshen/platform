@@ -370,11 +370,14 @@ AsyncJobStatusEnumToLabel = {
 }
 
 class AsyncJobNameEnum(object):
-	# TODO: fill out once jobs are transferred
 	DUMMY = "dummy"
+	LOANS_COMING_DUE = "loans_coming_due"
+	LOANS_PAST_DUE = "loans_past_due"
 
 AsyncJobNameEnumToLabel = {
 	AsyncJobNameEnum.DUMMY: 'Dummy',
+	AsyncJobNameEnum.LOANS_COMING_DUE: 'Loans coming due',
+	AsyncJobNameEnum.LOANS_PAST_DUE: 'Loans past due',
 }
 
 # Vendor Change Requests

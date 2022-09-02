@@ -1,6 +1,7 @@
 import { Box, Typography } from "@material-ui/core";
 import Modal from "components/Shared/Modal/Modal";
 import { AsyncJobFragment, useGetAsyncJobByIdQuery } from "generated/graphql";
+import { AsyncJobNameEnum, AsyncJobNameEnumToLabel } from "lib/enum";
 
 interface Props {
   asyncJobId: AsyncJobFragment["id"];
@@ -29,7 +30,9 @@ function AsyncJobDetailModal({ asyncJobId, handleClose }: Props) {
       {!!asyncJob && (
         <Modal
           title={"Async Job"}
-          subtitle={asyncJob?.name || ""}
+          subtitle={
+            AsyncJobNameEnumToLabel[asyncJob.name as AsyncJobNameEnum] || ""
+          }
           contentWidth={1000}
           handleClose={handleClose}
         >

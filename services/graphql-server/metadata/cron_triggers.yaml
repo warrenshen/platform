@@ -3,6 +3,18 @@
   schedule: '* * * * *'
   include_in_metadata: true
   payload: {}
+- name: async_send_loans_coming_due_reports
+  webhook: '{{ASYNC_SERVER_BASE_URL}}/async_jobs/generate_jobs'
+  schedule: 0 0 * * *
+  include_in_metadata: true
+  payload:
+    job_name: loans_coming_due
+- name: async_send_loans_past_due_reports
+  webhook: '{{ASYNC_SERVER_BASE_URL}}/async_jobs/generate_jobs'
+  schedule: 0 0 * * *
+  include_in_metadata: true
+  payload:
+    job_name: loans_past_due
 - name: auto_generate_loan_repayments
   webhook: '{{ASYNC_SERVER_BASE_URL}}/autogenerate/autogenerate_repayment'
   schedule: 0 9 * * 1-5

@@ -11,54 +11,6 @@ from server.views import async_jobs_util
 
 handler = Blueprint('async_jobs', __name__)
 
-class EnqueueJobView(MethodView):
-	decorators = [auth_util.requires_async_magic_header]
-
-	@handler_util.catch_bad_json_request
-	def post(self, **kwargs: Any) -> Response:
-		logging.info("Received async job request")
-
-		form = json.loads(request.data)
-		if not form:
-			return handler_util.make_error_response('No data provided')
-		cfg = cast(Config, current_app.app_config)
-
-		required_keys = [
-			'job_name',
-			'submitted_by_user_id',
-			'is_high_priority',
-			'job_payload',
-		]
-
-		for key in required_keys:
-			if key not in form:
-				return handler_util.make_error_response(f'Missing {key} in request')
-
-		job_name = form['job_name']
-		submitted_by_user_id = form['submitted_by_user_id'] if form['submitted_by_user_id'] is not None else cfg.BOT_USER_ID
-		is_high_priority = form['is_high_priority']
-		job_payload = form['job_payload']
-
-		if job_name not in async_jobs_util.ASYNC_JOBS:
-			return handler_util.make_error_response(f'{job_name} is invalid')
-
-		with session_scope(current_app.session_maker) as session:
-			_, err = async_jobs_util.add_job_to_queue(
-				session = session,
-				job_name = job_name,
-				submitted_by_user_id = submitted_by_user_id,
-				is_high_priority = is_high_priority,
-				job_payload = job_payload,
-			)
-			if err:
-				raise err
-
-		logging.info(f"Enqueued async job request for {job_name}")
-
-		return make_response(json.dumps({
-			'status': 'OK'
-		}), 200)
-
 class DeleteJobView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
@@ -168,6 +120,40 @@ class RetryJobView(MethodView):
 			'status': 'OK'
 		}), 200)
 
+class GenerateJobsView(MethodView):
+	decorators = [auth_util.requires_async_magic_header]
+
+	@handler_util.catch_bad_json_request
+	def get(self, **kwargs: Any) -> Response:
+		logging.info("Received async job generation request")
+
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+		
+		required_keys = [
+			'job_name',
+		]
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in async generate job request')
+
+		job_name = form['job_name']
+
+		with session_scope(current_app.session_maker) as session:
+			_, err = async_jobs_util.generate_jobs(
+				session = session,
+				job_name = job_name,
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK'
+		}), 200)
+
+
 class KickOffHandlerView(MethodView):
 	decorators = [auth_util.requires_async_magic_header]
 
@@ -196,16 +182,16 @@ handler.add_url_rule(
 	view_func=KickOffHandlerView.as_view(name='kick_off_handler_view'))
 
 handler.add_url_rule(
-	'/enqueue-job',
-	view_func=EnqueueJobView.as_view(name='enqueue_job_view'))
-
-handler.add_url_rule(
 	'/delete-job',
 	view_func=DeleteJobView.as_view(name='delete_job_view'))
 
 handler.add_url_rule(
 	'/change-job-priority',
 	view_func=ChangeJobPriorityView.as_view(name='change_job_priority_view'))
+
+handler.add_url_rule(
+	'/generate_jobs',
+	view_func=GenerateJobsView.as_view(name='generate_jobs_view'))
 
 handler.add_url_rule(
 	'/retry-job',
