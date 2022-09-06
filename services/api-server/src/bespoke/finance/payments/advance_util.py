@@ -421,6 +421,9 @@ def fund_loans_with_advance(
 
 				if number_util.float_eq(funded_amount, float(artifact.max_loan_amount()) ):
 					artifact.funded_at = date_util.now()
+					if loan_type == db_constants.LoanTypeEnum.INVENTORY:
+						purchase_order = cast(models.PurchaseOrder, artifact)
+						purchase_order.new_purchase_order_status = db_constants.NewPurchaseOrderStatus.ARCHIVED
 
 	return FundLoansRespDict(
 		payment_id=str(payment_id),

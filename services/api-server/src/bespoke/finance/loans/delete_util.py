@@ -2,7 +2,9 @@ from typing import Callable, List, Tuple, cast
 
 from bespoke import errors
 from bespoke.db import models
+from bespoke.db.db_constants import LoanTypeEnum
 from bespoke.db.models import session_scope
+from bespoke.finance.purchase_orders import purchase_orders_util
 from mypy_extensions import TypedDict
 
 
@@ -74,5 +76,8 @@ def delete_loan(
 
 		# Now the loan is actually deleted.
 		loan.is_deleted = True
+
+		if loan.loan_type == LoanTypeEnum.INVENTORY:
+			purchase_orders_util.update_purchase_order_status(session, loan.artifact_id)
 
 	return True, None

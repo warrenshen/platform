@@ -252,6 +252,13 @@ class UpsertPurchaseOrdersLoansView(MethodView):
 			loan_dicts = []
 
 			for item in upsert.data:
+				nearest_business_day = date_util.get_nearest_business_day(
+					item.loan.requested_payment_date,
+					preceeding = False
+				)
+				if nearest_business_day != item.loan.requested_payment_date:
+					raise errors.Error("Please request a payment date that does not fall on a weekend or holiday")
+
 				event = events.new(
 					user_id=user_session.get_user_id(),
 					company_id=company_id
