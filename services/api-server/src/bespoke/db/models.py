@@ -1062,6 +1062,8 @@ class Loan(Base):
 	amount = Column(Numeric, nullable=False)
 	status = Column(String)
 	payment_status = Column(String)
+	notes = Column(String)
+	customer_notes = Column(String)
 
 	requested_at = Column(DateTime)
 	requested_by_user_id = Column(GUID)

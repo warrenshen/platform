@@ -1,11 +1,5 @@
-import {
-  Box,
-  Card,
-  CardContent,
-  Typography,
-  makeStyles,
-} from "@material-ui/core";
-import { PurchaseOrderLimitedFragment } from "generated/graphql";
+import { Box, Card, CardContent, makeStyles } from "@material-ui/core";
+import { Maybe, PurchaseOrderLimitedFragment } from "generated/graphql";
 import { getCompanyDisplayName } from "lib/companies";
 import { formatDateString } from "lib/date";
 import { formatCurrency } from "lib/number";
@@ -21,6 +15,7 @@ const useStyles = makeStyles({
 interface Props {
   isApprovedStatusVisible?: boolean;
   purchaseOrder: PurchaseOrderLimitedFragment;
+  width?: Maybe<number>;
 }
 
 const CardTitle = styled.div`
@@ -42,13 +37,14 @@ const ApprovedText = styled.div`
 export default function PurchaseOrderPreviewCard({
   isApprovedStatusVisible = true,
   purchaseOrder,
+  width,
 }: Props) {
   const classes = useStyles();
 
   return (
     <Box width="fit-content">
       <CardTitle>PO #{purchaseOrder.order_number}</CardTitle>
-      <Card style={{ width: 520 }}>
+      <Card style={{ width: !!width ? width : 520 }}>
         <CardContent style={{ padding: 32 }}>
           {isApprovedStatusVisible && (
             <Box display="flex" alignItems="center" pt={0.5} pb={1}>

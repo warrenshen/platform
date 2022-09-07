@@ -74,6 +74,7 @@ insert_permissions:
       columns:
         - amount
         - artifact_id
+        - customer_notes
         - identifier
         - loan_type
         - requested_payment_date
@@ -165,6 +166,7 @@ select_permissions:
         - closed_at
         - company_id
         - created_at
+        - customer_notes
         - disbursement_identifier
         - funded_at
         - id
@@ -197,6 +199,7 @@ select_permissions:
         - closed_at
         - company_id
         - created_at
+        - customer_notes
         - disbursement_identifier
         - funded_at
         - id

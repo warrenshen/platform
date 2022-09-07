@@ -307,6 +307,7 @@ export default function CustomerPurchaseOrdersOpenTabNew({
                     modal={({ handleClose }) =>
                       selectedApprovedPurchaseOrder ? (
                         <ManagePurchaseOrderFinancingModal
+                          companyId={companyId}
                           purchaseOrderId={selectedApprovedPurchaseOrder?.id}
                           handleClose={() => {
                             refetch();
@@ -350,6 +351,7 @@ export default function CustomerPurchaseOrdersOpenTabNew({
                     label={"Edit Financing"}
                     modal={({ handleClose }) => (
                       <ManagePurchaseOrderFinancingModal
+                        companyId={companyId}
                         purchaseOrderId={selectedApprovedPurchaseOrder?.id}
                         handleClose={() => {
                           refetch();

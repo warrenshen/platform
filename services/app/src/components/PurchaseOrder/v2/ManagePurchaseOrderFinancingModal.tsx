@@ -1,19 +1,80 @@
-import { Box, Typography } from "@material-ui/core";
-import PurchaseOrderInfoCard from "components/PurchaseOrder/PurchaseOrderInfoCard";
+import { Box, Button, Typography } from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
 import Modal from "components/Shared/Modal/Modal";
+import ProgressBar from "components/Shared/ProgressBar/ProgressBar";
 import {
+  Companies,
+  LoanLimitedFragment,
+  LoanTypeEnum,
+  LoansInsertInput,
   PurchaseOrders,
+  RequestStatusEnum,
+  useGetLoansByArtifactIdQuery,
   useGetPurchaseOrderForCustomerQuery,
 } from "generated/graphql";
+import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
+import { CheckIcon, CloseIcon, PlusIcon } from "icons";
+import { submitLoanMutationNew } from "lib/api/loans";
+import { LoanStatusEnum } from "lib/enum";
+import { isPurchaseOrderDueDateValid } from "lib/purchaseOrders";
+import { useState } from "react";
+import styled from "styled-components";
+import { v4 as uuidv4 } from "uuid";
+
+import PurchaseOrderPreviewCard from "../PurchaseOrderPreviewCard";
+import FinancingRequestCreateCard from "./FinancingRequestCreateCard";
+import FinancingRequestViewCard from "./FinancingRequestViewCard";
+import FloatingIconActionButton from "./FloatingIconActionButton";
+
+const StyledAlert = styled(Alert)`
+  justify-content: center;
+  align-items: center;
+  height: 72px;
+`;
+
+const StyledButton = styled(Button)<{ $color: string }>`
+  width: 100%;
+  height: 48px;
+  color: ${({ $color }) => $color};
+  border: 2px solid ${({ $color }) => $color};
+`;
+
+// TODO: System for styling svgs
+const StyledCloseIcon = styled(CloseIcon)``;
+
+const mapFinancingRequestToLoanInsertInput = (
+  loan: LoanLimitedFragment,
+  purchaseOrderId: string
+) => {
+  return {
+    id: loan.id,
+    artifact_id: purchaseOrderId,
+    loan_type: LoanTypeEnum.PurchaseOrder,
+    requested_payment_date: loan.requested_payment_date,
+    amount: loan.amount,
+    status: loan.status,
+  };
+};
+
+const canSaveFinancingRequest = (
+  loan: LoansInsertInput,
+  amountRemaining: number
+) => {
+  return (
+    loan.requested_payment_date && loan.amount && loan.amount <= amountRemaining
+  );
+};
 
 interface Props {
+  companyId: Companies["id"];
   purchaseOrderId: PurchaseOrders["id"];
   handleClose: () => void;
 }
 
-// TODO: PLACEHOLDER FOR https://www.notion.so/bespokefinancial/Edit-Financing-Request-Flow-Single-fb5352431b624f1ca89b8d022ac55f3e
+// FINANCING REQUEST = LOAN
 function ManagePurchaseOrderFinancingModal({
+  companyId,
   purchaseOrderId,
   handleClose,
 }: Props) {
@@ -29,32 +90,307 @@ function ManagePurchaseOrderFinancingModal({
 
   const purchaseOrder = data?.purchase_orders_by_pk || null;
 
-  const handleClickSubmit = async () => {
-    snackbar.showSuccess("Purchase order updated.");
+  const defaultLoan: LoansInsertInput = {
+    artifact_id: purchaseOrderId,
+    company_id: companyId,
+    id: null,
+    loan_type: LoanTypeEnum.PurchaseOrder,
+    requested_payment_date: null,
+    amount: null,
+    status: LoanStatusEnum.Drafted,
+    customer_notes: "",
   };
 
-  const isDialogReady = !isExistingPurchaseOrderLoading;
+  const [currentlyEditingLoan, setCurrentlyEditingLoan] =
+    useState<LoansInsertInput>(defaultLoan);
+  const [newLoan, setNewLoan] = useState<LoansInsertInput>(defaultLoan);
+  const [isNewLoanShown, setIsNewLoanShown] = useState<boolean>(true);
+  const [financingRequests, setFinancingRequests] = useState<
+    LoansInsertInput[]
+  >([]);
+  const [
+    deleteExistingFinancingRequestIds,
+    setDeleteExistingFinancingRequestIds,
+  ] = useState<Set<string>>(new Set());
 
-  return isDialogReady ? (
+  useGetLoansByArtifactIdQuery({
+    skip: !purchaseOrder,
+    fetchPolicy: "network-only",
+    variables: {
+      artifact_id: purchaseOrder?.id,
+    },
+    onCompleted: (data) => {
+      setFinancingRequests(
+        data.loans.map((loan) =>
+          mapFinancingRequestToLoanInsertInput(loan, purchaseOrderId)
+        )
+      );
+      if (data.loans.length > 0) {
+        setIsNewLoanShown(false);
+      }
+    },
+  });
+
+  const [submitLoanNew, { loading: isSubmitLoanNewLoading }] =
+    useCustomMutation(submitLoanMutationNew);
+
+  if (isExistingPurchaseOrderLoading || !purchaseOrder) {
+    return null;
+  }
+
+  const handleClickAddFinancingRequest = () => {
+    if (canCreateNewFinancingRequest) {
+      setFinancingRequests([
+        ...financingRequests,
+        {
+          ...newLoan,
+          id: uuidv4(),
+          status: RequestStatusEnum.Drafted,
+        },
+      ]);
+    }
+    setNewLoan(defaultLoan);
+    setIsNewLoanShown(true);
+  };
+
+  const handleClickRemoveNewFinancingRequest = () => {
+    setIsNewLoanShown(false);
+  };
+
+  const handleClickSubmit = async () => {
+    const create_or_update_loans = [...financingRequests]
+      .filter((loan) => !deleteExistingFinancingRequestIds.has(loan.id))
+      .map((loan) => ({
+        amount: loan.amount,
+        artifact_id: loan.artifact_id,
+        company_id: companyId,
+        loan_id: loan.status === RequestStatusEnum.Drafted ? null : loan.id,
+        loan_type: loan.loan_type,
+        requested_payment_date: loan.requested_payment_date,
+        customer_notes: loan.customer_notes,
+      }));
+    if (canCreateNewFinancingRequest) {
+      create_or_update_loans.push({
+        amount: newLoan.amount,
+        artifact_id: newLoan.artifact_id,
+        company_id: companyId,
+        loan_id: null,
+        loan_type: newLoan.loan_type,
+        requested_payment_date: newLoan.requested_payment_date,
+        customer_notes: newLoan.customer_notes,
+      });
+    }
+    const response = await submitLoanNew({
+      variables: {
+        create_or_update_loans,
+        delete_loan_ids: Array.from(deleteExistingFinancingRequestIds),
+      },
+    });
+    if (response.status === "ERROR") {
+      snackbar.showError(response.msg);
+    } else {
+      snackbar.showSuccess("Successfully submitted request for financing");
+      handleClose();
+    }
+  };
+
+  const { isDueDateValid } = isPurchaseOrderDueDateValid(
+    purchaseOrder.order_date,
+    purchaseOrder.net_terms
+  );
+
+  const amountRemaining = purchaseOrder.amount - purchaseOrder.amount_funded;
+
+  const proposedLoansTotalAmount =
+    purchaseOrder.amount_funded +
+    financingRequests.reduce((amountRequested, financingRequest) => {
+      return amountRequested + financingRequest.amount;
+    }, 0);
+
+  const isSaveSubmitDisabled = proposedLoansTotalAmount > amountRemaining;
+
+  const canCreateNewFinancingRequest =
+    isDueDateValid &&
+    newLoan.requested_payment_date &&
+    newLoan.amount &&
+    newLoan.amount + proposedLoansTotalAmount <= amountRemaining;
+
+  const isPrimaryActionDisabled =
+    isSubmitLoanNewLoading ||
+    isSaveSubmitDisabled ||
+    (!canCreateNewFinancingRequest && isNewLoanShown) ||
+    currentlyEditingLoan.id;
+
+  return (
     <Modal
       title={"Manage Purchase Order Financing"}
-      primaryActionText={"Confirm"}
-      handleClose={handleClose}
+      primaryActionText={"Save & Submit"}
+      isPrimaryActionDisabled={isPrimaryActionDisabled}
       handlePrimaryAction={handleClickSubmit}
+      handleClose={handleClose}
+      contentWidth={600}
     >
       <Box>
-        <Box mb={2}>
-          <Typography variant={"h6"}>
-            Are you sure you want to edit the following purchase order? You
-            cannot undo this action.
-          </Typography>
-        </Box>
         {purchaseOrder && (
-          <PurchaseOrderInfoCard purchaseOrder={purchaseOrder} />
+          <PurchaseOrderPreviewCard purchaseOrder={purchaseOrder} width={600} />
         )}
+        <Box mt={4} mb={4}>
+          <ProgressBar
+            amountLeft={amountRemaining - proposedLoansTotalAmount}
+            totalAmount={purchaseOrder.amount}
+          />
+        </Box>
+        <Typography variant="subtitle1">Request Financing</Typography>
+        <Box mt={2}>
+          {financingRequests
+            .filter(
+              (financingRequest) =>
+                !deleteExistingFinancingRequestIds.has(financingRequest.id)
+            )
+            .map((financingRequest) =>
+              financingRequest.id === currentlyEditingLoan.id ? (
+                <Box
+                  display="flex"
+                  flexDirection="row"
+                  alignItems="center"
+                  mb={2}
+                  width={672}
+                  overflow="auto"
+                >
+                  <FinancingRequestCreateCard
+                    key={financingRequest.id}
+                    loan={financingRequest}
+                    hasBeenFocused={false}
+                    amountLeft={
+                      amountRemaining -
+                      proposedLoansTotalAmount +
+                      financingRequest.amount
+                    }
+                    setLoan={setCurrentlyEditingLoan}
+                  />
+                  <Box ml={3}>
+                    <FloatingIconActionButton
+                      variant="filled"
+                      disabled={
+                        !canSaveFinancingRequest(
+                          currentlyEditingLoan,
+                          amountRemaining + proposedLoansTotalAmount
+                        )
+                      }
+                      handleClick={() => {
+                        setFinancingRequests(
+                          financingRequests.map((financingRequest) =>
+                            financingRequest.id === currentlyEditingLoan.id
+                              ? currentlyEditingLoan
+                              : financingRequest
+                          )
+                        );
+                        setCurrentlyEditingLoan(defaultLoan);
+                      }}
+                    >
+                      <CheckIcon />
+                    </FloatingIconActionButton>
+                  </Box>
+                </Box>
+              ) : (
+                <Box mb={2}>
+                  <FinancingRequestViewCard
+                    key={financingRequest.id}
+                    loan={financingRequest}
+                    status={financingRequest.status as RequestStatusEnum}
+                    setCurrentlyEditingLoan={setCurrentlyEditingLoan}
+                    deleteFinancingRequestFromState={() =>
+                      setFinancingRequests(
+                        financingRequests.filter(
+                          (request) => request.id !== financingRequest.id
+                        )
+                      )
+                    }
+                    deleteExistingFianancingRequestsIds={
+                      deleteExistingFinancingRequestIds
+                    }
+                    setDeleteExistingFinancingRequestIds={
+                      setDeleteExistingFinancingRequestIds
+                    }
+                    handleClickAddFinancingRequest={
+                      handleClickAddFinancingRequest
+                    }
+                    handleClickRemoveNewFinancingRequest={
+                      handleClickRemoveNewFinancingRequest
+                    }
+                  />
+                </Box>
+              )
+            )}
+        </Box>
+        {!currentlyEditingLoan.id && isNewLoanShown && (
+          <Box mt={2}>
+            <FinancingRequestCreateCard
+              loan={newLoan}
+              hasBeenFocused={false}
+              amountLeft={amountRemaining - proposedLoansTotalAmount}
+              setLoan={setNewLoan}
+            />
+          </Box>
+        )}
+        {(canCreateNewFinancingRequest || !isNewLoanShown) &&
+          !currentlyEditingLoan.id && (
+            <Box display="flex" justifyContent="center" mt={3}>
+              <StyledButton
+                variant="outlined"
+                startIcon={<PlusIcon />}
+                $color="#abaaa9"
+                onClick={handleClickAddFinancingRequest}
+              >
+                Add Financing Request
+              </StyledButton>
+            </Box>
+          )}
+        {isNewLoanShown &&
+          !canCreateNewFinancingRequest &&
+          financingRequests.length > 0 && (
+            <Box display="flex" justifyContent="center" mt={3}>
+              <StyledButton
+                variant="outlined"
+                startIcon={<StyledCloseIcon />}
+                $color="#e75d5d"
+                onClick={handleClickRemoveNewFinancingRequest}
+              >
+                Remove Financing Request
+              </StyledButton>
+            </Box>
+          )}
       </Box>
+      {isNewLoanShown &&
+        !canCreateNewFinancingRequest &&
+        financingRequests.length > 0 && (
+          <Box
+            mt={2}
+            overflow="auto"
+            width="100vw"
+            position="absolute"
+            bottom={84}
+            left="50%"
+            right="50%"
+            ml="-50vw"
+            mr="-50vw"
+            justifyContent="center"
+            alignItems="center"
+          >
+            <StyledAlert
+              severity="warning"
+              style={{ justifyContent: "center" }}
+            >
+              <Typography variant="body1">
+                Important: you have unsaved changes. Please press "Save and
+                Submit" below to save your changes. If you want to cancel your
+                changes, you may close this window.
+              </Typography>
+            </StyledAlert>
+          </Box>
+        )}
     </Modal>
-  ) : null;
+  );
 }
 
 export default ManagePurchaseOrderFinancingModal;

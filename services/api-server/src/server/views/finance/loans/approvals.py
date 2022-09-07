@@ -4,11 +4,11 @@ from typing import Any, Dict, List, Tuple, cast
 from bespoke import errors
 from bespoke.audit import events
 from bespoke.date import date_util
-from bespoke.db import models, models_util
+from bespoke.db import models, models_util, queries
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from bespoke.finance import number_util
-from bespoke.finance.loans import approval_util
+from bespoke.finance.loans import approval_util, delete_util
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from server.config import Config
@@ -236,6 +236,7 @@ class SubmitForApprovalView(MethodView):
 		loan_type = form['loan_type']
 		requested_payment_date = date_util.load_date_str(form['requested_payment_date'])
 		requested_by_user_id = user_session.get_user_id()
+		customer_notes = form.get('customer_notes', None)
 
 		with session_scope(current_app.session_maker) as session:
 			loan_id, err = approval_util.create_or_update_loan(
@@ -247,6 +248,7 @@ class SubmitForApprovalView(MethodView):
 				loan_type,
 				requested_payment_date,
 				requested_by_user_id,
+				customer_notes,
 			)
 			if err:
 				raise err
@@ -337,6 +339,7 @@ class SaveLoanView(MethodView):
 		loan_type = form['loan_type']
 		requested_payment_date = date_util.load_date_str(form['requested_payment_date'])
 		requested_by_user_id = user_session.get_user_id()
+		customer_notes = form.get('customer_notes', None)
 		with session_scope(current_app.session_maker) as session:
 			loan_id, err = approval_util.create_or_update_loan(
 				session,
@@ -347,6 +350,7 @@ class SaveLoanView(MethodView):
 				loan_type,
 				requested_payment_date,
 				requested_by_user_id,
+				customer_notes,
 			)
 			if err:
 				raise err
@@ -356,6 +360,92 @@ class SaveLoanView(MethodView):
 			'msg': 'Successfully saved loan draft with id {}'.format(loan_id)
 		}), 200)
 
+class SubmitForApprovalViewNew(MethodView):
+	decorators = [auth_util.login_required]
+
+	@events.wrap(events.Actions.LOANS_SUBMIT_FOR_APPROVAL)
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		cfg = cast(Config, current_app.app_config)
+		user_session = auth_util.UserSession.from_session()
+		sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
+
+		forms = json.loads(request.data)
+		if not forms:
+			return handler_util.make_error_response('No data provided')
+
+		create_or_update_loans = forms['create_or_update_loans']
+		delete_loan_ids = forms['delete_loan_ids']
+
+		with session_scope(current_app.session_maker) as session:
+			for form in create_or_update_loans:
+				required_keys = ['amount', 'artifact_id', 'company_id', 'loan_id', 'loan_type', 'requested_payment_date']
+
+				for key in required_keys:
+					if key not in form:
+						return handler_util.make_error_response(f'Missing {key} in response to saving loan')
+
+				amount = float(form['amount'])
+				artifact_id = form['artifact_id']
+				company_id = form['company_id']
+				loan_id = form['loan_id']
+				loan_type = form['loan_type']
+				requested_payment_date = date_util.load_date_str(form['requested_payment_date'])
+				requested_by_user_id = user_session.get_user_id()
+				customer_notes = form.get('customer_notes', None)
+
+				loan_id, err = approval_util.create_or_update_loan_by_id(
+					session,
+					amount,
+					artifact_id,
+					company_id,
+					loan_id,
+					loan_type,
+					requested_payment_date,
+					requested_by_user_id,
+					customer_notes,
+				)
+				if err:
+					raise err
+				
+				resp, err = approval_util.submit_for_approval(
+					session, 
+					loan_id, 
+					triggered_by_autofinancing=False,
+					requested_by_user_id=requested_by_user_id,
+				)
+				if err:
+					raise err
+
+				success, err = approval_util.send_loan_approval_requested_email(
+					sendgrid_client, resp)
+				if err:
+					raise err
+
+			for loan_id in delete_loan_ids:
+				user_session = auth_util.UserSession.from_session()
+
+				loan, _ = queries.get_loan(
+					session,
+					loan_id = loan_id
+				)
+
+				if not user_session.is_bank_or_this_company_admin(str(loan.company_id)):
+					return handler_util.make_error_response('Access Denied')
+
+				_, err = delete_util.delete_loan(
+					{ 'loan_id': loan_id },
+					user_session.get_user_id(),
+					current_app.session_maker
+				)
+
+				if err:
+					return handler_util.make_error_response(err)
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			# 'msg': 'Inventory Loan {} approval request responded to'.format(loan_id)
+		}), 200)
 
 handler.add_url_rule(
 	'/approve_loans', view_func=ApproveLoansView.as_view(name='approve_loans_view'))
@@ -367,6 +457,12 @@ handler.add_url_rule(
 	'/submit_for_approval',
 	view_func=SubmitForApprovalView.as_view(
 		name='submit_for_approval_view')
+)
+
+handler.add_url_rule(
+	'/submit_for_approval_new',
+	view_func=SubmitForApprovalViewNew.as_view(
+		name='submit_for_approval_view_new')
 )
 
 # TEMPORARY - to be removed (or edited) during the effort

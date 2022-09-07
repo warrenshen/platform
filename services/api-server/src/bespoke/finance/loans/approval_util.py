@@ -5,7 +5,7 @@ from typing import Callable, Dict, List, Tuple, cast
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import db_constants, models, models_util, queries
-from bespoke.db.db_constants import (ALL_LOAN_TYPES, LoanStatusEnum, LoanTypeEnum)
+from bespoke.db.db_constants import (ALL_LOAN_TYPES, LoanStatusEnum, LoanTypeEnum, NewPurchaseOrderStatus)
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from bespoke.finance import financial_summary_util
@@ -159,6 +159,7 @@ def create_or_update_loan(
 	loan_type: str,
 	requested_payment_date: datetime.date,
 	requested_by_user_id: str,
+	customer_notes: str,
 ) -> Tuple[str, errors.Error]:
 	# We check to make sure that the requested
 	# payment date falls on a non-holiday weekday
@@ -198,17 +199,81 @@ def create_or_update_loan(
 			requested_payment_date = requested_payment_date,
 			status = LoanStatusEnum.DRAFTED,
 			requested_by_user_id=requested_by_user_id,
+			customer_notes = customer_notes if customer_notes is not None else None
 		)
 		session.add(loan)
 	else:
 		loan.amount = decimal.Decimal(amount)
 		loan.loan_type = loan_type
 		loan.requested_payment_date = requested_payment_date
+		customer_notes = customer_notes if customer_notes is not None else None
 
 	
 	session.flush()
 
 	return str(loan.id), None
+
+
+@errors.return_error_tuple
+def create_or_update_loan_by_id(
+	session: Session,
+	amount: float,
+	artifact_id: str,
+	company_id: str,
+	loan_id: str,
+	loan_type: str,
+	requested_payment_date: datetime.date,
+	requested_by_user_id: str,
+	customer_notes: str,
+) -> Tuple[str, errors.Error]:
+	# We check to make sure that the requested
+	# payment date falls on a non-holiday weekday
+	# first before making any db queries
+	nearest_business_day = date_util.get_nearest_business_day(
+		requested_payment_date,
+		preceeding = False
+	)
+	if nearest_business_day != requested_payment_date:
+		return None, errors.Error("Please request a payment date that does not fall on a weekend or holiday")
+
+	company, err = queries.get_company_by_id(
+		session,
+		company_id,
+	)
+	if err:
+		return None, err
+
+	if not loan_id:
+		next_identifier = int(company.latest_loan_identifier) + 1
+		company.latest_loan_identifier = next_identifier
+
+		loan = models.Loan(
+			amount = decimal.Decimal(amount),
+			artifact_id = artifact_id,
+			company_id = company_id,
+			identifier = str(next_identifier),
+			loan_type = loan_type,
+			requested_payment_date = requested_payment_date,
+			status = LoanStatusEnum.DRAFTED,
+			requested_by_user_id=requested_by_user_id,
+			customer_notes = customer_notes if customer_notes is not None else None
+		)
+		session.add(loan)
+	else:
+		loan, _ = queries.get_loan(
+			session,
+			artifact_id = artifact_id,
+			loan_id = loan_id,
+		)
+		loan.amount = decimal.Decimal(amount)
+		loan.loan_type = loan_type
+		loan.requested_payment_date = requested_payment_date
+		customer_notes = customer_notes if customer_notes is not None else None
+
+	session.flush()
+
+	return str(loan.id), None
+
 
 @errors.return_error_tuple
 def submit_for_approval(
@@ -297,6 +362,8 @@ def submit_for_approval(
 		)
 		if err:
 			raise err
+		
+		purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.FINANCING_PENDING_APPROVAL
 
 		loan_html = f"""<ul>
 <li>Loan type: Inventory Financing</li>

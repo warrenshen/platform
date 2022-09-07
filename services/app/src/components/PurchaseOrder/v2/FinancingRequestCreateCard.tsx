@@ -1,34 +1,57 @@
 import {
   Box,
-  Card,
   CardContent,
   FormControl,
+  TextField,
   Typography,
 } from "@material-ui/core";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import { LoansInsertInput } from "generated/graphql";
 import { DateInputIcon } from "icons/index";
+import { formatCurrency } from "lib/number";
+import { useState } from "react";
 import styled from "styled-components";
 
-const testLoan = {
-  artifact_id: "1ec775b0-8a41-442f-98d7-83ef9b65db22",
-  loan_type: "purchase_order",
-  requested_payment_date: null,
-  amount: 1000,
-  status: "drafted",
-};
 interface Props {
+  isEditingExisting?: boolean;
+  amountLeft: number;
   loan: LoansInsertInput;
+  hasBeenFocused: boolean;
   setLoan: (loan: LoansInsertInput) => void;
 }
 
-const FinancingRequestCard = styled(Card)`
+const FinancingRequestCard = styled.div`
   background-color: #f6f5f3;
   padding: 16px;
 `;
 
-export default function FinancingRequestCreateCard({ loan, setLoan }: Props) {
+const DateInputErrorText = styled.span`
+  color: #f44336;
+  font-size: 12px;
+  margin-top: 2px;
+`;
+
+export default function FinancingRequestCreateCard({
+  amountLeft,
+  loan,
+  hasBeenFocused,
+  setLoan,
+}: Props) {
+  const [hasDateBeenFocusedOnce, setHasDateBeenFocusedOnce] =
+    useState<boolean>(hasBeenFocused);
+  const [hasAmountBeenFocusedOnce, setHasAmountBeenFocusedOnce] =
+    useState<boolean>(hasBeenFocused);
+
+  let amountError;
+  if (!!loan.amount && loan.amount > amountLeft) {
+    amountError = `Please lower your financing request to be within the ${formatCurrency(
+      amountLeft
+    )} limit`;
+  } else if (hasAmountBeenFocusedOnce && !loan.amount) {
+    amountError = "Please enter amount for your financing request";
+  }
+
   return (
     <FinancingRequestCard>
       <CardContent>
@@ -39,6 +62,8 @@ export default function FinancingRequestCreateCard({ loan, setLoan }: Props) {
             disablePast
             disableNonBankDays
             value={loan.requested_payment_date}
+            error={hasDateBeenFocusedOnce && !loan.requested_payment_date}
+            onBlur={() => setHasDateBeenFocusedOnce(true)}
             onChange={(value) => {
               setLoan({
                 ...loan,
@@ -47,6 +72,11 @@ export default function FinancingRequestCreateCard({ loan, setLoan }: Props) {
             }}
             keyboardIcon={<DateInputIcon />}
           />
+          {hasDateBeenFocusedOnce && !loan.requested_payment_date && (
+            <DateInputErrorText>
+              Please enter the requested payment date
+            </DateInputErrorText>
+          )}
         </FormControl>
         <Box mt={2} mb={4}>
           <Typography variant="body1" color="textSecondary">
@@ -58,11 +88,25 @@ export default function FinancingRequestCreateCard({ loan, setLoan }: Props) {
         <FormControl fullWidth>
           <CurrencyInput
             label={"Amount ($)"}
-            value={loan?.amount}
+            value={loan.amount}
+            onBlur={() => setHasAmountBeenFocusedOnce(true)}
+            error={amountError}
             handleChange={(value) =>
               setLoan({
                 ...loan,
                 amount: value,
+              })
+            }
+          />
+        </FormControl>
+        <FormControl fullWidth>
+          <TextField
+            label={"Comments"}
+            value={loan?.customer_notes || ""}
+            onChange={({ target: { value } }) =>
+              setLoan({
+                ...loan,
+                customer_notes: value,
               })
             }
           />

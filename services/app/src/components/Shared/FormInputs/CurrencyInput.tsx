@@ -14,6 +14,7 @@ interface Props {
   error?: string;
   value: number | null;
   handleChange?: (value: number | null) => void;
+  onBlur?: () => void;
 }
 
 export default function CurrencyInput({
@@ -29,6 +30,7 @@ export default function CurrencyInput({
   error,
   value,
   handleChange,
+  onBlur,
 }: Props) {
   return (
     <Box display="flex" flexDirection="column" data-cy={dataCy}>
@@ -50,6 +52,7 @@ export default function CurrencyInput({
         onChange={(event: any, value: number) =>
           handleChange && handleChange(event.target.value !== "" ? value : null)
         }
+        onBlur={onBlur}
       />
     </Box>
   );

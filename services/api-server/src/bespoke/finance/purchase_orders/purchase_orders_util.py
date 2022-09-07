@@ -796,4 +796,3 @@ def update_purchase_order_status(
 		return True, None
 	else:
 		return None, errors.Error("Could not update status for purchase_order_id: " + purchase_order_id)
-

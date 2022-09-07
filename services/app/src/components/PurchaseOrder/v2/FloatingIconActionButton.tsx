@@ -21,16 +21,20 @@ interface Props {
   children: React.ReactNode;
   handleClick: any;
   variant: "outlined" | "filled";
+  disabled?: boolean;
 }
 
 export default function FloatingIconActionButton({
   children,
   handleClick,
   variant,
+  disabled,
 }: Props) {
   return (
     <IconButtonContainer variant={variant}>
-      <IconButton onClick={handleClick}>{children}</IconButton>
+      <IconButton onClick={handleClick} disabled={disabled}>
+        {children}
+      </IconButton>
     </IconButtonContainer>
   );
 }

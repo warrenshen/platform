@@ -7,7 +7,7 @@ import { round } from "lodash";
 const BorderLinearProgressBar = withStyles((theme) => ({
   root: {
     width: "100%",
-    height: 10,
+    height: 16,
     borderRadius: 5,
   },
   colorPrimary: {
@@ -28,7 +28,7 @@ interface Props {
 export default function ProgressBar({ amountLeft, totalAmount }: Props) {
   const roundedPercentValue = round((amountLeft / totalAmount) * 100, 2);
   return (
-    <Box display="flex" flexDirection="column" alignItems="center" py={1}>
+    <Box display="flex" flexDirection="column" alignItems="center">
       <BorderLinearProgressBar
         variant="determinate"
         value={roundedPercentValue}

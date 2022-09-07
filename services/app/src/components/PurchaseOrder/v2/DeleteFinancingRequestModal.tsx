@@ -7,15 +7,11 @@ import {
   DialogTitle,
   Divider,
   Typography,
-  makeStyles,
 } from "@material-ui/core";
+import { Maybe, RequestStatusEnum } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { deleteLoanMutation } from "lib/api/loans";
-import { closePurchaseOrderMutation } from "lib/api/purchaseOrders";
-import { Action } from "lib/auth/rbac-rules";
-import { getCompanyDisplayName } from "lib/companies";
-import { formatDateString } from "lib/date";
 import { formatCurrency } from "lib/number";
 import styled from "styled-components";
 
@@ -59,37 +55,52 @@ const StyledDivider = styled(Divider)`
 
 interface Props {
   loanId: string;
+  loanStatus: Maybe<string> | undefined;
   companyName: string;
-  poNumber: string;
-  disbursementId: string;
+  purchaseOrderNumber: string;
+  disbursementId: Maybe<string> | undefined;
   requestedAmount: number;
   handleClose: () => void;
+  deleteFinancingRequestFromState: () => void;
+  // handleClickConfirm: () => void;
 }
 
 function DeleteFinancingRequestModal({
   loanId,
+  loanStatus,
   companyName,
-  poNumber,
+  purchaseOrderNumber,
   disbursementId,
   requestedAmount,
   handleClose,
-}: Props) {
+  deleteFinancingRequestFromState,
+}: // handleClickConfirm,
+Props) {
   const snackbar = useSnackbar();
 
   const [deleteLoan, { loading: isDeleteLoanLoading }] =
     useCustomMutation(deleteLoanMutation);
 
   const handleClickConfirm = async () => {
+    if (loanStatus === RequestStatusEnum.Drafted) {
+      deleteFinancingRequestFromState();
+      snackbar.showSuccess(`Financing request deleted.`);
+      handleClose();
+      return;
+    }
+
     const response = await deleteLoan({
       variables: {
         loan_id: loanId,
       },
     });
+
     if (response.status !== "OK") {
       snackbar.showError(
         `Could not delete financing request. Error: ${response.msg}`
       );
     } else {
+      deleteFinancingRequestFromState();
       snackbar.showSuccess(`Financing request deleted.`);
       handleClose();
     }
@@ -115,7 +126,7 @@ function DeleteFinancingRequestModal({
         </Box>
         <Box display="flex" pb={2}>
           <Label>PO Number</Label>
-          <Typography variant="body2">{poNumber}</Typography>
+          <Typography variant="body2">{purchaseOrderNumber}</Typography>
         </Box>
         <Box display="flex" pb={2}>
           <Label>Disbursement ID</Label>
@@ -135,7 +146,10 @@ function DeleteFinancingRequestModal({
           </Button>
           <ConfirmButton
             disabled={isDeleteLoanLoading}
-            onClick={handleClickConfirm}
+            onClick={() => {
+              handleClickConfirm();
+              // deleteLoanMutation()
+            }}
             variant="contained"
           >
             Confirm

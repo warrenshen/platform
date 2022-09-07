@@ -137,6 +137,7 @@ export const loansRoutes = {
   // Loans related.
   saveLoan: "/finance/loans/approvals/save_loan",
   submitForApproval: "/finance/loans/approvals/submit_for_approval",
+  submitForApprovalNew: "/finance/loans/approvals/submit_for_approval_new",
   submitLoCForApproval: "/finance/loans/approvals/submit_loc_for_approval", // TEMPORARY
 
   approveLoans: "/finance/loans/approvals/approve_loans",

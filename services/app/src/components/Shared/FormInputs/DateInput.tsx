@@ -23,6 +23,7 @@ interface Props {
   required?: boolean;
   keyboardIcon?: React.ReactNode;
   onChange?: (value: string | null) => void;
+  onBlur?: () => void;
 }
 
 export default function DateInput(props: Props) {
@@ -39,6 +40,7 @@ export default function DateInput(props: Props) {
         error={props.error}
         required={props.required}
         disabled={props.disabled}
+        onBlur={props.onBlur}
         shouldDisableDate={(date) => {
           if (date) {
             if (props.disabledBefore) {

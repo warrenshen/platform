@@ -1,13 +1,11 @@
-import { Box, Card, CardContent, Divider } from "@material-ui/core";
-import ModalIconButton from "components/Shared/Modal/ModalIconButton";
+import { Box, Card, CardContent, Divider, IconButton } from "@material-ui/core";
+import RequestStatusChipNew from "components/Shared/Chip/RequestStatusChipNew";
 import { LoansInsertInput, RequestStatusEnum } from "generated/graphql";
 import { EditIcon, TrashIcon } from "icons/index";
 import { formatDateString } from "lib/date";
 import { formatCurrency } from "lib/number";
+import { Dispatch, SetStateAction } from "react";
 import styled from "styled-components";
-
-import DeleteFinancingRequestModal from "./DeleteFinancingRequestModal";
-import EditFinancingRequestPurchaseOrderModal from "./EditFinancialRequestPurchaseOrderModal";
 
 const Label = styled.span`
   color: #abaaa9;
@@ -27,80 +25,77 @@ const FinancingRequestCard = styled(Card)`
   padding-left: 8px;
 `;
 
-const NewStatusChipPlaceholder = styled.div`
-  background-color: #f6f5f3;
-  width: 160px;
-  height: 32px;
-`;
-
 const StyledCardContent = styled(CardContent)`
   padding-right: 8px;
 `;
 
 interface Props {
   loan: LoansInsertInput;
-  setLoan: (loan: LoansInsertInput) => void;
-  purchaseOrderId: string;
-  requestedPaymentDate: string;
-  financingAmount: number;
   status: RequestStatusEnum;
+  deleteExistingFianancingRequestsIds: Set<string>;
+  handleClickAddFinancingRequest: () => void;
+  handleClickRemoveNewFinancingRequest: () => void;
+  setCurrentlyEditingLoan: (loan: LoansInsertInput) => void;
+  deleteFinancingRequestFromState: () => void;
+  setDeleteExistingFinancingRequestIds: Dispatch<SetStateAction<Set<string>>>;
 }
 
 export default function FinancingRequestViewCard({
-  purchaseOrderId,
-  requestedPaymentDate,
-  financingAmount,
+  loan,
   status,
+  deleteExistingFianancingRequestsIds,
+  handleClickAddFinancingRequest,
+  handleClickRemoveNewFinancingRequest,
+  setCurrentlyEditingLoan,
+  deleteFinancingRequestFromState,
+  setDeleteExistingFinancingRequestIds,
 }: Props) {
   return (
     <FinancingRequestCard>
       <StyledCardContent>
         <Box display="flex" justifyContent="space-between">
           <Box display="flex" flexDirection="column">
-            <Label>Requested Payment Date</Label>
-            <Value>{formatDateString(requestedPaymentDate)}</Value>
+            <Label>Requested payment date</Label>
+            <Value>{formatDateString(loan.requested_payment_date)}</Value>
             <Box m={2} />
-            <Label>Requested Payment Date</Label>
-            <Value>{formatCurrency(financingAmount)}</Value>
+            <Label>Amount</Label>
+            <Value>{formatCurrency(loan.amount)}</Value>
           </Box>
           <Box display="flex" flexDirection="column" justifyContent="center">
-            <NewStatusChipPlaceholder>{status}</NewStatusChipPlaceholder>
+            <RequestStatusChipNew requestStatus={status} />
           </Box>
           <Box display="flex">
             <Box>
               <Divider orientation="vertical" />
             </Box>
             <Box display="flex" flexDirection="column" justifyContent="center">
-              <ModalIconButton
-                modal={({ handleClose }) => (
-                  <DeleteFinancingRequestModal
-                    loanId={"hello"}
-                    companyName={"Inventory Financing Company"}
-                    poNumber={"0x00AQFE-119"}
-                    disbursementId={"DN-132149801"}
-                    requestedAmount={975000}
-                    handleClose={() => {
-                      handleClose();
-                    }}
-                  />
-                )}
+              <IconButton
+                onClick={() => {
+                  if (loan.status === RequestStatusEnum.Drafted) {
+                    deleteFinancingRequestFromState();
+                    return;
+                  }
+                  const newDeleteExistingFinancingRequestIds = new Set(
+                    deleteExistingFianancingRequestsIds
+                  );
+                  newDeleteExistingFinancingRequestIds.add(loan.id);
+                  setDeleteExistingFinancingRequestIds(
+                    newDeleteExistingFinancingRequestIds
+                  );
+                }}
               >
                 <TrashIcon />
-              </ModalIconButton>
-
+              </IconButton>
               <Box mb={4} />
-              <ModalIconButton
-                modal={({ handleClose }) => (
-                  <EditFinancingRequestPurchaseOrderModal
-                    purchaseOrderId={purchaseOrderId}
-                    handleClose={() => {
-                      handleClose();
-                    }}
-                  />
-                )}
+              <IconButton
+                onClick={() => {
+                  setCurrentlyEditingLoan(loan);
+                  handleClickAddFinancingRequest();
+                  handleClickRemoveNewFinancingRequest();
+                }}
               >
                 <EditIcon />
-              </ModalIconButton>
+              </IconButton>
             </Box>
           </Box>
         </Box>

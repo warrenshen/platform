@@ -36,6 +36,34 @@ export async function submitLoanMutation(
     );
 }
 
+// type DeleteLoanReq
+
+type SubmitLoanReqNew = {
+  // variables: SubmitLoanInput[]
+  variables: {
+    create_or_update_loans: SubmitLoanReq["variables"][];
+    delete_loan_ids: DeleteLoanReq["variables"][];
+  };
+};
+
+export async function submitLoanMutationNew(
+  req: SubmitLoanReqNew
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(loansRoutes.submitForApprovalNew, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not submit loan",
+        };
+      }
+    );
+}
+
 // TEMPORARY
 type SubmitLoCLoanReq = {
   variables: {
@@ -141,6 +169,7 @@ type SaveLoanReq = {
     loan_id: Loans["id"];
     loan_type: LoanTypeEnum;
     requested_payment_date: string;
+    customer_notes?: string;
   };
 };
 

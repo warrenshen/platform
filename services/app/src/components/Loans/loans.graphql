@@ -176,6 +176,31 @@ query GetAllLoansForCompany($companyId: uuid!) {
   }
 }
 
+query GetLoansByArtifactId($artifact_id: uuid!) {
+  loans(
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { closed_at: { _is_null: true } }
+        { artifact_id: { _eq: $artifact_id }}
+      ]
+    }
+    order_by: [
+      { requested_payment_date: asc }
+      { company_id: asc }
+    ]
+  ) {
+    id
+    ...LoanLimited
+    ...LoanArtifactLimited
+  }
+}
+
 query GetOpenFundedLoansByCompanyAndLoanType(
   $companyId: uuid!
   $loanType: loan_type_enum!
