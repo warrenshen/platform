@@ -21,7 +21,7 @@ import {
   Loans,
   PurchaseOrders,
   useGetCustomerOverviewQuery,
-  useGetPurchaseOrdersForIdsQuery,
+  useGetPurchaseOrdersForIdsLimitedQuery,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -152,13 +152,12 @@ function ManagePurchaseOrderFinancingModalMultiple({
     },
   });
 
-  const { data: purchaseOrdersData, loading } = useGetPurchaseOrdersForIdsQuery(
-    {
+  const { data: purchaseOrdersData, loading } =
+    useGetPurchaseOrdersForIdsLimitedQuery({
       variables: {
         purchaseOrderIds: purchaseOrderIds,
       },
-    }
-  );
+    });
 
   const [upsertPurchaseOrdersLoans] = useCustomMutation(
     upsertPurchaseOrdersLoansMutation
@@ -252,6 +251,7 @@ function ManagePurchaseOrderFinancingModalMultiple({
   ) : (
     <Modal
       title={"Manage Purchase Order Financing"}
+      dataCy={"create-multiple-financing-requests-button"}
       primaryActionText={"Save & Submit"}
       handleClose={handleClose}
       handlePrimaryAction={handleClickSubmit}

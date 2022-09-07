@@ -28914,6 +28914,18 @@ export type GetPurchaseOrdersForIdsQuery = {
   >;
 };
 
+export type GetPurchaseOrdersForIdsLimitedQueryVariables = Exact<{
+  purchaseOrderIds?: Maybe<Array<Scalars["uuid"]>>;
+}>;
+
+export type GetPurchaseOrdersForIdsLimitedQuery = {
+  purchase_orders: Array<
+    Pick<PurchaseOrders, "id"> & {
+      loans: Array<Pick<Loans, "id"> & LoanLimitedFragment>;
+    } & PurchaseOrderLimitedNewFragment
+  >;
+};
+
 export type GetLoanQueryVariables = Exact<{
   id: Scalars["uuid"];
 }>;
@@ -36798,6 +36810,76 @@ export type GetPurchaseOrdersForIdsLazyQueryHookResult = ReturnType<
 export type GetPurchaseOrdersForIdsQueryResult = Apollo.QueryResult<
   GetPurchaseOrdersForIdsQuery,
   GetPurchaseOrdersForIdsQueryVariables
+>;
+export const GetPurchaseOrdersForIdsLimitedDocument = gql`
+  query GetPurchaseOrdersForIdsLimited($purchaseOrderIds: [uuid!]) {
+    purchase_orders(
+      where: {
+        _and: [
+          { id: { _in: $purchaseOrderIds } }
+          { status: { _eq: approved } }
+        ]
+      }
+    ) {
+      id
+      ...PurchaseOrderLimitedNew
+      loans {
+        id
+        ...LoanLimited
+      }
+    }
+  }
+  ${PurchaseOrderLimitedNewFragmentDoc}
+  ${LoanLimitedFragmentDoc}
+`;
+
+/**
+ * __useGetPurchaseOrdersForIdsLimitedQuery__
+ *
+ * To run a query within a React component, call `useGetPurchaseOrdersForIdsLimitedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPurchaseOrdersForIdsLimitedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPurchaseOrdersForIdsLimitedQuery({
+ *   variables: {
+ *      purchaseOrderIds: // value for 'purchaseOrderIds'
+ *   },
+ * });
+ */
+export function useGetPurchaseOrdersForIdsLimitedQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetPurchaseOrdersForIdsLimitedQuery,
+    GetPurchaseOrdersForIdsLimitedQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetPurchaseOrdersForIdsLimitedQuery,
+    GetPurchaseOrdersForIdsLimitedQueryVariables
+  >(GetPurchaseOrdersForIdsLimitedDocument, baseOptions);
+}
+export function useGetPurchaseOrdersForIdsLimitedLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetPurchaseOrdersForIdsLimitedQuery,
+    GetPurchaseOrdersForIdsLimitedQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetPurchaseOrdersForIdsLimitedQuery,
+    GetPurchaseOrdersForIdsLimitedQueryVariables
+  >(GetPurchaseOrdersForIdsLimitedDocument, baseOptions);
+}
+export type GetPurchaseOrdersForIdsLimitedQueryHookResult = ReturnType<
+  typeof useGetPurchaseOrdersForIdsLimitedQuery
+>;
+export type GetPurchaseOrdersForIdsLimitedLazyQueryHookResult = ReturnType<
+  typeof useGetPurchaseOrdersForIdsLimitedLazyQuery
+>;
+export type GetPurchaseOrdersForIdsLimitedQueryResult = Apollo.QueryResult<
+  GetPurchaseOrdersForIdsLimitedQuery,
+  GetPurchaseOrdersForIdsLimitedQueryVariables
 >;
 export const GetLoanDocument = gql`
   query GetLoan($id: uuid!) {

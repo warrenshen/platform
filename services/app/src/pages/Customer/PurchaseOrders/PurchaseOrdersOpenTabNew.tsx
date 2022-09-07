@@ -304,6 +304,7 @@ export default function CustomerPurchaseOrdersOpenTabNew({
                       Object.keys(selectedApprovedPurchaseOrdersMap).length > 1
                     }
                     label={"Request Financing"}
+                    dataCy={"request-financing-button"}
                     modal={({ handleClose }) =>
                       selectedApprovedPurchaseOrder ? (
                         <ManagePurchaseOrderFinancingModal

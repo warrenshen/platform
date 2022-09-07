@@ -109,3 +109,28 @@ export const approvePurchaseOrderAsVendor = (vendorEmail: string) => {
   cy.dataCy("review-bank-information-modal").should("be.visible");
   cy.dataCy("confirm-bank-information").click();
 };
+
+export const createFinancingRequestMultiple = () => {
+  // Go to Purchase Orders New Tab
+  cy.dataCy("sidebar-item-purchase-orders-new").click();
+  cy.url().should("include", "purchase-orders-new");
+
+  // Click checkboxes next to purchase orders
+  cy.get(
+    "[data-cy='ready-to-request-purchase-order-data-grid'] tr[aria-rowindex='1'] td[aria-colindex='1'] .dx-select-checkbox"
+  ).click();
+  cy.get(
+    "[data-cy='ready-to-request-purchase-order-data-grid'] tr[aria-rowindex='2'] td[aria-colindex='1'] .dx-select-checkbox"
+  ).click();
+  cy.wait(2000);
+
+  // Open ManagePurchaseOrderFinancingModalMultiple
+  cy.dataCy("request-financing-button").click();
+
+  // Fill in date
+  cy.get("#requested-payment-date-date-picker").type("07/31/2022");
+
+  // Submit and check for success snackbar
+  cy.dataCy("create-multiple-financing-requests-button").click();
+  cy.get(".MuiAlert-standardSuccess").should("exist");
+};
