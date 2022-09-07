@@ -293,6 +293,13 @@ const getBankNavItems = (
       isBankMenu: true,
     },
     {
+      dataCy: "purchase-orders-new",
+      iconNode: PurchaseOrdersIcon,
+      text: "Purchase Orders New",
+      link: bankRoutes.purchaseOrdersNew,
+      isBankMenu: true,
+    },
+    {
       dataCy: "invoices",
       iconNode: InvoicesIcon,
       text: "Invoices",

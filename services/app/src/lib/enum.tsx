@@ -176,6 +176,20 @@ export const BankPurchaseOrdersTabLabels = [
   BankPurchaseOrdersTabLabel.AllPOs,
 ];
 
+export enum BankPurchaseOrdersTabLabelNew {
+  ReadyForFinancing = "Ready for Financing",
+  NotReadyForFinancing = "Not Ready for Financing",
+  Archived = "Archived",
+  All = "All",
+}
+
+export const BankPurchaseOrdersTabLabelsNew = [
+  BankPurchaseOrdersTabLabelNew.ReadyForFinancing,
+  BankPurchaseOrdersTabLabelNew.NotReadyForFinancing,
+  BankPurchaseOrdersTabLabelNew.Archived,
+  BankPurchaseOrdersTabLabelNew.All,
+];
+
 export enum BankEbbaTabLabel {
   SurveillanceCurrent = "Surveillance - Current",
   FinancialReports = "Financial Certifications",

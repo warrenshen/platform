@@ -41,6 +41,7 @@ import BankOverviewPage from "pages/Bank/Overview";
 import BankPartnershipsPage from "pages/Bank/Partnerships";
 import BankPayorsPage from "pages/Bank/Payors";
 import BankPurchaseOrdersPage from "pages/Bank/PurchaseOrders";
+import BankPurchaseOrdersPageNew from "pages/Bank/PurchaseOrdersNew";
 import BankRepaymentsPage from "pages/Bank/Repayments";
 import BankReportsPage from "pages/Bank/Reports";
 import BankSettingsPage from "pages/Bank/Settings";
@@ -353,6 +354,12 @@ export default function App() {
           requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
         >
           <BankPurchaseOrdersPage />
+        </PrivateRoute>
+        <PrivateRoute
+          path={bankRoutes.purchaseOrdersNew}
+          requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
+        >
+          <BankPurchaseOrdersPageNew />
         </PrivateRoute>
         <PrivateRoute
           path={bankRoutes.invoices}
