@@ -1008,6 +1008,211 @@ def cogs_analysis_fill_by_product_category(df_in: pd.DataFrame, df_inventory: pd
     return df_summary_simp, df_cogs_average_product_cat
 
 
+def cogs_analysis_covered(
+        df_in: pd.DataFrame, df_sales: pd.DataFrame, freq: str, state: str
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    df_sales["per_unit"] = df_sales["tx_total_price"] / df_sales["tx_quantity_sold"]
+    # set frequency
+    if freq == "monthly":
+        df_sales["date"] = df_sales["sales_datetime"].dt.strftime("%Y-%m")
+    elif freq == "weekly":
+        df_sales["date"] = df_sales["sales_datetime"].dt.strftime("%Y-%W")
+        df_sales["week"] = df_sales["sales_datetime"].dt.strftime("%W")
+    # total # of trxns
+    s_total_count = df_sales.groupby("date")["tx_total_price"].count()
+    df_total_count = pd.Series(s_total_count).to_frame()
+    df_total_count = df_total_count.reset_index()
+    df_total_count.rename(columns={"tx_total_price": "total_count"}, inplace=True)
+
+    df_in["per_unit_incoming"] = (
+            df_in["shipper_wholesale_price"] / df_in["shipped_quantity"]
+    )
+
+    # per unit price by package id
+    df_in_price = df_in[df_in["shipper_wholesale_price"].notnull()]
+    average_incoming_package_id = df_in_price.groupby("package_id")[
+        "per_unit_incoming"
+    ].mean()
+    df_avg_incoming_price = pd.Series(average_incoming_package_id).to_frame()
+    df_avg_incoming_price = df_avg_incoming_price.reset_index()
+    # per unit price by product name
+    average_incoming_product = df_in_price.groupby("product_name")[
+        "per_unit_incoming"
+    ].mean()
+    df_avg_product = pd.Series(average_incoming_product).to_frame()
+    df_avg_product = df_avg_product.reset_index()
+    df_avg_product.rename(
+        columns={"per_unit_incoming": "per_unit_product"}, inplace=True
+    )
+
+    # merge with (cogs by package id)
+    df_cogs_package_id = pd.merge(
+        df_sales,
+        df_avg_incoming_price,
+        left_on="tx_package_id",
+        right_on="package_id",
+        how="left",
+    )
+    df_cogs_package_id["total_incoming"] = (
+            df_cogs_package_id["per_unit_incoming"] * df_cogs_package_id["tx_quantity_sold"]
+    )
+    df_cogs_package_id.replace([numpy.inf], numpy.nan, inplace=True)
+    df_cogs_package_id_notnull = df_cogs_package_id[
+        df_cogs_package_id["total_incoming"].notnull()
+    ]
+
+    # sum cogs by package id
+    s_cogs = df_cogs_package_id_notnull.groupby("date")["total_incoming"].sum()
+    df_cogs_id = pd.Series(s_cogs).to_frame()
+    df_cogs_id = df_cogs_id.reset_index()
+    # count # of trxn by package id
+    s_cogs_count = df_cogs_package_id_notnull.groupby("date")["total_incoming"].count()
+    df_cogs_count = pd.Series(s_cogs_count).to_frame()
+    df_cogs_count = df_cogs_count.reset_index()
+    df_cogs_count.rename(columns={"total_incoming": "count_incoming"}, inplace=True)
+
+    # merge with (cogs by product name)
+    df_cogs_average_product = pd.merge(
+        df_cogs_package_id,
+        df_avg_product,
+        left_on="tx_product_name",
+        right_on="product_name",
+        how="left",
+    )
+
+    df_cogs_average_product["total_product"] = (
+            df_cogs_average_product["tx_quantity_sold"]
+            * df_cogs_average_product["per_unit_product"]
+    )
+    df_cogs_null = df_cogs_average_product[
+        df_cogs_average_product["per_unit_incoming"].isnull()
+    ]
+    df_cogs_product = df_cogs_null[df_cogs_null["per_unit_product"].notnull()]
+    # sum cogs filldown by product name
+    product_sum = df_cogs_product.groupby("date")["total_product"].sum()
+    df_product_sum = pd.Series(product_sum).to_frame()
+    df_product_sum = df_product_sum.reset_index()
+    df_product_sum.rename(columns={"total_product": "product_sum"}, inplace=True)
+    # count # of trxn filldown by product name
+    product_count = df_cogs_product.groupby("date")["total_product"].count()
+    df_product_count = pd.Series(product_count).to_frame()
+    df_product_count = df_product_count.reset_index()
+    df_product_count.rename(columns={"total_product": "product_count"}, inplace=True)
+    df_cogs_product_df = pd.merge(df_product_sum, df_product_count)
+
+    # revenue old
+    s_revenue = df_sales.groupby("date")["tx_total_price"].sum()
+    df_revenue = pd.Series(s_revenue).to_frame()
+    df_revenue = df_revenue.reset_index()
+    df_revenue.rename(columns={"tx_total_price": "revenue_old"}, inplace=True)
+
+    # revenue new
+    s_revenue_new = df_cogs_average_product[df_cogs_average_product['per_unit_product'].notnull()].groupby("date")[
+        "tx_total_price"].sum()
+    df_revenue_new = pd.Series(s_revenue_new).to_frame()
+    df_revenue_new = df_revenue_new.reset_index()
+    df_revenue_new.rename(columns={"tx_total_price": "revenue"}, inplace=True)
+
+    # prepare summary
+    df_summary = pd.merge(df_revenue, df_cogs_product_df, how="left")
+    df_summary = pd.merge(df_summary, df_revenue_new, how="left")
+    df_summary = pd.merge(df_summary, df_cogs_id, how="left")
+    df_summary["product_sum"] = df_summary["product_sum"].fillna(0)
+    df_summary["product_count"] = df_summary["product_count"].fillna(0)
+    # total cogs = by product id cogs + by product name cogs
+    df_summary["cogs"] = df_summary["total_incoming"] + df_summary["product_sum"]
+    df_summary = pd.merge(df_summary, df_cogs_count)
+    df_summary = pd.merge(df_summary, df_total_count)
+    # total count = by package id count + by product count
+    df_summary["total_count_incoming"] = (
+            df_summary["count_incoming"] + df_summary["product_count"]
+    )
+    df_summary["margin_$"] = df_summary["revenue"] - df_summary["cogs"]
+    df_summary["margin_%"] = df_summary["margin_$"] / df_summary["revenue"]
+    df_summary["margin_$_old"] = df_summary["revenue_old"] - df_summary["cogs"]
+    df_summary["margin_%_old"] = df_summary["margin_$_old"] / df_summary["revenue_old"]
+    df_summary["coverage"] = (
+            df_summary["total_count_incoming"] / df_summary["total_count"]
+    )
+    df_summary_simp = df_summary[
+        [
+            "date",
+            "revenue",
+            "revenue_old",
+            "cogs",
+            "margin_$",
+            "margin_$_old",
+            "margin_%",
+            "margin_%_old",
+            "total_count_incoming",
+            "product_count",
+            "count_incoming",
+            "coverage",
+            "total_count",
+        ]
+    ]
+
+    # tax treatment
+    df_summary_simp["revenue_after_tax"] = df_summary_simp["revenue"] * 1.15
+    df_summary_simp["cogs_after_tax"] = df_summary_simp["cogs"] * 1.2625
+    df_summary_simp["margin_$_after_tax"] = (
+            df_summary_simp["revenue_after_tax"] - df_summary_simp["cogs_after_tax"]
+    )
+    df_summary_simp["margin_%_after_tax"] = (
+            df_summary_simp["margin_$_after_tax"] / df_summary_simp["revenue_after_tax"]
+    )
+    # past quarter pre tax
+    df_summary_simp["gm_past_quarter"] = (
+        df_summary_simp[["margin_%"]].rolling(3).mean().values
+    )
+    df_summary_simp["gm_past_2quarters"] = (
+        df_summary_simp[["margin_%"]].rolling(6).mean().values
+    )
+    df_summary_simp["gm_past_3quarters"] = (
+        df_summary_simp[["margin_%"]].rolling(9).mean().values
+    )
+    df_summary_simp["sum_cogs_past_3months"] = (
+        df_summary_simp[["cogs"]].rolling(3).sum().values
+    )
+    # past quarter after tax
+    df_summary_simp["gm_past_quarter_after_tax"] = (
+        df_summary_simp[["margin_%_after_tax"]].rolling(3).mean().values
+    )
+    df_summary_simp["gm_past_2quarters_after_tax"] = (
+        df_summary_simp[["margin_%_after_tax"]].rolling(6).mean().values
+    )
+    df_summary_simp["gm_past_3quarters_after_tax"] = (
+        df_summary_simp[["margin_%_after_tax"]].rolling(9).mean().values
+    )
+    # revenue change
+    # df_summary_simp['revenue_change'] = df_summary_simp['revenue'].pct_change()
+
+    if state == "CA":
+        df_summary_simp["gm_final"] = df_summary_simp["margin_%_after_tax"]
+
+        df_summary_simp["gm_past_quarter_final"] = df_summary_simp[
+            "gm_past_quarter_after_tax"
+        ]
+        df_summary_simp["gm_past_2quarters_final"] = df_summary_simp[
+            "gm_past_2quarters_after_tax"
+        ]
+        df_summary_simp["gm_past_3quarters_final"] = df_summary_simp[
+            "gm_past_3quarters_after_tax"
+        ]
+    else:
+        df_summary_simp["gm_final"] = df_summary_simp["margin_%"]
+        df_summary_simp["gm_past_quarter_final"] = df_summary_simp["gm_past_quarter"]
+        df_summary_simp["gm_past_2quarters_final"] = df_summary_simp[
+            "gm_past_2quarters"
+        ]
+        df_summary_simp["gm_past_3quarters_final"] = df_summary_simp[
+            "gm_past_3quarters"
+        ]
+    df_summary_simp["revenue_change"] = df_summary_simp["revenue_old"].pct_change().values
+    df_summary_simp.index = df_summary_simp.date
+    df_summary_simp = df_summary_simp.round(2)
+
+    return df_summary_simp, df_cogs_average_product
 ################################################
 # rev change vs state
 ################################################
