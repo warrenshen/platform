@@ -1,45 +1,48 @@
-import { Box, TextField } from "@material-ui/core";
-import BankPurchaseOrdersDataGrid from "components/PurchaseOrder/BankPurchaseOrdersDataGrid";
-// import Can from "components/Shared/Can";
+import { Box, InputAdornment, TextField, Typography } from "@material-ui/core";
+import ArchivePurchaseOrderModalNew from "components/PurchaseOrder/v2/ArchivePurchaseOrderModalNew";
+import BankPurchaseOrdersDataGridNew from "components/PurchaseOrder/v2/BankPurchaseOrdersDataGridNew";
+import Can from "components/Shared/Can";
+import ModalButton from "components/Shared/Modal/ModalButton";
 import {
   CustomerForBankFragment,
   PurchaseOrderFragment,
   PurchaseOrders,
-  useGetNotConfirmedPurchaseOrdersSubscription,
+  useGetPurchaseOrdersSubscription,
 } from "generated/graphql";
-import { useFilterNotConfirmedPurchaseOrders } from "hooks/useFilterPurchaseOrders";
-// import { Action } from "lib/auth/rbac-rules";
+import { useFilterConfirmedPurchaseOrders } from "hooks/useFilterPurchaseOrders";
+import { SearchIcon } from "icons";
+import { Action } from "lib/auth/rbac-rules";
+import { ReadyNewPurchaseOrderStatuses } from "lib/enum";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
 
-// STUB: Use appropriate query and filter for each tab
 export default function BankPurchaseOrdersAllTab() {
   const history = useHistory();
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data, error } = useGetNotConfirmedPurchaseOrdersSubscription();
+  const { data, error } = useGetPurchaseOrdersSubscription();
 
   if (error) {
     console.error({ error });
     alert(`Error in query (details in console): ${error.message}`);
   }
 
-  const purchaseOrders = useFilterNotConfirmedPurchaseOrders(searchQuery, data);
+  const purchaseOrders = useFilterConfirmedPurchaseOrders(searchQuery, data);
 
   const [selectedPurchaseOrderIds, setSelectedPurchaseOrderIds] = useState<
     PurchaseOrders["id"]
   >([]);
 
-  //   const selectedPurchaseOrder = useMemo(
-  //     () =>
-  //       selectedPurchaseOrderIds.length === 1
-  //         ? purchaseOrders.find(
-  //             (purchaseOrder) => purchaseOrder.id === selectedPurchaseOrderIds[0]
-  //           )
-  //         : null,
-  //     [purchaseOrders, selectedPurchaseOrderIds]
-  //   );
+  const selectedPurchaseOrder = useMemo(
+    () =>
+      selectedPurchaseOrderIds.length === 1
+        ? purchaseOrders.find(
+            (purchaseOrder) => purchaseOrder.id === selectedPurchaseOrderIds[0]
+          )
+        : null,
+    [purchaseOrders, selectedPurchaseOrderIds]
+  );
 
   const handleSelectPurchaseOrders = useMemo(
     () => (purchaseOrders: PurchaseOrderFragment[]) => {
@@ -64,34 +67,65 @@ export default function BankPurchaseOrdersAllTab() {
         display="flex"
         justifyContent="space-between"
         alignItems="flex-end"
-        mb={2}
+        mt={1}
+        mb={4}
       >
-        <Box display="flex">
-          <TextField
-            autoFocus
-            label="Search by PO number, customer name, or vendor name"
-            value={searchQuery}
-            onChange={({ target: { value } }) => setSearchQuery(value)}
-            style={{ width: 430 }}
-          />
+        <Box>
+          <Typography variant="h6">All</Typography>
         </Box>
-        {/* STUB: Map action buttons as needed */}
-        {/* <Box display="flex" flexDirection="row-reverse">
-          <Can perform={Action.ApprovePurchaseOrders}>
+        <Box display="flex" flexDirection="row-reverse">
+          <Can perform={Action.ReopenPurchaseOrders}>
+            <ModalButton
+              dataCy="archive-po-button"
+              isDisabled={selectedPurchaseOrderIds.length !== 1}
+              label={"Unarchive"}
+              variant="outlined"
+              color="default"
+              modal={({ handleClose }) =>
+                selectedPurchaseOrder ? (
+                  <ArchivePurchaseOrderModalNew
+                    action={Action.ReopenPurchaseOrders}
+                    purchaseOrder={selectedPurchaseOrder}
+                    handleClose={() => {
+                      handleClose();
+                      setSelectedPurchaseOrderIds([]);
+                    }}
+                  />
+                ) : null
+              }
+            />
           </Can>
-        </Box> */}
+        </Box>
+      </Box>
+      <Box display="flex" mb={4}>
+        <TextField
+          autoFocus
+          label="Search"
+          value={searchQuery}
+          onChange={({ target: { value } }) => setSearchQuery(value)}
+          style={{ width: 430 }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
       </Box>
       <Box
         display="flex"
         flexDirection="column"
         data-cy="incomplete-purchase-orders-data-grid-container"
       >
-        <BankPurchaseOrdersDataGrid
+        <BankPurchaseOrdersDataGridNew
           purchaseOrders={purchaseOrders}
           selectedPurchaseOrderIds={selectedPurchaseOrderIds}
+          selectablePurchaseOrderStatuses={ReadyNewPurchaseOrderStatuses}
           handleClickCustomer={handleClickCustomer}
           handleSelectPurchaseOrders={handleSelectPurchaseOrders}
-          isApprovedByVendor={false}
+          isApprovedByVendor={true}
+          isMultiSelectEnabled={false}
         />
       </Box>
     </Box>

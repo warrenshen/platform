@@ -29430,11 +29430,35 @@ export type GetNotConfirmedPurchaseOrdersSubscription = {
   purchase_orders: Array<Pick<PurchaseOrders, "id"> & PurchaseOrderFragment>;
 };
 
+export type GetNotConfirmedPurchaseOrdersNewSubscriptionVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetNotConfirmedPurchaseOrdersNewSubscription = {
+  purchase_orders: Array<Pick<PurchaseOrders, "id"> & PurchaseOrderFragment>;
+};
+
 export type GetConfirmedPurchaseOrdersSubscriptionVariables = Exact<{
   [key: string]: never;
 }>;
 
 export type GetConfirmedPurchaseOrdersSubscription = {
+  purchase_orders: Array<Pick<PurchaseOrders, "id"> & PurchaseOrderFragment>;
+};
+
+export type GetConfirmedPurchaseOrdersNewSubscriptionVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetConfirmedPurchaseOrdersNewSubscription = {
+  purchase_orders: Array<Pick<PurchaseOrders, "id"> & PurchaseOrderFragment>;
+};
+
+export type GetArchivedPurchaseOrdersSubscriptionVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetArchivedPurchaseOrdersSubscription = {
   purchase_orders: Array<Pick<PurchaseOrders, "id"> & PurchaseOrderFragment>;
 };
 
@@ -39215,6 +39239,62 @@ export type GetNotConfirmedPurchaseOrdersSubscriptionHookResult = ReturnType<
 >;
 export type GetNotConfirmedPurchaseOrdersSubscriptionResult =
   Apollo.SubscriptionResult<GetNotConfirmedPurchaseOrdersSubscription>;
+export const GetNotConfirmedPurchaseOrdersNewDocument = gql`
+  subscription GetNotConfirmedPurchaseOrdersNew {
+    purchase_orders(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { approved_at: { _is_null: true } }
+          { incompleted_at: { _is_null: true } }
+          { new_purchase_order_status: { _neq: "archived" } }
+        ]
+      }
+      order_by: [{ requested_at: desc }, { created_at: desc }]
+    ) {
+      id
+      ...PurchaseOrder
+    }
+  }
+  ${PurchaseOrderFragmentDoc}
+`;
+
+/**
+ * __useGetNotConfirmedPurchaseOrdersNewSubscription__
+ *
+ * To run a query within a React component, call `useGetNotConfirmedPurchaseOrdersNewSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetNotConfirmedPurchaseOrdersNewSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetNotConfirmedPurchaseOrdersNewSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetNotConfirmedPurchaseOrdersNewSubscription(
+  baseOptions?: Apollo.SubscriptionHookOptions<
+    GetNotConfirmedPurchaseOrdersNewSubscription,
+    GetNotConfirmedPurchaseOrdersNewSubscriptionVariables
+  >
+) {
+  return Apollo.useSubscription<
+    GetNotConfirmedPurchaseOrdersNewSubscription,
+    GetNotConfirmedPurchaseOrdersNewSubscriptionVariables
+  >(GetNotConfirmedPurchaseOrdersNewDocument, baseOptions);
+}
+export type GetNotConfirmedPurchaseOrdersNewSubscriptionHookResult = ReturnType<
+  typeof useGetNotConfirmedPurchaseOrdersNewSubscription
+>;
+export type GetNotConfirmedPurchaseOrdersNewSubscriptionResult =
+  Apollo.SubscriptionResult<GetNotConfirmedPurchaseOrdersNewSubscription>;
 export const GetConfirmedPurchaseOrdersDocument = gql`
   subscription GetConfirmedPurchaseOrders {
     purchase_orders(
@@ -39269,6 +39349,115 @@ export type GetConfirmedPurchaseOrdersSubscriptionHookResult = ReturnType<
 >;
 export type GetConfirmedPurchaseOrdersSubscriptionResult =
   Apollo.SubscriptionResult<GetConfirmedPurchaseOrdersSubscription>;
+export const GetConfirmedPurchaseOrdersNewDocument = gql`
+  subscription GetConfirmedPurchaseOrdersNew {
+    purchase_orders(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { approved_at: { _is_null: false } }
+          { new_purchase_order_status: { _neq: "archived" } }
+        ]
+      }
+      order_by: [{ approved_at: desc }, { created_at: desc }]
+    ) {
+      id
+      ...PurchaseOrder
+    }
+  }
+  ${PurchaseOrderFragmentDoc}
+`;
+
+/**
+ * __useGetConfirmedPurchaseOrdersNewSubscription__
+ *
+ * To run a query within a React component, call `useGetConfirmedPurchaseOrdersNewSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetConfirmedPurchaseOrdersNewSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetConfirmedPurchaseOrdersNewSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetConfirmedPurchaseOrdersNewSubscription(
+  baseOptions?: Apollo.SubscriptionHookOptions<
+    GetConfirmedPurchaseOrdersNewSubscription,
+    GetConfirmedPurchaseOrdersNewSubscriptionVariables
+  >
+) {
+  return Apollo.useSubscription<
+    GetConfirmedPurchaseOrdersNewSubscription,
+    GetConfirmedPurchaseOrdersNewSubscriptionVariables
+  >(GetConfirmedPurchaseOrdersNewDocument, baseOptions);
+}
+export type GetConfirmedPurchaseOrdersNewSubscriptionHookResult = ReturnType<
+  typeof useGetConfirmedPurchaseOrdersNewSubscription
+>;
+export type GetConfirmedPurchaseOrdersNewSubscriptionResult =
+  Apollo.SubscriptionResult<GetConfirmedPurchaseOrdersNewSubscription>;
+export const GetArchivedPurchaseOrdersDocument = gql`
+  subscription GetArchivedPurchaseOrders {
+    purchase_orders(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { new_purchase_order_status: { _eq: "archived" } }
+        ]
+      }
+      order_by: [{ approved_at: desc }, { created_at: desc }]
+    ) {
+      id
+      ...PurchaseOrder
+    }
+  }
+  ${PurchaseOrderFragmentDoc}
+`;
+
+/**
+ * __useGetArchivedPurchaseOrdersSubscription__
+ *
+ * To run a query within a React component, call `useGetArchivedPurchaseOrdersSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetArchivedPurchaseOrdersSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetArchivedPurchaseOrdersSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetArchivedPurchaseOrdersSubscription(
+  baseOptions?: Apollo.SubscriptionHookOptions<
+    GetArchivedPurchaseOrdersSubscription,
+    GetArchivedPurchaseOrdersSubscriptionVariables
+  >
+) {
+  return Apollo.useSubscription<
+    GetArchivedPurchaseOrdersSubscription,
+    GetArchivedPurchaseOrdersSubscriptionVariables
+  >(GetArchivedPurchaseOrdersDocument, baseOptions);
+}
+export type GetArchivedPurchaseOrdersSubscriptionHookResult = ReturnType<
+  typeof useGetArchivedPurchaseOrdersSubscription
+>;
+export type GetArchivedPurchaseOrdersSubscriptionResult =
+  Apollo.SubscriptionResult<GetArchivedPurchaseOrdersSubscription>;
 export const GetOpenPurchaseOrdersByCompanyIdDocument = gql`
   query GetOpenPurchaseOrdersByCompanyId($company_id: uuid!) {
     companies_by_pk(id: $company_id) {

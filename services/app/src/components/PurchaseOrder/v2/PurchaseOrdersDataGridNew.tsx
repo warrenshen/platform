@@ -105,23 +105,31 @@ export default function PurchaseOrdersDataGridNew({
         dataField: "order_number",
         caption: "PO Number",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) => (
-          <Box display="flex" alignItems="center">
-            <ClickableDataGridCell
-              onClick={() => setSelectedPurchaseOrderId(params.row.data.id)}
-              label={params.row.data.order_number}
-            />
-            {params.row.data?.is_metrc_based && (
-              <Tooltip
-                arrow
-                interactive
-                title={"Purchase order created from Metrc manifest"}
-              >
-                <img src={MetrcLogo} alt="Metrc Logo" width={24} height={24} />
-              </Tooltip>
-            )}
-          </Box>
-        ),
+        cellRender: (params: ValueFormatterParams) =>
+          true ? (
+            <Box display="flex" alignItems="center">
+              <ClickableDataGridCell
+                onClick={() => setSelectedPurchaseOrderId(params.row.data.id)}
+                label={params.row.data.order_number}
+              />
+              {params.row.data?.is_metrc_based && (
+                <Tooltip
+                  arrow
+                  interactive
+                  title={"Purchase order created from Metrc manifest"}
+                >
+                  <img
+                    src={MetrcLogo}
+                    alt="Metrc Logo"
+                    width={24}
+                    height={24}
+                  />
+                </Tooltip>
+              )}
+            </Box>
+          ) : (
+            <div></div>
+          ),
       },
       {
         dataField: "action",

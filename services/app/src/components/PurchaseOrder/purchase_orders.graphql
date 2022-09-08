@@ -71,6 +71,28 @@ subscription GetNotConfirmedPurchaseOrders {
   }
 }
 
+subscription GetNotConfirmedPurchaseOrdersNew {
+  purchase_orders(
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { approved_at: { _is_null: true } }
+        { incompleted_at: { _is_null: true } }
+        { new_purchase_order_status: { _neq: "archived" } }
+      ]
+    }
+    order_by: [{ requested_at: desc }, { created_at: desc }]
+  ) {
+    id
+    ...PurchaseOrder
+  }
+}
+
 subscription GetConfirmedPurchaseOrders {
   purchase_orders(
     where: {
@@ -90,6 +112,48 @@ subscription GetConfirmedPurchaseOrders {
     ...PurchaseOrder
   }
 }
+
+subscription GetConfirmedPurchaseOrdersNew {
+  purchase_orders(
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { approved_at: { _is_null: false } }
+        { new_purchase_order_status: { _neq: "archived" } }
+      ]
+    }
+    order_by: [{ approved_at: desc }, { created_at: desc }]
+  ) {
+    id
+    ...PurchaseOrder
+  }
+}
+
+subscription GetArchivedPurchaseOrders {
+  purchase_orders(
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { new_purchase_order_status: { _eq: "archived" } }
+      ]
+    }
+    order_by: [{ approved_at: desc }, { created_at: desc }]
+  ) {
+    id
+    ...PurchaseOrder
+  }
+}
+
 
 # Customer users
 query GetOpenPurchaseOrdersByCompanyId($company_id: uuid!) {
