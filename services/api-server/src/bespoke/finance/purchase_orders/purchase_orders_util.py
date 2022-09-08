@@ -7,8 +7,9 @@ from typing import Callable, Dict, List, Optional, Tuple, cast
 
 from bespoke import errors
 from bespoke.date import date_util
-from bespoke.db import db_constants, models
-from bespoke.db.db_constants import RequestStatusEnum, NewPurchaseOrderStatus, LoanStatusEnum
+from bespoke.db import db_constants, models, queries
+from bespoke.db.db_constants import RequestStatusEnum, NewPurchaseOrderStatus, LoanStatusEnum, \
+	PurchaseOrderBankNoteEnum, PurchaseOrderCustomerNoteEnum
 from bespoke.companies import partnership_util
 from bespoke.email import sendgrid_util
 from bespoke.finance import number_util
@@ -796,3 +797,71 @@ def update_purchase_order_status(
 		return True, None
 	else:
 		return None, errors.Error("Could not update status for purchase_order_id: " + purchase_order_id)
+
+def approve_purchase_order(
+	session: Session,
+	purchase_order_id: str,
+	approved_by_user_id: str,
+	is_bank_admin: bool,
+) -> Tuple[ models.PurchaseOrder, errors.Error ]:
+	purchase_order, err = queries.get_purchase_order_by_id(
+		session,
+		purchase_order_id,
+	)
+	if err:
+		return None, err
+
+	purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.READY_TO_REQUEST_FINANCING
+	purchase_order.status = RequestStatusEnum.APPROVED
+	purchase_order.approved_at = date_util.now()
+	purchase_order.approved_by_user_id = approved_by_user_id # type: ignore
+
+	return purchase_order, None
+
+def reject_purchase_order(
+	session: Session,
+	purchase_order_id: str,
+	rejected_by_user_id: str,
+	rejection_note: str,
+	is_bank_admin: bool,
+) -> Tuple[ models.PurchaseOrder, errors.Error ]:
+	purchase_order, err = queries.get_purchase_order_by_id(
+		session,
+		purchase_order_id,
+	)
+	if err:
+		return None, err
+
+	purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.REJECTED_BY_VENDOR
+	purchase_order.rejected_at = date_util.now()
+	purchase_order.rejected_by_user_id = rejected_by_user_id # type: ignore
+
+	if is_bank_admin:
+		purchase_order.all_bank_notes[PurchaseOrderBankNoteEnum.BANK_REJECTION] = rejection_note
+	else:
+		purchase_order.all_customer_notes[PurchaseOrderCustomerNoteEnum.VENDOR_REJECTION] = rejection_note
+
+	return purchase_order, None
+
+def request_purchase_order_changes(
+	session: Session,
+	purchase_order_id: str,
+	requested_by_user_id: str,
+	requested_changes_note: str,
+	is_bank_admin: bool,
+) -> Tuple[ models.PurchaseOrder, errors.Error ]:
+	purchase_order, err = queries.get_purchase_order_by_id(
+		session,
+		purchase_order_id,
+	)
+	if err:
+		return None, err
+
+	if is_bank_admin:
+		purchase_order.all_bank_notes[PurchaseOrderBankNoteEnum.REQUESTS_CHANGES] = requested_changes_note
+		purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.CHANGES_REQUESTED_BY_BESPOKE
+	else:
+		purchase_order.all_customer_notes[PurchaseOrderCustomerNoteEnum.VENDOR_REQUESTS_CHANGES] = requested_changes_note
+		purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.CHANGES_REQUESTED_BY_VENDOR
+		
+	return purchase_order, None

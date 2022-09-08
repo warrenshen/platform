@@ -143,6 +143,13 @@ class NewPurchaseOrderStatus(object):
 	REJECTED_BY_VENDOR = "rejected_by_vendor"
 	REJECTED_BY_BESPOKE = "rejected_by_bespoke"
 
+class PurchaseOrderBankNoteEnum(object):
+	REQUESTS_CHANGES = "requests_changes"
+	BANK_REJECTION = "bank_rejection"
+
+class PurchaseOrderCustomerNoteEnum(object):
+	VENDOR_REQUESTS_CHANGES = "vendor_requests_changes"
+	VENDOR_REJECTION = "vendor_rejection"
 
 class CompanySurveillanceStatus(object):
 	GOOD_STANDING = "good_standing"

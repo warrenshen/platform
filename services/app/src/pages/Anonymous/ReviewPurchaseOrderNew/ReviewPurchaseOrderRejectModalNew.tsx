@@ -1,21 +1,21 @@
 import {
   Box,
-  Button,
-  Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
-  DialogTitle,
   TextField,
   Theme,
   createStyles,
   makeStyles,
 } from "@material-ui/core";
+import PrimaryWarningButton from "components/Shared/Button/PrimaryWarningButton";
+import SecondaryButton from "components/Shared/Button/SecondaryButton";
+import { SecondaryTextColor } from "components/Shared/Colors/GlobalColors";
+import ModalDialog from "components/Shared/Modal/ModalDialog";
+import Text, { TextVariants } from "components/Shared/Text/Text";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { RequestStatusEnum } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { respondToPurchaseOrderApprovalRequestMutation } from "lib/api/purchaseOrders";
+import { rejectPurchaseOrderMutation } from "lib/api/purchaseOrders";
 import { useContext, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -54,18 +54,15 @@ function ReviewPurchaseOrderRejectModalNew({
 
   const [rejectionNote, setRejectionNote] = useState("");
 
-  const [
-    respondToApprovalRequest,
-    { loading: isRespondToApprovalRequestLoading },
-  ] = useCustomMutation(respondToPurchaseOrderApprovalRequestMutation);
+  const [rejectPurchaseOrder, { loading: isRejectPurchaseOrderLoading }] =
+    useCustomMutation(rejectPurchaseOrderMutation);
 
   const handleClickReject = async () => {
-    const response = await respondToApprovalRequest({
+    const response = await rejectPurchaseOrder({
       variables: {
         purchase_order_id: purchaseOrderId,
-        new_request_status: RequestStatusEnum.Rejected,
         rejection_note: rejectionNote,
-        rejected_by_user_id: user.id,
+        rejected_by_user_id: !!user?.id || null,
         link_val: linkVal,
       },
     });
@@ -79,23 +76,15 @@ function ReviewPurchaseOrderRejectModalNew({
     }
   };
 
-  const isSubmitDisabled = !rejectionNote || isRespondToApprovalRequestLoading;
+  const isSubmitDisabled = !rejectionNote || isRejectPurchaseOrderLoading;
 
   return (
-    <Dialog
-      open
-      onClose={handleClose}
-      maxWidth="lg"
-      classes={{ paper: classes.dialog }}
-    >
-      <DialogTitle className={classes.dialogTitle}>
-        Record Rejection Reason
-      </DialogTitle>
+    <ModalDialog title={"Record Rejection Reason"} handleClose={handleClose}>
       <DialogContent>
-        <DialogContentText>
+        <Text textVariant={TextVariants.Paragraph} color={SecondaryTextColor}>
           Please enter in a reason for your rejection of the Purchase Order.
           After you are finished, press the "Confirm" button below.
-        </DialogContentText>
+        </Text>
         <Box display="flex" flexDirection="column">
           <TextField
             multiline
@@ -107,19 +96,21 @@ function ReviewPurchaseOrderRejectModalNew({
         </Box>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>
-        <Button variant={"contained"} color={"default"} onClick={handleClose}>
-          Cancel
-        </Button>
-        <Button
-          disabled={isSubmitDisabled}
-          variant={"contained"}
-          color={"primary"}
+        <SecondaryButton
+          text={"Cancel"}
+          width={"101px"}
+          height={"50px"}
+          onClick={handleClose}
+        />
+        <PrimaryWarningButton
+          isDisabled={isSubmitDisabled}
+          text={"Confirm"}
+          width={"101px"}
+          height={"50px"}
           onClick={handleClickReject}
-        >
-          Confirm
-        </Button>
+        />
       </DialogActions>
-    </Dialog>
+    </ModalDialog>
   );
 }
 

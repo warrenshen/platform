@@ -5,7 +5,7 @@ from typing import Any, Callable, List, cast
 from bespoke import errors
 from bespoke.audit import events
 from bespoke.date import date_util
-from bespoke.db import models, models_util
+from bespoke.db import models, models_util, queries
 from bespoke.db.db_constants import RequestStatusEnum, TwoFactorLinkType, NewPurchaseOrderStatus
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
@@ -669,6 +669,143 @@ class RespondToApprovalRequestNewView(MethodView):
 			'msg': 'Purchase Order {} approval request responded to'.format(purchase_order_id)
 		}), 200)
 
+class ApprovePurchaseOrderView(MethodView):
+	"""
+	POST request that handles the following:
+	1. Vendor user approves a purchase order.
+	2. Bank user approves a purchase order on behalf of the vendor.
+	"""
+	decorators = [auth_util.login_required]
+
+	@events.wrap(events.Actions.PURCHASE_ORDER_RESPOND_TO_APPROVAL)
+	@handler_util.catch_bad_json_request
+	def post(self, event: events.Event, **kwargs: Any) -> Response:
+		cfg = cast(Config, current_app.app_config)
+		sendgrid_client = cast(
+			sendgrid_util.Client,
+			current_app.sendgrid_client,
+		)
+
+		data = json.loads(request.data)
+		if not data:
+			raise errors.Error('No data provided')
+
+		required_keys = [
+			'purchase_order_id',
+			'rejection_note',
+			'link_val',
+		]
+		for key in required_keys:
+			if key not in data:
+				raise errors.Error(f'Missing {key} in respond to approval request')
+
+		purchase_order_id = data['purchase_order_id']
+		rejection_note = data['rejection_note']
+		link_val = data['link_val']
+
+		if not purchase_order_id:
+			raise errors.Error('No Purchase Order ID provided')
+
+		vendor_name = ''
+		customer_name = ''
+		purchase_order_number = ''
+		purchase_order_amount = ''
+		purchase_order_requested_date = ''
+		action_type = ''
+		approved_by_user_id = data['approved_by_user_id'] if 'approved_by_user_id' in data else None
+		
+		user_session = auth_util.UserSession.from_session()
+		is_bank_admin = user_session.is_bank_admin()
+
+		with session_scope(current_app.session_maker) as session:
+			if is_bank_admin:
+				user = session.query(models.User) \
+					.filter(models.User.email == user_session.get_user_id()) \
+						.first()
+				if user:
+					event.user_id(str(user.id))
+			else:
+				two_factor_info, bespoke_err = two_factor_util.get_two_factor_link(
+					link_val, cfg.get_security_config(),
+					max_age_in_seconds=security_util.SECONDS_IN_DAY * 7, session=session)
+				if bespoke_err:
+					return handler_util.make_error_response(bespoke_err)
+				two_factor_link = two_factor_info['link']
+
+				user = session.query(models.User) \
+					.filter(models.User.email == two_factor_info['email']) \
+					.first()
+				if user:
+					event.user_id(str(user.id))
+
+			purchase_order, err = purchase_orders_util.approve_purchase_order(
+				session,
+				purchase_order_id,
+				str(user.id),
+				is_bank_admin,
+			)
+			if err:
+				raise err
+
+			customer_users = models_util.get_active_users(
+				purchase_order.company_id, 
+				session, 
+				filter_contact_only=True
+			)
+
+			if not customer_users:
+				raise errors.Error('There are no users configured for this customer')
+
+			vendor_name = purchase_order.vendor.get_display_name()
+			customer_name = purchase_order.company.get_display_name()
+			#customer_emails = [user.email for user in customer_users]
+			customer_emails = [cfg.NO_REPLY_EMAIL_ADDRESS]
+
+			submit_resp, err = approval_util.submit_for_approval_if_has_autofinancing(
+				session=session,
+				company_id=str(purchase_order.company_id),
+				amount=float(purchase_order.amount),
+				artifact_id=str(purchase_order.id),
+				requested_by_user_id=user_session.get_user_id(),
+
+			)
+			if err:
+				if err.msg.find("psycopg2.errors.ForeignKeyViolation"):
+					raise errors.Error('Unable to submit autofinanced loan.')
+				else:
+					raise err
+
+			if submit_resp:
+				# Only trigger the email if indeed we performed autofinancing
+				success, err = approval_util.send_loan_approval_requested_email(
+					sendgrid_client, submit_resp)
+				if err:
+					raise err
+
+			template_name = sendgrid_util.TemplateNames.VENDOR_APPROVED_PURCHASE_ORDER
+			template_data = {
+				'vendor_name': vendor_name,
+				'customer_name': customer_name,
+				'purchase_order_number': purchase_order_number,
+				'purchase_order_amount': purchase_order_amount,
+				'purchase_order_requested_date': purchase_order_requested_date,
+				'is_autofinancing_enabled': submit_resp['triggered_by_autofinancing'] if submit_resp else False,
+			}
+			recipients = customer_emails + sendgrid_client.get_bank_notify_email_addresses()
+
+			_, err = sendgrid_client.send(
+				template_name=template_name,
+				template_data=template_data,
+				recipients=recipients,
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': 'Purchase Order {} approval request responded to'.format(purchase_order_id)
+		}), 200)
+
 class RespondToIncompleteRequestView(MethodView):
 	"""
 	POST request that handles the following:
@@ -949,6 +1086,258 @@ class ReopenView(MethodView):
 			'msg': 'Purchase Order {} reopened'.format(purchase_order_id)
 		}), 200)
 
+class RejectPurchaseOrderView(MethodView):
+	"""
+	POST request that handles the following:
+	1. Vendor user rejects a purchase order - note is recorded in purchase_order.rejection_note.
+	2. Bank user rejects a purchase order - note is recorded in purchase_order.bank_rejection_note.
+	"""
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		cfg = cast(Config, current_app.app_config)
+		sendgrid_client = cast(
+			sendgrid_util.Client,
+			current_app.sendgrid_client,
+		)
+
+		data = json.loads(request.data)
+		if not data:
+			raise errors.Error('No data provided')
+
+		required_keys = [
+			'purchase_order_id',
+			'rejection_note',
+			'rejected_by_user_id',
+			'link_val',
+		]
+		for key in required_keys:
+			if key not in data:
+				raise errors.Error(f'Missing {key} in respond to rejection request')
+
+		purchase_order_id = data['purchase_order_id']
+		rejection_note = data['rejection_note']
+		rejected_by_user_id = data['rejected_by_user_id']
+		link_val = data['link_val']
+
+		if not purchase_order_id:
+			raise errors.Error('No Purchase Order ID provided')
+
+		user_session = auth_util.UserSession.from_session()
+
+		with session_scope(current_app.session_maker) as session:
+			is_bank_admin = user_session.is_bank_admin()
+			user = None
+			if is_bank_admin:
+				user, err = queries.get_user_by_id(
+					session,
+					user_session.get_user_id(),
+				)
+				if err:
+					raise err
+			else:
+				two_factor_info, bespoke_err = two_factor_util.get_two_factor_link(
+					link_val, cfg.get_security_config(),
+					max_age_in_seconds=security_util.SECONDS_IN_DAY * 7, session=session)
+				if bespoke_err:
+					return handler_util.make_error_response(bespoke_err)
+				two_factor_link = two_factor_info['link']
+
+				user = session.query(models.User) \
+					.filter(models.User.email == two_factor_info['email']) \
+					.first()
+
+			purchase_order, err = purchase_orders_util.reject_purchase_order(
+				session,
+				purchase_order_id,
+				str(user.id),
+				rejection_note,
+				is_bank_admin,
+			)
+			if err:
+				raise err
+
+			purchase_order_number = purchase_order.order_number
+			purchase_order_amount = number_util.to_dollar_format(float(purchase_order.amount))
+			purchase_order_requested_date = date_util.human_readable_yearmonthday(
+				purchase_order.requested_at if purchase_order.requested_at is not None else date_util.now()
+			)
+			vendor_name = purchase_order.vendor.get_display_name()
+
+			customer_users = models_util.get_active_users(
+				purchase_order.company_id, 
+				session, 
+				filter_contact_only=True
+			)
+
+			if not customer_users:
+				raise errors.Error('There are no users configured for this customer')
+
+			customer_name = purchase_order.company.get_display_name()
+			#customer_emails = [user.email for user in customer_users]
+			customer_emails = [cfg.NO_REPLY_EMAIL_ADDRESS]
+
+			if is_bank_admin:
+				template_name = sendgrid_util.TemplateNames.BANK_REJECTED_PURCHASE_ORDER
+				template_data = {
+					'customer_name': customer_name,
+					'purchase_order_number': purchase_order_number,
+					'purchase_order_amount': purchase_order_amount,
+					'purchase_order_requested_date': purchase_order_requested_date,
+					'rejection_note': rejection_note,
+				}
+				recipients = customer_emails
+			else:
+				template_name = sendgrid_util.TemplateNames.VENDOR_REJECTED_PURCHASE_ORDER
+				template_data = {
+					'vendor_name': vendor_name,
+					'customer_name': customer_name,
+					'purchase_order_number': purchase_order_number,
+					'purchase_order_amount': purchase_order_amount,
+					'purchase_order_requested_date': purchase_order_requested_date,
+					'rejection_note': rejection_note,
+				}
+				recipients = customer_emails + sendgrid_client.get_bank_notify_email_addresses()
+
+			_, err = sendgrid_client.send(
+				template_name = template_name,
+				template_data = template_data,
+				recipients = recipients,
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': 'Purchase Order {} has been successfully rejected'.format(purchase_order_id)
+		}), 200)
+
+class RequestPurchaseOrderChangesView(MethodView):
+	"""
+	POST request that handles the following:
+	1. Vendor user requests changes to a purchase order - note is recorded in purchase_order.requested_changes_note.
+	2. Bank user requests changes to a purchase order - note is recorded in purchase_order.all_bank_notes["requested_changes"].
+	"""
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		cfg = cast(Config, current_app.app_config)
+		sendgrid_client = cast(
+			sendgrid_util.Client,
+			current_app.sendgrid_client,
+		)
+
+		data = json.loads(request.data)
+		if not data:
+			raise errors.Error('No data provided')
+
+		required_keys = [
+			'purchase_order_id',
+			'requested_changes_note',
+			'requested_by_user_id',
+			'link_val',
+		]
+		for key in required_keys:
+			if key not in data:
+				raise errors.Error(f'Missing {key} in respond to change request')
+
+		purchase_order_id = data['purchase_order_id']
+		requested_changes_note = data['requested_changes_note']
+		requested_by_user_id = data['requested_by_user_id']
+		link_val = data['link_val']
+
+		if not purchase_order_id:
+			raise errors.Error('No Purchase Order ID provided')
+
+		user_session = auth_util.UserSession.from_session()
+
+		with session_scope(current_app.session_maker) as session:
+			is_bank_admin = user_session.is_bank_admin()
+			user = None
+			if is_bank_admin:
+				user, err = queries.get_user_by_id(
+					session,
+					user_session.get_user_id(),
+				)
+				if err:
+					raise err
+			else:
+				two_factor_info, bespoke_err = two_factor_util.get_two_factor_link(
+					link_val, cfg.get_security_config(),
+					max_age_in_seconds=security_util.SECONDS_IN_DAY * 7, session=session)
+				if bespoke_err:
+					return handler_util.make_error_response(bespoke_err)
+				two_factor_link = two_factor_info['link']
+
+				user = session.query(models.User) \
+					.filter(models.User.email == two_factor_info['email']) \
+					.first()
+
+			purchase_order, err = purchase_orders_util.request_purchase_order_changes(
+				session,
+				purchase_order_id,
+				str(user.id),
+				requested_changes_note,
+				is_bank_admin,
+			)
+			if err:
+				raise err
+
+			purchase_order_number = purchase_order.order_number
+			purchase_order_amount = number_util.to_dollar_format(float(purchase_order.amount))
+			purchase_order_requested_date = date_util.human_readable_yearmonthday(
+				purchase_order.requested_at if purchase_order.requested_at is not None else date_util.now()
+			)
+			vendor_name = purchase_order.vendor.get_display_name()
+
+			customer_users = models_util.get_active_users(
+				purchase_order.company_id, 
+				session, 
+				filter_contact_only=True
+			)
+
+			if not customer_users:
+				raise errors.Error('There are no users configured for this customer')
+
+			customer_name = purchase_order.company.get_display_name()
+			#customer_emails = [user.email for user in customer_users]
+			customer_emails = [cfg.NO_REPLY_EMAIL_ADDRESS]
+
+			if is_bank_admin:
+				template_name = sendgrid_util.TemplateNames.BANK_REQUESTS_CHANGES_TO_PURCHASE_ORDER
+				template_data = {
+					'customer_name': customer_name,
+					'purchase_order_number': purchase_order_number,
+					'purchase_order_amount': purchase_order_amount,
+					'purchase_order_requested_date': purchase_order_requested_date,
+					'requested_changes_note': requested_changes_note,
+					'support_email': '<a href="mailto:support@bespokefinancial.com">support@bespokefinancial.com</a>',
+				}
+				recipients = customer_emails
+			else:
+				template_name = sendgrid_util.TemplateNames.VENDOR_REQUESTS_CHANGES_TO_PURCHASE_ORDER
+				template_data = {
+					'vendor_name': vendor_name,
+					'customer_name': customer_name,
+					'purchase_order_number': purchase_order_number,
+					'purchase_order_amount': purchase_order_amount,
+					'purchase_order_requested_date': purchase_order_requested_date,
+					'requested_changes_note': requested_changes_note,
+					'support_email': '<a href="mailto:support@bespokefinancial.com">support@bespokefinancial.com</a>',
+				}
+				recipients = customer_emails + sendgrid_client.get_bank_notify_email_addresses()
+
+			_, err = sendgrid_client.send(
+				template_name = template_name,
+				template_data = template_data,
+				recipients = recipients,
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': 'Purchase Order {} has been successfully rejected'.format(purchase_order_id)
+		}), 200)
+
 handler.add_url_rule(
 	'/create_update_as_draft',
 	view_func=CreateUpdateAsDraftView.as_view(
@@ -994,6 +1383,12 @@ handler.add_url_rule(
 )
 
 handler.add_url_rule(
+	'/approve_purchase_order',
+	view_func=ApprovePurchaseOrderView.as_view(
+		name='approve_purchase_order_view')
+)
+
+handler.add_url_rule(
 	'/respond_to_approval_request_new',
 	view_func=RespondToApprovalRequestNewView.as_view(
 		name='respond_to_approval_request_new')
@@ -1022,4 +1417,14 @@ handler.add_url_rule(
 handler.add_url_rule(
 	'/reopen',
 	view_func=ReopenView.as_view(name='reopen')
+)
+
+handler.add_url_rule(
+	'/reject_purchase_order',
+	view_func=RejectPurchaseOrderView.as_view(name='reject_purchase_order_view')
+)
+
+handler.add_url_rule(
+	'/request_purchase_order_changes',
+	view_func=RequestPurchaseOrderChangesView.as_view(name='request_purchase_order_changes_view')
 )

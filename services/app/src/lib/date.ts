@@ -24,6 +24,7 @@ import { range } from "lodash";
 
 export const DayInMilliseconds = 1000 * 60 * 60 * 24;
 export const DateFormatClient = "MM/dd/yyyy";
+export const DateFormatClientShort = "MM/dd/yy";
 export const DateFormatClientMonthDayOnly = "MM/dd";
 export const DateFormatClientYearOnly = "yyyy";
 export const DateFormatFileName = "yyyyMMdd"; // Date format used in file names.
@@ -180,17 +181,20 @@ export function formatDateStringAsMonth(dateString: string) {
 export function formatDatetimeString(
   datetimeString: string,
   isTimeVisible: boolean = true,
-  defaultIfNull: string = "Invalid Datetime"
+  defaultIfNull: string = "Invalid Datetime",
+  isShortYear?: boolean
 ) {
   if (!datetimeString) {
     return defaultIfNull;
   } else {
     try {
+      const dateFormat = !!isShortYear
+        ? DateFormatClientShort
+        : DateFormatClient;
+
       return format(
         parseISO(datetimeString),
-        isTimeVisible
-          ? `${DateFormatClient} ${TimeFormatClient}`
-          : DateFormatClient
+        isTimeVisible ? `${dateFormat} ${TimeFormatClient}` : dateFormat
       );
     } catch (error) {
       console.error(

@@ -19,6 +19,7 @@ from sqlalchemy import (JSON, BigInteger, Boolean, Column, Date, DateTime,
 from sqlalchemy.engine import Engine
 from sqlalchemy.exc import OperationalError, StatementError, TimeoutError
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.orm.query import Query as _Query
 from sqlalchemy.orm.session import Session
@@ -837,6 +838,8 @@ class PurchaseOrder(Artifact):
 	customer_note = Column(Text)
 	bank_note = Column(Text)
 	closed_at = Column(DateTime)
+	all_bank_notes = Column(MutableDict.as_mutable(JSON)) # type: ignore
+	all_customer_notes = Column(MutableDict.as_mutable(JSON)) # type: ignore
 
 	vendor = relationship(
 		'Company',

@@ -15,6 +15,12 @@
   include_in_metadata: true
   payload:
     job_name: loans_past_due
+- name: async_update_all_customer_balances
+  webhook: '{{ASYNC_SERVER_BASE_URL}}/async_jobs/generate_jobs'
+  schedule: 3 * * * *
+  include_in_metadata: true
+  payload:
+    job_name: update_company_balances
 - name: auto_generate_loan_repayments
   webhook: '{{ASYNC_SERVER_BASE_URL}}/autogenerate/autogenerate_repayment'
   schedule: 0 9 * * 1-5
@@ -41,24 +47,6 @@
   headers:
     - name: x-api-key
       value_from_env: ASYNC_SERVER_API_KEY
-- name: dummy
-  webhook: '{{ASYNC_SERVER_BASE_URL}}/async_jobs/enqueue-job'
-  schedule: 1 0 * * *
-  include_in_metadata: true
-  payload:
-    job_name: dummy
-    submitted_by_user_id: null
-    job_payload:
-      value: hello world
-    is_high_priority: true
-  retry_conf:
-    num_retries: 0
-    timeout_seconds: 3600
-    tolerance_seconds: 21600
-    retry_interval_seconds: 10
-  headers:
-    - value: ASYNC_SERVER_API_KEY
-      name: x-api-key
 - name: expire_old_borrowing_base_certifications
   webhook: '{{ASYNC_SERVER_BASE_URL}}/triggers/expire-active-ebba-applications'
   schedule: 15 0 * * *

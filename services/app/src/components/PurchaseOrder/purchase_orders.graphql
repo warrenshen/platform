@@ -213,3 +213,23 @@ query GetFundablePurchaseOrdersByCompanyId($company_id: uuid!) {
     ...PurchaseOrderLimited
   }
 }
+
+query GetVendorReviewablePurchaseOrders($vendor_id: uuid!) {
+  purchase_orders(
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { vendor_id: { _eq: $vendor_id } }
+        { new_purchase_order_status: { _eq: "pending_approval_by_vendor" } }
+      ]
+    }
+    order_by: [{ requested_at: asc }]
+  ) {
+    ...PurchaseOrderLimitedNew
+  }
+}

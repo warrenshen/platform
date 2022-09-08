@@ -1,16 +1,15 @@
 import {
   Box,
   Button,
-  Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
-  DialogTitle,
   Theme,
   createStyles,
   makeStyles,
 } from "@material-ui/core";
 import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
+import ModalDialog from "components/Shared/Modal/ModalDialog";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   BankAccountFragment,
@@ -20,7 +19,7 @@ import {
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { respondToPurchaseOrderApprovalRequestNewMutation } from "lib/api/purchaseOrders";
+import { approvePurchaseOrderutation } from "lib/api/purchaseOrders";
 import { useContext } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -74,10 +73,8 @@ function ReviewPurchaseOrderApproveModalNew({
     console.error({ error });
   }
 
-  const [
-    respondToApprovalRequest,
-    { loading: isRespondToApprovalRequestLoading },
-  ] = useCustomMutation(respondToPurchaseOrderApprovalRequestNewMutation);
+  const [approvePurchaseOrder, { loading: isApprovePurchaseOrderLoading }] =
+    useCustomMutation(approvePurchaseOrderutation);
 
   if (!data?.company_vendor_partnerships[0]?.vendor_bank_account) {
     if (!isCompanyVendorPartnershipLoading) {
@@ -92,7 +89,7 @@ function ReviewPurchaseOrderApproveModalNew({
     .vendor_bank_account as BankAccountFragment;
 
   const handleClickApprove = async () => {
-    const response = await respondToApprovalRequest({
+    const response = await approvePurchaseOrder({
       variables: {
         purchase_order_id: purchaseOrder.id,
         new_request_status: RequestStatusEnum.Approved,
@@ -109,19 +106,14 @@ function ReviewPurchaseOrderApproveModalNew({
     }
   };
 
-  const isSubmitDisabled = isRespondToApprovalRequestLoading;
+  const isSubmitDisabled = isApprovePurchaseOrderLoading;
 
   return (
-    <Dialog
-      open
-      onClose={handleClose}
-      maxWidth="lg"
-      classes={{ paper: classes.dialog }}
+    <ModalDialog
+      handleClose={handleClose}
+      title={"Confirm Bank Information"}
       data-cy={"review-bank-information-modal"}
     >
-      <DialogTitle className={classes.dialogTitle}>
-        Confirm Bank Information
-      </DialogTitle>
       <DialogContent>
         <DialogContentText>
           Please verify that your bank information below is up-to-date. This
@@ -146,7 +138,7 @@ function ReviewPurchaseOrderApproveModalNew({
           Confirm
         </Button>
       </DialogActions>
-    </Dialog>
+    </ModalDialog>
   );
 }
 

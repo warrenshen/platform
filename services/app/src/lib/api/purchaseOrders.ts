@@ -1,4 +1,5 @@
 import {
+  Maybe,
   PurchaseOrderFilesInsertInput,
   PurchaseOrderMetrcTransfersInsertInput,
   PurchaseOrders,
@@ -37,7 +38,7 @@ export async function createUpdatePurchaseOrderAsDraftMutation(
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error(error);
         return {
           status: "ERROR",
           msg: "Could not save purchase order",
@@ -55,7 +56,7 @@ export async function createUpdatePurchaseOrderAsDraftNewMutation(
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error(error);
         return {
           status: "ERROR",
           msg: "Could not save purchase order",
@@ -89,7 +90,7 @@ export async function createUpdatePurchaseOrderAndSubmitMutation(
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error(error);
         return {
           status: "ERROR",
           msg: "Could not save and submit purchase order",
@@ -107,7 +108,7 @@ export async function createUpdatePurchaseOrderAndSubmitNewMutation(
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error(error);
         return {
           status: "ERROR",
           msg: "Could not save and submit purchase order",
@@ -132,7 +133,7 @@ export async function updatePurchaseOrderMutation(
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error(error);
         return {
           status: "ERROR",
           msg: "Could not update purchase order",
@@ -156,7 +157,7 @@ export async function submitPurchaseOrderMutation(
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error(error);
         return {
           status: "ERROR",
           msg: "Could not submit purchase order",
@@ -176,6 +177,24 @@ export type RespondToPurchaseOrderApprovalReq = {
   };
 };
 
+export async function respondToPurchaseOrderApprovalRequestMutation(
+  req: RespondToPurchaseOrderApprovalReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(purchaseOrdersRoutes.respondToApprovalRequest, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.error(error);
+        return {
+          status: "ERROR",
+          msg: "Could not respond to purchase order approval request",
+        };
+      }
+    );
+}
+
 export type RespondToPurchaseOrderApprovalNewReq = {
   variables: {
     purchase_order_id: PurchaseOrders["id"];
@@ -187,16 +206,16 @@ export type RespondToPurchaseOrderApprovalNewReq = {
   };
 };
 
-export async function respondToPurchaseOrderApprovalRequestMutation(
-  req: RespondToPurchaseOrderApprovalReq
+export async function respondToPurchaseOrderApprovalRequestNewMutation(
+  req: RespondToPurchaseOrderApprovalNewReq
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(purchaseOrdersRoutes.respondToApprovalRequest, req.variables)
+    .post(purchaseOrdersRoutes.approvePurchaseOrder, req.variables)
     .then((res) => res.data)
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error(error);
         return {
           status: "ERROR",
           msg: "Could not respond to purchase order approval request",
@@ -205,19 +224,59 @@ export async function respondToPurchaseOrderApprovalRequestMutation(
     );
 }
 
-export async function respondToPurchaseOrderApprovalRequestNewMutation(
-  req: RespondToPurchaseOrderApprovalNewReq
+export type ApprovePurchaseOrderReq = {
+  variables: {
+    purchase_order_id: PurchaseOrders["id"];
+    new_request_status: RequestStatusEnum;
+    rejection_note: string;
+    rejected_by_user_id?: Users["id"];
+    approved_by_user_id?: Users["id"];
+    link_val: string;
+  };
+};
+
+export async function approvePurchaseOrderutation(
+  req: ApprovePurchaseOrderReq
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(purchaseOrdersRoutes.respondToApprovalRequestNew, req.variables)
+    .post(purchaseOrdersRoutes.approvePurchaseOrder, req.variables)
     .then((res) => res.data)
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error(error);
         return {
           status: "ERROR",
-          msg: "Could not respond to purchase order approval request",
+          msg: "Could not approve purchase order",
+        };
+      }
+    );
+}
+
+export type RespondToPurchaseOrderRequestChangesReq = {
+  variables: {
+    purchase_order_id: PurchaseOrders["id"];
+    new_request_status: RequestStatusEnum;
+    rejection_note: string;
+    rejected_by_user_id?: Users["id"];
+    approved_by_user_id?: Users["id"];
+    link_val: string;
+  };
+};
+
+export async function respondToPurchaseOrderRequestChangesMutation(
+  req: RespondToPurchaseOrderRequestChangesReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(purchaseOrdersRoutes.respondToRequestChanges, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.error(error);
+        return {
+          status: "ERROR",
+          msg: "Could not respond to purchase order change request",
         };
       }
     );
@@ -241,7 +300,7 @@ export async function respondToPurchaseOrderIncompleteRequestMutation(
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error(error);
         return {
           status: "ERROR",
           msg: "Could not respond to purchase order incomplete request",
@@ -266,7 +325,7 @@ export async function updateBankFieldsMutation(
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error(error);
         return {
           status: "ERROR",
           msg: "Could not update purchase order",
@@ -290,7 +349,7 @@ export async function deletePurchaseOrderMutation(
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error(error);
         return {
           status: "ERROR",
           msg: "Could not delete purchase order",
@@ -314,7 +373,7 @@ export async function closePurchaseOrderMutation(
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error(error);
         return {
           status: "ERROR",
           msg: "Could not close purchase order",
@@ -338,10 +397,64 @@ export async function reopenPurchaseOrderMutation(
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error(error);
         return {
           status: "ERROR",
           msg: "Could not reopen purchase order",
+        };
+      }
+    );
+}
+
+export type RejectPurchaseOrderReq = {
+  variables: {
+    purchase_order_id: PurchaseOrders["id"];
+    rejection_note: string;
+    rejected_by_user_id: Maybe<string>;
+    link_val: string;
+  };
+};
+
+export async function rejectPurchaseOrderMutation(
+  req: RejectPurchaseOrderReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(purchaseOrdersRoutes.rejectPurchaseOrder, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.error(error);
+        return {
+          status: "ERROR",
+          msg: "Could not reject purchase order",
+        };
+      }
+    );
+}
+
+export type RequestPurchaseOrderChangesReq = {
+  variables: {
+    purchase_order_id: PurchaseOrders["id"];
+    requested_changes_note: string;
+    requested_by_user_id: Maybe<string>;
+    link_val: string;
+  };
+};
+
+export async function requestPurchaseOrderChangesMutation(
+  req: RequestPurchaseOrderChangesReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(purchaseOrdersRoutes.requestPurchaseOrderChanges, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.error(error);
+        return {
+          status: "ERROR",
+          msg: "Could not request purchase order changes",
         };
       }
     );

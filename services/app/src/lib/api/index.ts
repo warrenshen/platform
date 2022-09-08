@@ -114,8 +114,11 @@ export const purchaseOrdersRoutes = {
   update: "/purchase_orders/update",
   submit: "/purchase_orders/submit",
   respondToApprovalRequest: "/purchase_orders/respond_to_approval_request",
-  respondToApprovalRequestNew:
-    "/purchase_orders/respond_to_approval_request_new",
+  respondToRequestChanges: "/purchase_orders/respond_to_request_changes",
+  approvePurchaseOrder: "/purchase_orders/approve_purchase_order",
+  rejectPurchaseOrder: "/purchase_orders/reject_purchase_order",
+  requestPurchaseOrderChanges:
+    "/purchase_orders/request_purchase_order_changes",
   respondToIncompleteRequest: "/purchase_orders/respond_to_incomplete_request",
   updateBankFields: "/purchase_orders/update_bank_fields",
   delete: "/purchase_orders/delete",

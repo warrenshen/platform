@@ -204,17 +204,21 @@ select_permissions:
         - amount_funded
         - approved_at
         - approved_by_user_id
+        - bank_incomplete_note
+        - bank_rejection_note
         - closed_at
         - company_id
         - created_at
         - customer_note
         - delivery_date
+        - funded_at
         - id
         - incompleted_at
         - is_cannabis
         - is_deleted
         - is_metrc_based
         - net_terms
+        - new_purchase_order_status
         - order_date
         - order_number
         - rejected_at
@@ -222,7 +226,6 @@ select_permissions:
         - rejection_note
         - requested_at
         - status
-        - new_purchase_order_status
         - updated_at
         - vendor_id
       filter:

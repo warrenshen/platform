@@ -360,6 +360,26 @@ def get_open_repayments_by_company_ids(
 # Purchase Orders
 # ###############################
 
+def get_purchase_order_by_id(
+    session: Session,
+    purchase_order_id: str,
+) -> Tuple[ models.PurchaseOrder, errors.Error]:
+    filters = [
+        models.PurchaseOrder.id == purchase_order_id,
+    ]
+
+    # fmt: off
+    purchase_order = cast(
+        models.PurchaseOrder,
+        session.query(models.PurchaseOrder).filter(
+            *filters
+        ).first())
+
+    if not purchase_order:
+        return None, errors.Error("Could not find a purchase order in our system with the given id")
+
+    return purchase_order, None
+
 def get_purchase_orders(
     session: Session,
     purchase_order_ids: List[str],

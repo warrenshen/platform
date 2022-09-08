@@ -1,6 +1,7 @@
 import { Box, Button, Link, Typography } from "@material-ui/core";
 import InsertDriveFileIcon from "@material-ui/icons/InsertDriveFile";
 import { ReactComponent as CloseIcon } from "components/Shared/Layout/Icons/Close.svg";
+import Text, { TextVariants } from "components/Shared/Text/Text";
 import { Files } from "generated/graphql";
 import { FileWithSignedURL, downloadFilesWithSignedUrls } from "lib/api/files";
 import { formatDatetimeString } from "lib/date";
@@ -15,7 +16,7 @@ const File = styled.div`
   height: 56px;
   margin-bottom: 8px;
   border: 1px solid rgba(95, 90, 84, 0.2);
-  border-radius: 4px;
+  border-radius: 8px;
 `;
 
 const FileLink = styled(Link)`
@@ -166,13 +167,13 @@ export default function DownloadThumbnail({
       <Box display="flex" flexDirection="column">
         {isCountVisible && (
           <Box>
-            <Typography variant={"body2"} color={"textSecondary"}>
+            <Text textVariant={TextVariants.SmallLabel}>
               {`${fileIds.length} file(s) attached`}
-            </Typography>
+            </Text>
           </Box>
         )}
         {filesWithSignedUrls.length > 0 && (
-          <Box display="flex" flexDirection="column" mt={1}>
+          <Box display="flex" flexDirection="column">
             {filesWithSignedUrls.map((fileWithSignedUrl) => (
               <FileDownloadThumnail
                 key={fileWithSignedUrl.id}
