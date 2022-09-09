@@ -546,6 +546,8 @@ def create_financial_summary(
 
 def create_purchase_order(
     session: Session,
+    all_bank_notes: Dict,
+    all_customer_notes: Dict,
     amount: float,
     amount_funded: float,
     amount_updated_at: datetime.datetime,
@@ -576,6 +578,8 @@ def create_purchase_order(
     vendor_id: str,
 ) -> Tuple[models.PurchaseOrder, errors.Error]:
     purchase_order = models.PurchaseOrder( # type: ignore
+        all_bank_notes = all_bank_notes,
+        all_customer_notes = all_customer_notes,
         amount = Decimal(amount),
         amount_funded = Decimal(amount_funded),
         #amount_updated_at = amount_updated_at,

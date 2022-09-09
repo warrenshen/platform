@@ -253,6 +253,8 @@ const getBankNavItems = (
   partnershipRequestsCount: number,
   debtFacilityUpdateCount: number
 ): NavItem[] => {
+  const environment = process.env.REACT_APP_BESPOKE_ENVIRONMENT;
+
   return [
     {
       dataCy: "overview",
@@ -293,6 +295,7 @@ const getBankNavItems = (
       isBankMenu: true,
     },
     {
+      visible: environment !== "production",
       dataCy: "purchase-orders-new",
       iconNode: PurchaseOrdersIcon,
       text: "Purchase Orders New",

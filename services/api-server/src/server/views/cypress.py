@@ -807,9 +807,10 @@ class AddPurchaseOrderView(MethodView):
 
 		for key in required_keys:
 			if key not in form:
-				logging.info(key)
 				return handler_util.make_error_response(f'Missing {key} in response to creating a purchase order for a Cypress test')
 
+		all_bank_notes = get_field_or_default(form, 'all_bank_notes', {})
+		all_customer_notes = get_field_or_default(form, 'all_customer_notes', {})
 		amount = get_field_or_default(form, 'amount', 1000.00)
 		amount_funded = get_field_or_default(form, 'amount_funded', 0.0)
 		amount_updated_at = get_field_or_default(form, 'amount_updated_at', None)
@@ -845,6 +846,8 @@ class AddPurchaseOrderView(MethodView):
 
 			purchase_order, err = seed_util.create_purchase_order(
 				session,
+				all_bank_notes,
+				all_customer_notes,
 				amount,
 				amount_funded,
 				amount_updated_at,

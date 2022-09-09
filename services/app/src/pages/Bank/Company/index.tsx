@@ -179,6 +179,8 @@ const getCustomerPaths = (
   isMetrcBased: boolean,
   isBankUser: boolean
 ) => {
+  const environment = process.env.REACT_APP_BESPOKE_ENVIRONMENT;
+
   return [
     {
       visible: !!company?.is_customer,
@@ -211,7 +213,8 @@ const getCustomerPaths = (
               ProductTypeEnum.DispensaryFinancing,
               ProductTypeEnum.InventoryFinancing,
               ProductTypeEnum.PurchaseMoneyFinancing,
-            ].includes(productType),
+            ].includes(productType) &&
+            environment !== "production",
           dataCy: "customer-purchase-orders-new",
           label: "Purchase Orders New",
           path: bankRoutes.company.purchaseOrdersNew,

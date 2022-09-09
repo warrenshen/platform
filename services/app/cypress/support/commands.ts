@@ -651,6 +651,8 @@ function addFinancialSummary({
 }
 
 function addPurchaseOrder({
+  all_bank_notes,
+  all_customer_notes,
   amount,
   amount_funded,
   amount_updated_at,
@@ -686,6 +688,8 @@ function addPurchaseOrder({
     "POST",
     `${Cypress.env("apiServerUrl")}/cypress/add_purchase_order`,
     {
+      all_bank_notes: all_bank_notes || null,
+      all_customer_notes: all_customer_notes || null,
       amount: amount || null,
       amount_funded: amount_funded || null,
       amount_updated_at: amount_updated_at || null,
