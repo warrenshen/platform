@@ -1,20 +1,25 @@
 import { Box, InputAdornment, TextField, Typography } from "@material-ui/core";
+import ReviewPurchaseOrderRejectModalNew from "components/PurchaseOrder/ReviewPurchaseOrderRejectModalNew";
+import ReviewPurchaseOrderRequestChangesModal from "components/PurchaseOrder/ReviewPurchaseOrderRequestChangesModal";
 import ArchivePurchaseOrderModalNew from "components/PurchaseOrder/v2/ArchivePurchaseOrderModalNew";
 import BankPurchaseOrdersDataGridNew from "components/PurchaseOrder/v2/BankPurchaseOrdersDataGridNew";
-import RejectPurchaseOrderModalNew from "components/PurchaseOrder/v2/RejectPurchaseOrderModalNew";
-import RequestChangesPurchaseOrderModal from "components/PurchaseOrder/v2/RequestChangesPurchaseOrderModal";
+import PrimaryButton from "components/Shared/Button/PrimaryButton";
+import SecondaryButton from "components/Shared/Button/SecondaryButton";
+import SecondaryWarningButton from "components/Shared/Button/SecondaryWarningButton";
 import Can from "components/Shared/Can";
-import ModalButton from "components/Shared/Modal/ModalButton";
 import {
   CustomerForBankFragment,
   PurchaseOrderFragment,
   PurchaseOrders,
-  useGetConfirmedPurchaseOrdersNewSubscription,
+  useGetPurchaseOrdersByNewStatusSubscription,
 } from "generated/graphql";
 import { useFilterConfirmedPurchaseOrders } from "hooks/useFilterPurchaseOrders";
 import { SearchIcon } from "icons";
 import { Action } from "lib/auth/rbac-rules";
-import { ReadyNewPurchaseOrderStatuses } from "lib/enum";
+import {
+  NewPurchaseOrderStatus,
+  ReadyNewPurchaseOrderStatuses,
+} from "lib/enum";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
@@ -24,7 +29,20 @@ export default function BankPurchaseOrdersReadyForFinancingTab() {
   const history = useHistory();
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data, error } = useGetConfirmedPurchaseOrdersNewSubscription();
+  const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
+  const [isRequestChangesModalOpen, setIsRequestChangesModalOpen] =
+    useState(false);
+  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+
+  const { data, error } = useGetPurchaseOrdersByNewStatusSubscription({
+    variables: {
+      statuses: [
+        NewPurchaseOrderStatus.ReadyToRequestFinancing,
+        NewPurchaseOrderStatus.FinancingPendingApproval,
+        NewPurchaseOrderStatus.FinancingRequestApproved,
+      ],
+    },
+  });
 
   if (error) {
     console.error({ error });
@@ -66,6 +84,30 @@ export default function BankPurchaseOrdersReadyForFinancingTab() {
 
   return (
     <Box mt={3}>
+      {isArchiveModalOpen && (
+        <ArchivePurchaseOrderModalNew
+          action={Action.ArchivePurchaseOrders}
+          purchaseOrder={selectedPurchaseOrder}
+          handleClose={() => {
+            setSelectedPurchaseOrderIds([]);
+            setIsArchiveModalOpen(false);
+          }}
+        />
+      )}
+      {!!selectedPurchaseOrder && isRequestChangesModalOpen && (
+        <ReviewPurchaseOrderRequestChangesModal
+          purchaseOrderId={selectedPurchaseOrder.id}
+          handleClose={() => setIsRequestChangesModalOpen(false)}
+          handleRequestChangesSuccess={() => {}}
+        />
+      )}
+      {!!selectedPurchaseOrder && isRejectModalOpen && (
+        <ReviewPurchaseOrderRejectModalNew
+          purchaseOrderId={selectedPurchaseOrder.id}
+          handleClose={() => setIsRejectModalOpen(false)}
+          handleRejectSuccess={() => {}}
+        />
+      )}
       <Box
         display="flex"
         justifyContent="space-between"
@@ -78,64 +120,32 @@ export default function BankPurchaseOrdersReadyForFinancingTab() {
         </Box>
         <Box display="flex" flexDirection="row-reverse">
           <Can perform={Action.ApprovePurchaseOrders}>
-            <ModalButton
-              dataCy="request-changes-po-button"
-              isDisabled={selectedPurchaseOrderIds.length !== 1}
-              label={"Request Changes"}
-              modal={({ handleClose }) =>
-                selectedPurchaseOrder ? (
-                  <RequestChangesPurchaseOrderModal
-                    purchaseOrderId={selectedPurchaseOrder.id}
-                    handleClose={() => {
-                      handleClose();
-                      setSelectedPurchaseOrderIds([]);
-                    }}
-                  />
-                ) : null
-              }
+            <PrimaryButton
+              isDisabled={!selectedPurchaseOrder}
+              text={"Request Changes"}
+              width={"184px"}
+              height={"50px"}
+              onClick={() => setIsRequestChangesModalOpen(true)}
             />
           </Can>
           <Box mr={2} />
           <Can perform={Action.DeletePurchaseOrders}>
-            <ModalButton
-              dataCy="reject-completely-po-button"
-              isDisabled={selectedPurchaseOrderIds.length !== 1}
-              label={"Reject Completely"}
-              variant="outlined"
-              color="secondary"
-              modal={({ handleClose }) =>
-                selectedPurchaseOrder ? (
-                  <RejectPurchaseOrderModalNew
-                    purchaseOrderId={selectedPurchaseOrder.id}
-                    handleClose={() => {
-                      handleClose();
-                      setSelectedPurchaseOrderIds([]);
-                    }}
-                  />
-                ) : null
-              }
+            <SecondaryWarningButton
+              isDisabled={!selectedPurchaseOrder}
+              text={"Reject completely"}
+              width={"184px"}
+              height={"50px"}
+              onClick={() => setIsRejectModalOpen(true)}
             />
           </Can>
           <Box mr={2} />
           <Can perform={Action.ArchivePurchaseOrders}>
-            <ModalButton
-              dataCy="archive-po-button"
-              isDisabled={selectedPurchaseOrderIds.length !== 1}
-              label={"Archive"}
-              variant="outlined"
-              color="default"
-              modal={({ handleClose }) =>
-                selectedPurchaseOrder ? (
-                  <ArchivePurchaseOrderModalNew
-                    action={Action.ArchivePurchaseOrders}
-                    purchaseOrder={selectedPurchaseOrder}
-                    handleClose={() => {
-                      handleClose();
-                      setSelectedPurchaseOrderIds([]);
-                    }}
-                  />
-                ) : null
-              }
+            <SecondaryButton
+              isDisabled={!selectedPurchaseOrder}
+              text={"Archive"}
+              width={"184px"}
+              height={"50px"}
+              onClick={() => setIsArchiveModalOpen(true)}
             />
           </Can>
         </Box>

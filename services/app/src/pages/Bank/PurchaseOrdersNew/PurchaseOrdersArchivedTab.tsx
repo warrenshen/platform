@@ -7,12 +7,15 @@ import {
   CustomerForBankFragment,
   PurchaseOrderFragment,
   PurchaseOrders,
-  useGetArchivedPurchaseOrdersSubscription,
+  useGetPurchaseOrdersByNewStatusSubscription,
 } from "generated/graphql";
 import { useFilterConfirmedPurchaseOrders } from "hooks/useFilterPurchaseOrders";
 import { SearchIcon } from "icons";
 import { Action } from "lib/auth/rbac-rules";
-import { ReadyNewPurchaseOrderStatuses } from "lib/enum";
+import {
+  NewPurchaseOrderStatus,
+  ReadyNewPurchaseOrderStatuses,
+} from "lib/enum";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
@@ -21,7 +24,15 @@ export default function BankPurchaseOrdersReadyForFinancingTab() {
   const history = useHistory();
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data, error } = useGetArchivedPurchaseOrdersSubscription();
+  const { data, error } = useGetPurchaseOrdersByNewStatusSubscription({
+    variables: {
+      statuses: [
+        NewPurchaseOrderStatus.Archived,
+        NewPurchaseOrderStatus.RejectedByVendor,
+        NewPurchaseOrderStatus.RejectedByBespoke,
+      ],
+    },
+  });
 
   if (error) {
     console.error({ error });

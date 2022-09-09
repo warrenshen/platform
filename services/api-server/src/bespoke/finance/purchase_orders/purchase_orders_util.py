@@ -832,14 +832,15 @@ def reject_purchase_order(
 	if err:
 		return None, err
 
-	purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.REJECTED_BY_VENDOR
 	purchase_order.rejected_at = date_util.now()
 	purchase_order.rejected_by_user_id = rejected_by_user_id # type: ignore
 
 	if is_bank_admin:
 		purchase_order.all_bank_notes[PurchaseOrderBankNoteEnum.BANK_REJECTION] = rejection_note
+		purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.REJECTED_BY_BESPOKE
 	else:
 		purchase_order.all_customer_notes[PurchaseOrderCustomerNoteEnum.VENDOR_REJECTION] = rejection_note
+		purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.REJECTED_BY_VENDOR
 
 	return purchase_order, None
 

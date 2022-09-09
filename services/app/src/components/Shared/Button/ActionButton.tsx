@@ -24,7 +24,8 @@ const StyledActionButton = styled(Button)<{
   font-size: 16px;
 
   margin: 0 5px;
-  padding: 14px 24px;
+  padding: 14px 0;
+  text-align: center;
 
   width: ${(props) => props.$width};
   height: ${(props) => props.$height};

@@ -6,6 +6,9 @@ import {
   createStyles,
   makeStyles,
 } from "@material-ui/core";
+import ReviewPurchaseOrderApproveModalNew from "components/PurchaseOrder/ReviewPurchaseOrderApproveModalNew";
+import ReviewPurchaseOrderRejectModalNew from "components/PurchaseOrder/ReviewPurchaseOrderRejectModalNew";
+import ReviewPurchaseOrderRequestChangesModal from "components/PurchaseOrder/ReviewPurchaseOrderRequestChangesModal";
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
 import SecondaryButton from "components/Shared/Button/SecondaryButton";
 import SecondaryWarningButton from "components/Shared/Button/SecondaryWarningButton";
@@ -24,13 +27,9 @@ import { FileTypeEnum } from "lib/enum";
 import { formatCurrency } from "lib/number";
 import { computePurchaseOrderDueDateDateStringClient } from "lib/purchaseOrders";
 import { anonymousRoutes } from "lib/routes";
-import ReviewPurchaseOrderRequestChangesModal from "pages/Anonymous/ReviewPurchaseOrderNew/ReviewPurchaseOrderRequestChangesModal";
 import { useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
-
-import ReviewPurchaseOrderApproveModalNew from "./ReviewPurchaseOrderApproveModalNew";
-import ReviewPurchaseOrderRejectModalNew from "./ReviewPurchaseOrderRejectModalNew";
 
 const Buttons = styled.div`
   display: flex;

@@ -71,7 +71,7 @@ subscription GetNotConfirmedPurchaseOrders {
   }
 }
 
-subscription GetNotConfirmedPurchaseOrdersNew {
+subscription GetPurchaseOrdersByNewStatus($statuses: [String!]) {
   purchase_orders(
     where: {
       _and: [
@@ -81,9 +81,7 @@ subscription GetNotConfirmedPurchaseOrdersNew {
             { is_deleted: { _eq: false } }
           ]
         }
-        { approved_at: { _is_null: true } }
-        { incompleted_at: { _is_null: true } }
-        { new_purchase_order_status: { _neq: "archived" } }
+        { new_purchase_order_status: { _in: $statuses } } 
       ]
     }
     order_by: [{ requested_at: desc }, { created_at: desc }]

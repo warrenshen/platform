@@ -11,6 +11,10 @@ import ProgressBarDataGridCell from "components/Shared/DataGrid/ProgressBarDataG
 import ClickableDataGridCell from "components/Shared/DataGrid/v2/ClickableDataGridCell";
 import MetrcLogo from "components/Shared/Images/MetrcLogo.png";
 import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
+import {
   Companies,
   PurchaseOrderFragment,
   PurchaseOrders,
@@ -25,7 +29,9 @@ import {
 import { CurrencyPrecision, formatCurrency } from "lib/number";
 import { computePurchaseOrderDueDateDateStringClientNew } from "lib/purchaseOrders";
 import { ColumnWidths, formatRowModel, truncateString } from "lib/tables";
-import { useMemo, useState } from "react";
+import { useContext, useMemo, useState } from "react";
+
+import BankPurchaseOrderDrawer from "./BankPurchaseOrderDrawer";
 
 const getProperNote = (purchaseOrder: PurchaseOrderFragment) => {
   if (purchaseOrder?.status === RequestStatusEnum.Rejected) {
@@ -97,6 +103,10 @@ export default function PurchaseOrdersDataGridNew({
   handleSelectPurchaseOrders,
 }: Props) {
   const [selectedPurchaseOrderId, setSelectedPurchaseOrderId] = useState(null);
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
+  const isBankUser = isRoleBankUser(role);
   const rows = getRows(purchaseOrders);
   const columns = useMemo(
     () => [
@@ -309,13 +319,24 @@ export default function PurchaseOrdersDataGridNew({
     [handleSelectPurchaseOrders]
   );
 
+  const showBankPurchaseOrderDrawer = !!selectedPurchaseOrderId && isBankUser;
+  const showCustomerPurchaseOrderDrawer =
+    !!selectedPurchaseOrderId && !isBankUser;
+
+  console.log({ showBankPurchaseOrderDrawer, showCustomerPurchaseOrderDrawer });
   return (
     <Box
       display="flex"
       flexDirection="column"
       className="purchase-orders-data-grid-new"
     >
-      {!!selectedPurchaseOrderId && (
+      {showBankPurchaseOrderDrawer && (
+        <BankPurchaseOrderDrawer
+          purchaseOrderId={selectedPurchaseOrderId}
+          handleClose={() => setSelectedPurchaseOrderId(null)}
+        />
+      )}
+      {showCustomerPurchaseOrderDrawer && (
         <PurchaseOrderDrawer
           purchaseOrderId={selectedPurchaseOrderId}
           handleClose={() => setSelectedPurchaseOrderId(null)}

@@ -190,6 +190,20 @@ export const BankPurchaseOrdersTabLabelsNew = [
   BankPurchaseOrdersTabLabelNew.All,
 ];
 
+export enum BankPurchaseOrdersDrawerTabLabelNew {
+  GeneralInformation = "General information",
+  History = "History",
+  Financing = "Financing",
+  OnlyForBank = "Only for bank",
+}
+
+export const BankPurchaseOrdersDrawerTabLabelsNew = [
+  BankPurchaseOrdersDrawerTabLabelNew.GeneralInformation,
+  BankPurchaseOrdersDrawerTabLabelNew.History,
+  BankPurchaseOrdersDrawerTabLabelNew.Financing,
+  BankPurchaseOrdersDrawerTabLabelNew.OnlyForBank,
+];
+
 export enum BankEbbaTabLabel {
   SurveillanceCurrent = "Surveillance - Current",
   FinancialReports = "Financial Certifications",

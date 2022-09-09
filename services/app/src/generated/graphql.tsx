@@ -21830,7 +21830,6 @@ export type PurchaseOrders = {
   bank_note?: Maybe<Scalars["String"]>;
   /** When bank rejects purchase order, this mandatory note explains the rejection */
   bank_rejection_note?: Maybe<Scalars["String"]>;
-  bank_requested_changes_note?: Maybe<Scalars["String"]>;
   closed_at?: Maybe<Scalars["timestamptz"]>;
   /** An object relationship */
   company: Companies;
@@ -21870,7 +21869,6 @@ export type PurchaseOrders = {
   /** When vendor rejects purchase order, this mandatory note explains the rejection */
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
-  requested_changes_note?: Maybe<Scalars["String"]>;
   status: RequestStatusEnum;
   updated_at: Scalars["timestamptz"];
   /** An object relationship */
@@ -22023,7 +22021,6 @@ export type PurchaseOrdersBoolExp = {
   bank_incomplete_note?: Maybe<StringComparisonExp>;
   bank_note?: Maybe<StringComparisonExp>;
   bank_rejection_note?: Maybe<StringComparisonExp>;
-  bank_requested_changes_note?: Maybe<StringComparisonExp>;
   closed_at?: Maybe<TimestamptzComparisonExp>;
   company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
@@ -22048,7 +22045,6 @@ export type PurchaseOrdersBoolExp = {
   rejecting_user_id?: Maybe<UsersBoolExp>;
   rejection_note?: Maybe<StringComparisonExp>;
   requested_at?: Maybe<TimestamptzComparisonExp>;
-  requested_changes_note?: Maybe<StringComparisonExp>;
   status?: Maybe<RequestStatusEnumComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
   vendor?: Maybe<VendorsBoolExp>;
@@ -22085,7 +22081,6 @@ export type PurchaseOrdersInsertInput = {
   bank_note?: Maybe<Scalars["String"]>;
   /** When bank rejects purchase order, this mandatory note explains the rejection */
   bank_rejection_note?: Maybe<Scalars["String"]>;
-  bank_requested_changes_note?: Maybe<Scalars["String"]>;
   closed_at?: Maybe<Scalars["timestamptz"]>;
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars["uuid"]>;
@@ -22114,7 +22109,6 @@ export type PurchaseOrdersInsertInput = {
   /** When vendor rejects purchase order, this mandatory note explains the rejection */
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
-  requested_changes_note?: Maybe<Scalars["String"]>;
   status?: Maybe<RequestStatusEnum>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor?: Maybe<VendorsObjRelInsertInput>;
@@ -22134,7 +22128,6 @@ export type PurchaseOrdersMaxFields = {
   bank_note?: Maybe<Scalars["String"]>;
   /** When bank rejects purchase order, this mandatory note explains the rejection */
   bank_rejection_note?: Maybe<Scalars["String"]>;
-  bank_requested_changes_note?: Maybe<Scalars["String"]>;
   closed_at?: Maybe<Scalars["timestamptz"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
@@ -22153,7 +22146,6 @@ export type PurchaseOrdersMaxFields = {
   /** When vendor rejects purchase order, this mandatory note explains the rejection */
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
-  requested_changes_note?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_id?: Maybe<Scalars["uuid"]>;
 };
@@ -22171,7 +22163,6 @@ export type PurchaseOrdersMaxOrderBy = {
   bank_note?: Maybe<OrderBy>;
   /** When bank rejects purchase order, this mandatory note explains the rejection */
   bank_rejection_note?: Maybe<OrderBy>;
-  bank_requested_changes_note?: Maybe<OrderBy>;
   closed_at?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
@@ -22190,7 +22181,6 @@ export type PurchaseOrdersMaxOrderBy = {
   /** When vendor rejects purchase order, this mandatory note explains the rejection */
   rejection_note?: Maybe<OrderBy>;
   requested_at?: Maybe<OrderBy>;
-  requested_changes_note?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   vendor_id?: Maybe<OrderBy>;
 };
@@ -22208,7 +22198,6 @@ export type PurchaseOrdersMinFields = {
   bank_note?: Maybe<Scalars["String"]>;
   /** When bank rejects purchase order, this mandatory note explains the rejection */
   bank_rejection_note?: Maybe<Scalars["String"]>;
-  bank_requested_changes_note?: Maybe<Scalars["String"]>;
   closed_at?: Maybe<Scalars["timestamptz"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
@@ -22227,7 +22216,6 @@ export type PurchaseOrdersMinFields = {
   /** When vendor rejects purchase order, this mandatory note explains the rejection */
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
-  requested_changes_note?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_id?: Maybe<Scalars["uuid"]>;
 };
@@ -22245,7 +22233,6 @@ export type PurchaseOrdersMinOrderBy = {
   bank_note?: Maybe<OrderBy>;
   /** When bank rejects purchase order, this mandatory note explains the rejection */
   bank_rejection_note?: Maybe<OrderBy>;
-  bank_requested_changes_note?: Maybe<OrderBy>;
   closed_at?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
@@ -22264,7 +22251,6 @@ export type PurchaseOrdersMinOrderBy = {
   /** When vendor rejects purchase order, this mandatory note explains the rejection */
   rejection_note?: Maybe<OrderBy>;
   requested_at?: Maybe<OrderBy>;
-  requested_changes_note?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   vendor_id?: Maybe<OrderBy>;
 };
@@ -22304,7 +22290,6 @@ export type PurchaseOrdersOrderBy = {
   bank_incomplete_note?: Maybe<OrderBy>;
   bank_note?: Maybe<OrderBy>;
   bank_rejection_note?: Maybe<OrderBy>;
-  bank_requested_changes_note?: Maybe<OrderBy>;
   closed_at?: Maybe<OrderBy>;
   company?: Maybe<CompaniesOrderBy>;
   company_id?: Maybe<OrderBy>;
@@ -22329,7 +22314,6 @@ export type PurchaseOrdersOrderBy = {
   rejecting_user_id?: Maybe<UsersOrderBy>;
   rejection_note?: Maybe<OrderBy>;
   requested_at?: Maybe<OrderBy>;
-  requested_changes_note?: Maybe<OrderBy>;
   status?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   vendor?: Maybe<VendorsOrderBy>;
@@ -22363,8 +22347,6 @@ export enum PurchaseOrdersSelectColumn {
   BankNote = "bank_note",
   /** column name */
   BankRejectionNote = "bank_rejection_note",
-  /** column name */
-  BankRequestedChangesNote = "bank_requested_changes_note",
   /** column name */
   ClosedAt = "closed_at",
   /** column name */
@@ -22404,8 +22386,6 @@ export enum PurchaseOrdersSelectColumn {
   /** column name */
   RequestedAt = "requested_at",
   /** column name */
-  RequestedChangesNote = "requested_changes_note",
-  /** column name */
   Status = "status",
   /** column name */
   UpdatedAt = "updated_at",
@@ -22428,7 +22408,6 @@ export type PurchaseOrdersSetInput = {
   bank_note?: Maybe<Scalars["String"]>;
   /** When bank rejects purchase order, this mandatory note explains the rejection */
   bank_rejection_note?: Maybe<Scalars["String"]>;
-  bank_requested_changes_note?: Maybe<Scalars["String"]>;
   closed_at?: Maybe<Scalars["timestamptz"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
@@ -22452,7 +22431,6 @@ export type PurchaseOrdersSetInput = {
   /** When vendor rejects purchase order, this mandatory note explains the rejection */
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
-  requested_changes_note?: Maybe<Scalars["String"]>;
   status?: Maybe<RequestStatusEnum>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_id?: Maybe<Scalars["uuid"]>;
@@ -22545,8 +22523,6 @@ export enum PurchaseOrdersUpdateColumn {
   /** column name */
   BankRejectionNote = "bank_rejection_note",
   /** column name */
-  BankRequestedChangesNote = "bank_requested_changes_note",
-  /** column name */
   ClosedAt = "closed_at",
   /** column name */
   CompanyId = "company_id",
@@ -22584,8 +22560,6 @@ export enum PurchaseOrdersUpdateColumn {
   RejectionNote = "rejection_note",
   /** column name */
   RequestedAt = "requested_at",
-  /** column name */
-  RequestedChangesNote = "requested_changes_note",
   /** column name */
   Status = "status",
   /** column name */
@@ -29456,11 +29430,11 @@ export type GetNotConfirmedPurchaseOrdersSubscription = {
   purchase_orders: Array<Pick<PurchaseOrders, "id"> & PurchaseOrderFragment>;
 };
 
-export type GetNotConfirmedPurchaseOrdersNewSubscriptionVariables = Exact<{
-  [key: string]: never;
+export type GetPurchaseOrdersByNewStatusSubscriptionVariables = Exact<{
+  statuses?: Maybe<Array<Scalars["String"]>>;
 }>;
 
-export type GetNotConfirmedPurchaseOrdersNewSubscription = {
+export type GetPurchaseOrdersByNewStatusSubscription = {
   purchase_orders: Array<Pick<PurchaseOrders, "id"> & PurchaseOrderFragment>;
 };
 
@@ -39269,8 +39243,8 @@ export type GetNotConfirmedPurchaseOrdersSubscriptionHookResult = ReturnType<
 >;
 export type GetNotConfirmedPurchaseOrdersSubscriptionResult =
   Apollo.SubscriptionResult<GetNotConfirmedPurchaseOrdersSubscription>;
-export const GetNotConfirmedPurchaseOrdersNewDocument = gql`
-  subscription GetNotConfirmedPurchaseOrdersNew {
+export const GetPurchaseOrdersByNewStatusDocument = gql`
+  subscription GetPurchaseOrdersByNewStatus($statuses: [String!]) {
     purchase_orders(
       where: {
         _and: [
@@ -39280,9 +39254,7 @@ export const GetNotConfirmedPurchaseOrdersNewDocument = gql`
               { is_deleted: { _eq: false } }
             ]
           }
-          { approved_at: { _is_null: true } }
-          { incompleted_at: { _is_null: true } }
-          { new_purchase_order_status: { _neq: "archived" } }
+          { new_purchase_order_status: { _in: $statuses } }
         ]
       }
       order_by: [{ requested_at: desc }, { created_at: desc }]
@@ -39295,36 +39267,37 @@ export const GetNotConfirmedPurchaseOrdersNewDocument = gql`
 `;
 
 /**
- * __useGetNotConfirmedPurchaseOrdersNewSubscription__
+ * __useGetPurchaseOrdersByNewStatusSubscription__
  *
- * To run a query within a React component, call `useGetNotConfirmedPurchaseOrdersNewSubscription` and pass it any options that fit your needs.
- * When your component renders, `useGetNotConfirmedPurchaseOrdersNewSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetPurchaseOrdersByNewStatusSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetPurchaseOrdersByNewStatusSubscription` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetNotConfirmedPurchaseOrdersNewSubscription({
+ * const { data, loading, error } = useGetPurchaseOrdersByNewStatusSubscription({
  *   variables: {
+ *      statuses: // value for 'statuses'
  *   },
  * });
  */
-export function useGetNotConfirmedPurchaseOrdersNewSubscription(
+export function useGetPurchaseOrdersByNewStatusSubscription(
   baseOptions?: Apollo.SubscriptionHookOptions<
-    GetNotConfirmedPurchaseOrdersNewSubscription,
-    GetNotConfirmedPurchaseOrdersNewSubscriptionVariables
+    GetPurchaseOrdersByNewStatusSubscription,
+    GetPurchaseOrdersByNewStatusSubscriptionVariables
   >
 ) {
   return Apollo.useSubscription<
-    GetNotConfirmedPurchaseOrdersNewSubscription,
-    GetNotConfirmedPurchaseOrdersNewSubscriptionVariables
-  >(GetNotConfirmedPurchaseOrdersNewDocument, baseOptions);
+    GetPurchaseOrdersByNewStatusSubscription,
+    GetPurchaseOrdersByNewStatusSubscriptionVariables
+  >(GetPurchaseOrdersByNewStatusDocument, baseOptions);
 }
-export type GetNotConfirmedPurchaseOrdersNewSubscriptionHookResult = ReturnType<
-  typeof useGetNotConfirmedPurchaseOrdersNewSubscription
+export type GetPurchaseOrdersByNewStatusSubscriptionHookResult = ReturnType<
+  typeof useGetPurchaseOrdersByNewStatusSubscription
 >;
-export type GetNotConfirmedPurchaseOrdersNewSubscriptionResult =
-  Apollo.SubscriptionResult<GetNotConfirmedPurchaseOrdersNewSubscription>;
+export type GetPurchaseOrdersByNewStatusSubscriptionResult =
+  Apollo.SubscriptionResult<GetPurchaseOrdersByNewStatusSubscription>;
 export const GetConfirmedPurchaseOrdersDocument = gql`
   subscription GetConfirmedPurchaseOrders {
     purchase_orders(
