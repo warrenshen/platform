@@ -8,7 +8,7 @@ import {
   TransactionFragment,
   Transactions,
 } from "generated/graphql";
-import { formatDateString, formatDatetimeString } from "lib/date";
+import { parseDateStringServer } from "lib/date";
 import {
   PaymentTypeEnum,
   PaymentTypeToLabel,
@@ -16,7 +16,7 @@ import {
   TransactionSubTypeToLabel,
 } from "lib/enum";
 import { CurrencyPrecision } from "lib/number";
-import { ColumnWidths } from "lib/tables";
+import { ColumnWidths, formatRowModel } from "lib/tables";
 import { useMemo, useState } from "react";
 
 export enum RepaymentTypeEnum {
@@ -45,23 +45,56 @@ function getRows(
     transactions: Array<Pick<Transactions, "id"> & TransactionFragment>;
   })[]
 ): RowsProp {
-  return fees.map((fee) => ({
-    ...fee,
-    amount: (fee.type === PaymentTypeEnum.FeeWaiver ? -1 : 1) * fee.amount,
-    fee_name: fee.transactions[0]?.subtype
-      ? TransactionSubTypeToLabel[
-          fee.transactions[0]?.subtype as TransactionSubTypeEnum
-        ]
-      : "",
-    fee_type: PaymentTypeToLabel[fee.type as PaymentTypeEnum],
-    settlement_date: !!fee.settlement_date
-      ? formatDateString(fee.settlement_date)
-      : "-",
-    submitted_at: !!fee.submitted_at
-      ? formatDatetimeString(fee.submitted_at)
-      : "-",
-  }));
+  const validFeeTypes = [
+    PaymentTypeEnum.Fee,
+    PaymentTypeEnum.FeeWaiver,
+    PaymentTypeEnum.RepaymentOfAccountFee,
+  ];
+
+  const negativeFeeTypes = [
+    PaymentTypeEnum.FeeWaiver,
+    PaymentTypeEnum.RepaymentOfAccountFee,
+  ];
+
+  const filteredFees = fees
+    .map((fee) => {
+      return !!fee?.transactions ? fee.transactions : [];
+    })
+    .flat()
+    .filter((fee) => {
+      return validFeeTypes.indexOf(fee.type as PaymentTypeEnum) > -1;
+    });
+
+  return filteredFees.map((fee) => {
+    return formatRowModel({
+      ...fee,
+      amount:
+        negativeFeeTypes.indexOf(fee.type as PaymentTypeEnum) > -1
+          ? -1 * fee.amount
+          : fee.amount,
+      fee_name: !!fee?.subtype ? fee.subtype : fee.type,
+      fee_type: fee.type,
+      settlement_date: !!fee.effective_date
+        ? parseDateStringServer(fee.effective_date)
+        : null,
+    });
+  });
 }
+
+const acccountFeeTypes = [
+  PaymentTypeEnum.Fee,
+  PaymentTypeEnum.FeeWaiver,
+  PaymentTypeEnum.RepaymentOfAccountFee,
+];
+
+const acccountFeeNames = [
+  PaymentTypeEnum.Fee,
+  PaymentTypeEnum.FeeWaiver,
+  PaymentTypeEnum.RepaymentOfAccountFee,
+  TransactionSubTypeEnum.CustomFee,
+  TransactionSubTypeEnum.MinimumInterestFee,
+  TransactionSubTypeEnum.WireFee,
+];
 
 export default function FeesDataGrid({
   isCompanyVisible = false,
@@ -81,18 +114,45 @@ export default function FeesDataGrid({
         caption: "",
         dataField: "fee_type",
         minWidth: ColumnWidths.MinWidth,
+        lookup: {
+          dataSource: {
+            store: {
+              type: "array",
+              data: acccountFeeTypes.map((feeType) => ({
+                fee_type: feeType,
+                label: PaymentTypeToLabel[feeType as PaymentTypeEnum],
+              })),
+              key: "fee_type",
+            },
+          },
+          valueExpr: "fee_type",
+          displayExpr: "label",
+        },
       },
       {
         caption: "Description",
         dataField: "fee_name",
         minWidth: ColumnWidths.MinWidth,
-      },
-      {
-        visible: false,
-        caption: "Submitted At",
-        dataField: "submitted_at",
-        width: ColumnWidths.Datetime,
-        format: "shortDate",
+        lookup: {
+          dataSource: {
+            store: {
+              type: "array",
+              data: acccountFeeNames.map((feeName) => ({
+                fee_name: feeName,
+                label: Object.values(PaymentTypeEnum)
+                  .map((value) => value as string)
+                  .includes(feeName.valueOf())
+                  ? PaymentTypeToLabel[feeName as PaymentTypeEnum]
+                  : TransactionSubTypeToLabel[
+                      feeName as TransactionSubTypeEnum
+                    ],
+              })),
+              key: "fee_name",
+            },
+          },
+          valueExpr: "fee_name",
+          displayExpr: "label",
+        },
       },
       {
         visible: isCompanyVisible,
@@ -152,6 +212,7 @@ export default function FeesDataGrid({
       pager
       select={isMultiSelectEnabled}
       isExcelExport={isExcelExport}
+      filtering={{ enable: true }}
       dataSource={rows}
       columns={columns}
       ref={(ref) => setDataGrid(ref)}

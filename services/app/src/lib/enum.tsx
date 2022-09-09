@@ -388,7 +388,7 @@ export const PaymentTypeToLabel = {
   [PaymentTypeEnum.FeeWaiver]: "Account Fee Waiver",
   [PaymentTypeEnum.PayoutUserCreditToCustomer]: "Payout To Borrower",
   [PaymentTypeEnum.Repayment]: "Repayment",
-  [PaymentTypeEnum.RepaymentOfAccountFee]: "Repayment",
+  [PaymentTypeEnum.RepaymentOfAccountFee]: "Account Fee Repayment",
 };
 
 export enum PaymentStatusEnum {

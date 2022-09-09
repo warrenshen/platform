@@ -21830,6 +21830,7 @@ export type PurchaseOrders = {
   bank_note?: Maybe<Scalars["String"]>;
   /** When bank rejects purchase order, this mandatory note explains the rejection */
   bank_rejection_note?: Maybe<Scalars["String"]>;
+  bank_requested_changes_note?: Maybe<Scalars["String"]>;
   closed_at?: Maybe<Scalars["timestamptz"]>;
   /** An object relationship */
   company: Companies;
@@ -21869,6 +21870,7 @@ export type PurchaseOrders = {
   /** When vendor rejects purchase order, this mandatory note explains the rejection */
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
+  requested_changes_note?: Maybe<Scalars["String"]>;
   status: RequestStatusEnum;
   updated_at: Scalars["timestamptz"];
   /** An object relationship */
@@ -22021,6 +22023,7 @@ export type PurchaseOrdersBoolExp = {
   bank_incomplete_note?: Maybe<StringComparisonExp>;
   bank_note?: Maybe<StringComparisonExp>;
   bank_rejection_note?: Maybe<StringComparisonExp>;
+  bank_requested_changes_note?: Maybe<StringComparisonExp>;
   closed_at?: Maybe<TimestamptzComparisonExp>;
   company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
@@ -22045,6 +22048,7 @@ export type PurchaseOrdersBoolExp = {
   rejecting_user_id?: Maybe<UsersBoolExp>;
   rejection_note?: Maybe<StringComparisonExp>;
   requested_at?: Maybe<TimestamptzComparisonExp>;
+  requested_changes_note?: Maybe<StringComparisonExp>;
   status?: Maybe<RequestStatusEnumComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
   vendor?: Maybe<VendorsBoolExp>;
@@ -22081,6 +22085,7 @@ export type PurchaseOrdersInsertInput = {
   bank_note?: Maybe<Scalars["String"]>;
   /** When bank rejects purchase order, this mandatory note explains the rejection */
   bank_rejection_note?: Maybe<Scalars["String"]>;
+  bank_requested_changes_note?: Maybe<Scalars["String"]>;
   closed_at?: Maybe<Scalars["timestamptz"]>;
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars["uuid"]>;
@@ -22109,6 +22114,7 @@ export type PurchaseOrdersInsertInput = {
   /** When vendor rejects purchase order, this mandatory note explains the rejection */
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
+  requested_changes_note?: Maybe<Scalars["String"]>;
   status?: Maybe<RequestStatusEnum>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor?: Maybe<VendorsObjRelInsertInput>;
@@ -22128,6 +22134,7 @@ export type PurchaseOrdersMaxFields = {
   bank_note?: Maybe<Scalars["String"]>;
   /** When bank rejects purchase order, this mandatory note explains the rejection */
   bank_rejection_note?: Maybe<Scalars["String"]>;
+  bank_requested_changes_note?: Maybe<Scalars["String"]>;
   closed_at?: Maybe<Scalars["timestamptz"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
@@ -22146,6 +22153,7 @@ export type PurchaseOrdersMaxFields = {
   /** When vendor rejects purchase order, this mandatory note explains the rejection */
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
+  requested_changes_note?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_id?: Maybe<Scalars["uuid"]>;
 };
@@ -22163,6 +22171,7 @@ export type PurchaseOrdersMaxOrderBy = {
   bank_note?: Maybe<OrderBy>;
   /** When bank rejects purchase order, this mandatory note explains the rejection */
   bank_rejection_note?: Maybe<OrderBy>;
+  bank_requested_changes_note?: Maybe<OrderBy>;
   closed_at?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
@@ -22181,6 +22190,7 @@ export type PurchaseOrdersMaxOrderBy = {
   /** When vendor rejects purchase order, this mandatory note explains the rejection */
   rejection_note?: Maybe<OrderBy>;
   requested_at?: Maybe<OrderBy>;
+  requested_changes_note?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   vendor_id?: Maybe<OrderBy>;
 };
@@ -22198,6 +22208,7 @@ export type PurchaseOrdersMinFields = {
   bank_note?: Maybe<Scalars["String"]>;
   /** When bank rejects purchase order, this mandatory note explains the rejection */
   bank_rejection_note?: Maybe<Scalars["String"]>;
+  bank_requested_changes_note?: Maybe<Scalars["String"]>;
   closed_at?: Maybe<Scalars["timestamptz"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
@@ -22216,6 +22227,7 @@ export type PurchaseOrdersMinFields = {
   /** When vendor rejects purchase order, this mandatory note explains the rejection */
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
+  requested_changes_note?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_id?: Maybe<Scalars["uuid"]>;
 };
@@ -22233,6 +22245,7 @@ export type PurchaseOrdersMinOrderBy = {
   bank_note?: Maybe<OrderBy>;
   /** When bank rejects purchase order, this mandatory note explains the rejection */
   bank_rejection_note?: Maybe<OrderBy>;
+  bank_requested_changes_note?: Maybe<OrderBy>;
   closed_at?: Maybe<OrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
@@ -22251,6 +22264,7 @@ export type PurchaseOrdersMinOrderBy = {
   /** When vendor rejects purchase order, this mandatory note explains the rejection */
   rejection_note?: Maybe<OrderBy>;
   requested_at?: Maybe<OrderBy>;
+  requested_changes_note?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   vendor_id?: Maybe<OrderBy>;
 };
@@ -22290,6 +22304,7 @@ export type PurchaseOrdersOrderBy = {
   bank_incomplete_note?: Maybe<OrderBy>;
   bank_note?: Maybe<OrderBy>;
   bank_rejection_note?: Maybe<OrderBy>;
+  bank_requested_changes_note?: Maybe<OrderBy>;
   closed_at?: Maybe<OrderBy>;
   company?: Maybe<CompaniesOrderBy>;
   company_id?: Maybe<OrderBy>;
@@ -22314,6 +22329,7 @@ export type PurchaseOrdersOrderBy = {
   rejecting_user_id?: Maybe<UsersOrderBy>;
   rejection_note?: Maybe<OrderBy>;
   requested_at?: Maybe<OrderBy>;
+  requested_changes_note?: Maybe<OrderBy>;
   status?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   vendor?: Maybe<VendorsOrderBy>;
@@ -22347,6 +22363,8 @@ export enum PurchaseOrdersSelectColumn {
   BankNote = "bank_note",
   /** column name */
   BankRejectionNote = "bank_rejection_note",
+  /** column name */
+  BankRequestedChangesNote = "bank_requested_changes_note",
   /** column name */
   ClosedAt = "closed_at",
   /** column name */
@@ -22386,6 +22404,8 @@ export enum PurchaseOrdersSelectColumn {
   /** column name */
   RequestedAt = "requested_at",
   /** column name */
+  RequestedChangesNote = "requested_changes_note",
+  /** column name */
   Status = "status",
   /** column name */
   UpdatedAt = "updated_at",
@@ -22408,6 +22428,7 @@ export type PurchaseOrdersSetInput = {
   bank_note?: Maybe<Scalars["String"]>;
   /** When bank rejects purchase order, this mandatory note explains the rejection */
   bank_rejection_note?: Maybe<Scalars["String"]>;
+  bank_requested_changes_note?: Maybe<Scalars["String"]>;
   closed_at?: Maybe<Scalars["timestamptz"]>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
@@ -22431,6 +22452,7 @@ export type PurchaseOrdersSetInput = {
   /** When vendor rejects purchase order, this mandatory note explains the rejection */
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
+  requested_changes_note?: Maybe<Scalars["String"]>;
   status?: Maybe<RequestStatusEnum>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_id?: Maybe<Scalars["uuid"]>;
@@ -22523,6 +22545,8 @@ export enum PurchaseOrdersUpdateColumn {
   /** column name */
   BankRejectionNote = "bank_rejection_note",
   /** column name */
+  BankRequestedChangesNote = "bank_requested_changes_note",
+  /** column name */
   ClosedAt = "closed_at",
   /** column name */
   CompanyId = "company_id",
@@ -22560,6 +22584,8 @@ export enum PurchaseOrdersUpdateColumn {
   RejectionNote = "rejection_note",
   /** column name */
   RequestedAt = "requested_at",
+  /** column name */
+  RequestedChangesNote = "requested_changes_note",
   /** column name */
   Status = "status",
   /** column name */
@@ -34278,7 +34304,11 @@ export const GetCustomerAccountDocument = gql`
                 { is_deleted: { _eq: false } }
               ]
             }
-            { type: { _in: ["fee", "fee_waiver"] } }
+            {
+              type: {
+                _in: ["fee", "fee_waiver", "repayment_account_fee", "repayment"]
+              }
+            }
           ]
         }
         order_by: [

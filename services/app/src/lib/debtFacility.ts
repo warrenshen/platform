@@ -268,9 +268,11 @@ export const getDaysPastDue = (
   // Here we strip the timestamp off so that we don't have worry about
   // funky edge cases and timezones since we only care about calendar
   // days in PST in this scenario
-  const closedDate = !!loan?.closed_at
+  const closedDate = !!loan?.loan_report?.repayment_date
     ? parseDateStringServer(
-        dateAsDateStringServer(parseDateStringServer(loan.closed_at))
+        dateAsDateStringServer(
+          parseDateStringServer(loan.loan_report.repayment_date)
+        )
       )
     : null;
 

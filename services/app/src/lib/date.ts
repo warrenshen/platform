@@ -358,7 +358,7 @@ export const getFifteenthOfGivenDate = (date: Date) =>
   new Date(date.getFullYear(), date.getMonth(), 15);
 
 export const renderQuarter = (input_date: string) => {
-  const d = new Date(input_date);
+  const d = parseDateStringServer(input_date);
   const month = d.getMonth();
   const year = d.getFullYear();
 

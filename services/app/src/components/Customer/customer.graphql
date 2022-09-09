@@ -93,7 +93,7 @@ query GetCustomerAccount($company_id: uuid!) {
               { is_deleted: { _eq: false } }
             ]
           }
-          { type: { _in: ["fee", "fee_waiver"] } }
+          { type: { _in: ["fee", "fee_waiver", "repayment_account_fee", "repayment"] } }
         ]
       }
       order_by: [
