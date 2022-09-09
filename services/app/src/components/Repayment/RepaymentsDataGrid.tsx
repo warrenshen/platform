@@ -9,7 +9,7 @@ import { getCompanyDisplayName } from "lib/companies";
 import { addBizDays, parseDateStringServer } from "lib/date";
 import { RepaymentMethodEnum, RepaymentMethodToLabel } from "lib/enum";
 import { CurrencyPrecision } from "lib/number";
-import { ColumnWidths } from "lib/tables";
+import { ColumnWidths, formatRowModel } from "lib/tables";
 import { useMemo, useState } from "react";
 
 export enum RepaymentTypeEnum {
@@ -54,43 +54,46 @@ export default function RepaymentsDataGrid({
   const [dataGrid, setDataGrid] = useState<any>(null);
   const rows = useMemo(
     () =>
-      payments.map((payment) => ({
-        ...payment,
-        amount: isOther ? payment.requested_amount : payment.amount,
-        expected_deposit_date: !!payment.payment_date
-          ? parseDateStringServer(
-              addBizDays(
-                payment.payment_date,
-                payment.method === RepaymentMethodEnum.ReverseDraftACH ? 1 : 0
+      payments.map((payment) => {
+        return formatRowModel({
+          ...payment,
+          amount: isOther ? payment.requested_amount : payment.amount,
+          deposit_date: !!payment.deposit_date
+            ? parseDateStringServer(payment.deposit_date)
+            : null,
+          expected_deposit_date: !!payment.payment_date
+            ? parseDateStringServer(
+                addBizDays(
+                  payment.payment_date,
+                  payment.method === RepaymentMethodEnum.ReverseDraftACH ? 1 : 0
+                )
               )
-            )
-          : null,
-        requested_payment_date: !!payment.requested_payment_date
-          ? parseDateStringServer(payment.requested_payment_date)
-          : null,
-        submitted_at: !!payment.submitted_at
-          ? parseDateStringServer(payment.submitted_at)
-          : null,
-        deposit_date: !!payment.deposit_date
-          ? parseDateStringServer(payment.deposit_date)
-          : null,
-        settlement_date: !!payment.settlement_date
-          ? parseDateStringServer(payment.settlement_date)
-          : null,
-        submitted_by_name: payment.submitted_by_user?.full_name,
-        payor_name:
-          getCompanyDisplayName(payment.invoice?.payor, "") ||
-          payment.company.name,
-        method:
-          RepaymentMethodToLabel[payment.method as RepaymentMethodEnum] || null,
-        forecasted_principal: payment.items_covered.forecasted_principal || 0,
-        forecasted_interest: payment.items_covered.forecasted_interest || 0,
-        forecasted_late_fees: payment.items_covered.forecasted_late_fees || 0,
-        forecasted_account_fees:
-          payment.items_covered.requested_to_account_fees || 0,
-        forecasted_holding_account:
-          payment.items_covered.forecasted_holding_account || 0,
-      })),
+            : null,
+          forecasted_account_fees:
+            payment.items_covered.requested_to_account_fees || 0,
+          forecasted_holding_account:
+            payment.items_covered.forecasted_holding_account || 0,
+          forecasted_interest: payment.items_covered.forecasted_interest || 0,
+          forecasted_late_fees: payment.items_covered.forecasted_late_fees || 0,
+          forecasted_principal: payment.items_covered.forecasted_principal || 0,
+          method:
+            RepaymentMethodToLabel[payment.method as RepaymentMethodEnum] ||
+            null,
+          payor_name:
+            getCompanyDisplayName(payment.invoice?.payor, "") ||
+            payment.company.name,
+          requested_payment_date: !!payment.requested_payment_date
+            ? parseDateStringServer(payment.requested_payment_date)
+            : null,
+          settlement_date: !!payment.settlement_date
+            ? parseDateStringServer(payment.settlement_date)
+            : null,
+          submitted_at: !!payment.submitted_at
+            ? parseDateStringServer(payment.submitted_at)
+            : null,
+          submitted_by_name: payment.submitted_by_user?.full_name,
+        });
+      }),
     [isOther, payments]
   );
   const columns = useMemo(
@@ -132,6 +135,7 @@ export default function RepaymentsDataGrid({
         visible: isRequestedReverseDraftACH,
         dataField: "requested_payment_date",
         caption: "Requested Deposit Date",
+        format: "shortDate",
         width: ColumnWidths.Date,
         alignment: "right",
       },
@@ -139,6 +143,7 @@ export default function RepaymentsDataGrid({
         visible: isReverseDraftACH || isOther,
         dataField: "expected_deposit_date",
         caption: "Expected Deposit Date",
+        format: "shortDate",
         width: ColumnWidths.Date,
         alignment: "right",
       },
@@ -245,6 +250,7 @@ export default function RepaymentsDataGrid({
         visible: isClosed,
         dataField: "deposit_date",
         caption: "Deposit Date",
+        format: "shortDate",
         width: ColumnWidths.Date,
         alignment: "right",
       },
@@ -252,6 +258,7 @@ export default function RepaymentsDataGrid({
         visible: isClosed,
         dataField: "settlement_date",
         caption: "Settlement Date",
+        format: "shortDate",
         width: ColumnWidths.Date,
         alignment: "right",
       },

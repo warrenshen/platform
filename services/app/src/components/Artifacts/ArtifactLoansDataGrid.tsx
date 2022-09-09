@@ -5,13 +5,12 @@ import PurchaseOrderDrawerLauncher from "components/PurchaseOrder/PurchaseOrderD
 import LoanPaymentStatusChip from "components/Shared/Chip/LoanPaymentStatusChip";
 import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
-import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
-import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import {
   LoanArtifactLimitedFragment,
   LoanFragment,
   Loans,
 } from "generated/graphql";
+import { parseDateStringServer } from "lib/date";
 import { LoanPaymentStatusEnum, LoanStatusEnum } from "lib/enum";
 import {
   createLoanCustomerIdentifier,
@@ -19,7 +18,8 @@ import {
   getDaysPastDue,
   getLoanArtifactName,
 } from "lib/loans";
-import { ColumnWidths } from "lib/tables";
+import { CurrencyPrecision } from "lib/number";
+import { ColumnWidths, formatRowModel } from "lib/tables";
 import { useMemo } from "react";
 
 export interface ArtifactLoansDataGridFlagProps {
@@ -50,16 +50,30 @@ export interface ArtifactLoansDataGridLoansProps {
 function getRows(
   loans: (LoanFragment & LoanArtifactLimitedFragment)[]
 ): RowsProp {
-  return loans.map((loan) => ({
-    ...loan,
-    customer_identifier: createLoanCustomerIdentifier(loan),
-    disbursement_identifier: createLoanDisbursementIdentifier(loan),
-    artifact_name: getLoanArtifactName(loan),
-    days_past_due: getDaysPastDue(loan),
-    requesting_user: !!loan?.requested_by_user?.full_name
-      ? loan.requested_by_user.full_name
-      : null,
-  }));
+  return loans.map((loan) => {
+    return formatRowModel({
+      ...loan,
+      adjusted_maturity_date: !!loan?.adjusted_maturity_date
+        ? parseDateStringServer(loan.adjusted_maturity_date)
+        : null,
+      artifact_name: getLoanArtifactName(loan),
+      customer_identifier: createLoanCustomerIdentifier(loan),
+      days_past_due: getDaysPastDue(loan),
+      disbursement_identifier: createLoanDisbursementIdentifier(loan),
+      origination_date: !!loan?.origination_date
+        ? parseDateStringServer(loan.origination_date)
+        : null,
+      requested_payment_date: !!loan?.requested_payment_date
+        ? parseDateStringServer(loan.requested_payment_date)
+        : null,
+      requesting_user: !!loan?.requested_by_user?.full_name
+        ? loan.requested_by_user.full_name
+        : null,
+      vendor_name: !!loan?.purchase_order?.vendor?.name
+        ? loan.purchase_order.vendor.name
+        : null,
+    });
+  });
 }
 
 export default function ArtifactLoansDataGrid({
@@ -145,26 +159,23 @@ export default function ArtifactLoansDataGrid({
         dataField: "amount",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.amount} />
-        ),
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
       },
       {
         visible: !isMiniTable && isRequestedDateVisible,
         caption: "Requested Payment Date",
         dataField: "requested_payment_date",
+        format: "shortDate",
         width: ColumnWidths.Date,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <DateDataGridCell
-            dateString={params.row.data.requested_payment_date}
-          />
-        ),
       },
       {
         visible: isVendorVisible,
         caption: "Vendor",
-        dataField: "purchase_order.vendor.name",
+        dataField: "vendor_name",
         width: ColumnWidths.MinWidth,
         alignment: "right",
       },
@@ -193,23 +204,17 @@ export default function ArtifactLoansDataGrid({
         visible: isOriginationDateVisible,
         caption: "Origination Date",
         dataField: "origination_date",
+        format: "shortDate",
         width: ColumnWidths.Date,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <DateDataGridCell dateString={params.row.data.origination_date} />
-        ),
       },
       {
         visible: isMaturityVisible,
         caption: "Maturity Date",
         dataField: "adjusted_maturity_date",
+        format: "shortDate",
         width: ColumnWidths.Date,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <DateDataGridCell
-            dateString={params.row.data.adjusted_maturity_date}
-          />
-        ),
       },
       {
         visible: isMaturityVisible && isDaysPastDueVisible,
@@ -222,33 +227,34 @@ export default function ArtifactLoansDataGrid({
         visible: isMaturityVisible,
         dataField: "outstanding_principal_balance",
         caption: "Outstanding Principal Balance",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell
-            value={params.row.data.outstanding_principal_balance}
-          />
-        ),
       },
       {
         visible: isMaturityVisible,
         dataField: "outstanding_interest",
         caption: "Outstanding Interest",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.outstanding_interest} />
-        ),
       },
       {
         visible: isMaturityVisible,
         dataField: "outstanding_fees",
         caption: "Outstanding Late Fees",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.outstanding_fees} />
-        ),
       },
       {
         visible: false && isViewNotesEnabled,

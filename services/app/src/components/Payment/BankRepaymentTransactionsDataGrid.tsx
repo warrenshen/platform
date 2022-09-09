@@ -7,8 +7,6 @@ import PaymentDrawerLauncher from "components/Payment/PaymentDrawerLauncher";
 import PurchaseOrderDrawerLauncher from "components/PurchaseOrder/PurchaseOrderDrawerLauncher";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
-import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
-import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import {
   Companies,
   GetRepaymentsSubscription,
@@ -27,7 +25,7 @@ import {
   createLoanDisbursementIdentifier,
   getLoanArtifactName,
 } from "lib/loans";
-import { formatCurrency } from "lib/number";
+import { CurrencyPrecision } from "lib/number";
 import { ColumnWidths, formatRowModel } from "lib/tables";
 import { flatten, sumBy } from "lodash";
 import { useMemo } from "react";
@@ -49,6 +47,12 @@ function getRows(payments: NonNullable<GetRepaymentsSubscription>["payments"]) {
               company_name: payment.company.name,
               id: `${payment.id}-0`,
               payment: payment,
+              payment_deposit_date: !!payment?.deposit_date
+                ? parseDateStringServer(payment.deposit_date)
+                : null,
+              payment_settlement_date: !!payment?.settlement_date
+                ? parseDateStringServer(payment.settlement_date)
+                : null,
               status: "Reversed",
             }),
           ]
@@ -63,41 +67,43 @@ function getRows(payments: NonNullable<GetRepaymentsSubscription>["payments"]) {
               company_name: payment.company.name,
               id: `${payment.id}-${transaction.id}`,
               payment: payment,
+              payment_deposit_date: !!payment?.deposit_date
+                ? parseDateStringServer(payment.deposit_date)
+                : null,
+              payment_settlement_date: !!payment?.settlement_date
+                ? parseDateStringServer(payment.settlement_date)
+                : null,
               repayment_id: payment.id,
               status: "Settled",
               to_account_fees:
                 !!productType && productType === ProductTypeEnum.LineOfCredit
                   ? payment.items_covered?.requested_to_account_fees
-                    ? formatCurrency(
-                        payment.items_covered.requested_to_account_fees
-                      )
-                    : formatCurrency(0)
+                    ? payment.items_covered.requested_to_account_fees
+                    : 0
                   : transaction?.type === PaymentTypeEnum.RepaymentOfAccountFee
-                  ? formatCurrency(transaction.amount)
-                  : formatCurrency(0),
+                  ? transaction.amount
+                  : 0,
               to_interest_sum:
                 !!productType && productType === ProductTypeEnum.LineOfCredit
                   ? payment.transactions?.length
-                    ? formatCurrency(sumBy(payment.transactions, "to_interest"))
+                    ? sumBy(payment.transactions, "to_interest")
                     : null
                   : transaction?.to_interest != null
-                  ? formatCurrency(transaction.to_interest)
+                  ? transaction.to_interest
                   : null,
               to_late_fees:
                 !!productType && productType === ProductTypeEnum.LineOfCredit
-                  ? formatCurrency(0)
+                  ? 0
                   : transaction?.to_fees != null
-                  ? formatCurrency(transaction.to_fees)
+                  ? transaction.to_fees
                   : null,
               to_principal_sum:
                 !!productType && productType === ProductTypeEnum.LineOfCredit
                   ? payment.transactions?.length
-                    ? formatCurrency(
-                        sumBy(payment.transactions, "to_principal")
-                      )
+                    ? sumBy(payment.transactions, "to_principal")
                     : null
                   : transaction?.to_principal != null
-                  ? formatCurrency(transaction.to_principal)
+                  ? transaction.to_principal
                   : null,
               transaction: {
                 ...transaction,
@@ -194,29 +200,22 @@ export default function BankRepaymentTransactionsDataGrid({
       {
         dataField: "adjusted_maturity_date",
         caption: "Maturity Date",
-        width: ColumnWidths.Date,
-        alignment: "right",
         format: "shortDate",
-      },
-      {
-        dataField: "payment.deposit_date",
-        caption: "Deposit Date",
         width: ColumnWidths.Date,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <DateDataGridCell dateString={params.row.data.payment.deposit_date} />
-        ),
       },
       {
-        dataField: "payment.settlement_date",
+        dataField: "payment_deposit_date",
+        caption: "Deposit Date",
+        format: "shortDate",
+        width: ColumnWidths.Date,
+        alignment: "right",
+      },
+      {
+        dataField: "payment_settlement_date",
         caption: "Settlement Date",
         width: ColumnWidths.Date,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <DateDataGridCell
-            dateString={params.row.data.payment.settlement_date}
-          />
-        ),
       },
       {
         dataField: "transaction.loan.disbursement_identifier",
@@ -262,44 +261,60 @@ export default function BankRepaymentTransactionsDataGrid({
       {
         dataField: "payment.amount",
         caption: "Total Repayment Amount",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
         minWidth: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell value={params.row.data.payment.amount} />
-        ),
       },
       {
         dataField: "transaction.amount",
         caption: "Transaction Total Amount",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell
-            value={params.row.data.transaction?.amount || null}
-          />
-        ),
       },
       {
         dataField: "to_principal_sum",
         caption: "Applied to Principal",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
         width: ColumnWidths.Currency,
         alignment: "right",
       },
       {
         dataField: "to_interest_sum",
         caption: "Applied to Interest",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
         width: ColumnWidths.Currency,
         alignment: "right",
       },
       {
         dataField: "to_late_fees",
         caption: "Applied to Late Fees",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
         width: ColumnWidths.Currency,
         alignment: "right",
       },
       {
         dataField: "to_account_fees",
         caption: "Applied to Account Fees",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
         width: ColumnWidths.Currency,
         alignment: "right",
       },

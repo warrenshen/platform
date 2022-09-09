@@ -327,6 +327,7 @@ export default function PurchaseOrderDrawer({
         </Typography>
         <PurchaseOrderLoansDataGrid
           isMiniTable
+          isVendorVisible={false}
           pager={false}
           loans={loans}
           isMultiSelectEnabled={check(role, Action.SelectLoan)}
