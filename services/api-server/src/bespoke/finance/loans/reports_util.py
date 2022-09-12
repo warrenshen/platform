@@ -58,22 +58,28 @@ def date_ranges_for_needs_balance_recomputed(
 	return date_tuples
 
 def set_needs_balance_recomputed(
+	session: Session,
 	company_ids: List[str], 
 	cur_date: datetime.date, 
 	create_if_missing: bool, 
 	days_to_compute_back: int, 
-	session: Session) -> Tuple[bool, errors.Error]:
-	financial_summaries = cast(List[models.FinancialSummary], session.query(models.FinancialSummary).filter(
-		models.FinancialSummary.company_id.in_(company_ids)).filter(
-		models.FinancialSummary.date == cur_date
-	).all())
+) -> Tuple[bool, errors.Error]:
+	financial_summaries = cast(
+		List[models.FinancialSummary], 
+		session.query(models.FinancialSummary).filter(
+			models.FinancialSummary.company_id.in_(company_ids)
+		).filter(
+			models.FinancialSummary.date == cur_date
+		).all())
 
-
+	# if want to create because no financial summaries exist
 	if create_if_missing:
 		company_id_to_financial_summary = {}
+		# add financial summaries by company id to a lookup
 		for financial_summary in financial_summaries:
 			company_id_to_financial_summary[str(financial_summary.company_id)] = financial_summary
 
+		# if the company id is not in the lookup add a new blank financial summary
 		for company_id in company_ids:
 			if company_id not in company_id_to_financial_summary:
 				# create an empty one
@@ -112,18 +118,24 @@ def set_needs_balance_recomputed(
 
 	return True, None
 
-def _set_financial_summary_no_longer_needs_recompute(company_id: str, report_date: datetime.date, session_maker: Callable) -> None:
+def _set_financial_summary_no_longer_needs_recompute(
+	session: Session,
+	company_id: str, 
+	report_date: datetime.date, 
+) -> None:
 
-	with session_scope(session_maker) as session:
-		financial_summary = cast(
-			models.FinancialSummary,
-			session.query(models.FinancialSummary).filter(
-				models.FinancialSummary.company_id == company_id)
-			.filter(models.FinancialSummary.date == report_date).first())
-		if financial_summary:
-			financial_summary.needs_recompute = False
+	financial_summary = cast(
+		models.FinancialSummary,
+		session.query(models.FinancialSummary).filter(
+			models.FinancialSummary.company_id == company_id)
+		.filter(
+			models.FinancialSummary.date == report_date
+		).first())
+	if financial_summary:
+		financial_summary.needs_recompute = False
 
 def update_company_balance(
+	session: Session,
 	session_maker: Callable,
 	company: models.CompanyDict,
 	report_date: datetime.date,
@@ -139,8 +151,10 @@ def update_company_balance(
 	"""
 	logging.info(f"Calculating balance for '{company['name']}' with id: '{company['id']}' for report date '{report_date}, update_days_back={update_days_back}'")
 
+	# TODO : session_maker should be eventually removed
 	customer_balance = loan_balances.CustomerBalance(company, session_maker)
-
+	if update_days_back == None:
+		update_days_back = 0
 	day_to_customer_update_dict, err = customer_balance.update(
 		start_date_for_storing_updates=report_date - timedelta(days=update_days_back),
 		today=report_date,
@@ -154,7 +168,7 @@ def update_company_balance(
 		)
 		# Note, we set the finacial_summary needs_recompute to False because we attempted to
 		# recompute it and just failed.
-		_set_financial_summary_no_longer_needs_recompute(company['id'], report_date, session_maker)
+		_set_financial_summary_no_longer_needs_recompute(session, company['id'], report_date)
 	
 		logging.error(msg)
 		return None, msg
@@ -179,22 +193,21 @@ def update_company_balance(
 				}
 			)
 
-			with session_scope(session_maker) as session:
-				is_todays_update = today == cur_date
-				success, err = customer_balance.write(customer_update_dict, is_todays_update)
-				if err:
-					msg = 'Error writing results to update customer balance. Error: {}'.format(err)
-					logging.error(msg)
-					event.set_failed().write_with_session(session)
-					session.rollback()
-					return None, msg
-				event.set_succeeded().write_with_session(session)
+			is_todays_update = today == cur_date
+			success, err = customer_balance.write(customer_update_dict, is_todays_update)
+			if err:
+				msg = 'Error writing results to update customer balance. Error: {}'.format(err)
+				logging.error(msg)
+				event.set_failed().write_with_session(session)
+				session.rollback()
+				return None, msg
+			event.set_succeeded().write_with_session(session)
 
 			logging.debug(f"Successfully updated balance for '{company['name']}' with id '{company['id']}' for date '{cur_date}'")
 		else:
 			logging.debug(f"Skipping balance for '{company['name']}' with id '{company['id']}' for date '{cur_date}' because it could not be calculated")
 	
-	_set_financial_summary_no_longer_needs_recompute(company['id'], report_date, session_maker)
+	_set_financial_summary_no_longer_needs_recompute(session, company['id'], report_date)
 	
 	# Internally we re-compute the most recent X days of previous loan balances
 	# when an update happens to a customer, but in terms of this fucntion,
@@ -202,8 +215,10 @@ def update_company_balance(
 	# it for debugging purposes. 
 	return day_to_customer_update_dict, None
 
-
-def delete_old_bank_financial_summaries(session: Session, report_date: datetime.date) -> None:
+def delete_old_bank_financial_summaries(
+	session: Session, 
+	report_date: datetime.date
+) -> None:
 	"""Deletes the old bank summaries"""
 	bank_summaries = cast(
 		List[models.BankFinancialSummary],
@@ -228,6 +243,8 @@ def compute_bank_financial_summaries(
 	and compute new bank financial statements across all of our product types. This function
 	returns the list of bank financial summaries and an optional descriptive error.
 	"""
+
+
 	financial_summaries, err = financial_summary_util.get_financial_summary_for_all_customers(session, report_date)
 
 	if err:
@@ -338,7 +355,10 @@ def compute_bank_financial_summaries(
 	return product_type_to_bank_summary.values(), None
 
 
-def compute_and_update_bank_financial_summaries(session: Session, report_date: datetime.date) -> errors.Error:
+def compute_and_update_bank_financial_summaries(
+	session: Session, 
+	report_date: datetime.date
+) -> errors.Error:
 	bank_financial_summaries, err = compute_bank_financial_summaries(session, report_date)
 	if err:
 		return err
@@ -350,17 +370,35 @@ def compute_and_update_bank_financial_summaries(session: Session, report_date: d
 
 	return None
 
-def list_financial_summaries_that_need_balances_recomputed(session_maker: Callable, today: datetime.date, amount_to_fetch: int) -> List[ComputeSummaryRequest]:
+def list_financial_summaries_that_need_balances_recomputed(
+	session: Session, 
+	today: datetime.date, 
+	amount_to_fetch: int
+) -> List[ComputeSummaryRequest]:
 	# Prioritize the financial summaries that calculate today's balances first
+	financial_summaries = session.query(models.FinancialSummary).filter(
+		models.FinancialSummary.needs_recompute == True
+	).filter(models.FinancialSummary.date == today
+	).limit(amount_to_fetch).all()
 
-	with session_scope(session_maker) as session:
-		financial_summaries = session.query(models.FinancialSummary).filter(
+	# creates a ComputeSummaryRequest from all the financial summaries
+	summary_requests = []
+	for fin_summary in financial_summaries:
+		summary_requests.append(ComputeSummaryRequest(
+			report_date=fin_summary.date,
+			company_id=str(fin_summary.company_id),
+			company=None,
+			update_days_back=fin_summary.days_to_compute_back
+		))
+
+	# grabs more financial summaries if not enough work 
+	if len(summary_requests) < amount_to_fetch:
+		more_financial_summaries = session.query(models.FinancialSummary).filter(
 			models.FinancialSummary.needs_recompute == True
-		).filter(models.FinancialSummary.date == today
-		).limit(amount_to_fetch).all()
+		).filter(models.FinancialSummary.date != today
+		).limit(amount_to_fetch - len(summary_requests)).all()
 
-		summary_requests = []
-		for fin_summary in financial_summaries:
+		for fin_summary in more_financial_summaries:
 			summary_requests.append(ComputeSummaryRequest(
 				report_date=fin_summary.date,
 				company_id=str(fin_summary.company_id),
@@ -368,51 +406,103 @@ def list_financial_summaries_that_need_balances_recomputed(session_maker: Callab
 				update_days_back=fin_summary.days_to_compute_back
 			))
 
-		if len(summary_requests) < amount_to_fetch:
-			more_financial_summaries = session.query(models.FinancialSummary).filter(
-				models.FinancialSummary.needs_recompute == True
-			).filter(models.FinancialSummary.date != today
-			).limit(amount_to_fetch - len(summary_requests)).all()
+	# finds all the unique company ids from the financial summaries
+	company_ids = set([req['company_id'] for req in summary_requests])
+	companies = cast(
+		List[models.Company],
+		session.query(models.Company).filter(
+			models.Company.id.in_(company_ids)
+		).all())
 
-			for fin_summary in more_financial_summaries:
-				summary_requests.append(ComputeSummaryRequest(
-					report_date=fin_summary.date,
-					company_id=str(fin_summary.company_id),
-					company=None,
-					update_days_back=fin_summary.days_to_compute_back
-				))
+	if len(companies) != len(company_ids):
+		raise errors.Error('Not all companies fetched match the company ids in the summary request')
 
-		company_ids = set([req['company_id'] for req in summary_requests])
-		companies = cast(
-			List[models.Company],
-			session.query(models.Company).filter(
-				models.Company.id.in_(company_ids)
-			).all())
+	company_id_to_company = {}
+	for company in companies:
+		company_id_to_company[str(company.id)] = company.as_dict()
 
-		if len(companies) != len(company_ids):
-			raise errors.Error('Not all companies fetched match the company ids in the summary request')
-
-		company_id_to_company = {}
-		for company in companies:
-			company_id_to_company[str(company.id)] = company.as_dict()
-
-		for req in summary_requests:
-			if req['company_id'] in company_id_to_company:
-				req['company'] = company_id_to_company[req['company_id']]
-			else:
-				raise errors.Error('Company {} did not have a company dict associated with it')
+	# for every summary request add the company.as_dict() information onto the ComputeSummaryRequest
+	for req in summary_requests:
+		if req['company_id'] in company_id_to_company:
+			req['company'] = company_id_to_company[req['company_id']]
+		else:
+			raise errors.Error('Company {} did not have a company dict associated with it')
 
 	return summary_requests
 
-def run_customer_balances_for_financial_summaries_that_need_recompute(
-	session_maker: Callable, compute_requests: List[ComputeSummaryRequest]) -> Tuple[Set[datetime.date], List[str], errors.Error]:
 
+def list_financial_summaries_that_need_balances_recomputed_by_company(
+	session: Session, 
+	company_id: str,
+	today: datetime.date, 
+	amount_to_fetch: int
+) -> List[ComputeSummaryRequest]:
+	# this is very very similar to list_financial_summaries_that_need_balances_recomputed
+	# right above, the only difference is less work is being done to check for company 
+	# since we only have a singular company id
+	financial_summaries = session.query(models.FinancialSummary).filter(
+		models.FinancialSummary.needs_recompute == True
+	).filter(
+		models.FinancialSummary.date == today
+	).filter(
+		models.FinancialSummary.company_id == company_id
+	).limit(amount_to_fetch).all()
+
+	summary_requests = []
+	for fin_summary in financial_summaries:
+		summary_requests.append(ComputeSummaryRequest(
+			report_date=fin_summary.date,
+			company_id=str(fin_summary.company_id),
+			company=None,
+			update_days_back=fin_summary.days_to_compute_back
+		))
+
+	# get more summaries if needed that are further back to compute
+	if len(summary_requests) < amount_to_fetch:
+		more_financial_summaries = session.query(models.FinancialSummary).filter(
+			models.FinancialSummary.needs_recompute == True
+		).filter(
+			models.FinancialSummary.date != today
+		).filter(
+			models.FinancialSummary.company_id == company_id
+		).limit(amount_to_fetch - len(summary_requests)).all()
+
+		for fin_summary in more_financial_summaries:
+			summary_requests.append(ComputeSummaryRequest(
+				report_date=fin_summary.date,
+				company_id=str(fin_summary.company_id),
+				company=None,
+				update_days_back=fin_summary.days_to_compute_back
+			))
+
+	company = cast(
+		models.Company,
+		session.query(models.Company).filter(
+			models.Company.id == company_id
+		).first())
+
+	if not company:
+		raise errors.Error('Company not found in summary request')
+
+	company_as_dict = company.as_dict()
+
+	for req in summary_requests:
+		req['company'] = company_as_dict
+
+	return summary_requests
+	
+def run_customer_balances_for_financial_summaries_that_need_recompute(
+	session: Session,
+	session_maker: Callable,
+	compute_requests: List[ComputeSummaryRequest]
+) -> Tuple[Set[datetime.date], List[str], errors.Error]:
 	dates_updated = set([])
 
 	descriptive_errors = []
 	for req in compute_requests:
 		day_to_customer_update_dict, descriptive_error = update_company_balance(
-			session_maker, 
+			session, 
+			session_maker,
 			req['company'], 
 			req['report_date'],
 			update_days_back=req['update_days_back'],
@@ -422,6 +512,8 @@ def run_customer_balances_for_financial_summaries_that_need_recompute(
 		if descriptive_error:
 			descriptive_errors.append(descriptive_error)
 
+		if req['update_days_back'] == None:
+			req['update_days_back'] = 0
 		dates_updated.update(get_dates_updated(req['report_date'], req['update_days_back']))
 
 	if len(descriptive_errors) == len(compute_requests):
@@ -430,12 +522,36 @@ def run_customer_balances_for_financial_summaries_that_need_recompute(
 
 	return dates_updated, descriptive_errors, None 
 
+def list_all_companies(
+	session: Session,
+) -> List[models.CompanyDict]:
+	companies = session.query(models.Company).filter(
+		cast(Callable, models.Company.is_customer.is_)(True)
+	).order_by(
+		models.Company.name.asc()
+	).all()
+	return [company.as_dict() for company in companies]
 
-def list_all_companies(session_maker: Callable) -> List[models.CompanyDict]:
-	with session_scope(session_maker) as session:
-		companies = session.query(models.Company).filter(
-			cast(Callable, models.Company.is_customer.is_)(True)
-		).order_by(
-			models.Company.name.asc()
-		).all()
-		return [company.as_dict() for company in companies]
+def _set_needs_balance_recomputed(
+	session: Session,
+	company_ids: List[str], 
+	cur_date: datetime.date, 
+	create_if_missing: bool, 
+	days_to_compute_back: int, 
+) -> Tuple[bool, errors.Error]:
+
+	if not company_ids:
+		raise errors.Error("Failed to find company_ids in set_needs_balance_recomputed")
+
+	_, err = set_needs_balance_recomputed(
+			session,
+			company_ids, 
+			cur_date, 
+			create_if_missing, 
+			days_to_compute_back=days_to_compute_back,
+		)
+	if err:
+		logging.error(f"FAILED marking that company.needs_balance_recomputed for companies: '{company_ids}'")
+		raise errors.Error("Failed setting {} companies as dirty".format(len(company_ids)))
+
+	return True, None

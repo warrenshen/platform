@@ -22,25 +22,32 @@ from bespoke.db.models import session_scope
 from bespoke.finance.loans import reports_util
 from server.config import Config
 from server.views.common import auth_util, handler_util
+from sqlalchemy.orm.session import Session
 
 @errors.return_error_tuple
 def _set_needs_balance_recomputed(
-	company_ids: List[str], cur_date: datetime.date, create_if_missing: bool, 
-	days_to_compute_back: int, session_maker: Callable) -> Tuple[bool, errors.Error]:
+	session: Session,
+	company_ids: List[str], 
+	cur_date: datetime.date, 
+	create_if_missing: bool, 
+	days_to_compute_back: int, 
+) -> Tuple[bool, errors.Error]:
 
 	if not company_ids:
 		raise errors.Error("Failed to find company_ids in set_needs_balance_recomputed")
 
-	with models.session_scope(session_maker) as session:
-		_, err = reports_util.set_needs_balance_recomputed(
-			company_ids, cur_date, create_if_missing, 
+	_, err = reports_util.set_needs_balance_recomputed(
+			session,
+			company_ids, 
+			cur_date, 
+			create_if_missing, 
 			days_to_compute_back=days_to_compute_back,
-			session=session)
-		if err:
-			logging.error(f"FAILED marking that company.needs_balance_recomputed for companies: '{company_ids}'")
-			raise errors.Error("Failed setting {} companies as dirty".format(len(company_ids)))
+		)
+	if err:
+		logging.error(f"FAILED marking that company.needs_balance_recomputed for companies: '{company_ids}'")
+		raise errors.Error("Failed setting {} companies as dirty".format(len(company_ids)))
 
-		return True, None
+	return True, None
 
 class ExpireActiveEbbaApplications(MethodView):
 	decorators = [auth_util.requires_async_magic_header]
@@ -108,11 +115,13 @@ class UpdateAllCompanyBalancesView(MethodView):
 		companies = reports_util.list_all_companies(session_maker)
 		cur_date = date_util.now_as_date(date_util.DEFAULT_TIMEZONE)
 		company_ids = [company['id'] for company in companies]
-		_set_needs_balance_recomputed(
-			company_ids, cur_date, 
-			create_if_missing=True,
-			days_to_compute_back=reports_util.DAYS_TO_COMPUTE_BACK, 
-			session_maker=session_maker)
+		with models.session_scope(session_maker) as session:
+			_set_needs_balance_recomputed(
+				session,
+				company_ids, 
+				cur_date, 
+				create_if_missing=True,
+				days_to_compute_back=reports_util.DAYS_TO_COMPUTE_BACK)
 
 		logging.info("Submitted that all customers need their company balances updated")
 
@@ -211,13 +220,15 @@ class SetDirtyCompanyBalancesView(MethodView):
 		logging.info(f"Marking that company.needs_balance_recomputed for company: '{company_id}'")
 
 		cur_date = date_util.now_as_date(date_util.DEFAULT_TIMEZONE)
-		success, err = _set_needs_balance_recomputed(
-			[company_id], cur_date, 
-			create_if_missing=True, 
-			days_to_compute_back=reports_util.DAYS_TO_COMPUTE_BACK,
-			session_maker=current_app.session_maker)
-		if err:
-			raise errors.Error('{}'.format(err), http_code=500)
+		with session_scope(current_app.session_maker) as session:
+			success, err = _set_needs_balance_recomputed(
+				session,
+				[company_id], 
+				cur_date, 
+				create_if_missing=True, 
+				days_to_compute_back=reports_util.DAYS_TO_COMPUTE_BACK)
+			if err:
+				raise errors.Error('{}'.format(err), http_code=500)
 
 		logging.info(f"Finished marking that company.needs_balance_recomputed for company: '{company_id}'")
 

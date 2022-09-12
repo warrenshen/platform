@@ -118,29 +118,30 @@ class UpdateDirtyCompanyBalancesView(MethodView):
 		logging.debug("Received request to update dirty company balances")
 
 		today = date_util.now_as_date(date_util.DEFAULT_TIMEZONE)
-		compute_requests = reports_util.list_financial_summaries_that_need_balances_recomputed(
-			current_app.session_maker, today, amount_to_fetch=5)
-		if not compute_requests:
-			return make_response(json.dumps({
-				'status': 'OK',
-				'errors': []
-			}))
+		with session_scope(current_app.session_maker) as session:
+			compute_requests = reports_util.list_financial_summaries_that_need_balances_recomputed(
+				session, today, amount_to_fetch=5)
+			if not compute_requests:
+				return make_response(json.dumps({
+					'status': 'OK',
+					'errors': []
+				}))
 
-		dates_updated, descriptive_errors, fatal_error = reports_util.run_customer_balances_for_financial_summaries_that_need_recompute(
-			current_app.session_maker,
-			compute_requests
-		)
-		if fatal_error:
-			logging.error(f"Got FATAL error while recomputing balances for companies that need it: '{fatal_error}'")
-			return handler_util.make_error_response(fatal_error)
+			dates_updated, descriptive_errors, fatal_error = reports_util.run_customer_balances_for_financial_summaries_that_need_recompute(
+				session,
+				current_app.session_maker,
+				compute_requests
+			)
+			if fatal_error:
+				logging.error(f"Got FATAL error while recomputing balances for companies that need it: '{fatal_error}'")
+				return handler_util.make_error_response(fatal_error)
 
-		for cur_date in dates_updated:
-			with session_scope(current_app.session_maker) as session:
+			for cur_date in dates_updated:
 				fatal_error = reports_util.compute_and_update_bank_financial_summaries(session, cur_date)
 				if fatal_error:
 					raise errors.Error('FAILED to update bank financial summary on {}'.format(fatal_error))
 
-		logging.info("Finished request to update {} dirty financial summaries".format(len(compute_requests)))
+			logging.info("Finished request to update {} dirty financial summaries".format(len(compute_requests)))
 
 		return make_response(json.dumps({
 			"status": "OK",

@@ -9,18 +9,22 @@ from bespoke.db import models
 from sqlalchemy.orm.session import Session
 from bespoke.db.db_constants import AsyncJobNameEnum, AsyncJobStatusEnum
 from bespoke.slack import slack_util
+from bespoke.finance.loans import reports_util
 from bespoke.reports.report_generation_util import process_coming_due_loan_chunk, get_coming_due_loans_to_notify, get_past_due_loans_to_notify, process_past_due_loan_chunk 
 from bespoke.email import sendgrid_util
+
 
 @errors.return_error_tuple
 def generate_jobs(
 	session: Session,
 	job_name: str,
 ) -> Tuple[bool, errors.Error]:
-	if job_name not in async_job_generation_lookup:
+
+	job_success, err_msg = ASYNC_JOB_GENERATION_LOOKUP[job_name](session)
+	if job_name not in ASYNC_JOB_GENERATION_LOOKUP:
 		return False, errors.Error("Job does not exist")
 		
-	async_job_generation_lookup[job_name](session)
+	ASYNC_JOB_GENERATION_LOOKUP[job_name](session)
 
 	return True, None
 
@@ -113,6 +117,7 @@ def retry_job(
 @errors.return_error_tuple
 def kick_off_handler(
 	session: Session,
+	session_maker: Callable,
 	available_job_number: int,
 ) -> Tuple[List[str], errors.Error]:
 
@@ -154,8 +159,8 @@ def kick_off_handler(
 		session.commit()
 		payload = job.retry_payload if job.num_retries != 0 and job.retry_payload is not None else job.job_payload
 		payload = cast(Dict[str, Any], payload)
-		job_success, err_msg = async_job_orchestration_lookup[job.name](session, payload)
-
+		# TODO: session_maker should be eventually removed
+		job_success, err_msg = ASYNC_JOB_ORCHESTRATION_LOOKUP[job.name](session, session_maker, payload)
 		if job_success:
 			job.status = AsyncJobStatusEnum.COMPLETED
 		else:
@@ -170,12 +175,13 @@ def kick_off_handler(
 		job.ended_at = date_util.now()
 		job.updated_at = date_util.now()
 		session.commit()
-		slack_util.send_slack_message(job)
+		# slack_util.send_slack_message(job)
 	return [job.id for job in starting_jobs], None
 
 @errors.return_error_tuple
 def loans_coming_due_job(
 	session: Session,
+	session_maker: Callable,
 	job_payload: Dict[str, Any],
 ) -> Tuple[bool, errors.Error]:
 	company_id = job_payload["company_id"]
@@ -293,6 +299,7 @@ def generate_companies_loans_past_due_job(
 @errors.return_error_tuple
 def loans_past_due_job(
 	session: Session,
+	session_maker: Callable,
 	job_payload: Dict[str, Any],
 ) -> Tuple[bool, errors.Error]:
 	company_id = job_payload["company_id"]
@@ -311,12 +318,90 @@ def loans_past_due_job(
 			return False, errors.Error("unable to send")		
 	return True, None
 
-async_job_orchestration_lookup = {
-	AsyncJobNameEnum.LOANS_COMING_DUE: loans_coming_due_job,
-	AsyncJobNameEnum.LOANS_PAST_DUE: loans_past_due_job,
-}
+@errors.return_error_tuple
+def update_company_balances_job(
+	session: Session
+) -> Tuple[bool, errors.Error]:
+	logging.info("Received request to update all company balances")
+	cfg = cast(Config, current_app.app_config)
 
-async_job_generation_lookup = {
+	# mark that all companies need their balance recomputed
+	companies = reports_util.list_all_companies(session)
+	cur_date = date_util.now_as_date(date_util.DEFAULT_TIMEZONE)
+	company_ids = [company['id'] for company in companies]
+	reports_util._set_needs_balance_recomputed(
+		session,
+		company_ids, 
+		cur_date, 
+		create_if_missing=True,
+		# days_to_compute_back=0, 
+		days_to_compute_back=reports_util.DAYS_TO_COMPUTE_BACK, 
+		)
+
+	logging.info("Submitted that all customers need their company balances updated")
+
+	# add each companies recomputing job to the queue
+	for company in companies:
+		payload = {"company_id" :company["id"]}
+
+		add_job_to_queue(
+			session=session,
+			job_name=AsyncJobNameEnum.UPDATE_COMPANY_BALANCES,
+			submitted_by_user_id=cfg.BOT_USER_ID,
+			is_high_priority=False,
+			job_payload=payload)
+	return True, None
+
+# TODO: sessionmaker should be eventually removed
+@errors.return_error_tuple
+def update_dirty_company_balances_job(
+	session: Session,
+	session_maker: Callable,
+	job_payload: Dict[str, Any],
+) -> Tuple[bool, errors.Error]:
+	# before this was done for all companies at once now the update is going to be done for one company at a time
+
+	logging.debug("Received request to update dirty company balances")
+	company_id = job_payload["company_id"]
+	today = date_util.now_as_date(date_util.DEFAULT_TIMEZONE)
+	compute_requests = reports_util.list_financial_summaries_that_need_balances_recomputed_by_company(
+		session, 
+		company_id,
+		today, 
+		amount_to_fetch=5)
+	if not compute_requests:
+		return True, None
+
+	# TODO: sessionmaker should be eventually removed
+	dates_updated, descriptive_errors, fatal_error = reports_util.run_customer_balances_for_financial_summaries_that_need_recompute(
+		session,
+		session_maker,
+		compute_requests
+	)
+	if fatal_error:
+		logging.error(f"Got FATAL error while recomputing balances for companies that need it: '{fatal_error}'")
+		return False, errors.Error(str(fatal_error))
+
+	for cur_date in dates_updated:
+		fatal_error = reports_util.compute_and_update_bank_financial_summaries(
+			session, 
+			cur_date)
+		if fatal_error:
+			return False, errors.Error('FAILED to update bank financial summary on {}'.format(fatal_error))
+
+	logging.info("Finished request to update {} dirty financial summaries".format(len(compute_requests)))
+
+	return True, None
+
+ASYNC_JOB_GENERATION_LOOKUP = {
 	AsyncJobNameEnum.LOANS_COMING_DUE: generate_companies_loans_coming_due_job,
 	AsyncJobNameEnum.LOANS_PAST_DUE: generate_companies_loans_past_due_job,
+	AsyncJobNameEnum.UPDATE_COMPANY_BALANCES: update_company_balances_job, 
 }
+
+ASYNC_JOB_ORCHESTRATION_LOOKUP = {
+	AsyncJobNameEnum.LOANS_COMING_DUE: loans_coming_due_job,
+	AsyncJobNameEnum.LOANS_PAST_DUE: loans_past_due_job,
+	AsyncJobNameEnum.UPDATE_COMPANY_BALANCES: update_dirty_company_balances_job,
+}
+

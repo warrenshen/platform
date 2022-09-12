@@ -5,11 +5,14 @@ from typing import Any, cast, Dict, List
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models, queries
+from bespoke.db.db_constants import AsyncJobNameEnum
 from bespoke.db.models import session_scope
 from bespoke.finance.loans import reports_util
 from bespoke.finance.reports import loan_balances
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
+from server.config import Config
+from server.views import async_jobs_util
 from server.views.common import auth_util, handler_util
 
 handler = Blueprint('finance_loans_reports', __name__)
@@ -20,6 +23,8 @@ class RunCustomerBalancesView(MethodView):
 	@handler_util.catch_bad_json_request
 	def post(self) -> Response:
 		session_maker = current_app.session_maker
+		cfg = cast(Config, current_app.app_config)
+
 		form = json.loads(request.data)
 		if not form:
 			return handler_util.make_error_response('No data provided')
@@ -104,11 +109,20 @@ class RunCustomerBalancesView(MethodView):
 				cur_date, days_to_compute_back = date_range_tuples[i]
 				with session_scope(current_app.session_maker) as session:
 					reports_util.set_needs_balance_recomputed(
+						session,
 						company_ids,
 						cur_date, 
 						create_if_missing=True, 
-						days_to_compute_back=days_to_compute_back, 
-						session=session)
+						days_to_compute_back=days_to_compute_back)
+
+			for company_id in company_ids:
+				payload = {"company_id": str(company_id)}
+				async_jobs_util.add_job_to_queue(
+					session=session,
+					job_name=AsyncJobNameEnum.UPDATE_COMPANY_BALANCES,
+					submitted_by_user_id=cfg.BOT_USER_ID,
+					is_high_priority=True,
+					job_payload=payload)
 
 			return make_response({
 				'status': 'OK',

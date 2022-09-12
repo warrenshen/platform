@@ -7,7 +7,10 @@ from bespoke.date import date_util
 
 from bespoke import errors 
 
-webhook = 'https://hooks.slack.com/services/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'
+# prod url
+# webhook = 'https://hooks.slack.com/services/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'
+# dev url
+webhook = 'https://hooks.slack.com/services/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'
 
 def send_slack_message(
 	job: models.AsyncJob

@@ -382,14 +382,14 @@ AsyncJobStatusEnumToLabel = {
 }
 
 class AsyncJobNameEnum(object):
-	DUMMY = "dummy"
 	LOANS_COMING_DUE = "loans_coming_due"
 	LOANS_PAST_DUE = "loans_past_due"
+	UPDATE_COMPANY_BALANCES="update_company_balances"
 
 AsyncJobNameEnumToLabel = {
-	AsyncJobNameEnum.DUMMY: 'Dummy',
 	AsyncJobNameEnum.LOANS_COMING_DUE: 'Loans coming due',
 	AsyncJobNameEnum.LOANS_PAST_DUE: 'Loans past due',
+	AsyncJobNameEnum.UPDATE_COMPANY_BALANCES: 'Update company balances',
 }
 
 # Vendor Change Requests

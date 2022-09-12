@@ -1057,21 +1057,21 @@ export const AsyncJobStatuses = [
 ];
 
 export enum AsyncJobNameEnum {
-  Dummy = "dummy",
   LoansComingDue = "loans_coming_due",
   LoansPastDue = "loans_past_due",
+  UpdateCompanyBalances = "update_company_balances",
 }
 
 export const AsyncJobNameEnumToLabel = {
-  [AsyncJobNameEnum.Dummy]: "Dummy",
   [AsyncJobNameEnum.LoansComingDue]: "Loans Coming Due",
   [AsyncJobNameEnum.LoansPastDue]: "Loans Past Due",
+  [AsyncJobNameEnum.UpdateCompanyBalances]: "Update Company Balances",
 };
 
 export const AsyncJobNames = [
-  AsyncJobNameEnum.Dummy,
   AsyncJobNameEnum.LoansComingDue,
   AsyncJobNameEnum.LoansPastDue,
+  AsyncJobNameEnum.UpdateCompanyBalances,
 ];
 
 export enum VendorChangeRequestsStatusEnum {

@@ -124,7 +124,7 @@ class GenerateJobsView(MethodView):
 	decorators = [auth_util.requires_async_magic_header]
 
 	@handler_util.catch_bad_json_request
-	def get(self, **kwargs: Any) -> Response:
+	def post(self, **kwargs: Any) -> Response:
 		logging.info("Received async job generation request")
 
 		form = json.loads(request.data)
@@ -165,6 +165,7 @@ class KickOffHandlerView(MethodView):
 		with session_scope(current_app.session_maker) as session:
 			in_progress_job_ids, err = async_jobs_util.kick_off_handler(
 				session = session,
+				session_maker = current_app.session_maker,
 				available_job_number = int(cfg.ASYNC_JOB_CAPACITY)
 			)
 			if err:

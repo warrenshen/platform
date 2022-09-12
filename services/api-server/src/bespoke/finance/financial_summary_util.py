@@ -48,6 +48,26 @@ def get_financial_summary_for_all_customers(
 
 		return financial_summaries, None
 
+def get_financial_summary_for_customer(
+	session: Session,
+	company_id: str,
+	report_date: datetime.date,
+) -> Tuple[List[models.FinancialSummary], errors.Error]:
+		latest_date = _get_summary_date_or_most_recent_date(session, report_date)
+		if not latest_date:
+			return None, errors.Error('No financial summary found that has a date populated')
+
+		financial_summaries = cast(
+			List[models.FinancialSummary],
+			session.query(models.FinancialSummary
+			).filter(
+				models.FinancialSummary.date == latest_date.isoformat()
+			).filter(
+				models.FinancialSummary.company_id == company_id
+			).all())
+
+		return financial_summaries, None
+
 def get_latest_financial_summary(
 	session: Session, 
 	company_id: str, 

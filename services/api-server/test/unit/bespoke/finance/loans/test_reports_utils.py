@@ -512,8 +512,8 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 			count = session.query(models.FinancialSummary).filter(models.FinancialSummary.needs_recompute == True).count()
 			self.assertEqual(3, count)
 
-
-		compute_requests = reports_util.list_financial_summaries_that_need_balances_recomputed(self.session_maker, today=TODAY, amount_to_fetch=2)
+		with session_scope(self.session_maker) as session:
+			compute_requests = reports_util.list_financial_summaries_that_need_balances_recomputed(session, today=TODAY, amount_to_fetch=2)
 		self.assertEqual(seed.get_company_id('company_admin', index=0), compute_requests[0]['company_id'])
 		self.assertEqual(seed.get_company_id('company_admin', index=0), compute_requests[0]['company']['id'])
 		
