@@ -62,6 +62,7 @@ def approve_vendor_change_request(
 		new_users = request_info['new_users']
 		delete_users = request_info['delete_users']
 
+		# finds partnerships
 		company_vendor_partnership = cast(
 			models.CompanyVendorPartnership,
 			session.query(models.CompanyVendorPartnership).filter(
@@ -72,13 +73,16 @@ def approve_vendor_change_request(
 		if not company_vendor_partnership:
 			return None, errors.Error('Company vendor partnership not found')
 
+
 		partnership_id = company_vendor_partnership.id
+		# find all the existing vendor contact
 		existing_vendor_contacts = cast(
 			List[models.CompanyVendorContact],
 			session.query(models.CompanyVendorContact).filter(
 				models.CompanyVendorContact.partnership_id == partnership_id
 			).all())
 
+		# deletes users in company vendor contacts that are not contacts
 		company_vendor_contacts_to_delete = []
 		for existing_vendor_contact in existing_vendor_contacts:
 			if str(existing_vendor_contact.vendor_user_id) in delete_users:
@@ -98,7 +102,7 @@ def approve_vendor_change_request(
 
 		existing_vendor_contact_ids = []
 		for contact in existing_vendor_contacts:
-			existing_vendor_contact_ids.append(str(contact.id))
+			existing_vendor_contact_ids.append(str(contact.vendor_user_id))
 
 		for user_id in new_users:			
 			if user_id not in existing_vendor_contact_ids:
