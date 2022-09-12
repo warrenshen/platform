@@ -384,11 +384,15 @@ AsyncJobStatusEnumToLabel = {
 class AsyncJobNameEnum(object):
 	LOANS_COMING_DUE = "loans_coming_due"
 	LOANS_PAST_DUE = "loans_past_due"
+	AUTOGENERATE_REPAYMENTS = "autogenerate_repayments"
+	AUTOGENERATE_REPAYMENT_ALERTS = "autogenerate_repayment_alerts"
 	UPDATE_COMPANY_BALANCES="update_company_balances"
 
 AsyncJobNameEnumToLabel = {
 	AsyncJobNameEnum.LOANS_COMING_DUE: 'Loans coming due',
 	AsyncJobNameEnum.LOANS_PAST_DUE: 'Loans past due',
+	AsyncJobNameEnum.AUTOGENERATE_REPAYMENTS: 'Autogenerate repayments',
+	AsyncJobNameEnum.AUTOGENERATE_REPAYMENT_ALERTS: 'Autogenerate repayment alerts',
 	AsyncJobNameEnum.UPDATE_COMPANY_BALANCES: 'Update company balances',
 }
 

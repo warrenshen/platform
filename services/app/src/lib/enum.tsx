@@ -1059,18 +1059,25 @@ export const AsyncJobStatuses = [
 export enum AsyncJobNameEnum {
   LoansComingDue = "loans_coming_due",
   LoansPastDue = "loans_past_due",
+  AutogenerateRepayments = "autogenerate_repayments",
+  AutogenerateRepaymentAlerts = "autogenerate_repayment_alerts",
   UpdateCompanyBalances = "update_company_balances",
 }
 
 export const AsyncJobNameEnumToLabel = {
   [AsyncJobNameEnum.LoansComingDue]: "Loans Coming Due",
   [AsyncJobNameEnum.LoansPastDue]: "Loans Past Due",
+  [AsyncJobNameEnum.AutogenerateRepayments]: "Autogenerate repayments",
+  [AsyncJobNameEnum.AutogenerateRepaymentAlerts]:
+    "Autogenerate repayment alerts",
   [AsyncJobNameEnum.UpdateCompanyBalances]: "Update Company Balances",
 };
 
 export const AsyncJobNames = [
   AsyncJobNameEnum.LoansComingDue,
   AsyncJobNameEnum.LoansPastDue,
+  AsyncJobNameEnum.AutogenerateRepayments,
+  AsyncJobNameEnum.AutogenerateRepaymentAlerts,
   AsyncJobNameEnum.UpdateCompanyBalances,
 ];
 

@@ -79,6 +79,64 @@ def get_opt_in_customers(
 
 	return customer_lookup, filtered_customer_ids, settings_lookup, None
 
+def get_opt_in_customer(
+	session: Session,
+	customer: models.Company,
+	supported_product_types: List[str],
+	today_date: datetime.date
+) -> Tuple[ Dict[str, models.Company], List[str], Dict[str, models.CompanySettings], errors.Error ]:
+	financial_summaries, err = queries.get_financial_summaries_for_target_customer(
+		session,
+		str(customer.id),
+		today_date
+	)
+	if err:
+		return None, None, None, err
+
+	customer_settings, err = queries.get_company_settings_for_target_company(
+		session,
+		customer.id,
+		allow_dummy = False,
+	)
+	if err:
+		return None, None, None, err
+
+	settings_lookup: Dict[str, models.CompanySettings] = {}
+	settings_lookup[str(customer_settings.company_id)] = customer_settings
+
+	filtered_customer_ids: List[str] = []
+	for financial_summary in financial_summaries:
+		company_id = str(financial_summary.company_id)
+		supported_product_type = financial_summary.product_type in supported_product_types
+		non_dummy = company_id in settings_lookup and (settings_lookup[company_id].is_dummy_account is False or \
+			settings_lookup[company_id].is_dummy_account is None)
+
+		feature_flags: Dict[str, bool] = cast(Dict[str, bool], settings_lookup[company_id].feature_flags_payload) if non_dummy else None
+		customer_opt_in = settings_lookup[company_id].is_autogenerate_repayments_enabled if non_dummy else None
+		bank_override = feature_flags[FeatureFlagEnum.OVERRIDE_REPAYMENT_AUTOGENERATION] \
+			if feature_flags is not None and FeatureFlagEnum.OVERRIDE_REPAYMENT_AUTOGENERATION in feature_flags else False
+
+		if supported_product_type and non_dummy and customer_opt_in and not bank_override:
+			filtered_customer_ids.append(str(financial_summary.company_id))
+		else:
+			# Popping here just so unit tests match up for filtered case.
+			# We need all the settings for the feature flag above, so
+			# popping here saves us a second query with filtered_customer_ids
+			# and keeps the unit test expectations consistent with other
+			# values returned by this function.
+			settings_lookup.pop(company_id, None)
+
+	# Will be used to grab company info for the generated email rows
+	filtered_customers: List[models.Company] = []
+	if str(customer.id) in filtered_customer_ids:
+		filtered_customers.append(customer)
+
+	customer_lookup: Dict[str, models.Company] = {}
+	for customer in filtered_customers:
+		customer_lookup[str(customer.id)] = customer
+
+	return customer_lookup, filtered_customer_ids, settings_lookup, None
+
 def find_mature_loans_without_open_repayments(
 	session: Session,
 	customer_ids: List[str],

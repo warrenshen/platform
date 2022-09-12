@@ -133,6 +133,31 @@ def get_company_settings_for_target_companies(
 
     return company_settings, None
 
+def get_company_settings_for_target_company(
+    session: Session,
+    company_id: str,
+    allow_dummy: bool = False,
+) -> Tuple[ models.CompanySettings, errors.Error ]:
+    filters = [
+        models.CompanySettings.company_id == company_id
+    ]
+
+    if not allow_dummy:
+        filters.append(cast(Callable, models.CompanySettings.is_dummy_account.isnot)(True))
+
+    # fmt: off
+    company_settings = cast(
+        models.CompanySettings,
+        session.query(models.CompanySettings).filter(
+            *filters   
+        ).first())
+    # fmt: on
+
+    if not company_settings:
+        return None, errors.Error("No company settings found for the provided company")
+
+    return company_settings, None
+
 # ###############################
 # Ebba Applications
 # ###############################
@@ -189,6 +214,34 @@ def get_financial_summaries_for_target_customers(
     if not financial_summaries:
         return None, errors.Error(
             f"""No financial summaries have been found for the provided companies on {
+                date_util.human_readable_yearmonthday_from_date(date) if date is not None else "any date"
+            }""")
+
+    return financial_summaries, None
+
+def get_financial_summaries_for_target_customer(
+    session: Session,
+    company_id: str,
+    date: datetime.date = None,
+) -> Tuple[ List[models.FinancialSummary], errors.Error ]:
+    filters = [
+        models.FinancialSummary.company_id == company_id
+    ]
+
+    if date is not None:
+        filters.append(models.FinancialSummary.date == date)
+
+    # fmt: off
+    financial_summaries = cast(
+        List[models.FinancialSummary],
+        session.query(models.FinancialSummary).filter(
+            *filters   
+        ).all())
+    # fmt: on
+
+    if not financial_summaries:
+        return None, errors.Error(
+            f"""No financial summaries have been found for the provided companiy on {
                 date_util.human_readable_yearmonthday_from_date(date) if date is not None else "any date"
             }""")
 
