@@ -323,7 +323,6 @@ export default function PurchaseOrdersDataGridNew({
   const showCustomerPurchaseOrderDrawer =
     !!selectedPurchaseOrderId && !isBankUser;
 
-  console.log({ showBankPurchaseOrderDrawer, showCustomerPurchaseOrderDrawer });
   return (
     <Box
       display="flex"

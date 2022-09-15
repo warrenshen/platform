@@ -1,4 +1,5 @@
 export const PlainWhite = "#fff";
+export const Transparent = "transparent";
 
 export const TextColor = "#2c2a27";
 

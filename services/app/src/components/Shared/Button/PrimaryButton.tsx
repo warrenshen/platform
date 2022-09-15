@@ -1,6 +1,5 @@
 import ActionButton from "components/Shared/Button/ActionButton";
 import {
-  DisabledSecondaryBorderColor,
   DisabledSecondaryTextColor,
   PlainWhite,
   PrimaryActiveColor,
@@ -17,8 +16,9 @@ interface Props {
   isDisabled?: boolean;
   isIconVisible?: boolean;
   text: string;
-  width: string;
-  height: string;
+  width?: string;
+  height?: string;
+  margin?: string;
   onClick: () => void;
 }
 
@@ -28,6 +28,7 @@ export default function PrimaryButton({
   text,
   width,
   height,
+  margin,
   onClick,
 }: Props) {
   return (
@@ -43,21 +44,27 @@ export default function PrimaryButton({
       boxShadowBlurRadius={PrimaryBoxShadowBlurRadius}
       boxShadowSpreadRadius={PrimaryBoxShadowSpreadRadius}
       boxShadowColor={!!isDisabled ? PlainWhite : PrimaryBoxShadowColor}
-      backgroundColor={!!isDisabled ? PlainWhite : PrimaryDefaultColor}
+      backgroundColor={
+        !!isDisabled ? DisabledSecondaryTextColor : PrimaryDefaultColor
+      }
       borderColor={
-        !!isDisabled ? DisabledSecondaryBorderColor : PrimaryDefaultColor
+        !!isDisabled ? DisabledSecondaryTextColor : PrimaryDefaultColor
       }
-      color={!!isDisabled ? DisabledSecondaryTextColor : PlainWhite}
-      hoverBackgroundColor={!!isDisabled ? PlainWhite : PrimaryHoverColor}
+      color={PlainWhite}
+      hoverBackgroundColor={
+        !!isDisabled ? DisabledSecondaryTextColor : PrimaryHoverColor
+      }
       hoverBorderColor={
-        !!isDisabled ? DisabledSecondaryBorderColor : PrimaryHoverColor
+        !!isDisabled ? DisabledSecondaryTextColor : PrimaryHoverColor
       }
-      hoverColor={!!isDisabled ? DisabledSecondaryTextColor : PlainWhite}
-      activeBackgroundColor={!!isDisabled ? PlainWhite : PrimaryActiveColor}
+      hoverColor={PlainWhite}
+      activeBackgroundColor={
+        !!isDisabled ? DisabledSecondaryTextColor : PrimaryActiveColor
+      }
       activeBorderColor={
-        !!isDisabled ? DisabledSecondaryBorderColor : PrimaryActiveColor
+        !!isDisabled ? DisabledSecondaryTextColor : PrimaryActiveColor
       }
-      activeColor={!!isDisabled ? DisabledSecondaryTextColor : PlainWhite}
+      activeColor={PlainWhite}
     />
   );
 }

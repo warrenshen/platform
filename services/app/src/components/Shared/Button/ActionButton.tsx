@@ -4,6 +4,7 @@ import styled from "styled-components";
 const StyledActionButton = styled(Button)<{
   $width: string;
   $height: string;
+  $margin: string;
   $borderColor: string;
   $backgroundColor: string;
   $color: string;
@@ -23,14 +24,24 @@ const StyledActionButton = styled(Button)<{
   font-weight: 500;
   font-size: 16px;
 
-  margin: 0 5px;
-  padding: 14px 0;
+  margin: ${(props) => props.$margin};
+  padding: 11px 24px;
   text-align: center;
 
   width: ${(props) => props.$width};
   height: ${(props) => props.$height};
 
   box-shadow: ${(props) => props.$boxShadow};
+
+  span {
+    color: ${(props) => props.$color};
+  }
+
+  :disabled {
+    background-color: ${(props) => props.$backgroundColor};
+    border: ${(props) => props.$borderColor} 2px solid;
+    color: ${(props) => props.$color};
+  }
 
   :hover {
     background-color: ${(props) => props.$hoverBackgroundColor};
@@ -50,8 +61,9 @@ interface Props {
   isDisabled?: boolean;
   variant?: any;
   onClick: () => void;
-  width: string;
-  height: string;
+  width?: string;
+  height?: string;
+  margin?: string;
 
   // base colors
   backgroundColor: string;
@@ -81,8 +93,9 @@ export default function ActionButton({
   isDisabled = false,
   variant = "contained",
   onClick,
-  width,
-  height,
+  width = "auto",
+  height = "40px",
+  margin = "0 0 0 16px",
   backgroundColor,
   borderColor,
   color,
@@ -131,6 +144,7 @@ export default function ActionButton({
       $boxShadow={boxShadow}
       $width={width}
       $height={height}
+      $margin={margin}
     >
       {text}
     </StyledActionButton>

@@ -113,7 +113,7 @@ export default function BankPurchaseOrdersReadyForFinancingTab() {
         justifyContent="space-between"
         alignItems="flex-end"
         mt={1}
-        mb={4}
+        mb={2}
       >
         <Box>
           <Typography variant="h6">Ready for Financing</Typography>
@@ -123,8 +123,6 @@ export default function BankPurchaseOrdersReadyForFinancingTab() {
             <PrimaryButton
               isDisabled={!selectedPurchaseOrder}
               text={"Request Changes"}
-              width={"184px"}
-              height={"50px"}
               onClick={() => setIsRequestChangesModalOpen(true)}
             />
           </Can>
@@ -133,8 +131,6 @@ export default function BankPurchaseOrdersReadyForFinancingTab() {
             <SecondaryWarningButton
               isDisabled={!selectedPurchaseOrder}
               text={"Reject completely"}
-              width={"184px"}
-              height={"50px"}
               onClick={() => setIsRejectModalOpen(true)}
             />
           </Can>
@@ -143,8 +139,6 @@ export default function BankPurchaseOrdersReadyForFinancingTab() {
             <SecondaryButton
               isDisabled={!selectedPurchaseOrder}
               text={"Archive"}
-              width={"184px"}
-              height={"50px"}
               onClick={() => setIsArchiveModalOpen(true)}
             />
           </Can>

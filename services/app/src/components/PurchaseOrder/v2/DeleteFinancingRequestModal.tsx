@@ -62,7 +62,6 @@ interface Props {
   requestedAmount: number;
   handleClose: () => void;
   deleteFinancingRequestFromState: () => void;
-  // handleClickConfirm: () => void;
 }
 
 function DeleteFinancingRequestModal({
@@ -74,8 +73,7 @@ function DeleteFinancingRequestModal({
   requestedAmount,
   handleClose,
   deleteFinancingRequestFromState,
-}: // handleClickConfirm,
-Props) {
+}: Props) {
   const snackbar = useSnackbar();
 
   const [deleteLoan, { loading: isDeleteLoanLoading }] =

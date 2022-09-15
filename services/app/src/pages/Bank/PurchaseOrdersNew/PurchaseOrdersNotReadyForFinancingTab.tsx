@@ -122,7 +122,7 @@ export default function BankPurchaseOrdersReadyForFinancingTab() {
         justifyContent="space-between"
         alignItems="flex-end"
         mt={1}
-        mb={4}
+        mb={2}
       >
         <Box>
           <Typography variant="h6">Not Ready for Financing</Typography>
@@ -132,38 +132,27 @@ export default function BankPurchaseOrdersReadyForFinancingTab() {
             <PrimaryButton
               isDisabled={!selectedPurchaseOrder}
               text={"Approve"}
-              width={"184px"}
-              height={"50px"}
               onClick={() => setIsApproveModalOpen(true)}
             />
           </Can>
-          <Box mr={2} />
           <Can perform={Action.ApprovePurchaseOrders}>
             <PrimaryButton
               isDisabled={!selectedPurchaseOrder}
               text={"Request Changes"}
-              width={"184px"}
-              height={"50px"}
               onClick={() => setIsRequestChangesModalOpen(true)}
             />
           </Can>
-          <Box mr={2} />
           <Can perform={Action.DeletePurchaseOrders}>
             <SecondaryWarningButton
               isDisabled={!selectedPurchaseOrder}
               text={"Reject completely"}
-              width={"184px"}
-              height={"50px"}
               onClick={() => setIsRejectModalOpen(true)}
             />
           </Can>
-          <Box mr={2} />
           <Can perform={Action.ArchivePurchaseOrders}>
             <SecondaryButton
               isDisabled={!selectedPurchaseOrder}
               text={"Archive"}
-              width={"184px"}
-              height={"50px"}
               onClick={() => setIsArchiveModalOpen(true)}
             />
           </Can>

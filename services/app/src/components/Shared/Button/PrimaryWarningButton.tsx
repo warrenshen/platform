@@ -12,8 +12,9 @@ interface Props {
   isDisabled?: boolean;
   isIconVisible?: boolean;
   text: string;
-  width: string;
-  height: string;
+  width?: string;
+  height?: string;
+  margin?: string;
   onClick: () => void;
 }
 
@@ -23,6 +24,7 @@ export default function PrimaryWarningButton({
   text,
   width,
   height,
+  margin,
   onClick,
 }: Props) {
   return (
@@ -33,7 +35,9 @@ export default function PrimaryWarningButton({
       onClick={onClick}
       width={width}
       height={height}
-      backgroundColor={!!isDisabled ? PlainWhite : WarningDefaultColor}
+      backgroundColor={
+        !!isDisabled ? DisabledSecondaryTextColor : WarningDefaultColor
+      }
       borderColor={
         !!isDisabled ? DisabledSecondaryBorderColor : WarningDefaultColor
       }

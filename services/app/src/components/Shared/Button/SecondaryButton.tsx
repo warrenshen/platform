@@ -2,19 +2,20 @@ import ActionButton from "components/Shared/Button/ActionButton";
 import {
   DisabledSecondaryBorderColor,
   DisabledSecondaryTextColor,
-  PlainWhite,
   SecondaryActiveColor,
   SecondaryBorderColor,
   SecondaryHoverColor,
   SecondaryTextColor,
+  Transparent,
 } from "components/Shared/Colors/GlobalColors";
 
 interface Props {
   isDisabled?: boolean;
   isIconVisible?: boolean;
   text: string;
-  width: string;
-  height: string;
+  width?: string;
+  height?: string;
+  margin?: string;
   onClick: () => void;
 }
 
@@ -24,6 +25,7 @@ export default function SecondaryButton({
   text,
   width,
   height,
+  margin,
   onClick,
 }: Props) {
   return (
@@ -34,19 +36,19 @@ export default function SecondaryButton({
       onClick={onClick}
       width={width}
       height={height}
-      backgroundColor={PlainWhite}
+      backgroundColor={Transparent}
       borderColor={
         !!isDisabled ? DisabledSecondaryBorderColor : SecondaryBorderColor
       }
       color={!!isDisabled ? DisabledSecondaryTextColor : SecondaryTextColor}
-      hoverBackgroundColor={!!isDisabled ? PlainWhite : SecondaryHoverColor}
+      hoverBackgroundColor={!!isDisabled ? Transparent : SecondaryHoverColor}
       hoverBorderColor={
         !!isDisabled ? DisabledSecondaryBorderColor : SecondaryBorderColor
       }
       hoverColor={
         !!isDisabled ? DisabledSecondaryTextColor : SecondaryTextColor
       }
-      activeBackgroundColor={!!isDisabled ? PlainWhite : SecondaryActiveColor}
+      activeBackgroundColor={!!isDisabled ? Transparent : SecondaryActiveColor}
       activeBorderColor={
         !!isDisabled ? DisabledSecondaryBorderColor : SecondaryBorderColor
       }

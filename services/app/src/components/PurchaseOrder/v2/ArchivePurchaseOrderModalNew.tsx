@@ -1,14 +1,12 @@
 import {
   Box,
   Button,
-  Dialog,
   DialogActions,
   DialogContent,
-  DialogTitle,
-  Divider,
   Typography,
   makeStyles,
 } from "@material-ui/core";
+import ModalDialog from "components/Shared/Modal/ModalDialog";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { closePurchaseOrderMutation } from "lib/api/purchaseOrders";
@@ -81,17 +79,13 @@ function ArchivePurchaseOrderModalNew({
   };
 
   return (
-    <Dialog open onClose={handleClose} style={{ padding: "32px" }}>
-      <DialogTitle
-        style={{ fontSize: 32, fontWeight: 400, margin: 32, padding: 0 }}
-      >
-        {`${
-          action === Action.ArchivePurchaseOrders ? "Archive" : "Unarchive"
-        } Purchase Order`}
-      </DialogTitle>
-      <Divider variant="middle" style={{ width: 436, marginLeft: 32 }} />
-
-      <DialogContent style={{ width: 436, margin: 32, padding: 0 }}>
+    <ModalDialog
+      title={`${
+        action === Action.ArchivePurchaseOrders ? "Archive" : "Unarchive"
+      } Purchase Order`}
+      handleClose={handleClose}
+    >
+      <DialogContent>
         <Box mb={2}>
           <Typography variant="subtitle2">
             {`Are you sure you want to ${
@@ -149,7 +143,7 @@ function ArchivePurchaseOrderModalNew({
           </Button>
         </Box>
       </DialogActions>
-    </Dialog>
+    </ModalDialog>
   );
 }
 

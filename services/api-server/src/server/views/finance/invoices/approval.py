@@ -88,7 +88,7 @@ class RespondToApprovalRequestView(MethodView):
 		with models.session_scope(current_app.session_maker) as session:
 			if user_session.is_bank_admin():
 				user = session.query(models.User) \
-					.filter(models.User.email == user_session.get_user_id()) \
+					.filter(models.User.id == user_session.get_user_id()) \
 					.first()
 				if user:
 					event.user_id(str(user.id))

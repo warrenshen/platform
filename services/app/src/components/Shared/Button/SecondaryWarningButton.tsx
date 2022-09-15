@@ -2,7 +2,7 @@ import ActionButton from "components/Shared/Button/ActionButton";
 import {
   DisabledSecondaryBorderColor,
   DisabledSecondaryTextColor,
-  PlainWhite,
+  Transparent,
   WarningDefaultColor,
   WarningSecondaryActiveColor,
   WarningSecondaryHoverColor,
@@ -12,8 +12,9 @@ interface Props {
   isDisabled?: boolean;
   isIconVisible?: boolean;
   text: string;
-  width: string;
-  height: string;
+  width?: string;
+  height?: string;
+  margin?: string;
   onClick: () => void;
 }
 
@@ -23,6 +24,7 @@ export default function SecondaryWarningButton({
   text,
   width,
   height,
+  margin,
   onClick,
 }: Props) {
   return (
@@ -33,13 +35,13 @@ export default function SecondaryWarningButton({
       onClick={onClick}
       width={width}
       height={height}
-      backgroundColor={PlainWhite}
+      backgroundColor={Transparent}
       borderColor={
         !!isDisabled ? DisabledSecondaryBorderColor : WarningDefaultColor
       }
       color={!!isDisabled ? DisabledSecondaryTextColor : WarningDefaultColor}
       hoverBackgroundColor={
-        !!isDisabled ? PlainWhite : WarningSecondaryHoverColor
+        !!isDisabled ? Transparent : WarningSecondaryHoverColor
       }
       hoverBorderColor={
         !!isDisabled ? DisabledSecondaryBorderColor : WarningDefaultColor
@@ -48,7 +50,7 @@ export default function SecondaryWarningButton({
         !!isDisabled ? DisabledSecondaryTextColor : WarningDefaultColor
       }
       activeBackgroundColor={
-        !!isDisabled ? PlainWhite : WarningSecondaryActiveColor
+        !!isDisabled ? Transparent : WarningSecondaryActiveColor
       }
       activeBorderColor={
         !!isDisabled ? DisabledSecondaryBorderColor : WarningDefaultColor
