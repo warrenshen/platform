@@ -5,6 +5,7 @@ const StyledActionButton = styled(Button)<{
   $width: string;
   $height: string;
   $margin: string;
+  $padding: string;
   $borderColor: string;
   $backgroundColor: string;
   $color: string;
@@ -25,7 +26,7 @@ const StyledActionButton = styled(Button)<{
   font-size: 16px;
 
   margin: ${(props) => props.$margin};
-  padding: 11px 24px;
+  padding: ${(props) => props.$padding};
   text-align: center;
 
   width: ${(props) => props.$width};
@@ -64,6 +65,8 @@ interface Props {
   width?: string;
   height?: string;
   margin?: string;
+  padding?: string;
+  dataCy?: string;
 
   // base colors
   backgroundColor: string;
@@ -96,9 +99,11 @@ export default function ActionButton({
   width = "auto",
   height = "40px",
   margin = "0 0 0 16px",
+  padding = "11px 24px",
   backgroundColor,
   borderColor,
   color,
+  dataCy,
   hoverBackgroundColor,
   hoverBorderColor,
   hoverColor,
@@ -129,6 +134,7 @@ export default function ActionButton({
   return (
     <StyledActionButton
       className={"action-button"}
+      data-cy={dataCy}
       disabled={isDisabled}
       variant={variant}
       onClick={onClick}
@@ -145,6 +151,7 @@ export default function ActionButton({
       $width={width}
       $height={height}
       $margin={margin}
+      $padding={padding}
     >
       {text}
     </StyledActionButton>

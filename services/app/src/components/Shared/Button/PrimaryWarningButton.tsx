@@ -15,6 +15,7 @@ interface Props {
   width?: string;
   height?: string;
   margin?: string;
+  padding?: string;
   onClick: () => void;
 }
 
@@ -25,6 +26,7 @@ export default function PrimaryWarningButton({
   width,
   height,
   margin,
+  padding,
   onClick,
 }: Props) {
   return (

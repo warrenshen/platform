@@ -19,6 +19,8 @@ interface Props {
   width?: string;
   height?: string;
   margin?: string;
+  padding?: string;
+  dataCy?: string;
   onClick: () => void;
 }
 
@@ -29,6 +31,8 @@ export default function PrimaryButton({
   width,
   height,
   margin,
+  padding,
+  dataCy,
   onClick,
 }: Props) {
   return (
@@ -39,6 +43,9 @@ export default function PrimaryButton({
       onClick={onClick}
       width={width}
       height={height}
+      margin={margin}
+      padding={padding}
+      dataCy={dataCy}
       boxShadowXOffset={PrimaryBoxShadowXOffset}
       boxShadowYOffset={PrimaryBoxShadowYOffset}
       boxShadowBlurRadius={PrimaryBoxShadowBlurRadius}

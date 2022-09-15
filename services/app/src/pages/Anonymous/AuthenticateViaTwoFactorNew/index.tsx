@@ -1,53 +1,27 @@
-import {
-  Box,
-  Button,
-  TextField,
-  Theme,
-  Typography,
-  createStyles,
-  makeStyles,
-} from "@material-ui/core";
+import { Box, Button, TextField, Typography } from "@material-ui/core";
+import PrimaryButton from "components/Shared/Button/PrimaryButton";
 import useSnackbar from "hooks/useSnackbar";
 import { twoFactorRoutes, unAuthenticatedApi } from "lib/api";
 import { useCallback, useEffect, useRef, useState } from "react";
+import styled from "styled-components";
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    wrapper: {
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      width: "100vw",
-      height: "100vh",
-      overflow: "scroll",
-    },
-    container: {
-      display: "flex",
-      flexDirection: "column",
-      width: "100%",
-      maxWidth: 400,
-      paddingTop: theme.spacing(8),
-      paddingBottom: theme.spacing(8),
-      paddingLeft: theme.spacing(2),
-      paddingRight: theme.spacing(2),
-    },
-    dialogTitle: {
-      borderBottom: "1px solid #c7c7c7",
-    },
-    buttonClass: {
-      marginLeft: theme.spacing(1),
-    },
-    propertyLabel: {
-      flexGrow: 1,
-    },
-    constLabels: {
-      minWidth: 150,
-    },
-    dialogActions: {
-      margin: theme.spacing(2),
-    },
-  })
-);
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+  overflow: scroll;
+`;
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  max-width: 600px;
+`;
 
 interface Props {
   linkVal: string | null;
@@ -91,7 +65,6 @@ export default function AuthenticateViaTwoFactorPage({
   setCodeEntered,
   onCodeSubmitted,
 }: Props) {
-  const classes = useStyles();
   const snackbar = useSnackbar();
   const [phoneNumber, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
@@ -136,15 +109,15 @@ export default function AuthenticateViaTwoFactorPage({
 
   if (linkType === "forgot_password" || linkType === "") {
     return (
-      <Box className={classes.wrapper}>
-        <Box className={classes.container}>
+      <Wrapper>
+        <Container>
           <Box display="flex" flexDirection="column" alignItems="center">
             <Typography variant="h5">
               {linkVal ? "Loading..." : "No link value provided."}
             </Typography>
           </Box>
-        </Box>
-      </Box>
+        </Container>
+      </Wrapper>
     );
   }
 
@@ -153,7 +126,7 @@ export default function AuthenticateViaTwoFactorPage({
 
   const authenticateTitle =
     messageMethod === "phone"
-      ? "Authentiate via phone (2FA)"
+      ? "Authenticate via phone (2FA)"
       : "Authenticate via email (2FA)";
 
   const msgToUser =
@@ -167,14 +140,15 @@ export default function AuthenticateViaTwoFactorPage({
       : "Resend code via email";
 
   return (
-    <Box className={classes.wrapper}>
-      <Box className={classes.container}>
+    <Wrapper>
+      <Box mt={3} />
+      <Typography variant="h4">{authenticateTitle}</Typography>
+      <Container>
         <Box display="flex" flexDirection="column">
-          <Typography variant="h5">{authenticateTitle}</Typography>
           {hasContactInfo ? (
             <Box>
               <Box mt={2}>
-                <Typography variant="body2">{msgToUser}</Typography>
+                <Typography variant="body1">{msgToUser}</Typography>
               </Box>
               <Box display="flex" flexDirection="column" mt={3}>
                 <TextField
@@ -186,21 +160,21 @@ export default function AuthenticateViaTwoFactorPage({
                 />
               </Box>
               <Box display="flex" flexDirection="column" mt={4}>
-                <Button
-                  data-cy={"continue-review-po"}
-                  disabled={isSubmitDisabled}
-                  variant={"contained"}
-                  color={"primary"}
+                <PrimaryButton
+                  dataCy={"continue-review-po"}
+                  isDisabled={isSubmitDisabled}
+                  text={"Continue"}
+                  height={"40px"}
+                  margin={"0"}
                   onClick={handleClickSubmit}
-                >
-                  Continue
-                </Button>
+                />
               </Box>
-              <Box display="flex" flexDirection="column" mt={1}>
+              <Box display="flex" flexDirection="column" mt={1} mb={4}>
                 <Button
                   variant={"text"}
                   color={"primary"}
                   onClick={handleClickResend}
+                  style={{ fontWeight: 600 }}
                 >
                   {resendMsg}
                 </Button>
@@ -216,7 +190,7 @@ export default function AuthenticateViaTwoFactorPage({
             </Box>
           )}
         </Box>
-      </Box>
-    </Box>
+      </Container>
+    </Wrapper>
   );
 }
