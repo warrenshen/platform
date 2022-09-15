@@ -1,13 +1,15 @@
 import { Button, makeStyles } from "@material-ui/core";
+import { PrimaryDefaultColor } from "components/Shared/Colors/GlobalColors";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
-const ButtonText = styled.span`
+const ButtonText = styled.span<{ $useNewColor?: boolean }>`
   width: 100%;
   height: 20px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  color: ${PrimaryDefaultColor};
 `;
 
 const useStyles = makeStyles({

@@ -70,6 +70,8 @@ interface Props {
   isSortingDisabled?: boolean;
   isStatusVisible?: boolean;
   isSurveillanceStatusVisible?: boolean;
+  isVendorVisible?: boolean;
+  showMaturingInOrDaysPastDue?: boolean;
   partnerType?: PartnerEnum;
   pager?: boolean;
   matureDays?: number;
@@ -161,6 +163,8 @@ export default function LoansDataGrid({
   isSortingDisabled = false,
   isStatusVisible = true,
   isSurveillanceStatusVisible = false,
+  isVendorVisible = true,
+  showMaturingInOrDaysPastDue = true,
   pager = true,
   matureDays = 0,
   pageSize = 10,
@@ -273,7 +277,7 @@ export default function LoansDataGrid({
         dataField: "payment_status",
         caption: "Repayment Status",
         width: ColumnWidths.Status,
-        alignment: "center",
+        alignment: "left",
         lookup: {
           dataSource: {
             store: {
@@ -413,6 +417,7 @@ export default function LoansDataGrid({
           ) : null,
       },
       {
+        visible: isVendorVisible,
         dataField: "vendor_name",
         caption: `${partnerType} Name`,
         minWidth: ColumnWidths.MinWidth,
@@ -467,14 +472,20 @@ export default function LoansDataGrid({
         alignment: "right",
       },
       {
-        visible: isMaturityVisible && !isDaysPastDueVisible,
+        visible:
+          showMaturingInOrDaysPastDue &&
+          isMaturityVisible &&
+          !isDaysPastDueVisible,
         caption: "Maturing in (Days)",
         dataField: "maturing_in_days",
         width: 100,
         alignment: "right",
       },
       {
-        visible: isMaturityVisible && isDaysPastDueVisible,
+        visible:
+          showMaturingInOrDaysPastDue &&
+          isMaturityVisible &&
+          isDaysPastDueVisible,
         caption: "Days Past Due",
         dataField: "days_past_due",
         width: 100,
@@ -572,6 +583,8 @@ export default function LoansDataGrid({
       isReportingVisible,
       isStatusVisible,
       isSurveillanceStatusVisible,
+      isVendorVisible,
+      showMaturingInOrDaysPastDue,
       actionItems,
       partnerType,
       handleClickCustomer,

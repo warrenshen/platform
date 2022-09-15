@@ -7,7 +7,7 @@ export const ColumnWidths = {
   Comment: 250,
   Count: 140,
   Currency: 130,
-  Date: 130,
+  Date: 150,
   Datetime: 220,
   DateContract: 220,
   FileAttachment: 600,

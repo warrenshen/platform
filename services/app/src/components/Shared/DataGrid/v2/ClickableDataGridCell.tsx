@@ -1,4 +1,5 @@
 import { Button, makeStyles } from "@material-ui/core";
+import { PrimaryDefaultColor } from "components/Shared/Colors/GlobalColors";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
@@ -8,7 +9,7 @@ const ButtonText = styled.span`
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  color: #8eab79;
+  color: ${PrimaryDefaultColor};
 `;
 
 const useStyles = makeStyles({
