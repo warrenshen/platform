@@ -1,8 +1,13 @@
 import { Tab, Tabs } from "@material-ui/core";
+import BankPurchaseOrderFinancingDrawerTab from "components/PurchaseOrder/v2/BankPurchaseOrderFinancingDrawerTab";
+import BankPurchaseOrderGeneralInformationDrawerTab from "components/PurchaseOrder/v2/BankPurchaseOrderGeneralInformationDrawerTab";
+import BankPurchaseOrderHistoryDrawerTab from "components/PurchaseOrder/v2/BankPurchaseOrderHistoryDrawerTab";
+import BankPurchaseOrderOnlyForBankDrawerTab from "components/PurchaseOrder/v2/BankPurchaseOrderOnlyForBankDrawerTab";
 import Modal from "components/Shared/Modal/Modal";
 import {
+  PurchaseOrderWithRelationshipsFragment,
   PurchaseOrders,
-  useGetPurchaseOrderForBankQuery,
+  useGetPurchaseOrderForCombinedQuery,
 } from "generated/graphql";
 import {
   BankPurchaseOrdersDrawerTabLabelNew,
@@ -10,26 +15,23 @@ import {
 } from "lib/enum";
 import { useState } from "react";
 
-import BankPurchaseOrderGeneralInformationDrawerTab from "./BankPurchaseOrderGeneralInformationDrawerTab";
-import BankPurchaseOrderFinancingDrawerTab from "./BankPurchaseOrderGeneralInformationDrawerTab";
-import BankPurchaseOrderHistoryDrawerTab from "./BankPurchaseOrderGeneralInformationDrawerTab";
-import BankPurchaseOrderOnlyForBankDrawerTab from "./BankPurchaseOrderGeneralInformationDrawerTab";
+export interface PurchaseOrderViewModalProps {
+  purchaseOrder: PurchaseOrderWithRelationshipsFragment;
+}
 
 const PurchaseOrderTabMap: {
-  [key in BankPurchaseOrdersDrawerTabLabelNew]: JSX.Element;
+  [key in BankPurchaseOrdersDrawerTabLabelNew]: (
+    props: PurchaseOrderViewModalProps
+  ) => JSX.Element;
 } = {
-  [BankPurchaseOrdersDrawerTabLabelNew.GeneralInformation]: (
-    <BankPurchaseOrderGeneralInformationDrawerTab />
-  ),
-  [BankPurchaseOrdersDrawerTabLabelNew.History]: (
-    <BankPurchaseOrderHistoryDrawerTab />
-  ),
-  [BankPurchaseOrdersDrawerTabLabelNew.Financing]: (
-    <BankPurchaseOrderFinancingDrawerTab />
-  ),
-  [BankPurchaseOrdersDrawerTabLabelNew.OnlyForBank]: (
-    <BankPurchaseOrderOnlyForBankDrawerTab />
-  ),
+  [BankPurchaseOrdersDrawerTabLabelNew.GeneralInformation]:
+    BankPurchaseOrderGeneralInformationDrawerTab,
+  [BankPurchaseOrdersDrawerTabLabelNew.History]:
+    BankPurchaseOrderHistoryDrawerTab,
+  [BankPurchaseOrdersDrawerTabLabelNew.Financing]:
+    BankPurchaseOrderFinancingDrawerTab,
+  [BankPurchaseOrdersDrawerTabLabelNew.OnlyForBank]:
+    BankPurchaseOrderOnlyForBankDrawerTab,
 };
 
 interface Props {
@@ -38,12 +40,13 @@ interface Props {
 }
 
 const BankPurchaseOrderDrawer = ({ purchaseOrderId, handleClose }: Props) => {
-  const [selectedTabIndex, setSelectedTabIndex] = useState(-1);
+  const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
-  const { data } = useGetPurchaseOrderForBankQuery({
+  const { data } = useGetPurchaseOrderForCombinedQuery({
     fetchPolicy: "network-only",
     variables: {
       id: purchaseOrderId,
+      is_bank_user: true,
     },
   });
 
@@ -53,10 +56,13 @@ const BankPurchaseOrderDrawer = ({ purchaseOrderId, handleClose }: Props) => {
     return null;
   }
 
+  const TabComponent =
+    PurchaseOrderTabMap[BankPurchaseOrdersDrawerTabLabelsNew[selectedTabIndex]];
+
   return (
     <Modal
       title={`Purchase Order #${purchaseOrder.order_number}`}
-      contentWidth={800}
+      contentWidth={1000}
       handleClose={handleClose}
     >
       <Tabs
@@ -64,6 +70,12 @@ const BankPurchaseOrderDrawer = ({ purchaseOrderId, handleClose }: Props) => {
         indicatorColor="primary"
         textColor="primary"
         onChange={(_: any, value: number) => setSelectedTabIndex(value)}
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          marginLeft: "100px",
+          marginRight: "100px",
+        }}
       >
         {BankPurchaseOrdersDrawerTabLabelsNew.map((label) => (
           <Tab
@@ -76,11 +88,7 @@ const BankPurchaseOrderDrawer = ({ purchaseOrderId, handleClose }: Props) => {
           />
         ))}
       </Tabs>
-      {
-        PurchaseOrderTabMap[
-          BankPurchaseOrdersDrawerTabLabelsNew[selectedTabIndex]
-        ]
-      }
+      <TabComponent purchaseOrder={purchaseOrder} />
     </Modal>
   );
 };

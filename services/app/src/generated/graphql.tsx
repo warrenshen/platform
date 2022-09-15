@@ -29358,6 +29358,17 @@ export type GetPurchaseOrderForCustomerQuery = {
   >;
 };
 
+export type GetPurchaseOrderForCombinedQueryVariables = Exact<{
+  id: Scalars["uuid"];
+  is_bank_user: Scalars["Boolean"];
+}>;
+
+export type GetPurchaseOrderForCombinedQuery = {
+  purchase_orders_by_pk?: Maybe<
+    Pick<PurchaseOrders, "id"> & PurchaseOrderWithRelationshipsFragment
+  >;
+};
+
 export type GetPurchaseOrderForReviewQueryVariables = Exact<{
   id: Scalars["uuid"];
 }>;
@@ -30387,6 +30398,11 @@ export type PurchaseOrderMetrcTransferFragment = Pick<
   "id" | "purchase_order_id" | "metrc_transfer_id"
 >;
 
+export type PurchaseOrderMetrcTransferWithRelationshipsFragment = Pick<
+  PurchaseOrderMetrcTransfers,
+  "id" | "purchase_order_id" | "metrc_transfer_id"
+> & { metrc_transfer: Pick<MetrcTransfers, "id"> & MetrcTransferFragment };
+
 export type UpdateCompanyInfoMutationVariables = Exact<{
   id: Scalars["uuid"];
   company: CompaniesSetInput;
@@ -31371,6 +31387,20 @@ export type PurchaseOrderLimitedNewFragment = Pick<
   vendor?: Maybe<Pick<Vendors, "id"> & VendorLimitedFragment>;
 };
 
+export type PurchaseOrderWithRelationshipsFragment = MakeOptional<
+  Pick<PurchaseOrders, "id" | "bank_note">,
+  "bank_note"
+> & {
+  company: Pick<Companies, "id"> & CompanyLimitedFragment;
+  vendor?: Maybe<Pick<Vendors, "id"> & VendorLimitedFragment>;
+  loans: Array<Pick<Loans, "id"> & LoanLimitedFragment>;
+  purchase_order_files: Array<PurchaseOrderFileFragment>;
+  purchase_order_metrc_transfers: Array<
+    Pick<PurchaseOrderMetrcTransfers, "id"> &
+      PurchaseOrderMetrcTransferWithRelationshipsFragment
+  >;
+} & PurchaseOrderLimitedFragment;
+
 export type InvoiceLimitedFragment = Pick<
   Invoices,
   | "id"
@@ -31779,18 +31809,6 @@ export const FileFragmentDoc = gql`
     path
   }
 `;
-export const PurchaseOrderFileFragmentDoc = gql`
-  fragment PurchaseOrderFile on purchase_order_files {
-    purchase_order_id
-    file_id
-    file_type
-    file {
-      id
-      ...File
-    }
-  }
-  ${FileFragmentDoc}
-`;
 export const EbbaApplicationFileFragmentDoc = gql`
   fragment EbbaApplicationFile on ebba_application_files {
     ebba_application_id
@@ -31863,27 +31881,6 @@ export const CompanyDeliveryFragmentDoc = gql`
     delivery_row_id
     delivery_type
   }
-`;
-export const MetrcTransferLimitedFragmentDoc = gql`
-  fragment MetrcTransferLimited on metrc_transfers {
-    id
-    us_state
-    transfer_id
-    manifest_number
-    created_date
-    shipper_facility_license_number
-    shipper_facility_name
-    lab_results_status
-    last_modified_at
-  }
-`;
-export const MetrcTransferFragmentDoc = gql`
-  fragment MetrcTransfer on metrc_transfers {
-    id
-    transfer_payload
-    ...MetrcTransferLimited
-  }
-  ${MetrcTransferLimitedFragmentDoc}
 `;
 export const MetrcDeliveryLimitedFragmentDoc = gql`
   fragment MetrcDeliveryLimited on metrc_deliveries {
@@ -33076,6 +33073,95 @@ export const CompanyLicenseLimitedAnonymousFragmentDoc = gql`
     legal_name
     us_state
   }
+`;
+export const PurchaseOrderFileFragmentDoc = gql`
+  fragment PurchaseOrderFile on purchase_order_files {
+    purchase_order_id
+    file_id
+    file_type
+    file {
+      id
+      ...File
+    }
+  }
+  ${FileFragmentDoc}
+`;
+export const MetrcTransferLimitedFragmentDoc = gql`
+  fragment MetrcTransferLimited on metrc_transfers {
+    id
+    us_state
+    transfer_id
+    manifest_number
+    created_date
+    shipper_facility_license_number
+    shipper_facility_name
+    lab_results_status
+    last_modified_at
+  }
+`;
+export const MetrcTransferFragmentDoc = gql`
+  fragment MetrcTransfer on metrc_transfers {
+    id
+    transfer_payload
+    ...MetrcTransferLimited
+  }
+  ${MetrcTransferLimitedFragmentDoc}
+`;
+export const PurchaseOrderMetrcTransferWithRelationshipsFragmentDoc = gql`
+  fragment PurchaseOrderMetrcTransferWithRelationships on purchase_order_metrc_transfers {
+    id
+    purchase_order_id
+    metrc_transfer_id
+    metrc_transfer {
+      id
+      ...MetrcTransfer
+    }
+  }
+  ${MetrcTransferFragmentDoc}
+`;
+export const PurchaseOrderWithRelationshipsFragmentDoc = gql`
+  fragment PurchaseOrderWithRelationships on purchase_orders {
+    id
+    ...PurchaseOrderLimited
+    bank_note @include(if: $is_bank_user)
+    company {
+      id
+      ...CompanyLimited
+    }
+    vendor {
+      id
+      ...VendorLimited
+    }
+    loans(
+      where: {
+        _and: [
+          { loan_type: { _eq: purchase_order } }
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+        ]
+      }
+    ) {
+      id
+      ...LoanLimited
+    }
+    purchase_order_files {
+      ...PurchaseOrderFile
+    }
+    purchase_order_metrc_transfers {
+      id
+      ...PurchaseOrderMetrcTransferWithRelationships
+    }
+  }
+  ${PurchaseOrderLimitedFragmentDoc}
+  ${CompanyLimitedFragmentDoc}
+  ${VendorLimitedFragmentDoc}
+  ${LoanLimitedFragmentDoc}
+  ${PurchaseOrderFileFragmentDoc}
+  ${PurchaseOrderMetrcTransferWithRelationshipsFragmentDoc}
 `;
 export const GetAdvancesDocument = gql`
   subscription GetAdvances {
@@ -38933,6 +39019,65 @@ export type GetPurchaseOrderForCustomerLazyQueryHookResult = ReturnType<
 export type GetPurchaseOrderForCustomerQueryResult = Apollo.QueryResult<
   GetPurchaseOrderForCustomerQuery,
   GetPurchaseOrderForCustomerQueryVariables
+>;
+export const GetPurchaseOrderForCombinedDocument = gql`
+  query GetPurchaseOrderForCombined($id: uuid!, $is_bank_user: Boolean!) {
+    purchase_orders_by_pk(id: $id) {
+      id
+      ...PurchaseOrderWithRelationships
+    }
+  }
+  ${PurchaseOrderWithRelationshipsFragmentDoc}
+`;
+
+/**
+ * __useGetPurchaseOrderForCombinedQuery__
+ *
+ * To run a query within a React component, call `useGetPurchaseOrderForCombinedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPurchaseOrderForCombinedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPurchaseOrderForCombinedQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *      is_bank_user: // value for 'is_bank_user'
+ *   },
+ * });
+ */
+export function useGetPurchaseOrderForCombinedQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetPurchaseOrderForCombinedQuery,
+    GetPurchaseOrderForCombinedQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetPurchaseOrderForCombinedQuery,
+    GetPurchaseOrderForCombinedQueryVariables
+  >(GetPurchaseOrderForCombinedDocument, baseOptions);
+}
+export function useGetPurchaseOrderForCombinedLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetPurchaseOrderForCombinedQuery,
+    GetPurchaseOrderForCombinedQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetPurchaseOrderForCombinedQuery,
+    GetPurchaseOrderForCombinedQueryVariables
+  >(GetPurchaseOrderForCombinedDocument, baseOptions);
+}
+export type GetPurchaseOrderForCombinedQueryHookResult = ReturnType<
+  typeof useGetPurchaseOrderForCombinedQuery
+>;
+export type GetPurchaseOrderForCombinedLazyQueryHookResult = ReturnType<
+  typeof useGetPurchaseOrderForCombinedLazyQuery
+>;
+export type GetPurchaseOrderForCombinedQueryResult = Apollo.QueryResult<
+  GetPurchaseOrderForCombinedQuery,
+  GetPurchaseOrderForCombinedQueryVariables
 >;
 export const GetPurchaseOrderForReviewDocument = gql`
   query GetPurchaseOrderForReview($id: uuid!) {

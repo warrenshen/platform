@@ -173,6 +173,43 @@ fragment PurchaseOrderLimitedNew on purchase_orders {
   }
 }
 
+fragment PurchaseOrderWithRelationships on purchase_orders {
+  id
+  ...PurchaseOrderLimited
+  bank_note @include(if: $is_bank_user)
+  company {
+    id
+    ...CompanyLimited
+  }
+  vendor {
+    id
+    ...VendorLimited
+  }
+  loans(
+    where: {
+      _and: [
+        { loan_type: { _eq: purchase_order } }
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+      ]
+    }
+  ) {
+    id
+    ...LoanLimited
+  }
+  purchase_order_files {
+    ...PurchaseOrderFile
+  }
+  purchase_order_metrc_transfers {
+    id
+    ...PurchaseOrderMetrcTransferWithRelationships
+  }
+}
+
 fragment InvoiceLimited on invoices {
   id
   company_id

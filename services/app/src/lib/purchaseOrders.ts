@@ -1,4 +1,8 @@
-import { PurchaseOrderFragment } from "generated/graphql";
+import {
+  PurchaseOrderFileTypeEnum,
+  PurchaseOrderFragment,
+  PurchaseOrderWithRelationshipsFragment,
+} from "generated/graphql";
 import {
   computePurchaseOrderDueDateCutoffDate,
   dateAsDateStringClient,
@@ -53,4 +57,15 @@ export function isPurchaseOrderDueDateValid(
         computePurchaseOrderDueDateCutoffDate(),
     dueDateDate: dueDateDate,
   };
+}
+
+export function getPurchaseOrderFilesOfType(
+  purchaseOrder: PurchaseOrderWithRelationshipsFragment,
+  fileType: PurchaseOrderFileTypeEnum
+) {
+  return (
+    purchaseOrder?.purchase_order_files
+      .filter((purchaseOrderFile) => purchaseOrderFile.file_type === fileType)
+      .map((purchaseOrderFile) => purchaseOrderFile.file_id) || []
+  );
 }

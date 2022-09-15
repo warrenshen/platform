@@ -31,7 +31,7 @@ const VariantLineHeightDefault = {
   [TextVariants.SubHeader]: "27px",
   [TextVariants.ParagraphLead]: "145%",
   [TextVariants.Paragraph]: "145%",
-  [TextVariants.Label]: "133%",
+  [TextVariants.Label]: "16px",
   [TextVariants.SmallLabel]: "133%",
 };
 
@@ -65,6 +65,7 @@ const VariantFontSizeDefault = {
 const StyledText = styled(Typography)<{
   $textVariant: TextVariants;
   $color: string;
+  $textAlignment: string;
   $bottomMargin: Maybe<number>;
   $isBold: Maybe<boolean>;
   $isClickable: Maybe<boolean>;
@@ -77,12 +78,13 @@ const StyledText = styled(Typography)<{
       ? VariantSemiBoldFontWeightDefault[props.$textVariant]
       : VariantFontWeightDefault[props.$textVariant]};
   font-size: ${(props) => VariantFontSizeDefault[props.$textVariant]}px;
-  line-height: ${(props) => VariantLineHeightDefault[props.$textVariant]}px;
+  line-height: ${(props) => VariantLineHeightDefault[props.$textVariant]};
   margin: 0 0 0 0;
   margin-bottom: ${(props) =>
     !!props.$bottomMargin || props.$bottomMargin === 0
       ? props.$bottomMargin
       : VariantBottomMarginDefault[props.$textVariant]}px;
+  text-align: ${(props) => props.$textAlignment};
 
   :hover {
     cursor: ${(props) => (props.$isClickable ? "pointer" : "default")};
@@ -102,6 +104,7 @@ interface Props {
   materialVariant?: any;
   isBold?: Maybe<boolean>;
   color?: string;
+  alignment?: string;
   bottomMargin?: Maybe<number>;
   children?: JSX.Element | JSX.Element[] | string;
   handleClick?: () => void;
@@ -112,6 +115,7 @@ export default function Text({
   materialVariant = "h5",
   isBold = false,
   color = TextColor,
+  alignment = "left",
   bottomMargin = null,
   children,
   handleClick,
@@ -122,6 +126,7 @@ export default function Text({
       onClick={handleClick}
       $color={color}
       $isBold={isBold}
+      $textAlignment={alignment}
       $bottomMargin={bottomMargin}
       $textVariant={textVariant}
       $isClickable={!!handleClick}

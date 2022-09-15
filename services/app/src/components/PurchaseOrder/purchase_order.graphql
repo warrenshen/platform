@@ -60,6 +60,14 @@ query GetPurchaseOrderForCustomer($id: uuid!) {
   }
 }
 
+query GetPurchaseOrderForCombined($id: uuid!, $is_bank_user: Boolean!) {
+  purchase_orders_by_pk(id: $id) {
+    id
+    # $is_bank_user is "passed" to the fragment below
+    ...PurchaseOrderWithRelationships
+  }
+}
+
 # Vendor users
 query GetPurchaseOrderForReview($id: uuid!) {
   purchase_orders_by_pk(id: $id) {

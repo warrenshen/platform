@@ -1,20 +1,27 @@
 import {
+  DisabledSecondaryTextColor,
   PlainWhite,
+  SecondaryActiveColor,
   SecondaryTextColor,
 } from "components/Shared/Colors/GlobalColors";
 import styled from "styled-components";
 
-export const CustomCheckboxUnchecked = styled.span`
-  border: 1px solid #d5d3d0;
-  border-radius: 4px;
-  height: 16px;
+const StyledCheckbox = styled.span<{
+  $isChecked: boolean;
+  $isDisabled: boolean;
+}>`
+  display: inline-block;
   width: 16px;
-`;
-
-export const CustomCheckboxChecked = styled(CustomCheckboxUnchecked)`
-  border: 1px solid #8eab79;
-  background-color: #8eab79;
-  background-image: url(\"data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M12 5c-.28 0-.53.11-.71.29L7 9.59l-2.29-2.3a1.003 1.003 0 00-1.42 1.42l3 3c.18.18.43.29.71.29s.53-.11.71-.29l5-5A1.003 1.003 0 0012 5z' fill='%23fff'/%3E%3C/svg%3E\");
+  height: 16px;
+  background: ${(props) =>
+    props.$isChecked ? DisabledSecondaryTextColor : SecondaryActiveColor};
+  border-radius: 3px;
+  transition: all 150ms;
+  line-height: 16px;
+  display: inline-flex;
+  vertical-align: top;
+  justify-content: center;
+  align-items: center;
 `;
 
 const StyledSVG = styled.svg<{
@@ -41,12 +48,16 @@ type SVGProps = {
   fillColor?: string;
   width?: string;
   height?: string;
+  isChecked?: boolean;
+  isDisabled?: boolean;
 };
 
 export const DateInputIcon = ({
   fillColor = SecondaryTextColor,
   width = "24",
   height = "24",
+  isChecked = false,
+  isDisabled = false,
 }: SVGProps) => (
   <StyledSVG
     width="18"
@@ -71,6 +82,8 @@ export const TrashIcon = ({
   fillColor = SecondaryTextColor,
   width = "24",
   height = "24",
+  isChecked = false,
+  isDisabled = false,
 }: SVGProps) => (
   <StyledSVG
     width="24"
@@ -95,6 +108,8 @@ export const EditIcon = ({
   fillColor = SecondaryTextColor,
   width = "24",
   height = "24",
+  isChecked = false,
+  isDisabled = false,
 }: SVGProps) => (
   <StyledSVG
     width="24"
@@ -119,6 +134,8 @@ export const CloseIcon = ({
   fillColor = SecondaryTextColor,
   width = "24",
   height = "24",
+  isChecked = false,
+  isDisabled = false,
 }: SVGProps) => (
   <StyledSVG
     width="24"
@@ -139,11 +156,61 @@ export const CloseIcon = ({
   </StyledSVG>
 );
 
+export const CustomCheckboxUnchecked = styled.span`
+  border: 1px solid #d5d3d0;
+  border-radius: 4px;
+  height: 16px;
+  width: 16px;
+`;
+
+export const CustomCheckboxChecked = styled(CustomCheckboxUnchecked)`
+  border: 1px solid #8eab79;
+  background-color: #8eab79;
+  background-image: url(\"data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M12 5c-.28 0-.53.11-.71.29L7 9.59l-2.29-2.3a1.003 1.003 0 00-1.42 1.42l3 3c.18.18.43.29.71.29s.53-.11.71-.29l5-5A1.003 1.003 0 0012 5z' fill='%23fff'/%3E%3C/svg%3E\");
+`;
+
+export const CheckBoxIcon = ({
+  fillColor = PlainWhite,
+  width = "16",
+  height = "16",
+  isChecked = false,
+  isDisabled = false,
+}: SVGProps): JSX.Element => {
+  return (
+    <StyledCheckbox $isChecked={isChecked} $isDisabled={isDisabled}>
+      <StyledSVG
+        width="16"
+        height="16"
+        viewBox={`0 0 24 24`}
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        preserveAspectRatio="none"
+        $width2={width}
+        $height2={height}
+        visibility={isChecked ? "visible" : "hidden"}
+      >
+        <StyledPath
+          x={0}
+          y={0}
+          cy={"0%"}
+          cx={"0%"}
+          fillRule="evenodd"
+          clipRule="evenodd"
+          d="M20.5303 6.46967C20.8232 6.76256 20.8232 7.23744 20.5303 7.53033L10.5303 17.5303C10.2374 17.8232 9.76256 17.8232 9.46967 17.5303L4.46967 12.5303C4.17678 12.2374 4.17678 11.7626 4.46967 11.4697C4.76256 11.1768 5.23744 11.1768 5.53033 11.4697L10 15.9393L19.4697 6.46967C19.7626 6.17678 20.2374 6.17678 20.5303 6.46967Z"
+          $fillColor={fillColor}
+        />
+      </StyledSVG>
+    </StyledCheckbox>
+  );
+};
+
 export const CheckIcon = ({
   fillColor = PlainWhite,
   width = "24",
   height = "24",
-}: SVGProps) => (
+  isChecked = false,
+  isDisabled = false,
+}: SVGProps): JSX.Element => (
   <StyledSVG
     width="24"
     height="24"
@@ -167,7 +234,9 @@ export const PlusIcon = ({
   fillColor = SecondaryTextColor,
   width = "24",
   height = "24",
-}: SVGProps) => (
+  isChecked = false,
+  isDisabled = false,
+}: SVGProps): JSX.Element => (
   <StyledSVG
     width="24"
     height="24"
@@ -191,7 +260,9 @@ export const ExcelIcon = ({
   fillColor = SecondaryTextColor,
   width = "24",
   height = "24",
-}: SVGProps) => (
+  isChecked = false,
+  isDisabled = false,
+}: SVGProps): JSX.Element => (
   <StyledSVG
     width="24"
     height="24"
@@ -210,6 +281,90 @@ export const ExcelIcon = ({
     />
   </StyledSVG>
 );
+
+export const DownloadIcon = ({
+  fillColor = SecondaryTextColor,
+  width = "18",
+  height = "19",
+  isChecked = false,
+  isDisabled = false,
+}: SVGProps): JSX.Element => {
+  return (
+    <StyledSVG
+      width="18"
+      height="19"
+      viewBox={`0 0 18 19`}
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      preserveAspectRatio="none"
+      $width2={width}
+      $height2={height}
+    >
+      <StyledPath
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M8.99999 0.25C9.41421 0.25 9.74999 0.585786 9.74999 1L9.75 11.1894L13.4697 7.46969C13.7626 7.1768 14.2374 7.1768 14.5303 7.46969C14.8232 7.76259 14.8232 8.23746 14.5303 8.53035L9.53033 13.5304C9.23744 13.8232 8.76256 13.8232 8.46967 13.5304L3.46967 8.53035C3.17678 8.23746 3.17678 7.76259 3.46967 7.46969C3.76256 7.1768 4.23744 7.1768 4.53033 7.46969L8.25 11.1894L8.24999 1C8.24999 0.585787 8.58578 0.25 8.99999 0.25ZM1 13.25C1.41421 13.25 1.75 13.5858 1.75 14V16C1.75 16.3315 1.8817 16.6495 2.11612 16.8839C2.35054 17.1183 2.66848 17.25 3 17.25H15C15.3315 17.25 15.6495 17.1183 15.8839 16.8839C16.1183 16.6495 16.25 16.3315 16.25 16V14C16.25 13.5858 16.5858 13.25 17 13.25C17.4142 13.25 17.75 13.5858 17.75 14V16C17.75 16.7294 17.4603 17.4288 16.9445 17.9446C16.4288 18.4603 15.7293 18.75 15 18.75H3C2.27065 18.75 1.57118 18.4603 1.05546 17.9446C0.539731 17.4288 0.25 16.7294 0.25 16V14C0.25 13.5858 0.585786 13.25 1 13.25Z"
+        $fillColor={fillColor}
+      />
+    </StyledSVG>
+  );
+};
+
+export const LeftArrowIcon = ({
+  fillColor = SecondaryTextColor,
+  width = "14",
+  height = "10",
+  isChecked = false,
+  isDisabled = false,
+}: SVGProps): JSX.Element => {
+  return (
+    <StyledSVG
+      width="14"
+      height="10"
+      viewBox={`0 0 14 10`}
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      preserveAspectRatio="none"
+      $width2={width}
+      $height2={height}
+    >
+      <StyledPath
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M4.92016 0.453508C5.22198 0.737193 5.23668 1.21184 4.95299 1.51366L2.38107 4.25H13C13.4142 4.25 13.75 4.58579 13.75 5C13.75 5.41422 13.4142 5.75 13 5.75H2.38107L4.95299 8.48634C5.23668 8.78816 5.22198 9.26281 4.92016 9.5465C4.61834 9.83018 4.14369 9.81548 3.86 9.51366L0.719285 6.17216C0.0935729 5.50645 0.0935705 4.49356 0.719285 3.82784L3.86 0.486345C4.14369 0.184524 4.61834 0.169823 4.92016 0.453508Z"
+        $fillColor={fillColor}
+      />
+    </StyledSVG>
+  );
+};
+
+export const RightArrowIcon = ({
+  fillColor = SecondaryTextColor,
+  width = "14",
+  height = "10",
+  isChecked = false,
+  isDisabled = false,
+}: SVGProps): JSX.Element => {
+  return (
+    <StyledSVG
+      width="14"
+      height="10"
+      viewBox={`0 0 14 10`}
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      preserveAspectRatio="none"
+      $width2={width}
+      $height2={height}
+    >
+      <StyledPath
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M9.07984 0.453508C8.77802 0.737193 8.76332 1.21184 9.04701 1.51366L11.6189 4.25H1C0.585787 4.25 0.25 4.58579 0.25 5C0.25 5.41422 0.585787 5.75 1 5.75H11.6189L9.04701 8.48634C8.76332 8.78816 8.77802 9.26281 9.07984 9.5465C9.38166 9.83018 9.85631 9.81548 10.14 9.51366L13.2807 6.17216C13.9064 5.50645 13.9064 4.49356 13.2807 3.82784L10.14 0.486345C9.85631 0.184524 9.38166 0.169823 9.07984 0.453508Z"
+        $fillColor={fillColor}
+      />
+    </StyledSVG>
+  );
+};
 
 export const SearchIcon = () => (
   <svg
