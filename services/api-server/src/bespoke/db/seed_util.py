@@ -4,12 +4,13 @@
 """
 import datetime
 from decimal import Decimal
-from typing import Any, cast, Dict, Optional, Tuple
+from typing import Any, cast, Dict, List, Optional, Tuple
 import uuid
 
 from bespoke import errors 
 from sqlalchemy.orm.session import Session
 from bespoke.db import models, queries
+from bespoke.db.models import PurchaseOrderHistoryDict
 from bespoke.db.db_constants import UserRoles, CompanyDebtFacilityStatus, CompanySurveillanceStatus, \
     CompanyType, TwoFactorMessageMethod, LoginMethod, ProductType, TwoFactorMessageMethod, BankAccountType
 from bespoke.date import date_util
@@ -561,6 +562,7 @@ def create_purchase_order(
     customer_note: str,
     delivery_date: datetime.date,
     funded_at: datetime.datetime,
+    history: List[PurchaseOrderHistoryDict],
     id: str,
     incompleted_at: datetime.datetime,
     is_cannabis: bool,
@@ -593,6 +595,13 @@ def create_purchase_order(
         customer_note = customer_note,
         delivery_date = delivery_date,
         funded_at = funded_at,
+        # This is causing a sqlalchemy error where it cannot find
+        # the column on the model. This is very odd because we're using
+        # it just fine (from the model) in our regular flows. Since
+        # we do not currently have any tests requiring this column, we
+        # deferred finding root cause since a timeboxed effort did 
+        # not find a solution
+        #history = history,
         incompleted_at = incompleted_at,
         is_cannabis = is_cannabis,
         is_deleted = is_deleted,

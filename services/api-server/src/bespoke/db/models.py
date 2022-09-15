@@ -16,6 +16,7 @@ from fastapi_utils.guid_type import GUID, GUID_DEFAULT_SQLITE
 from mypy_extensions import TypedDict
 from sqlalchemy import (JSON, BigInteger, Boolean, Column, Date, DateTime,
                         ForeignKey, Integer, Numeric, String, Text)
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.engine import Engine
 from sqlalchemy.exc import OperationalError, StatementError, TimeoutError
 from sqlalchemy.ext.declarative import declarative_base
@@ -850,6 +851,7 @@ class PurchaseOrder(Artifact):
 	all_bank_notes = Column(MutableDict.as_mutable(JSON)) # type: ignore
 	all_customer_notes = Column(MutableDict.as_mutable(JSON)) # type: ignore
 	history = cast(List[PurchaseOrderHistoryDict], Column(MutableList.as_mutable(JSON), nullable=True)) # type: ignore
+	#history = Column(MutableList.as_mutable(JSONB), nullable=True) # type: ignore
 
 	vendor = relationship(
 		'Company',

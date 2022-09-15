@@ -824,6 +824,7 @@ class AddPurchaseOrderView(MethodView):
 		customer_note = get_field_or_default(form, 'customer_note', None)
 		delivery_date = get_field_or_default(form, 'delivery_date', None)
 		funded_at = get_field_or_default(form, 'funded_at', None)
+		history = get_field_or_default(form, 'history', [])
 		id = get_field_or_default(form, 'id', None)
 		incompleted_at = get_field_or_default(form, 'incompleted_at', None)
 		is_cannabis = get_field_or_default(form, 'is_cannabis', True)
@@ -861,6 +862,7 @@ class AddPurchaseOrderView(MethodView):
 				customer_note,
 				delivery_date,
 				funded_at,
+				history,
 				id,
 				incompleted_at,
 				is_cannabis,
