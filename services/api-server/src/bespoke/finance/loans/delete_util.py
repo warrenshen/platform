@@ -78,6 +78,14 @@ def delete_loan(
 		loan.is_deleted = True
 
 		if loan.loan_type == LoanTypeEnum.INVENTORY:
-			purchase_orders_util.update_purchase_order_status(session, loan.artifact_id)
+			user = session.query(models.User) \
+				.filter(models.User.id == user_id) \
+				.first()
+			purchase_orders_util.update_purchase_order_status(
+				session = session,
+				purchase_order_id = loan.artifact_id,
+				created_by_user_id = str(user_id),
+				created_by_user_full_name = user.full_name
+			)
 
 	return True, None

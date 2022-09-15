@@ -143,7 +143,15 @@ def approve_loans(
 			company_id_to_available_limit[loan.company_id] -= loan.amount
 
 			if loan.loan_type == LoanTypeEnum.INVENTORY:
-				_, err = purchase_orders_util.update_purchase_order_status(session, purchase_order.id)
+				user = session.query(models.User) \
+					.filter(models.User.id == bank_admin_user_id) \
+					.first()
+				_, err = purchase_orders_util.update_purchase_order_status(
+					session = session,
+					purchase_order_id = purchase_order.id,
+					created_by_user_id = bank_admin_user_id,
+					created_by_user_full_name = user.full_name
+				)
 				if err:
 					raise err
 

@@ -60,68 +60,72 @@ select_permissions:
   - role: bank_admin
     permission:
       columns:
-        - id
-        - company_id
-        - vendor_id
-        - order_date
-        - delivery_date
+        - all_bank_notes
         - amount
-        - status
-        - new_purchase_order_status
-        - created_at
-        - updated_at
-        - order_number
+        - amount_funded
         - approved_at
         - approved_by_user_id
-        - requested_at
+        - bank_incomplete_note
+        - bank_note
+        - bank_rejection_note
+        - closed_at
+        - company_id
+        - created_at
+        - customer_note
+        - delivery_date
+        - funded_at
+        - history
+        - id
+        - incompleted_at
+        - is_cannabis
+        - is_deleted
+        - is_metrc_based
+        - net_terms
+        - new_purchase_order_status
+        - order_date
+        - order_number
         - rejected_at
         - rejected_by_user_id
         - rejection_note
-        - is_cannabis
-        - funded_at
-        - is_deleted
-        - bank_rejection_note
-        - is_metrc_based
-        - customer_note
-        - bank_note
-        - amount_funded
-        - closed_at
-        - incompleted_at
-        - bank_incomplete_note
-        - net_terms
+        - requested_at
+        - status
+        - updated_at
+        - vendor_id
       filter: {}
   - role: bank_read_only
     permission:
       columns:
-        - is_deleted
-        - delivery_date
-        - order_date
-        - net_terms
+        - all_bank_notes
         - amount
-        - bank_incomplete_note
-        - order_number
-        - status
-        - new_purchase_order_status
+        - amount_funded
         - approved_at
         - approved_by_user_id
+        - bank_incomplete_note
+        - bank_note
+        - bank_rejection_note
         - closed_at
+        - company_id
         - created_at
+        - customer_note
+        - delivery_date
         - funded_at
+        - history
+        - id
         - incompleted_at
+        - is_cannabis
+        - is_deleted
+        - is_metrc_based
+        - net_terms
+        - new_purchase_order_status
+        - order_date
+        - order_number
         - rejected_at
         - rejected_by_user_id
-        - requested_at
-        - updated_at
-        - company_id
-        - id
-        - vendor_id
-        - bank_note
-        - customer_note
-        - amount_funded
-        - bank_rejection_note
         - rejection_note
-        - is_cannabis
-        - is_metrc_based
+        - requested_at
+        - status
+        - updated_at
+        - vendor_id
       filter: {}
   - role: company_admin
     permission:

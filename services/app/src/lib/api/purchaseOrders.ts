@@ -142,6 +142,24 @@ export async function updatePurchaseOrderMutation(
     );
 }
 
+export async function updatePurchaseOrderNewMutation(
+  req: UpdatePurchaseOrderReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(purchaseOrdersRoutes.updateNew, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.error(error);
+        return {
+          status: "ERROR",
+          msg: "Could not update purchase order",
+        };
+      }
+    );
+}
+
 export type SubmitPurchaseOrderReq = {
   variables: {
     purchase_order: PurchaseOrdersInsertInput;
@@ -153,6 +171,24 @@ export async function submitPurchaseOrderMutation(
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
     .post(purchaseOrdersRoutes.submit, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.error(error);
+        return {
+          status: "ERROR",
+          msg: "Could not submit purchase order",
+        };
+      }
+    );
+}
+
+export async function submitPurchaseOrderNewMutation(
+  req: SubmitPurchaseOrderReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(purchaseOrdersRoutes.submitNew, req.variables)
     .then((res) => res.data)
     .then(
       (res) => res,

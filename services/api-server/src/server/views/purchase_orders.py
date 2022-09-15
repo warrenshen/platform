@@ -1,6 +1,7 @@
 import json
 import os
 from typing import Any, Callable, List, cast
+import uuid
 
 from bespoke import errors
 from bespoke.audit import events
@@ -67,9 +68,18 @@ class CreateUpdateAsDraftNewView(MethodView):
 			return handler_util.make_error_response("Access Denied", status_code=403)
 
 		with session_scope(current_app.session_maker) as session:
+			user, err = queries.get_user_by_id(
+				session,
+				user_session.get_user_id(),
+			)
+			if err:
+				raise err
+			
 			purchase_order_id, template_data, err = purchase_orders_util.create_update_purchase_order_new(
 				session,
 				data,
+				str(user.id),
+				user.full_name
 			)
 			if err:
 				raise err
@@ -123,6 +133,50 @@ class UpdateView(MethodView):
 			}
 		}))
 
+
+class UpdateViewNew(MethodView):
+	decorators = [auth_util.login_required]
+
+	@events.wrap(events.Actions.PURCHASE_ORDER_CREATE_UPDATE)
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		user_session = auth_util.UserSession.from_session()
+
+		request_data = json.loads(request.data)
+		data, err = purchase_orders_util.PurchaseOrderUpsertRequest.from_dict(request_data)
+		if err:
+			return handler_util.make_error_response(err)
+
+		if not user_session.is_bank_or_this_company_admin(data.purchase_order.company_id):
+			return handler_util.make_error_response("Access Denied", status_code=403)
+
+		if not data.purchase_order.id:
+			return handler_util.make_error_response("Purchase Order ID is required", status_code=400)
+
+		with session_scope(current_app.session_maker) as session:
+			user, err = queries.get_user_by_id(
+				session,
+				user_session.get_user_id(),
+			)
+			if err:
+				raise err
+			purchase_order_id, _, err = purchase_orders_util.create_update_purchase_order_new(
+				session,
+				data,
+				str(user.id),
+				user.full_name
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': 'Success',
+			'data': {
+				'purchase_order_id': purchase_order_id,
+			}
+		}))
+
 class SubmitView(MethodView):
 	decorators = [auth_util.login_required]
 
@@ -153,6 +207,49 @@ class SubmitView(MethodView):
 			'msg': 'Success',
 			'data': {
 				'purchase_order_id': purchase_order_id,
+			}
+		}))
+
+class SubmitNewView(MethodView):
+	decorators = [auth_util.login_required]
+
+	@events.wrap(events.Actions.PURCHASE_ORDER_SUBMIT_FOR_APPROVAL)
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		user_session = auth_util.UserSession.from_session()
+
+		request_data = json.loads(request.data)
+		data, err = purchase_orders_util.PurchaseOrderUpsertRequest.from_dict(request_data)
+		if err:
+			return handler_util.make_error_response(err)
+
+		if not user_session.is_bank_or_this_company_admin(data.purchase_order.company_id):
+			return handler_util.make_error_response("Access Denied", status_code=403)
+
+		if not data.purchase_order.id:
+			return handler_util.make_error_response("Purchase Order ID is required", status_code=400)
+
+		with session_scope(current_app.session_maker) as session:
+			user, err = queries.get_user_by_id(
+				session,
+				user_session.get_user_id(),
+			)
+			if err:
+				raise err
+			purchase_order, _, _, err = purchase_orders_util.submit_purchase_order_for_approval_new(
+				session,
+				data.purchase_order.id,
+				str(user.id),
+				user.full_name
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': 'Success',
+			'data': {
+				'purchase_order_id': purchase_order.id,
 			}
 		}))
 
@@ -212,9 +309,18 @@ class CreateUpdateAndSubmitNewView(MethodView):
 			return handler_util.make_error_response("Access Denied", status_code=403)
 
 		with session_scope(current_app.session_maker) as session:
+			user, err = queries.get_user_by_id(
+				session,
+				user_session.get_user_id(),
+			)
+			if err:
+				raise err
+
 			purchase_order_id, template_data, err = purchase_orders_util.create_update_purchase_order_new(
 				session,
 				data,
+				str(user.id),
+				user.full_name
 			)
 			if err:
 				raise err
@@ -230,6 +336,8 @@ class CreateUpdateAndSubmitNewView(MethodView):
 			purchase_order, vendor_users, is_vendor_missing_bank_account, err = purchase_orders_util.submit_purchase_order_for_approval_new(
 				session,
 				purchase_order_id,
+				str(user.id),
+				user.full_name
 			)
 			if err:
 				raise err
@@ -536,9 +644,13 @@ class RespondToApprovalRequestNewView(MethodView):
 
 		with session_scope(current_app.session_maker) as session:
 			if user_session.is_bank_admin():
-				user = session.query(models.User) \
-					.filter(models.User.id == user_session.get_user_id()) \
-					.first()
+				user, err = queries.get_user_by_id(
+					session,
+					user_session.get_user_id(),
+				)
+				if err:
+					raise err
+
 				if user:
 					event.user_id(str(user.id))
 			else:
@@ -566,11 +678,27 @@ class RespondToApprovalRequestNewView(MethodView):
 				purchase_order.status = RequestStatusEnum.APPROVED
 				purchase_order.approved_at = date_util.now()
 				purchase_order.approved_by_user_id = approved_by_user_id
+				purchase_order.history.append(
+					purchase_orders_util.get_purchase_order_history_event(
+						action = "PO saved as draft",
+						new_purchase_order_status = NewPurchaseOrderStatus.READY_TO_REQUEST_FINANCING,
+						created_by_user_id = user.id,
+						created_by_user_full_name = user.full_name,
+					)
+				)
 				action_type = 'Approved'
 			else:
 				purchase_order.status = RequestStatusEnum.REJECTED
 				purchase_order.rejected_at = date_util.now()
 				purchase_order.rejected_by_user_id = rejected_by_user_id
+				purchase_order.history.append(
+					purchase_orders_util.get_purchase_order_history_event(
+						action = "PO saved as draft",
+						new_purchase_order_status = NewPurchaseOrderStatus.READY_TO_REQUEST_FINANCING,
+						created_by_user_id = user.id,
+						created_by_user_full_name = user.full_name,
+					)
+				)
 				action_type = 'Rejected'
 
 				if user_session.is_bank_admin():
@@ -719,9 +847,13 @@ class ApprovePurchaseOrderView(MethodView):
 
 		with session_scope(current_app.session_maker) as session:
 			if is_bank_admin:
-				user = session.query(models.User) \
-					.filter(models.User.id == user_session.get_user_id()) \
-						.first()
+				user, err = queries.get_user_by_id(
+					session,
+					user_session.get_user_id(),
+				)
+				if err:
+					raise err
+
 				if user:
 					event.user_id(str(user.id))
 			else:
@@ -742,6 +874,7 @@ class ApprovePurchaseOrderView(MethodView):
 				session,
 				purchase_order_id,
 				str(user.id),
+				user.full_name,
 				is_bank_admin,
 			)
 			if err:
@@ -1087,6 +1220,7 @@ class ReopenView(MethodView):
 		}), 200)
 
 class RejectPurchaseOrderView(MethodView):
+	decorators = [auth_util.login_required]
 	"""
 	POST request that handles the following:
 	1. Vendor user rejects a purchase order - note is recorded in purchase_order.rejection_note.
@@ -1150,6 +1284,7 @@ class RejectPurchaseOrderView(MethodView):
 				session,
 				purchase_order_id,
 				str(user.id),
+				user.full_name,
 				rejection_note,
 				is_bank_admin,
 			)
@@ -1212,6 +1347,7 @@ class RejectPurchaseOrderView(MethodView):
 		}), 200)
 
 class RequestPurchaseOrderChangesView(MethodView):
+	decorators = [auth_util.login_required]
 	"""
 	POST request that handles the following:
 	1. Vendor user requests changes to a purchase order - note is recorded in purchase_order.requested_changes_note.
@@ -1275,6 +1411,7 @@ class RequestPurchaseOrderChangesView(MethodView):
 				session,
 				purchase_order_id,
 				str(user.id),
+				user.full_name,
 				requested_changes_note,
 				is_bank_admin,
 			)
@@ -1372,9 +1509,20 @@ handler.add_url_rule(
 )
 
 handler.add_url_rule(
+	'/update_new',
+	view_func=UpdateViewNew.as_view(name='update_new'),
+)
+
+handler.add_url_rule(
 	'/submit',
 	view_func=SubmitView.as_view(name='submit'),
 )
+
+handler.add_url_rule(
+	'/submit_new',
+	view_func=SubmitNewView.as_view(name='submit_new'),
+)
+
 
 handler.add_url_rule(
 	'/respond_to_approval_request',

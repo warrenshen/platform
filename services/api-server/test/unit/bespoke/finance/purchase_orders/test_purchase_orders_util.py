@@ -83,7 +83,7 @@ def setup_loan_for_purchase_order(
 		amount = amount,
 		requested_payment_date=requested_payment_date,
 		requested_by_user_id=requested_by_user_id,
-		requested_at=date_util.now()
+		requested_at=date_util.now(),
 	)
 	session.add(loan)
 	session.flush()
@@ -109,6 +109,7 @@ def setup_existing_purchase_order(
 		order_date = order_date,
 		amount = amount,
 		net_terms = net_terms,
+		history = []
 	))
 
 	for file in purchase_order_file_attachments:
@@ -152,7 +153,7 @@ class TestCreateUpdatePurchaseOrderNew(db_unittest.TestCase):
 		with session_scope(self.session_maker) as session:
 			company_id = str(uuid.uuid4())
 			vendor_company_id = str(uuid.uuid4())
-			setup_company_and_user_for_purchase_order_test(session, company_id, vendor_company_id)
+			user = setup_company_and_user_for_purchase_order_test(session, company_id, vendor_company_id)
 
 			order_number =  '88888888'
 			order_date = TODAY_DB_STR
@@ -186,6 +187,8 @@ class TestCreateUpdatePurchaseOrderNew(db_unittest.TestCase):
 			purchase_order_id, _, err = purchase_orders_util.create_update_purchase_order_new(
 				session,
 				purchase_order_create_request,
+				str(user.id),
+				user.full_name
 			)
 			self.assertIsNone(err)
 		
@@ -210,7 +213,7 @@ class TestSubmitPurchaseOrderForApprovalNew(db_unittest.TestCase):
 			purchase_order_id = str(uuid.uuid4())
 			purchase_order_files = generate_purchase_order_files(['purchase_order', 'cannabis'])
 			
-			setup_company_and_user_for_purchase_order_test(
+			user = setup_company_and_user_for_purchase_order_test(
 				session,
 				company_id,
 				vendor_company_id,
@@ -227,6 +230,8 @@ class TestSubmitPurchaseOrderForApprovalNew(db_unittest.TestCase):
 			updated_purchase_order, _, _, err = purchase_orders_util.submit_purchase_order_for_approval_new(
 				session,
 				purchase_order.id,
+				str(user.id),
+				user.full_name
 			)
 
 			self.assertEqual(err, None)
@@ -234,7 +239,7 @@ class TestSubmitPurchaseOrderForApprovalNew(db_unittest.TestCase):
 			self.assertEqual(updated_purchase_order.status, RequestStatusEnum.APPROVAL_REQUESTED)
 
 
-class TestUpdatePurchaseOrderStatus(db_unittest.TestCase):
+class TestUpdatePurchaseOrderStatusAndHistory(db_unittest.TestCase):
 	def test_approval_requested_loan_equals_financing_pending_approval(self) -> None:
 		with session_scope(self.session_maker) as session:
 			company_id, _, user, purchase_order = setup_data_for_update_purchase_order_status_test(session)
@@ -249,9 +254,18 @@ class TestUpdatePurchaseOrderStatus(db_unittest.TestCase):
 				identifier="id1",
 				status=LoanStatusEnum.APPROVAL_REQUESTED
 			)
-			_, err = purchase_orders_util.update_purchase_order_status(session, purchase_order.id)
+			_, err = purchase_orders_util.update_purchase_order_status(
+				session,
+				purchase_order.id,
+				str(user.id),
+				user.first_name
+			)
 			self.assertEqual(err, None)
 			self.assertEqual(NewPurchaseOrderStatus.FINANCING_PENDING_APPROVAL, purchase_order.new_purchase_order_status)
+
+			latest_history_event = purchase_order.history[-1]
+			self.assertEqual(NewPurchaseOrderStatus.FINANCING_PENDING_APPROVAL, latest_history_event['new_purchase_order_status'])
+			self.assertEqual(str(user.id), latest_history_event['created_by_user_id'])
 	
 	def test_approval_requested_and_approved_loan_equals_financing_pending_approval(self) -> None:
 		with session_scope(self.session_maker) as session:
@@ -278,9 +292,18 @@ class TestUpdatePurchaseOrderStatus(db_unittest.TestCase):
 				identifier="id2",
 				status=LoanStatusEnum.APPROVED
 			)
-			_, err = purchase_orders_util.update_purchase_order_status(session, purchase_order.id)
+			_, err = purchase_orders_util.update_purchase_order_status(
+				session,
+				purchase_order.id,
+				str(user.id),
+				user.full_name
+			)
 			self.assertEqual(err, None)
 			self.assertEqual(NewPurchaseOrderStatus.FINANCING_PENDING_APPROVAL, purchase_order.new_purchase_order_status)
+
+			latest_history_event = purchase_order.history[-1]
+			self.assertEqual(NewPurchaseOrderStatus.FINANCING_PENDING_APPROVAL, latest_history_event['new_purchase_order_status'])
+			self.assertEqual(str(user.id), latest_history_event['created_by_user_id'])
 
 	def test_two_approved_loan_equals_financing_request_approved(self) -> None:
 		with session_scope(self.session_maker) as session:
@@ -307,9 +330,18 @@ class TestUpdatePurchaseOrderStatus(db_unittest.TestCase):
 				identifier="id2",
 				status=LoanStatusEnum.APPROVED
 			)
-			_, err = purchase_orders_util.update_purchase_order_status(session, purchase_order.id)
+			_, err = purchase_orders_util.update_purchase_order_status(
+				session,
+				purchase_order.id,
+				str(user.id),
+				user.full_name
+			)
 			self.assertEqual(err, None)
 			self.assertEqual(NewPurchaseOrderStatus.FINANCING_REQUEST_APPROVED, purchase_order.new_purchase_order_status)
+
+			latest_history_event = purchase_order.history[-1]
+			self.assertEqual(NewPurchaseOrderStatus.FINANCING_REQUEST_APPROVED, latest_history_event['new_purchase_order_status'])
+			self.assertEqual(str(user.id), latest_history_event['created_by_user_id'])
 
 	def test_partially_funded_with_aproval_requested_and_approved_loan_equals_financing_pending_approval(self) -> None:
 		with session_scope(self.session_maker) as session:
@@ -336,9 +368,18 @@ class TestUpdatePurchaseOrderStatus(db_unittest.TestCase):
 				identifier="id2",
 				status=LoanStatusEnum.APPROVED
 			)
-			_, err = purchase_orders_util.update_purchase_order_status(session, purchase_order.id)
+			_, err = purchase_orders_util.update_purchase_order_status(
+				session,
+				purchase_order.id,
+				str(user.id),
+				user.full_name
+			)
 			self.assertEqual(err, None)
 			self.assertEqual(NewPurchaseOrderStatus.FINANCING_PENDING_APPROVAL, purchase_order.new_purchase_order_status)
+
+			latest_history_event = purchase_order.history[-1]
+			self.assertEqual(NewPurchaseOrderStatus.FINANCING_PENDING_APPROVAL, latest_history_event['new_purchase_order_status'])
+			self.assertEqual(str(user.id), latest_history_event['created_by_user_id'])
 
 	def test_partially_funded_with_approved_loan_equals_financing_request_approved(self) -> None:
 		with session_scope(self.session_maker) as session:
@@ -365,9 +406,18 @@ class TestUpdatePurchaseOrderStatus(db_unittest.TestCase):
 				identifier="id2",
 				status=LoanStatusEnum.APPROVED
 			)
-			_, err = purchase_orders_util.update_purchase_order_status(session, purchase_order.id)
+			_, err = purchase_orders_util.update_purchase_order_status(
+				session,
+				purchase_order.id,
+				str(user.id),
+				user.full_name
+			)
 			self.assertEqual(err, None)
 			self.assertEqual(NewPurchaseOrderStatus.FINANCING_REQUEST_APPROVED, purchase_order.new_purchase_order_status)
+
+			latest_history_event = purchase_order.history[-1]
+			self.assertEqual(NewPurchaseOrderStatus.FINANCING_REQUEST_APPROVED, latest_history_event['new_purchase_order_status'])
+			self.assertEqual(str(user.id), latest_history_event['created_by_user_id'])
 
 	def test_partially_funded_with_no_outstanding_loans(self) -> None:
 		with session_scope(self.session_maker) as session:
@@ -384,9 +434,18 @@ class TestUpdatePurchaseOrderStatus(db_unittest.TestCase):
 				status=LoanStatusEnum.APPROVED
 			)
 			purchase_order.amount_funded = Decimal(555)
-			_, err = purchase_orders_util.update_purchase_order_status(session, purchase_order.id)
+			_, err = purchase_orders_util.update_purchase_order_status(
+				session,
+				purchase_order.id,
+				str(user.id),
+				user.full_name
+			)
 			self.assertEqual(err, None)
 			self.assertEqual(NewPurchaseOrderStatus.FINANCING_REQUEST_APPROVED, purchase_order.new_purchase_order_status)
+
+			latest_history_event = purchase_order.history[-1]
+			self.assertEqual(NewPurchaseOrderStatus.FINANCING_REQUEST_APPROVED, latest_history_event['new_purchase_order_status'])
+			self.assertEqual(str(user.id), latest_history_event['created_by_user_id'])
 
 	def test_fully_funded_equals_archived(self) -> None:
 		with session_scope(self.session_maker) as session:
@@ -403,6 +462,15 @@ class TestUpdatePurchaseOrderStatus(db_unittest.TestCase):
 				status=LoanStatusEnum.APPROVED
 			)
 			purchase_order.amount_funded = Decimal(888)
-			_, err = purchase_orders_util.update_purchase_order_status(session, purchase_order.id)
+			_, err = purchase_orders_util.update_purchase_order_status(
+				session,
+				purchase_order.id,
+				str(user.id),
+				user.full_name
+			)
 			self.assertEqual(err, None)
 			self.assertEqual(NewPurchaseOrderStatus.ARCHIVED, purchase_order.new_purchase_order_status)
+
+			latest_history_event = purchase_order.history[-1]
+			self.assertEqual(NewPurchaseOrderStatus.ARCHIVED, latest_history_event['new_purchase_order_status'])
+			self.assertEqual(str(user.id), latest_history_event['created_by_user_id'])

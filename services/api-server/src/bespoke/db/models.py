@@ -4,7 +4,7 @@ import logging
 import os
 import time
 from contextlib import contextmanager
-from typing import (Any, Callable, Dict, Iterator, Optional, cast)
+from typing import (Any, Callable, Dict, Iterator, List, Optional, cast)
 
 import sqlalchemy
 from bespoke.config.config_util import is_prod_env
@@ -19,7 +19,7 @@ from sqlalchemy import (JSON, BigInteger, Boolean, Column, Date, DateTime,
 from sqlalchemy.engine import Engine
 from sqlalchemy.exc import OperationalError, StatementError, TimeoutError
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.ext.mutable import MutableDict
+from sqlalchemy.ext.mutable import MutableDict, MutableList
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.orm.query import Query as _Query
 from sqlalchemy.orm.session import Session
@@ -110,6 +110,7 @@ class User(Base):
 	company_role = Column(String(120))
 	first_name = Column(Text, nullable=False)
 	last_name = Column(Text, nullable=False)
+	full_name = Column(Text)
 	phone_number = Column(Text)
 	is_deleted = Column(Boolean, default=False)
 	login_method = Column(Text, nullable=False)
@@ -804,6 +805,14 @@ class Artifact(Base):
 	def max_loan_amount(self) -> Optional[decimal.Decimal]:
 		raise NotImplementedError("max_loan_amount is not implemented on this artifact")
 
+PurchaseOrderHistoryDict = TypedDict('PurchaseOrderHistoryDict', {
+	'id': str,
+	'date_time': str,
+	'action': str,
+	'new_purchase_order_status': str,
+	'created_by_user_id': str,
+	'created_by_user_full_name': str,
+})
 
 class PurchaseOrder(Artifact):
 	"""
@@ -840,6 +849,7 @@ class PurchaseOrder(Artifact):
 	closed_at = Column(DateTime)
 	all_bank_notes = Column(MutableDict.as_mutable(JSON)) # type: ignore
 	all_customer_notes = Column(MutableDict.as_mutable(JSON)) # type: ignore
+	history = cast(List[PurchaseOrderHistoryDict], Column(MutableList.as_mutable(JSON), nullable=True)) # type: ignore
 
 	vendor = relationship(
 		'Company',

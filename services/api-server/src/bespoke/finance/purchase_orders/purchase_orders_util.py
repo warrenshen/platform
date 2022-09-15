@@ -2,8 +2,10 @@ import datetime
 import decimal
 import os
 from dataclasses import dataclass, fields
+from webbrowser import get
 from sqlalchemy.orm.session import Session
 from typing import Callable, Dict, List, Optional, Tuple, cast
+import uuid
 
 from bespoke import errors
 from bespoke.date import date_util
@@ -13,6 +15,7 @@ from bespoke.db.db_constants import RequestStatusEnum, NewPurchaseOrderStatus, L
 from bespoke.companies import partnership_util
 from bespoke.email import sendgrid_util
 from bespoke.finance import number_util
+from bespoke.finance.purchase_orders import purchase_orders_util
 from flask import current_app, request
 from server.config import is_test_env
 
@@ -346,6 +349,8 @@ def create_update_purchase_order(
 def create_update_purchase_order_new(
 	session: Session,
 	request: PurchaseOrderUpsertRequest,
+	user_id: str,
+	user_full_name: str,
 ) -> Tuple[str, dict, errors.Error]:
 	is_create_purchase_order = False
 
@@ -416,6 +421,29 @@ def create_update_purchase_order_new(
 
 	for purchase_order_file_to_delete in purchase_order_files_to_delete:
 		cast(Callable, session.delete)(purchase_order_file_to_delete)
+
+
+	if purchase_order.history is None:
+		purchase_order_creation_event = get_purchase_order_history_event(
+			action = "PO created",
+			new_purchase_order_status = None,
+			created_by_user_id = user_id,
+			created_by_user_full_name = user_full_name
+		)
+		purchase_order_history_event = get_purchase_order_history_event(
+			action = "PO saved as draft",
+			new_purchase_order_status = NewPurchaseOrderStatus.DRAFT,
+			created_by_user_id = user_id,
+			created_by_user_full_name = user_full_name
+		)
+		purchase_order.history = [purchase_order_creation_event, purchase_order_history_event] 
+	else:
+		purchase_order.history.append(get_purchase_order_history_event(
+			action = "PO edited",
+			new_purchase_order_status = None,
+			created_by_user_id = user_id,
+			created_by_user_full_name = user_full_name,
+		))
 
 	session.flush()
 
@@ -488,7 +516,7 @@ def create_update_purchase_order_new(
 			'purchase_order_amount': number_util.to_dollar_format(float(purchase_order.amount)) if purchase_order.amount else None,
 		}
 
-	return purchase_order_id, template_data, None
+	return purchase_order_id, template_data if is_create_purchase_order else None, None
 
 @errors.return_error_tuple
 def submit_purchase_order_for_approval(
@@ -651,6 +679,8 @@ def submit_purchase_order_for_approval(
 def submit_purchase_order_for_approval_new(
 	session: Session,
 	purchase_order_id: str,
+	user_id: str,
+	user_full_name: str
 ) -> Tuple[models.PurchaseOrder, List[partnership_util.ContactDict], bool, errors.Error]:
 	is_vendor_missing_bank_account = False
 
@@ -752,13 +782,23 @@ def submit_purchase_order_for_approval_new(
 	purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.PENDING_APPROVAL_BY_VENDOR
 	purchase_order.requested_at = date_util.now()
 	purchase_order.incompleted_at = None
+	purchase_order.history.append(get_purchase_order_history_event(
+		action = "PO submitted to vendor",
+		new_purchase_order_status = NewPurchaseOrderStatus.PENDING_APPROVAL_BY_VENDOR,
+		created_by_user_id = user_id,
+		created_by_user_full_name = user_full_name
+	))
 
 	return purchase_order, vendor_users, is_vendor_missing_bank_account, None
 
+
+# TODO: consider case in which it diverges
 @errors.return_error_tuple
 def update_purchase_order_status(
 	session: Session,
 	purchase_order_id: str,
+	created_by_user_id: str,
+	created_by_user_full_name: str,
 ) -> Tuple[bool, errors.Error]:
 	purchase_order = cast(
 		models.PurchaseOrder,
@@ -785,15 +825,39 @@ def update_purchase_order_status(
 	all_loan_statuses = set([loan.status for loan in loans])
 	if number_util.float_eq(amount_funded, float(purchase_order.amount)):
 		purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.ARCHIVED
+		purchase_order.history.append(purchase_orders_util.get_purchase_order_history_event(
+			action = "Po archived",
+			new_purchase_order_status = NewPurchaseOrderStatus.ARCHIVED,
+			created_by_user_id = created_by_user_id,
+			created_by_user_full_name = created_by_user_full_name
+		))
 		return True, None
 	elif LoanStatusEnum.APPROVED in all_loan_statuses and LoanStatusEnum.APPROVAL_REQUESTED not in all_loan_statuses:
 		purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.FINANCING_REQUEST_APPROVED
+		purchase_order.history.append(purchase_orders_util.get_purchase_order_history_event(
+			action = "PO financing request approved",
+			new_purchase_order_status = NewPurchaseOrderStatus.FINANCING_REQUEST_APPROVED,
+			created_by_user_id = created_by_user_id,
+			created_by_user_full_name = created_by_user_full_name
+		))
 		return True, None
 	elif LoanStatusEnum.APPROVAL_REQUESTED in all_loan_statuses:
 		purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.FINANCING_PENDING_APPROVAL
+		purchase_order.history.append(purchase_orders_util.get_purchase_order_history_event(
+			action = "Po financing request created",
+			new_purchase_order_status = NewPurchaseOrderStatus.FINANCING_PENDING_APPROVAL,
+			created_by_user_id = created_by_user_id,
+			created_by_user_full_name = created_by_user_full_name
+		))
 		return True, None
 	elif len(all_loan_statuses) == 0 or purchase_order.amount_funded > 0:
 		purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.READY_TO_REQUEST_FINANCING
+		purchase_order.history.append(purchase_orders_util.get_purchase_order_history_event(
+			action = "Po approved",
+			new_purchase_order_status = NewPurchaseOrderStatus.READY_TO_REQUEST_FINANCING,
+			created_by_user_id = created_by_user_id,
+			created_by_user_full_name = created_by_user_full_name
+		))
 		return True, None
 	else:
 		return None, errors.Error("Could not update status for purchase_order_id: " + purchase_order_id)
@@ -802,6 +866,7 @@ def approve_purchase_order(
 	session: Session,
 	purchase_order_id: str,
 	approved_by_user_id: str,
+	approved_by_user_full_name: str,
 	is_bank_admin: bool,
 ) -> Tuple[ models.PurchaseOrder, errors.Error ]:
 	purchase_order, err = queries.get_purchase_order_by_id(
@@ -815,6 +880,16 @@ def approve_purchase_order(
 	purchase_order.status = RequestStatusEnum.APPROVED
 	purchase_order.approved_at = date_util.now()
 	purchase_order.approved_by_user_id = approved_by_user_id # type: ignore
+	purchase_order.history.append(
+		models.PurchaseOrderHistoryDict(
+			id = str(uuid.uuid4()),
+			date_time = date_util.datetime_to_str(date_util.now()),
+			action = "PO approved",
+			new_purchase_order_status = NewPurchaseOrderStatus.READY_TO_REQUEST_FINANCING,
+			created_by_user_id = approved_by_user_id,
+			created_by_user_full_name = approved_by_user_full_name
+		)
+	)
 
 	return purchase_order, None
 
@@ -822,6 +897,7 @@ def reject_purchase_order(
 	session: Session,
 	purchase_order_id: str,
 	rejected_by_user_id: str,
+	rejected_by_user_full_name: str,
 	rejection_note: str,
 	is_bank_admin: bool,
 ) -> Tuple[ models.PurchaseOrder, errors.Error ]:
@@ -838,9 +914,29 @@ def reject_purchase_order(
 	if is_bank_admin:
 		purchase_order.all_bank_notes[PurchaseOrderBankNoteEnum.BANK_REJECTION] = rejection_note
 		purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.REJECTED_BY_BESPOKE
+		purchase_order.history.append(
+			models.PurchaseOrderHistoryDict(
+				id = str(uuid.uuid4()),
+				date_time = date_util.datetime_to_str(date_util.now()),
+				action = "PO rejected",
+				new_purchase_order_status = NewPurchaseOrderStatus.REJECTED_BY_BESPOKE,
+				created_by_user_id = rejected_by_user_id,
+				created_by_user_full_name = rejected_by_user_full_name,
+			)
+		)
 	else:
 		purchase_order.all_customer_notes[PurchaseOrderCustomerNoteEnum.VENDOR_REJECTION] = rejection_note
 		purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.REJECTED_BY_VENDOR
+		purchase_order.history.append(
+			models.PurchaseOrderHistoryDict(
+				id = str(uuid.uuid4()),
+				date_time = date_util.datetime_to_str(date_util.now()),
+				action = "PO rejected",
+				new_purchase_order_status = NewPurchaseOrderStatus.REJECTED_BY_VENDOR,
+				created_by_user_id = rejected_by_user_id,
+				created_by_user_full_name = rejected_by_user_full_name,
+			)
+		)
 
 	return purchase_order, None
 
@@ -848,6 +944,7 @@ def request_purchase_order_changes(
 	session: Session,
 	purchase_order_id: str,
 	requested_by_user_id: str,
+	requested_by_user_full_name: str,
 	requested_changes_note: str,
 	is_bank_admin: bool,
 ) -> Tuple[ models.PurchaseOrder, errors.Error ]:
@@ -861,8 +958,44 @@ def request_purchase_order_changes(
 	if is_bank_admin:
 		purchase_order.all_bank_notes[PurchaseOrderBankNoteEnum.REQUESTS_CHANGES] = requested_changes_note
 		purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.CHANGES_REQUESTED_BY_BESPOKE
+		purchase_order.history.append(
+			models.PurchaseOrderHistoryDict(
+				id = str(uuid.uuid4()),
+				date_time = date_util.datetime_to_str(date_util.now()),
+				action = "PO changes requested",
+				new_purchase_order_status = NewPurchaseOrderStatus.CHANGES_REQUESTED_BY_BESPOKE,
+				created_by_user_id = requested_by_user_id,
+				created_by_user_full_name = requested_by_user_full_name,
+			)
+		)
 	else:
 		purchase_order.all_customer_notes[PurchaseOrderCustomerNoteEnum.VENDOR_REQUESTS_CHANGES] = requested_changes_note
 		purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.CHANGES_REQUESTED_BY_VENDOR
-		
+		purchase_order.history.append(
+			models.PurchaseOrderHistoryDict(
+				id = str(uuid.uuid4()),
+				date_time = date_util.datetime_to_str(date_util.now()),
+				action = "PO changes requested",
+				new_purchase_order_status = NewPurchaseOrderStatus.CHANGES_REQUESTED_BY_VENDOR,
+				created_by_user_id = requested_by_user_id,
+				created_by_user_full_name = requested_by_user_full_name,
+			)
+		)
+
 	return purchase_order, None
+
+
+def get_purchase_order_history_event(
+	action: str,
+	new_purchase_order_status: str,
+	created_by_user_id: str,
+	created_by_user_full_name: str,
+) -> models.PurchaseOrderHistoryDict:
+	return models.PurchaseOrderHistoryDict(
+		id = str(uuid.uuid4()),
+		date_time = date_util.datetime_to_str(date_util.now()),
+		action = action,
+		new_purchase_order_status = new_purchase_order_status,
+		created_by_user_id = created_by_user_id,
+		created_by_user_full_name = created_by_user_full_name,
+	)

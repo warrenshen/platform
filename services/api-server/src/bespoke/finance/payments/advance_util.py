@@ -9,12 +9,13 @@ from typing import Callable, Dict, List, Tuple, cast
 
 from bespoke import errors
 from bespoke.date import date_util
-from bespoke.db import db_constants, models, models_util
+from bespoke.db import db_constants, models, models_util, queries
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util, number_util, financial_summary_util
 from bespoke.finance.loans import sibling_util
 from bespoke.finance.reports import loan_balances
 from bespoke.finance.payments import payment_util
+from bespoke.finance.purchase_orders import purchase_orders_util
 from mypy_extensions import TypedDict
 from bespoke.finance.types import payment_types
 
@@ -424,6 +425,15 @@ def fund_loans_with_advance(
 					if loan_type == db_constants.LoanTypeEnum.INVENTORY:
 						purchase_order = cast(models.PurchaseOrder, artifact)
 						purchase_order.new_purchase_order_status = db_constants.NewPurchaseOrderStatus.ARCHIVED
+						user, err = queries.get_user_by_id(session, bank_admin_user_id)
+						if err:
+							raise err
+						purchase_order.history.append(purchase_orders_util.get_purchase_order_history_event(
+							action = "PO archived",
+							new_purchase_order_status = db_constants.NewPurchaseOrderStatus.ARCHIVED,
+							created_by_user_id = str(bank_admin_user_id),
+							created_by_user_full_name = user.full_name
+						))
 
 	return FundLoansRespDict(
 		payment_id=str(payment_id),

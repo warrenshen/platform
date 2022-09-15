@@ -308,7 +308,7 @@ class TestApproveLoans(db_unittest.TestCase):
 		loan_ids = []
 		artifact_ids = []
 		company_id = seed.get_company_id('company_admin', index=0)
-		bank_admin_user_id = seed.get_company_id('bank_admin', index=0)
+		bank_admin_user_id = seed.get_user_id('bank_admin', index=0)
 
 		with session_scope(session_maker) as session:
 			contract = test['contract']
@@ -446,8 +446,9 @@ class TestApproveLoans(db_unittest.TestCase):
 				)
 			],
 			'loan_index': 0,
-			'artifacts': [models.PurchaseOrder(
-				amount=decimal.Decimal(100.0)
+			'artifacts': [models.PurchaseOrder( # type: ignore
+				amount=decimal.Decimal(100.0),
+				history=[]
 			)],
 			'loan_artifact_indices': [0],
 		}

@@ -23,7 +23,7 @@ import useSnackbar from "hooks/useSnackbar";
 import {
   createUpdatePurchaseOrderAndSubmitNewMutation,
   createUpdatePurchaseOrderAsDraftNewMutation,
-  updatePurchaseOrderMutation,
+  updatePurchaseOrderNewMutation,
 } from "lib/api/purchaseOrders";
 import { isFeatureFlagEnabled } from "lib/companies";
 import { todayMinusXDaysDateStringServer } from "lib/date";
@@ -323,7 +323,7 @@ export default function CreateUpdatePurchaseOrderModalNew({
   ] = useCustomMutation(createUpdatePurchaseOrderAndSubmitNewMutation);
 
   const [updatePurchaseOrder, { loading: isUpdatePurchaseOrderLoading }] =
-    useCustomMutation(updatePurchaseOrderMutation);
+    useCustomMutation(updatePurchaseOrderNewMutation);
 
   const preparePurchaseOrder = () => {
     return {

@@ -151,6 +151,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					id=purchase_order["id"],
 					vendor_id=purchase_order["vendor_id"],
 					amount=purchase_order["amount"],
+					history=[],
 				)
 				session.add(po)
 				session.flush()

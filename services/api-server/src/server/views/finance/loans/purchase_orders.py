@@ -250,6 +250,9 @@ class UpsertPurchaseOrdersLoansView(MethodView):
 			company = session.query(models.Company).get(company_id)
 			customer_name = company.name
 			loan_dicts = []
+			user = session.query(models.User) \
+				.filter(models.User.id == user_session.get_user_id()) \
+				.first()
 
 			for item in upsert.data:
 				nearest_business_day = date_util.get_nearest_business_day(
@@ -297,7 +300,12 @@ class UpsertPurchaseOrdersLoansView(MethodView):
 				loan_dicts.append(loan.as_dict())
 				loan_events.append(event)
 			
-				purchase_orders_util.update_purchase_order_status(session, item.artifact.id)
+				purchase_orders_util.update_purchase_order_status(
+					session = session,
+					purchase_order_id = item.artifact.id,
+					created_by_user_id = str(user.id),
+					created_by_user_full_name = user.full_name
+				)
 
 			if upsert.status == LoanStatusEnum.APPROVAL_REQUESTED:
 				err = _handle_approval_email(

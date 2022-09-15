@@ -21,7 +21,7 @@ import {
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { submitPurchaseOrderMutation } from "lib/api/purchaseOrders";
+import { submitPurchaseOrderNewMutation } from "lib/api/purchaseOrders";
 import { Action } from "lib/auth/rbac-rules";
 import {
   ActionType,
@@ -186,7 +186,7 @@ export default function CustomerPurchaseOrdersOpenTabNew({
   ] = useState(false);
 
   const [submitPurchaseOrder, { loading: isSubmitPurchaseOrderLoading }] =
-    useCustomMutation(submitPurchaseOrderMutation);
+    useCustomMutation(submitPurchaseOrderNewMutation);
 
   const handleSubmitPurchaseOrder = async () => {
     const purchaseOrder = selectedNotApprovedPurchaseOrder;

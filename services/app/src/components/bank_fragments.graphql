@@ -272,12 +272,14 @@ fragment Vendor on vendors {
 fragment PurchaseOrder on purchase_orders {
   id
   bank_note
+  history
   ...PurchaseOrderLimited
 }
 
 fragment PurchaseOrderNew on purchase_orders {
   id
   bank_note
+  history
   ...PurchaseOrderLimitedNew
 }
 

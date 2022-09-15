@@ -126,6 +126,7 @@ fragment PurchaseOrderLimited on purchase_orders {
   approved_by_user_id
   funded_at
   closed_at
+  history
   company {
     id
     ...CompanyLimited
@@ -163,6 +164,7 @@ fragment PurchaseOrderLimitedNew on purchase_orders {
   approved_by_user_id
   funded_at
   closed_at
+  history
   company {
     id
     ...CompanyLimited
