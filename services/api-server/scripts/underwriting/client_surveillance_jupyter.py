@@ -1546,7 +1546,7 @@ def calculate_inventory_valuation(
         "license",
         "legal_name",
     ]
-    return df_inventory_license
+    return df_inventory_license,df_inv_product
 
 
 def calculate_inventory_valuation_fresh(
