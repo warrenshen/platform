@@ -1,12 +1,12 @@
 import { ValueFormatterParams } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
-import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import MetrcTransferDrawerLauncher from "components/Transfers/MetrcTransferDrawerLauncher";
 import MetrcPackageDrawerLauncher from "components/Transfers/MetrcTransferPackageDrawerLauncher";
 import MetrcPackageModal from "components/Transfers/MetrcTransferPackageModal";
 import { MetrcTransferPackageFragment } from "generated/graphql";
 import { MetrcPackagePayload } from "lib/api/metrc";
+import { CurrencyPrecision } from "lib/number";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
@@ -94,21 +94,6 @@ export default function MetrcTransferPackagesDataGrid({
         ),
       },
       {
-        dataField: "shipment_package_state",
-        caption: "Shipment Package State",
-        minWidth: ColumnWidths.MinWidth,
-      },
-      {
-        dataField: "lab_results_status",
-        caption: "Lab Results Status",
-        minWidth: ColumnWidths.MinWidth,
-      },
-      {
-        dataField: "package_type",
-        caption: "Package Type",
-        minWidth: ColumnWidths.MinWidth,
-      },
-      {
         dataField: "product_category_name",
         caption: "Product Category Name",
         minWidth: ColumnWidths.MinWidth,
@@ -124,15 +109,29 @@ export default function MetrcTransferPackagesDataGrid({
         width: ColumnWidths.Count,
       },
       {
+        dataField: "shipment_package_state",
+        caption: "Shipment Package State",
+        minWidth: ColumnWidths.MinWidth,
+      },
+      {
+        dataField: "lab_results_status",
+        caption: "Lab Results Status",
+        minWidth: ColumnWidths.MinWidth,
+      },
+      {
+        dataField: "package_type",
+        caption: "Package Type",
+        minWidth: ColumnWidths.MinWidth,
+      },
+      {
         dataField: "shipper_wholesale_price",
         caption: "Shipper Wholesale Price",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell
-            value={params.row.data.shipper_wholesale_price}
-          />
-        ),
       },
       {
         dataField: "received_quantity",
@@ -142,13 +141,12 @@ export default function MetrcTransferPackagesDataGrid({
       {
         dataField: "receiver_wholesale_price",
         caption: "Receiver Wholesale Price",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
-          <CurrencyDataGridCell
-            value={params.row.data.receiver_wholesale_price}
-          />
-        ),
       },
       {
         dataField: "item",
