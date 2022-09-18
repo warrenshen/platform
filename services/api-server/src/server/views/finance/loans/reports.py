@@ -41,7 +41,8 @@ class RunCustomerBalancesView(MethodView):
 		no_company_id_specified = not form.get('company_id')
 
 		if no_company_id_specified:
-			company_dicts = reports_util.list_all_companies(session_maker)
+			with session_scope(session_maker) as session:
+				company_dicts = reports_util.list_all_companies(session)
 		else:
 			with session_scope(session_maker) as session:
 				# Find the single customer to run reports for

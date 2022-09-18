@@ -112,10 +112,11 @@ class UpdateAllCompanyBalancesView(MethodView):
 		logging.info("Received request to update all company balances")
 		session_maker = current_app.session_maker
 		
-		companies = reports_util.list_all_companies(session_maker)
-		cur_date = date_util.now_as_date(date_util.DEFAULT_TIMEZONE)
-		company_ids = [company['id'] for company in companies]
 		with models.session_scope(session_maker) as session:
+			companies = reports_util.list_all_companies(session)
+			cur_date = date_util.now_as_date(date_util.DEFAULT_TIMEZONE)
+			company_ids = [company['id'] for company in companies]
+
 			_set_needs_balance_recomputed(
 				session,
 				company_ids, 
