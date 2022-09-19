@@ -202,7 +202,7 @@ export default function InvoiceDrawer({ invoiceId, handleClose }: Props) {
                 Cannabis File Attachments
               </Typography>
               <Typography variant="body2" color="textSecondary">
-                Shipping Manifest, Certificate of Analysis
+                Shipping Manifest
               </Typography>
             </Box>
             <DownloadThumbnail

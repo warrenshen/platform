@@ -1,14 +1,11 @@
 import { Box, TextField, Typography } from "@material-ui/core";
-import { Alert } from "@material-ui/lab";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import PurchaseOrderFormShared from "components/PurchaseOrder/PurchaseOrderFormShared";
-import FileUploader from "components/Shared/File/FileUploader";
 import CompanyDeliveryInfoCard from "components/Transfers/CompanyDeliveryInfoCard";
 import {
   Companies,
   GetIncomingFromVendorCompanyDeliveriesByCompanyIdQuery,
   PurchaseOrderFileFragment,
-  PurchaseOrderFileTypeEnum,
   PurchaseOrderMetrcTransferFragment,
   PurchaseOrdersInsertInput,
 } from "generated/graphql";
@@ -17,8 +14,7 @@ import {
   getCompanyDeliveryVendorDescription,
 } from "lib/api/metrc";
 import { formatDateString, formatDatetimeString } from "lib/date";
-import { FileTypeEnum } from "lib/enum";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 interface Props {
   companyId: Companies["id"];
@@ -57,20 +53,7 @@ export default function PurchaseOrderFormMetrc({
   frozenPurchaseOrderFileIds,
   frozenPurchaseOrderCannabisFileIds,
 }: Props) {
-  const purchaseOrderCannabisFileIds = useMemo(
-    () =>
-      purchaseOrderCannabisFiles.map(
-        (purchaseOrderFile) => purchaseOrderFile.file_id
-      ),
-    [purchaseOrderCannabisFiles]
-  );
-
   const [autocompleteInputValue, setAutocompleteInputValue] = useState("");
-
-  // True if a metrc transfer is selected and its lab results status is "passed".
-  const isLabResultsPassed =
-    selectedCompanyDeliveries.length > 0 &&
-    selectedCompanyDeliveries[0].metrc_transfer.lab_results_status === "passed";
 
   return (
     <Box display="flex" flexDirection="column">
@@ -192,17 +175,6 @@ export default function PurchaseOrderFormMetrc({
           </Box>
         )}
       </Box>
-      {isLabResultsPassed && (
-        <Box display="flex" flexDirection="column" mt={2}>
-          <Alert severity="success">
-            <Typography variant="body2">
-              Since the selected Metrc manifest passed lab tests, you do not
-              have to upload Certificate of Analysis (COA) files for this
-              purchase order.
-            </Typography>
-          </Alert>
-        </Box>
-      )}
       <PurchaseOrderFormShared
         companyId={companyId}
         purchaseOrder={purchaseOrder}
@@ -211,43 +183,6 @@ export default function PurchaseOrderFormMetrc({
         setPurchaseOrderFiles={setPurchaseOrderFiles}
         frozenPurchaseOrderFileIds={frozenPurchaseOrderFileIds}
       />
-      {!isLabResultsPassed && (
-        <Box display="flex" flexDirection="column" mt={4}>
-          <Box mb={1}>
-            <Typography variant="subtitle1" color="textSecondary">
-              Cannabis File Attachments
-            </Typography>
-            <Typography variant="body2" color="textSecondary">
-              Please upload the following types of file(s): Certificate of
-              Analysis.
-            </Typography>
-          </Box>
-          <FileUploader
-            companyId={companyId}
-            fileType={FileTypeEnum.PurchaseOrder}
-            fileIds={purchaseOrderCannabisFileIds}
-            frozenFileIds={frozenPurchaseOrderCannabisFileIds}
-            handleDeleteFileById={(fileId) =>
-              setPurchaseOrderCannabisFiles(
-                purchaseOrderCannabisFiles.filter(
-                  (purchaseOrderFile) => purchaseOrderFile.file_id !== fileId
-                )
-              )
-            }
-            handleNewFiles={(files) =>
-              setPurchaseOrderCannabisFiles([
-                ...purchaseOrderCannabisFiles,
-                ...files.map((file) => ({
-                  purchase_order_id: purchaseOrder.id,
-                  file_id: file.id,
-                  file_type: PurchaseOrderFileTypeEnum.Cannabis,
-                  file: file,
-                })),
-              ])
-            }
-          />
-        </Box>
-      )}
     </Box>
   );
 }
