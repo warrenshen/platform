@@ -142,6 +142,7 @@ def create_update_license(
 	session: Session,
 ) -> Tuple[str, errors.Error]:
 	company_license_id = company_license_input['id']
+	license_number = company_license_input['license_number']
 
 	if company_license_id:
 		company_license = cast(
@@ -153,6 +154,14 @@ def create_update_license(
 
 		license_id = _update_license(company_license, company_license_input)
 	else:
+		company_license = cast(
+			models.CompanyLicense,
+			session.query(models.CompanyLicense).filter(models.CompanyLicense.license_number == license_number).first()
+		)
+
+		if company_license:
+			return None, errors.Error(f"This license could not be added because it's already assigned to: {company_license.legal_name}")
+
 		license_id = _add_license(company_license_input, session)
 
 	return license_id, None
@@ -163,8 +172,9 @@ def create_update_licenses(
 	company_id: str,
 	company_license_inputs: List[CompanyLicenseInputDict],
 	session: Session,
-) -> Tuple[List[str], errors.Error]:
+) -> Tuple[List[str], List[str], errors.Error]:
 	license_ids = []
+	existing_license_numbers = []
 
 	existing_company_licenses = cast(
 		List[models.CompanyLicense],
@@ -214,10 +224,19 @@ def create_update_licenses(
 			license_id = _update_license(existing_company_license, company_license_input)
 			license_ids.append(license_id)
 		else:
-			license_id = _add_license(company_license_input, session)
-			license_ids.append(license_id)
+			company_license = cast(
+				models.CompanyLicense,
+				session.query(models.CompanyLicense).filter(models.CompanyLicense.license_number == license_number).first()
+			)
 
-	return license_ids, None
+			if company_license:
+				existing_license_numbers.append(company_license.license_number)
+
+			else:
+				license_id = _add_license(company_license_input, session)
+				license_ids.append(license_id)
+
+	return license_ids, existing_license_numbers, None
 
 @errors.return_error_tuple
 def bulk_update_licenses(

@@ -23,11 +23,13 @@ function CompanyLicenseForm({
   companyId,
   licenseIndex,
   companyLicense,
+  error,
   setCompanyLicenses,
 }: {
   companyId: Companies["id"];
   licenseIndex: number;
   companyLicense: CompanyLicensesInsertInput;
+  error: boolean;
   setCompanyLicenses: React.Dispatch<
     React.SetStateAction<CompanyLicensesInsertInput[]>
   >;
@@ -87,6 +89,8 @@ function CompanyLicenseForm({
           disabled={!!companyLicense.id}
           label={"License #"}
           value={companyLicense.license_number || ""}
+          error={error}
+          helperText={error && "License # already exists"}
           onChange={({ target: { value } }) =>
             setCompanyLicenses((companyLicenses) => [
               ...companyLicenses.slice(0, licenseIndex),
@@ -137,6 +141,10 @@ export default function UpdateCompanyLicensesModal({
     CompanyLicensesInsertInput[]
   >([]);
 
+  const [existingLicenseNumbers, setExistingLicenseNumbers] = useState(
+    new Set()
+  );
+
   const { loading: isCompanyLicensesLoading, error } =
     useGetVendorCompanyFileAttachmentsQuery({
       fetchPolicy: "network-only",
@@ -169,6 +177,7 @@ export default function UpdateCompanyLicensesModal({
 
     if (response.status !== "OK") {
       snackbar.showError(`Could not update licenses. Error: ${response.msg}`);
+      setExistingLicenseNumbers(new Set(response.data));
     } else {
       snackbar.showSuccess("Licenses updated.");
       handleClose();
@@ -201,6 +210,7 @@ export default function UpdateCompanyLicensesModal({
               companyId={companyId}
               licenseIndex={index}
               companyLicense={companyLicense}
+              error={existingLicenseNumbers.has(companyLicense.license_number)}
               setCompanyLicenses={setCompanyLicenses}
             />
           ))}

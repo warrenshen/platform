@@ -97,13 +97,20 @@ class CreateUpdateLicensesView(MethodView):
 					'Missing key {} in request'.format(key))
 
 		with session_scope(current_app.session_maker) as session:
-			company_license_ids, err = licenses_util.create_update_licenses(
+			company_license_ids, existing_license_numbers, err = licenses_util.create_update_licenses(
 				company_id=form['company_id'],
 				company_license_inputs=form['company_licenses'],
 				session=session
 			)
 			if err:
 				raise err
+			if len(existing_license_numbers) > 0:
+				session.rollback()
+				return make_response(json.dumps({
+					'status': 409,
+					'data': existing_license_numbers,
+					'msg': 'license(s) already exist'
+				}))
 
 		return make_response(json.dumps({
 			'status': 'OK'
