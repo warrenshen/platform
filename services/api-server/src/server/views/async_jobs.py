@@ -179,6 +179,7 @@ class KickOffHandlerView(MethodView):
 		}), 200)
 
 class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
+	decorators = [auth_util.bank_admin_required]
 
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
@@ -195,7 +196,6 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 		if as_of_date is None:
 			return handler_util.make_error_response('Please set the as of date for month end report generation.')
 		companies = variables.get("companies", None) if variables else None
-
 		with session_scope(current_app.session_maker) as session:
 			_, err = async_jobs_util.reports_monthly_loan_summary_Non_LOC_generate(
 				session=session,
@@ -213,7 +213,8 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 		}), 200)
 
 class ReportsMonthlyLoanSummaryLOCView(MethodView):
-
+	decorators = [auth_util.bank_admin_required]
+	
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
 		logging.info("Received async job report monthly loan summary for LOC")

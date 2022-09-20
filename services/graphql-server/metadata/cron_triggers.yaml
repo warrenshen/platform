@@ -4,6 +4,12 @@
   include_in_metadata: true
   payload:
     job_name: autogenerate_repayments
+# - name: async_automatic_debit_courtesy_alerts
+#   webhook: '{{ASYNC_SERVER_BASE_URL}}/async_jobs/generate_jobs'
+#   schedule: 0 0 2 * *
+#   include_in_metadata: true
+#   payload:
+#     job_name: automatic_debit_courtesy_alerts
 - name: async_jobs_orchestration_handler
   webhook: '{{ASYNC_SERVER_BASE_URL}}/async_jobs/kick-off-handler'
   schedule: '* * * * *'

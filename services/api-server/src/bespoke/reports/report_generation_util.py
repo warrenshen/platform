@@ -430,7 +430,6 @@ def get_coming_due_loans_to_notify(
 			loans_to_notify.append(loan)
 	return loans_to_notify
 
-
 def prepare_html_for_attachment_for_non_loc(
 	session: Session,
 	company_id: str,
@@ -1287,3 +1286,70 @@ def process_loan_chunk_for_loc(
 				return loans_to_notify, err
 
 	return loans_to_notify, None
+
+def process_loan_chunk_for_automatic_debit_courtesy_alert(
+	session: Session, 
+	sendgrid_client: sendgrid_util.Client, 
+	loans_chunk: List[models.Loan],
+	today: datetime.date
+) -> Tuple[Dict[str, List[models.Loan]], errors.Error]:
+	# LOC vs non-LOC split handled at query level
+	# This is for organizing loans on a per company basis to make emails easier
+	loans_to_notify : Dict[str, List[models.Loan] ] = {}
+	for l in loans_chunk:
+		if l.origination_date is not None and l.maturity_date is not None and \
+			l.status == LoanStatusEnum.APPROVED and l.closed_at is None and l.rejected_at is None:
+			company_id = str(l.company_id)
+			if company_id is not None:
+				if company_id not in loans_to_notify:
+					loans_to_notify[company_id] = [];
+				loans_to_notify[company_id].append(l)
+
+	# Report Month is the basis for "Current *" amounts in the email
+	report_month_last_day = date_util.get_previous_month_last_date(today)
+
+	for company_id, loans in loans_to_notify.items():
+		msc = cast(
+			models.MonthlySummaryCalculation,
+			session.query(models.MonthlySummaryCalculation).filter(
+				models.MonthlySummaryCalculation.company_id == company_id
+			).filter(
+				models.MonthlySummaryCalculation.report_month == report_month_last_day
+			).first())
+		all_users = models_util.get_active_users(
+			company_id=company_id, 
+			session=session,
+			filter_contact_only=True
+		)
+		for contact_user in all_users:
+			contact_user_full_name = contact_user.first_name + " " + contact_user.last_name
+
+			company = cast(
+				models.Company,
+				session.query(models.Company).filter(
+					models.Company.id == company_id
+				).first())
+
+			template_data = {
+				"company_user": contact_user_full_name,
+				"support_email": "<a href='mailto:support@bespokefinancial.com'>support@bespokefinancial.com</a>",
+				"company_name": company.name,
+				"report_month": date_util.human_readable_monthyear(report_month_last_day),
+				"debit_amount": number_util.to_dollar_format(float(msc.minimum_payment)),
+				"summary_send_date": date_util.date_to_str(date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE))
+			}
+
+			if sendgrid_client is not None:
+				_, err = sendgrid_client.send(
+					template_name=sendgrid_util.TemplateNames.AUTOMATIC_DEBIT_COURTESY_ALERT,
+					template_data=template_data,
+					recipients=[contact_user.email],
+					filter_out_contact_only=True,
+					cc_recipients=[config.NO_REPLY_EMAIL_ADDRESS]
+				)
+
+				if err:
+					return {}, errors.Error(str(err))
+
+	return loans_to_notify, None
+

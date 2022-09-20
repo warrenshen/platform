@@ -1,6 +1,8 @@
 import datetime
 import logging
 
+from typing import Any, Callable, Dict, Tuple, cast, Iterable, List
+from bespoke import errors
 from flask import current_app
 from bespoke import errors
 from decimal import *
@@ -8,13 +10,16 @@ from typing import Any, Callable, Dict, Iterable, Tuple, cast, List
 
 from bespoke.date import date_util
 from bespoke.db import models, models_util, queries
+from sqlalchemy.orm.session import Session
+from bespoke.slack import slack_util
+from bespoke.finance.loans import reports_util
+from bespoke.reports import report_generation_util
+from bespoke.finance.reports import loan_balances
 from bespoke.db.db_constants import AsyncJobNameEnum, AsyncJobStatusEnum, LoanTypeEnum, ProductType
 from bespoke.email import sendgrid_util
-from bespoke.finance.loans import reports_util
 from bespoke.finance.reports import loan_balances
 from bespoke.finance.payments import autogenerate_repayment_util
 from bespoke.metrc.common.metrc_common_util import chunker, chunker_dict
-from bespoke.reports import report_generation_util
 from bespoke.slack import slack_util
 from server.config import Config
 from sqlalchemy import or_
@@ -809,6 +814,7 @@ def reports_monthly_loan_summary_Non_LOC_generate(
 			submitted_by_user_id=user_id,
 			is_high_priority=False,
 			job_payload=payload)
+
 	return True, None
 
 # TODO: sessionmaker should be eventually removed
@@ -823,7 +829,6 @@ def reports_monthly_loan_summary_Non_LOC(
 	test_email = job_payload["email"]
 	as_of_date = job_payload["as_of_date"]
 	user_id = job_payload["user_id"]
-
 	print("Sending out monthly summary report emails for non-LOC customers")
 	cfg = cast(Config, current_app.app_config)
 	sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
@@ -1012,11 +1017,6 @@ def reports_monthly_loan_summary_LOC(
 		models.User.id == user_id
 	).first()
 
-	print("Sending out monthly summary report emails for LOC customers")
-	user = session.query(models.User).filter(
-	  models.User.id == user_id
-	).first()
-
 	all_open_loans = cast(
 		List[models.Loan],
 		session.query(models.Loan).filter(
@@ -1059,10 +1059,8 @@ def reports_monthly_loan_summary_LOC(
 	# This is for organizing loans on a per company basis to make emails easier
 	loans_to_notify : Dict[str, List[models.Loan] ] = {}
 
-
 	loans_to_notify[str(company_id)] = all_open_loans
 	
-
 	BATCH_SIZE = 50
 	for loans_chunk in cast(Iterable[ Dict[str, List[models.Loan]] ], chunker_dict(loans_to_notify, BATCH_SIZE)):
 		_, err = report_generation_util.process_loan_chunk_for_loc(
@@ -1091,18 +1089,80 @@ def reports_monthly_loan_summary_LOC(
 
 	return True, None
 
+@errors.return_error_tuple
+def automatic_debit_courtesy_alerts_generate_job(
+	session: Session
+) -> Tuple[bool, errors.Error]:
+	cfg = cast(Config, current_app.app_config)
+
+	companies = reports_util.list_all_companies(session)
+	company_ids = [company['id'] for company in companies]
+
+	for company_id in company_ids:
+		payload = {"company_id" : company_id}
+		add_job_to_queue(
+			session=session,
+			job_name=AsyncJobNameEnum.AUTOMATIC_DEBIT_COURTESY_ALERTS,
+			submitted_by_user_id=cfg.BOT_USER_ID,
+			is_high_priority=False,
+			job_payload=payload)
+	return True, None
+
+# TODO: sessionmaker should be eventually removed
+@errors.return_error_tuple
+def automatic_debit_courtesy_alerts_job(
+	session: Session,
+	session_maker: Callable,
+	job_payload: Dict[str, Any],
+) -> Tuple[bool, errors.Error]:
+	logging.info("Sending out courtesy alert for automatic monthly debits")
+	cfg = cast(Config, current_app.app_config)
+	sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
+
+	today = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
+	company_id = job_payload["company_id"]
+
+	all_open_loans = cast(
+		List[models.Loan],
+		session.query(models.Loan).filter(
+			cast(Callable, models.Loan.is_deleted.isnot)(True)
+		).filter(
+			models.Loan.closed_at == None
+		).filter(
+			models.Loan.origination_date != None
+		).filter(
+			models.Loan.loan_type == LoanTypeEnum.LINE_OF_CREDIT		
+		).filter(
+			models.Loan.company_id == company_id
+		).all())
+
+	BATCH_SIZE = 50
+	for loans_chunk in cast(Iterable[List[models.Loan]], chunker(all_open_loans, BATCH_SIZE)):
+		_, err = report_generation_util.process_loan_chunk_for_automatic_debit_courtesy_alert(
+			session, 
+			sendgrid_client, 
+			loans_chunk, 
+			today)
+		
+		if err:
+			return False, errors.Error(str(err))
+
+	return True, None
+
 ASYNC_JOB_GENERATION_LOOKUP = {
 	AsyncJobNameEnum.LOANS_COMING_DUE: generate_companies_loans_coming_due_job,
 	AsyncJobNameEnum.LOANS_PAST_DUE: generate_companies_loans_past_due_job,
 	AsyncJobNameEnum.AUTOGENERATE_REPAYMENTS: autogenerate_repayment_customers,
 	AsyncJobNameEnum.AUTOGENERATE_REPAYMENT_ALERTS: autogenerate_repayment_alerts_customers,
 	AsyncJobNameEnum.UPDATE_COMPANY_BALANCES: update_company_balances_job, 
+	AsyncJobNameEnum.AUTOMATIC_DEBIT_COURTESY_ALERTS: automatic_debit_courtesy_alerts_generate_job, 
 }
 
 ASYNC_JOB_ORCHESTRATION_LOOKUP = {
 	AsyncJobNameEnum.LOANS_COMING_DUE: loans_coming_due_job,
 	AsyncJobNameEnum.LOANS_PAST_DUE: loans_past_due_job,
 	AsyncJobNameEnum.UPDATE_COMPANY_BALANCES: update_dirty_company_balances_job,
+	AsyncJobNameEnum.AUTOMATIC_DEBIT_COURTESY_ALERTS: automatic_debit_courtesy_alerts_job, 
 	AsyncJobNameEnum.NON_LOC_MONTHLY_REPORT_SUMMARY: reports_monthly_loan_summary_Non_LOC,
 	AsyncJobNameEnum.LOC_MONTHLY_REPORT_SUMMARY: reports_monthly_loan_summary_LOC,
 }

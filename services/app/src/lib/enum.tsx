@@ -1062,6 +1062,7 @@ export enum AsyncJobNameEnum {
   AutogenerateRepayments = "autogenerate_repayments",
   AutogenerateRepaymentAlerts = "autogenerate_repayment_alerts",
   UpdateCompanyBalances = "update_company_balances",
+  AutomaticDebitCourtesyAlerts = "automatic_debit_courtesy_alerts",
   NonLOCMonthlyReportSummary = "non_loc_monthly_report_summary",
   LOCMonthlyReportSummary = "loc_monthly_report_summary",
 }
@@ -1073,6 +1074,8 @@ export const AsyncJobNameEnumToLabel = {
   [AsyncJobNameEnum.AutogenerateRepaymentAlerts]:
     "Autogenerate repayment alerts",
   [AsyncJobNameEnum.UpdateCompanyBalances]: "Update Company Balances",
+  [AsyncJobNameEnum.AutomaticDebitCourtesyAlerts]:
+    "Automatic Debit Courtesy Alerts",
   [AsyncJobNameEnum.NonLOCMonthlyReportSummary]:
     "Non LOC Monthly Report Summary",
   [AsyncJobNameEnum.LOCMonthlyReportSummary]: "LOC Monthly Report Summary",
@@ -1084,6 +1087,7 @@ export const AsyncJobNames = [
   AsyncJobNameEnum.AutogenerateRepayments,
   AsyncJobNameEnum.AutogenerateRepaymentAlerts,
   AsyncJobNameEnum.UpdateCompanyBalances,
+  AsyncJobNameEnum.AutomaticDebitCourtesyAlerts,
   AsyncJobNameEnum.NonLOCMonthlyReportSummary,
   AsyncJobNameEnum.LOCMonthlyReportSummary,
 ];
