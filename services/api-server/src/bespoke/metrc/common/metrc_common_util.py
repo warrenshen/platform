@@ -15,7 +15,6 @@ from bespoke.config import config_util
 from bespoke.config.config_util import MetrcWorkerConfig
 from bespoke import errors
 from bespoke.date import date_util
-from bespoke.db import models
 from bespoke.metrc.common.metrc_error_util import (
 	AUTHORIZATION_ERROR_CODES, ErrorCatcher, MetrcRetryError, MetrcErrorDetailsDict
 )
@@ -216,17 +215,17 @@ def get_default_apis_to_use() -> ApisToUseDict:
 	# For copy-paste help when you are debugging with one API at a time
 	"""
 	return ApisToUseDict(
-			sales_receipts=True,
-			sales_transactions=True,
-			incoming_transfers=False,
-			outgoing_transfers=False,
-			rejected_transfers=False,
-			packages=False,
-			lab_tests=False,
-			harvests=False,
-			plants=False,
-			plant_batches=False,
-		)
+		sales_receipts=True,
+		sales_transactions=True,
+		incoming_transfers=False,
+		outgoing_transfers=False,
+		rejected_transfers=False,
+		packages=False,
+		lab_tests=False,
+		harvests=False,
+		plants=False,
+		plant_batches=False,
+	)
 	"""
 
 	return ApisToUseDict(

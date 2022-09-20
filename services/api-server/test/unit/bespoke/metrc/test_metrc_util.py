@@ -252,13 +252,14 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 			self.assertIsNone(err)
 
 		company_info, err = metrc_util._get_metrc_company_info(
+			session_maker=self.session_maker,
 			auth_provider=self.auth_provider,
 			security_cfg=self.security_cfg,
 			facilities_fetcher=FakeFacilitiesFetcher({
 				'CA': facilities
 			}, state_to_errs={}),
 			company_id=company_id,
-			session_maker=self.session_maker
+			apis_to_use=None,
 		)
 		self.assertIsNone(err)
 		self._assert_company_info({
@@ -323,13 +324,14 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 			license_id2 = str(license2.id)
 
 		company_info, err = metrc_util._get_metrc_company_info(
+			session_maker=self.session_maker,
 			auth_provider=self.auth_provider,
 			security_cfg=self.security_cfg,
 			facilities_fetcher=FakeFacilitiesFetcher({
 				'CA': facilities
 			}, state_to_errs={}),
 			company_id=company_id,
-			session_maker=self.session_maker
+			apis_to_use=None,
 		)
 		self.assertIsNone(err)
 		self._assert_company_info({
@@ -445,6 +447,7 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 			license_id2 = str(license2.id)
 
 		company_info, err = metrc_util._get_metrc_company_info(
+			session_maker=self.session_maker,
 			auth_provider=self.auth_provider,
 			security_cfg=self.security_cfg,
 			facilities_fetcher=FakeFacilitiesFetcher({
@@ -454,7 +457,7 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 				'FL': errors.Error('No succesful facilities found for FL')
 			}),
 			company_id=company_id,
-			session_maker=self.session_maker
+			apis_to_use=None,
 		)
 		self.assertIsNone(err)
 		self._assert_company_info({

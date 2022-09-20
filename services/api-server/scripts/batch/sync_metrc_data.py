@@ -33,6 +33,7 @@ from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.email import sendgrid_util
 from bespoke.metrc import metrc_util
+from bespoke.metrc.common import metrc_common_util
 
 REQUIRED_ENV_VARS = [
 	'DATABASE_URL',
@@ -46,6 +47,11 @@ def main(
 	company_identifier: str,
 	start_date_str: str,
 	end_date_str: str,
+	is_sales_disabled: bool,
+	is_transfers_disabled: bool,
+	is_packages_disabled: bool,
+	is_lab_tests_disabled: bool,
+	is_plants_disabled: bool,
 	force_fetch_missing_sales_transactions: bool,
 	num_parallel_licenses: int,
 	num_parallel_sales_transactions: int,
@@ -86,6 +92,19 @@ def main(
 	# Default end date to today if end date not specified.
 	parsed_end_date = date_util.load_date_str(end_date_str) if end_date_str else date_util.now_as_date()
 
+	apis_to_use=metrc_common_util.ApisToUseDict(
+		sales_receipts=not is_sales_disabled,
+		sales_transactions=not is_sales_disabled,
+		incoming_transfers=not is_transfers_disabled,
+		outgoing_transfers=not is_transfers_disabled,
+		rejected_transfers=False,
+		packages=not is_packages_disabled,
+		lab_tests=not is_lab_tests_disabled,
+		harvests=not is_plants_disabled,
+		plants=not is_plants_disabled,
+		plant_batches=not is_plants_disabled,
+	)
+
 	print('')
 	print('STARTING!')
 	print('Running sync metrc data with args...')
@@ -94,6 +113,7 @@ def main(
 	print(f'Number of parallel licenses: {num_parallel_licenses}')
 	print(f'Number of parallel sales transactions: {num_parallel_sales_transactions}')
 	print(f'Force fetch missing sales transactions? {force_fetch_missing_sales_transactions}')
+	print(f'APIs to fetch data from: {apis_to_use}')
 	print('')
 	print('LOGS...')
 
@@ -110,6 +130,7 @@ def main(
 			security_cfg=config.get_security_config(),
 			sendgrid_client=sendgrid_client,
 			cur_date=cur_date,
+			apis_to_use=apis_to_use,
 			session_maker=session_maker
 		)
 
@@ -138,6 +159,31 @@ parser.add_argument(
 	help='End date to sync metrc data for (defaults to today)',
 )
 parser.add_argument(
+	'--is_sales_disabled',
+	help='If true, do not fetch data from sales related endpoints',
+	action='store_true',
+)
+parser.add_argument(
+	'--is_transfers_disabled',
+	help='If true, do not fetch data from transfers related endpoints',
+	action='store_true',
+)
+parser.add_argument(
+	'--is_packages_disabled',
+	help='If true, do not fetch data from packages related endpoints',
+	action='store_true',
+)
+parser.add_argument(
+	'--is_plants_disabled',
+	help='If true, do not fetch data from plants related endpoints',
+	action='store_true',
+)
+parser.add_argument(
+	'--is_lab_tests_disabled',
+	help='If true, do not fetch data from lab tests related endpoints',
+	action='store_true',
+)
+parser.add_argument(
 	'--force_fetch_missing_sales_transactions',
 	dest='force_fetch_missing_sales_transactions',
 	action='store_true',
@@ -146,11 +192,13 @@ parser.add_argument(
 	'--num_parallel_licenses',
 	help='Number of parallel threads to run at license level',
 	type=int,
+	default=5,
 )
 parser.add_argument(
 	'--num_parallel_sales_transactions',
 	help='Number of parallel threads to run at sales transactions level',
 	type=int,
+	default=6,
 )
 
 if __name__ == '__main__':
@@ -159,7 +207,12 @@ if __name__ == '__main__':
 		company_identifier=args.company_identifier,
 		start_date_str=args.start_date,
 		end_date_str=args.end_date,
+		is_sales_disabled=args.is_sales_disabled,
+		is_transfers_disabled=args.is_transfers_disabled,
+		is_packages_disabled=args.is_packages_disabled,
+		is_lab_tests_disabled=args.is_lab_tests_disabled,
+		is_plants_disabled=args.is_plants_disabled,
 		force_fetch_missing_sales_transactions=args.force_fetch_missing_sales_transactions or False,
-		num_parallel_licenses=args.num_parallel_licenses or 5,
-		num_parallel_sales_transactions=args.num_parallel_sales_transactions or 4,
+		num_parallel_licenses=args.num_parallel_licenses,
+		num_parallel_sales_transactions=args.num_parallel_sales_transactions,
 	)

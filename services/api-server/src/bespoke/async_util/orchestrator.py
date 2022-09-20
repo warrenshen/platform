@@ -65,13 +65,14 @@ def _sync_metrc_data_all_customers(p: models.AsyncPipelineDict, ctx: Context) ->
 	while cur_date <= end_date:
 
 		resp, fatal_err = metrc_util.download_data_for_one_customer(
+			session_maker=ctx.session_maker,
 			company_id=company_id,
 			auth_provider=ctx.metrc_auth_provider,
 			worker_cfg=ctx.metrc_worker_config,
 			sendgrid_client=ctx.sendgrid_client,
 			security_cfg=ctx.security_cfg,
 			cur_date=cur_date,
-			session_maker=ctx.session_maker
+			apis_to_use=None,
 		)
 		if fatal_err:
 			if 'err_msgs' not in internal_state:
@@ -107,13 +108,14 @@ def _sync_metrc_data_per_customer(p: models.AsyncPipelineDict, ctx: Context) -> 
 		return StepUpdateRespDict(status=PipelineState.COMPLETE, internal_state=internal_state)
 
 	resp, fatal_err = metrc_util.download_data_for_one_customer(
+		session_maker=ctx.session_maker,
 		company_id=p['params']['company_id'],
 		auth_provider=ctx.metrc_auth_provider,
 		worker_cfg=ctx.metrc_worker_config,
 		sendgrid_client=ctx.sendgrid_client,
 		security_cfg=ctx.security_cfg,
 		cur_date=cur_date,
-		session_maker=ctx.session_maker
+		apis_to_use=None,
 	)
 	if fatal_err:
 		internal_state['err_msg'] = '{}'.format(fatal_err)

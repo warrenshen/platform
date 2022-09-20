@@ -5,7 +5,7 @@ import os
 import time
 import traceback
 from concurrent.futures import ThreadPoolExecutor
-from typing import Callable, Dict, List, Tuple, cast
+from typing import Callable, Dict, List, Optional, Tuple, cast
 
 import requests
 from bespoke import errors
@@ -181,11 +181,12 @@ def get_companies_with_metrc_keys(session_maker: Callable) -> List[str]:
 	return list(company_ids_set)
 
 def _get_metrc_company_info(
+	session_maker: Callable,
 	auth_provider: MetrcAuthProvider,
 	security_cfg: security_util.ConfigDict,
 	facilities_fetcher: metrc_common_util.FacilitiesFetcherInterface,
 	company_id: str,
-	session_maker: Callable,
+	apis_to_use: metrc_common_util.ApisToUseDict,
 ) -> Tuple[CompanyInfo, errors.Error]:
 	with session_scope(session_maker) as session:
 		company = cast(
@@ -288,7 +289,7 @@ def _get_metrc_company_info(
 				company_state_info = CompanyStateInfoDict(
 					licenses=license_auths,
 					metrc_api_key_id=str(cur_metrc_api_key.id),
-					apis_to_use=metrc_common_util.get_default_apis_to_use(),
+					apis_to_use=apis_to_use,
 					facilities_payload=metrc_common_util.FacilitiesPayloadDict(
 						facilities=facilities_arr 
 					)
@@ -434,20 +435,22 @@ def _download_and_summarize_data_for_license(
 	return api_status_dict, err
 
 def _download_data(
+	session_maker: Callable,
 	company_id: str,
 	auth_provider: MetrcAuthProvider,
 	worker_cfg: MetrcWorkerConfig,
 	sendgrid_client: sendgrid_util.Client,
 	security_cfg: security_util.ConfigDict,
 	cur_date: datetime.date,
-	session_maker: Callable
+	apis_to_use: metrc_common_util.ApisToUseDict,
 ) -> Tuple[DownloadDataRespDict, errors.Error]:
 	company_info, err = _get_metrc_company_info(
-		auth_provider,
-		security_cfg,
+		session_maker=session_maker,
+		auth_provider=auth_provider,
+		security_cfg=security_cfg,
 		facilities_fetcher=metrc_common_util.FacilitiesFetcher(),
 		company_id=company_id,
-		session_maker=session_maker
+		apis_to_use=apis_to_use,
 	)
 	if err:
 		return DownloadDataRespDict(
@@ -521,14 +524,17 @@ def _download_data(
 
 @errors.return_error_tuple
 def download_data_for_one_customer(
+	session_maker: Callable,
 	company_id: str,
 	auth_provider: MetrcAuthProvider,
 	worker_cfg: MetrcWorkerConfig,
 	sendgrid_client: sendgrid_util.Client,
 	security_cfg: security_util.ConfigDict,
 	cur_date: datetime.date,
-	session_maker: Callable
+	apis_to_use: Optional[metrc_common_util.ApisToUseDict],
 ) -> Tuple[DownloadDataRespDict, errors.Error]:
+	if apis_to_use is None:
+		apis_to_use = metrc_common_util.get_default_apis_to_use()
 
 	return _download_data(
 		company_id=company_id,
@@ -537,6 +543,7 @@ def download_data_for_one_customer(
 		sendgrid_client=sendgrid_client,
 		security_cfg=security_cfg,
 		cur_date=cur_date,
+		apis_to_use=apis_to_use,
 		session_maker=session_maker
 	)
 

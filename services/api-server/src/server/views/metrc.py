@@ -141,13 +141,14 @@ class DownloadMetrcDataForCompanyView(MethodView):
 			cur_date = start_date
 			while cur_date <= end_date:
 				resp, fatal_err = metrc_util.download_data_for_one_customer(
+					session_maker=current_app.session_maker,
 					company_id=data['company_id'],
 					auth_provider=cfg.get_metrc_auth_provider(),
 					worker_cfg=cfg.get_metrc_worker_config(),
 					sendgrid_client=sendgrid_client,
 					security_cfg=cfg.get_security_config(),
 					cur_date=cur_date,
-					session_maker=current_app.session_maker
+					apis_to_use=None,
 				)
 				cur_date = cur_date + timedelta(days=1)
 				if fatal_err:

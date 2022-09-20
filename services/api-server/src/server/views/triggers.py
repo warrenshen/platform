@@ -71,13 +71,14 @@ def _download_metrc_data_for_one_customer(cur_date: datetime.date, company_id: s
 	sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
 
 	resp, fatal_err = metrc_util.download_data_for_one_customer(
+		session_maker=current_app.session_maker,
 		auth_provider=cfg.get_metrc_auth_provider(),
 		security_cfg=cfg.get_security_config(),
 		worker_cfg=cfg.get_metrc_worker_config(),
 		sendgrid_client=sendgrid_client,
 		cur_date=cur_date,
 		company_id=company_id,
-		session_maker=current_app.session_maker
+		apis_to_use=None,
 	)
 	return resp, fatal_err
 
