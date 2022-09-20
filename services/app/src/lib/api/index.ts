@@ -219,8 +219,11 @@ export const metrcRoutes = {
 };
 
 export const reportsRoutes = {
-  monthlySummaryLOC: "/reports/generate_monthly_loans_summary_loc",
-  monthlySummaryNonLOC: "/reports/generate_monthly_loans_summary_non_loc",
+  // todo: keeping the old end points now in case a reversion is needed
+  // monthlySummaryLOC: "/reports/generate_monthly_loans_summary_loc",
+  // monthlySummaryNonLOC: "/reports/generate_monthly_loans_summary_non_loc",
+  monthlySummaryLOC: "/async_jobs/generate_monthly_loans_summary_loc",
+  monthlySummaryNonLOC: "/async_jobs/generate_monthly_loans_summary_non_loc",
 };
 
 export const debtFacilityRoutes = {

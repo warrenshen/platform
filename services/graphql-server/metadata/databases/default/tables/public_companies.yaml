@@ -133,6 +133,13 @@ array_relationships:
         table:
           schema: public
           name: metrc_api_keys
+  - name: monthly_summary_calculations
+    using:
+      foreign_key_constraint_on:
+        column: company_id
+        table:
+          schema: public
+          name: monthly_summary_calculations
   - name: payments
     using:
       foreign_key_constraint_on:

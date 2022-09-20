@@ -79,6 +79,23 @@ def login_required(f: Callable[..., Response]) -> Response:
 
 	return inner_func
 
+def requires_async_header_or_bank_admin(f: Callable) -> Callable:
+	@wraps(f)
+	def wrapped(*args: Any, **kwargs: Any) -> Response:
+		# Check for bank admin
+		user_session = UserSession.from_session()
+		not_bank_admin = not user_session.is_bank_admin()
+
+		# Check for async header
+		value = request.headers.get('x-api-key', '').strip()
+		desired_key = current_app.config.get('ASYNC_SERVER_API_KEY')
+		async_not_valid = not value or not desired_key or value != desired_key
+
+		# If *both* are invalid, then we should abort
+		if not_bank_admin and async_not_valid:
+			abort(401)
+		return f(*args, **kwargs)
+	return wrapped
 
 def requires_async_magic_header(f: Callable) -> Callable:
 	@wraps(f)

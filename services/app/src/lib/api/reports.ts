@@ -1,3 +1,4 @@
+import { RecentMonthlyCalculationsFragment } from "generated/graphql";
 import {
   CustomMutationResponse,
   authenticatedApi,
@@ -9,6 +10,7 @@ export type ReportGenerationReq = {
     isTest: boolean;
     email: String;
     asOfDate: String;
+    companies: RecentMonthlyCalculationsFragment["id"][];
   };
 };
 

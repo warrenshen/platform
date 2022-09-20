@@ -121,7 +121,7 @@ class RetryJobView(MethodView):
 		}), 200)
 
 class GenerateJobsView(MethodView):
-	decorators = [auth_util.requires_async_magic_header]
+	decorators = [auth_util.requires_async_header_or_bank_admin]
 
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
@@ -155,7 +155,7 @@ class GenerateJobsView(MethodView):
 
 
 class KickOffHandlerView(MethodView):
-	decorators = [auth_util.requires_async_magic_header]
+	decorators = [auth_util.requires_async_header_or_bank_admin]
 
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
@@ -178,6 +178,75 @@ class KickOffHandlerView(MethodView):
 			'status': 'OK'
 		}), 200)
 
+class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		logging.info("Received async job report monthly loan summary for non-LOC")
+		user_session = auth_util.UserSession.from_session()
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+		
+		variables = form.get("variables", None)
+		is_test = variables.get("isTest", False) if variables else False
+		test_email = variables.get("email", None) if variables else None
+		as_of_date = variables.get("asOfDate", None) if variables else None
+		if as_of_date is None:
+			return handler_util.make_error_response('Please set the as of date for month end report generation.')
+		companies = variables.get("companies", None) if variables else None
+
+		with session_scope(current_app.session_maker) as session:
+			_, err = async_jobs_util.reports_monthly_loan_summary_Non_LOC_generate(
+				session=session,
+				is_test=is_test,
+				test_email=test_email,
+				as_of_date=as_of_date,
+				user_id=user_session.get_user_id(),
+				companies=companies,
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK'
+		}), 200)
+
+class ReportsMonthlyLoanSummaryLOCView(MethodView):
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		logging.info("Received async job report monthly loan summary for LOC")
+		user_session = auth_util.UserSession.from_session()
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+		
+		variables = form.get("variables", None)
+		is_test = variables.get("isTest", False) if variables else False
+		test_email = variables.get("email", None) if variables else None
+		as_of_date = variables.get("asOfDate", None) if variables else None
+		if as_of_date is None:
+			return handler_util.make_error_response('Please set the as of date for month end report generation.')
+		companies = variables.get("companies", None) if variables else None
+
+		with session_scope(current_app.session_maker) as session:
+			_, err = async_jobs_util.reports_monthly_loan_summary_LOC_generate(
+				session=session,
+				is_test=is_test,
+				test_email=test_email,
+				as_of_date=as_of_date,
+				user_id=user_session.get_user_id(),
+				companies=companies,
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK'
+		}), 200)
+
+
 handler.add_url_rule(
 	'/kick-off-handler',
 	view_func=KickOffHandlerView.as_view(name='kick_off_handler_view'))
@@ -197,3 +266,12 @@ handler.add_url_rule(
 handler.add_url_rule(
 	'/retry-job',
 	view_func=RetryJobView.as_view(name='retry_job_view'))
+
+handler.add_url_rule(
+	"/generate_monthly_loans_summary_non_loc",
+	view_func=ReportsMonthlyLoanSummaryNonLOCView.as_view(name='generate_monthly_loans_summary_non_loc'))
+
+handler.add_url_rule(
+	"/generate_monthly_loans_summary_loc",
+	view_func=ReportsMonthlyLoanSummaryLOCView.as_view(name='generate_monthly_loans_summary_loc'))
+

@@ -1,3 +1,23 @@
+query GetMostRecentMonthlyCalculations {
+  companies(
+    where: {
+      _and: [
+        { is_customer: { _eq: true } }
+        { _or: [
+            { settings : { is_dummy_account: { _is_null: true } } }
+            { settings : { is_dummy_account: { _eq: false } } }
+          ]
+        }
+        { financial_summaries : { product_type: { _is_null: false } } }
+      ]
+    }
+    order_by: { name: asc }
+  ) {
+    id
+    ...RecentMonthlyCalculations
+  }
+}
+
 query LastMonthlySummaryReportLiveRun {
   sync_pipelines (
   	where: { name: { _eq: "monthly_summary_live_run" } }
@@ -13,3 +33,4 @@ query LastMonthlySummaryReportLiveRun {
     created_at
   }
 }
+

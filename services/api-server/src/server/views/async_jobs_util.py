@@ -1,22 +1,24 @@
 import datetime
 import logging
 
-from typing import Any, Callable, Dict, Tuple, cast, List
-from bespoke import errors
 from flask import current_app
-from server.config import Config
+from bespoke import errors
+from decimal import *
+from typing import Any, Callable, Dict, Iterable, Tuple, cast, List
+
 from bespoke.date import date_util
 from bespoke.db import models, models_util, queries
-from sqlalchemy.orm.session import Session
-from bespoke.db.db_constants import AsyncJobNameEnum, AsyncJobStatusEnum, ProductType
-from bespoke.slack import slack_util
-from bespoke.finance.loans import reports_util
-from bespoke.reports.report_generation_util import process_coming_due_loan_chunk, get_coming_due_loans_to_notify, get_past_due_loans_to_notify, process_past_due_loan_chunk 
-from bespoke.finance.reports import loan_balances
+from bespoke.db.db_constants import AsyncJobNameEnum, AsyncJobStatusEnum, LoanTypeEnum, ProductType
 from bespoke.email import sendgrid_util
-from bespoke.metrc.common.metrc_common_util import chunker
+from bespoke.finance.loans import reports_util
+from bespoke.finance.reports import loan_balances
 from bespoke.finance.payments import autogenerate_repayment_util
-
+from bespoke.metrc.common.metrc_common_util import chunker, chunker_dict
+from bespoke.reports import report_generation_util
+from bespoke.slack import slack_util
+from server.config import Config
+from sqlalchemy import or_
+from sqlalchemy.orm.session import Session
 
 @errors.return_error_tuple
 def generate_jobs(
@@ -28,8 +30,6 @@ def generate_jobs(
 	if job_name not in ASYNC_JOB_GENERATION_LOOKUP:
 		return False, errors.Error("Job does not exist")
 		
-	ASYNC_JOB_GENERATION_LOOKUP[job_name](session)
-
 	return True, None
 
 @errors.return_error_tuple
@@ -198,9 +198,9 @@ def loans_coming_due_job(
 	payment_link = cfg.BESPOKE_DOMAIN + "/1/loans"
 	today_date = date_util.now_as_date(date_util.DEFAULT_TIMEZONE)
 	
-	loans_to_notify = get_coming_due_loans_to_notify(session, company_id, today_date)
+	loans_to_notify = report_generation_util.get_coming_due_loans_to_notify(session, company_id, today_date)
 	if len(loans_to_notify) != 0:
-		_, err = process_coming_due_loan_chunk(session, company_id, sendgrid_client, report_link, payment_link, loans_to_notify)
+		_, err = report_generation_util.process_coming_due_loan_chunk(session, company_id, sendgrid_client, report_link, payment_link, loans_to_notify)
 
 		if err:
 			return False, errors.Error("Unable to send")		
@@ -235,7 +235,7 @@ def generate_companies_loans_coming_due_job(
 			for company in companies:
 				company_id = str(company.id)
 
-				loans_to_notify = get_coming_due_loans_to_notify(session, company_id, today_date)				
+				loans_to_notify = report_generation_util.get_coming_due_loans_to_notify(session, company_id, today_date)				
 				payload = {"company_id" : str(company.id)}
 
 				if len(loans_to_notify) != 0:
@@ -282,7 +282,7 @@ def generate_companies_loans_past_due_job(
 			for company in companies:
 				company_id = str(company.id)
 
-				loans_to_notify = get_past_due_loans_to_notify(session, company_id, today_date)				
+				loans_to_notify = report_generation_util.get_past_due_loans_to_notify(session, company_id, today_date)				
 				payload = {"company_id" : str(company.id)}
 
 				if len(loans_to_notify) != 0:
@@ -314,9 +314,9 @@ def loans_past_due_job(
 	payment_link = cfg.BESPOKE_DOMAIN + "/1/loans"
 	today_date = date_util.now_as_date(date_util.DEFAULT_TIMEZONE)
 	
-	loans_to_notify = get_past_due_loans_to_notify(session, company_id, today_date)
+	loans_to_notify = report_generation_util.get_past_due_loans_to_notify(session, company_id, today_date)
 	if len(loans_to_notify) != 0:
-		_, err = process_past_due_loan_chunk(session, company_id, sendgrid_client, report_link, payment_link, loans_to_notify)
+		_, err = report_generation_util.process_past_due_loan_chunk(session, company_id, sendgrid_client, report_link, payment_link, loans_to_notify)
 
 		if err:
 			return False, errors.Error("unable to send")		
@@ -674,13 +674,6 @@ def autogenerate_repayment_alerts(
 	logging.info("Successfully sent out weekly alert to customers who have opted into the auto-generated repayment process.")
 	return True, None
 
-async_job_orchestration_lookup = {
-	AsyncJobNameEnum.LOANS_COMING_DUE: loans_coming_due_job,
-	AsyncJobNameEnum.LOANS_PAST_DUE: loans_past_due_job,
-	AsyncJobNameEnum.AUTOGENERATE_REPAYMENTS: autogenerate_repayments,
-	AsyncJobNameEnum.AUTOGENERATE_REPAYMENT_ALERTS: autogenerate_repayment_alerts,
-}
-
 @errors.return_error_tuple
 def update_company_balances_job(
 	session: Session
@@ -756,6 +749,348 @@ def update_dirty_company_balances_job(
 
 	return True, None
 
+# this is a little different because the job is being generated directly from an endpoint
+@errors.return_error_tuple
+def reports_monthly_loan_summary_Non_LOC_generate(
+	session: Session,
+	is_test: bool,
+	test_email: str,
+	as_of_date: str,
+	user_id: str,
+	companies: List[str]
+) -> Tuple[bool, errors.Error]:
+	logging.info("Received request to generate loan summary for non loc")
+
+	# if no companies specified then create monthly summary report for ALL companies
+	if len(companies) == 0:
+		all_companies = cast(
+			List[models.Company],
+			session.query(models.Company).filter(
+				models.Company.is_customer == True
+			).all())
+		companies = [str(company.id) for company in all_companies]
+
+	non_dummy_companies = cast(
+		List[models.CompanySettings],
+		session.query(models.CompanySettings).filter(
+			models.CompanySettings.company_id.in_(companies)
+		).filter(
+			models.CompanySettings.is_dummy_account != True
+		).all())
+
+	non_dummy_company_ids = [str(non_dummy_company.company_id) for non_dummy_company in non_dummy_companies]
+
+	non_LOC_companies = cast(
+		List[models.FinancialSummary],
+		session.query(models.FinancialSummary).filter(
+			models.FinancialSummary.company_id.in_(non_dummy_company_ids)
+		).filter(
+			models.FinancialSummary.product_type != ProductType.LINE_OF_CREDIT
+		).filter(
+			models.FinancialSummary.date == as_of_date
+		).all())
+
+
+	valid_companies = [str(contract.company_id) for contract in non_LOC_companies]
+
+	# add each companies recomputing job to the queue
+	for company_id in valid_companies:
+		payload = {
+			"company_id": company_id,
+			"is_test": is_test,
+			"email": test_email,
+			"as_of_date": as_of_date,
+			"user_id": user_id,
+			}
+
+		add_job_to_queue(
+			session=session,
+			job_name=AsyncJobNameEnum.NON_LOC_MONTHLY_REPORT_SUMMARY,
+			submitted_by_user_id=user_id,
+			is_high_priority=False,
+			job_payload=payload)
+	return True, None
+
+# TODO: sessionmaker should be eventually removed
+@errors.return_error_tuple
+def reports_monthly_loan_summary_Non_LOC(
+	session: Session,
+	session_maker: Callable,
+	job_payload: Dict[str, Any],
+) -> Tuple[bool, errors.Error]:	
+	company_id = job_payload["company_id"]
+	is_test = job_payload["is_test"]
+	test_email = job_payload["email"]
+	as_of_date = job_payload["as_of_date"]
+	user_id = job_payload["user_id"]
+
+	print("Sending out monthly summary report emails for non-LOC customers")
+	cfg = cast(Config, current_app.app_config)
+	sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
+	if sendgrid_client is None:
+		return False, errors.Error('Cannot find sendgrid client')
+
+	user = session.query(models.User).filter(
+		models.User.id == user_id
+	).first()
+
+	all_companies = cast(
+		List[models.Company],
+		session.query(models.Company)
+		.all())
+	company_lookup = {}
+	company_balance_lookup = {}
+	for company in all_companies:
+		company_lookup[str(company.id)] = company
+		company_balance_lookup[str(company.id)] = loan_balances.CustomerBalance(company.as_dict(), current_app.session_maker)
+
+	rgc = report_generation_util.ReportGenerationContext(
+		company_lookup = company_lookup,
+		as_of_date = as_of_date
+	)
+
+	all_open_loans = cast(
+		List[models.Loan],
+		session.query(models.Loan).filter(
+			cast(Callable, models.Loan.is_deleted.isnot)(True)
+		).filter(
+			or_(models.Loan.closed_at == None, models.Loan.closed_at > rgc.report_month_last_day)
+		).filter(
+			models.Loan.origination_date != None
+		).filter(
+			models.Loan.origination_date <= rgc.report_month_last_day
+		).filter(
+			models.Loan.loan_type != LoanTypeEnum.LINE_OF_CREDIT		
+		).filter(
+			models.Loan.company_id == company_id
+		).all())
+
+	# in order to record most recent date run, this adds a dummy msc for every non loc monthly summary run
+	if is_test is False:
+		msc, _ = queries.get_monthly_summary_calculation_by_company_id_and_date(
+				session, 
+				company_id, 
+				rgc.report_month_last_day)
+		if msc is None:
+			session.add(models.MonthlySummaryCalculation( # type: ignore
+				company_id = company_id,
+				report_month = rgc.report_month_last_day,
+				minimum_payment = None
+			))
+		else:
+			msc.minimum_payment = None
+
+	if len(all_open_loans) == 0:
+		return True, None
+
+	# LOC vs non-LOC split handled at query level
+	# This is for organizing loans on a per company basis to make emails easier
+	loans_to_notify : Dict[str, List[models.Loan] ] = {}
+
+	# Sort the loans for each company based on disbursement identifier
+	# We use the two join-ed keys to make sure the correct ordering when
+	# the disbursement identifiers also have letters in them, e.g. "3" should come before "10A"
+	# and "11A" should come before "11B"
+	# ###############
+	# For the two type: ignores below, if SupportsLessThan is integrated into typing (see linked issue)
+	# then we should consider revisiting (https://github.com/python/typing/issues/760)
+	all_open_loans.sort(key = lambda x: # type: ignore
+		( int(''.join(n for n in x.disbursement_identifier if n.isdigit())), # type: ignore
+			''.join(n for n in x.disbursement_identifier if n.isalpha()))
+		if x.disbursement_identifier is not None else (0,'A'))
+	loans_to_notify[str(company_id)] = all_open_loans
+	
+	BATCH_SIZE = 50
+	for loans_chunk in cast(Iterable[ Dict[str, List[models.Loan]] ], chunker_dict(loans_to_notify, BATCH_SIZE)):
+		_, err = report_generation_util.process_loan_chunk_for_non_loc_monthly_summary(
+			session, 
+			sendgrid_client, 
+			rgc, 
+			loans_chunk, 
+			company_balance_lookup, 
+			is_test, 
+			test_email)
+
+		if err:
+			return False, errors.Error(str(err));
+
+	# Once all emails have been sent, record a successful live run if applicable
+	if is_test is False:
+		recorded_state : Dict[str, object] = {
+			"user_name": user.first_name + " " + user.last_name,
+			"user_id": str(user.id)
+		}
+		report_generation_util.record_report_run_metadata(
+			name = "monthly_summary_live_run",
+			status = "succeeded",
+			internal_state = recorded_state,
+			params = {}
+		)
+
+	return True, None
+
+@errors.return_error_tuple
+def reports_monthly_loan_summary_LOC_generate(
+	session: Session,
+	is_test: bool,
+	test_email: str,
+	as_of_date: str,
+	user_id: str,
+	companies: List[str]
+) -> Tuple[bool, errors.Error]:
+	logging.info("Received request to generate loan summary for non loc")
+
+	# if no companies specified then create monthly summary report for ALL companies
+	if len(companies) == 0:
+		all_companies = cast(
+			List[models.Company],
+			session.query(models.Company).filter(
+				models.Company.is_customer == True
+			).all())
+		companies = [str(company.id) for company in all_companies]
+
+	non_dummy_companies = cast(
+		List[models.CompanySettings],
+		session.query(models.CompanySettings).filter(
+			models.CompanySettings.company_id.in_(companies)
+		).filter(
+			models.CompanySettings.is_dummy_account != True
+		).all())
+
+	non_dummy_company_ids = [str(non_dummy_company.company_id) for non_dummy_company in non_dummy_companies]
+
+	LOC_companies = cast(
+		List[models.FinancialSummary],
+		session.query(models.FinancialSummary).filter(
+			models.FinancialSummary.company_id.in_(non_dummy_company_ids)
+		).filter(
+			models.FinancialSummary.product_type == ProductType.LINE_OF_CREDIT
+		).filter(
+			models.FinancialSummary.date == as_of_date
+		).all())
+
+	valid_companies = [str(contract.company_id) for contract in LOC_companies]
+
+	# add each companies recomputing job to the queue
+	for company_id in valid_companies:
+		payload = {
+			"company_id": company_id,
+			"is_test": is_test,
+			"email": test_email,
+			"as_of_date": as_of_date,
+			"user_id": user_id,
+			}
+
+		add_job_to_queue(
+			session=session,
+			job_name=AsyncJobNameEnum.LOC_MONTHLY_REPORT_SUMMARY,
+			submitted_by_user_id=user_id,
+			is_high_priority=False,
+			job_payload=payload)
+	return True, None
+
+# TODO: sessionmaker should be eventually removed
+@errors.return_error_tuple
+def reports_monthly_loan_summary_LOC(
+	session: Session,
+	session_maker: Callable,
+	job_payload: Dict[str, Any],
+) -> Tuple[bool, errors.Error]:	
+	company_id = job_payload["company_id"]
+	is_test = job_payload["is_test"]
+	test_email = job_payload["email"]
+	as_of_date = job_payload["as_of_date"]
+	user_id = job_payload["user_id"]
+
+	print("Sending out monthly summary report emails for LOC customers")
+	cfg = cast(Config, current_app.app_config)
+	sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
+	if sendgrid_client is None:
+		return False, errors.Error('Cannot find sendgrid client')
+
+	user = session.query(models.User).filter(
+		models.User.id == user_id
+	).first()
+
+	print("Sending out monthly summary report emails for LOC customers")
+	user = session.query(models.User).filter(
+	  models.User.id == user_id
+	).first()
+
+	all_open_loans = cast(
+		List[models.Loan],
+		session.query(models.Loan).filter(
+			cast(Callable, models.Loan.is_deleted.isnot)(True)
+		).filter(
+			models.Loan.closed_at == None
+		).filter(
+			models.Loan.origination_date != None
+		).filter(
+			models.Loan.loan_type == LoanTypeEnum.LINE_OF_CREDIT
+		).filter(
+			models.Loan.company_id == company_id
+		).all())
+
+	rgc = report_generation_util.ReportGenerationContext(
+		company_lookup = None,
+		as_of_date = as_of_date
+	)
+
+	# adds a 0 value msc for LOC customers with no loans
+	if is_test is False and len(all_open_loans) == 0:
+		msc, _ = queries.get_monthly_summary_calculation_by_company_id_and_date(
+				session, 
+				company_id, 
+				rgc.report_month_last_day)
+		if msc is None:
+			session.add(models.MonthlySummaryCalculation( # type: ignore
+				company_id = company_id,
+				report_month = rgc.report_month_last_day,
+				minimum_payment = Decimal(0)
+			))
+		else:
+			msc.minimum_payment = Decimal(0)
+
+	# early return if there are no loans 
+	if len(all_open_loans) == 0:
+		return True, None
+
+	# LOC vs non-LOC split handled at query level
+	# This is for organizing loans on a per company basis to make emails easier
+	loans_to_notify : Dict[str, List[models.Loan] ] = {}
+
+
+	loans_to_notify[str(company_id)] = all_open_loans
+	
+
+	BATCH_SIZE = 50
+	for loans_chunk in cast(Iterable[ Dict[str, List[models.Loan]] ], chunker_dict(loans_to_notify, BATCH_SIZE)):
+		_, err = report_generation_util.process_loan_chunk_for_loc(
+			session, 
+			sendgrid_client, 
+			loans_to_notify, 
+			rgc, 
+			is_test, 
+			test_email)
+
+		if err:
+			return False, errors.Error(str(err));
+
+	# Once all emails have been sent, record a successful live run if applicable
+	if is_test is False:
+		recorded_state : Dict[str, object] = {
+			"user_name": user.first_name + " " + user.last_name,
+			"user_id": str(user.id)
+		}
+		report_generation_util.record_report_run_metadata(
+			name = "monthly_summary_live_run",
+			status = "succeeded",
+			internal_state = recorded_state,
+			params = {}
+			)
+
+	return True, None
+
 ASYNC_JOB_GENERATION_LOOKUP = {
 	AsyncJobNameEnum.LOANS_COMING_DUE: generate_companies_loans_coming_due_job,
 	AsyncJobNameEnum.LOANS_PAST_DUE: generate_companies_loans_past_due_job,
@@ -768,5 +1103,6 @@ ASYNC_JOB_ORCHESTRATION_LOOKUP = {
 	AsyncJobNameEnum.LOANS_COMING_DUE: loans_coming_due_job,
 	AsyncJobNameEnum.LOANS_PAST_DUE: loans_past_due_job,
 	AsyncJobNameEnum.UPDATE_COMPANY_BALANCES: update_dirty_company_balances_job,
+	AsyncJobNameEnum.NON_LOC_MONTHLY_REPORT_SUMMARY: reports_monthly_loan_summary_Non_LOC,
+	AsyncJobNameEnum.LOC_MONTHLY_REPORT_SUMMARY: reports_monthly_loan_summary_LOC,
 }
-

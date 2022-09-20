@@ -510,3 +510,29 @@ def get_user_by_id(
         return None, errors.Error('Could not find client success user with the provided id of {user_id}')
 
     return user, None
+
+# ###############################
+# Monthly Summary Calculations
+# ###############################
+def get_monthly_summary_calculation_by_company_id_and_date(
+    session: Session,
+    company_id: str,
+    report_month_last_day: datetime.date,
+) -> Tuple[ models.MonthlySummaryCalculation, errors.Error]:
+    filters = [
+        models.MonthlySummaryCalculation.company_id == company_id,
+        models.MonthlySummaryCalculation.report_month == report_month_last_day,
+    ]
+
+    # fmt: off
+    msc = cast(
+        models.MonthlySummaryCalculation,
+        session.query(models.MonthlySummaryCalculation).filter(
+            *filters
+        ).first())
+    # fmt: on
+
+    if not msc:
+        return msc, errors.Error("No monthly summary calculation with specified company id and date")
+
+    return msc, None

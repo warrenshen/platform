@@ -387,6 +387,8 @@ class AsyncJobNameEnum(object):
 	AUTOGENERATE_REPAYMENTS = "autogenerate_repayments"
 	AUTOGENERATE_REPAYMENT_ALERTS = "autogenerate_repayment_alerts"
 	UPDATE_COMPANY_BALANCES="update_company_balances"
+	NON_LOC_MONTHLY_REPORT_SUMMARY="non_loc_monthly_report_summary"
+	LOC_MONTHLY_REPORT_SUMMARY = "loc_monthly_report_summary"
 
 AsyncJobNameEnumToLabel = {
 	AsyncJobNameEnum.LOANS_COMING_DUE: 'Loans coming due',
@@ -394,6 +396,8 @@ AsyncJobNameEnumToLabel = {
 	AsyncJobNameEnum.AUTOGENERATE_REPAYMENTS: 'Autogenerate repayments',
 	AsyncJobNameEnum.AUTOGENERATE_REPAYMENT_ALERTS: 'Autogenerate repayment alerts',
 	AsyncJobNameEnum.UPDATE_COMPANY_BALANCES: 'Update company balances',
+	AsyncJobNameEnum.NON_LOC_MONTHLY_REPORT_SUMMARY: 'Non-LOC monthly report summary',
+	AsyncJobNameEnum.LOC_MONTHLY_REPORT_SUMMARY: 'LOC monthly report summary',	
 }
 
 # Vendor Change Requests

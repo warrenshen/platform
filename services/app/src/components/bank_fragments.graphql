@@ -639,3 +639,20 @@ fragment AsyncJob on async_jobs {
   err_details
   num_retries
 }
+
+fragment RecentMonthlyCalculations on companies {
+  id
+  name
+  monthly_summary_calculations (
+    order_by: { report_month: desc }
+    limit: 1
+  ) {
+    id
+    ...MonthlySummaryCalculation
+  }
+}
+
+fragment MonthlySummaryCalculation on monthly_summary_calculations {
+  id 
+  report_month
+}

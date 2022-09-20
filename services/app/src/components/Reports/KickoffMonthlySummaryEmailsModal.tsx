@@ -6,9 +6,14 @@ import {
   Typography,
   makeStyles,
 } from "@material-ui/core";
+import CompanyMonthlySummariesDataGrid from "components/Reports/CompanyMonthlySummariesDataGrid";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import Modal from "components/Shared/Modal/Modal";
-import { useLastMonthlySummaryReportLiveRunQuery } from "generated/graphql";
+import {
+  RecentMonthlyCalculationsFragment,
+  useGetMostRecentMonthlyCalculationsQuery,
+  useLastMonthlySummaryReportLiveRunQuery,
+} from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import {
@@ -18,7 +23,7 @@ import {
 } from "lib/api/reports";
 import { formatDatetimeString } from "lib/date";
 import { isEmailValid } from "lib/validation";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useMemo, useState } from "react";
 
 interface Props {
   handleClose: () => void;
@@ -52,6 +57,22 @@ export default function KickoffMonthlySummaryEmailsModal({
       ? formatDatetimeString(lastRun?.sync_pipelines[0].created_at)
       : null;
 
+  // Get Company name and last run date info for data grid
+  const { data: lastRunDateData } = useGetMostRecentMonthlyCalculationsQuery();
+
+  const latestCompanyData = !!lastRunDateData?.companies
+    ? lastRunDateData.companies
+    : [];
+  const [selectedCompanyIds, setSelectedCompanyIds] = useState<
+    RecentMonthlyCalculationsFragment["id"][]
+  >([]);
+
+  const handleSelectCompanies = useMemo(
+    () => (companies: RecentMonthlyCalculationsFragment[]) =>
+      setSelectedCompanyIds(companies.map((company) => company.id)),
+    [setSelectedCompanyIds]
+  );
+
   const [sendLOCReport, { loading: isSendLOCReportLoading }] =
     useCustomMutation(sendMonthlySummaryLOCReport);
 
@@ -64,6 +85,7 @@ export default function KickoffMonthlySummaryEmailsModal({
         isTest: isTestRun,
         email: email,
         asOfDate: asOfDate,
+        companies: selectedCompanyIds,
       },
     };
     const nonLOCResponse = await sendNonLOCReport(request);
@@ -190,6 +212,14 @@ export default function KickoffMonthlySummaryEmailsModal({
             </Typography>
           </Box>
         )}
+        <Box>
+          <CompanyMonthlySummariesDataGrid
+            isMultiSelectEnabled={true}
+            companies={latestCompanyData}
+            selectedCompanyIds={selectedCompanyIds}
+            handleSelectCompanies={handleSelectCompanies}
+          />
+        </Box>
       </Box>
     </Modal>
   );
