@@ -125,40 +125,6 @@ export default function EditCustomerSettingsModal({
           flexDirection="column"
           className={classes.form}
         >
-          {settingsHelper.shouldShowVendorOnboardingLink() && (
-            <Box mb={2}>
-              <TextField
-                fullWidth
-                disabled={!isBankUser}
-                label="Vendor Onboarding Link"
-                placeholder="http://forms.google.com/vendor-onboarding"
-                value={settings.vendor_onboarding_link || ""}
-                onChange={({ target: { value } }) => {
-                  setSettings({
-                    ...settings,
-                    vendor_onboarding_link: value,
-                  });
-                }}
-              />
-            </Box>
-          )}
-          {settingsHelper.shouldShowVendorAgreement() && (
-            <Box mb={2}>
-              <TextField
-                fullWidth
-                disabled={!isBankUser}
-                label="Vendor Onboarding Link"
-                placeholder="http://docusign.com/vendor-agreement"
-                value={settings.vendor_agreement_docusign_template || ""}
-                onChange={({ target: { value } }) => {
-                  setSettings({
-                    ...settings,
-                    vendor_agreement_docusign_template: value,
-                  });
-                }}
-              />
-            </Box>
-          )}
           {settingsHelper.shouldShowNoticeOfAssignment() && (
             <Box mb={2}>
               <TextField

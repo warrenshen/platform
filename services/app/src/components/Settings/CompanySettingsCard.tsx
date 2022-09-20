@@ -20,6 +20,8 @@ import {
   CompanySettingsLimitedFragment,
   ContractFragment,
 } from "generated/graphql";
+import useSnackbar from "hooks/useSnackbar";
+import { CopyIcon } from "icons";
 import { Action } from "lib/auth/rbac-rules";
 import { ProductTypeEnum, ProductTypeToLabel } from "lib/enum";
 import { SettingsHelper } from "lib/settings";
@@ -46,6 +48,7 @@ const useStyles = makeStyles(() =>
 
 function CompanySettingsCard({ contract, settings, handleClick }: Props) {
   const classes = useStyles();
+  const snackbar = useSnackbar();
 
   const {
     user: { role },
@@ -68,6 +71,8 @@ function CompanySettingsCard({ contract, settings, handleClick }: Props) {
     isBankUser ||
     (!isBankUser && settingsHelper.shouldShowAutogenerateRepayments());
 
+  const baseUrl = window.location.protocol + "//" + window.location.host;
+
   return (
     <Card className={classes.card}>
       <CardContent>
@@ -82,24 +87,6 @@ function CompanySettingsCard({ contract, settings, handleClick }: Props) {
               </Typography>
             </Box>
           </Box>
-          {settingsHelper.shouldShowVendorAgreement() && (
-            <Box display="flex" pb={0.25}>
-              <Box className={classes.label}>Vendor Onboarding Link</Box>
-              <Box>
-                {settings.vendor_agreement_docusign_template ? (
-                  <Link
-                    href={settings.vendor_agreement_docusign_template}
-                    rel="noreferrer"
-                    target="_blank"
-                  >
-                    Link
-                  </Link>
-                ) : (
-                  <Typography variant="body2">TBD</Typography>
-                )}
-              </Box>
-            </Box>
-          )}
           {settingsHelper.shouldShowNoticeOfAssignment() && (
             <Box display="flex" pb={0.25}>
               <Box className={classes.label}>Notice of Assignment</Box>
@@ -121,18 +108,29 @@ function CompanySettingsCard({ contract, settings, handleClick }: Props) {
           {settingsHelper.shouldShowVendorOnboardingLink() && (
             <Box display="flex" pb={0.25}>
               <Box className={classes.label}>Vendor Onboarding Link</Box>
-              <Box>
-                {settings.vendor_onboarding_link ? (
-                  <Link
-                    href={settings.vendor_onboarding_link}
-                    rel="noreferrer"
-                    target="_blank"
-                  >
-                    Link
-                  </Link>
-                ) : (
-                  <Typography variant="body2">TBD</Typography>
-                )}
+              <Box display="flex" flexDirection="row">
+                <Link
+                  href={`/vendor-form/${settings.company_id}/`}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  Link
+                </Link>
+                <Button
+                  style={{
+                    minWidth: "18px",
+                    padding: "0",
+                    margin: "0 0 0 4px",
+                  }}
+                  onClick={() => {
+                    navigator.clipboard.writeText(
+                      `${baseUrl}/vendor-form/${settings.company_id}/`
+                    );
+                    snackbar.showSuccess("Copied to clipboard!");
+                  }}
+                >
+                  <CopyIcon />
+                </Button>
               </Box>
             </Box>
           )}
