@@ -1,6 +1,7 @@
 import "./index.css";
 
 import { CssBaseline } from "@material-ui/core";
+import { LicenseInfo } from "@mui/x-license-pro";
 import * as Sentry from "@sentry/react";
 import { SnackbarProvider } from "material-ui-snackbar-provider";
 import ReactDOM from "react-dom";
@@ -16,6 +17,10 @@ Sentry.init({
   dsn: process.env.REACT_APP_BESPOKE_SENTRY_DNS,
   environment: process.env.NODE_ENV,
 });
+
+if (!!process.env.REACT_APP_MUI_PRO_LICENSE) {
+  LicenseInfo.setLicenseKey(process.env.REACT_APP_MUI_PRO_LICENSE);
+}
 
 ReactDOM.render(
   <CurrentUserProvider>
