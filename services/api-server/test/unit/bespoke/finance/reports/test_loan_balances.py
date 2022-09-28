@@ -76,7 +76,6 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 			with session_scope(self.session_maker) as session:
 				day_to_customer_update, err = reports_util.update_company_balance(
 					session=session,
-					session_maker=self.session_maker,
 					company=company_dict,
 					report_date=today_date_dict['report_date'],
 					update_days_back=today_date_dict['days_back'],

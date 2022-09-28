@@ -23,15 +23,16 @@ def populate_frozen_loan_reports_for_customer(
 	customer_dict: models.CompanyDict,
 	session_maker: Callable,
 ) -> bool:
-	customer_balance = loan_balances.CustomerBalance(customer_dict, session_maker)
-	today = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
-	date_to_customer_update_dict, err = customer_balance.update(
-		start_date_for_storing_updates=today,
-		today=today,
-		include_debug_info=False,
-		is_past_date_default_val=False,
-		include_frozen=True,
-	)
+	with session_scope(session_maker) as session:
+		customer_balance = loan_balances.CustomerBalance(customer_dict, session)
+		today = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
+		date_to_customer_update_dict, err = customer_balance.update(
+			start_date_for_storing_updates=today,
+			today=today,
+			include_debug_info=False,
+			is_past_date_default_val=False,
+			include_frozen=True,
+		)
 
 	if err:
 		print(f'Error for customer {customer_dict["name"]}')

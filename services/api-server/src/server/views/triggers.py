@@ -130,7 +130,6 @@ class UpdateDirtyCompanyBalancesView(MethodView):
 
 			dates_updated, descriptive_errors, fatal_error = reports_util.run_customer_balances_for_financial_summaries_that_need_recompute(
 				session,
-				current_app.session_maker,
 				compute_requests
 			)
 			if fatal_error:

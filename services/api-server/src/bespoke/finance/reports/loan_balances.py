@@ -291,8 +291,8 @@ class CustomerBalance(object):
 		Object to help us calculate what the customer's balance should be.
 	"""
 
-	def __init__(self, company_dict: models.CompanyDict, session_maker: Callable) -> None:
-		self._session_maker = session_maker
+	def __init__(self, company_dict: models.CompanyDict, session: Session) -> None:
+		self._session = session
 		self._company_name = company_dict['name']
 		self._company_id = company_dict['id']
 
@@ -476,7 +476,7 @@ class CustomerBalance(object):
 				id=self._company_id,
 				name=self._company_name
 			),
-			self._session_maker,
+			self._session,
 			ignore_deleted=True,
 		)
 		_, err = fetcher.fetch(today)
@@ -590,106 +590,106 @@ class CustomerBalance(object):
 			'customer_name': self._company_name,
 			'method': 'CustomerBalance.write'
 		}
+		session = self._session
 
-		with session_scope(self._session_maker) as session:
-			if is_todays_update:
-				self._update_todays_info(customer_update, session)
+		if is_todays_update:
+			self._update_todays_info(customer_update, session)
 
-			financial_summary = cast(
-				models.FinancialSummary,
-				session.query(models.FinancialSummary).filter(
-					models.FinancialSummary.company_id == self._company_id)
-				.filter(models.FinancialSummary.date == customer_update['today'].isoformat()).first())
+		financial_summary = cast(
+			models.FinancialSummary,
+			session.query(models.FinancialSummary).filter(
+				models.FinancialSummary.company_id == self._company_id)
+			.filter(models.FinancialSummary.date == customer_update['today'].isoformat()).first())
 
-			should_add_summary = not financial_summary
-			if should_add_summary:
-				financial_summary = models.FinancialSummary(
-					company_id=self._company_id
-				)
+		should_add_summary = not financial_summary
+		if should_add_summary:
+			financial_summary = models.FinancialSummary(
+				company_id=self._company_id
+			)
 
-			loans_info: Dict[str, LoansInfoEntryDict] = {}
-			all_loan_ids: List[str] = []
-			loan_id_to_update_lookup: Dict[str, LoanUpdateDict] = {}
-			for loan_update in customer_update['loan_updates']:
-				update_loan_id = loan_update['loan_id']
-				all_loan_ids.append(update_loan_id)
-				loan_id_to_update_lookup[update_loan_id] = loan_update
+		loans_info: Dict[str, LoansInfoEntryDict] = {}
+		all_loan_ids: List[str] = []
+		loan_id_to_update_lookup: Dict[str, LoanUpdateDict] = {}
+		for loan_update in customer_update['loan_updates']:
+			update_loan_id = loan_update['loan_id']
+			all_loan_ids.append(update_loan_id)
+			loan_id_to_update_lookup[update_loan_id] = loan_update
 
-			transaction_subquery = session.query(models.Transaction).join( #type: ignore
-				models.Loan,
-				models.Transaction.loan_id == models.Loan.id
+		transaction_subquery = session.query(models.Transaction).join( #type: ignore
+			models.Loan,
+			models.Transaction.loan_id == models.Loan.id
+		).filter(
+			models.Transaction.type == PaymentType.REPAYMENT
+		).order_by(
+			models.Transaction.effective_date.desc()
+		).limit(1).subquery()
+
+		open_loans = cast(
+			List[models.Loan],
+			session.query(models.Loan).filter(
+				models.Loan.id.in_(all_loan_ids)
 			).filter(
-				models.Transaction.type == PaymentType.REPAYMENT
-			).order_by(
-				models.Transaction.effective_date.desc()
-			).limit(1).subquery()
+				or_(
+					models.Loan.closed_at == None,
+					transaction_subquery.c.effective_date >= customer_update['today'],
+				)
+			).filter(
+				cast(Callable, models.Loan.is_deleted.isnot)(True)
+			).all())
 
-			open_loans = cast(
-				List[models.Loan],
-				session.query(models.Loan).filter(
-					models.Loan.id.in_(all_loan_ids)
-				).filter(
-					or_(
-						models.Loan.closed_at == None,
-						transaction_subquery.c.effective_date >= customer_update['today'],
-					)
-				).filter(
-					cast(Callable, models.Loan.is_deleted.isnot)(True)
-				).all())
+		for loan in open_loans:
+			loan_id = str(loan.id)
+			update = loan_id_to_update_lookup[loan_id]
+			# NOTE(JR): update's fees should eventually become late_fees, where applicable
+			# We're setting it up in loans_info to get us incrementally to the correct place
+			loans_info[loan_id] = {
+				'outstanding_principal': update['outstanding_principal'], 
+				'outstanding_principal_for_interest': update['outstanding_principal_for_interest'], 
+				'outstanding_principal_past_due': update['outstanding_principal_past_due'], 
+				'outstanding_interest': update['outstanding_interest'], 
+				'outstanding_late_fees': update['outstanding_fees'],
+				'amount_to_pay_interest_on': update['amount_to_pay_interest_on'], 
+				'interest_accrued_today': update['interest_accrued_today'], 
+				'fees_accrued_today': update['fees_accrued_today'], 
+				'total_principal_paid': update['total_principal_paid'], 
+				'total_interest_paid': update['total_interest_paid'], 
+				'total_late_fees_paid': update['total_fees_paid'], 
+				'days_overdue': update['days_overdue'],
+			}
 
-			for loan in open_loans:
-				loan_id = str(loan.id)
-				update = loan_id_to_update_lookup[loan_id]
-				# NOTE(JR): update's fees should eventually become late_fees, where applicable
-				# We're setting it up in loans_info to get us incrementally to the correct place
-				loans_info[loan_id] = {
-					'outstanding_principal': update['outstanding_principal'], 
-					'outstanding_principal_for_interest': update['outstanding_principal_for_interest'], 
-					'outstanding_principal_past_due': update['outstanding_principal_past_due'], 
-					'outstanding_interest': update['outstanding_interest'], 
-					'outstanding_late_fees': update['outstanding_fees'],
-					'amount_to_pay_interest_on': update['amount_to_pay_interest_on'], 
-					'interest_accrued_today': update['interest_accrued_today'], 
-					'fees_accrued_today': update['fees_accrued_today'], 
-					'total_principal_paid': update['total_principal_paid'], 
-					'total_interest_paid': update['total_interest_paid'], 
-					'total_late_fees_paid': update['total_fees_paid'], 
-					'days_overdue': update['days_overdue'],
-				}
+		summary_update = customer_update['summary_update']
+		minimum_interest_info = cast(Dict, summary_update['minimum_interest_info'])
 
-			summary_update = customer_update['summary_update']
-			minimum_interest_info = cast(Dict, summary_update['minimum_interest_info'])
+		financial_summary.date = customer_update['today']
+		financial_summary.total_limit = decimal.Decimal(number_util.round_currency(summary_update['total_limit']))
+		financial_summary.adjusted_total_limit = decimal.Decimal(number_util.round_currency(summary_update['adjusted_total_limit']))
+		financial_summary.total_outstanding_principal = decimal.Decimal(number_util.round_currency(summary_update['total_outstanding_principal']))
+		financial_summary.total_outstanding_principal_for_interest = decimal.Decimal(number_util.round_currency(summary_update['total_outstanding_principal_for_interest']))
+		financial_summary.total_outstanding_principal_past_due = decimal.Decimal(number_util.round_currency(summary_update['total_outstanding_principal_past_due']))
+		financial_summary.total_outstanding_interest = decimal.Decimal(number_util.round_currency(summary_update['total_outstanding_interest']))
+		financial_summary.total_outstanding_fees = decimal.Decimal(number_util.round_currency(summary_update['total_outstanding_fees']))
+		financial_summary.total_principal_in_requested_state = decimal.Decimal(number_util.round_currency(summary_update['total_principal_in_requested_state']))
+		financial_summary.total_amount_to_pay_interest_on = decimal.Decimal(number_util.round_currency(summary_update['total_amount_to_pay_interest_on']))
+		financial_summary.interest_accrued_today = decimal.Decimal(number_util.round_currency_to_five_digits(summary_update['total_interest_accrued_today']))
+		financial_summary.total_interest_paid_adjustment_today = decimal.Decimal(number_util.round_currency(summary_update['total_interest_paid_adjustment_today']))
+		financial_summary.late_fees_accrued_today = decimal.Decimal(number_util.round_currency_to_five_digits(summary_update['total_late_fees_accrued_today']))
+		financial_summary.total_fees_paid_adjustment_today = decimal.Decimal(number_util.round_currency(summary_update['total_fees_paid_adjustment_today']))
+		financial_summary.available_limit = decimal.Decimal(number_util.round_currency(summary_update['available_limit']))
+		financial_summary.minimum_monthly_payload = minimum_interest_info
+		financial_summary.minimum_interest_duration = minimum_interest_info['duration']
+		financial_summary.minimum_interest_amount = minimum_interest_info['minimum_amount']
+		financial_summary.minimum_interest_remaining = minimum_interest_info['amount_short']
+		financial_summary.account_level_balance_payload = cast(Dict, summary_update['account_level_balance_payload'])
+		financial_summary.day_volume_threshold_met = summary_update['day_volume_threshold_met']
+		financial_summary.product_type = summary_update['product_type']
+		financial_summary.daily_interest_rate = decimal.Decimal(summary_update['daily_interest_rate'])
+		financial_summary.most_overdue_loan_days = summary_update['most_overdue_loan_days']
+		financial_summary.loans_info = loans_info
 
-			financial_summary.date = customer_update['today']
-			financial_summary.total_limit = decimal.Decimal(number_util.round_currency(summary_update['total_limit']))
-			financial_summary.adjusted_total_limit = decimal.Decimal(number_util.round_currency(summary_update['adjusted_total_limit']))
-			financial_summary.total_outstanding_principal = decimal.Decimal(number_util.round_currency(summary_update['total_outstanding_principal']))
-			financial_summary.total_outstanding_principal_for_interest = decimal.Decimal(number_util.round_currency(summary_update['total_outstanding_principal_for_interest']))
-			financial_summary.total_outstanding_principal_past_due = decimal.Decimal(number_util.round_currency(summary_update['total_outstanding_principal_past_due']))
-			financial_summary.total_outstanding_interest = decimal.Decimal(number_util.round_currency(summary_update['total_outstanding_interest']))
-			financial_summary.total_outstanding_fees = decimal.Decimal(number_util.round_currency(summary_update['total_outstanding_fees']))
-			financial_summary.total_principal_in_requested_state = decimal.Decimal(number_util.round_currency(summary_update['total_principal_in_requested_state']))
-			financial_summary.total_amount_to_pay_interest_on = decimal.Decimal(number_util.round_currency(summary_update['total_amount_to_pay_interest_on']))
-			financial_summary.interest_accrued_today = decimal.Decimal(number_util.round_currency_to_five_digits(summary_update['total_interest_accrued_today']))
-			financial_summary.total_interest_paid_adjustment_today = decimal.Decimal(number_util.round_currency(summary_update['total_interest_paid_adjustment_today']))
-			financial_summary.late_fees_accrued_today = decimal.Decimal(number_util.round_currency_to_five_digits(summary_update['total_late_fees_accrued_today']))
-			financial_summary.total_fees_paid_adjustment_today = decimal.Decimal(number_util.round_currency(summary_update['total_fees_paid_adjustment_today']))
-			financial_summary.available_limit = decimal.Decimal(number_util.round_currency(summary_update['available_limit']))
-			financial_summary.minimum_monthly_payload = minimum_interest_info
-			financial_summary.minimum_interest_duration = minimum_interest_info['duration']
-			financial_summary.minimum_interest_amount = minimum_interest_info['minimum_amount']
-			financial_summary.minimum_interest_remaining = minimum_interest_info['amount_short']
-			financial_summary.account_level_balance_payload = cast(Dict, summary_update['account_level_balance_payload'])
-			financial_summary.day_volume_threshold_met = summary_update['day_volume_threshold_met']
-			financial_summary.product_type = summary_update['product_type']
-			financial_summary.daily_interest_rate = decimal.Decimal(summary_update['daily_interest_rate'])
-			financial_summary.most_overdue_loan_days = summary_update['most_overdue_loan_days']
-			financial_summary.loans_info = loans_info
+		if should_add_summary:
+			session.add(financial_summary)
 
-			if should_add_summary:
-				session.add(financial_summary)
+		# The balance was updated so we no longer need to "recompute" it
+		financial_summary.needs_recompute = False
 
-			# The balance was updated so we no longer need to "recompute" it
-			financial_summary.needs_recompute = False
-
-			return True, None
+		return True, None

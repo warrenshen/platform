@@ -1477,7 +1477,7 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 			company_balance_lookup = {}
 			for company in all_companies:
 				company_lookup[str(company.id)] = company
-				company_balance_lookup[str(company.id)] = loan_balances.CustomerBalance(company.as_dict(), current_app.session_maker)
+				company_balance_lookup[str(company.id)] = loan_balances.CustomerBalance(company.as_dict(), session)
 
 			rgc = ReportGenerationContext(
 				company_lookup = company_lookup,

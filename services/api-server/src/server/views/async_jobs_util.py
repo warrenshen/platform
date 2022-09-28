@@ -10,7 +10,6 @@ from typing import Any, Callable, Dict, Iterable, Tuple, cast, List
 
 from bespoke.date import date_util
 from bespoke.db import models, models_util, queries
-from sqlalchemy.orm.session import Session
 from bespoke.slack import slack_util
 from bespoke.finance.loans import reports_util
 from bespoke.reports import report_generation_util
@@ -126,7 +125,6 @@ def retry_job(
 @errors.return_error_tuple
 def kick_off_handler(
 	session: Session,
-	session_maker: Callable,
 	available_job_number: int,
 ) -> Tuple[List[str], errors.Error]:
 
@@ -168,8 +166,7 @@ def kick_off_handler(
 		session.commit()
 		payload = job.retry_payload if job.num_retries != 0 and job.retry_payload is not None else job.job_payload
 		payload = cast(Dict[str, Any], payload)
-		# TODO: session_maker should be eventually removed
-		job_success, err_msg = ASYNC_JOB_ORCHESTRATION_LOOKUP[job.name](session, session_maker, payload)
+		job_success, err_msg = ASYNC_JOB_ORCHESTRATION_LOOKUP[job.name](session, payload)
 		if job_success:
 			job.status = AsyncJobStatusEnum.COMPLETED
 		else:
@@ -190,7 +187,6 @@ def kick_off_handler(
 @errors.return_error_tuple
 def loans_coming_due_job(
 	session: Session,
-	session_maker: Callable,
 	job_payload: Dict[str, Any],
 ) -> Tuple[bool, errors.Error]:
 	company_id = job_payload["company_id"]
@@ -308,7 +304,6 @@ def generate_companies_loans_past_due_job(
 @errors.return_error_tuple
 def loans_past_due_job(
 	session: Session,
-	session_maker: Callable,
 	job_payload: Dict[str, Any],
 ) -> Tuple[bool, errors.Error]:
 	company_id = job_payload["company_id"]
@@ -616,7 +611,7 @@ def autogenerate_repayment_alerts(
 	customer_balance_lookup = {}
 	for company_id in customer_lookup:
 		customer = customer_lookup[company_id]
-		customer_balance_lookup[company_id] = loan_balances.CustomerBalance(customer.as_dict(), current_app.session_maker)
+		customer_balance_lookup[company_id] = loan_balances.CustomerBalance(customer.as_dict(), session)
 
 	company_to_per_date_loans, err = autogenerate_repayment_util.find_loans_for_weekly_repayment_reminder(
 		session,
@@ -717,7 +712,6 @@ def update_company_balances_job(
 @errors.return_error_tuple
 def update_dirty_company_balances_job(
 	session: Session,
-	session_maker: Callable,
 	job_payload: Dict[str, Any],
 ) -> Tuple[bool, errors.Error]:
 	# before this was done for all companies at once now the update is going to be done for one company at a time
@@ -736,7 +730,6 @@ def update_dirty_company_balances_job(
 	# TODO: sessionmaker should be eventually removed
 	dates_updated, descriptive_errors, fatal_error = reports_util.run_customer_balances_for_financial_summaries_that_need_recompute(
 		session,
-		session_maker,
 		compute_requests
 	)
 	if fatal_error:
@@ -821,7 +814,6 @@ def reports_monthly_loan_summary_Non_LOC_generate(
 @errors.return_error_tuple
 def reports_monthly_loan_summary_Non_LOC(
 	session: Session,
-	session_maker: Callable,
 	job_payload: Dict[str, Any],
 ) -> Tuple[bool, errors.Error]:	
 	company_id = job_payload["company_id"]
@@ -847,7 +839,7 @@ def reports_monthly_loan_summary_Non_LOC(
 	company_balance_lookup = {}
 	for company in all_companies:
 		company_lookup[str(company.id)] = company
-		company_balance_lookup[str(company.id)] = loan_balances.CustomerBalance(company.as_dict(), current_app.session_maker)
+		company_balance_lookup[str(company.id)] = loan_balances.CustomerBalance(company.as_dict(), session)
 
 	rgc = report_generation_util.ReportGenerationContext(
 		company_lookup = company_lookup,
@@ -998,7 +990,6 @@ def reports_monthly_loan_summary_LOC_generate(
 @errors.return_error_tuple
 def reports_monthly_loan_summary_LOC(
 	session: Session,
-	session_maker: Callable,
 	job_payload: Dict[str, Any],
 ) -> Tuple[bool, errors.Error]:	
 	company_id = job_payload["company_id"]
@@ -1112,7 +1103,6 @@ def automatic_debit_courtesy_alerts_generate_job(
 @errors.return_error_tuple
 def automatic_debit_courtesy_alerts_job(
 	session: Session,
-	session_maker: Callable,
 	job_payload: Dict[str, Any],
 ) -> Tuple[bool, errors.Error]:
 	logging.info("Sending out courtesy alert for automatic monthly debits")

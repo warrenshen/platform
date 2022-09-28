@@ -165,7 +165,6 @@ class KickOffHandlerView(MethodView):
 		with session_scope(current_app.session_maker) as session:
 			in_progress_job_ids, err = async_jobs_util.kick_off_handler(
 				session = session,
-				session_maker = current_app.session_maker,
 				available_job_number = int(cfg.ASYNC_JOB_CAPACITY)
 			)
 			if err:

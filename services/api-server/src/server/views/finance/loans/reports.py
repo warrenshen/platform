@@ -71,7 +71,8 @@ class RunCustomerBalancesView(MethodView):
 		if include_debug_info:
 			# We only run customer balances for 1 customer and 1 date when fetching debug information
 			loan_id_to_debug_info = None
-			customer_balance = loan_balances.CustomerBalance(company_dicts[0], session_maker)
+			with session_scope(session_maker) as session:
+				customer_balance = loan_balances.CustomerBalance(company_dicts[0], session)
 			day_to_customer_update_dict, err = customer_balance.update(
 				start_date_for_storing_updates=report_date,
 				today=report_date,

@@ -204,7 +204,7 @@ def fund_loans_with_advance(
 			# good governance reasons
 			financial_summary = company_id_to_latest_financial_summary[str(company.id)]
 			if financial_summary.needs_recompute is True:
-				loan_balance = loan_balances.CustomerBalance(company.as_dict(), session_maker)
+				loan_balance = loan_balances.CustomerBalance(company.as_dict(), session)
 				update_tuple, err = loan_balance.update(
 					financial_summary.date,
 					financial_summary.date,

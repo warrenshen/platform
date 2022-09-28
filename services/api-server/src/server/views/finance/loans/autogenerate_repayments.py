@@ -249,7 +249,7 @@ class AutogenerateRepaymentWeeklyAlertView(MethodView):
 				customer_balance_lookup = {}
 				for company_id in customer_lookup:
 					customer = customer_lookup[company_id]
-					customer_balance_lookup[company_id] = loan_balances.CustomerBalance(customer.as_dict(), current_app.session_maker)
+					customer_balance_lookup[company_id] = loan_balances.CustomerBalance(customer.as_dict(), session)
 
 				company_to_per_date_loans, err = autogenerate_repayment_util.find_loans_for_weekly_repayment_reminder(
 					session,

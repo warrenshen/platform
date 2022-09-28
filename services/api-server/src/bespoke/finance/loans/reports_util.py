@@ -136,7 +136,6 @@ def _set_financial_summary_no_longer_needs_recompute(
 
 def update_company_balance(
 	session: Session,
-	session_maker: Callable,
 	company: models.CompanyDict,
 	report_date: datetime.date,
 	update_days_back: int,
@@ -151,8 +150,7 @@ def update_company_balance(
 	"""
 	logging.info(f"Calculating balance for '{company['name']}' with id: '{company['id']}' for report date '{report_date}, update_days_back={update_days_back}'")
 
-	# TODO : session_maker should be eventually removed
-	customer_balance = loan_balances.CustomerBalance(company, session_maker)
+	customer_balance = loan_balances.CustomerBalance(company, session)
 	if update_days_back == None:
 		update_days_back = 0
 	day_to_customer_update_dict, err = customer_balance.update(
@@ -493,7 +491,6 @@ def list_financial_summaries_that_need_balances_recomputed_by_company(
 	
 def run_customer_balances_for_financial_summaries_that_need_recompute(
 	session: Session,
-	session_maker: Callable,
 	compute_requests: List[ComputeSummaryRequest]
 ) -> Tuple[Set[datetime.date], List[str], errors.Error]:
 	dates_updated = set([])
@@ -502,7 +499,6 @@ def run_customer_balances_for_financial_summaries_that_need_recompute(
 	for req in compute_requests:
 		day_to_customer_update_dict, descriptive_error = update_company_balance(
 			session, 
-			session_maker,
 			req['company'], 
 			req['report_date'],
 			update_days_back=req['update_days_back'],

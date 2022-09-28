@@ -1172,7 +1172,7 @@ class TestReportsMonthlyLoanSummaryNonLOCView(db_unittest.TestCase):
 		company_lookup[str(vendor_id)] = test_vendor
 		company_lookup[str(company_id)] = test_company
 
-		customer_balance = loan_balances.CustomerBalance(test_company.as_dict(), self.session_maker)
+		customer_balance = loan_balances.CustomerBalance(test_company.as_dict(), session)
 		company_balance_lookup: Dict[str, loan_balances.CustomerBalance] = {}
 		company_balance_lookup[company_id] = customer_balance
 

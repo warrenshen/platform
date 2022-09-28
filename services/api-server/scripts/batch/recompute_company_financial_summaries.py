@@ -53,11 +53,11 @@ def main(company_identifier: str, anchor_date: str, update_days_back: int) -> No
 		'report_date': date_util.load_date_str(anchor_date),
 		'update_days_back': update_days_back,
 	}]
-
-	dates_updated, descriptive_errors, fatal_error = reports_util.run_customer_balances_for_financial_summaries_that_need_recompute(
-		session_maker,
-		compute_requests
-	)
+	with models.session_scope(current_app.session_maker) as session:
+		dates_updated, descriptive_errors, fatal_error = reports_util.run_customer_balances_for_financial_summaries_that_need_recompute(
+			session,
+			compute_requests
+		)
 
 	if fatal_error:
 		print(f"[ERROR] FATAL error thrown when recomputing balances for company: '{fatal_error}'")

@@ -82,9 +82,9 @@ def _extend_the_last_contract_if_needed(
 class Fetcher(object):
 
 	def __init__(self,
-		company_info_dict: per_customer_types.CompanyInfoDict, session_maker: Callable, ignore_deleted: bool):
+		company_info_dict: per_customer_types.CompanyInfoDict, session: Session, ignore_deleted: bool):
 		self._company_id = company_info_dict['id']
-		self._session_maker = session_maker
+		self._session = session
 
 		self._company_info = company_info_dict
 		self._settings_dict: CompanySettingsDict = None
@@ -100,8 +100,24 @@ class Fetcher(object):
 		self._ignore_deleted = ignore_deleted
 
 	def _fetch_contracts(self, today: datetime.date) -> Tuple[bool, errors.Error]:
+		session = self._session
+		contracts = cast(
+			List[models.Contract],
+			contract_util.get_active_contracts_base_query(session).filter(
+				models.Contract.company_id == self._company_id
+			).all())
+		if not contracts:
+			return True, None
+		self._contracts = [c.as_dict() for c in contracts]
 
-		with session_scope(self._session_maker) as session:
+		# Extend contracts before doing any financial computations
+		was_extended, err = _extend_the_last_contract_if_needed(
+			self._contracts, today, session)
+		if err:
+			raise err
+
+		if was_extended:
+			# Fetch the contracts again if we needed to extend it
 			contracts = cast(
 				List[models.Contract],
 				contract_util.get_active_contracts_base_query(session).filter(
@@ -111,23 +127,6 @@ class Fetcher(object):
 				return True, None
 			self._contracts = [c.as_dict() for c in contracts]
 
-			# Extend contracts before doing any financial computations
-			was_extended, err = _extend_the_last_contract_if_needed(
-				self._contracts, today, session)
-			if err:
-				raise err
-
-			if was_extended:
-				# Fetch the contracts again if we needed to extend it
-				contracts = cast(
-					List[models.Contract],
-					contract_util.get_active_contracts_base_query(session).filter(
-						models.Contract.company_id == self._company_id
-					).all())
-				if not contracts:
-					return True, None
-				self._contracts = [c.as_dict() for c in contracts]
-
 		return True, None
 
 	def _fetch_transactions(
@@ -136,62 +135,61 @@ class Fetcher(object):
 			return True, None
 
 		payment_ids = [p['id'] for p in payments]
-
-		with session_scope(self._session_maker) as session:
-			query = session.query(models.Transaction).filter(
-					models.Transaction.payment_id.in_(payment_ids)
-				)
-			if self._ignore_deleted:
-				query = query.filter(cast(Callable, models.Transaction.is_deleted.isnot)(True))
-
-			transactions = cast(List[models.Transaction], query.all())
-
-			if not transactions:
-				return True, None
-
-			self._augmented_transactions, err = models_util.get_augmented_transactions(
-				[t.as_dict() for t in transactions], payments
+		session = self._session
+		query = session.query(models.Transaction).filter(
+				models.Transaction.payment_id.in_(payment_ids)
 			)
-			if err:
-				return None, err
+		if self._ignore_deleted:
+			query = query.filter(cast(Callable, models.Transaction.is_deleted.isnot)(True))
+
+		transactions = cast(List[models.Transaction], query.all())
+
+		if not transactions:
+			return True, None
+
+		self._augmented_transactions, err = models_util.get_augmented_transactions(
+			[t.as_dict() for t in transactions], payments
+		)
+		if err:
+			return None, err
 
 		return True, None
 
 	def _fetch_payments(self) -> Tuple[bool, errors.Error]:
 
-		with session_scope(self._session_maker) as session:
-			query = session.query(models.Payment).filter(
-					models.Payment.company_id == self._company_id
-			)
+		session = self._session
+		query = session.query(models.Payment).filter(
+				models.Payment.company_id == self._company_id
+		)
 
-			if self._ignore_deleted:
-				query = query.filter(cast(Callable, models.Payment.is_deleted.isnot)(True))
+		if self._ignore_deleted:
+			query = query.filter(cast(Callable, models.Payment.is_deleted.isnot)(True))
 
-			payments = cast(List[models.Payment], query.all())
+		payments = cast(List[models.Payment], query.all())
 
-			if not payments:
-				return True, None
-			self._payments = [p.as_dict() for p in payments if p.amount is not None]
+		if not payments:
+			return True, None
+		self._payments = [p.as_dict() for p in payments if p.amount is not None]
 
 		return True, None
 
 	def _fetch_loans(self) -> Tuple[bool, errors.Error]:
 
-		with session_scope(self._session_maker) as session:
-			query = session.query(models.Loan).filter(
-				models.Loan.company_id == self._company_id
-			).order_by(
-				models.Loan.origination_date.asc()
-			)
+		session = self._session	
+		query = session.query(models.Loan).filter(
+			models.Loan.company_id == self._company_id
+		).order_by(
+			models.Loan.origination_date.asc()
+		)
 
-			if self._ignore_deleted:
-				query = query.filter(cast(Callable, models.Loan.is_deleted.isnot)(True))
+		if self._ignore_deleted:
+			query = query.filter(cast(Callable, models.Loan.is_deleted.isnot)(True))
 
-			loans = cast(List[models.Loan], query.all())
-			if not loans:
-				return True, None
+		loans = cast(List[models.Loan], query.all())
+		if not loans:
+			return True, None
 
-			self._loans = [l.as_dict() for l in loans]
+		self._loans = [l.as_dict() for l in loans]
 
 		return True, None
 
@@ -204,21 +202,21 @@ class Fetcher(object):
 			if loan['artifact_id']:
 				artifact_ids.append(loan['artifact_id'])
 
-		with session_scope(self._session_maker) as session:
-			query = session.query(models.Invoice).filter(
-					models.Invoice.company_id == self._company_id
-				).filter(
-					models.Invoice.id.in_(artifact_ids)
-				)
+		session = self._session	
+		query = session.query(models.Invoice).filter(
+				models.Invoice.company_id == self._company_id
+			).filter(
+				models.Invoice.id.in_(artifact_ids)
+			)
 
-			if self._ignore_deleted:
-				query = query.filter(cast(Callable, models.Invoice.is_deleted.isnot)(True))
+		if self._ignore_deleted:
+			query = query.filter(cast(Callable, models.Invoice.is_deleted.isnot)(True))
 
-			invoices = cast(List[models.Invoice], query.all())
-			if not invoices:
-				return True, None
+		invoices = cast(List[models.Invoice], query.all())
+		if not invoices:
+			return True, None
 
-			self._invoices = [inv.as_dict() for inv in invoices]
+		self._invoices = [inv.as_dict() for inv in invoices]
 
 		return True, None
 
@@ -231,50 +229,50 @@ class Fetcher(object):
 			if loan['artifact_id']:
 				artifact_ids.append(loan['artifact_id'])
 
-		with session_scope(self._session_maker) as session:
-			query = session.query(models.PurchaseOrder).filter(
-					models.PurchaseOrder.company_id == self._company_id
-				).filter(
-					models.PurchaseOrder.id.in_(artifact_ids)
-				)
+		session = self._session	
+		query = session.query(models.PurchaseOrder).filter(
+				models.PurchaseOrder.company_id == self._company_id
+			).filter(
+				models.PurchaseOrder.id.in_(artifact_ids)
+			)
 
-			if self._ignore_deleted:
-				query = query.filter(cast(Callable, models.PurchaseOrder.is_deleted.isnot)(True))
+		if self._ignore_deleted:
+			query = query.filter(cast(Callable, models.PurchaseOrder.is_deleted.isnot)(True))
 
-			purchase_orders = cast(List[models.PurchaseOrder], query.all())
-			if not purchase_orders:
-				return True, None
+		purchase_orders = cast(List[models.PurchaseOrder], query.all())
+		if not purchase_orders:
+			return True, None
 
-			self._purchase_orders = [po.as_dict() for po in purchase_orders]
+		self._purchase_orders = [po.as_dict() for po in purchase_orders]
 
 		return True, None
 
 	def _fetch_company_details(self) -> Tuple[bool, errors.Error]:
 		# Which type of product is this customer using?
-		with session_scope(self._session_maker) as session:
-			settings = cast(
-				models.CompanySettings,
-				session.query(models.CompanySettings).filter(
-					models.CompanySettings.company_id == self._company_id
-				).first())
-			if not settings:
-				return None, errors.Error('No settings found')
+		session = self._session	
+		settings = cast(
+			models.CompanySettings,
+			session.query(models.CompanySettings).filter(
+				models.CompanySettings.company_id == self._company_id
+			).first())
+		if not settings:
+			return None, errors.Error('No settings found')
 
-			self._settings_dict = settings.as_dict()
+		self._settings_dict = settings.as_dict()
 
 		return True, None
 
 
 	def _fetch_ebba_applications(self) -> Tuple[bool, errors.Error]:
-		with session_scope(self._session_maker) as session:
-			ebba_applications = cast(
-				List[models.EbbaApplication],
-				session.query(models.EbbaApplication).filter(
-					models.EbbaApplication.company_id == self._company_id
-				).all()
-			)
+		session = self._session	
+		ebba_applications = cast(
+			List[models.EbbaApplication],
+			session.query(models.EbbaApplication).filter(
+				models.EbbaApplication.company_id == self._company_id
+			).all()
+		)
 
-			self._ebba_applications = [e.as_dict() for e in ebba_applications] if ebba_applications else []
+		self._ebba_applications = [e.as_dict() for e in ebba_applications] if ebba_applications else []
 
 		return True, None
 
