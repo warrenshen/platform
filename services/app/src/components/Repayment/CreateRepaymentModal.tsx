@@ -119,12 +119,11 @@ export default function CreateRepaymentModal({
     alert(`Error in query (details in console): ${accountQuery.error.message}`);
   }
 
-  const companyForFees = accountQuery.data?.companies_by_pk;
-  const accountFees = companyForFees?.fee_payments || [];
-  const accountFeeTotal = accountFees.reduce(
-    (total, fee) => total + fee.amount,
-    0.0
-  );
+  const accountBalancePayload = financialSummary?.account_level_balance_payload;
+  const accountFeeTotal =
+    accountBalancePayload?.fees_total != null
+      ? accountBalancePayload.fees_total
+      : null;
 
   const paymentOption = payment.items_covered.payment_option;
 

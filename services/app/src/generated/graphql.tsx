@@ -40649,7 +40649,7 @@ export const GetRepaymentsByDepositDateDocument = gql`
               { is_deleted: { _eq: false } }
             ]
           }
-          { type: { _eq: "repayment" } }
+          { type: { _in: ["repayment", "repayment_account_fee"] } }
           { deposit_date: { _eq: $date } }
         ]
       }
