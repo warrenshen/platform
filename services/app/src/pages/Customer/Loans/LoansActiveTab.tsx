@@ -31,9 +31,14 @@ const useStyles = makeStyles((theme: Theme) =>
 interface Props {
   companyId: Companies["id"];
   productType: ProductTypeEnum;
+  isActiveContract: boolean;
 }
 
-function CustomerLoansPageLoansTab({ companyId, productType }: Props) {
+function CustomerLoansPageLoansTab({
+  companyId,
+  productType,
+  isActiveContract,
+}: Props) {
   const classes = useStyles();
 
   const loanType =
@@ -61,6 +66,7 @@ function CustomerLoansPageLoansTab({ companyId, productType }: Props) {
         <LoansNotFunded
           companyId={companyId}
           productType={productType}
+          isActiveContract={isActiveContract}
           data={data}
           handleDataChange={refetch}
         />
@@ -71,6 +77,7 @@ function CustomerLoansPageLoansTab({ companyId, productType }: Props) {
         <LoansFunded
           companyId={companyId}
           productType={productType}
+          isActiveContract={isActiveContract}
           data={data}
           handleDataChange={refetch}
         />

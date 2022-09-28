@@ -16,9 +16,13 @@ import { useMemo } from "react";
 
 interface Props {
   companyId: Companies["id"];
+  isActiveContract: boolean;
 }
 
-export default function CustomerPayorsPageContent({ companyId }: Props) {
+export default function CustomerPayorsPageContent({
+  companyId,
+  isActiveContract,
+}: Props) {
   const { data, refetch, error } = useListPayorPartnershipsByCompanyIdQuery({
     variables: { companyId },
   });
@@ -71,7 +75,11 @@ export default function CustomerPayorsPageContent({ companyId }: Props) {
       <h2>Approved</h2>
       <Can perform={Action.AddPayor}>
         <Box display="flex" flexDirection="row-reverse" mb={2}>
-          <AddPayorButton customerId={companyId} handleDataChange={refetch} />
+          <AddPayorButton
+            customerId={companyId}
+            handleDataChange={refetch}
+            isActiveContract={isActiveContract}
+          />
         </Box>
       </Can>
       <Box display="flex">

@@ -5,17 +5,20 @@ import CustomerPurchaseOrdersPageContent from "pages/Customer/PurchaseOrders/Pur
 interface Props {
   companyId: Companies["id"];
   productType: ProductTypeEnum | null;
+  isActiveContract: boolean;
 }
 
 export default function BankCustomerPurchaseOrdersSubpageNew({
   companyId,
   productType,
+  isActiveContract,
 }: Props) {
   return (
     !!productType && (
       <CustomerPurchaseOrdersPageContent
         companyId={companyId}
         productType={productType}
+        isActiveContract={isActiveContract}
       />
     )
   );

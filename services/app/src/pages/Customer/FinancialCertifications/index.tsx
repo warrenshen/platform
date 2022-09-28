@@ -5,7 +5,7 @@ import { useContext } from "react";
 
 export default function CustomerFinancialCertificationsPage() {
   const {
-    user: { companyId, productType },
+    user: { companyId, productType, isActiveContract },
   } = useContext(CurrentUserContext);
   return (
     <Page appBarTitle={"Financial Certifications"}>
@@ -13,6 +13,7 @@ export default function CustomerFinancialCertificationsPage() {
         <FinancialCertificationsPageContent
           companyId={companyId}
           productType={productType}
+          isActiveContract={!!isActiveContract}
         />
       )}
     </Page>

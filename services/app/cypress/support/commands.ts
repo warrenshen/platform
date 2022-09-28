@@ -33,7 +33,9 @@ import {
   CompanySettings,
   CompanyVendorPartnerships,
   Contracts,
+  EbbaApplications,
   FinancialSummaries,
+  Loans,
   PurchaseOrders,
 } from "@app/generated/graphql";
 import { format } from "date-fns";
@@ -788,6 +790,125 @@ function addUser({
   });
 }
 
+function addLoan({
+  amount,
+  approved_at,
+  approved_by_user_id,
+  artifact_id,
+  closed_at,
+  company_id,
+  created_at,
+  customer_notes,
+  funded_at,
+  funded_by_user_id,
+  id,
+  identifier,
+  is_deleted,
+  maturity_date,
+  adjusted_maturity_date,
+  rejected_at,
+  rejected_by_user_id,
+  rejection_note,
+  requested_at,
+  status,
+  updated_at,
+}: Loans) {
+  cy.request("POST", `${Cypress.env("apiServerUrl")}/cypress/add_loan`, {
+    amount: amount || null,
+    approved_at: approved_at || null,
+    approved_by_user_id: approved_by_user_id || null,
+    artifact_id: artifact_id || null,
+    closed_at: closed_at || null,
+    company_id: company_id || null,
+    created_at: created_at || null,
+    customer_note: customer_notes || null,
+    funded_at: funded_at || null,
+    funded_by_user_id: funded_by_user_id || null,
+    history: history || null,
+    id: id || null,
+    identifier: identifier || null,
+    is_deleted: is_deleted || null,
+    maturity_date: maturity_date || null,
+    adjusted_maturity_date: adjusted_maturity_date || null,
+    rejected_at: rejected_at || null,
+    rejected_by_user_id: rejected_by_user_id || null,
+    rejection_note: rejection_note || null,
+    requested_at: requested_at || null,
+    status: status || null,
+    updated_at: updated_at || null,
+  }).then((response) => {
+    const loanId = !!response?.body?.data?.loan_id
+      ? response.body.data.loan_id
+      : null;
+
+    return cy.wrap({
+      loanId: loanId,
+    });
+  });
+}
+
+function addEbbaApplication({
+  id,
+  company_id,
+  category,
+  status,
+  application_date,
+  is_deleted,
+  submitted_by_user_id,
+  approved_by_user_id,
+  rejected_by_user_id,
+  monthly_accounts_receivable,
+  monthly_inventory,
+  monthly_cash,
+  amount_cash_in_daca,
+  amount_custom,
+  amount_custom_note,
+  bank_note,
+  calculated_borrowing_base,
+  rejection_note,
+  expires_date,
+  requested_at,
+  approved_at,
+  rejected_at,
+}: EbbaApplications) {
+  cy.request(
+    "POST",
+    `${Cypress.env("apiServerUrl")}/cypress/add_ebba_application`,
+    {
+      id: id || null,
+      company_id: company_id || null,
+      category: category || null,
+      status: status || null,
+      application_date: application_date || null,
+      is_deleted: is_deleted || null,
+      submitted_by_user_id: submitted_by_user_id || null,
+      approved_by_user_id: approved_by_user_id || null,
+      rejected_by_user_id: rejected_by_user_id || null,
+      monthly_accounts_receivable: monthly_accounts_receivable || null,
+      monthly_inventory: monthly_inventory || null,
+      monthly_cash: monthly_cash || null,
+      amount_cash_in_daca: amount_cash_in_daca || null,
+      amount_custom: amount_custom || null,
+      amount_custom_note: amount_custom_note || null,
+      bank_note: bank_note || null,
+      calculated_borrowing_base: calculated_borrowing_base || null,
+      rejection_note: rejection_note || null,
+      expires_date: expires_date || null,
+      requested_at: requested_at || null,
+      approved_at: approved_at || null,
+      rejected_at: rejected_at || null,
+    }
+  ).then((response) => {
+    const ebbaApplicationId = !!response?.body?.data?.ebba_application_id
+      ? response.body.data.ebba_application_id
+      : null;
+
+    return cy.wrap({
+      ebbaApplicationId: ebbaApplicationId,
+    });
+  });
+}
+
 Cypress.Commands.add("addBankAccount", addBankAccount);
 Cypress.Commands.add("addContract", addContract);
 Cypress.Commands.add("addCompany", addCompany);
@@ -804,6 +925,8 @@ Cypress.Commands.add(
 Cypress.Commands.add("addFinancialSummary", addFinancialSummary);
 Cypress.Commands.add("addPurchaseOrder", addPurchaseOrder);
 Cypress.Commands.add("addUser", addUser);
+Cypress.Commands.add("addLoan", addLoan);
+Cypress.Commands.add("addEbbaApplication", addEbbaApplication);
 
 // ///////////////////////////////
 // UTILITY ACTIONS

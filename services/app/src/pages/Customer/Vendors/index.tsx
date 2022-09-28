@@ -5,7 +5,7 @@ import { useContext } from "react";
 
 export default function CustomerVendorsPage() {
   const {
-    user: { companyId, productType },
+    user: { companyId, productType, isActiveContract },
   } = useContext(CurrentUserContext);
 
   return (
@@ -14,6 +14,7 @@ export default function CustomerVendorsPage() {
         <CustomerVendorsPageContent
           companyId={companyId}
           productType={productType}
+          isActiveContract={!!isActiveContract}
         />
       )}
     </Page>

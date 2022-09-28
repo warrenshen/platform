@@ -51,11 +51,13 @@ const useStyles = makeStyles((theme: Theme) =>
 interface Props {
   companyId: Companies["id"];
   productType: ProductTypeEnum;
+  isActiveContract: boolean;
 }
 
 export default function CustomerPurchaseOrdersOpenTabNew({
   companyId,
   productType,
+  isActiveContract,
 }: Props) {
   const classes = useStyles();
   const snackbar = useSnackbar();
@@ -296,7 +298,9 @@ export default function CustomerPurchaseOrdersOpenTabNew({
                 <Box mr={2}>
                   <PrimaryButton
                     isDisabled={
-                      !selectedNotApprovedPurchaseOrder || isFormLoading
+                      !selectedNotApprovedPurchaseOrder ||
+                      isFormLoading ||
+                      !isActiveContract
                     }
                     text={"Submit to Vendor"}
                     width={"184px"}
@@ -310,7 +314,9 @@ export default function CustomerPurchaseOrdersOpenTabNew({
               <Can perform={Action.EditPurchaseOrders}>
                 <Box mr={2}>
                   <PrimaryButton
-                    isDisabled={!selectedNotApprovedPurchaseOrder}
+                    isDisabled={
+                      !selectedNotApprovedPurchaseOrder || !isActiveContract
+                    }
                     text={"Edit"}
                     width={"184px"}
                     height={"50px"}
@@ -327,7 +333,9 @@ export default function CustomerPurchaseOrdersOpenTabNew({
               <Can perform={Action.ArchivePurchaseOrders}>
                 <Box mr={2}>
                   <SecondaryButton
-                    isDisabled={!selectedNotApprovedPurchaseOrder}
+                    isDisabled={
+                      !selectedNotApprovedPurchaseOrder || !isActiveContract
+                    }
                     text={"Archive"}
                     width={"184px"}
                     height={"50px"}
@@ -371,7 +379,7 @@ export default function CustomerPurchaseOrdersOpenTabNew({
                       <PrimaryButton
                         isDisabled={
                           Object.keys(selectedApprovedPurchaseOrdersMap)
-                            .length > 1
+                            .length > 1 || isActiveContract
                         }
                         text={"Request Financing"}
                         width={"184px"}
@@ -382,7 +390,7 @@ export default function CustomerPurchaseOrdersOpenTabNew({
                       <PrimaryButton
                         isDisabled={
                           Object.keys(selectedApprovedPurchaseOrdersMap)
-                            .length > 1
+                            .length > 1 || !isActiveContract
                         }
                         text={"Request Financing"}
                         width={"184px"}
@@ -410,7 +418,7 @@ export default function CustomerPurchaseOrdersOpenTabNew({
                           (selectedApprovedPurchaseOrder.new_purchase_order_status ===
                             NewPurchaseOrderStatus.FinancingPendingApproval ||
                             NewPurchaseOrderStatus.FinancingRequestApproved)
-                        )
+                        ) || !isActiveContract
                       }
                       text={"Edit Financing"}
                       width={"184px"}
@@ -423,7 +431,9 @@ export default function CustomerPurchaseOrdersOpenTabNew({
               {Object.keys(selectedApprovedPurchaseOrdersMap).length > 0 && (
                 <Can perform={Action.ArchivePurchaseOrders}>
                   <SecondaryButton
-                    isDisabled={!selectedApprovedPurchaseOrder}
+                    isDisabled={
+                      !selectedApprovedPurchaseOrder || !isActiveContract
+                    }
                     text={"Archive"}
                     width={"184px"}
                     height={"50px"}

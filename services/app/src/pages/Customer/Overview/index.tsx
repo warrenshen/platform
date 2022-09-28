@@ -6,7 +6,7 @@ import { useContext } from "react";
 
 export default function CustomerOverviewPage() {
   const {
-    user: { companyId, productType },
+    user: { companyId, productType, isActiveContract },
   } = useContext(CurrentUserContext);
 
   return (
@@ -16,6 +16,7 @@ export default function CustomerOverviewPage() {
           <CustomerOverviewPageContent
             companyId={companyId}
             productType={productType}
+            isActiveContract={!!isActiveContract}
           />
         </CurrentCustomerProvider>
       )}

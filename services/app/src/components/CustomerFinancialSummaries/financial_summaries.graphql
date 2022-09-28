@@ -13,6 +13,23 @@ query GetFinancialSummariesByCompanyId($companyId: uuid!) {
   }
 }
 
+query GetMostRecentFinancialSummaryAndContractByCompanyId($companyId: uuid!) {
+  financial_summaries(
+    where: { company_id: { _eq: $companyId } }
+    order_by: { date: desc },
+    limit: 1
+  ) {
+    id
+    product_type
+    ...FinancialSummary
+  }
+  contracts(where:  {company_id: {_eq: $companyId}}, order_by: {adjusted_end_date: desc}, limit: 1) {
+    id
+    ...Contract
+  }
+}
+
+
 query GetFinancialSummariesByDate($date: date!) {
   financial_summaries(where: { date: { _eq: $date } }) {
     id

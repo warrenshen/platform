@@ -814,7 +814,7 @@ class AddPurchaseOrderView(MethodView):
 		amount = get_field_or_default(form, 'amount', 1000.00)
 		amount_funded = get_field_or_default(form, 'amount_funded', 0.0)
 		amount_updated_at = get_field_or_default(form, 'amount_updated_at', None)
-		approved_at = get_field_or_default(form, 'approved_at', date_util.now())
+		approved_at = get_field_or_default(form, 'approved_at', None)
 		approved_by_user_id = get_field_or_default(form, 'approved_by_user_id', None)
 		bank_incomplete_note = get_field_or_default(form, 'bank_incomplete_note', None)
 		bank_note = get_field_or_default(form, 'bank_note', None)
@@ -963,6 +963,194 @@ class AddUserView(MethodView):
 			},
 		}))
 
+class AddLoanView(MethodView):
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		session_maker, err = run_cypress_preflight_checks()
+		if err:
+			raise err
+		
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response("No data provided")
+
+		id = get_field_or_default(form, 'id', None)
+		company_id = get_field_or_default(form, 'company_id', None)
+		loan_report_id = get_field_or_default(form, 'loan_report_id', None)
+		created_at = get_field_or_default(form, 'created_at', date_util.now())
+		updated_at = get_field_or_default(form, 'updated_at', date_util.now())
+		identifier = get_field_or_default(form, 'identifier', None)
+		disbursement_identifier = get_field_or_default(form, 'disbursement_identifier', None)
+		loan_type = get_field_or_default(form, 'loan_type', None)
+		artifact_id = get_field_or_default(form, 'artifact_id', None)
+		requested_payment_date = get_field_or_default(form, 'requested_payment_date', None)
+		origination_date = get_field_or_default(form, 'origination_date', None)
+		maturity_date = get_field_or_default(form, 'maturity_date', None)
+		adjusted_maturity_date = get_field_or_default(form, 'adjusted_maturity_date', None)
+		amount = get_field_or_default(form, 'amount', None)
+		status = get_field_or_default(form, 'status', None)
+		payment_status = get_field_or_default(form, 'payment_status', None)
+		notes = get_field_or_default(form, 'notes', None)
+		customer_notes = get_field_or_default(form, 'customer_notes', None)
+		requested_at = get_field_or_default(form, 'requested_at', None)
+		requested_by_user_id = get_field_or_default(form, 'requested_by_user_id', None)
+		closed_at = get_field_or_default(form, 'closed_at', None)
+		rejected_at = get_field_or_default(form, 'rejected_at', None)
+		rejected_by_user_id = get_field_or_default(form, 'rejected_by_user_id', None)
+		rejection_note = get_field_or_default(form, 'rejection_note', None)
+		approved_at = get_field_or_default(form, 'approved_at', None)
+		approved_by_user_id = get_field_or_default(form, 'approved_by_user_id', None)
+		funded_at = get_field_or_default(form, 'funded_at', None)
+		funded_by_user_id = get_field_or_default(form, 'funded_by_user_id', None)
+		outstanding_principal_balance = get_field_or_default(form, 'outstanding_principal_balance', 0.0)
+		outstanding_interest = get_field_or_default(form, 'outstanding_interest', 0.0)
+		outstanding_fees = get_field_or_default(form, 'outstanding_fees', 0.0)
+		is_deleted = get_field_or_default(form, 'is_deleted', None)
+		is_frozen = get_field_or_default(form, 'is_frozen', None)
+
+		with session_scope(session_maker) as session:
+			logging.info('Adding loan for cypress test...')
+
+			loan, err = seed_util.create_loan(
+				session,
+				id,
+				company_id,
+				loan_report_id,
+				created_at,
+				updated_at,
+				identifier,
+				disbursement_identifier,
+				loan_type,
+				artifact_id,
+				requested_payment_date,
+				origination_date,
+				maturity_date,
+				adjusted_maturity_date,
+				amount,
+				status,
+				payment_status,
+				notes,
+				customer_notes,
+				requested_at,
+				requested_by_user_id,
+				closed_at,
+				rejected_at,
+				rejected_by_user_id,
+				rejection_note,
+				approved_at,
+				approved_by_user_id,
+				funded_at,
+				funded_by_user_id,
+				outstanding_principal_balance,
+				outstanding_interest,
+				outstanding_fees,
+				is_deleted,
+				is_frozen,
+			)
+			if err:
+				raise err
+			
+			loan_id = str(loan.id)
+
+			logging.info('Finished adding loan for cypress test...')
+		  
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': 'Success',
+			'data': {
+				'loan_id': loan_id,
+			}
+		}))
+
+
+class AddEbbaApplicationView(MethodView):
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		session_maker, err = run_cypress_preflight_checks()
+		if err:
+			raise err
+		
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response("No data provided")	
+		
+		models_relationships_to_ignore = [
+			'company',
+		]
+		
+		required_keys = [attr for attr in dir(models.EbbaApplication()) if not callable(getattr(models.EbbaApplication(), attr)) \
+			and not attr.startswith('_') and attr != 'metadata' and attr not in models_relationships_to_ignore]
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in response to creating a user for a Cypress test')
+
+		id = get_field_or_default(form, 'id', None)
+		company_id = get_field_or_default(form, 'company_id', None)
+		category = get_field_or_default(form, 'category', None)
+		status = get_field_or_default(form, 'status', None)
+		application_date = get_field_or_default(form, 'application_date', date_util.now_as_date())
+		is_deleted = get_field_or_default(form, 'is_deleted', None)
+		submitted_by_user_id = get_field_or_default(form, 'submitted_by_user_id', None)
+		approved_by_user_id = get_field_or_default(form, 'approved_by_user_id', None)
+		rejected_by_user_id = get_field_or_default(form, 'rejected_by_user_id', None)
+		monthly_accounts_receivable = get_field_or_default(form, 'monthly_accounts_receivable', 0.0)
+		monthly_inventory = get_field_or_default(form, 'monthly_inventory', 0.0)
+		monthly_cash = get_field_or_default(form, 'monthly_cash', 0.0)
+		amount_cash_in_daca = get_field_or_default(form, 'amount_cash_in_daca', 0.0)
+		amount_custom = get_field_or_default(form, 'amount_custom', 0.0)
+		amount_custom_note = get_field_or_default(form, 'amount_custom_note', None)
+		bank_note = get_field_or_default(form, 'bank_note', None)
+		calculated_borrowing_base = get_field_or_default(form, 'calculated_borrowing_base', None)
+		rejection_note = get_field_or_default(form, 'rejection_note', None)
+		expires_date = get_field_or_default(form, 'expires_date', None)
+		requested_at = get_field_or_default(form, 'requested_at', date_util.now())
+		approved_at = get_field_or_default(form, 'approved_at', None)
+		rejected_at = get_field_or_default(form, 'rejected_at', None)
+
+		with session_scope(session_maker) as session:
+			logging.info('Adding ebba application for cypress test...')
+
+			ebba_application, err = seed_util.create_ebba_application(
+				session,
+				id,
+				company_id,
+				category,
+				status,
+				application_date,
+				is_deleted,
+				submitted_by_user_id,
+				approved_by_user_id,
+				rejected_by_user_id,
+				monthly_accounts_receivable,
+				monthly_inventory,
+				monthly_cash,
+				amount_cash_in_daca,
+				amount_custom,
+				amount_custom_note,
+				bank_note,
+				calculated_borrowing_base,
+				rejection_note,
+				expires_date,
+				requested_at,
+				approved_at,
+				rejected_at,
+			)
+			if err:
+				raise err
+			
+			ebba_application_id = str(ebba_application.id)
+
+			logging.info('Finished adding ebba application for cypress test...')
+		
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': 'Success',
+			'data': {
+				'ebba_application_id': ebba_application_id,
+			}
+		}))
+
 handler.add_url_rule(
 	'/reset_database',
 	view_func=ResetDatabaseView.as_view(name='reset_database_view'),
@@ -1016,4 +1204,14 @@ handler.add_url_rule(
 handler.add_url_rule(
 	'/add_user',
 	view_func=AddUserView.as_view(name='add_user_view'),
+)
+
+handler.add_url_rule(
+	'/add_loan',
+	view_func=AddLoanView.as_view(name='add_loan_view'),
+)
+
+handler.add_url_rule(
+	'/add_ebba_application',
+	view_func=AddEbbaApplicationView.as_view(name='add_ebba_application_view'),
 )

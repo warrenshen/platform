@@ -17,6 +17,7 @@ import { useState } from "react";
 interface Props {
   companyId: Companies["id"];
   productType: ProductTypeEnum;
+  isActiveContract: boolean;
 }
 
 const PurchaseOrderComponentMap: {
@@ -25,19 +26,23 @@ const PurchaseOrderComponentMap: {
   [CustomerPurchaseOrdersTabLabelNew.Active]: ({
     companyId,
     productType,
+    isActiveContract,
   }: Props) => (
     <CustomerPurchaseOrdersOpenTabNew
       companyId={companyId}
       productType={productType}
+      isActiveContract={isActiveContract}
     />
   ),
   [CustomerPurchaseOrdersTabLabelNew.Archived]: ({
     companyId,
     productType,
+    isActiveContract,
   }: Props) => (
     <CustomerPurchaseOrdersClosedTabNew
       companyId={companyId}
       productType={productType}
+      isActiveContract={isActiveContract}
     />
   ),
 };
@@ -45,6 +50,7 @@ const PurchaseOrderComponentMap: {
 export default function CustomerPurchaseOrdersPageContentNew({
   companyId,
   productType,
+  isActiveContract,
 }: Props) {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
@@ -59,6 +65,7 @@ export default function CustomerPurchaseOrdersPageContentNew({
           <ModalButton
             label={"Add PO"}
             dataCy={"create-purchase-order-button"}
+            isDisabled={!isActiveContract}
             startIcon={<AddIcon />}
             modal={({ handleClose }) => (
               <CreateUpdatePurchaseOrderModalNew
@@ -92,6 +99,7 @@ export default function CustomerPurchaseOrdersPageContentNew({
       ]({
         companyId,
         productType,
+        isActiveContract,
       })}
     </PageContent>
   );

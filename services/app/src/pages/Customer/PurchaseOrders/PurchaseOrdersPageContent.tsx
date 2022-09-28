@@ -13,6 +13,7 @@ import { useState } from "react";
 interface Props {
   companyId: Companies["id"];
   productType: ProductTypeEnum;
+  isActiveContract: boolean;
 }
 
 const PurchaseOrderComponentMap: {
@@ -21,19 +22,23 @@ const PurchaseOrderComponentMap: {
   [CustomerPurchaseOrdersTabLabel.ActivePOs]: ({
     companyId,
     productType,
+    isActiveContract,
   }: Props) => (
     <CustomerPurchaseOrdersOpenTab
       companyId={companyId}
       productType={productType}
+      isActiveContract={isActiveContract}
     />
   ),
   [CustomerPurchaseOrdersTabLabel.ClosedPOs]: ({
     companyId,
     productType,
+    isActiveContract,
   }: Props) => (
     <CustomerPurchaseOrdersClosedTab
       companyId={companyId}
       productType={productType}
+      isActiveContract={isActiveContract}
     />
   ),
 };
@@ -41,6 +46,7 @@ const PurchaseOrderComponentMap: {
 export default function CustomerPurchaseOrdersPageContent({
   companyId,
   productType,
+  isActiveContract,
 }: Props) {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
@@ -68,6 +74,7 @@ export default function CustomerPurchaseOrdersPageContent({
       ]({
         companyId,
         productType,
+        isActiveContract,
       })}
     </PageContent>
   );

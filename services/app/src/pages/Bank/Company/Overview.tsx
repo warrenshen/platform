@@ -6,11 +6,13 @@ import CustomerOverviewPageContent from "pages/Customer/Overview/OverviewPageCon
 interface Props {
   companyId: Companies["id"];
   productType: ProductTypeEnum | null;
+  isActiveContract: boolean;
 }
 
 export default function BankCustomerOverviewSubpage({
   companyId,
   productType,
+  isActiveContract,
 }: Props) {
   return (
     !!productType && (
@@ -18,6 +20,7 @@ export default function BankCustomerOverviewSubpage({
         <CustomerOverviewPageContent
           companyId={companyId}
           productType={productType}
+          isActiveContract={isActiveContract}
         />
       </CurrentCustomerProvider>
     )

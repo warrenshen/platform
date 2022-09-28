@@ -26,11 +26,13 @@ import { useMemo, useState } from "react";
 interface Props {
   companyId: Companies["id"];
   productType: ProductTypeEnum;
+  isActiveContract: boolean;
 }
 
 export default function CustomerFinancialCertificationsPageContent({
   companyId,
   productType,
+  isActiveContract,
 }: Props) {
   const { data, loading, refetch } = useGetCompanyEbbaApplicationsInfoQuery({
     fetchPolicy: "network-only",
@@ -103,7 +105,9 @@ export default function CustomerFinancialCertificationsPageContent({
       <Can perform={Action.AddBorrowingBase}>
         <Box mt={2}>
           <ModalButton
+            dataCy="create-financial-report-certification-button"
             label={`Create Financial Report Certification`}
+            isDisabled={!isActiveContract}
             modal={({ handleClose }) => (
               <CreateUpdateFinancialReportCertificationModal
                 actionType={ActionType.New}
@@ -173,7 +177,8 @@ export default function CustomerFinancialCertificationsPageContent({
           <Box display="flex" flexDirection="row-reverse" mt={2} mb={2}>
             <Box>
               <ModalButton
-                isDisabled={!selectedEbbaApplication}
+                dataCy="edit-certification-button"
+                isDisabled={!selectedEbbaApplication || !isActiveContract}
                 label={"Edit Certification"}
                 modal={({ handleClose }) => (
                   <CreateUpdateFinancialReportCertificationModal
@@ -191,7 +196,8 @@ export default function CustomerFinancialCertificationsPageContent({
             </Box>
             <Box mr={2}>
               <ModalButton
-                isDisabled={!selectedEbbaApplication}
+                dataCy="delete-certification-button"
+                isDisabled={!selectedEbbaApplication || !isActiveContract}
                 label={"Delete Certification"}
                 variant={"outlined"}
                 modal={({ handleClose }) => (
@@ -217,16 +223,18 @@ export default function CustomerFinancialCertificationsPageContent({
               handleClose={() => setSelectedEbbaApplicationIdForBankNote(null)}
             />
           )}
-          <EbbaApplicationsDataGrid
-            isBorrowingBaseFieldsVisible={false}
-            isMultiSelectEnabled
-            ebbaApplications={ebbaApplications}
-            selectedEbbaApplicationIds={selectedEbbaApplicationIds}
-            handleSelectEbbaApplications={handleSelectEbbaApplications}
-            handleClickBorrowingBaseBankNote={
-              handleClickEbbaApplicationBankNote
-            }
-          />
+          <Box data-cy="financial-report-certifications-table">
+            <EbbaApplicationsDataGrid
+              isBorrowingBaseFieldsVisible={false}
+              isMultiSelectEnabled
+              ebbaApplications={ebbaApplications}
+              selectedEbbaApplicationIds={selectedEbbaApplicationIds}
+              handleSelectEbbaApplications={handleSelectEbbaApplications}
+              handleClickBorrowingBaseBankNote={
+                handleClickEbbaApplicationBankNote
+              }
+            />
+          </Box>
         </Box>
       </Box>
     </PageContent>

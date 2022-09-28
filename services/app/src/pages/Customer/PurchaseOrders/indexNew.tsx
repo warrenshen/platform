@@ -5,7 +5,7 @@ import { useContext } from "react";
 
 function PurchaseOrdersPageNew() {
   const {
-    user: { companyId, productType },
+    user: { companyId, productType, isActiveContract },
   } = useContext(CurrentUserContext);
 
   return (
@@ -14,6 +14,7 @@ function PurchaseOrdersPageNew() {
         <CustomerPurchaseOrdersPageContentNew
           companyId={companyId}
           productType={productType}
+          isActiveContract={!!isActiveContract}
         />
       )}
     </Page>

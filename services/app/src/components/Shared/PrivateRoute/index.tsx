@@ -5,6 +5,7 @@ import {
 import {
   UserRolesEnum,
   useGetCompanyWithDetailsByCompanyIdQuery,
+  useGetMostRecentFinancialSummaryAndContractByCompanyIdQuery,
 } from "generated/graphql";
 import { ProductTypeEnum } from "lib/enum";
 import { routes } from "lib/routes";
@@ -20,6 +21,7 @@ export default function PrivateRoute(props: Props & RouteProps) {
   const {
     user: { companyId, role },
     setUserProductType,
+    setUserIsActiveContract,
     isSignedIn,
   } = useContext(CurrentUserContext);
 
@@ -42,11 +44,43 @@ export default function PrivateRoute(props: Props & RouteProps) {
 
   const company = data?.companies_by_pk;
 
+  const {
+    data: financialSummaryAndContractData,
+    error: financialSummaryAndContractError,
+  } = useGetMostRecentFinancialSummaryAndContractByCompanyIdQuery({
+    skip: companyId === null,
+    variables: {
+      companyId,
+    },
+  });
+
+  if (financialSummaryAndContractError) {
+    alert(
+      `Error in query (details in console): ${financialSummaryAndContractError.message}`
+    );
+  }
+
+  const mostRecentFinancialSummary =
+    financialSummaryAndContractData?.financial_summaries[0];
+
+  const productType = mostRecentFinancialSummary?.product_type
+    ? mostRecentFinancialSummary.product_type
+    : financialSummaryAndContractData?.contracts[0]?.product_type;
+
+  const isActiveContract = !!company?.contract;
+
   useEffect(() => {
-    if (!isRoleBankUser(role) && company?.contract?.product_type) {
-      setUserProductType(company?.contract?.product_type as ProductTypeEnum);
+    if (!isRoleBankUser(role) && productType) {
+      setUserProductType(productType as ProductTypeEnum);
+      setUserIsActiveContract(isActiveContract);
     }
-  }, [role, company?.contract?.product_type, setUserProductType]);
+  }, [
+    role,
+    isActiveContract,
+    productType,
+    setUserProductType,
+    setUserIsActiveContract,
+  ]);
 
   return (
     <Route

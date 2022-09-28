@@ -40,6 +40,7 @@ const useStyles = makeStyles((theme: Theme) =>
 interface Props {
   companyId: Companies["id"];
   productType: ProductTypeEnum;
+  isActiveContract: boolean;
   data: GetActiveLoansForCompanyQuery | undefined;
   handleDataChange: () => void;
 }
@@ -47,6 +48,7 @@ interface Props {
 function LoansNotFunded({
   companyId,
   productType,
+  isActiveContract,
   data,
   handleDataChange,
 }: Props) {
@@ -67,7 +69,9 @@ function LoansNotFunded({
   );
 
   const canCreateUpdateNewLoan =
-    financialSummary?.available_limit && financialSummary?.available_limit > 0;
+    isActiveContract &&
+    financialSummary?.available_limit &&
+    financialSummary?.available_limit > 0;
 
   // State for modal(s).
   const [selectedLoanIds, setSelectedLoanIds] = useState<Loans["id"][]>([]);
@@ -91,7 +95,12 @@ function LoansNotFunded({
       <Box display="flex" flexDirection="row-reverse">
         <Can perform={Action.AddPurchaseOrderLoan}>
           <ModalButton
-            isDisabled={!canCreateUpdateNewLoan || selectedLoanIds.length !== 0}
+            dataCy="create-loan-button"
+            isDisabled={
+              !canCreateUpdateNewLoan ||
+              selectedLoanIds.length !== 0 ||
+              !isActiveContract
+            }
             label={"Request New Loan"}
             modal={({ handleClose }) => (
               <CreateUpdatePolymorphicLoanModal
@@ -111,7 +120,10 @@ function LoansNotFunded({
         <Can perform={Action.EditPurchaseOrderLoan}>
           <Box mr={2}>
             <ModalButton
-              isDisabled={!selectedLoan}
+              dataCy="edit-loan-button"
+              isDisabled={
+                (!isActiveContract && !selectedLoan) || !isActiveContract
+              }
               label={"Edit Loan"}
               modal={({ handleClose }) => (
                 <CreateUpdatePolymorphicLoanModal
@@ -133,7 +145,10 @@ function LoansNotFunded({
         <Can perform={Action.DeleteLoans}>
           <Box mr={2}>
             <ModalButton
-              isDisabled={!selectedLoan}
+              dataCy="delete-loan-button"
+              isDisabled={
+                (!isActiveContract && !selectedLoan) || !isActiveContract
+              }
               label={"Delete Loan"}
               variant={"outlined"}
               modal={({ handleClose }) => (

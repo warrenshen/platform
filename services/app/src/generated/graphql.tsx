@@ -7173,8 +7173,6 @@ export type CustomerSurveillanceResultsBoolExp = {
 /** unique or primary key constraints on table "customer_surveillance_results" */
 export enum CustomerSurveillanceResultsConstraint {
   /** unique or primary key constraint */
-  CompanyProductQualificationsCompanyIdQualifyingDateKey = "company_product_qualifications_company_id_qualifying_date_key",
-  /** unique or primary key constraint */
   CompanyProductQualificationsPkey = "company_product_qualifications_pkey",
 }
 
@@ -8252,7 +8250,7 @@ export type EbbaApplications = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamp"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   /** An object relationship */
   rejected_by_user?: Maybe<Users>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
@@ -8377,7 +8375,7 @@ export type EbbaApplicationsBoolExp = {
   monthly_accounts_receivable?: Maybe<NumericComparisonExp>;
   monthly_cash?: Maybe<NumericComparisonExp>;
   monthly_inventory?: Maybe<NumericComparisonExp>;
-  rejected_at?: Maybe<TimestampComparisonExp>;
+  rejected_at?: Maybe<TimestamptzComparisonExp>;
   rejected_by_user?: Maybe<UsersBoolExp>;
   rejected_by_user_id?: Maybe<UuidComparisonExp>;
   rejection_note?: Maybe<StringComparisonExp>;
@@ -8426,7 +8424,7 @@ export type EbbaApplicationsInsertInput = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamp"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejected_by_user?: Maybe<UsersObjRelInsertInput>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
@@ -8455,7 +8453,7 @@ export type EbbaApplicationsMaxFields = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamp"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -8507,7 +8505,7 @@ export type EbbaApplicationsMinFields = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamp"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -8672,7 +8670,7 @@ export type EbbaApplicationsSetInput = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamp"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -16684,7 +16682,7 @@ export type MonthlySummaryCalculations = {
   company: Companies;
   company_id: Scalars["uuid"];
   id: Scalars["uuid"];
-  minimum_payment?: Maybe<Scalars["numeric"]>;
+  minimum_payment: Scalars["numeric"];
   report_month: Scalars["date"];
 };
 
@@ -28659,7 +28657,9 @@ export type GetCompanyForBankCompanyPageQuery = {
       | "is_vendor"
       | "surveillance_status"
     > & {
-      contract?: Maybe<Pick<Contracts, "id" | "product_type" | "start_date">>;
+      contract?: Maybe<
+        Pick<Contracts, "id" | "product_type" | "start_date" | "terminated_at">
+      >;
       most_recent_surveillance_result: Array<
         Pick<CustomerSurveillanceResults, "id"> &
           CustomerSurveillanceResultFragment
@@ -28694,6 +28694,18 @@ export type GetFinancialSummariesByCompanyIdQuery = {
       company: Pick<Companies, "id" | "name" | "debt_facility_status">;
     } & FinancialSummaryFragment
   >;
+};
+
+export type GetMostRecentFinancialSummaryAndContractByCompanyIdQueryVariables =
+  Exact<{
+    companyId: Scalars["uuid"];
+  }>;
+
+export type GetMostRecentFinancialSummaryAndContractByCompanyIdQuery = {
+  financial_summaries: Array<
+    Pick<FinancialSummaries, "id" | "product_type"> & FinancialSummaryFragment
+  >;
+  contracts: Array<Pick<Contracts, "id"> & ContractFragment>;
 };
 
 export type GetFinancialSummariesByDateQueryVariables = Exact<{
@@ -34660,6 +34672,7 @@ export const GetCompanyForBankCompanyPageDocument = gql`
         id
         product_type
         start_date
+        terminated_at
       }
       most_recent_surveillance_result: customer_surveillance_results(
         limit: 1
@@ -34912,6 +34925,81 @@ export type GetFinancialSummariesByCompanyIdQueryResult = Apollo.QueryResult<
   GetFinancialSummariesByCompanyIdQuery,
   GetFinancialSummariesByCompanyIdQueryVariables
 >;
+export const GetMostRecentFinancialSummaryAndContractByCompanyIdDocument = gql`
+  query GetMostRecentFinancialSummaryAndContractByCompanyId($companyId: uuid!) {
+    financial_summaries(
+      where: { company_id: { _eq: $companyId } }
+      order_by: { date: desc }
+      limit: 1
+    ) {
+      id
+      product_type
+      ...FinancialSummary
+    }
+    contracts(
+      where: { company_id: { _eq: $companyId } }
+      order_by: { adjusted_end_date: desc }
+      limit: 1
+    ) {
+      id
+      ...Contract
+    }
+  }
+  ${FinancialSummaryFragmentDoc}
+  ${ContractFragmentDoc}
+`;
+
+/**
+ * __useGetMostRecentFinancialSummaryAndContractByCompanyIdQuery__
+ *
+ * To run a query within a React component, call `useGetMostRecentFinancialSummaryAndContractByCompanyIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMostRecentFinancialSummaryAndContractByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetMostRecentFinancialSummaryAndContractByCompanyIdQuery({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *   },
+ * });
+ */
+export function useGetMostRecentFinancialSummaryAndContractByCompanyIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetMostRecentFinancialSummaryAndContractByCompanyIdQuery,
+    GetMostRecentFinancialSummaryAndContractByCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetMostRecentFinancialSummaryAndContractByCompanyIdQuery,
+    GetMostRecentFinancialSummaryAndContractByCompanyIdQueryVariables
+  >(GetMostRecentFinancialSummaryAndContractByCompanyIdDocument, baseOptions);
+}
+export function useGetMostRecentFinancialSummaryAndContractByCompanyIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetMostRecentFinancialSummaryAndContractByCompanyIdQuery,
+    GetMostRecentFinancialSummaryAndContractByCompanyIdQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetMostRecentFinancialSummaryAndContractByCompanyIdQuery,
+    GetMostRecentFinancialSummaryAndContractByCompanyIdQueryVariables
+  >(GetMostRecentFinancialSummaryAndContractByCompanyIdDocument, baseOptions);
+}
+export type GetMostRecentFinancialSummaryAndContractByCompanyIdQueryHookResult =
+  ReturnType<
+    typeof useGetMostRecentFinancialSummaryAndContractByCompanyIdQuery
+  >;
+export type GetMostRecentFinancialSummaryAndContractByCompanyIdLazyQueryHookResult =
+  ReturnType<
+    typeof useGetMostRecentFinancialSummaryAndContractByCompanyIdLazyQuery
+  >;
+export type GetMostRecentFinancialSummaryAndContractByCompanyIdQueryResult =
+  Apollo.QueryResult<
+    GetMostRecentFinancialSummaryAndContractByCompanyIdQuery,
+    GetMostRecentFinancialSummaryAndContractByCompanyIdQueryVariables
+  >;
 export const GetFinancialSummariesByDateDocument = gql`
   query GetFinancialSummariesByDate($date: date!) {
     financial_summaries(where: { date: { _eq: $date } }) {

@@ -5,13 +5,19 @@ import BorrowingBasePageContent from "pages/Customer/BorrowingBase/BorrowingBase
 interface Props {
   companyId: Companies["id"];
   productType: ProductTypeEnum;
+  isActiveContract: boolean;
 }
 
 export default function BankCustomerBorrowingBaseSubpage({
   companyId,
   productType,
+  isActiveContract,
 }: Props) {
   return (
-    <BorrowingBasePageContent companyId={companyId} productType={productType} />
+    <BorrowingBasePageContent
+      companyId={companyId}
+      productType={productType}
+      isActiveContract={isActiveContract}
+    />
   );
 }

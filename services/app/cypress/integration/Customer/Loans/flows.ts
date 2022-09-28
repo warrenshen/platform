@@ -60,10 +60,17 @@ export const getTestSetupDates = () => {
     timeZone: "Europe/London",
   });
 
+  const maturityDate = new Date(
+    now.getFullYear() + 1,
+    now.getMonth(),
+    now.getDate()
+  );
+
   return {
     orderDate: orderDateString,
     requestedAt: requestedAtString,
     approvedAt: approvedAtString,
+    maturityDate,
   };
 };
 
@@ -109,4 +116,25 @@ export const requestFinancing = ({
 
   cy.dataCy("create-update-artifact-loan-modal-primary-button").click();
   cy.get(expectedMuiStatus).should("exist");
+};
+
+export const inactiveCustomerLoansCheckButtonsDisabledFlow = () => {
+  // Go to Customer > Loans
+  cy.dataCy("sidebar-item-loans").click();
+  cy.url().should("include", "loans");
+
+  // Verify that the buttons are disabled
+  // (Not Funded Loans)
+  cy.persistentClick(
+    "[data-cy='not-funded-loans-datagrid'] table tr[aria-rowindex='1'] td[aria-colindex='1'] .dx-select-checkbox"
+  );
+  cy.dataCy("create-loan-button").should("be.disabled");
+  cy.dataCy("edit-loan-button").should("be.disabled");
+  cy.dataCy("delete-loan-button").should("be.disabled");
+
+  // (Funded Loans)
+  cy.persistentClick(
+    "[data-cy='funded-loans-data-grid-container'] table tr[aria-rowindex='1'] td[aria-colindex='1'] .dx-select-checkbox"
+  );
+  cy.dataCy("repay-loans-button").should("be.disabled");
 };

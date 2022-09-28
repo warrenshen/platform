@@ -5,16 +5,19 @@ import CustomerVendorsPageContent from "pages/Customer/Vendors/VendorsPageConten
 interface Props {
   companyId: Companies["id"];
   productType: ProductTypeEnum;
+  isActiveContract: boolean;
 }
 
 export default function BankCustomerVendorsSubpage({
   companyId,
   productType,
+  isActiveContract,
 }: Props) {
   return (
     <CustomerVendorsPageContent
       companyId={companyId}
       productType={productType}
+      isActiveContract={isActiveContract}
     />
   );
 }

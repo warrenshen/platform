@@ -5,12 +5,17 @@ import { useContext } from "react";
 
 export default function CustomerPayorsPage() {
   const {
-    user: { companyId },
+    user: { companyId, isActiveContract },
   } = useContext(CurrentUserContext);
 
   return (
     <Page appBarTitle="Payors">
-      {companyId && <CustomerPayorsPageContent companyId={companyId} />}
+      {companyId && (
+        <CustomerPayorsPageContent
+          companyId={companyId}
+          isActiveContract={!!isActiveContract}
+        />
+      )}
     </Page>
   );
 }

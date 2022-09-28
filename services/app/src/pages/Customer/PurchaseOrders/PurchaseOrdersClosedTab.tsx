@@ -37,11 +37,13 @@ const useStyles = makeStyles((theme: Theme) =>
 interface Props {
   companyId: Companies["id"];
   productType: ProductTypeEnum;
+  isActiveContract: boolean;
 }
 
 export default function CustomerPurchaseOrdersClosedTab({
   companyId,
   productType,
+  isActiveContract,
 }: Props) {
   const classes = useStyles();
 
@@ -93,7 +95,7 @@ export default function CustomerPurchaseOrdersClosedTab({
             <Can perform={Action.EditPurchaseOrders}>
               <Box>
                 <ModalButton
-                  isDisabled={!selectedPurchaseOrder}
+                  isDisabled={!selectedPurchaseOrder || !isActiveContract}
                   label={"Edit PO"}
                   modal={({ handleClose }) => (
                     <CreateUpdatePurchaseOrderModal
@@ -114,7 +116,7 @@ export default function CustomerPurchaseOrdersClosedTab({
             <Can perform={Action.ReopenPurchaseOrders}>
               <Box mr={2}>
                 <ModalButton
-                  isDisabled={!selectedPurchaseOrder}
+                  isDisabled={!selectedPurchaseOrder || !isActiveContract}
                   label={"Reopen PO"}
                   variant={"outlined"}
                   modal={({ handleClose }) => (

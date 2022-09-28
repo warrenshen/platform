@@ -165,7 +165,12 @@ function CompanySettingsCard({ contract, settings, handleClick }: Props) {
       <Can perform={Action.EditUserAccountSettings}>
         {handleClick && isEditButtonShown && (
           <CardActions>
-            <Button size="small" variant="outlined" onClick={handleClick}>
+            <Button
+              size="small"
+              variant="outlined"
+              disabled={!contract}
+              onClick={handleClick}
+            >
               Edit
             </Button>
           </CardActions>

@@ -18,17 +18,20 @@ import { useMemo, useState } from "react";
 
 interface Props {
   company: NonNullable<GetCompanyForCustomerQuery["companies_by_pk"]>;
+  isActiveContract: boolean;
 }
 
 interface ActiveUsersTabProps {
   company: NonNullable<GetCompanyForCustomerQuery["companies_by_pk"]>;
+  isActiveContract: boolean;
 }
 
 interface DeactivatedUsersTabProps {
   company: NonNullable<GetCompanyForCustomerQuery["companies_by_pk"]>;
+  isActiveContract: boolean;
 }
 
-function ActiveUsersTab({ company }: ActiveUsersTabProps) {
+function ActiveUsersTab({ company, isActiveContract }: ActiveUsersTabProps) {
   const { data, refetch } = useGetUsersForCompanyQuery({
     variables: {
       parent_company_id: company.parent_company_id,
@@ -59,7 +62,8 @@ function ActiveUsersTab({ company }: ActiveUsersTabProps) {
       <Box display="flex" flexDirection="row-reverse">
         <Can perform={Action.ManipulateUser}>
           <ModalButton
-            isDisabled={selectedUsers.length > 0}
+            dataCy="create-user-button"
+            isDisabled={selectedUsers.length > 0 || !isActiveContract}
             label={"Create User"}
             modal={({ handleClose }) => (
               <InviteUserModal
@@ -76,7 +80,8 @@ function ActiveUsersTab({ company }: ActiveUsersTabProps) {
         <Can perform={Action.ManipulateUser}>
           <Box mr={2}>
             <ModalButton
-              isDisabled={selectedUsers.length !== 1}
+              dataCy="edit-user-button"
+              isDisabled={selectedUsers.length !== 1 || !isActiveContract}
               label={"Edit User"}
               modal={({ handleClose }) => (
                 <EditUserProfileModal
@@ -96,7 +101,8 @@ function ActiveUsersTab({ company }: ActiveUsersTabProps) {
         <Can perform={Action.ManipulateUser}>
           <Box mr={2}>
             <ModalButton
-              isDisabled={selectedUsers.length !== 1}
+              dataCy="deactivate-user-button"
+              isDisabled={selectedUsers.length !== 1 || !isActiveContract}
               label={"Deactivate User"}
               modal={({ handleClose }) => (
                 <DeactivateUserModal
@@ -112,7 +118,7 @@ function ActiveUsersTab({ company }: ActiveUsersTabProps) {
           </Box>
         </Can>
       </Box>
-      <Box display="flex" mt={3}>
+      <Box display="flex" mt={3} data-cy="users-data-grid">
         {users.length > 0 ? (
           <UsersDataGrid
             isMultiSelectEnabled
@@ -129,7 +135,10 @@ function ActiveUsersTab({ company }: ActiveUsersTabProps) {
   );
 }
 
-function DeactivatedUsersTab({ company }: DeactivatedUsersTabProps) {
+function DeactivatedUsersTab({
+  company,
+  isActiveContract,
+}: DeactivatedUsersTabProps) {
   const { data, refetch } = useGetDeactivatedUsersForCompanyQuery({
     variables: {
       parent_company_id: company.parent_company_id,
@@ -159,7 +168,7 @@ function DeactivatedUsersTab({ company }: DeactivatedUsersTabProps) {
         <Can perform={Action.ManipulateUser}>
           <Box mr={2}>
             <ModalButton
-              isDisabled={selectedUsers.length !== 1}
+              isDisabled={selectedUsers.length !== 1 || !isActiveContract}
               label={"Re-activate User"}
               modal={({ handleClose }) => (
                 <ReactivateUserModal
@@ -192,7 +201,7 @@ function DeactivatedUsersTab({ company }: DeactivatedUsersTabProps) {
   );
 }
 
-export default function ManageUsersArea({ company }: Props) {
+export default function ManageUsersArea({ company, isActiveContract }: Props) {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
   return (
@@ -209,9 +218,12 @@ export default function ManageUsersArea({ company }: Props) {
       </Tabs>
       <br />
       {selectedTabIndex === 0 ? (
-        <ActiveUsersTab company={company} />
+        <ActiveUsersTab company={company} isActiveContract={isActiveContract} />
       ) : (
-        <DeactivatedUsersTab company={company} />
+        <DeactivatedUsersTab
+          company={company}
+          isActiveContract={isActiveContract}
+        />
       )}
     </Box>
   );

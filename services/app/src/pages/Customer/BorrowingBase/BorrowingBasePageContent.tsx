@@ -26,11 +26,13 @@ import { useMemo, useState } from "react";
 interface Props {
   companyId: Companies["id"];
   productType: ProductTypeEnum;
+  isActiveContract: boolean;
 }
 
 export default function BorrowingBasePageContent({
   companyId,
   productType,
+  isActiveContract,
 }: Props) {
   const { data, loading, refetch } = useGetCompanyEbbaApplicationsInfoQuery({
     fetchPolicy: "network-only",
@@ -105,6 +107,7 @@ export default function BorrowingBasePageContent({
         <Box mt={2}>
           <ModalButton
             dataCy={"create-borrowing-base-button"}
+            isDisabled={!isActiveContract}
             label={`Create Borrowing Base Certification`}
             modal={({ handleClose }) => (
               <CreateUpdateBorrowingBaseCertificationModal
@@ -177,7 +180,7 @@ export default function BorrowingBasePageContent({
             <Box>
               <ModalButton
                 dataCy={"edit-borrowing-base-button"}
-                isDisabled={!selectedEbbaApplication}
+                isDisabled={!selectedEbbaApplication || !isActiveContract}
                 label={"Edit Certification"}
                 modal={({ handleClose }) => (
                   <CreateUpdateBorrowingBaseCertificationModal
@@ -194,7 +197,8 @@ export default function BorrowingBasePageContent({
             </Box>
             <Box mr={2}>
               <ModalButton
-                isDisabled={!selectedEbbaApplication}
+                dataCy={"delete-borrowing-base-button"}
+                isDisabled={!selectedEbbaApplication || !isActiveContract}
                 label={"Delete Certification"}
                 variant={"outlined"}
                 modal={({ handleClose }) => (
@@ -220,16 +224,18 @@ export default function BorrowingBasePageContent({
               handleClose={() => setSelectedEbbaApplicationIdForBankNote(null)}
             />
           )}
-          <EbbaApplicationsDataGrid
-            isBorrowingBaseFieldsVisible
-            isMultiSelectEnabled
-            ebbaApplications={ebbaApplications}
-            selectedEbbaApplicationIds={selectedEbbaApplicationIds}
-            handleSelectEbbaApplications={handleSelectEbbaApplications}
-            handleClickBorrowingBaseBankNote={
-              handleClickEbbaApplicationBankNote
-            }
-          />
+          <Box data-cy={"borrowing-base-table"}>
+            <EbbaApplicationsDataGrid
+              isBorrowingBaseFieldsVisible
+              isMultiSelectEnabled
+              ebbaApplications={ebbaApplications}
+              selectedEbbaApplicationIds={selectedEbbaApplicationIds}
+              handleSelectEbbaApplications={handleSelectEbbaApplications}
+              handleClickBorrowingBaseBankNote={
+                handleClickEbbaApplicationBankNote
+              }
+            />
+          </Box>
         </Box>
       </Box>
     </PageContent>

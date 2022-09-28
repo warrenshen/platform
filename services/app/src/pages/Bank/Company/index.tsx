@@ -16,6 +16,7 @@ import {
   UserRolesEnum,
   useGetCompanyForBankCompanyPageQuery,
   useGetCompanySettingsByCompanyIdForCustomerQuery,
+  useGetMostRecentFinancialSummaryAndContractByCompanyIdQuery,
 } from "generated/graphql";
 import {
   FeatureFlagEnum,
@@ -167,6 +168,7 @@ type BankCustomerPath = {
     React.FunctionComponent<{
       companyId: Companies["id"];
       productType: ProductTypeEnum | null;
+      isActiveContract: boolean;
     }>
   >;
 };
@@ -176,6 +178,7 @@ const getCustomerPaths = (
   missingFinancialReportCount: number,
   isLatestBorrowingBaseMissing: boolean,
   productType: ProductTypeEnum | null,
+  isActiveContract: boolean,
   isMetrcBased: boolean,
   isBankUser: boolean
 ) => {
@@ -370,12 +373,23 @@ export default function BankCompanyPage() {
     },
   });
 
+  const { data: financialSummaryAndContractData } =
+    useGetMostRecentFinancialSummaryAndContractByCompanyIdQuery({
+      variables: {
+        companyId,
+      },
+    });
+
   const company = data?.companies_by_pk || null;
   const companyName = company?.name;
-  const contract = company?.contract || null;
+  const isActiveContract = !!company?.contract;
   const surveillanceStatus = company?.most_recent_surveillance_result?.[0]
     ?.surveillance_status as SurveillanceStatusEnum;
-  const productType = (contract?.product_type as ProductTypeEnum) || null;
+  const productType =
+    (financialSummaryAndContractData?.financial_summaries[0]
+      ?.product_type as ProductTypeEnum) ||
+    financialSummaryAndContractData?.contracts[0]?.product_type ||
+    null;
 
   const { missingFinancialReportCount, isLatestBorrowingBaseMissing } =
     useGetMissingReportsInfo(companyId);
@@ -429,6 +443,7 @@ export default function BankCompanyPage() {
               missingFinancialReportCount,
               isLatestBorrowingBaseMissing,
               productType,
+              isActiveContract,
               isMetrcBased,
               isRoleBankUser(role)
             )
@@ -505,6 +520,7 @@ export default function BankCompanyPage() {
               missingFinancialReportCount,
               isLatestBorrowingBaseMissing,
               productType,
+              isActiveContract,
               isMetrcBased,
               isRoleBankUser(role)
             ).map((section) => section.paths)
@@ -518,7 +534,11 @@ export default function BankCompanyPage() {
                 UserRolesEnum.BankReadOnly,
               ]}
             >
-              {companyPath.component({ companyId, productType })}
+              {companyPath.component({
+                companyId,
+                productType,
+                isActiveContract,
+              })}
             </PrivateRoute>
           ))}
         </Box>

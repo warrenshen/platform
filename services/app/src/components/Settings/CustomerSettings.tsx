@@ -74,13 +74,17 @@ export default function CustomerSettings({
     return null;
   }
 
+  const isActiveContract = !!contract;
+
   return (
     <Box>
       <Box>
         <h2>General</h2>
         <Box mt={3}>
           <CompanyInfo
-            isEditAllowed={check(role, Action.EditBankAccount)}
+            isEditAllowed={
+              check(role, Action.EditBankAccount) && isActiveContract
+            }
             company={company}
             handleDataChange={handleDataChange}
           />
@@ -144,6 +148,7 @@ export default function CustomerSettings({
               <ModalButton
                 dataCy={"add-bank-account-button"}
                 label={"Add Bank Account"}
+                isDisabled={!isActiveContract}
                 modal={({ handleClose }) => (
                   <CreateUpdateBankAccountModal
                     companyId={companyId}
@@ -161,7 +166,9 @@ export default function CustomerSettings({
             <Box mr={2}>
               <ModalButton
                 dataCy={"edit-bank-account-button"}
-                isDisabled={selectedBankAccountIds.length !== 1}
+                isDisabled={
+                  selectedBankAccountIds.length !== 1 || !isActiveContract
+                }
                 label={"Edit Bank Account"}
                 modal={({ handleClose }) => (
                   <CreateUpdateBankAccountModal
@@ -182,7 +189,9 @@ export default function CustomerSettings({
             <Box mr={2}>
               <ModalButton
                 dataCy={"delete-bank-account-button"}
-                isDisabled={selectedBankAccountIds.length !== 1}
+                isDisabled={
+                  selectedBankAccountIds.length !== 1 || !isActiveContract
+                }
                 label={"Delete Bank Account"}
                 variant={"outlined"}
                 modal={({ handleClose }) => (
@@ -208,7 +217,10 @@ export default function CustomerSettings({
         </Box>
       </Box>
       <Box mt={4}>
-        <ManageUsersArea company={company} />
+        <ManageUsersArea
+          company={company}
+          isActiveContract={isActiveContract}
+        />
       </Box>
     </Box>
   );

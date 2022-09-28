@@ -5,16 +5,19 @@ import FinancialCertificationsPageContent from "pages/Customer/FinancialCertific
 interface Props {
   companyId: Companies["id"];
   productType: ProductTypeEnum;
+  isActiveContract: boolean;
 }
 
 export default function BankCustomerFinancialCertificationsSubpage({
   companyId,
   productType,
+  isActiveContract,
 }: Props) {
   return (
     <FinancialCertificationsPageContent
       companyId={companyId}
       productType={productType}
+      isActiveContract={isActiveContract}
     />
   );
 }

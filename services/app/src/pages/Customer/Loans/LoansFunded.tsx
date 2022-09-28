@@ -39,6 +39,7 @@ const useStyles = makeStyles((theme: Theme) =>
 interface Props {
   companyId: Companies["id"];
   productType: ProductTypeEnum;
+  isActiveContract: boolean;
   data: GetActiveLoansForCompanyQuery | undefined;
   handleDataChange: () => void;
 }
@@ -46,6 +47,7 @@ interface Props {
 function LoansFunded({
   companyId,
   productType,
+  isActiveContract,
   data,
   handleDataChange,
 }: Props) {
@@ -85,7 +87,9 @@ function LoansFunded({
           <Can perform={Action.RepayPurchaseOrderLoans}>
             <Box>
               <ModalButton
+                dataCy="repay-loans-button"
                 label={"Make Repayment"}
+                isDisabled={!isActiveContract}
                 handleClick={({ handleOpen }) => {
                   const fundedLoans = selectedLoans.filter(
                     (loan) => loan.funded_at

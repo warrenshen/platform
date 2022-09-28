@@ -102,6 +102,14 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
     },
     [user.productType]
   );
+  const setUserIsActiveContract = useCallback(
+    (isActiveContract: boolean) => {
+      if (user.isActiveContract !== isActiveContract) {
+        setUser((user) => ({ ...user, isActiveContract }));
+      }
+    },
+    [user.isActiveContract]
+  );
 
   const signOut = useCallback(async () => {
     try {
@@ -470,6 +478,7 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
         isSignedIn,
         resetUser,
         setUserProductType,
+        setUserIsActiveContract,
         undoImpersonation,
         impersonateUser,
         signIn,

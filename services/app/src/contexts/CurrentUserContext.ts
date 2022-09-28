@@ -17,6 +17,7 @@ export type User = {
   impersonatorUserId: Users["id"] | null;
   productType: ProductTypeEnum | null;
   isEmbeddedModule: boolean | null; // Whether app is open in an iframe element.
+  isActiveContract: boolean | null;
 };
 
 export type CurrentUserContextType = {
@@ -24,6 +25,7 @@ export type CurrentUserContextType = {
   isSignedIn: boolean;
   resetUser: () => void; // A function that resets state of CurrentUserProvider component.
   setUserProductType: (productType: ProductTypeEnum) => void; // A function that sets productType state of CurrentUserProvider component.
+  setUserIsActiveContract: (isActiveContract: boolean) => void; // A function that sets isActiveContract state of CurrentUserProvider component.
   signIn: (
     email: string,
     password: string,
@@ -42,6 +44,7 @@ export const BlankUser = {
   impersonatorUserId: null,
   productType: null,
   isEmbeddedModule: null,
+  isActiveContract: null,
 };
 
 export const CurrentUserContext = createContext<CurrentUserContextType>({
@@ -49,6 +52,7 @@ export const CurrentUserContext = createContext<CurrentUserContextType>({
   isSignedIn: false,
   resetUser: () => {},
   setUserProductType: () => {},
+  setUserIsActiveContract: () => {},
   undoImpersonation: () => Promise.resolve(),
   impersonateUser: () => Promise.resolve(),
   signIn: () => {},

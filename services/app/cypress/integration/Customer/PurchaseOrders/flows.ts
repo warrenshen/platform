@@ -38,6 +38,32 @@ export const customerCreatesPurchaseOrderFlow = (
   cy.get(".MuiAlert-standardSuccess").should("exist");
 };
 
+export const inactiveCustomerCreatesPurchaseOrderFlow = () => {
+  // Go to Customer > Borrowing Base
+  cy.dataCy("sidebar-item-purchase-orders").click();
+  cy.url().should("include", "purchase-orders");
+
+  // Check purchase order action buttons are disabled for inactive customer
+  // (Not Ready to Request Financing)
+  cy.get(
+    "[data-cy='not-approved-purchase-orders-data-grid'] table tr[aria-rowindex='1'] td[aria-colindex='1'] .dx-select-checkbox"
+  ).click();
+
+  cy.dataCy("create-purchase-order-button").should("be.disabled");
+  cy.dataCy("edit-purchase-order-button").should("be.disabled");
+  cy.dataCy("delete-purchase-order-button").should("be.disabled");
+  cy.dataCy("submit-purchase-order-button").should("be.disabled");
+
+  // (Ready to Request Financing)
+  cy.get(
+    "[data-cy='ready-to-request-purchase-orders-data-grid'] table tr[aria-rowindex='1'] td[aria-colindex='1'] .dx-select-checkbox"
+  ).click();
+  cy.dataCy("request-purchase-order-financing-button").should("be.disabled");
+  cy.dataCy("edit-purchase-order-button").should("be.disabled");
+  cy.dataCy("close-purchase-order-button").should("be.disabled");
+  cy.dataCy("delete-purchase-order-button").should("be.disabled");
+};
+
 export const customerCreatesPurchaseOrderFlowNew = (
   purchaseOrderNumber: string
 ) => {
@@ -88,7 +114,7 @@ export const approvePurchaseOrderAsBankAdmin = () => {
   cy.dataCy("not-confirmed-pos").click();
 
   cy.persistentClick(
-    "table tr[aria-rowindex='1'] td[aria-colindex='1'] .dx-select-checkbox"
+    "[data-cy='not-approved-purchase-orders-data-grid'] table tr[aria-rowindex='1'] td[aria-colindex='1'] .dx-select-checkbox"
   );
 
   cy.dataCy("approve-po-button").click();

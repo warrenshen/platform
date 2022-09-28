@@ -144,6 +144,7 @@ query GetCompanyForBankCompanyPage($id: uuid!) {
       id
       product_type
       start_date
+      terminated_at
     }
     most_recent_surveillance_result: customer_surveillance_results(
       limit: 1

@@ -49,11 +49,13 @@ const useStyles = makeStyles((theme: Theme) =>
 interface Props {
   companyId: Companies["id"];
   productType: ProductTypeEnum;
+  isActiveContract: boolean;
 }
 
 export default function CustomerPurchaseOrdersOpenTab({
   companyId,
   productType,
+  isActiveContract,
 }: Props) {
   const classes = useStyles();
   const snackbar = useSnackbar();
@@ -203,7 +205,9 @@ export default function CustomerPurchaseOrdersOpenTab({
           <Can perform={Action.AddPurchaseOrders}>
             <ModalButton
               dataCy={"create-purchase-order-button"}
-              isDisabled={!!selectedNotApprovedPurchaseOrder}
+              isDisabled={
+                !!selectedNotApprovedPurchaseOrder || !isActiveContract
+              }
               label={"Create PO"}
               modal={({ handleClose }) => (
                 <CreateUpdatePurchaseOrderModal
@@ -222,7 +226,10 @@ export default function CustomerPurchaseOrdersOpenTab({
           <Can perform={Action.EditPurchaseOrders}>
             <Box mr={2}>
               <ModalButton
-                isDisabled={!selectedNotApprovedPurchaseOrder}
+                dataCy={"edit-purchase-order-button"}
+                isDisabled={
+                  !selectedNotApprovedPurchaseOrder || !isActiveContract
+                }
                 label={"Edit PO"}
                 modal={({ handleClose }) => (
                   <CreateUpdatePurchaseOrderModal
@@ -243,7 +250,12 @@ export default function CustomerPurchaseOrdersOpenTab({
           <Can perform={Action.EditPurchaseOrders}>
             <Box mr={2}>
               <Button
-                disabled={!selectedNotApprovedPurchaseOrder || isFormLoading}
+                data-cy={"submit-purchase-order-button"}
+                disabled={
+                  !selectedNotApprovedPurchaseOrder ||
+                  isFormLoading ||
+                  !isActiveContract
+                }
                 variant="contained"
                 color="primary"
                 onClick={handleSubmitPurchaseOrder}
@@ -256,7 +268,10 @@ export default function CustomerPurchaseOrdersOpenTab({
             <Can perform={Action.DeletePurchaseOrders}>
               <Box mr={2}>
                 <ModalButton
-                  isDisabled={!selectedNotApprovedPurchaseOrder}
+                  dataCy={"delete-purchase-order-button"}
+                  isDisabled={
+                    !selectedNotApprovedPurchaseOrder || !isActiveContract
+                  }
                   label={"Delete PO"}
                   variant={"outlined"}
                   modal={({ handleClose }) => (
@@ -274,7 +289,7 @@ export default function CustomerPurchaseOrdersOpenTab({
             </Can>
           )}
         </Box>
-        <Box>
+        <Box data-cy="not-approved-purchase-orders-data-grid">
           <PurchaseOrdersDataGrid
             isApprovedByVendor={false}
             isCompanyVisible={false}
@@ -295,7 +310,10 @@ export default function CustomerPurchaseOrdersOpenTab({
               <Box>
                 <ModalButton
                   dataCy={"request-purchase-order-financing-button"}
-                  isDisabled={selectedApprovedPurchaseOrderIds.length <= 0}
+                  isDisabled={
+                    selectedApprovedPurchaseOrderIds.length <= 0 ||
+                    !isActiveContract
+                  }
                   label={"Request PO Financing"}
                   modal={({ handleClose }) => {
                     const handler = () => {
@@ -326,7 +344,10 @@ export default function CustomerPurchaseOrdersOpenTab({
             <Can perform={Action.EditPurchaseOrders}>
               <Box mr={2}>
                 <ModalButton
-                  isDisabled={!selectedApprovedPurchaseOrder}
+                  dataCy={"edit-purchase-order-button"}
+                  isDisabled={
+                    !selectedApprovedPurchaseOrder || !isActiveContract
+                  }
                   label={"Edit PO"}
                   modal={({ handleClose }) => (
                     <CreateUpdatePurchaseOrderModal
@@ -347,7 +368,10 @@ export default function CustomerPurchaseOrdersOpenTab({
             <Can perform={Action.ClosePurchaseOrders}>
               <Box mr={2}>
                 <ModalButton
-                  isDisabled={!selectedApprovedPurchaseOrder}
+                  dataCy="close-purchase-order-button"
+                  isDisabled={
+                    !selectedApprovedPurchaseOrder || !isActiveContract
+                  }
                   label={"Close PO"}
                   variant={"outlined"}
                   modal={({ handleClose }) => (
@@ -367,7 +391,10 @@ export default function CustomerPurchaseOrdersOpenTab({
               <Can perform={Action.DeletePurchaseOrders}>
                 <Box mr={2}>
                   <ModalButton
-                    isDisabled={!selectedApprovedPurchaseOrder}
+                    dataCy="delete-purchase-order-button"
+                    isDisabled={
+                      !selectedApprovedPurchaseOrder || !isActiveContract
+                    }
                     label={"Delete PO"}
                     variant={"outlined"}
                     modal={({ handleClose }) => (
@@ -385,12 +412,14 @@ export default function CustomerPurchaseOrdersOpenTab({
               </Can>
             )}
           </Box>
-          <PurchaseOrdersDataGrid
-            isCompanyVisible={false}
-            purchaseOrders={approvedPurchaseOrders}
-            selectedPurchaseOrderIds={selectedApprovedPurchaseOrderIds}
-            handleSelectPurchaseOrders={handleSelectApprovedPurchaseOrders}
-          />
+          <Box data-cy="ready-to-request-purchase-orders-data-grid">
+            <PurchaseOrdersDataGrid
+              isCompanyVisible={false}
+              purchaseOrders={approvedPurchaseOrders}
+              selectedPurchaseOrderIds={selectedApprovedPurchaseOrderIds}
+              handleSelectPurchaseOrders={handleSelectApprovedPurchaseOrders}
+            />
+          </Box>
         </Box>
       </Box>
     </Container>

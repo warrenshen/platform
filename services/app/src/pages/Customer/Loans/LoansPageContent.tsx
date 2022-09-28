@@ -12,11 +12,13 @@ import { useContext, useState } from "react";
 interface Props {
   companyId: string;
   productType: ProductTypeEnum;
+  isActiveContract: boolean;
 }
 
 export default function CustomerLoansPageContent({
   companyId,
   productType,
+  isActiveContract,
 }: Props) {
   const { financialSummary } = useContext(CurrentCustomerContext);
 
@@ -67,11 +69,13 @@ export default function CustomerLoansPageContent({
         <CustomerLoansActiveTab
           companyId={companyId}
           productType={productType}
+          isActiveContract={isActiveContract}
         />
       ) : (
         <CustomerLoansClosedTab
           companyId={companyId}
           productType={productType}
+          isActiveContract={isActiveContract}
         />
       )}
     </PageContent>

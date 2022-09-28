@@ -5,7 +5,7 @@ import { useContext } from "react";
 
 export default function CustomerBorrowingBasePage() {
   const {
-    user: { companyId, productType },
+    user: { companyId, productType, isActiveContract },
   } = useContext(CurrentUserContext);
   return (
     <Page appBarTitle={"Borrowing Base"}>
@@ -13,6 +13,7 @@ export default function CustomerBorrowingBasePage() {
         <BorrowingBasePageContent
           companyId={companyId}
           productType={productType}
+          isActiveContract={!!isActiveContract}
         />
       )}
     </Page>

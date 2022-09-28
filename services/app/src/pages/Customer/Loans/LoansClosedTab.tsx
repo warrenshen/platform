@@ -36,9 +36,14 @@ const useStyles = makeStyles((theme: Theme) =>
 interface Props {
   companyId: string;
   productType: ProductTypeEnum;
+  isActiveContract: boolean;
 }
 
-function CustomerLoansPageLoansClosedTab({ companyId, productType }: Props) {
+function CustomerLoansPageLoansClosedTab({
+  companyId,
+  productType,
+  isActiveContract,
+}: Props) {
   const classes = useStyles();
 
   const {

@@ -23,6 +23,7 @@ import { useMemo, useState } from "react";
 interface Props {
   companyId: Companies["id"];
   productType: ProductTypeEnum;
+  isActiveContract: boolean;
 }
 
 export type PartnershipAwatingApproval = {
@@ -43,6 +44,7 @@ export enum PartnershipAwatingApprovalCategory {
 export default function CustomerVendorsPageContent({
   companyId,
   productType,
+  isActiveContract,
 }: Props) {
   const { data, refetch, error } = useGetVendorPartnershipsByCompanyIdQuery({
     variables: {
@@ -158,7 +160,11 @@ export default function CustomerVendorsPageContent({
       </Box>
       <Can perform={Action.AddVendor}>
         <Box display="flex" flexDirection="row-reverse" mb={2}>
-          <AddVendorButton customerId={companyId} handleDataChange={refetch} />
+          <AddVendorButton
+            isDisabled={!isActiveContract}
+            customerId={companyId}
+            handleDataChange={refetch}
+          />
         </Box>
       </Can>
       <Box display="flex" flexDirection="column">
@@ -171,7 +177,8 @@ export default function CustomerVendorsPageContent({
       <Can perform={Action.EditVendor}>
         <Box mb={2} display="flex" flexDirection="row-reverse">
           <ModalButton
-            isDisabled={selectedVendorIds.length !== 1}
+            dataCy="edit-vendor-button"
+            isDisabled={selectedVendorIds.length !== 1 || !isActiveContract}
             label={"Edit Vendors"}
             modal={({ handleClose }) => (
               <EditVendorModal
@@ -186,7 +193,7 @@ export default function CustomerVendorsPageContent({
           />
         </Box>
       </Can>
-      <Box display="flex">
+      <Box display="flex" data-cy="approved-vendors-table">
         <VendorPartnershipsDataGrid
           isMultiSelectEnabled={true}
           isVendorAgreementVisible={isVendorAgreementProductType(productType)}

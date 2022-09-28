@@ -70,11 +70,13 @@ const useStyles = makeStyles((theme: Theme) =>
 interface Props {
   companyId: Companies["id"];
   productType: ProductTypeEnum;
+  isActiveContract: boolean;
 }
 
 export default function CustomerOverviewPageContent({
   companyId,
   productType,
+  isActiveContract,
 }: Props) {
   const classes = useStyles();
 
@@ -110,11 +112,14 @@ export default function CustomerOverviewPageContent({
   const settings = company?.settings || null;
 
   const canCreateUpdateNewLoan =
-    financialSummary?.available_limit && financialSummary?.available_limit > 0;
+    isActiveContract &&
+    financialSummary?.available_limit &&
+    financialSummary?.available_limit > 0;
   const canCreateRepaymentLoan =
-    financialSummary?.total_outstanding_principal > 0 ||
-    financialSummary?.total_outstanding_interest > 0 ||
-    financialSummary?.total_outstanding_fees > 0;
+    isActiveContract &&
+    (financialSummary?.total_outstanding_principal > 0 ||
+      financialSummary?.total_outstanding_interest > 0 ||
+      financialSummary?.total_outstanding_fees > 0);
   const customMessage = settings?.custom_messages_payload
     ? settings?.custom_messages_payload[CustomMessageEnum.OVERVIEW_PAGE] || null
     : null;
@@ -250,6 +255,7 @@ export default function CustomerOverviewPageContent({
                   color={"default"}
                   variant={"outlined"}
                   label={"Create PO"}
+                  isDisabled={!isActiveContract}
                   modal={({ handleClose }) => (
                     <CreateUpdatePurchaseOrderModal
                       actionType={ActionType.New}
