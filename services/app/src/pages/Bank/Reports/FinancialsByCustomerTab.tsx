@@ -1,24 +1,48 @@
-import { Box, FormControl, TextField, Typography } from "@material-ui/core";
-import { Alert } from "@material-ui/lab";
+import {
+  Box,
+  FormControl,
+  IconButton,
+  TextField,
+  Tooltip,
+  Typography,
+} from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import FinancialSummariesDataGrid from "components/CustomerFinancialSummaries/FinancialSummariesDataGrid";
 import RunCustomerBalancesModal from "components/Loans/RunCustomerBalancesModal";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
+import { NotificationBubble } from "components/Shared/NotificationBubble/NotificationBubble";
 import {
   Companies,
   useGetCustomersForDropdownQuery,
   useGetFinancialSummariesByCompanyIdQuery,
 } from "generated/graphql";
+import { QuestionMarkIcon } from "icons";
 import { Action } from "lib/auth/rbac-rules";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useState } from "react";
 import { useHistory } from "react-router-dom";
+import styled from "styled-components";
+
+const StyledTooltip = styled((props) => (
+  <Tooltip classes={{ popper: props.className }} {...props} />
+))`
+  & .MuiTooltip-tooltip {
+    background-color: #fff;
+    max-width: 732px;
+    color: #000;
+    box-shadow: 0px 4px 24px rgba(0, 0, 0, 0.1);
+  }
+  & .MuiTooltip-arrow {
+    color: #fff;
+  }
+`;
 
 export default function BankReportsFinancialsByCustomerTab() {
   const history = useHistory();
 
   const [companyId, setCompanyId] = useState<Companies["id"]>("");
+  const [companyName, setCompanyName] = useState<Companies["name"]>("");
 
   const { data: customersData, error: customersError } =
     useGetCustomersForDropdownQuery({
@@ -54,6 +78,13 @@ export default function BankReportsFinancialsByCustomerTab() {
   const financialSummariesByCompanyId =
     financialSummariesByCompanyIdData?.financial_summaries || [];
 
+  const needsRecompute = financialSummariesByCompanyId.filter(
+    (financialSummary) => financialSummary.needs_recompute === true
+  );
+
+  const runBalanceStartDate = needsRecompute[needsRecompute.length - 1]?.date;
+  const runBalanceEndDate = needsRecompute[0]?.date;
+
   return (
     <Box display="flex" flexDirection="column">
       <Box display="flex" flexDirection="column" mt={4}>
@@ -72,9 +103,11 @@ export default function BankReportsFinancialsByCustomerTab() {
                   variant="outlined"
                 />
               )}
-              onChange={(_event, customer) =>
-                setCompanyId(customer?.id || null)
-              }
+              onChange={(_event, customer) => {
+                setCompanyId(customer?.id || null);
+                // @ts-ignore
+                setCompanyName(customer?.name || null);
+              }}
             />
           </FormControl>
         </Box>
@@ -83,58 +116,107 @@ export default function BankReportsFinancialsByCustomerTab() {
             <Box display="flex" flexDirection="row-reverse" mb={2}>
               <Can perform={Action.RunBalances}>
                 <Box>
-                  <ModalButton
-                    isDisabled={!companyId}
-                    label={"Run Balances"}
-                    color={"default"}
-                    modal={({ handleClose }) => (
-                      <RunCustomerBalancesModal
-                        companyId={companyId}
-                        handleClose={() => {
-                          financialSummariesByCompanyIdRefetch();
-                          handleClose();
-                        }}
-                      />
+                  <Box
+                    display="flex"
+                    flexDirection="column"
+                    position="relative"
+                    alignItems="end"
+                  >
+                    {needsRecompute.length > 0 && (
+                      <NotificationBubble>
+                        {needsRecompute.length}
+                      </NotificationBubble>
                     )}
-                  />
+                    <ModalButton
+                      isDisabled={!companyId}
+                      label={"Run Balances"}
+                      color={"primary"}
+                      modal={({ handleClose }) => (
+                        <RunCustomerBalancesModal
+                          companyId={companyId}
+                          companyName={companyName}
+                          recommendedStartDate={runBalanceStartDate}
+                          recommendedEndDate={runBalanceEndDate}
+                          handleClose={() => {
+                            financialSummariesByCompanyIdRefetch();
+                            handleClose();
+                          }}
+                        />
+                      )}
+                    />
+                  </Box>
                 </Box>
               </Can>
             </Box>
-            <Box display="flex" flexDirection="column">
-              <Box mb={2}>
-                <Alert severity="info">
-                  <Box display="flex" flexDirection="column">
-                    <Box>
-                      <Typography variant="body2">
-                        Principal Balance (PB): total outstanding principal with
-                        payments applied on <strong>deposit date</strong> as of{" "}
-                        <strong>end of date</strong>
-                      </Typography>
-                    </Box>
-                    <Box mt={1}>
-                      <Typography variant="body2">
-                        PB Including Clearance Days: total outstanding principal
-                        with payments applied on{" "}
-                        <strong>settlement date</strong> as of{" "}
-                        <strong>end of date</strong>
-                      </Typography>
-                    </Box>
-                    <Box mt={1}>
-                      <Typography variant="body2">
-                        Amount to Pay Interest On: total outstanding principal
-                        as of <strong>start of date</strong> (no payments
-                        applied yet)
-                      </Typography>
-                    </Box>
-                    <Box mt={1}>
-                      <Typography variant="body2">
-                        Interest Accrued Today = Amount to Pay Interest On *
-                        Interest Rate
-                      </Typography>
+            <Box display="flex" mb={2}>
+              <Typography variant="body1">Financials - For Customer</Typography>
+              <StyledTooltip
+                arrow
+                placement="right-start"
+                title={
+                  <Box m={2}>
+                    <Box display="flex" flexDirection="column">
+                      <Box>
+                        <Typography variant="body2" gutterBottom>
+                          Principal balance (PB):
+                        </Typography>
+                        <Typography
+                          variant="caption"
+                          color="textSecondary"
+                          gutterBottom
+                        >
+                          Total outstanding principal with payments applied on
+                          deposit date as of end of date
+                        </Typography>
+                      </Box>
+                      <Box mt={2}>
+                        <Typography variant="body2" gutterBottom>
+                          PB including clearance days:
+                        </Typography>
+                        <Typography
+                          variant="caption"
+                          color="textSecondary"
+                          gutterBottom
+                        >
+                          Total outstanding principal with payments applied on
+                          settlement date as of end of date
+                        </Typography>
+                      </Box>
+                      <Box mt={2}>
+                        <Typography variant="body2" gutterBottom>
+                          Amount to pay interest on:
+                        </Typography>
+                        <Typography
+                          variant="caption"
+                          color="textSecondary"
+                          gutterBottom
+                        >
+                          Total outstanding principal as of start of date (no
+                          payments applied yet)
+                        </Typography>
+                      </Box>
+                      <Box mt={2}>
+                        <Typography variant="body2" gutterBottom>
+                          Interest accrued today:
+                        </Typography>
+                        <Typography
+                          variant="caption"
+                          color="textSecondary"
+                          gutterBottom
+                        >
+                          = Amount to pay interest on * interest rate
+                        </Typography>
+                      </Box>
                     </Box>
                   </Box>
-                </Alert>
-              </Box>
+                }
+              >
+                <IconButton style={{ padding: 0, marginLeft: "16px" }}>
+                  <QuestionMarkIcon />
+                </IconButton>
+              </StyledTooltip>
+            </Box>
+            <Box display="flex" flexDirection="column">
               {financialSummariesByCompanyId.length > 0 ? (
                 <FinancialSummariesDataGrid
                   isProductTypeVisible

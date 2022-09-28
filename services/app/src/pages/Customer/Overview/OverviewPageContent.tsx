@@ -18,6 +18,7 @@ import CreateRepaymentModal from "components/Repayment/CreateRepaymentModal";
 import RepaymentsDataGrid from "components/Repayment/RepaymentsDataGrid";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
+import { NotificationBubble } from "components/Shared/NotificationBubble/NotificationBubble";
 import PageContent from "components/Shared/Page/PageContent";
 import { CurrentCustomerContext } from "contexts/CurrentCustomerContext";
 import {
@@ -110,6 +111,12 @@ export default function CustomerOverviewPageContent({
   const payments = company?.pending_payments || [];
   const loans = company?.outstanding_loans || [];
   const settings = company?.settings || null;
+  const financialSummaries = company?.financial_summaries || [];
+  const needsRecompute = financialSummaries.filter(
+    (summary) => summary.needs_recompute === true
+  );
+  const runBalanceStartDate = needsRecompute[needsRecompute.length - 1]?.date;
+  const runBalanceEndDate = needsRecompute[0]?.date;
 
   const canCreateUpdateNewLoan =
     isActiveContract &&
@@ -208,20 +215,35 @@ export default function CustomerOverviewPageContent({
           </Can>
           <Can perform={Action.RunBalances}>
             <Box mr={2}>
-              <ModalButton
-                label={"Run Balances"}
-                color={"default"}
-                variant={"outlined"}
-                modal={({ handleClose }) => (
-                  <RunCustomerBalancesModal
-                    companyId={companyId}
-                    handleClose={() => {
-                      refetch();
-                      handleClose();
-                    }}
-                  />
+              <Box
+                display="flex"
+                flexDirection="column"
+                position="relative"
+                alignItems="end"
+              >
+                {needsRecompute.length > 0 && (
+                  <NotificationBubble>
+                    {needsRecompute.length}
+                  </NotificationBubble>
                 )}
-              />
+                <ModalButton
+                  label={"Run Balances"}
+                  color={"default"}
+                  variant={"outlined"}
+                  modal={({ handleClose }) => (
+                    <RunCustomerBalancesModal
+                      companyId={companyId}
+                      companyName={company?.name || ""}
+                      recommendedStartDate={runBalanceStartDate}
+                      recommendedEndDate={runBalanceEndDate}
+                      handleClose={() => {
+                        refetch();
+                        handleClose();
+                      }}
+                    />
+                  )}
+                />
+              </Box>
             </Box>
           </Can>
         </>

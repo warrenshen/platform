@@ -77,6 +77,8 @@ query GetCustomerOverview($company_id: uuid!, $loan_type: loan_type_enum) {
     financial_summaries {
       id
       available_limit
+      date
+      needs_recompute
     }
   }
 }

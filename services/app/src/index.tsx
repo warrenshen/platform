@@ -1,6 +1,8 @@
 import "./index.css";
 
 import { CssBaseline } from "@material-ui/core";
+import { LocalizationProvider } from "@mui/x-date-pickers-pro";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LicenseInfo } from "@mui/x-license-pro";
 import * as Sentry from "@sentry/react";
 import { SnackbarProvider } from "material-ui-snackbar-provider";
@@ -40,9 +42,11 @@ ReactDOM.render(
     </Helmet>
     <ApolloWrapper>
       <SnackbarProvider SnackbarComponent={CustomSnackbar}>
-        <CssBaseline>
-          <App />
-        </CssBaseline>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <CssBaseline>
+            <App />
+          </CssBaseline>
+        </LocalizationProvider>
       </SnackbarProvider>
     </ApolloWrapper>
   </CurrentUserProvider>,

@@ -28619,7 +28619,10 @@ export type GetCustomerOverviewQuery = {
         Pick<CompanySettings, "id"> & CompanySettingsLimitedFragment
       >;
       financial_summaries: Array<
-        Pick<FinancialSummaries, "id" | "available_limit">
+        Pick<
+          FinancialSummaries,
+          "id" | "available_limit" | "date" | "needs_recompute"
+        >
       >;
     }
   >;
@@ -34493,6 +34496,8 @@ export const GetCustomerOverviewDocument = gql`
       financial_summaries {
         id
         available_limit
+        date
+        needs_recompute
       }
     }
   }
