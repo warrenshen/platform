@@ -469,6 +469,10 @@ fragment TransactionExtended on transactions {
       }
     }
   }
+  loan {
+    id
+    identifier
+  }
 }
 
 fragment BankFinancialSummary on bank_financial_summaries {

@@ -1,4 +1,6 @@
-import { RowsProp } from "@material-ui/data-grid";
+import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
+import PaymentDrawerLauncher from "components/Payment/PaymentDrawerLauncher";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import { TransactionExtendedFragment } from "generated/graphql";
@@ -19,6 +21,9 @@ const getRows = (transactions: TransactionExtendedFragment[]): RowsProp => {
   const typeToPrefix: Record<string, string> = {
     [PaymentTypeEnum.Advance]: "A",
     [PaymentTypeEnum.Repayment]: "R",
+    [PaymentTypeEnum.Fee]: "F",
+    [PaymentTypeEnum.RepaymentOfAccountFee]: "RF",
+    [PaymentTypeEnum.Adjustment]: "ADJ",
   };
 
   return transactions.map((transaction) => {
@@ -31,6 +36,27 @@ const getRows = (transactions: TransactionExtendedFragment[]): RowsProp => {
         : null;
     const accountFeesDisplay =
       !!accountFees || accountFees === 0 ? accountFees : "-";
+
+    const hasLoanIdentifierAttached = !!transaction?.loan?.identifier;
+    const hasSettlementIdentifierAttached =
+      !!transaction?.payment?.settlement_identifier;
+    const hasTypeAttached = !!transaction?.type;
+    let transactionNumber;
+    if (
+      hasTypeAttached &&
+      hasLoanIdentifierAttached &&
+      hasSettlementIdentifierAttached
+    ) {
+      transactionNumber = `${typeToPrefix[transaction.type]}-L${
+        transaction?.loan?.identifier
+      }-${transaction?.payment?.settlement_identifier}`;
+    } else if (hasTypeAttached && hasSettlementIdentifierAttached) {
+      transactionNumber = `${typeToPrefix[transaction.type]}-${
+        transaction.payment.settlement_identifier
+      }`;
+    } else {
+      transactionNumber = null;
+    }
 
     return formatRowModel({
       ...transaction,
@@ -55,12 +81,7 @@ const getRows = (transactions: TransactionExtendedFragment[]): RowsProp => {
       to_account_fees: accountFees,
       to_account_fees_display: accountFeesDisplay,
       to_holding_account: 0, // to be completed when repayment flow has been refactored
-      transaction_number:
-        !!transaction?.type && !!transaction?.payment?.settlement_identifier
-          ? `${typeToPrefix[transaction.type]}-${
-              transaction.payment.settlement_identifier
-            }`
-          : null,
+      transaction_number: transactionNumber,
     });
   });
 };
@@ -99,6 +120,9 @@ function TransactionsDataGrid({
         caption: "Payment ID",
         visible: !isMiniTable,
         width: 140,
+        cellRender: (params: ValueFormatterParams) => (
+          <PaymentDrawerLauncher paymentId={params.row.data.payment.id} />
+        ),
       },
       {
         dataField: "transaction_number",
@@ -106,7 +130,7 @@ function TransactionsDataGrid({
         width: 140,
       },
       {
-        caption: "Company Name",
+        caption: "Customer Name",
         dataField: "payment.company.name",
         visible: !isMiniTable,
         width: 140,
@@ -117,6 +141,18 @@ function TransactionsDataGrid({
             label={value}
           />
         ),
+      },
+      {
+        dataField: "loan_id",
+        caption: "Loan ID",
+        width: ColumnWidths.Identifier,
+        cellRender: (params: ValueFormatterParams) =>
+          !!params.row.data.loan ? (
+            <LoanDrawerLauncher
+              label={params.row.data.loan.id}
+              loanId={params.row.data.loan.id as string}
+            />
+          ) : null,
       },
       {
         dataField: "type",
@@ -168,7 +204,7 @@ function TransactionsDataGrid({
         alignment: "right",
       },
       {
-        caption: "To Late Fees",
+        caption: "To Fees",
         dataField: "to_fees",
         format: {
           type: "currency",
@@ -188,16 +224,16 @@ function TransactionsDataGrid({
         width: ColumnWidths.Currency,
         alignment: "right",
       },
-      // {
-      //   caption: "To Holding Account",
-      //   dataField: "to_holding_account",
-      //   format: {
-      //     type: "currency",
-      //     precision: CurrencyPrecision,
-      //   },
-      //   width: ColumnWidths.Currency,
-      //   alignment: "right",
-      // },
+      {
+        caption: "To Holding Account",
+        dataField: "to_holding_account",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
+        width: ColumnWidths.Currency,
+        alignment: "right",
+      },
     ],
     [isMiniTable]
   );

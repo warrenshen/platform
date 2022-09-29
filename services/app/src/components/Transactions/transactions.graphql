@@ -4,3 +4,13 @@ query GetTransactions {
     ...TransactionExtended
   }
 }
+
+query GetTransactionsForDateRange($from: timestamptz!, $to: timestamptz!) {
+  transactions(
+    where: { created_at: { _gte: $from, _lte: $to } }
+    order_by: { created_at: desc }
+  ) {
+    id
+    ...TransactionExtended
+  }
+}

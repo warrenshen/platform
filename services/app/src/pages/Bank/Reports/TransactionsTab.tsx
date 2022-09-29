@@ -1,5 +1,19 @@
+import { Box } from "@material-ui/core";
+import TextField from "@mui/material/TextField";
+import {
+  DateRange,
+  DateRangePicker,
+} from "@mui/x-date-pickers-pro/DateRangePicker";
 import TransactionsDataGrid from "components/Transactions/TransactionsDataGrid";
-import { useGetTransactionsQuery } from "generated/graphql";
+import { format } from "date-fns";
+import { Dayjs } from "dayjs";
+import { useGetTransactionsForDateRangeQuery } from "generated/graphql";
+import {
+  DateFormatServer,
+  todayAsDateStringServer,
+  todayMinusXMonthsDateStringServer,
+} from "lib/date";
+import { useState } from "react";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -13,12 +27,40 @@ const Container = styled.div`
 `;
 
 function BankTransactionsPage() {
-  const { data } = useGetTransactionsQuery();
-
+  const [startDate, setStartDate] = useState(
+    todayMinusXMonthsDateStringServer(3)
+  );
+  const [endDate, setEndDate] = useState(todayAsDateStringServer());
+  const { data } = useGetTransactionsForDateRangeQuery({
+    variables: {
+      from: startDate,
+      to: endDate,
+    },
+  });
   const transactions = data?.transactions || [];
 
   return (
     <Container>
+      <DateRangePicker
+        value={[startDate, endDate]}
+        onChange={([startDateObject, endDateObject]: DateRange<Dayjs>) => {
+          if (startDateObject) {
+            setStartDate(format(startDateObject.toDate(), DateFormatServer));
+          }
+          if (endDateObject) {
+            setEndDate(format(endDateObject.toDate(), DateFormatServer));
+          }
+        }}
+        PopperProps={{ placement: "bottom-start" }}
+        renderInput={(startProps, endProps) => (
+          <>
+            <TextField {...startProps} />
+            <Box m={2}> to </Box>
+            <TextField {...endProps} />
+          </>
+        )}
+      />
+      <Box m={2} />
       <TransactionsDataGrid isExcelExport transactions={transactions} />
     </Container>
   );

@@ -30594,6 +30594,15 @@ export type GetTransactionsQuery = {
   transactions: Array<Pick<Transactions, "id"> & TransactionExtendedFragment>;
 };
 
+export type GetTransactionsForDateRangeQueryVariables = Exact<{
+  from: Scalars["timestamptz"];
+  to: Scalars["timestamptz"];
+}>;
+
+export type GetTransactionsForDateRangeQuery = {
+  transactions: Array<Pick<Transactions, "id"> & TransactionExtendedFragment>;
+};
+
 export type GetMetrcTransferQueryVariables = Exact<{
   id: Scalars["uuid"];
 }>;
@@ -31291,6 +31300,7 @@ export type TransactionExtendedFragment = Pick<Transactions, "id"> & {
       contract?: Maybe<Pick<Contracts, "id" | "product_type">>;
     };
   } & PaymentFragment;
+  loan?: Maybe<Pick<Loans, "id" | "identifier">>;
 } & TransactionFragment;
 
 export type BankFinancialSummaryFragment = Pick<
@@ -32952,6 +32962,10 @@ export const TransactionExtendedFragmentDoc = gql`
           product_type
         }
       }
+    }
+    loan {
+      id
+      identifier
     }
   }
   ${TransactionFragmentDoc}
@@ -43527,6 +43541,68 @@ export type GetTransactionsLazyQueryHookResult = ReturnType<
 export type GetTransactionsQueryResult = Apollo.QueryResult<
   GetTransactionsQuery,
   GetTransactionsQueryVariables
+>;
+export const GetTransactionsForDateRangeDocument = gql`
+  query GetTransactionsForDateRange($from: timestamptz!, $to: timestamptz!) {
+    transactions(
+      where: { created_at: { _gte: $from, _lte: $to } }
+      order_by: { created_at: desc }
+    ) {
+      id
+      ...TransactionExtended
+    }
+  }
+  ${TransactionExtendedFragmentDoc}
+`;
+
+/**
+ * __useGetTransactionsForDateRangeQuery__
+ *
+ * To run a query within a React component, call `useGetTransactionsForDateRangeQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetTransactionsForDateRangeQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetTransactionsForDateRangeQuery({
+ *   variables: {
+ *      from: // value for 'from'
+ *      to: // value for 'to'
+ *   },
+ * });
+ */
+export function useGetTransactionsForDateRangeQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetTransactionsForDateRangeQuery,
+    GetTransactionsForDateRangeQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetTransactionsForDateRangeQuery,
+    GetTransactionsForDateRangeQueryVariables
+  >(GetTransactionsForDateRangeDocument, baseOptions);
+}
+export function useGetTransactionsForDateRangeLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetTransactionsForDateRangeQuery,
+    GetTransactionsForDateRangeQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetTransactionsForDateRangeQuery,
+    GetTransactionsForDateRangeQueryVariables
+  >(GetTransactionsForDateRangeDocument, baseOptions);
+}
+export type GetTransactionsForDateRangeQueryHookResult = ReturnType<
+  typeof useGetTransactionsForDateRangeQuery
+>;
+export type GetTransactionsForDateRangeLazyQueryHookResult = ReturnType<
+  typeof useGetTransactionsForDateRangeLazyQuery
+>;
+export type GetTransactionsForDateRangeQueryResult = Apollo.QueryResult<
+  GetTransactionsForDateRangeQuery,
+  GetTransactionsForDateRangeQueryVariables
 >;
 export const GetMetrcTransferDocument = gql`
   query GetMetrcTransfer($id: uuid!) {
