@@ -246,6 +246,23 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 			'status': 'OK'
 		}), 200)
 
+class DailyJobSummaryView(MethodView):
+	decorators = [auth_util.requires_async_header_or_bank_admin]
+	
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		
+		with session_scope(current_app.session_maker) as session:
+			_, err = async_jobs_util.create_job_summary(
+				session=session,
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK'
+		}), 200)
+
 
 handler.add_url_rule(
 	'/kick-off-handler',
@@ -266,6 +283,10 @@ handler.add_url_rule(
 handler.add_url_rule(
 	'/retry-job',
 	view_func=RetryJobView.as_view(name='retry_job_view'))
+
+handler.add_url_rule(
+	'/daily-job-summary',
+	view_func=DailyJobSummaryView.as_view(name='daily_job_summary_view'))
 
 handler.add_url_rule(
 	"/generate_monthly_loans_summary_non_loc",

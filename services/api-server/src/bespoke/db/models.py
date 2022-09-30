@@ -1686,6 +1686,17 @@ class AsyncJob(Base):
 	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	deleted_at = Column(DateTime, nullable=True)
 
+class AsyncJobSummary(Base):
+	__tablename__ = 'async_job_summaries'
+
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	date = Column(Date)
+	name = Column(String)
+
+	metadata_info = Column(JSON)
+	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	deleted_at = Column(DateTime)
 
 class VendorChangeRequests(Base):
 

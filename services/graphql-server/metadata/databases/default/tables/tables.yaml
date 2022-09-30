@@ -1,3 +1,4 @@
+- "!include public_async_job_summaries.yaml"
 - "!include public_async_jobs.yaml"
 - "!include public_async_pipelines.yaml"
 - "!include public_audit_events.yaml"

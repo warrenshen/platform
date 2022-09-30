@@ -7,6 +7,14 @@
   headers:
     - name: x-api-key
       value_from_env: ASYNC_SERVER_API_KEY
+- name: async_daily_job_summary
+  webhook: '{{ASYNC_SERVER_BASE_URL}}/async_jobs/daily-job-summary'
+  schedule: 0 21 * * *
+  include_in_metadata: true
+  payload: {}
+  headers:
+    - name: x-api-key
+      value_from_env: ASYNC_SERVER_API_KEY
 - name: async_jobs_orchestration_handler
   webhook: '{{ASYNC_SERVER_BASE_URL}}/async_jobs/kick-off-handler'
   schedule: '0,30 * * * *'

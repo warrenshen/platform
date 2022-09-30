@@ -1,8 +1,8 @@
 import requests
 import json
-from typing import Dict, Tuple
+from typing import Dict, List, Tuple
 from bespoke.db import models
-from bespoke.db.db_constants import AsyncJobStatusEnum, AsyncJobNameEnumToLabel
+from bespoke.db.db_constants import AsyncJobStatusEnum, AsyncJobNameEnum, AsyncJobNameEnumToLabel
 from bespoke.date import date_util
 
 from bespoke import errors 
@@ -11,8 +11,92 @@ from bespoke import errors
 # webhook = 'https://hooks.slack.com/services/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'
 # dev url
 webhook = 'https://hooks.slack.com/services/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'
+def send_job_summary(
+	async_jobs: List[models.AsyncJob],
+	async_job_summaries: List[models.AsyncJobSummary]
+) -> Tuple[ int, errors.Error]:
+	headers = {'Content-Type': 'application/json'}
+	# update company balances is skipped because it runs frequently
+	# Monthly report summary is skipped because it is tracked in the UI
+	skipped_jobs = [AsyncJobNameEnum.UPDATE_COMPANY_BALANCES, AsyncJobNameEnum.NON_LOC_MONTHLY_REPORT_SUMMARY, AsyncJobNameEnum.LOC_MONTHLY_REPORT_SUMMARY]
+	response_blocks = []
+	today_info = {
+			"type": "section",
+			"text": {
+				"type": "plain_text",
+				"text": f"Report for {date_util.date_to_db_str(date_util.now_as_date())}"
+			}
+		}
+	response_blocks.append(today_info)
+	generation_job_names = [summary.name for summary in async_job_summaries]
+	for enum, label in AsyncJobNameEnumToLabel.items():
+		# skip over the adhoc jobs
+		if enum in skipped_jobs:
+			continue
 
-def send_slack_message(
+		all_async_jobs = [job for job in async_jobs if job.name == enum]
+		# jobs were generated
+		if enum in generation_job_names:
+			new_block = create_status_block(label, all_async_jobs)
+
+		# job did not properly generate any jobs
+		else:
+			new_block = create_generation_failure_block(label)
+		response_blocks.append(new_block)
+
+	response_blocks.append(get_divider_bar_block())
+	payload = {"blocks" : response_blocks}
+
+	response = requests.post(
+			url = webhook, 
+			data = json.dumps(payload), 
+			headers = headers,
+		)
+	if response.status_code != 200:
+	    return response.status_code, errors.Error(
+	        'Request to slack returned an error %s, the response is:\n%s'
+	        % (response.status_code, response.text))
+
+	return response.status_code, None
+
+def get_divider_bar_block() -> Dict:
+	return {
+			"type": "divider"
+		}
+
+def create_status_block(
+	job_name: str,
+	async_jobs: List[models.AsyncJob],
+) -> Dict:
+	total_jobs = len(async_jobs)
+	num_success_jobs = len([job for job in async_jobs if job.status == AsyncJobStatusEnum.COMPLETED])
+	num_failed_jobs = len([job for job in async_jobs if job.status == AsyncJobStatusEnum.FAILED])
+
+	emoji = "white_check_mark" if num_failed_jobs == 0 else "rotating_light"
+	job_succeded_text = f"{num_success_jobs} / {total_jobs} tasks succeeded" if total_jobs != 0 else ""
+	job_failed_text = f"{num_failed_jobs} / {total_jobs} tasks failed" if total_jobs != 0 else ""
+
+	job_detail_text = f"({job_succeded_text}, {job_failed_text})" if total_jobs != 0 else ""
+	return {
+			"type": "section",
+			"text": {
+				"type": "plain_text",
+				"text": f":{emoji}: {job_name} job ran successfully today {job_detail_text}"
+			}
+		}
+
+def create_generation_failure_block(
+	job_name: str,
+) -> Dict:
+	return {
+			"type": "section",
+			"text": {
+				"type": "plain_text",
+				"text": f":x: {job_name} job failed today (no tasks set up)"
+			}
+		}
+
+def send_job_slack_message(
 	job: models.AsyncJob
 ) -> Tuple[ int, errors.Error ]:
 
@@ -107,4 +191,3 @@ def create_failure_message(job: models.AsyncJob) -> Dict:
 			}
 		]
 	}
-

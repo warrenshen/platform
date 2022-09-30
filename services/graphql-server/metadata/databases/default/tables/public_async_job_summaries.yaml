@@ -1,0 +1,3 @@
+table:
+  schema: public
+  name: async_job_summaries

@@ -1,6 +1,6 @@
 import datetime
 import logging
-
+from datetime import timedelta, timezone
 from typing import Any, Callable, Dict, Tuple, cast, Iterable, List
 from bespoke import errors
 from flask import current_app
@@ -34,6 +34,21 @@ def generate_jobs(
 	if job_name not in ASYNC_JOB_GENERATION_LOOKUP:
 		return False, errors.Error("Job does not exist")
 		
+	return True, None
+
+def add_job_summary(
+	session: Session,
+	job_name: str,
+) -> Tuple[bool, errors.Error]:
+
+	new_job = models.AsyncJobSummary( # type: ignore
+		name = job_name,
+		date = date_util.now_as_date(),
+		metadata_info = {}
+	)
+
+	session.add(new_job)
+
 	return True, None
 
 @errors.return_error_tuple
@@ -181,8 +196,29 @@ def kick_off_handler(
 		job.ended_at = date_util.now()
 		job.updated_at = date_util.now()
 		session.commit()
-		# slack_util.send_slack_message(job)
+		# slack_util.send_job_slack_message(job)
 	return [job.id for job in starting_jobs], None
+
+@errors.return_error_tuple
+def create_job_summary(
+	session: Session,
+) -> Tuple[bool, errors.Error]:
+
+	async_jobs = cast(
+		List[models.AsyncJob],
+		session.query(models.AsyncJob).filter(
+			models.AsyncJob.ended_at >= date_util.hours_from_today(-24)
+		).all())
+
+	async_job_summaries = cast(
+		List[models.AsyncJobSummary],
+		session.query(models.AsyncJobSummary).filter(
+			models.AsyncJobSummary.date == date_util.date_to_db_str(date_util.now_as_date())
+		).all())
+
+	slack_util.send_job_summary(async_jobs, async_job_summaries)
+
+	return True, None
 
 @errors.return_error_tuple
 def loans_coming_due_job(
@@ -252,6 +288,9 @@ def generate_companies_loans_coming_due_job(
 			return False, errors.Error(str(e))
 
 		current_page += 1
+
+	add_job_summary(session, AsyncJobNameEnum.LOANS_COMING_DUE)
+
 	return True, None
 
 @errors.return_error_tuple
@@ -299,6 +338,8 @@ def generate_companies_loans_past_due_job(
 			return False, errors.Error(str(e))
 
 		current_page += 1
+	add_job_summary(session, AsyncJobNameEnum.LOANS_PAST_DUE)
+
 	return True, None
 
 @errors.return_error_tuple
@@ -349,6 +390,9 @@ def autogenerate_repayment_customers(
 			is_high_priority=False,
 			job_payload=payload
 		)
+
+	add_job_summary(session, AsyncJobNameEnum.AUTOGENERATE_REPAYMENTS)
+
 	return True, None
 
 def autogenerate_repayments(
@@ -538,6 +582,8 @@ def autogenerate_repayment_alerts_customers(
 			is_high_priority=False,
 			job_payload=payload
 		)
+	add_job_summary(session, AsyncJobNameEnum.AUTOGENERATE_REPAYMENT_ALERTS)
+	
 	return True, None
 
 def autogenerate_repayment_alerts(
@@ -1097,6 +1143,8 @@ def automatic_debit_courtesy_alerts_generate_job(
 			submitted_by_user_id=cfg.BOT_USER_ID,
 			is_high_priority=False,
 			job_payload=payload)
+	add_job_summary(session, AsyncJobNameEnum.AUTOMATIC_DEBIT_COURTESY_ALERTS)
+
 	return True, None
 
 # TODO: sessionmaker should be eventually removed
@@ -1151,6 +1199,8 @@ ASYNC_JOB_GENERATION_LOOKUP = {
 ASYNC_JOB_ORCHESTRATION_LOOKUP = {
 	AsyncJobNameEnum.LOANS_COMING_DUE: loans_coming_due_job,
 	AsyncJobNameEnum.LOANS_PAST_DUE: loans_past_due_job,
+	AsyncJobNameEnum.AUTOGENERATE_REPAYMENTS: autogenerate_repayments,
+	AsyncJobNameEnum.AUTOGENERATE_REPAYMENT_ALERTS: autogenerate_repayment_alerts,
 	AsyncJobNameEnum.UPDATE_COMPANY_BALANCES: update_dirty_company_balances_job,
 	AsyncJobNameEnum.AUTOMATIC_DEBIT_COURTESY_ALERTS: automatic_debit_courtesy_alerts_job, 
 	AsyncJobNameEnum.NON_LOC_MONTHLY_REPORT_SUMMARY: reports_monthly_loan_summary_Non_LOC,
