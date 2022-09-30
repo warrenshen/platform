@@ -87,6 +87,7 @@ function ReviewPurchaseOrderRejectModalNew({
         </Text>
         <Box display="flex" flexDirection="column">
           <TextField
+            data-cy={"rejection-reason"}
             multiline
             label={"Rejection Reason"}
             placeholder={"Enter in the reason for rejection"}
@@ -97,16 +98,14 @@ function ReviewPurchaseOrderRejectModalNew({
       </DialogContent>
       <DialogActions className={classes.dialogActions}>
         <SecondaryButton
+          dataCy={"vendor-reject-po-modal-cancel-button"}
           text={"Cancel"}
-          width={"101px"}
-          height={"50px"}
           onClick={handleClose}
         />
         <PrimaryWarningButton
+          dataCy={"vendor-reject-po-modal-confirm-button"}
           isDisabled={isSubmitDisabled}
           text={"Confirm"}
-          width={"101px"}
-          height={"50px"}
           onClick={handleClickReject}
         />
       </DialogActions>

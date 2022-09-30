@@ -90,7 +90,11 @@ export default function CustomerPurchaseOrdersPageContentNew({
       >
         {CustomerPurchaseOrdersTabLabelsNew.map(
           (label: CustomerPurchaseOrdersTabLabelNew) => (
-            <Tab key={label} label={label} />
+            <Tab
+              data-cy={`${label.replace(/\s+/g, "-").toLowerCase()}-tab`}
+              key={label}
+              label={label}
+            />
           )
         )}
       </Tabs>

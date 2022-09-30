@@ -251,7 +251,7 @@ function ManagePurchaseOrderFinancingModalMultiple({
   ) : (
     <Modal
       title={"Manage Purchase Order Financing"}
-      dataCy={"create-multiple-financing-requests-button"}
+      dataCy={"create-multiple-financing-requests-modal"}
       primaryActionText={"Save & Submit"}
       handleClose={handleClose}
       handlePrimaryAction={handleClickSubmit}
@@ -280,6 +280,7 @@ function ManagePurchaseOrderFinancingModalMultiple({
         </Box>
         <DateInputContainer fullWidth>
           <DateInput
+            dataCy={"requested-payment-date-date-picker"}
             id="requested-payment-date-date-picker"
             label="Requested Payment Date"
             disablePast

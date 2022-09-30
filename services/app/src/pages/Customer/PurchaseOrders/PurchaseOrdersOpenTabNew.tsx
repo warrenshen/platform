@@ -221,6 +221,8 @@ export default function CustomerPurchaseOrdersOpenTabNew({
 
   const isFormLoading = isSubmitPurchaseOrderLoading;
 
+  console.log(selectedApprovedPurchaseOrdersMap);
+
   return (
     <Container>
       {isArchiveModalOpenForNotApprovedPurchaseOrders && (
@@ -297,14 +299,13 @@ export default function CustomerPurchaseOrdersOpenTabNew({
               <Can perform={Action.EditPurchaseOrders}>
                 <Box mr={2}>
                   <PrimaryButton
+                    dataCy={"submit-to-vendor-button"}
                     isDisabled={
                       !selectedNotApprovedPurchaseOrder ||
                       isFormLoading ||
                       !isActiveContract
                     }
                     text={"Submit to Vendor"}
-                    width={"184px"}
-                    height={"50px"}
                     onClick={handleSubmitPurchaseOrder}
                   />
                 </Box>
@@ -314,12 +315,11 @@ export default function CustomerPurchaseOrdersOpenTabNew({
               <Can perform={Action.EditPurchaseOrders}>
                 <Box mr={2}>
                   <PrimaryButton
+                    dataCy={"edit-not-ready-po-button"}
                     isDisabled={
                       !selectedNotApprovedPurchaseOrder || !isActiveContract
                     }
                     text={"Edit"}
-                    width={"184px"}
-                    height={"50px"}
                     onClick={() =>
                       setIsCreateUpdateModalOpenForNotApprovedPurchaseOrders(
                         true
@@ -333,12 +333,11 @@ export default function CustomerPurchaseOrdersOpenTabNew({
               <Can perform={Action.ArchivePurchaseOrders}>
                 <Box mr={2}>
                   <SecondaryButton
+                    dataCy={"archive-not-ready-po-button"}
                     isDisabled={
                       !selectedNotApprovedPurchaseOrder || !isActiveContract
                     }
                     text={"Archive"}
-                    width={"184px"}
-                    height={"50px"}
                     onClick={() =>
                       setIsArchiveModalOpenForNotApprovedPurchaseOrders(true)
                     }
@@ -348,7 +347,7 @@ export default function CustomerPurchaseOrdersOpenTabNew({
             )}
           </Box>
         </Box>
-        <Box>
+        <Box data-cy="not-ready-to-request-financing-data-grid">
           <PurchaseOrdersDataGridNew
             isApprovedByVendor={false}
             isCompanyVisible={false}
@@ -377,24 +376,22 @@ export default function CustomerPurchaseOrdersOpenTabNew({
                   <Box mr={2}>
                     {selectedApprovedPurchaseOrder ? (
                       <PrimaryButton
-                        isDisabled={
-                          Object.keys(selectedApprovedPurchaseOrdersMap)
-                            .length > 1 || isActiveContract
-                        }
-                        text={"Request Financing"}
-                        width={"184px"}
-                        height={"50px"}
-                        onClick={() => setIsManagePOFinancingModalOpen(true)}
-                      />
-                    ) : (
-                      <PrimaryButton
+                        dataCy={"request-financing-button"}
                         isDisabled={
                           Object.keys(selectedApprovedPurchaseOrdersMap)
                             .length > 1 || !isActiveContract
                         }
                         text={"Request Financing"}
-                        width={"184px"}
-                        height={"50px"}
+                        onClick={() => setIsManagePOFinancingModalOpen(true)}
+                      />
+                    ) : (
+                      <PrimaryButton
+                        dataCy={"request-financing-button"}
+                        isDisabled={
+                          Object.keys(selectedApprovedPurchaseOrdersMap)
+                            .length > 1 || !isActiveContract
+                        }
+                        text={"Request Financing"}
                         onClick={() =>
                           setIsManagePOFinancingModalMultipleOpen(true)
                         }
@@ -412,6 +409,7 @@ export default function CustomerPurchaseOrdersOpenTabNew({
                 <Can perform={Action.FundPurchaseOrders}>
                   <Box mr={2}>
                     <PrimaryButton
+                      dataCy={"edit-financing-request-button"}
                       isDisabled={
                         !(
                           selectedApprovedPurchaseOrder &&
@@ -421,8 +419,6 @@ export default function CustomerPurchaseOrdersOpenTabNew({
                         ) || !isActiveContract
                       }
                       text={"Edit Financing"}
-                      width={"184px"}
-                      height={"50px"}
                       onClick={() => setIsManagePOFinancingModalOpen(true)}
                     />
                   </Box>
@@ -431,12 +427,11 @@ export default function CustomerPurchaseOrdersOpenTabNew({
               {Object.keys(selectedApprovedPurchaseOrdersMap).length > 0 && (
                 <Can perform={Action.ArchivePurchaseOrders}>
                   <SecondaryButton
+                    dataCy={"archive-ready-po-button"}
                     isDisabled={
                       !selectedApprovedPurchaseOrder || !isActiveContract
                     }
                     text={"Archive"}
-                    width={"184px"}
-                    height={"50px"}
                     onClick={() =>
                       setIsArchiveModalOpenForApprovedPurchaseOrders(true)
                     }
@@ -446,14 +441,17 @@ export default function CustomerPurchaseOrdersOpenTabNew({
               )}
             </Box>
           </Box>
-          <PurchaseOrdersDataGridNew
-            isCompanyVisible={false}
-            purchaseOrders={approvedPurchaseOrders}
-            isFilteringEnabled={true}
-            selectedPurchaseOrderIds={selectedApprovedPurchaseOrderIds}
-            selectablePurchaseOrderStatuses={ReadyNewPurchaseOrderStatuses}
-            handleSelectPurchaseOrders={handleSelectApprovedPurchaseOrdersNew}
-          />
+          <Box data-cy="ready-to-request-financing-data-grid">
+            <PurchaseOrdersDataGridNew
+              dataCy={"ready-to-request-financing-purchase-order-data-grid"}
+              isCompanyVisible={false}
+              purchaseOrders={approvedPurchaseOrders}
+              isFilteringEnabled={true}
+              selectedPurchaseOrderIds={selectedApprovedPurchaseOrderIds}
+              selectablePurchaseOrderStatuses={ReadyNewPurchaseOrderStatuses}
+              handleSelectPurchaseOrders={handleSelectApprovedPurchaseOrdersNew}
+            />
+          </Box>
         </Box>
       </Box>
     </Container>

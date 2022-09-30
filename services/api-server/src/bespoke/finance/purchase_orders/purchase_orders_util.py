@@ -11,13 +11,14 @@ from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import db_constants, models, queries
 from bespoke.db.db_constants import RequestStatusEnum, NewPurchaseOrderStatus, LoanStatusEnum, \
-	PurchaseOrderBankNoteEnum, PurchaseOrderCustomerNoteEnum
+	PurchaseOrderBankNoteEnum, PurchaseOrderCustomerNoteEnum, PurchaseOrderActions
 from bespoke.companies import partnership_util
 from bespoke.email import sendgrid_util
 from bespoke.finance import number_util
 from bespoke.finance.purchase_orders import purchase_orders_util
 from flask import current_app, request
-from server.config import is_test_env
+from server.config import Config, is_test_env
+from server.views.common.session_util import UserSession
 
 @dataclass
 class PurchaseOrderFileItem:
@@ -565,7 +566,7 @@ def submit_purchase_order_for_approval(
 			models.PurchaseOrderFile
 		).filter_by(
 			purchase_order_id=purchase_order.id,
-			file_type=db_constants.PurchaseOrderFileTypeEnum.PurchaseOrder,
+			file_type=db_constants.PurchaseOrderFileTypeEnum.PURCHASE_ORDER,
 		).all())
 
 	if not purchase_order_files:
@@ -613,7 +614,7 @@ def submit_purchase_order_for_approval(
 					models.PurchaseOrderFile
 				).filter_by(
 					purchase_order_id=purchase_order.id,
-					file_type=db_constants.PurchaseOrderFileTypeEnum.Cannabis,
+					file_type=db_constants.PurchaseOrderFileTypeEnum.CANNABIS,
 				).all())
 
 			if len(purchase_order_cannabis_files) <= 0:
@@ -694,22 +695,22 @@ def submit_purchase_order_for_approval_new(
 
 	# Validation 1: validations for all POs.
 	if not vendor:
-		raise errors.Error('Vendor is required')
+		return None, None, None, errors.Error('Vendor is required')
 
 	if not purchase_order:
-		raise errors.Error('Could not find purchase order')
+		return None, None, None, errors.Error('Could not find purchase order')
 
 	if not purchase_order.order_number:
-		raise errors.Error('Order number is required')
+		return None, None, None, errors.Error('Order number is required')
 
 	if not purchase_order.order_date:
-		raise errors.Error('Order date is required')
+		return None, None, None, errors.Error('Order date is required')
 
 	if purchase_order.net_terms == None:
-		raise errors.Error('Net terms is required')
+		return None, None, None, errors.Error('Net terms is required')
 
 	if purchase_order.amount is None or purchase_order.amount <= 0:
-		raise errors.Error('Valid amount is required')
+		return None, None, None, errors.Error('Valid amount is required')
 
 	company_vendor_relationship = cast(
 		models.CompanyVendorPartnership,
@@ -724,14 +725,14 @@ def submit_purchase_order_for_approval_new(
 			models.PurchaseOrderFile
 		).filter_by(
 			purchase_order_id=purchase_order.id,
-			file_type=db_constants.PurchaseOrderFileTypeEnum.PurchaseOrder,
+			file_type=db_constants.PurchaseOrderFileTypeEnum.PURCHASE_ORDER,
 		).all())
 
 	if not purchase_order_files:
-		raise errors.Error('Purchase order file attachment(s) are required')
+		return None, None, None, errors.Error('Purchase order file attachment(s) are required')
 
 	if not company_vendor_relationship or company_vendor_relationship.approved_at is None:
-		raise errors.Error('Vendor is not approved')
+		return None, None, None, errors.Error('Vendor is not approved')
 
 	if not company_vendor_relationship.vendor_bank_id:
 		is_vendor_missing_bank_account = True
@@ -742,10 +743,10 @@ def submit_purchase_order_for_approval_new(
 		session=session
 	)
 	if err:
-		raise err
+		return None, None, None, err
 		
 	if not vendor_users:
-		raise errors.Error('There are no users configured for this vendor')
+		return None, None, None, errors.Error('There are no users configured for this vendor')
 
 	# Validation 2: validations for POs of which purchase_orders.is_metrc_based is True.
 	if purchase_order.is_metrc_based:
@@ -758,7 +759,7 @@ def submit_purchase_order_for_approval_new(
 			).all())
 
 		if len(purchase_order_metrc_transfers) <= 0:
-			raise errors.Error('Purchase order Metrc manifest is required')
+			return None, None, None, errors.Error('Purchase order Metrc manifest is required')
 
 		# TODO(warrenshen): separate validations based on whether
 		# metrc_transfer.lab_results_status is equal to "passed" or not.
@@ -772,11 +773,11 @@ def submit_purchase_order_for_approval_new(
 					models.PurchaseOrderFile
 				).filter_by(
 					purchase_order_id=purchase_order.id,
-					file_type=db_constants.PurchaseOrderFileTypeEnum.Cannabis,
+					file_type=db_constants.PurchaseOrderFileTypeEnum.CANNABIS,
 				).all())
 
 			if len(purchase_order_cannabis_files) <= 0:
-				raise errors.Error('Purchase order cannabis file attachment(s) are required')
+				return None, None, None, errors.Error('Purchase order cannabis file attachment(s) are required')
 
 	purchase_order.status = RequestStatusEnum.APPROVAL_REQUESTED
 	purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.PENDING_APPROVAL_BY_VENDOR
@@ -789,8 +790,57 @@ def submit_purchase_order_for_approval_new(
 		created_by_user_full_name = user_full_name
 	))
 
-	return purchase_order, vendor_users, is_vendor_missing_bank_account, None
+	sendgrid_client = cast(
+		sendgrid_util.Client,
+		current_app.sendgrid_client,
+	)
 
+	form_info = cast(Callable, models.TwoFactorFormInfoDict)(
+		type=db_constants.TwoFactorLinkType.CONFIRM_PURCHASE_ORDER,
+		payload={
+			'purchase_order_id': purchase_order_id
+		}
+	)
+	two_factor_payload = sendgrid_util.TwoFactorPayloadDict(
+		form_info=form_info,
+		expires_at=date_util.hours_from_today(24 * 7)
+	)
+
+	# Send the email to the vendor for them to approve or reject this purchase order
+	# Get the vendor_id and find its users
+	template_data = {
+		'vendor_name': vendor.get_display_name(),
+		'customer_name': customer.get_display_name(),
+	}
+	_, err = sendgrid_client.send(
+		template_name=sendgrid_util.TemplateNames.VENDOR_TO_APPROVE_PURCHASE_ORDER,
+		template_data=template_data,
+		recipients=[user['email'] for user in vendor_users],
+		two_factor_payload=two_factor_payload,
+	)
+	if err:
+		raise err
+
+	# If vendor does NOT have a bank account set up yet,
+	# send an email to the Bespoke team letting them know about this.
+	if is_vendor_missing_bank_account:
+		template_data = {
+			'vendor_name': vendor.get_display_name(),
+			'customer_name': customer.get_display_name(),
+		}
+		_, err = sendgrid_client.send(
+			template_name=sendgrid_util.TemplateNames.CUSTOMER_REQUESTED_APPROVAL_NO_VENDOR_BANK_ACCOUNT,
+			template_data=template_data,
+			recipients=(
+				["user@customer.com"]
+				if is_test_env(os.environ.get("FLASK_ENV"))
+				else current_app.app_config.BANK_NOTIFY_EMAIL_ADDRESSES
+			) + current_app.app_config.OPS_EMAIL_ADDRESSES,
+		)
+		if err:
+			raise err
+
+	return purchase_order, vendor_users, is_vendor_missing_bank_account, None
 
 # TODO: consider case in which it diverges
 @errors.return_error_tuple
@@ -999,3 +1049,522 @@ def get_purchase_order_history_event(
 		created_by_user_id = created_by_user_id,
 		created_by_user_full_name = created_by_user_full_name,
 	)
+
+def validate_purchase_order_input(
+	session: Session,
+	purchase_order_input: models.PurchaseOrder,
+	purchase_order_metrc_transfers: List[PurchaseOrderMetrcTransferItem],
+	check_for_duplicate: bool,
+) -> Tuple[bool, errors.Error]:
+	if not purchase_order_input.company_id:
+		return False, errors.Error('Company is required')
+
+	if not purchase_order_input.vendor_id:
+		return False, errors.Error('Vendor is required')
+
+	if not purchase_order_input.order_number:
+		return False, errors.Error('Order number is required')
+
+	if not purchase_order_input.is_metrc_based and len(purchase_order_metrc_transfers) > 0:
+		return False, errors.Error('Metrc transfers not allowed if purchase order is not Metrc based')
+
+	if check_for_duplicate:
+		duplicate_purchase_order, _ = queries.get_purchase_order(
+			session,
+			str(purchase_order_input.vendor_id),
+			purchase_order_input.order_number,
+		)
+		if duplicate_purchase_order is not None:
+			return False, errors.Error(f'A purchase order with this vendor and PO number already exists')
+
+	return True, None
+
+def validate_purchase_order_input_submission_checks(
+	session: Session,
+	purchase_order_input: models.PurchaseOrder,
+	purchase_order_metrc_transfers: List[PurchaseOrderMetrcTransferItem],
+) -> Tuple[bool, errors.Error]:
+	"""
+		The only data we need to return from this validation check is
+		whether or not the company vendor relationship has properly
+		set the `vendor_bank_id` field. While we normally use bool in
+		the Tuple return to represent success/failure, here it is
+		slightly different in intent. This value should only be consumed
+		by the submission flow, as the draft flow will not check for
+		the appropriate values
+	"""
+	is_vendor_missing_bank_account = False
+
+	# Check additional fields in the purchase order
+	if not purchase_order_input.order_date:
+		return False, errors.Error('Order date is required')
+
+	if purchase_order_input.net_terms is None:
+		return False, errors.Error('Net terms is required')
+
+	if purchase_order_input.amount is None or purchase_order_input.amount <= 0:
+		return False, errors.Error('Valid amount is required')
+
+	# Check the company vendor partnership
+	company_vendor_relationships, _ = queries.get_company_vendor_partnerships(
+		session,
+		[(
+			str(purchase_order_input.company_id),
+			str(purchase_order_input.vendor_id),
+		)]
+	)
+	company_vendor_relationship = company_vendor_relationships[0]
+
+	if not company_vendor_relationship or company_vendor_relationship.approved_at is None:
+		raise errors.Error('Vendor is not approved')
+
+	if not company_vendor_relationship.vendor_bank_id:
+		is_vendor_missing_bank_account = True
+
+	# Check for purchase order files
+	purchase_order_files, _ = queries.get_purchase_order_files(
+		session,
+		purchase_order_id = str(purchase_order_input.id),
+		file_type = db_constants.PurchaseOrderFileTypeEnum.PURCHASE_ORDER
+	)
+	if not purchase_order_files:
+		return False, errors.Error('Purchase order file attachment(s) are required')
+
+	# Check that at least one user is configured for the vendor in question
+	vendor_users, err = partnership_util.get_partner_contacts(
+		partnership_id = str(company_vendor_relationship.id),
+		partnership_type = db_constants.CompanyType.Vendor,
+		session = session
+	)
+	if err:
+		return False, err
+
+	# Metrc Validation: validations for POs of which purchase_orders.is_metrc_based is True.
+	if purchase_order_input.is_metrc_based:
+		purchase_order_metrc_transfers_for_length_check = cast(
+			List[models.PurchaseOrderMetrcTransfer],
+			session.query(models.PurchaseOrderMetrcTransfer).filter(
+				models.PurchaseOrderMetrcTransfer.purchase_order_id == purchase_order_input.id
+			).all())
+
+		if len(purchase_order_metrc_transfers_for_length_check) <= 0:
+			return False, errors.Error('Purchase order Metrc manifest is required')
+
+		# TODO(warrenshen): separate validations based on whether
+		# metrc_transfer.lab_results_status is equal to "passed" or not.
+
+	# Non-Metric Cannabis Validation: validations for POs of which purchase_orders.is_metrc_based is False.
+	if not purchase_order_input.is_metrc_based:
+		if purchase_order_input.is_cannabis:
+			purchase_order_cannabis_files, _ = queries.get_purchase_order_files(
+				session,
+				purchase_order_id = str(purchase_order_input.id),
+				file_type = db_constants.PurchaseOrderFileTypeEnum.CANNABIS
+			)
+
+			if len(purchase_order_cannabis_files) <= 0:
+				return False, errors.Error('Purchase order cannabis file attachment(s) are required')
+
+	return is_vendor_missing_bank_account, None
+
+def update_purchase_order_files(
+	session: Session,
+	purchase_order_id: str,
+	purchase_order_files: List[PurchaseOrderFileItem]
+) -> Tuple[bool, errors.Error]:
+	existing_purchase_order_files, err = queries.get_purchase_order_files(
+		session,
+		purchase_order_id = purchase_order_id,
+	)
+	if err:
+		return False, err
+	
+	purchase_order_files_to_delete = []
+	for existing_purchase_order_file in existing_purchase_order_files:
+		is_purchase_order_file_deleted = len(list(filter(
+			lambda purchase_order_file_request: (
+				purchase_order_file_request.purchase_order_id == existing_purchase_order_file.purchase_order_id and
+				purchase_order_file_request.file_id == existing_purchase_order_file.file_id and
+				purchase_order_file_request.file_type == existing_purchase_order_file.file_type
+			),
+			purchase_order_files
+		))) <= 0
+		if is_purchase_order_file_deleted:
+			purchase_order_files_to_delete.append(existing_purchase_order_file)
+
+	for purchase_order_file_to_delete in purchase_order_files_to_delete:
+		cast(Callable, session.delete)(purchase_order_file_to_delete)
+
+	purchase_order_file_dicts = []
+	for purchase_order_file_request in purchase_order_files:
+		existing_purchase_order_file = cast(
+			models.PurchaseOrderFile,
+			session.query(models.PurchaseOrderFile).get([
+				purchase_order_file_request.purchase_order_id,
+				purchase_order_file_request.file_id,
+			]))
+		if existing_purchase_order_file:
+			purchase_order_file_dicts.append(existing_purchase_order_file.as_dict())
+		else:
+			new_purchase_order_file = models.PurchaseOrderFile( # type: ignore
+				purchase_order_id=purchase_order_id,
+				file_id=purchase_order_file_request.file_id,
+				file_type=purchase_order_file_request.file_type,
+			)
+			session.add(new_purchase_order_file)
+			purchase_order_file_dicts.append(new_purchase_order_file.as_dict())
+
+	return True, None
+
+
+def update_purchase_order_metrc_transfers(
+	session: Session,
+	purchase_order_id: str,
+	purchase_order_metrc_transfers: List[PurchaseOrderMetrcTransferItem],
+) -> Tuple[bool, errors.Error]:
+	# Purchase order Metrc transfers
+	existing_purchase_order_metrc_transfers, err = queries.get_purchase_order_metrc_transfers(
+		session,
+		purchase_order_id,
+	)
+	if err:
+		return None, err
+
+	purchase_order_metrc_transfers_to_delete = []
+	for existing_purchase_order_metrc_transfer in existing_purchase_order_metrc_transfers:
+		is_purchase_order_metrc_transfer_deleted = len(list(filter(
+			lambda purchase_order_metrc_transfer_request: (
+				purchase_order_metrc_transfer_request.purchase_order_id == existing_purchase_order_metrc_transfer.purchase_order_id and
+				purchase_order_metrc_transfer_request.metrc_transfer_id == existing_purchase_order_metrc_transfer.metrc_transfer_id
+			),
+			purchase_order_metrc_transfers
+		))) <= 0
+		if is_purchase_order_metrc_transfer_deleted:
+			purchase_order_metrc_transfers_to_delete.append(existing_purchase_order_metrc_transfer)
+	
+	for purchase_order_metrc_transfer_to_delete in purchase_order_metrc_transfers_to_delete:
+		cast(Callable, session.delete)(purchase_order_metrc_transfer_to_delete)
+
+	session.flush()
+
+	purchase_order_metrc_transfer_dicts = []
+	for purchase_order_metrc_transfer_request in purchase_order_metrc_transfers:
+		existing_purchase_order_metrc_transfer = cast(
+			models.PurchaseOrderMetrcTransfer,
+			session.query(models.PurchaseOrderMetrcTransfer).get([
+				purchase_order_metrc_transfer_request.purchase_order_id,
+				purchase_order_metrc_transfer_request.metrc_transfer_id,
+			]))
+		if existing_purchase_order_metrc_transfer:
+			purchase_order_metrc_transfer_dicts.append(existing_purchase_order_metrc_transfer.as_dict())
+		else:
+			new_purchase_order_metrc_transfer = models.PurchaseOrderMetrcTransfer( # type: ignore
+				purchase_order_id=purchase_order_id,
+				metrc_transfer_id=purchase_order_metrc_transfer_request.metrc_transfer_id,
+			)
+			session.add(new_purchase_order_metrc_transfer)
+			purchase_order_metrc_transfer_dicts.append(new_purchase_order_metrc_transfer.as_dict())
+
+	return True, None
+
+def update_purchase_order_history(
+	purchase_order: models.PurchaseOrder,
+	user_id: str,
+	user_full_name: str,
+	action: str,
+	new_status: str,
+) -> Tuple[ bool, errors.Error ]:
+	if purchase_order.history is None:
+		purchase_order_creation_event = get_purchase_order_history_event(
+			action = "PO created",
+			new_purchase_order_status = None,
+			created_by_user_id = user_id,
+			created_by_user_full_name = user_full_name
+		)
+	
+		purchase_order.history = [purchase_order_creation_event] 
+	
+	purchase_order.history.append(
+		get_purchase_order_history_event(
+			action = action,
+			new_purchase_order_status = new_status,
+			created_by_user_id = user_id,
+			created_by_user_full_name = user_full_name,
+		)
+	)
+	
+	return True, None
+
+def update_purchase_order_fields(
+	existing_purchase_order: models.PurchaseOrder,
+	purchase_order_input: models.PurchaseOrder,
+) -> models.PurchaseOrder:
+	existing_purchase_order.order_number = purchase_order_input.order_number
+	existing_purchase_order.order_date = purchase_order_input.order_date
+	existing_purchase_order.delivery_date = purchase_order_input.delivery_date
+	existing_purchase_order.net_terms = purchase_order_input.net_terms
+	existing_purchase_order.amount = purchase_order_input.amount
+	existing_purchase_order.amount_funded = purchase_order_input.amount_funded
+	existing_purchase_order.is_cannabis = purchase_order_input.is_cannabis
+	existing_purchase_order.customer_note = purchase_order_input.customer_note
+	
+	return existing_purchase_order
+
+def update_purchase_order(
+	session: Session,
+	purchase_order_input: models.PurchaseOrder,
+	purchase_order_files: List[PurchaseOrderFileItem],
+	purchase_order_metrc_transfers: List[PurchaseOrderMetrcTransferItem],
+	user_session: UserSession,
+	is_new_purchase_order: bool,
+	action: str,
+) -> Tuple[Dict, errors.Error]:
+	# Validate input
+	_, err = validate_purchase_order_input(
+		session,
+		purchase_order_input,
+		purchase_order_metrc_transfers,
+		check_for_duplicate = is_new_purchase_order,
+	)
+	if err:
+		return None, err
+
+	if is_new_purchase_order:
+		did_amount_change = True
+		
+		purchase_order = purchase_order_input
+		session.add(purchase_order)
+		session.flush()
+	else:
+		purchase_order, _ = queries.get_purchase_order_by_id(
+			session,
+			str(purchase_order_input.id)
+		)
+		if purchase_order is None:
+			return None, errors.Error("Cannot update purchase order, no matches with the provided id were found.")
+
+		did_amount_change = not number_util.float_eq(
+			float(purchase_order_input.amount), 
+			float(purchase_order.amount)
+		) or \
+			purchase_order.approved_at is None
+
+		purchase_order = update_purchase_order_fields(
+			purchase_order,
+			purchase_order_input
+		)
+
+	# Purchase order files
+	_, err = update_purchase_order_files(
+		session,
+		purchase_order.id,
+		purchase_order_files,
+	)
+	if err:
+		return None, err
+
+	# Purchase order metrc transfers
+	_, err = update_purchase_order_metrc_transfers(
+		session,
+		purchase_order.id,
+		purchase_order_metrc_transfers,
+	)
+	if err:
+		return None, err
+
+	# Update purchase order's history
+	submitting_user, err = queries.get_user_by_id(
+		session,
+		user_session.get_user_id()
+	)
+	if err:
+		return None, err
+
+	if action  == PurchaseOrderActions.SUBMIT:
+		purchase_order.requested_at = date_util.now()
+		purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.PENDING_APPROVAL_BY_VENDOR
+
+		# Run pre-submission validation checks
+		is_vendor_missing_bank_account, err = validate_purchase_order_input_submission_checks(
+			session,
+			purchase_order,
+			purchase_order_metrc_transfers,
+		)
+		if err:
+			return None, err
+
+		_, err = update_purchase_order_history(
+			purchase_order,
+			str(submitting_user.id),
+			submitting_user.full_name,
+			"Submitted PO to vendor for approval",
+			NewPurchaseOrderStatus.PENDING_APPROVAL_BY_VENDOR,
+		)
+		if err:
+			return None, err
+	else:
+		purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.DRAFT
+
+		_, err = update_purchase_order_history(
+			purchase_order,
+			str(submitting_user.id),
+			submitting_user.full_name,
+			"PO saved as draft",
+			NewPurchaseOrderStatus.DRAFT,
+		)
+		if err:
+			return None, err
+	
+	# Gather information for email template
+	customer, err = queries.get_company_by_id(
+		session,
+		str(purchase_order.company_id),
+	)
+	if err:
+		return None, err
+
+	vendor, err = queries.get_company_by_id(
+		session,
+		str(purchase_order.vendor_id),
+	)
+	if err:
+		return None, err
+
+	template_data = {
+		'customer_name': customer.get_display_name(),
+		'vendor_name': vendor.get_display_name(),
+		'purchase_order_number': purchase_order.order_number,
+		'purchase_order_amount': number_util.to_dollar_format(float(purchase_order.amount)) if purchase_order.amount else None,
+		'is_vendor_missing_bank_account': is_vendor_missing_bank_account if action == PurchaseOrderActions.SUBMIT else False,
+		'did_amount_change': did_amount_change,
+	}
+	
+	return template_data, None
+
+def submit_purchase_order_update(
+	session: Session,
+	purchase_order_input: models.PurchaseOrder,
+	purchase_order_files: List[PurchaseOrderFileItem],
+	purchase_order_metrc_transfers: List[PurchaseOrderMetrcTransferItem],
+	is_new_purchase_order: bool,
+	action: str,
+	user_session: UserSession,
+) -> Tuple[Dict, errors.Error]:
+	"""
+		This function acts as a coordinator for both the create
+		and update flows. This is beneficial as it shows what 
+		*should* happen as a purchase order goes from one status
+		to another all in one place - keeping the API simpler. 
+
+		The actual work of updating a purchase order should occur
+		in functions called by this one
+	"""
+	
+	template_data, err = update_purchase_order(
+		session,
+		purchase_order_input,
+		purchase_order_files,
+		purchase_order_metrc_transfers,
+		user_session,
+		is_new_purchase_order = is_new_purchase_order,
+		action = action,
+	)
+	if err:
+		return None, err
+
+	return template_data, None
+
+def send_email_alert_for_purchase_order_update_submission(
+	session: Session,
+	purchase_order_input: models.PurchaseOrder,
+	is_new_purchase_order: bool,
+	action: str,
+	sendgrid_client : sendgrid_util.Client,
+	config: Config,
+	template_data: Dict,
+) -> Tuple[ bool, errors. Error]:
+	# is_vendor_missing_bank_account rides piggyback on the template data
+	# for the submit flow to determine if we need to send an internal
+	# email, once we capture the value we can remove it from template_data
+	#
+	# Same thing for did_amount_change
+	is_vendor_missing_bank_account = template_data['is_vendor_missing_bank_account']
+	template_data.pop('is_vendor_missing_bank_account', None)
+	did_amount_change = template_data['did_amount_change']
+	template_data.pop('did_amount_change', None)
+
+	if is_new_purchase_order:
+		_, err = current_app.sendgrid_client.send(
+			template_name = sendgrid_util.TemplateNames.CUSTOMER_CREATED_PURCHASE_ORDER_NEW,
+			template_data = template_data,
+			recipients = config.BANK_NOTIFY_EMAIL_ADDRESSES,
+		)
+		if err:
+			return None, err
+		
+	if action == PurchaseOrderActions.SUBMIT:
+		if did_amount_change:
+			"""
+				This is block covers two cases:
+				1. User is submitting a brand new purchase order, so we must get approval
+				2. Purchase order was already approved, but in the course of editing
+					the purchase order, the amount was changed
+			"""
+			company_vendor_relationships, _ = queries.get_company_vendor_partnerships(
+				session,
+				[(
+					str(purchase_order_input.company_id),
+					str(purchase_order_input.vendor_id),
+				)]
+			)
+			company_vendor_relationship = company_vendor_relationships[0]
+
+			vendor_users, err = partnership_util.get_partner_contacts(
+				partnership_id = str(company_vendor_relationship.id),
+				partnership_type = db_constants.CompanyType.Vendor,
+				session = session
+			)
+			if err:
+				raise err
+
+			form_info = cast(Callable, models.TwoFactorFormInfoDict)(
+				type = db_constants.TwoFactorLinkType.CONFIRM_PURCHASE_ORDER,
+				payload = {
+					'purchase_order_id': str(purchase_order_input.id)
+				}
+			)
+			two_factor_payload = sendgrid_util.TwoFactorPayloadDict(
+				form_info = form_info,
+				expires_at = date_util.hours_from_today(24 * 7)
+			)
+			
+			_, err = sendgrid_client.send(
+				template_name = sendgrid_util.TemplateNames.VENDOR_TO_APPROVE_PURCHASE_ORDER_NEW,
+				# only send up the needed subset
+				template_data = {
+					'vendor_name': template_data['vendor_name'],
+					'customer_name': template_data['customer_name'],
+				},
+				recipients = [user['email'] for user in vendor_users],
+				two_factor_payload = two_factor_payload,
+				is_new_secure_link = True,
+			)
+			if err:
+				return None, err
+
+		# If vendor does NOT have a bank account set up yet,
+		# send an email to the Bespoke team letting them know about this.
+		if is_vendor_missing_bank_account:
+			_, err = sendgrid_client.send(
+				template_name = sendgrid_util.TemplateNames.CUSTOMER_REQUESTED_APPROVAL_NO_VENDOR_BANK_ACCOUNT_NEW,
+				template_data = {
+					'vendor_name': template_data['vendor_name'],
+					'customer_name': template_data['customer_name'],
+				},
+				recipients = current_app.app_config.BANK_NOTIFY_EMAIL_ADDRESSES + \
+					current_app.app_config.OPS_EMAIL_ADDRESSES,
+			)
+			if err:
+				return None, err
+
+	return True, None

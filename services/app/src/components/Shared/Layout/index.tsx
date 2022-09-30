@@ -122,6 +122,8 @@ const getCustomerNavItems = (
   isLatestBorrowingBaseMissing: boolean,
   isMetrcBased: boolean
 ): NavItem[] => {
+  const environment = process.env.REACT_APP_BESPOKE_ENVIRONMENT;
+
   return [
     {
       dataCy: "overview",
@@ -142,20 +144,20 @@ const getCustomerNavItems = (
       text: "Purchase Orders",
       link: customerRoutes.purchaseOrders,
     },
-    // {
-    //   dataCy: "purchase-orders-new",
-    //   visible:
-    //     process.env.NODE_ENV === "development" &&
-    //     !!productType &&
-    //     [
-    //       ProductTypeEnum.DispensaryFinancing,
-    //       ProductTypeEnum.InventoryFinancing,
-    //       ProductTypeEnum.PurchaseMoneyFinancing,
-    //     ].includes(productType),
-    //   iconNode: PurchaseOrdersIcon,
-    //   text: "Purchase Orders New",
-    //   link: customerRoutes.purchaseOrdersNew,
-    // },
+    {
+      dataCy: "purchase-orders-new",
+      visible:
+        environment !== "production" &&
+        !!productType &&
+        [
+          ProductTypeEnum.DispensaryFinancing,
+          ProductTypeEnum.InventoryFinancing,
+          ProductTypeEnum.PurchaseMoneyFinancing,
+        ].includes(productType),
+      iconNode: PurchaseOrdersIcon,
+      text: "Purchase Orders New",
+      link: customerRoutes.purchaseOrdersNew,
+    },
     {
       dataCy: "invoices",
       visible:

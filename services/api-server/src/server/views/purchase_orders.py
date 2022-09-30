@@ -13,6 +13,8 @@ from bespoke.email import sendgrid_util
 from bespoke.finance import number_util
 from bespoke.finance.loans import approval_util
 from bespoke.finance.purchase_orders import purchase_orders_util
+from bespoke.finance.purchase_orders.purchase_orders_util import PurchaseOrderFileItem, PurchaseOrderMetrcTransferItem, \
+	PurchaseOrderData
 from bespoke.security import security_util, two_factor_util
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
@@ -236,6 +238,7 @@ class SubmitNewView(MethodView):
 			)
 			if err:
 				raise err
+
 			purchase_order, _, _, err = purchase_orders_util.submit_purchase_order_for_approval_new(
 				session,
 				data.purchase_order.id,
@@ -245,13 +248,13 @@ class SubmitNewView(MethodView):
 			if err:
 				raise err
 
-		return make_response(json.dumps({
-			'status': 'OK',
-			'msg': 'Success',
-			'data': {
-				'purchase_order_id': purchase_order.id,
-			}
-		}))
+			return make_response(json.dumps({
+				'status': 'OK',
+				'msg': 'Success',
+				'data': {
+					'purchase_order_id': str(purchase_order.id),
+				}
+			}))
 
 class CreateUpdateAndSubmitView(MethodView):
 	decorators = [auth_util.login_required]
@@ -292,104 +295,78 @@ class CreateUpdateAndSubmitView(MethodView):
 			}
 		}))
 
-class CreateUpdateAndSubmitNewView(MethodView):
+class SubmitPurchaseOrderUpdateView(MethodView):
 	decorators = [auth_util.login_required]
 
 	@events.wrap(events.Actions.PURCHASE_ORDER_SUBMIT_FOR_APPROVAL)
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
-		user_session = auth_util.UserSession.from_session()
+		form = json.loads(request.data) 
+		if not form:
+			return handler_util.make_error_response('No data provided')
 
-		request_data = json.loads(request.data)
-		data, err = purchase_orders_util.PurchaseOrderUpsertRequestNew.from_dict(request_data)
+		config = cast(Config, current_app.app_config)
+		sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
+		if sendgrid_client is None:
+			return handler_util.make_error_response('Cannot find sendgrid client')
+
+		required_keys = [
+			'purchase_order',
+		    'purchase_order_files',
+		    'purchase_order_metrc_transfers',
+		    'action',
+		]
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in response to submitting a purchase order update')
+
+		data, err = PurchaseOrderData.from_dict(form.get('purchase_order'))
 		if err:
 			return handler_util.make_error_response(err)
 
-		if not user_session.is_bank_or_this_company_admin(data.purchase_order.company_id):
-			return handler_util.make_error_response("Access Denied", status_code=403)
+		purchase_order = data.to_model()
+		purchase_order_files = [PurchaseOrderFileItem.from_dict(item) for item in form.get('purchase_order_files', [])]
+		purchase_order_metrc_transfers = [PurchaseOrderMetrcTransferItem.from_dict(item) for item in form.get('purchase_order_metrc_transfers', [])]
+		action = form['action']
 
 		with session_scope(current_app.session_maker) as session:
-			user, err = queries.get_user_by_id(
-				session,
-				user_session.get_user_id(),
-			)
-			if err:
-				raise err
-
-			purchase_order_id, template_data, err = purchase_orders_util.create_update_purchase_order_new(
-				session,
-				data,
-				str(user.id),
-				user.full_name
-			)
-			if err:
-				raise err
-
-			_, err = current_app.sendgrid_client.send(
-				template_name=sendgrid_util.TemplateNames.CUSTOMER_CREATED_PURCHASE_ORDER_NEW,
-				template_data=template_data,
-				recipients=current_app.app_config.BANK_NOTIFY_EMAIL_ADDRESSES,
-			)
-			if err:
-				raise err
-
-			purchase_order, vendor_users, is_vendor_missing_bank_account, err = purchase_orders_util.submit_purchase_order_for_approval_new(
-				session,
-				purchase_order_id,
-				str(user.id),
-				user.full_name
-			)
-			if err:
-				raise err
+			is_new_purchase_order = True if purchase_order.id is None else False
 			
-			form_info = cast(Callable, models.TwoFactorFormInfoDict)(
-				type=TwoFactorLinkType.CONFIRM_PURCHASE_ORDER,
-				payload={
-					'purchase_order_id': purchase_order_id
-				}
-			)
-			two_factor_payload = sendgrid_util.TwoFactorPayloadDict(
-				form_info=form_info,
-				expires_at=date_util.hours_from_today(24 * 7)
-			)
-
-			# Send the email to the vendor for them to approve or reject this purchase order
-			# Get the vendor_id and find its users
-			_, err = current_app.sendgrid_client.send(
-				template_name=sendgrid_util.TemplateNames.VENDOR_TO_APPROVE_PURCHASE_ORDER_NEW,
-				template_data=template_data,
-				# Todo : Update this before rolling out to customers
-				recipients=[user['email'] for user in vendor_users]
-						if not (is_test_env(os.environ.get("FLASK_ENV")))
-						else current_app.app_config.BANK_NOTIFY_EMAIL_ADDRESSES,
-				two_factor_payload=two_factor_payload,
-				is_new_secure_link=True,
+			user_session = auth_util.UserSession.from_session()
+			template_data, err = purchase_orders_util.submit_purchase_order_update(
+				session,
+				purchase_order,
+				purchase_order_files,
+				purchase_order_metrc_transfers,
+				is_new_purchase_order,
+				action,
+				user_session,
 			)
 			if err:
-				raise err
+				return handler_util.make_error_response(err)
 
-			# If vendor does NOT have a bank account set up yet,
-			# send an email to the Bespoke team letting them know about this.
-			if is_vendor_missing_bank_account:
-				template_data = {
-					'vendor_name': purchase_order.vendor.get_display_name(),
-					'customer_name': purchase_order.company.get_display_name(),
+			_, err = purchase_orders_util.send_email_alert_for_purchase_order_update_submission(
+				session,
+				purchase_order,
+				is_new_purchase_order,
+				action,
+				sendgrid_client,
+				config,
+				template_data,
+			)
+			if err:
+				return handler_util.make_error_response(err)
+
+			#return handler_util.make_error_response(f'forced error')
+
+			return make_response(json.dumps({
+				'status': 'OK',
+				'msg': 'Success',
+				'data': {
+					'purchase_order_id': str(purchase_order.id),
 				}
-				_, err = current_app.sendgrid_client.send(
-					template_name=sendgrid_util.TemplateNames.CUSTOMER_REQUESTED_APPROVAL_NO_VENDOR_BANK_ACCOUNT_NEW,
-					template_data=template_data,
-					recipients=current_app.app_config.BANK_NOTIFY_EMAIL_ADDRESSES + current_app.app_config.OPS_EMAIL_ADDRESSES,
-				)
-				if err:
-					raise err
-
-		return make_response(json.dumps({
-			'status': 'OK',
-			'msg': 'Success',
-			'data': {
-				'purchase_order_id': purchase_order_id,
-			}
-		}))
+			}))
 
 class RespondToApprovalRequestView(MethodView):
 	"""
@@ -880,6 +857,12 @@ class ApprovePurchaseOrderView(MethodView):
 			if err:
 				raise err
 
+			purchase_order_number = purchase_order.order_number
+			purchase_order_amount = number_util.to_dollar_format(float(purchase_order.amount))
+			purchase_order_requested_date = date_util.human_readable_yearmonthday(
+				purchase_order.requested_at,
+			)
+
 			customer_users = models_util.get_active_users(
 				purchase_order.company_id, 
 				session, 
@@ -927,9 +910,9 @@ class ApprovePurchaseOrderView(MethodView):
 			recipients = customer_emails + sendgrid_client.get_bank_notify_email_addresses()
 
 			_, err = sendgrid_client.send(
-				template_name=template_name,
-				template_data=template_data,
-				recipients=recipients,
+				template_name = template_name,
+				template_data = template_data,
+				recipients = recipients,
 			)
 			if err:
 				raise err
@@ -1497,9 +1480,9 @@ handler.add_url_rule(
 )
 
 handler.add_url_rule(
-	'/create_update_and_submit_new',
-	view_func=CreateUpdateAndSubmitNewView.as_view(
-		name='create_update_and_submit_new',
+	'/submit_purchase_order_update',
+	view_func=SubmitPurchaseOrderUpdateView.as_view(
+		name='submit_purchase_order_update_new',
 	),
 )
 

@@ -13,11 +13,13 @@ import { formatCurrency } from "lib/number";
 
 interface Props {
   purchaseOrder: PurchaseOrderLimitedFragment;
+  dataCy: string;
   handleClick: () => void;
 }
 
 export default function PurchaseOrderVendorReviewCard({
   purchaseOrder,
+  dataCy,
   handleClick,
 }: Props) {
   const dueDate = !!purchaseOrder?.net_terms
@@ -40,6 +42,7 @@ export default function PurchaseOrderVendorReviewCard({
   return (
     <CardContainer>
       <Text
+        dataCy={dataCy}
         materialVariant="h3"
         isBold
         textVariant={TextVariants.SubHeader}

@@ -73,6 +73,7 @@ interface Props {
   isExcelExport?: boolean;
   isMultiSelectEnabled?: boolean;
   isFilteringEnabled?: boolean;
+  dataCy?: string;
   purchaseOrders: PurchaseOrderFragment[];
   actionItems?: DataGridActionItem[];
   selectedPurchaseOrderIds?: PurchaseOrders["id"][];
@@ -94,6 +95,7 @@ export default function PurchaseOrdersDataGridNew({
   isExcelExport = true,
   isFilteringEnabled = false,
   isMultiSelectEnabled = true,
+  dataCy = "",
   purchaseOrders,
   actionItems,
   selectedPurchaseOrderIds,
@@ -325,6 +327,7 @@ export default function PurchaseOrdersDataGridNew({
 
   return (
     <Box
+      data-cy={dataCy}
       display="flex"
       flexDirection="column"
       className="purchase-orders-data-grid-new"

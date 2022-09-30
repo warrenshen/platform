@@ -169,6 +169,9 @@ export default function Modal({
                 {!!secondaryActionText && handleSecondaryAction && (
                   <>
                     <StyledButton
+                      data-cy={
+                        !!dataCy ? `${dataCy}-secondary-button` : undefined
+                      }
                       disabled={isSecondaryActionDisabled}
                       onClick={handleSecondaryAction}
                       variant={"outlined"}

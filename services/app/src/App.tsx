@@ -56,6 +56,7 @@ import CustomerLocationsPage from "pages/Customer/Locations";
 import CustomerOverviewPage from "pages/Customer/Overview";
 import CustomerPayorsPage from "pages/Customer/Payors";
 import CustomerPurchaseOrdersPage from "pages/Customer/PurchaseOrders";
+import CustomerPurchaseOrdersPageNew from "pages/Customer/PurchaseOrders/indexNew";
 import CustomerRepaymentsPage from "pages/Customer/Repayments";
 import CustomerReportsPage from "pages/Customer/Reports";
 import CustomerSettingsPage from "pages/Customer/Settings";
@@ -70,6 +71,7 @@ export default function App() {
   const {
     user: { role },
   } = useContext(CurrentUserContext);
+  const environment = process.env.REACT_APP_BESPOKE_ENVIRONMENT;
 
   return (
     <BrowserRouter>
@@ -250,16 +252,18 @@ export default function App() {
         >
           <CustomerPurchaseOrdersPage />
         </PrivateRoute>
-        {/* <PrivateRoute
-          exact
-          path={customerRoutes.purchaseOrdersNew}
-          requiredRoles={[
-            UserRolesEnum.CompanyAdmin,
-            UserRolesEnum.CompanyReadOnly,
-          ]}
-        >
-          <CustomerPurchaseOrdersPageNew />
-        </PrivateRoute> */}
+        {environment !== "production" && (
+          <PrivateRoute
+            exact
+            path={customerRoutes.purchaseOrdersNew}
+            requiredRoles={[
+              UserRolesEnum.CompanyAdmin,
+              UserRolesEnum.CompanyReadOnly,
+            ]}
+          >
+            <CustomerPurchaseOrdersPageNew />
+          </PrivateRoute>
+        )}
         <PrivateRoute
           exact
           path={customerRoutes.invoices}

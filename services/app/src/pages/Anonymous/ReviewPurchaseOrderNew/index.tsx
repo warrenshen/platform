@@ -307,18 +307,21 @@ export default function ReviewPurchaseOrderPage({ location }: Props) {
               <FixedBox>
                 <Buttons>
                   <SecondaryWarningButton
+                    dataCy={"vendor-reject-completely-button"}
                     text={"Reject completely"}
                     width={"288px"}
                     height={"50px"}
                     onClick={() => setIsRejectModalOpen(true)}
                   />
                   <SecondaryButton
+                    dataCy={"vendor-requests-changes-button"}
                     text={"Request Changes"}
                     width={"288px"}
                     height={"50px"}
                     onClick={() => setIsRequestChangesModalOpen(true)}
                   />
                   <PrimaryButton
+                    dataCy={"vendor-approve-button"}
                     text={"Approve"}
                     width={"288px"}
                     height={"50px"}

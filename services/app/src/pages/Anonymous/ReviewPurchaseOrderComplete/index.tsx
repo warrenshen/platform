@@ -86,8 +86,9 @@ function ReviewPurchaseOrderCompletePage(props: any) {
               <Text textVariant={TextVariants.ParagraphLead}>
                 Waiting For Review
               </Text>
-              {purchaseOrders.map((purchaseOrder) => (
+              {purchaseOrders.map((purchaseOrder, index) => (
                 <PurchaseOrderVendorReviewCard
+                  dataCy={`purchase-order-review-card${index}`}
                   purchaseOrder={purchaseOrder}
                   handleClick={() => {
                     history.push({

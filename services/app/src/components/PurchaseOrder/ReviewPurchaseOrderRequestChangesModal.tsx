@@ -90,6 +90,7 @@ export default function ReviewPurchaseOrderRequestChangesModal({
         </Text>
         <Box display="flex" flexDirection="column">
           <TextField
+            data-cy={"request-change-reason"}
             multiline
             label={"Requested Changes"}
             placeholder={"Enter in the requested changes"}
@@ -100,16 +101,14 @@ export default function ReviewPurchaseOrderRequestChangesModal({
       </DialogContent>
       <DialogActions className={classes.dialogActions}>
         <SecondaryButton
+          dataCy={"vendor-request-changes-po-modal-cancel-button"}
           text={"Cancel"}
-          width={"101px"}
-          height={"50px"}
           onClick={handleClose}
         />
         <PrimaryButton
+          dataCy={"vendor-request-changes-po-modal-confirm-button"}
           isDisabled={isSubmitDisabled}
           text={"Confirm"}
-          width={"101px"}
-          height={"50px"}
           onClick={handleClickRequestChanges}
         />
       </DialogActions>

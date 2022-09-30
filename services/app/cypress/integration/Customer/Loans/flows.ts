@@ -32,6 +32,15 @@ const dateAsDateStringServer = (date: Date) => {
   }
 };
 
+export const getFuturePaymentDate = () => {
+  const now = new Date();
+  const paymentDate = getNextDayOfWeek(now, 3);
+
+  return {
+    paymentDate: dateAsDateStringClient(paymentDate),
+  };
+};
+
 export const getTestSetupDates = () => {
   // In the original bug that lead to creating this test, the timestamp
   // for requested_at was 2022-05-06T20:14:00.648625+00:00. Here we say

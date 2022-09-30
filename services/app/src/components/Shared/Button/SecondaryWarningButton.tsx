@@ -16,6 +16,7 @@ interface Props {
   height?: string;
   margin?: string;
   padding?: string;
+  dataCy?: string;
   onClick: () => void;
 }
 
@@ -27,10 +28,12 @@ export default function SecondaryWarningButton({
   height,
   margin,
   padding,
+  dataCy,
   onClick,
 }: Props) {
   return (
     <ActionButton
+      dataCy={dataCy}
       isDisabled={isDisabled}
       variant={"outlined"}
       text={text}

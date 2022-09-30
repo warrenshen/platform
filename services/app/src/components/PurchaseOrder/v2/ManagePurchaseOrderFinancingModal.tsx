@@ -224,6 +224,7 @@ function ManagePurchaseOrderFinancingModal({
   return (
     <Modal
       title={"Manage Purchase Order Financing"}
+      dataCy={"create-financing-requests-modal"}
       primaryActionText={"Save & Submit"}
       isPrimaryActionDisabled={isPrimaryActionDisabled}
       handlePrimaryAction={handleClickSubmit}

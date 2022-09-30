@@ -4,6 +4,7 @@ import os
 import sqlalchemy
 from typing import Any, Dict, Tuple
 
+from datetime import datetime
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from server.config import is_development_env, is_test_env
@@ -13,7 +14,7 @@ from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models, seed_util
 from bespoke.db.db_constants import ProductType, TwoFactorMessageMethod, LoginMethod, \
-	BankAccountType, RequestStatusEnum, NewPurchaseOrderStatus
+	BankAccountType, RequestStatusEnum, NewPurchaseOrderStatus, PurchaseOrderFileTypeEnum
 from bespoke.db.models import session_scope
 from bespoke.db.seed import setup_db_test
 from server.views.common import handler_util
@@ -682,6 +683,73 @@ class AddContractView(MethodView):
 			},
 		}))
 
+class AddFileView(MethodView):
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		session_maker, err = run_cypress_preflight_checks()
+		if err:
+			raise err
+
+		today_string = date_util.date_to_db_str(date_util.now_as_date())
+		
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response("No data provided")
+
+		required_keys = [attr for attr in dir(models.File()) if not callable(getattr(models.File(), attr)) \
+			and not attr.startswith('_') and attr != 'metadata']
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in response to creating a file for a Cypress test')
+
+		id = get_field_or_default(form, 'id', None)
+
+		company_id = get_field_or_default(form, 'company_id', None)
+		created_at = get_field_or_default(form, 'created_at', date_util.now())
+		created_by_user_id = get_field_or_default(form, 'created_by_user_id', None)
+		extension = get_field_or_default(form, 'extension', 'pdf')
+		mime_type = get_field_or_default(form, 'mime_type', 'application/pdf')
+		name = get_field_or_default(form, 'name', 'sample.pdf')
+		path = get_field_or_default(form, 'path', "not/an/actual/file.pdf")
+		sequential_id = get_field_or_default(form, 'sequential_id', None)
+		size = get_field_or_default(form, 'size', 3028)
+		updated_at = get_field_or_default(form, 'updated_at', date_util.now())
+
+
+		file_id = ""
+		with session_scope(session_maker) as session:
+			logging.info('Adding file for cypress test...')
+
+			file, err = seed_util.create_file(
+				session,
+				id,
+				company_id,
+				created_at,
+				created_by_user_id,
+				extension,
+				mime_type,
+				name,
+				path,
+				sequential_id,
+				size,
+				updated_at,
+			)
+			if err:
+				raise err
+
+			file_id = str(file.id)
+
+			logging.info('Finished adding file for cypress test...')
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': 'Success',
+			'data': {
+				'file_id': file_id,
+			},
+		}))
+
 class AddFinancialSummaryView(MethodView):
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
@@ -809,12 +877,15 @@ class AddPurchaseOrderView(MethodView):
 			if key not in form:
 				return handler_util.make_error_response(f'Missing {key} in response to creating a purchase order for a Cypress test')
 
+		# Get optional fields
+		clear_approved_at = form['clear_approved_at']
+
 		all_bank_notes = get_field_or_default(form, 'all_bank_notes', {})
 		all_customer_notes = get_field_or_default(form, 'all_customer_notes', {})
 		amount = get_field_or_default(form, 'amount', 1000.00)
 		amount_funded = get_field_or_default(form, 'amount_funded', 0.0)
 		amount_updated_at = get_field_or_default(form, 'amount_updated_at', None)
-		approved_at = get_field_or_default(form, 'approved_at', None)
+		approved_at = get_field_or_default(form, 'approved_at', date_util.now() if clear_approved_at is False else None)
 		approved_by_user_id = get_field_or_default(form, 'approved_by_user_id', None)
 		bank_incomplete_note = get_field_or_default(form, 'bank_incomplete_note', None)
 		bank_note = get_field_or_default(form, 'bank_note', None)
@@ -891,6 +962,138 @@ class AddPurchaseOrderView(MethodView):
 			'msg': 'Success',
 			'data': {
 				'purchase_order_id': purchase_order_id,
+			},
+		}))
+
+class AddPurchaseOrderFileView(MethodView):
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		session_maker, err = run_cypress_preflight_checks()
+		if err:
+			raise err
+		
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response("No data provided")
+
+		models_relationships_to_ignore = [
+			'file',
+			'purchase_order',
+		]
+
+		required_keys = [attr for attr in dir(models.PurchaseOrderFile()) if not callable(getattr(models.PurchaseOrderFile(), attr)) \
+			and not attr.startswith('_') and attr != 'metadata' and attr not in models_relationships_to_ignore]
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in response to creating a purchase order file for a Cypress test')
+
+		id = get_field_or_default(form, 'id', None)
+		created_at = get_field_or_default(form, 'created_at', date_util.now())
+		file_id = get_field_or_default(form, 'file_id', None)
+		file_type = get_field_or_default(form, 'file_type', PurchaseOrderFileTypeEnum.PURCHASE_ORDER)
+		purchase_order_id = get_field_or_default(form, 'purchase_order_id', None)
+		updated_at = get_field_or_default(form, 'updated_at', date_util.now())
+
+		purchase_order_file_id = ''
+		with session_scope(session_maker) as session:
+			logging.info('Adding purchase order file for cypress test...')
+
+			purchase_order_file, err = seed_util.create_purchase_order_file(
+				session,
+				created_at,
+				file_id,
+				file_type,
+				purchase_order_id,
+				updated_at,
+			)
+			if err:
+				raise err
+
+			# Please note! This table doesn't have an `id` column, so we are
+			# returning `file_id` in case that would be useful for verification
+			purchase_order_file_id = str(purchase_order_file.file_id)
+
+			logging.info('Finished adding purchase order file for cypress test...')
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': 'Success',
+			'data': {
+				'purchase_order_file_id': purchase_order_file_id,
+			},
+		}))
+
+class AddTwoFactorLinkView(MethodView):
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		session_maker, err = run_cypress_preflight_checks()
+		if err:
+			raise err
+		
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response("No data provided")
+
+		required_keys = [attr for attr in dir(models.TwoFactorLink()) if not callable(getattr(models.TwoFactorLink(), attr)) \
+			and not attr.startswith('_') and attr != 'metadata']
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in response to creating a two factor link for a Cypress test')
+
+		expires_at_input = date_util.datetime_to_str(
+			datetime.combine(
+				date_util.add_biz_days(date_util.now_as_date(), 365),
+				datetime.min.time()
+			)
+		)
+
+		# Optional parameters need to be set first in order to pass to form_info and token_states
+		purchase_order_id = get_field_or_default(form, 'purchase_order_id', None)
+		form_type = get_field_or_default(form, 'form_type', 'confirm_purchase_order')
+		form_payload_key = get_field_or_default(form, 'id', 'purchase_order_id')
+		vendor_email = get_field_or_default(form, 'id', 'vendor@bespokefinancial.com')
+
+		# These are the fields actually in models.TwoFactorLink
+		id = get_field_or_default(form, 'id', None)
+		expires_at = get_field_or_default(form, 'expires_at', expires_at_input)
+		default_form_info = {
+			"type": form_type,
+			"payload": { }
+		}
+		default_form_info["payload"][form_payload_key] = purchase_order_id
+		form_info = get_field_or_default(form, 'form_info', default_form_info)
+		default_token_states = {}
+		default_token_states[vendor_email] = {
+			"token_val":"103580",
+			"expires_in": expires_at_input,
+		}
+		token_states = get_field_or_default(form, 'token_states', default_token_states)
+
+		two_factor_link_id = ''
+		with session_scope(session_maker) as session:
+			logging.info('Adding two factor link for cypress test...')
+
+			two_factor_link, err = seed_util.create_two_factor_link(
+				session,
+				id,
+				expires_at,
+				form_info,
+				token_states,
+			)
+			if err:
+				raise err
+
+			two_factor_link_id = str(two_factor_link.id)
+
+			logging.info('Finished adding two factor link for cypress test...')
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': 'Success',
+			'data': {
+				'two_factor_link_id': two_factor_link_id,
 			},
 		}))
 
@@ -1192,6 +1395,11 @@ handler.add_url_rule(
 )
 
 handler.add_url_rule(
+	'/add_file',
+	view_func=AddFileView.as_view(name='add_file_view'),
+)
+
+handler.add_url_rule(
 	'/add_financial_summary',
 	view_func=AddFinancialSummaryView.as_view(name='add_financial_summary_view'),
 )
@@ -1199,6 +1407,16 @@ handler.add_url_rule(
 handler.add_url_rule(
 	'/add_purchase_order',
 	view_func=AddPurchaseOrderView.as_view(name='add_purchase_order_view'),
+)
+
+handler.add_url_rule(
+	'/add_purchase_order_file',
+	view_func=AddPurchaseOrderFileView.as_view(name='add_purchase_order_file_view'),
+)
+
+handler.add_url_rule(
+	'/add_two_factor_link',
+	view_func=AddTwoFactorLinkView.as_view(name='add_two_factor_link_view'),
 )
 
 handler.add_url_rule(

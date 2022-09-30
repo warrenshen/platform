@@ -1,6 +1,6 @@
 import datetime
 import logging
-from typing import Callable, cast, List, Tuple
+from typing import Callable, cast, List, Optional, Tuple
 
 from bespoke import errors
 from bespoke.date import date_util
@@ -17,11 +17,15 @@ from sqlalchemy.orm.session import Session
 def get_all_customers(
     session: Session,
 ) -> Tuple[ List[models.Company], errors.Error ]:
+    filters = [
+        models.Company.is_customer == True
+    ]
+
     # fmt: off
     customers = cast(
         List[models.Company],
         session.query(models.Company).filter(
-            models.Company.is_customer == True
+            *filters
         ).order_by(
             models.Company.name.asc()
         ).all())
@@ -36,11 +40,15 @@ def get_company_by_id(
     session: Session,
     company_id: str,
 ) -> Tuple[ models.Company, errors.Error ]:
+    filters = [
+        models.Company.id == company_id
+    ]
+
     # fmt: off
     company = cast(
         models.Company,
         session.query(models.Company).filter(
-            models.Company.id == company_id
+            *filters
         ).first())
     # fmt: on
 
@@ -340,11 +348,15 @@ def get_parent_company_by_id(
     session: Session,
     parent_company_id: str,
 ) -> Tuple[ models.ParentCompany, errors.Error ]:
+    filters = [
+        models.ParentCompany.id == parent_company_id
+    ]
+
     # fmt: off
     parent_company = cast(
         models.ParentCompany,
         session.query(models.ParentCompany).filter(
-            models.ParentCompany.id == parent_company_id
+            *filters
         ).first())
     # fmt: on
 
@@ -455,6 +467,93 @@ def get_purchase_orders(
     # to keep a consistent signature, though.
 
     return purchase_orders, None
+
+def get_purchase_order(
+    session: Session,
+    vendor_id: str,
+    order_number: str,
+) -> Tuple[ models.PurchaseOrder, errors.Error ]:
+    filters = [
+        cast(Callable, models.PurchaseOrder.is_deleted.isnot)(True),
+        models.PurchaseOrder.vendor_id == vendor_id,
+        models.PurchaseOrder.order_number == order_number,
+    ]
+
+    # fmt: off
+    purchase_orders = cast(
+        models.PurchaseOrder,
+        session.query(models.PurchaseOrder).filter(
+            *filters
+        ).first())
+    # fmt: on
+
+    # Since not finding purchase orders isn't inherently a sign
+    # of anything wrong, we do not do an error check
+    # for if not purchase_orders. We keep the return signature
+    # to keep a consistent signature, though.
+
+    return purchase_orders, None
+
+# ###############################
+# Purchase Order Files
+# ###############################
+
+def get_purchase_order_files(
+    session: Session,
+    purchase_order_id: Optional[str] = None,
+    file_ids: Optional[List[str]] = None,
+    file_type: Optional[str] = None,
+) -> Tuple[ List[models.PurchaseOrderFile], errors.Error ]:
+    filters = [
+
+    ]
+
+    if purchase_order_id is not None:
+        filters.append(models.PurchaseOrderFile.purchase_order_id == purchase_order_id)
+
+    if file_ids is not None:
+        filters.append(models.PurchaseOrderFile.file_id.in_(file_ids))
+
+    if file_type is not None:
+        filters.append(models.PurchaseOrderFile.file_type == file_type)
+
+    # fmt: off
+    purchase_order_files = cast(
+        List[models.PurchaseOrderFile],
+        session.query(models.PurchaseOrderFile).filter(
+            *filters
+        ).all())
+    # fmt: on
+
+    # Not finding files isn't an error state. We
+    # keep the return signature for consistency
+
+    return purchase_order_files, None
+
+# ###############################
+# Purchase Order Metrc Transfers
+# ###############################
+
+def get_purchase_order_metrc_transfers(
+    session: Session,
+    purchase_order_id: str,
+) -> Tuple[ List[models.PurchaseOrderMetrcTransfer], errors.Error ]:
+    filters = [
+        models.PurchaseOrderMetrcTransfer.purchase_order_id == purchase_order_id,
+    ]
+
+    # fmt: off
+    purchase_order_metrc_transfers = cast(
+        List[models.PurchaseOrderMetrcTransfer],
+        session.query(models.PurchaseOrderMetrcTransfer).filter(
+            *filters,
+        ).all())
+    # fmt: on
+
+    # Not finding any metrc transfers isn't a fail state
+    # We just keep the return signature for consistency
+
+    return purchase_order_metrc_transfers, None
 
 # ###############################
 # Transactions

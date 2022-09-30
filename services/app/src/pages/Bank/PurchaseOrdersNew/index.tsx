@@ -41,7 +41,7 @@ export default function BankPurchaseOrdersPageNew() {
               <Tab
                 // Replace space with underscore and change to lower case
                 // eg:- Not Confirmed Pos to not-confirmed-pos
-                data-cy={label.replace(/\s+/g, "-").toLowerCase()}
+                data-cy={`${label.replace(/\s+/g, "-").toLowerCase()}-tab`}
                 key={label}
                 label={label}
               />

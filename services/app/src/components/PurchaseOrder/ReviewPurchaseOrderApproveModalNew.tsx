@@ -1,6 +1,5 @@
 import {
   Box,
-  Button,
   DialogActions,
   DialogContent,
   DialogContentText,
@@ -9,6 +8,8 @@ import {
   makeStyles,
 } from "@material-ui/core";
 import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
+import PrimaryButton from "components/Shared/Button/PrimaryButton";
+import SecondaryButton from "components/Shared/Button/SecondaryButton";
 import ModalDialog from "components/Shared/Modal/ModalDialog";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
@@ -125,18 +126,17 @@ function ReviewPurchaseOrderApproveModalNew({
         </Box>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>
-        <Button variant={"contained"} color={"default"} onClick={handleClose}>
-          Cancel
-        </Button>
-        <Button
-          data-cy={"confirm-bank-information"}
-          disabled={isSubmitDisabled}
-          variant={"contained"}
-          color={"primary"}
+        <SecondaryButton
+          dataCy={"vendor-approve-po-modal-cancel-button"}
+          text={"Cancel"}
+          onClick={handleClose}
+        />
+        <PrimaryButton
+          dataCy={"vendor-approve-po-modal-confirm-button"}
+          isDisabled={isSubmitDisabled}
+          text={"Confirm"}
           onClick={handleClickApprove}
-        >
-          Confirm
-        </Button>
+        />
       </DialogActions>
     </ModalDialog>
   );

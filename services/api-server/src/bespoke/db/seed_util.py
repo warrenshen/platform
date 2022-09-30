@@ -475,6 +475,93 @@ def create_contract(
 
     return contract, None
 
+def create_ebba_application(
+    session: Session,
+    id: str,
+    company_id: str,
+    category: str,
+    status: str,
+    application_date: datetime.date,
+    is_deleted: bool,
+    submitted_by_user_id: str,
+    approved_by_user_id: str,
+    rejected_by_user_id: str,
+    monthly_accounts_receivable: float,
+    monthly_inventory: float,
+    monthly_cash: float,
+    amount_cash_in_daca: float,
+    amount_custom: float,
+    amount_custom_note: str,
+    bank_note: str,
+    calculated_borrowing_base: str,
+    rejection_note: str,
+    expires_date: datetime.date,
+    requested_at: datetime.datetime,
+    approved_at: datetime.datetime,
+    rejected_at: datetime.datetime,
+) -> Tuple[models.EbbaApplication, errors.Error]:
+    ebba_application = models.EbbaApplication( # type: ignore
+        id = id,
+        company_id = company_id,
+        category = category,
+        status = status,
+        application_date = application_date,
+        is_deleted = is_deleted,
+        submitted_by_user_id = submitted_by_user_id,
+        approved_by_user_id = approved_by_user_id,
+        rejected_by_user_id = rejected_by_user_id,
+        monthly_accounts_receivable = Decimal(monthly_accounts_receivable),
+        monthly_inventory = Decimal(monthly_inventory),
+        monthly_cash = Decimal(monthly_cash),
+        amount_cash_in_daca = Decimal(amount_cash_in_daca),
+        amount_custom = Decimal(amount_custom),
+        amount_custom_note = amount_custom_note,
+        bank_note = bank_note,
+        calculated_borrowing_base = calculated_borrowing_base,
+        rejection_note = rejection_note,
+        expires_date = expires_date,
+        requested_at = requested_at,
+        approved_at = approved_at,
+        rejected_at = rejected_at,
+    )
+
+    session.add(ebba_application)
+    session.flush()
+
+    return ebba_application, None
+
+def create_file(
+    session: Session,
+    id: str,
+    company_id: str,
+    created_at: datetime.datetime,
+    created_by_user_id: str,
+    extension: str,
+    mime_type: str,
+    name: str,
+    path: str,
+    sequential_id: str,
+    size: int,
+    updated_at: datetime.datetime,
+) -> Tuple[models.File, errors.Error]:
+    file = models.File( # type:ignore
+        company_id = company_id,
+        created_by_user_id = created_by_user_id,
+        extension = extension,
+        mime_type = mime_type,
+        name = name,
+        path = path,
+        sequential_id = sequential_id,
+        size = size,
+    )
+    if id is not None:
+        file.id = id
+
+    session.add(file)
+    session.flush()
+
+    return file, None
+
 def create_financial_summary(
     session: Session,
     id: str,
@@ -544,6 +631,83 @@ def create_financial_summary(
     session.flush()
 
     return financial_summary, None
+
+def create_loan(
+    session: Session,
+    id: str,
+    company_id: str,
+    loan_report_id: str,
+    created_at: datetime.datetime,
+    updated_at: datetime.datetime,
+    identifier: str,
+    disbursement_identifier: str,
+    loan_type: str,
+    artifact_id: str,
+    requested_payment_date: datetime.date,
+    origination_date: datetime.date,
+    maturity_date: datetime.date,
+    adjusted_maturity_date: datetime.date,
+    amount: float,
+    status: str,
+    payment_status: str,
+    notes: str,
+    customer_notes: str,
+    requested_at: datetime.datetime,
+    requested_by_user_id: str,
+    closed_at: datetime.datetime,
+    rejected_at: datetime.datetime,
+    rejected_by_user_id: str,
+    rejection_note: str,
+    approved_at: datetime.datetime,
+    approved_by_user_id: str,
+    funded_at: str,
+    funded_by_user_id: str,
+    outstanding_principal_balance: float,
+    outstanding_interest: float,
+    outstanding_fees: float,
+    is_deleted: bool,
+    is_frozen: bool
+) -> Tuple[models.Loan, errors.Error]:
+    loan = models.Loan( # type: ignore
+        id = id,
+        company_id = company_id,
+        loan_report_id = loan_report_id,
+        created_at = created_at,
+        updated_at = updated_at,
+        identifier = identifier,
+        disbursement_identifier = disbursement_identifier,
+        loan_type = loan_type,
+        artifact_id = artifact_id,
+        requested_payment_date = requested_payment_date,
+        origination_date = origination_date,
+        maturity_date = maturity_date,
+        adjusted_maturity_date = adjusted_maturity_date,
+        amount = Decimal(amount),
+        status = status,
+        payment_status = payment_status,
+        notes = notes,
+        customer_notes = customer_notes,
+        requested_at = requested_at,
+        requested_by_user_id = requested_by_user_id,
+        closed_at = closed_at,
+        rejected_at = rejected_at,
+        rejected_by_user_id = rejected_by_user_id,
+        rejection_note = rejection_note,
+        approved_at = approved_at,
+        approved_by_user_id = approved_by_user_id,
+        funded_at = funded_at,
+        funded_by_user_id = funded_by_user_id,
+        outstanding_principal_balance = Decimal(outstanding_principal_balance),
+        outstanding_interest = Decimal(outstanding_interest),
+        outstanding_fees = Decimal(outstanding_fees),
+        is_deleted = is_deleted,
+        is_frozen = is_frozen
+    )
+
+    session.add(loan)
+    session.flush()
+
+    return loan, None
 
 def create_purchase_order(
     session: Session,
@@ -625,138 +789,44 @@ def create_purchase_order(
 
     return purchase_order, None
 
-def create_loan(
+def create_purchase_order_file(
     session: Session,
-    id: str,
-    company_id: str,
-    loan_report_id: str,
     created_at: datetime.datetime,
+    file_id: str,
+    file_type: str,
+    purchase_order_id: str,
     updated_at: datetime.datetime,
-    identifier: str,
-    disbursement_identifier: str,
-    loan_type: str,
-    artifact_id: str,
-    requested_payment_date: datetime.date,
-    origination_date: datetime.date,
-    maturity_date: datetime.date,
-    adjusted_maturity_date: datetime.date,
-    amount: float,
-    status: str,
-    payment_status: str,
-    notes: str,
-    customer_notes: str,
-    requested_at: datetime.datetime,
-    requested_by_user_id: str,
-    closed_at: datetime.datetime,
-    rejected_at: datetime.datetime,
-    rejected_by_user_id: str,
-    rejection_note: str,
-    approved_at: datetime.datetime,
-    approved_by_user_id: str,
-    funded_at: str,
-    funded_by_user_id: str,
-    outstanding_principal_balance: float,
-    outstanding_interest: float,
-    outstanding_fees: float,
-    is_deleted: bool,
-    is_frozen: bool
-) -> Tuple[models.Loan, errors.Error]:
-    loan = models.Loan( # type: ignore
-        id = id,
-        company_id = company_id,
-        loan_report_id = loan_report_id,
-        created_at = created_at,
-        updated_at = updated_at,
-        identifier = identifier,
-        disbursement_identifier = disbursement_identifier,
-        loan_type = loan_type,
-        artifact_id = artifact_id,
-        requested_payment_date = requested_payment_date,
-        origination_date = origination_date,
-        maturity_date = maturity_date,
-        adjusted_maturity_date = adjusted_maturity_date,
-        amount = Decimal(amount),
-        status = status,
-        payment_status = payment_status,
-        notes = notes,
-        customer_notes = customer_notes,
-        requested_at = requested_at,
-        requested_by_user_id = requested_by_user_id,
-        closed_at = closed_at,
-        rejected_at = rejected_at,
-        rejected_by_user_id = rejected_by_user_id,
-        rejection_note = rejection_note,
-        approved_at = approved_at,
-        approved_by_user_id = approved_by_user_id,
-        funded_at = funded_at,
-        funded_by_user_id = funded_by_user_id,
-        outstanding_principal_balance = Decimal(outstanding_principal_balance),
-        outstanding_interest = Decimal(outstanding_interest),
-        outstanding_fees = Decimal(outstanding_fees),
-        is_deleted = is_deleted,
-        is_frozen = is_frozen
+) -> Tuple[models.PurchaseOrderFile, errors.Error]:
+    purchase_order_file = models.PurchaseOrderFile( # type:ignore
+        file_id = file_id,
+        file_type = file_type,
+        purchase_order_id = purchase_order_id,
     )
 
-    session.add(loan)
+    session.add(purchase_order_file)
     session.flush()
 
-    return loan, None
+    return purchase_order_file, None
 
-def create_ebba_application(
+def create_two_factor_link(
     session: Session,
     id: str,
-    company_id: str,
-    category: str,
-    status: str,
-    application_date: datetime.date,
-    is_deleted: bool,
-    submitted_by_user_id: str,
-    approved_by_user_id: str,
-    rejected_by_user_id: str,
-    monthly_accounts_receivable: float,
-    monthly_inventory: float,
-    monthly_cash: float,
-    amount_cash_in_daca: float,
-    amount_custom: float,
-    amount_custom_note: str,
-    bank_note: str,
-    calculated_borrowing_base: str,
-    rejection_note: str,
-    expires_date: datetime.date,
-    requested_at: datetime.datetime,
-    approved_at: datetime.datetime,
-    rejected_at: datetime.datetime,
-) -> Tuple[models.EbbaApplication, errors.Error]:
-    ebba_application = models.EbbaApplication( # type: ignore
-        id = id,
-        company_id = company_id,
-        category = category,
-        status = status,
-        application_date = application_date,
-        is_deleted = is_deleted,
-        submitted_by_user_id = submitted_by_user_id,
-        approved_by_user_id = approved_by_user_id,
-        rejected_by_user_id = rejected_by_user_id,
-        monthly_accounts_receivable = Decimal(monthly_accounts_receivable),
-        monthly_inventory = Decimal(monthly_inventory),
-        monthly_cash = Decimal(monthly_cash),
-        amount_cash_in_daca = Decimal(amount_cash_in_daca),
-        amount_custom = Decimal(amount_custom),
-        amount_custom_note = amount_custom_note,
-        bank_note = bank_note,
-        calculated_borrowing_base = calculated_borrowing_base,
-        rejection_note = rejection_note,
-        expires_date = expires_date,
-        requested_at = requested_at,
-        approved_at = approved_at,
-        rejected_at = rejected_at,
+    expires_at: datetime.datetime,
+    form_info: Dict,
+    token_states: Dict,
+) -> Tuple[models.TwoFactorLink, errors.Error]:
+    two_factor_link = models.TwoFactorLink(
+        expires_at = expires_at,
+        form_info = form_info,
+        token_states = token_states,
     )
+    if id is not None:
+        two_factor_link.id = id
 
-    session.add(ebba_application)
+    session.add(two_factor_link)
     session.flush()
 
-    return ebba_application, None
-
+    return two_factor_link, None
 
 def create_user(
     session: Session,

@@ -57,6 +57,7 @@ export default function FinancingRequestCreateCard({
       <CardContent>
         <FormControl fullWidth>
           <DateInput
+            dataCy={"requested-payment-date-date-picker"}
             id="requested-payment-date-date-picker"
             label="Requested Payment Date"
             disablePast
@@ -87,6 +88,7 @@ export default function FinancingRequestCreateCard({
         </Box>
         <FormControl fullWidth>
           <CurrencyInput
+            dataCy={"financing-request-amount-input"}
             label={"Amount ($)"}
             value={loan.amount}
             onBlur={() => setHasAmountBeenFocusedOnce(true)}

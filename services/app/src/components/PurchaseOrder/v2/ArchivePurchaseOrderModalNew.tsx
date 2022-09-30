@@ -1,11 +1,12 @@
 import {
   Box,
-  Button,
   DialogActions,
   DialogContent,
   Typography,
   makeStyles,
 } from "@material-ui/core";
+import PrimaryWarningButton from "components/Shared/Button/PrimaryWarningButton";
+import SecondaryButton from "components/Shared/Button/SecondaryButton";
 import ModalDialog from "components/Shared/Modal/ModalDialog";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -124,23 +125,19 @@ function ArchivePurchaseOrderModalNew({
       </DialogContent>
       <DialogActions>
         <Box style={{ margin: 32, padding: 0 }}>
-          <Button onClick={handleClose} variant="outlined">
-            Cancel
-          </Button>
-          <Button
-            disabled={
+          <SecondaryButton
+            dataCy={"archive-po-cancel-button"}
+            text={"Cancel"}
+            onClick={handleClose}
+          />
+          <PrimaryWarningButton
+            dataCy={"archive-po-confirm-button"}
+            isDisabled={
               isArchivePurchaseOrderLoading || isUnArchivePurchaseOrderLoading
             }
+            text={"Confirm"}
             onClick={handleClickConfirm}
-            variant="contained"
-            className={classes.confirmButton}
-            style={{
-              backgroundColor:
-                action === Action.ArchivePurchaseOrders ? "#e75d5d" : "#8eab79",
-            }}
-          >
-            Confirm
-          </Button>
+          />
         </Box>
       </DialogActions>
     </ModalDialog>

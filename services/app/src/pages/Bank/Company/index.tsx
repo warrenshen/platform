@@ -210,7 +210,6 @@ const getCustomerPaths = (
         },
         {
           visible:
-            isBankUser && // Todo : Remove this when we want to rollout to the users
             !!productType &&
             [
               ProductTypeEnum.DispensaryFinancing,

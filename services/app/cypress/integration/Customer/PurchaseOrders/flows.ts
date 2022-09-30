@@ -1,5 +1,200 @@
+import { getFuturePaymentDate } from "../Loans/flows";
+
+interface SetupProps {
+  productType: string;
+  setupPurchaseOrderToSubmitOrEdit: boolean;
+  purchaseOrderOldStatus: string;
+  setupPurchaseOrder: boolean;
+  shouldLogin: boolean;
+}
+
+export const setupDataForTest = ({
+  productType,
+  setupPurchaseOrderToSubmitOrEdit = false,
+  purchaseOrderOldStatus = "draft",
+  setupPurchaseOrder = false,
+  shouldLogin = true,
+}: SetupProps) => {
+  cy.resetDatabase();
+  cy.addCompany({
+    is_customer: true,
+  }).then((results) => {
+    cy.addContract({
+      company_id: results.companyId,
+      product_type: productType,
+    });
+    cy.addFinancialSummary({
+      company_id: results.companyId,
+    });
+    cy.addBankAccount({
+      company_id: results.companyId,
+      bank_name: "Customer Bank",
+    });
+    cy.addUser({
+      company_id: results.companyId,
+      parent_company_id: results.parentCompanyId,
+      role: "company_admin",
+    }).then((companyUserResults) => {
+      // Add Vendor and Partnership
+      cy.addCompany({
+        is_vendor: true,
+        name: "Cypress Vendor",
+      }).then((vendorResults) => {
+        cy.addUser({
+          company_id: vendorResults.companyId,
+          email: "vendor@bespokefinancial.com",
+          parent_company_id: vendorResults.parentCompanyId,
+          role: "company_contact_only",
+        });
+
+        if (setupPurchaseOrderToSubmitOrEdit) {
+          cy.addPurchaseOrder({
+            approved_at: null,
+            company_id: results.companyId,
+            vendor_id: vendorResults.companyId,
+            order_number: "Cypress-2",
+            new_purchase_order_status: purchaseOrderOldStatus,
+            clear_approved_at: true,
+          }).then((purchaseOrderDraftResults) => {
+            cy.addFile({
+              company_id: results.companyId,
+            }).then((fileResults1) => {
+              cy.addPurchaseOrderFile({
+                purchase_order_id: purchaseOrderDraftResults.purchaseOrderId,
+                file_id: fileResults1.fileId,
+              });
+            });
+            cy.addFile({
+              company_id: results.companyId,
+            }).then((fileResults2) => {
+              cy.addPurchaseOrderFile({
+                purchase_order_id: purchaseOrderDraftResults.purchaseOrderId,
+                file_id: fileResults2.fileId,
+                file_type: "cannabis",
+              });
+            });
+          });
+        }
+
+        if (setupPurchaseOrder) {
+          cy.addPurchaseOrder({
+            company_id: results.companyId,
+            vendor_id: vendorResults.companyId,
+            order_number: "Cypress-3",
+            new_purchase_order_status: "pending_approval_by_vendor",
+          }).then((purchaseOrdeResults1) => {
+            cy.addTwoFactorLink({
+              purchase_order_id: purchaseOrdeResults1.purchaseOrderId,
+            });
+          });
+
+          cy.addPurchaseOrder({
+            company_id: results.companyId,
+            vendor_id: vendorResults.companyId,
+            order_number: "Cypress-4",
+            new_purchase_order_status: "pending_approval_by_vendor",
+          }).then((purchaseOrdeResults2) => {
+            cy.addTwoFactorLink({
+              purchase_order_id: purchaseOrdeResults2.purchaseOrderId,
+            });
+          });
+        }
+        cy.addBankAccount({
+          company_id: vendorResults.companyId,
+          bank_name: "Vendor Bank",
+        }).then((vendorBankAccountId) => {
+          cy.addCompanyVendorPartnership({
+            company_id: results.companyId,
+            vendor_bank_id: vendorBankAccountId,
+            vendor_id: vendorResults.companyId,
+          });
+          if (shouldLogin) {
+            cy.loginCustomerAdminNew(
+              companyUserResults.userEmail,
+              companyUserResults.userPassword
+            );
+          }
+        });
+      });
+    });
+  });
+};
+
+interface ArchiveFlowProps {
+  datagrid: string;
+}
+
+export const customerArchivesPurchaseOrderFlow = ({
+  datagrid,
+}: ArchiveFlowProps) => {
+  // Go to Customer > Borrowing Base
+  cy.dataCy("sidebar-item-purchase-orders-new").click();
+  cy.url().should("include", "purchase-orders-new");
+
+  cy.persistentClick(
+    `[data-cy='${datagrid}'] tr[aria-rowindex='1'] td[aria-colindex='1'] .dx-select-checkbox`
+  );
+
+  cy.dataCy("archive-not-ready-po-button").click();
+  cy.dataCy("archive-po-confirm-button").click();
+  cy.get(".MuiAlert-standardSuccess").should("exist");
+
+  // Reload and check for purchase with appropriate status
+  cy.reload();
+  cy.dataCy("archived-tab").click();
+};
+
+interface EditFlowProps {
+  shouldSubmit: boolean; // submit vs save as draft
+}
+
+export const customerEditsPurchaseOrderFlow = ({
+  shouldSubmit = true,
+}: shouldSubmit) => {
+  // Go to Customer > Borrowing Base
+  cy.dataCy("sidebar-item-purchase-orders-new").click();
+  cy.url().should("include", "purchase-orders-new");
+
+  cy.persistentClick(
+    "[data-cy='not-ready-to-request-financing-data-grid'] tr[aria-rowindex='1'] td[aria-colindex='1'] .dx-select-checkbox"
+  );
+
+  cy.dataCy("edit-not-ready-po-button").click();
+
+  cy.dataCy("purchase-order-form-input-order-number")
+    .clear()
+    .type("Cypress-1-Edit");
+
+  // TODO(JR): Once we re-configure our build config, I want to revisit
+  // this. As it stands, we hand a lot of date functions copied from
+  // the main codebase. I don't want to add more unless it's essential
+  // for the test to make sense
+  // cy.dataCy("purchase-order-form-input-order-date")
+  //   .clear()
+  //   .type()
+
+  cy.dataCy("purchase-order-form-input-net-terms")
+    .clear()
+    .type("60")
+    .type("{enter}");
+
+  cy.dataCy("purchase-order-form-input-amount").clear().type(5432.01);
+
+  cy.dataCy("purchase-order-form-input-customer-note")
+    .clear()
+    .type("editing flow");
+
+  if (shouldSubmit) {
+    cy.dataCy("create-purchase-order-modal-primary-button").click();
+    cy.get(".MuiAlert-standardSuccess").should("exist");
+  } else {
+    cy.dataCy("create-purchase-order-modal-secondary-button").click();
+  }
+};
+
 export const customerCreatesPurchaseOrderFlow = (
-  purchaseOrderNumber: string
+  purchaseOrderNumber: string,
+  modalButtonDataCy: string
 ) => {
   // Go to Customer > Borrowing Base
   cy.dataCy("sidebar-item-purchase-orders").click();
@@ -34,39 +229,35 @@ export const customerCreatesPurchaseOrderFlow = (
   );
 
   // Submit and check for success snackbar
-  cy.dataCy("create-purchase-order-modal-primary-button").click();
+  cy.dataCy(modalButtonDataCy).click();
   cy.get(".MuiAlert-standardSuccess").should("exist");
 };
 
-export const inactiveCustomerCreatesPurchaseOrderFlow = () => {
+interface CreateFlowProps {
+  purchaseOrderNumber: string;
+  modalButtonDataCy: string;
+  expectedResultStatus: string;
+}
+
+export const customerSubmitsDraftPurchaseOrder = () => {
   // Go to Customer > Borrowing Base
-  cy.dataCy("sidebar-item-purchase-orders").click();
-  cy.url().should("include", "purchase-orders");
+  cy.dataCy("sidebar-item-purchase-orders-new").click();
+  cy.url().should("include", "purchase-orders-new");
 
-  // Check purchase order action buttons are disabled for inactive customer
-  // (Not Ready to Request Financing)
-  cy.get(
-    "[data-cy='not-approved-purchase-orders-data-grid'] table tr[aria-rowindex='1'] td[aria-colindex='1'] .dx-select-checkbox"
-  ).click();
+  //cy.wait(1000);
+  cy.persistentClick(
+    "[data-cy='not-ready-to-request-financing-data-grid'] tr[aria-rowindex='1'] td[aria-colindex='1'] .dx-select-checkbox"
+  );
 
-  cy.dataCy("create-purchase-order-button").should("be.disabled");
-  cy.dataCy("edit-purchase-order-button").should("be.disabled");
-  cy.dataCy("delete-purchase-order-button").should("be.disabled");
-  cy.dataCy("submit-purchase-order-button").should("be.disabled");
-
-  // (Ready to Request Financing)
-  cy.get(
-    "[data-cy='ready-to-request-purchase-orders-data-grid'] table tr[aria-rowindex='1'] td[aria-colindex='1'] .dx-select-checkbox"
-  ).click();
-  cy.dataCy("request-purchase-order-financing-button").should("be.disabled");
-  cy.dataCy("edit-purchase-order-button").should("be.disabled");
-  cy.dataCy("close-purchase-order-button").should("be.disabled");
-  cy.dataCy("delete-purchase-order-button").should("be.disabled");
+  cy.dataCy("submit-to-vendor-button").click();
+  cy.get(".MuiAlert-standardSuccess").should("exist");
 };
 
-export const customerCreatesPurchaseOrderFlowNew = (
-  purchaseOrderNumber: string
-) => {
+export const customerCreatesPurchaseOrderFlowNew = ({
+  purchaseOrderNumber,
+  modalButtonDataCy,
+  expectedResultStatus,
+}: CreateFlowProps) => {
   // Go to Customer > Borrowing Base
   cy.dataCy("sidebar-item-purchase-orders-new").click();
   cy.url().should("include", "purchase-orders-new");
@@ -100,8 +291,14 @@ export const customerCreatesPurchaseOrderFlowNew = (
   );
 
   // Submit and check for success snackbar
-  cy.dataCy("create-purchase-order-modal-primary-button").click();
+  cy.dataCy(modalButtonDataCy).click();
   cy.get(".MuiAlert-standardSuccess").should("exist");
+
+  // Reload and check for purchase with appropriate status
+  cy.reload();
+  cy.get(
+    "[data-cy='not-ready-to-request-financing-data-grid'] tr[aria-rowindex='1'] td[aria-colindex='3'] p.MuiTypography-root"
+  ).contains(expectedResultStatus);
 };
 
 export const approvePurchaseOrderAsBankAdmin = () => {
@@ -123,17 +320,106 @@ export const approvePurchaseOrderAsBankAdmin = () => {
 
 export const approvePurchaseOrderAsVendor = (vendorEmail: string) => {
   // Visit the get secure link with email as the val
-  cy.visit(`/get-secure-link?val=${vendorEmail}`);
+  cy.visit(`/get-secure-link-new?val=${vendorEmail}`);
 
   // Enter the static OTP as 000000
   // 2fa-input
   cy.dataCySelector("2fa-input", "input").type("000000");
 
   cy.dataCy("continue-review-po").click();
-  cy.dataCy("vendor-approve-po").click();
+  cy.dataCy("vendor-approve-button").click();
 
-  cy.dataCy("review-bank-information-modal").should("be.visible");
-  cy.dataCy("confirm-bank-information").click();
+  cy.dataCy("vendor-approve-po-modal-confirm-button").click();
+  cy.get(".MuiAlert-standardSuccess").should("exist");
+
+  // The expectation of this function is that two
+  // purchase orders have been set up, so this part of
+  // the flow is to attempt to review the second
+  cy.dataCy("purchase-order-review-card0").click();
+
+  cy.dataCy("vendor-approve-button").click();
+
+  cy.dataCy("vendor-approve-po-modal-confirm-button").click();
+  cy.get(".MuiAlert-standardSuccess").should("exist");
+};
+
+export const rejectPurchaseOrderAsVendor = (vendorEmail: string) => {
+  // Visit the get secure link with email as the val
+  cy.visit(`/get-secure-link-new?val=${vendorEmail}`);
+
+  // Enter the static OTP as 000000
+  // 2fa-input
+  cy.dataCySelector("2fa-input", "input").type("000000");
+
+  cy.dataCy("continue-review-po").click();
+  cy.dataCy("vendor-reject-completely-button").click();
+
+  cy.dataCy("rejection-reason").type("Cypress Rejection");
+  cy.dataCy("vendor-reject-po-modal-confirm-button").click();
+  cy.get(".MuiAlert-standardSuccess").should("exist");
+
+  // The expectation of this function is that two
+  // purchase orders have been set up, so this part of
+  // the flow is to attempt to review the second
+  cy.dataCy("purchase-order-review-card0").click();
+
+  cy.dataCy("vendor-reject-completely-button").click();
+
+  cy.dataCy("rejection-reason").type("Second rejection");
+  cy.dataCy("vendor-reject-po-modal-confirm-button").click();
+  cy.get(".MuiAlert-standardSuccess").should("exist");
+};
+
+export const requestChangesPurchaseOrderAsVendor = (vendorEmail: string) => {
+  // Visit the get secure link with email as the val
+  cy.visit(`/get-secure-link-new?val=${vendorEmail}`);
+
+  // Enter the static OTP as 000000
+  // 2fa-input
+  cy.dataCySelector("2fa-input", "input").type("000000");
+
+  cy.dataCy("continue-review-po").click();
+  cy.dataCy("vendor-requests-changes-button").click();
+
+  cy.dataCy("request-change-reason").type("Change this, please!");
+  cy.dataCy("vendor-request-changes-po-modal-confirm-button").click();
+  cy.get(".MuiAlert-standardSuccess").should("exist");
+
+  // The expectation of this function is that two
+  // purchase orders have been set up, so this part of
+  // the flow is to attempt to review the second
+  cy.dataCy("purchase-order-review-card0").click();
+
+  cy.dataCy("vendor-requests-changes-button").click();
+
+  cy.dataCy("request-change-reason").type("Change this, as well.");
+  cy.dataCy("vendor-request-changes-po-modal-confirm-button").click();
+  cy.get(".MuiAlert-standardSuccess").should("exist");
+};
+
+export const createFinancingRequestSingle = () => {
+  // Go to Purchase Orders New Tab
+  cy.dataCy("sidebar-item-purchase-orders-new").click();
+  cy.url().should("include", "purchase-orders-new");
+
+  // Click checkboxes next to purchase orders
+  // We do not encourage cy.wait usage, but something about having 2 data grids
+  // on the same tab causes a weird hiccup and waiting a second consistently resolves the issue
+  cy.wait(1000).persistentClick(
+    ".MuiBox-root[data-cy='ready-to-request-financing-purchase-order-data-grid'] .dx-header-row .dx-select-checkbox"
+  );
+
+  // Open ManagePurchaseOrderFinancingModalMultiple
+  cy.dataCy("request-financing-button").click();
+
+  // Fill in date
+  const { paymentDate } = getFuturePaymentDate();
+  cy.dataCy("requested-payment-date-date-picker").type(paymentDate);
+  cy.dataCy("financing-request-amount-input").type(10000.0);
+
+  // Submit and check for success snackbar
+  cy.dataCy("create-financing-requests-modal-primary-button").click();
+  cy.get(".MuiAlert-standardSuccess").should("exist");
 };
 
 export const createFinancingRequestMultiple = () => {
@@ -142,21 +428,20 @@ export const createFinancingRequestMultiple = () => {
   cy.url().should("include", "purchase-orders-new");
 
   // Click checkboxes next to purchase orders
-  cy.get(
-    "[data-cy='ready-to-request-purchase-order-data-grid'] tr[aria-rowindex='1'] td[aria-colindex='1'] .dx-select-checkbox"
-  ).click();
-  cy.get(
-    "[data-cy='ready-to-request-purchase-order-data-grid'] tr[aria-rowindex='2'] td[aria-colindex='1'] .dx-select-checkbox"
-  ).click();
-  cy.wait(2000);
+  // We do not encourage cy.wait usage, but something about having 2 data grids
+  // on the same tab causes a weird hiccup and waiting a second consistently resolves the issue
+  cy.wait(1000).persistentClick(
+    ".MuiBox-root[data-cy='ready-to-request-financing-purchase-order-data-grid'] .dx-header-row .dx-select-checkbox"
+  );
 
   // Open ManagePurchaseOrderFinancingModalMultiple
   cy.dataCy("request-financing-button").click();
 
   // Fill in date
-  cy.get("#requested-payment-date-date-picker").type("07/31/2022");
+  const { paymentDate } = getFuturePaymentDate();
+  cy.dataCy("requested-payment-date-date-picker").type(paymentDate);
 
   // Submit and check for success snackbar
-  cy.dataCy("create-multiple-financing-requests-button").click();
+  cy.dataCy("create-multiple-financing-requests-modal-primary-button").click();
   cy.get(".MuiAlert-standardSuccess").should("exist");
 };

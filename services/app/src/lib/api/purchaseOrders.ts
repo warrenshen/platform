@@ -26,6 +26,7 @@ export type CreateUpdatePurchaseOrderAsDraftReqNew = {
     purchase_order: PurchaseOrdersInsertInput;
     purchase_order_files: PurchaseOrderFilesInsertInput[];
     purchase_order_metrc_transfers: PurchaseOrderMetrcTransfersInsertInput[];
+    action: string;
   };
 };
 
@@ -70,14 +71,7 @@ export type CreateUpdatePurchaseOrderAndSubmitReq = {
     purchase_order: PurchaseOrdersInsertInput;
     purchase_order_files: PurchaseOrderFilesInsertInput[];
     purchase_order_metrc_transfers: PurchaseOrderMetrcTransfersInsertInput[];
-  };
-};
-
-export type CreateUpdatePurchaseOrderAndSubmitReqNew = {
-  variables: {
-    purchase_order: PurchaseOrdersInsertInput;
-    purchase_order_files: PurchaseOrderFilesInsertInput[];
-    purchase_order_metrc_transfers: PurchaseOrderMetrcTransfersInsertInput[];
+    action: string;
   };
 };
 
@@ -99,11 +93,20 @@ export async function createUpdatePurchaseOrderAndSubmitMutation(
     );
 }
 
-export async function createUpdatePurchaseOrderAndSubmitNewMutation(
-  req: CreateUpdatePurchaseOrderAndSubmitReqNew
+export type SubmitPurchaseOrderUpdateReq = {
+  variables: {
+    purchase_order: PurchaseOrdersInsertInput;
+    purchase_order_files: PurchaseOrderFilesInsertInput[];
+    purchase_order_metrc_transfers: PurchaseOrderMetrcTransfersInsertInput[];
+    action: string;
+  };
+};
+
+export async function submitPurchaseOrderUpdateMutation(
+  req: SubmitPurchaseOrderUpdateReq
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(purchaseOrdersRoutes.createUpdateAndSubmitNew, req.variables)
+    .post(purchaseOrdersRoutes.submitPurchaseOrderUpdate, req.variables)
     .then((res) => res.data)
     .then(
       (res) => res,

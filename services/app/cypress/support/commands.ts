@@ -34,9 +34,13 @@ import {
   CompanyVendorPartnerships,
   Contracts,
   EbbaApplications,
+  Files,
   FinancialSummaries,
   Loans,
+  PurchaseOrderFiles,
   PurchaseOrders,
+  TwoFactorLinks,
+  Users,
 } from "@app/generated/graphql";
 import { format } from "date-fns";
 
@@ -573,6 +577,42 @@ function addContract({
   });
 }
 
+function addFile({
+  company_id,
+  created_at,
+  created_by_user_id,
+  extension,
+  id,
+  mime_type,
+  name,
+  path,
+  sequential_id,
+  size,
+  updated_at,
+}: Files) {
+  cy.request("POST", `${Cypress.env("apiServerUrl")}/cypress/add_file`, {
+    company_id: company_id || null,
+    created_at: created_at || null,
+    created_by_user_id: created_by_user_id || null,
+    extension: extension || null,
+    id: id || null,
+    mime_type: mime_type || null,
+    name: name || null,
+    path: path || null,
+    sequential_id: sequential_id || null,
+    size: size || null,
+    updated_at: updated_at || null,
+  }).then((response) => {
+    const fileId = !!response?.body?.data?.file_id
+      ? response.body.data.file_id
+      : null;
+
+    return cy.wrap({
+      fileId: fileId,
+    });
+  });
+}
+
 function addFinancialSummary({
   id,
   company_id,
@@ -652,6 +692,10 @@ function addFinancialSummary({
   });
 }
 
+type PurchaseOrderExtraInput = {
+  clear_approved_at?: boolean;
+};
+
 function addPurchaseOrder({
   all_bank_notes,
   all_customer_notes,
@@ -686,7 +730,8 @@ function addPurchaseOrder({
   status,
   updated_at,
   vendor_id,
-}: PurcaseOrders) {
+  clear_approved_at = false,
+}: PurcaseOrders & PurchaseOrderExtraInput) {
   cy.request(
     "POST",
     `${Cypress.env("apiServerUrl")}/cypress/add_purchase_order`,
@@ -724,6 +769,7 @@ function addPurchaseOrder({
       status: status || null,
       updated_at: updated_at || null,
       vendor_id: vendor_id || null,
+      clear_approved_at: clear_approved_at,
     }
   ).then((response) => {
     const purchaseOrderId = !!response?.body?.data?.purchase_order_id
@@ -732,6 +778,75 @@ function addPurchaseOrder({
 
     return cy.wrap({
       purchaseOrderId: purchaseOrderId,
+    });
+  });
+}
+
+function addPurchaseOrderFile({
+  created_at,
+  file_id,
+  file_type,
+  purchase_order_id,
+  updated_at,
+}: PurchaseOrderFiles) {
+  cy.request(
+    "POST",
+    `${Cypress.env("apiServerUrl")}/cypress/add_purchase_order_file`,
+    {
+      created_at: created_at || null,
+      file_id: file_id || null,
+      file_type: file_type || null,
+      purchase_order_id: purchase_order_id || null,
+      updated_at: updated_at || null,
+    }
+  ).then((response) => {
+    const purchaseOrderFileId = !!response?.body?.data?.purchase_order_file_id
+      ? response.body.data.purchase_order_file_id
+      : null;
+
+    return cy.wrap({
+      purchaseOrderFileId: purchaseOrderFileId,
+    });
+  });
+}
+
+type TwoFactorLinksExtraInput = {
+  purchase_order_id: string;
+  form_type: string;
+  form_payload_key: string;
+  vendor_email: string;
+};
+
+function addTwoFactorLink({
+  expires_at,
+  form_info,
+  id,
+  token_states,
+  purchase_order_id,
+  form_type,
+  form_payload_key,
+  vendor_email,
+}: TwoFactorLinks & TwoFactorLinksExtraInput) {
+  cy.request(
+    "POST",
+    `${Cypress.env("apiServerUrl")}/cypress/add_two_factor_link`,
+    {
+      expires_at: expires_at || null,
+      form_info: form_info || null,
+      id: id || null,
+      token_states: token_states || null,
+      purchase_order_id: purchase_order_id || null,
+      form_type: form_type || null,
+      form_payload_key: form_payload_key || null,
+      vendor_email: vendor_email || null,
+    }
+  ).then((response) => {
+    const twoFactorLinkId = !!response?.body?.data?.two_factor_link_id
+      ? response.body.data.two_factor_link_id
+      : null;
+
+    return cy.wrap({
+      twoFactorLinkId: twoFactorLinkId,
     });
   });
 }
@@ -922,8 +1037,11 @@ Cypress.Commands.add(
   "addCompanyVendorPartnership",
   addCompanyVendorPartnership
 );
+Cypress.Commands.add("addFile", addFile);
 Cypress.Commands.add("addFinancialSummary", addFinancialSummary);
 Cypress.Commands.add("addPurchaseOrder", addPurchaseOrder);
+Cypress.Commands.add("addPurchaseOrderFile", addPurchaseOrderFile);
+Cypress.Commands.add("addTwoFactorLink", addTwoFactorLink);
 Cypress.Commands.add("addUser", addUser);
 Cypress.Commands.add("addLoan", addLoan);
 Cypress.Commands.add("addEbbaApplication", addEbbaApplication);
@@ -936,7 +1054,6 @@ function persistentClick(selector: string) {
   cy.get(selector).then(($el) => {
     while (true) {
       if (Cypress.dom.isAttached($el)) {
-        console.log($el);
         $el.click();
         break;
       }

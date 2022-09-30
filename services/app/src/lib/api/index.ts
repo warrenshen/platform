@@ -110,7 +110,7 @@ export const purchaseOrdersRoutes = {
   createUpdateAsDraft: "/purchase_orders/create_update_as_draft",
   createUpdateAsDraftNew: "/purchase_orders/create_update_as_draft_new",
   createUpdateAndSubmit: "/purchase_orders/create_update_and_submit",
-  createUpdateAndSubmitNew: "/purchase_orders/create_update_and_submit_new",
+  submitPurchaseOrderUpdate: "/purchase_orders/submit_purchase_order_update",
   update: "/purchase_orders/update",
   updateNew: "/purchase_orders/update_new",
   submit: "/purchase_orders/submit",

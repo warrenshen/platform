@@ -1,6 +1,5 @@
 import ActionButton from "components/Shared/Button/ActionButton";
 import {
-  DisabledSecondaryBorderColor,
   DisabledSecondaryTextColor,
   PlainWhite,
   WarningActiveColor,
@@ -16,6 +15,7 @@ interface Props {
   height?: string;
   margin?: string;
   padding?: string;
+  dataCy?: string;
   onClick: () => void;
 }
 
@@ -27,10 +27,12 @@ export default function PrimaryWarningButton({
   height,
   margin,
   padding,
+  dataCy,
   onClick,
 }: Props) {
   return (
     <ActionButton
+      dataCy={dataCy}
       isDisabled={isDisabled}
       variant={"outlined"}
       text={text}
@@ -41,7 +43,7 @@ export default function PrimaryWarningButton({
         !!isDisabled ? DisabledSecondaryTextColor : WarningDefaultColor
       }
       borderColor={
-        !!isDisabled ? DisabledSecondaryBorderColor : WarningDefaultColor
+        !!isDisabled ? DisabledSecondaryTextColor : WarningDefaultColor
       }
       color={PlainWhite}
       hoverBackgroundColor={

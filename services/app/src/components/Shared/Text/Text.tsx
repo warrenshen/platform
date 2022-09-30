@@ -101,6 +101,7 @@ const StyledText = styled(Typography)<{
 
 interface Props {
   textVariant: TextVariants;
+  dataCy?: string;
   materialVariant?: any;
   isBold?: Maybe<boolean>;
   color?: string;
@@ -112,6 +113,7 @@ interface Props {
 
 export default function Text({
   textVariant,
+  dataCy = "",
   materialVariant = "h5",
   isBold = false,
   color = TextColor,
@@ -122,6 +124,7 @@ export default function Text({
 }: Props) {
   return (
     <StyledText
+      data-cy={dataCy}
       variant={materialVariant}
       onClick={handleClick}
       $color={color}

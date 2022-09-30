@@ -292,8 +292,8 @@ REPAYMENT_TYPES = set([PaymentType.REPAYMENT])
 ADJUSTMENT_TYPES = set([PaymentType.ADJUSTMENT])
 
 class PurchaseOrderFileTypeEnum(object):
-	Cannabis = 'cannabis'
-	PurchaseOrder = 'purchase_order'
+	CANNABIS = 'cannabis'
+	PURCHASE_ORDER = 'purchase_order'
 
 class InvoiceFileTypeEnum(object):
 	Invoice = 'invoice'
@@ -418,3 +418,7 @@ class VendorChangeRequestsStatusEnum(object):
 class VendorChangeRequestsCategoryEnum(object):
 	PARTNERSHIP_CONTACT_CHANGE = "partnership_contact_change"
 	CONTACT_INFO_CHANGE = "contact_info_change"
+
+class PurchaseOrderActions(object):
+	DRAFT = 'draft'
+	SUBMIT = 'submit'

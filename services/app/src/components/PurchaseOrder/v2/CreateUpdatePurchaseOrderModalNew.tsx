@@ -20,11 +20,7 @@ import {
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import {
-  createUpdatePurchaseOrderAndSubmitNewMutation,
-  createUpdatePurchaseOrderAsDraftNewMutation,
-  updatePurchaseOrderNewMutation,
-} from "lib/api/purchaseOrders";
+import { submitPurchaseOrderUpdateMutation } from "lib/api/purchaseOrders";
 import { isFeatureFlagEnabled } from "lib/companies";
 import { todayMinusXDaysDateStringServer } from "lib/date";
 import {
@@ -313,17 +309,9 @@ export default function CreateUpdatePurchaseOrderModalNew({
   }, [allCompanyDeliveries, selectedCompanyDeliveries]);
 
   const [
-    createUpdatePurchaseOrderAsDraft,
-    { loading: isCreateUpdatePurchaseOrderAsDraftLoading },
-  ] = useCustomMutation(createUpdatePurchaseOrderAsDraftNewMutation);
-
-  const [
-    createUpdatePurchaseOrderAndSubmit,
-    { loading: isCreateUpdatePurchaseOrderAndSubmitLoading },
-  ] = useCustomMutation(createUpdatePurchaseOrderAndSubmitNewMutation);
-
-  const [updatePurchaseOrder, { loading: isUpdatePurchaseOrderLoading }] =
-    useCustomMutation(updatePurchaseOrderNewMutation);
+    submitPurchaseOrderUpdate,
+    { loading: isSubmitPurchaseOrderUpdateLoading },
+  ] = useCustomMutation(submitPurchaseOrderUpdateMutation);
 
   const preparePurchaseOrder = () => {
     return {
@@ -371,17 +359,14 @@ export default function CreateUpdatePurchaseOrderModalNew({
     }));
   };
 
-  const prepareMutationVariables = () => {
-    return {
-      purchase_order: preparePurchaseOrder(),
-      purchase_order_files: preparePurchaseOrderFiles(),
-      purchase_order_metrc_transfers: preparePurchaseOrderMetrcTransfers(),
-    };
-  };
-
   const handleClickSaveDraft = async () => {
-    const response = await createUpdatePurchaseOrderAsDraft({
-      variables: prepareMutationVariables(),
+    const response = await submitPurchaseOrderUpdate({
+      variables: {
+        purchase_order: preparePurchaseOrder(),
+        purchase_order_files: preparePurchaseOrderFiles(),
+        purchase_order_metrc_transfers: preparePurchaseOrderMetrcTransfers(),
+        action: "draft",
+      },
     });
 
     if (response.status !== "OK") {
@@ -397,8 +382,13 @@ export default function CreateUpdatePurchaseOrderModalNew({
   };
 
   const handleClickSaveSubmit = async () => {
-    const response = await createUpdatePurchaseOrderAndSubmit({
-      variables: prepareMutationVariables(),
+    const response = await submitPurchaseOrderUpdate({
+      variables: {
+        purchase_order: preparePurchaseOrder(),
+        purchase_order_files: preparePurchaseOrderFiles(),
+        purchase_order_metrc_transfers: preparePurchaseOrderMetrcTransfers(),
+        action: "submit",
+      },
     });
 
     if (response.status !== "OK") {
@@ -414,8 +404,13 @@ export default function CreateUpdatePurchaseOrderModalNew({
   };
 
   const handleClickUpdate = async () => {
-    const response = await updatePurchaseOrder({
-      variables: prepareMutationVariables(),
+    const response = await submitPurchaseOrderUpdate({
+      variables: {
+        purchase_order: preparePurchaseOrder(),
+        purchase_order_files: preparePurchaseOrderFiles(),
+        purchase_order_metrc_transfers: preparePurchaseOrderMetrcTransfers(),
+        action: "submit",
+      },
     });
 
     if (response.status !== "OK") {
@@ -443,10 +438,7 @@ export default function CreateUpdatePurchaseOrderModalNew({
     (isMetrcBased && isFormValidMetrcBased) ||
     (!isMetrcBased && isFormValidManual);
 
-  const isFormLoading =
-    isCreateUpdatePurchaseOrderAsDraftLoading ||
-    isCreateUpdatePurchaseOrderAndSubmitLoading ||
-    isUpdatePurchaseOrderLoading;
+  const isFormLoading = isSubmitPurchaseOrderUpdateLoading;
 
   const isSecondaryActionDisabled = !isFormValid || isFormLoading;
 
@@ -486,13 +478,13 @@ export default function CreateUpdatePurchaseOrderModalNew({
       isSecondaryActionDisabled={isSecondaryActionDisabled}
       title={`${isActionTypeUpdate ? "Edit" : "Create"} Purchase Order`}
       contentWidth={600}
-      primaryActionText={isActionTypeUpdate ? "Save" : "Save and Submit"}
-      secondaryActionText={!isActionTypeUpdate ? "Save as Draft" : null}
+      primaryActionText={"Save and Submit"}
+      secondaryActionText={"Save as Draft"}
       handleClose={handleClose}
       handlePrimaryAction={
         isActionTypeUpdate ? handleClickUpdate : handleClickSaveSubmit
       }
-      handleSecondaryAction={!isActionTypeUpdate ? handleClickSaveDraft : null}
+      handleSecondaryAction={handleClickSaveDraft}
     >
       {isMetrcEnabled &&
         (isMetrcBased === null ? (
