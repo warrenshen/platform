@@ -109,6 +109,16 @@ export default function MetrcTransferPackagesDataGrid({
         width: ColumnWidths.Count,
       },
       {
+        dataField: "shipper_wholesale_price",
+        caption: "Shipper Wholesale Price",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
+        width: ColumnWidths.Currency,
+        alignment: "right",
+      },
+      {
         dataField: "shipment_package_state",
         caption: "Shipment Package State",
         minWidth: ColumnWidths.MinWidth,
@@ -122,16 +132,6 @@ export default function MetrcTransferPackagesDataGrid({
         dataField: "package_type",
         caption: "Package Type",
         minWidth: ColumnWidths.MinWidth,
-      },
-      {
-        dataField: "shipper_wholesale_price",
-        caption: "Shipper Wholesale Price",
-        format: {
-          type: "currency",
-          precision: CurrencyPrecision,
-        },
-        width: ColumnWidths.Currency,
-        alignment: "right",
       },
       {
         dataField: "received_quantity",
