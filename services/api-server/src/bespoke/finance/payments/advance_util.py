@@ -384,8 +384,7 @@ def fund_loans_with_advance(
 			if loan.loan_type in artifact_ids_index:
 				artifact_ids_index[loan.loan_type].add(loan.artifact_id)
 
-			if (company.debt_facility_status == db_constants.CompanyDebtFacilityStatus.OUT_OF_COMPLIANCE or \
-				company.debt_facility_status == db_constants.CompanyDebtFacilityStatus.DEFAULTING):
+			if (company.debt_facility_status == db_constants.CompanyDebtFacilityStatus.INELIGIBLE):
 				raise errors.Error("Cannot create advance for company {} while their debt facility standing is paused or defaulting".format(company.name))
 
 			if str(loan.loan_report_id) not in loan_report_dict:
@@ -396,7 +395,7 @@ def fund_loans_with_advance(
 				loan_report_dict[str(loan_report.id)] = loan_report
 
 			loan_report = loan_report_dict[str(loan.loan_report_id)]
-			if (company.debt_facility_status == db_constants.CompanyDebtFacilityStatus.INELIGIBLE_FOR_FACILITY or \
+			if (company.debt_facility_status == db_constants.CompanyDebtFacilityStatus.INELIGIBLE or \
 				debt_facility is None):
 				loan_report.debt_facility_status = db_constants.LoanDebtFacilityStatus.BESPOKE_BALANCE_SHEET
 			else:

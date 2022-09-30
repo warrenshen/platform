@@ -12,7 +12,6 @@ import {
 import { parseDateStringServer } from "lib/date";
 import {
   determineBorrowerEligibility,
-  determineIfNewToBalanceSheet,
   determineLoanEligibility,
   getCustomerIdentifier,
   getDaysUntilMaturity,
@@ -96,7 +95,6 @@ function getRows(
       ),
       maturing_in_days: getDaysUntilMaturity(loan, productType),
       maturity_date: getMaturityDate(loan, productType),
-      new_on_balance_sheet: determineIfNewToBalanceSheet(loan),
       origination_date: parseDateStringServer(loan.origination_date),
       product_type: productType,
       repayment_date: getRepaymentDate(loan, productType),
@@ -277,13 +275,6 @@ export default function DebtFacilityLoansDataGrid({
         visible: isEligibilityVisible,
         caption: "Loan Eligibility",
         dataField: "loan_eligibility",
-        width: ColumnWidths.Type,
-        alignment: "left",
-      },
-      {
-        visible: isEligibilityVisible,
-        caption: "New to Balance Sheet",
-        dataField: "new_on_balance_sheet",
         width: ColumnWidths.Type,
         alignment: "left",
       },

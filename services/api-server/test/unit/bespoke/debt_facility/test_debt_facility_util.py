@@ -85,7 +85,7 @@ class TestUpdateCompanyDebtFacilityStatusView(db_unittest.TestCase):
 
 		session.add(models.LoanReport( # type: ignore
 			id = loan_report_id1,
-			debt_facility_id = debt_facility_id,
+			debt_facility_id = debt_facility_id if old_company_status != CompanyDebtFacilityStatus.INELIGIBLE else None,
 			debt_facility_status = old_loan_status,
 			debt_facility_waiver_date = date_util.load_date_str(waiver_date) \
 				if waiver_date else None,
@@ -105,7 +105,7 @@ class TestUpdateCompanyDebtFacilityStatusView(db_unittest.TestCase):
 
 		session.add(models.LoanReport( # type: ignore
 			id = loan_report_id2,
-			debt_facility_id = debt_facility_id,
+			debt_facility_id = debt_facility_id if old_company_status != CompanyDebtFacilityStatus.INELIGIBLE else None,
 			debt_facility_status = old_loan_status,
 			debt_facility_waiver_date = date_util.load_date_str(waiver_date) \
 				if waiver_date else None,
@@ -216,170 +216,12 @@ class TestUpdateCompanyDebtFacilityStatusView(db_unittest.TestCase):
 
 			self.assertEqual(loans_updated_count, expected_loan_update_count)
 
-	# Waiver state to X starts here
+	# Eligible state to X starts here
 
-	def test_waiver_to_good_standing_status_update(self) -> None:
+	def test_eligible_to_eligible_status_update(self) -> None:
 		self.status_change_test_runner(
-			old_company_status = CompanyDebtFacilityStatus.WAIVER,
-			new_company_status = CompanyDebtFacilityStatus.GOOD_STANDING,
-			old_loan_status = CompanyDebtFacilityStatus.WAIVER,
-			new_loan_status = LoanDebtFacilityStatus.SOLD_INTO_DEBT_FACILITY,
-			old_waiver_date = "2020-09-01",
-			new_waiver_date = None,
-			old_waiver_expiration_date = "2020-12-01",
-			new_waiver_expiration_date = None,
-			expected_loan_update_count = 2,
-			debt_facility_id_should_be_populated = True
-		)
-
-	def test_waiver_to_probation_status_update(self) -> None:
-		self.status_change_test_runner(
-			old_company_status = CompanyDebtFacilityStatus.WAIVER,
-			new_company_status = CompanyDebtFacilityStatus.ON_PROBATION,
-			old_loan_status = CompanyDebtFacilityStatus.WAIVER,
-			new_loan_status = LoanDebtFacilityStatus.SOLD_INTO_DEBT_FACILITY,
-			old_waiver_date = "2020-09-01",
-			new_waiver_date = None,
-			old_waiver_expiration_date = "2020-12-01",
-			new_waiver_expiration_date = None,
-			expected_loan_update_count = 2,
-			debt_facility_id_should_be_populated = True
-		)
-
-	def test_waiver_to_ineligible_status_update(self) -> None:
-		self.status_change_test_runner(
-			old_company_status = CompanyDebtFacilityStatus.WAIVER,
-			new_company_status = CompanyDebtFacilityStatus.INELIGIBLE_FOR_FACILITY,
-			old_loan_status = CompanyDebtFacilityStatus.WAIVER,
-			new_loan_status = LoanDebtFacilityStatus.UPDATE_REQUIRED,
-			old_waiver_date = "2020-09-01",
-			new_waiver_date = None,
-			old_waiver_expiration_date = "2020-12-01",
-			new_waiver_expiration_date = None,
-			expected_loan_update_count = 2,
-			debt_facility_id_should_be_populated = False
-		)
-		
-	def test_waiver_to_paused_status_update(self) -> None:
-		self.status_change_test_runner(
-			old_company_status = CompanyDebtFacilityStatus.WAIVER,
-			new_company_status = CompanyDebtFacilityStatus.OUT_OF_COMPLIANCE,
-			old_loan_status = CompanyDebtFacilityStatus.WAIVER,
-			new_loan_status = LoanDebtFacilityStatus.UPDATE_REQUIRED,
-			old_waiver_date = "2020-09-01",
-			new_waiver_date = None,
-			old_waiver_expiration_date = "2020-12-01",
-			new_waiver_expiration_date = None,
-			expected_loan_update_count = 2,
-			debt_facility_id_should_be_populated = False
-		)
-		
-	def test_waiver_to_defaulted_status_update(self) -> None:
-		self.status_change_test_runner(
-			old_company_status = CompanyDebtFacilityStatus.WAIVER,
-			new_company_status = CompanyDebtFacilityStatus.DEFAULTING,
-			old_loan_status = CompanyDebtFacilityStatus.WAIVER,
-			new_loan_status = LoanDebtFacilityStatus.UPDATE_REQUIRED,
-			old_waiver_date = "2020-09-01",
-			new_waiver_date = None,
-			old_waiver_expiration_date = "2020-12-01",
-			new_waiver_expiration_date = None,
-			expected_loan_update_count = 2,
-			debt_facility_id_should_be_populated = False
-		)
-
-	# Good state to bad state starts here
-
-	def test_good_standing_to_paused_status_update(self) -> None:
-		self.status_change_test_runner(
-			old_company_status = CompanyDebtFacilityStatus.GOOD_STANDING,
-			new_company_status = CompanyDebtFacilityStatus.OUT_OF_COMPLIANCE,
-			old_loan_status = LoanDebtFacilityStatus.SOLD_INTO_DEBT_FACILITY,
-			new_loan_status = LoanDebtFacilityStatus.UPDATE_REQUIRED,
-			old_waiver_date = None,
-			new_waiver_date = None,
-			old_waiver_expiration_date = None,
-			new_waiver_expiration_date = None,
-			expected_loan_update_count = 2,
-			debt_facility_id_should_be_populated = False
-		)
-
-	def test_probation_to_paused_status_update(self) -> None:
-		self.status_change_test_runner(
-			old_company_status = CompanyDebtFacilityStatus.ON_PROBATION,
-			new_company_status = CompanyDebtFacilityStatus.OUT_OF_COMPLIANCE,
-			old_loan_status = LoanDebtFacilityStatus.SOLD_INTO_DEBT_FACILITY,
-			new_loan_status = LoanDebtFacilityStatus.UPDATE_REQUIRED,
-			old_waiver_date = None,
-			new_waiver_date = None,
-			old_waiver_expiration_date = None,
-			new_waiver_expiration_date = None,
-			expected_loan_update_count = 2,
-			debt_facility_id_should_be_populated = False
-		)
-
-	def test_ineligible_to_paused_status_update(self) -> None:
-		self.status_change_test_runner(
-			old_company_status = CompanyDebtFacilityStatus.INELIGIBLE_FOR_FACILITY,
-			new_company_status = CompanyDebtFacilityStatus.OUT_OF_COMPLIANCE,
-			old_loan_status = LoanDebtFacilityStatus.WAIVER,
-			new_loan_status = LoanDebtFacilityStatus.UPDATE_REQUIRED,
-			old_waiver_date = "2020-09-01",
-			new_waiver_date = None,
-			old_waiver_expiration_date = "2020-12-01",
-			new_waiver_expiration_date = None,
-			expected_loan_update_count = 2,
-			debt_facility_id_should_be_populated = False
-		)
-
-	def test_good_standing_to_defaulted_status_update(self) -> None:
-		self.status_change_test_runner(
-			old_company_status = CompanyDebtFacilityStatus.GOOD_STANDING,
-			new_company_status = CompanyDebtFacilityStatus.DEFAULTING,
-			old_loan_status = LoanDebtFacilityStatus.SOLD_INTO_DEBT_FACILITY,
-			new_loan_status = LoanDebtFacilityStatus.UPDATE_REQUIRED,
-			old_waiver_date = None,
-			new_waiver_date = None,
-			old_waiver_expiration_date = None,
-			new_waiver_expiration_date = None,
-			expected_loan_update_count = 2,
-			debt_facility_id_should_be_populated = False
-		)
-
-	def test_probation_to_defaulted_status_update(self) -> None:
-		self.status_change_test_runner(
-			old_company_status = CompanyDebtFacilityStatus.ON_PROBATION,
-			new_company_status = CompanyDebtFacilityStatus.DEFAULTING,
-			old_loan_status = LoanDebtFacilityStatus.SOLD_INTO_DEBT_FACILITY,
-			new_loan_status = LoanDebtFacilityStatus.UPDATE_REQUIRED,
-			old_waiver_date = None,
-			new_waiver_date = None,
-			old_waiver_expiration_date = None,
-			new_waiver_expiration_date = None,
-			expected_loan_update_count = 2,
-			debt_facility_id_should_be_populated = False
-		)
-
-	def test_ineligible_to_defaulted_status_update(self) -> None:
-		self.status_change_test_runner(
-			old_company_status = CompanyDebtFacilityStatus.INELIGIBLE_FOR_FACILITY,
-			new_company_status = CompanyDebtFacilityStatus.DEFAULTING,
-			old_loan_status = LoanDebtFacilityStatus.WAIVER,
-			new_loan_status = LoanDebtFacilityStatus.UPDATE_REQUIRED,
-			old_waiver_date = "2020-09-01",
-			new_waiver_date = None,
-			old_waiver_expiration_date = "2020-12-01",
-			new_waiver_expiration_date = None,
-			expected_loan_update_count = 2,
-			debt_facility_id_should_be_populated = False
-		)
-
-	# Good to good status starts here, this is just ensure that it -does not- change loan statuses
-
-	def test_good_standing_to_probation_status_update(self) -> None:
-		self.status_change_test_runner(
-			old_company_status = CompanyDebtFacilityStatus.GOOD_STANDING,
-			new_company_status = CompanyDebtFacilityStatus.ON_PROBATION,
+			old_company_status = CompanyDebtFacilityStatus.ELIGIBLE,
+			new_company_status = CompanyDebtFacilityStatus.ELIGIBLE,
 			old_loan_status = LoanDebtFacilityStatus.SOLD_INTO_DEBT_FACILITY,
 			new_loan_status = LoanDebtFacilityStatus.SOLD_INTO_DEBT_FACILITY,
 			old_waiver_date = None,
@@ -387,87 +229,26 @@ class TestUpdateCompanyDebtFacilityStatusView(db_unittest.TestCase):
 			old_waiver_expiration_date = None,
 			new_waiver_expiration_date = None,
 			expected_loan_update_count = 0,
-			debt_facility_id_should_be_populated = True
+			debt_facility_id_should_be_populated = True,
 		)
 
-	def test_probation_to_good_standing_status_update(self) -> None:
+	def test_eligible_to_ineligible_status_update(self) -> None:
 		self.status_change_test_runner(
-			old_company_status = CompanyDebtFacilityStatus.ON_PROBATION,
-			new_company_status = CompanyDebtFacilityStatus.GOOD_STANDING,
+			old_company_status = CompanyDebtFacilityStatus.ELIGIBLE,
+			new_company_status = CompanyDebtFacilityStatus.INELIGIBLE,
 			old_loan_status = LoanDebtFacilityStatus.SOLD_INTO_DEBT_FACILITY,
-			new_loan_status = LoanDebtFacilityStatus.SOLD_INTO_DEBT_FACILITY,
+			new_loan_status = LoanDebtFacilityStatus.REPURCHASED,
 			old_waiver_date = None,
 			new_waiver_date = None,
 			old_waiver_expiration_date = None,
 			new_waiver_expiration_date = None,
-			expected_loan_update_count = 0,
-			debt_facility_id_should_be_populated = True
-		)
-
-	# Bad to bad status starts here, this is to ensure we clear out loan level waivers
-	# Unless someone submits the same status (presumably on accident) then it should do nothing
-
-	def test_paused_to_defaulted_status_update(self) -> None:
-		self.status_change_test_runner(
-			old_company_status = CompanyDebtFacilityStatus.OUT_OF_COMPLIANCE,
-			new_company_status = CompanyDebtFacilityStatus.DEFAULTING,
-			old_loan_status = LoanDebtFacilityStatus.WAIVER,
-			new_loan_status = LoanDebtFacilityStatus.UPDATE_REQUIRED,
-			old_waiver_date = "2020-09-01",
-			new_waiver_date = None,
-			old_waiver_expiration_date = "2020-09-01",
-			new_waiver_expiration_date = None,
 			expected_loan_update_count = 2,
-			debt_facility_id_should_be_populated = False
+			debt_facility_id_should_be_populated = False,
 		)
 
-	def test_defaulted_to_defaulted_status_update(self) -> None:
+	def test_eligible_to_waiver_status_update(self) -> None:
 		self.status_change_test_runner(
-			old_company_status = CompanyDebtFacilityStatus.DEFAULTING,
-			new_company_status = CompanyDebtFacilityStatus.DEFAULTING,
-			old_loan_status = LoanDebtFacilityStatus.WAIVER,
-			new_loan_status = LoanDebtFacilityStatus.WAIVER,
-			old_waiver_date = "2020-09-01",
-			new_waiver_date = "2020-09-01",
-			old_waiver_expiration_date = "2020-09-01",
-			new_waiver_expiration_date = "2020-09-01",
-			expected_loan_update_count = 0,
-			debt_facility_id_should_be_populated = True
-		)
-
-	def test_paused_to_paused_status_update(self) -> None:
-		self.status_change_test_runner(
-			old_company_status = CompanyDebtFacilityStatus.OUT_OF_COMPLIANCE,
-			new_company_status = CompanyDebtFacilityStatus.OUT_OF_COMPLIANCE,
-			old_loan_status = LoanDebtFacilityStatus.WAIVER,
-			new_loan_status = LoanDebtFacilityStatus.WAIVER,
-			old_waiver_date = "2020-09-01",
-			new_waiver_date = "2020-09-01",
-			old_waiver_expiration_date = "2020-09-01",
-			new_waiver_expiration_date = "2020-09-01",
-			expected_loan_update_count = 0,
-			debt_facility_id_should_be_populated = True
-		)
-
-	def test_defaulted_to_paused_status_update(self) -> None:
-		self.status_change_test_runner(
-			old_company_status = CompanyDebtFacilityStatus.DEFAULTING,
-			new_company_status = CompanyDebtFacilityStatus.OUT_OF_COMPLIANCE,
-			old_loan_status = LoanDebtFacilityStatus.WAIVER,
-			new_loan_status = LoanDebtFacilityStatus.UPDATE_REQUIRED,
-			old_waiver_date = "2020-09-01",
-			new_waiver_date = None,
-			old_waiver_expiration_date = "2020-09-01",
-			new_waiver_expiration_date = None,
-			expected_loan_update_count = 2,
-			debt_facility_id_should_be_populated = False
-		)
-
-	# X state to waiver state starts here
-
-	def test_good_standing_waiver_status_update(self) -> None:
-		self.status_change_test_runner(
-			old_company_status = CompanyDebtFacilityStatus.GOOD_STANDING,
+			old_company_status = CompanyDebtFacilityStatus.ELIGIBLE,
 			new_company_status = CompanyDebtFacilityStatus.WAIVER,
 			old_loan_status = LoanDebtFacilityStatus.SOLD_INTO_DEBT_FACILITY,
 			new_loan_status = CompanyDebtFacilityStatus.WAIVER,
@@ -476,122 +257,217 @@ class TestUpdateCompanyDebtFacilityStatusView(db_unittest.TestCase):
 			old_waiver_expiration_date = None,
 			new_waiver_expiration_date = "2020-12-01",
 			expected_loan_update_count = 2,
-			debt_facility_id_should_be_populated = True
+			debt_facility_id_should_be_populated = True,
 		)
 
-	def test_probation_to_waiver_status_update(self) -> None:
+	def test_eligible_to_pending_waiver_status_update(self) -> None:
 		self.status_change_test_runner(
-			old_company_status = CompanyDebtFacilityStatus.ON_PROBATION,
-			new_company_status = CompanyDebtFacilityStatus.WAIVER,
+			old_company_status = CompanyDebtFacilityStatus.ELIGIBLE,
+			new_company_status = CompanyDebtFacilityStatus.PENDING_WAIVER,
 			old_loan_status = LoanDebtFacilityStatus.SOLD_INTO_DEBT_FACILITY,
-			new_loan_status = CompanyDebtFacilityStatus.WAIVER,
+			new_loan_status = LoanDebtFacilityStatus.SOLD_INTO_DEBT_FACILITY,
 			old_waiver_date = None,
-			new_waiver_date = "2020-09-01",
+			new_waiver_date = None,
 			old_waiver_expiration_date = None,
-			new_waiver_expiration_date = "2020-12-01",
+			new_waiver_expiration_date = None,
+			expected_loan_update_count = 0,
+			debt_facility_id_should_be_populated = True,
+		)
+
+	# # Ineligible state to X starts here
+
+	def test_ineligible_to_eligible_status_update(self) -> None:
+		self.status_change_test_runner(
+			old_company_status = CompanyDebtFacilityStatus.INELIGIBLE,
+			new_company_status = CompanyDebtFacilityStatus.ELIGIBLE,
+			old_loan_status = LoanDebtFacilityStatus.REPURCHASED,
+			new_loan_status = LoanDebtFacilityStatus.SOLD_INTO_DEBT_FACILITY,
+			old_waiver_date = None,
+			new_waiver_date = None,
+			old_waiver_expiration_date = None,
+			new_waiver_expiration_date = None,
 			expected_loan_update_count = 2,
-			debt_facility_id_should_be_populated = True
+			debt_facility_id_should_be_populated = True,
+		)
+
+	def test_ineligible_to_ineligible_status_update(self) -> None:
+		self.status_change_test_runner(
+			old_company_status = CompanyDebtFacilityStatus.INELIGIBLE,
+			new_company_status = CompanyDebtFacilityStatus.INELIGIBLE,
+			old_loan_status = LoanDebtFacilityStatus.REPURCHASED,
+			new_loan_status = LoanDebtFacilityStatus.REPURCHASED,
+			old_waiver_date = None,
+			new_waiver_date = None,
+			old_waiver_expiration_date = None,
+			new_waiver_expiration_date = None,
+			expected_loan_update_count = 0,
+			debt_facility_id_should_be_populated = False,
 		)
 
 	def test_ineligible_to_waiver_status_update(self) -> None:
 		self.status_change_test_runner(
-			old_company_status = CompanyDebtFacilityStatus.INELIGIBLE_FOR_FACILITY,
+			old_company_status = CompanyDebtFacilityStatus.INELIGIBLE,
 			new_company_status = CompanyDebtFacilityStatus.WAIVER,
-			old_loan_status = LoanDebtFacilityStatus.UPDATE_REQUIRED,
+			old_loan_status = LoanDebtFacilityStatus.REPURCHASED,
 			new_loan_status = CompanyDebtFacilityStatus.WAIVER,
 			old_waiver_date = None,
 			new_waiver_date = "2020-09-01",
 			old_waiver_expiration_date = None,
 			new_waiver_expiration_date = "2020-12-01",
 			expected_loan_update_count = 2,
-			debt_facility_id_should_be_populated = True
+			debt_facility_id_should_be_populated = True,
 		)
-		
-	def test_paused_to_waiver_status_update(self) -> None:
+
+	def test_ineligible_to_pending_waiver_status_update(self) -> None:
 		self.status_change_test_runner(
-			old_company_status = CompanyDebtFacilityStatus.OUT_OF_COMPLIANCE,
+			old_company_status = CompanyDebtFacilityStatus.INELIGIBLE,
+			new_company_status = CompanyDebtFacilityStatus.PENDING_WAIVER,
+			old_loan_status = LoanDebtFacilityStatus.REPURCHASED,
+			new_loan_status = LoanDebtFacilityStatus.REPURCHASED,
+			old_waiver_date = None,
+			new_waiver_date = None,
+			old_waiver_expiration_date = None,
+			new_waiver_expiration_date = None,
+			expected_loan_update_count = 0,
+			debt_facility_id_should_be_populated = False,
+		)
+
+	# # Waiver state to X starts here
+
+	# Q for Brittney: shouldn't we clear the old waiver dates?
+	# def test_waiver_to_eligible_status_update(self) -> None:
+	# 	self.status_change_test_runner(
+	# 		old_company_status = CompanyDebtFacilityStatus.WAIVER,
+	# 		new_company_status = CompanyDebtFacilityStatus.ELIGIBLE,
+	# 		old_loan_status = CompanyDebtFacilityStatus.WAIVER,
+	# 		new_loan_status = CompanyDebtFacilityStatus.WAIVER,
+	# 		old_waiver_date = "2020-09-01",
+	# 		new_waiver_date = None,
+	# 		old_waiver_expiration_date = "2020-12-01",
+	# 		new_waiver_expiration_date = None,
+	# 		expected_loan_update_count = 2,
+	# 		debt_facility_id_should_be_populated = True,
+	# 	)
+
+	def test_waiver_to_ineligible_status_update(self) -> None:
+		self.status_change_test_runner(
+			old_company_status = CompanyDebtFacilityStatus.WAIVER,
+			new_company_status = CompanyDebtFacilityStatus.INELIGIBLE,
+			old_loan_status = CompanyDebtFacilityStatus.WAIVER,
+			new_loan_status = LoanDebtFacilityStatus.REPURCHASED,
+			old_waiver_date = "2020-09-01",
+			new_waiver_date = None,
+			old_waiver_expiration_date = "2020-12-01",
+			new_waiver_expiration_date = None,
+			expected_loan_update_count = 2,
+			debt_facility_id_should_be_populated = False,
+		)
+
+	def test_waiver_to_waiver_status_update(self) -> None:
+		self.status_change_test_runner(
+			old_company_status = CompanyDebtFacilityStatus.WAIVER,
 			new_company_status = CompanyDebtFacilityStatus.WAIVER,
-			old_loan_status = LoanDebtFacilityStatus.UPDATE_REQUIRED,
+			old_loan_status = CompanyDebtFacilityStatus.WAIVER,
+			new_loan_status = CompanyDebtFacilityStatus.WAIVER,
+			old_waiver_date = "2020-09-01",
+			new_waiver_date = "2020-09-01",
+			old_waiver_expiration_date = "2020-12-01",
+			new_waiver_expiration_date = "2020-12-01",
+			expected_loan_update_count = 0,
+			debt_facility_id_should_be_populated = True,
+		)
+
+	def test_waiver_to_pending_waiver_status_update(self) -> None:
+		self.status_change_test_runner(
+			old_company_status = CompanyDebtFacilityStatus.WAIVER,
+			new_company_status = CompanyDebtFacilityStatus.PENDING_WAIVER,
+			old_loan_status = CompanyDebtFacilityStatus.WAIVER,
+			new_loan_status = CompanyDebtFacilityStatus.WAIVER,
+			old_waiver_date = "2020-09-01",
+			new_waiver_date = "2020-09-01",
+			old_waiver_expiration_date = "2020-12-01",
+			new_waiver_expiration_date = "2020-12-01",
+			expected_loan_update_count = 0,
+			debt_facility_id_should_be_populated = True,
+		)
+
+	# Pending waiver state to X starts here
+
+	# Q for Brittney: verify that we should automatically move eligible loans to facility
+	# def test_pending_waiver_to_eligible_status_update(self) -> None:
+	# 	self.status_change_test_runner(
+	# 		old_company_status = CompanyDebtFacilityStatus.PENDING_WAIVER,
+	# 		new_company_status = CompanyDebtFacilityStatus.ELIGIBLE,
+	# 		old_loan_status = LoanDebtFacilityStatus.BESPOKE_BALANCE_SHEET,
+	# 		new_loan_status = LoanDebtFacilityStatus.SOLD_INTO_DEBT_FACILITY,
+	# 		old_waiver_date = None,
+	# 		new_waiver_date = None,
+	# 		old_waiver_expiration_date = None,
+	# 		new_waiver_expiration_date = None,
+	# 		expected_loan_update_count = 2,
+	# 		debt_facility_id_should_be_populated = True,
+	# 	)
+
+	def test_pending_waiver_to_ineligible_status_update(self) -> None:
+		self.status_change_test_runner(
+			old_company_status = CompanyDebtFacilityStatus.PENDING_WAIVER,
+			new_company_status = CompanyDebtFacilityStatus.INELIGIBLE,
+			old_loan_status = LoanDebtFacilityStatus.SOLD_INTO_DEBT_FACILITY,
+			new_loan_status = LoanDebtFacilityStatus.REPURCHASED,
+			old_waiver_date = None,
+			new_waiver_date = None,
+			old_waiver_expiration_date = None,
+			new_waiver_expiration_date = None,
+			expected_loan_update_count = 2,
+			debt_facility_id_should_be_populated = False,
+		)
+
+	def test_pending_waiver_to_waiver_status_update(self) -> None:
+		self.status_change_test_runner(
+			old_company_status = CompanyDebtFacilityStatus.PENDING_WAIVER,
+			new_company_status = CompanyDebtFacilityStatus.WAIVER,
+			old_loan_status = LoanDebtFacilityStatus.REPURCHASED,
 			new_loan_status = CompanyDebtFacilityStatus.WAIVER,
 			old_waiver_date = None,
 			new_waiver_date = "2020-09-01",
 			old_waiver_expiration_date = None,
 			new_waiver_expiration_date = "2020-12-01",
 			expected_loan_update_count = 2,
-			debt_facility_id_should_be_populated = True
-		)
-		
-	def test_defaulted_to_waiver_status_update(self) -> None:
-		self.status_change_test_runner(
-			old_company_status = CompanyDebtFacilityStatus.DEFAULTING,
-			new_company_status = CompanyDebtFacilityStatus.WAIVER,
-			old_loan_status = LoanDebtFacilityStatus.UPDATE_REQUIRED,
-			new_loan_status = CompanyDebtFacilityStatus.WAIVER,
-			old_waiver_date = None,
-			new_waiver_date = "2020-09-01",
-			old_waiver_expiration_date = None,
-			new_waiver_expiration_date = "2020-12-01",
-			expected_loan_update_count = 2,
-			debt_facility_id_should_be_populated = True
+			debt_facility_id_should_be_populated = True,
 		)
 
-	# Bad state to good state
-
-	def test_paused_to_good_standing_status_update(self) -> None:
+	def test_pending_waiver_to_pending_waiver_status_update_one(self) -> None:
 		self.status_change_test_runner(
-			old_company_status = CompanyDebtFacilityStatus.OUT_OF_COMPLIANCE,
-			new_company_status = CompanyDebtFacilityStatus.GOOD_STANDING,
-			old_loan_status = LoanDebtFacilityStatus.UPDATE_REQUIRED,
+			old_company_status = CompanyDebtFacilityStatus.PENDING_WAIVER,
+			new_company_status = CompanyDebtFacilityStatus.PENDING_WAIVER,
+			old_loan_status = LoanDebtFacilityStatus.SOLD_INTO_DEBT_FACILITY,
 			new_loan_status = LoanDebtFacilityStatus.SOLD_INTO_DEBT_FACILITY,
 			old_waiver_date = None,
 			new_waiver_date = None,
 			old_waiver_expiration_date = None,
 			new_waiver_expiration_date = None,
-			expected_loan_update_count = 2,
-			debt_facility_id_should_be_populated = True
+			expected_loan_update_count = 0,
+			debt_facility_id_should_be_populated = True,
 		)
 
-	def test_defaulted_to_good_standing_status_update(self) -> None:
+	def test_pending_waiver_to_pending_waiver_status_update_two(self) -> None:
 		self.status_change_test_runner(
-			old_company_status = CompanyDebtFacilityStatus.DEFAULTING,
-			new_company_status = CompanyDebtFacilityStatus.GOOD_STANDING,
-			old_loan_status = LoanDebtFacilityStatus.UPDATE_REQUIRED,
-			new_loan_status = LoanDebtFacilityStatus.SOLD_INTO_DEBT_FACILITY,
+			old_company_status = CompanyDebtFacilityStatus.PENDING_WAIVER,
+			new_company_status = CompanyDebtFacilityStatus.PENDING_WAIVER,
+			old_loan_status = LoanDebtFacilityStatus.REPURCHASED,
+			new_loan_status = LoanDebtFacilityStatus.REPURCHASED,
 			old_waiver_date = None,
 			new_waiver_date = None,
 			old_waiver_expiration_date = None,
 			new_waiver_expiration_date = None,
-			expected_loan_update_count = 2,
-			debt_facility_id_should_be_populated = True
+			expected_loan_update_count = 0,
+			debt_facility_id_should_be_populated = True,
 		)
+	
 
-	def test_paused_to_probation_status_update(self) -> None:
-		self.status_change_test_runner(
-			old_company_status = CompanyDebtFacilityStatus.OUT_OF_COMPLIANCE,
-			new_company_status = CompanyDebtFacilityStatus.ON_PROBATION,
-			old_loan_status = LoanDebtFacilityStatus.UPDATE_REQUIRED,
-			new_loan_status = LoanDebtFacilityStatus.SOLD_INTO_DEBT_FACILITY,
-			old_waiver_date = None,
-			new_waiver_date = None,
-			old_waiver_expiration_date = None,
-			new_waiver_expiration_date = None,
-			expected_loan_update_count = 2,
-			debt_facility_id_should_be_populated = True
-		)
+	
 
-	def test_defaulted_to_probation_status_update(self) -> None:
-		self.status_change_test_runner(
-			old_company_status = CompanyDebtFacilityStatus.DEFAULTING,
-			new_company_status = CompanyDebtFacilityStatus.ON_PROBATION,
-			old_loan_status = LoanDebtFacilityStatus.UPDATE_REQUIRED,
-			new_loan_status = LoanDebtFacilityStatus.SOLD_INTO_DEBT_FACILITY,
-			old_waiver_date = None,
-			new_waiver_date = None,
-			old_waiver_expiration_date = None,
-			new_waiver_expiration_date = None,
-			expected_loan_update_count = 2,
-			debt_facility_id_should_be_populated = True
-		)
+	
 
 class TestDebtFacilityCheckForPastDueLoansView(db_unittest.TestCase):
 	def setup_data_for_unexpired_company_waiver_test(
@@ -722,7 +598,7 @@ class TestDebtFacilityCheckForPastDueLoansView(db_unittest.TestCase):
 				id = company_id,
 				parent_company_id = uuid.uuid4(),
 				name = "No Waiver Ineligible Company",
-				debt_facility_status = CompanyDebtFacilityStatus.INELIGIBLE_FOR_FACILITY,
+				debt_facility_status = CompanyDebtFacilityStatus.INELIGIBLE,
 				is_customer = True
 			))
 
@@ -770,7 +646,7 @@ class TestDebtFacilityCheckForPastDueLoansView(db_unittest.TestCase):
 				id = company_id,
 				parent_company_id = uuid.uuid4(),
 				name = "No Waiver Ineligible Company",
-				debt_facility_status = CompanyDebtFacilityStatus.INELIGIBLE_FOR_FACILITY,
+				debt_facility_status = CompanyDebtFacilityStatus.INELIGIBLE,
 				is_customer = True
 			))
 
@@ -833,7 +709,7 @@ class TestDebtFacilityCheckForPastDueLoansView(db_unittest.TestCase):
 				id = company_id,
 				parent_company_id = uuid.uuid4(),
 				name = "Good Standing Company",
-				debt_facility_status = CompanyDebtFacilityStatus.GOOD_STANDING,
+				debt_facility_status = CompanyDebtFacilityStatus.ELIGIBLE,
 				is_customer = True
 			))
 

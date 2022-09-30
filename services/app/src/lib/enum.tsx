@@ -911,21 +911,17 @@ export const DebtFacilityStatusToEligibility = {
 // Debt Facility Company Status
 
 export enum DebtFacilityCompanyStatusEnum {
-  GoodStanding = "good_standing",
-  OnProbation = "on_probation",
-  OutOfCompliance = "out_of_compliance",
-  Defaulting = "defaulting",
-  IneligibleForFacility = "ineligible_for_facility",
+  Eligible = "eligible",
+  Ineligible = "ineligible",
   Waiver = "waiver_company",
+  PendingWaiver = "pending_waiver",
 }
 
 export const DebtFacilityCompanyStatusToLabel = {
-  [DebtFacilityCompanyStatusEnum.GoodStanding]: "Good Standing",
-  [DebtFacilityCompanyStatusEnum.OnProbation]: "Probation",
-  [DebtFacilityCompanyStatusEnum.OutOfCompliance]: "Paused",
-  [DebtFacilityCompanyStatusEnum.Defaulting]: "Defaulted",
-  [DebtFacilityCompanyStatusEnum.IneligibleForFacility]: "Ineligible",
+  [DebtFacilityCompanyStatusEnum.Eligible]: "Eligible",
+  [DebtFacilityCompanyStatusEnum.Ineligible]: "Ineligible",
   [DebtFacilityCompanyStatusEnum.Waiver]: "Waiver",
+  [DebtFacilityCompanyStatusEnum.PendingWaiver]: "Pending Waiver",
 };
 
 /* 
@@ -934,12 +930,10 @@ to less buckets for the report we send to the debt facility. However, the mutlip
 bad states is still useful for internal purposes
 */
 export const DebtFacilityCompanyStatusToEligibility = {
-  [DebtFacilityCompanyStatusEnum.GoodStanding]: "Eligible",
-  [DebtFacilityCompanyStatusEnum.OnProbation]: "Eligible",
-  [DebtFacilityCompanyStatusEnum.OutOfCompliance]: "Ineligible",
-  [DebtFacilityCompanyStatusEnum.Defaulting]: "Ineligible",
-  [DebtFacilityCompanyStatusEnum.IneligibleForFacility]: "Ineligible",
-  [DebtFacilityCompanyStatusEnum.Waiver]: "Waiver",
+  [DebtFacilityCompanyStatusEnum.Eligible]: "Eligible",
+  [DebtFacilityCompanyStatusEnum.Ineligible]: "Ineligible",
+  [DebtFacilityCompanyStatusEnum.Waiver]: "Eligible",
+  [DebtFacilityCompanyStatusEnum.PendingWaiver]: "Eligible",
 };
 
 export enum DebtFacilityTabLabel {

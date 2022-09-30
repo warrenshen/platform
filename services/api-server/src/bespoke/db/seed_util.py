@@ -11,7 +11,7 @@ from bespoke import errors
 from sqlalchemy.orm.session import Session
 from bespoke.db import models, queries
 from bespoke.db.models import PurchaseOrderHistoryDict
-from bespoke.db.db_constants import UserRoles, CompanyDebtFacilityStatus, CompanySurveillanceStatus, \
+from bespoke.db.db_constants import UserRoles, CompanySurveillanceStatus, \
     CompanyType, TwoFactorMessageMethod, LoginMethod, ProductType, TwoFactorMessageMethod, BankAccountType
 from bespoke.date import date_util
 from bespoke.finance import contract_util

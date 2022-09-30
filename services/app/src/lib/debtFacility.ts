@@ -8,13 +8,11 @@ import {
   dateAsDateStringServer,
   dateStringPlusXDaysDate,
   parseDateStringServer,
-  withinNDaysOfNowOrBefore,
 } from "lib/date";
 import {
   DebtFacilityCompanyStatusEnum,
-  DebtFacilityCompanyStatusToEligibility,
+  DebtFacilityCompanyStatusToLabel,
   DebtFacilityStatusEnum,
-  DebtFacilityStatusToEligibility,
   LoanPaymentStatusEnum,
   LoanStatusEnum,
   ProductTypeEnum,
@@ -100,34 +98,22 @@ export const determineBorrowerEligibility = (
   productType: ProductTypeEnum
 ) => {
   const companyLevelEligibility = !!loan.company?.debt_facility_status
-    ? DebtFacilityCompanyStatusToEligibility[
-        loan.company.debt_facility_status as DebtFacilityCompanyStatusEnum
-      ]
+    ? loan.company.debt_facility_status
     : null;
 
   const isProductTypeSupported = supportedProductTypes.includes(productType);
+  const eligible =
+    DebtFacilityCompanyStatusToLabel[DebtFacilityCompanyStatusEnum.Eligible];
+  const ineligible =
+    DebtFacilityCompanyStatusToLabel[DebtFacilityCompanyStatusEnum.Ineligible];
 
   // Company status alone *could* cover the use case here
   // But adding this extra check around future debt facility support will be useful
   // since we don't know a priori what that support will entail
-  return companyLevelEligibility === "Waiver"
-    ? companyLevelEligibility
-    : companyLevelEligibility === "Eligible" && !!isProductTypeSupported
-    ? DebtFacilityCompanyStatusToEligibility[
-        DebtFacilityCompanyStatusEnum.GoodStanding
-      ]
-    : DebtFacilityCompanyStatusToEligibility[
-        DebtFacilityCompanyStatusEnum.IneligibleForFacility
-      ];
-};
-
-export const determineIfNewToBalanceSheet = (
-  loan: OpenLoanForDebtFacilityFragment
-): string => {
-  return !!loan.origination_date &&
-    withinNDaysOfNowOrBefore(loan.origination_date, 30, true) === true
-    ? "Yes"
-    : "No";
+  return companyLevelEligibility === "Waiver" ||
+    (companyLevelEligibility === "Eligible" && !!isProductTypeSupported)
+    ? eligible
+    : ineligible;
 };
 
 export const determineIfPreviouslyAssigned = (
@@ -147,6 +133,11 @@ export const determineLoanEligibility = (
   supportedProductTypes: ProductTypeEnum[],
   productType: ProductTypeEnum
 ) => {
+  const eligible =
+    DebtFacilityCompanyStatusToLabel[DebtFacilityCompanyStatusEnum.Eligible];
+  const ineligible =
+    DebtFacilityCompanyStatusToLabel[DebtFacilityCompanyStatusEnum.Ineligible];
+
   if (
     !!loan.loan_report?.debt_facility_status &&
     !!loan.company?.debt_facility_status &&
@@ -169,31 +160,23 @@ export const determineLoanEligibility = (
       need to check for their loan status in a separate if blocks
     */
     if (
-      productType === ProductTypeEnum.LineOfCredit &&
-      (companyStatus === DebtFacilityCompanyStatusEnum.GoodStanding ||
-        companyStatus === DebtFacilityCompanyStatusEnum.OnProbation ||
-        companyStatus === DebtFacilityCompanyStatusEnum.Waiver)
+      companyStatus === DebtFacilityCompanyStatusEnum.Eligible ||
+      companyStatus === DebtFacilityCompanyStatusEnum.PendingWaiver ||
+      companyStatus === DebtFacilityCompanyStatusEnum.Waiver
     ) {
-      return "Eligible";
-    } else if (productType === ProductTypeEnum.LineOfCredit) {
-      return "Ineligible";
+      return eligible;
     } else if (
-      companyStatus !== DebtFacilityCompanyStatusEnum.GoodStanding &&
-      companyStatus !== DebtFacilityCompanyStatusEnum.OnProbation &&
-      companyStatus !== DebtFacilityCompanyStatusEnum.Waiver
+      companyStatus === DebtFacilityCompanyStatusEnum.Ineligible &&
+      loanStatus === DebtFacilityStatusEnum.Waiver
     ) {
-      return loanStatus === DebtFacilityStatusEnum.Waiver
-        ? "Eligible"
-        : "Ineligible";
+      return eligible;
+    } else if (companyStatus === DebtFacilityCompanyStatusEnum.Ineligible) {
+      return ineligible;
     } else {
-      return supportedProductTypes.includes(productType)
-        ? DebtFacilityStatusToEligibility[
-            loan.loan_report.debt_facility_status as DebtFacilityStatusEnum
-          ]
-        : "Ineligible";
+      return ineligible;
     }
   } else {
-    return "Ineligible";
+    return ineligible;
   }
 };
 

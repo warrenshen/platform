@@ -172,7 +172,7 @@ def _create_company(
 		identifier=identifier,
 		dba_name=dba_name,
 		company_settings_id=company_settings_id,
-		debt_facility_status=CompanyDebtFacilityStatus.GOOD_STANDING,
+		debt_facility_status=CompanyDebtFacilityStatus.ELIGIBLE,
 	)
 
 	session.add(company)

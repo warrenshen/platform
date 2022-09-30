@@ -16,41 +16,6 @@ from bespoke.db.db_constants import (
 )
 from bespoke.metrc.common.metrc_common_util import chunker
 
-def _check_if_status_change_moves_loans_to_update_required(
-    old_debt_facility_status: str,
-    new_debt_facility_status: str,
-) -> bool:
-    
-    waiver_to_bad_status_check = old_debt_facility_status == CompanyDebtFacilityStatus.WAIVER and \
-     (
-         new_debt_facility_status == CompanyDebtFacilityStatus.INELIGIBLE_FOR_FACILITY or \
-      new_debt_facility_status == CompanyDebtFacilityStatus.OUT_OF_COMPLIANCE or \
-      new_debt_facility_status == CompanyDebtFacilityStatus.DEFAULTING
-     )
-    
-    good_to_bad_status_check = (
-        old_debt_facility_status == CompanyDebtFacilityStatus.GOOD_STANDING or \
-       old_debt_facility_status == CompanyDebtFacilityStatus.ON_PROBATION or \
-       old_debt_facility_status == CompanyDebtFacilityStatus.INELIGIBLE_FOR_FACILITY
-    ) and \
-      (
-          new_debt_facility_status == CompanyDebtFacilityStatus.OUT_OF_COMPLIANCE or \
-       new_debt_facility_status == CompanyDebtFacilityStatus.DEFAULTING
-      )
-    
-    bad_to_bad_status_check = (
-        old_debt_facility_status == CompanyDebtFacilityStatus.OUT_OF_COMPLIANCE or \
-       old_debt_facility_status == CompanyDebtFacilityStatus.DEFAULTING or \
-       old_debt_facility_status == CompanyDebtFacilityStatus.INELIGIBLE_FOR_FACILITY
-    ) and \
-      (
-          new_debt_facility_status == CompanyDebtFacilityStatus.OUT_OF_COMPLIANCE or \
-       new_debt_facility_status == CompanyDebtFacilityStatus.DEFAULTING
-      ) and \
-      old_debt_facility_status != new_debt_facility_status
-    
-    return waiver_to_bad_status_check or good_to_bad_status_check or bad_to_bad_status_check
-
 def update_company_debt_facility_status(
     session: Session,
     user: models.User,
@@ -82,7 +47,7 @@ def update_company_debt_facility_status(
     company.debt_facility_status = new_debt_facility_status
     
     payload: Dict[ str, object ] = {
-        "user_name": user.first_name + " " + user.last_name,
+        "user_name": f'{user.first_name} {user.last_name}',
         "user_id": str( user.id ),
         "old_status": old_debt_facility_status,
         "new_status": new_debt_facility_status,
@@ -90,7 +55,6 @@ def update_company_debt_facility_status(
     if new_debt_facility_status == CompanyDebtFacilityStatus.WAIVER:
         payload[ "waiver_date" ] = waiver_date
         payload[ "waiver_expiration_date" ] = waiver_expiration_date
-    
     
     session.add(
         models.DebtFacilityEvent( # type: ignore
@@ -133,75 +97,79 @@ def update_company_debt_facility_status(
     )
     
     debt_facility_id = debt_facility.id if debt_facility is not None else ""
-    
-    if (
+
+    if (old_debt_facility_status == CompanyDebtFacilityStatus.ELIGIBLE or \
         old_debt_facility_status == CompanyDebtFacilityStatus.WAIVER or \
-     old_debt_facility_status == CompanyDebtFacilityStatus.OUT_OF_COMPLIANCE or \
-     old_debt_facility_status == CompanyDebtFacilityStatus.DEFAULTING
-    ) and \
-     (
-         new_debt_facility_status == CompanyDebtFacilityStatus.GOOD_STANDING or \
-      new_debt_facility_status == CompanyDebtFacilityStatus.ON_PROBATION
-     ):
-        
+        old_debt_facility_status == CompanyDebtFacilityStatus.PENDING_WAIVER) and \
+        new_debt_facility_status == CompanyDebtFacilityStatus.INELIGIBLE:
+        """
+            Any status to ineligible, the finance team wants us to move
+            the loan to repurchased
+        """
         company.debt_facility_waiver_date = None
         company.debt_facility_waiver_expiration_date = None
-        
+
         for loan_report in loan_reports:
-            if (
-                loan_report.debt_facility_status == CompanyDebtFacilityStatus.WAIVER or \
-             loan_report.debt_facility_status == LoanDebtFacilityStatus.WAIVER or \
-             loan_report.debt_facility_status == LoanDebtFacilityStatus.UPDATE_REQUIRED
-            ):
-                
-                loan_report.debt_facility_id = debt_facility_id
+            loan_report.debt_facility_id = None
+            loan_report.debt_facility_status = LoanDebtFacilityStatus.REPURCHASED
+            loan_report.debt_facility_added_date = None
+            loan_report.debt_facility_waiver_date = None
+            loan_report.debt_facility_waiver_expiration_date = None
+
+            loans_updated_count += 1
+    elif (old_debt_facility_status == CompanyDebtFacilityStatus.INELIGIBLE and # case 1
+        (new_debt_facility_status == CompanyDebtFacilityStatus.ELIGIBLE or \
+        new_debt_facility_status == CompanyDebtFacilityStatus.WAIVER)) or \
+        (old_debt_facility_status == CompanyDebtFacilityStatus.PENDING_WAIVER and # case 2
+        new_debt_facility_status == CompanyDebtFacilityStatus.WAIVER) or \
+        (old_debt_facility_status == CompanyDebtFacilityStatus.ELIGIBLE and # case 3
+        new_debt_facility_status == CompanyDebtFacilityStatus.WAIVER) or \
+        (old_debt_facility_status == CompanyDebtFacilityStatus.WAIVER and # case 4
+        new_debt_facility_status == CompanyDebtFacilityStatus.ELIGIBLE):
+        """
+            Case 1: ineligible to either eligible or waiver
+            Case 2: pending waiver to waiver
+            Case 3: eligible to waiver
+            Case 4: Waiver to Eligible
+
+            Move love into debt facility, add waiver dates if applicable
+        """
+        if new_debt_facility_status == CompanyDebtFacilityStatus.ELIGIBLE:
+            company.debt_facility_waiver_date = None
+            company.debt_facility_waiver_expiration_date = None
+        else:
+            company.debt_facility_waiver_date = date_util.load_date_str( waiver_date )
+            company.debt_facility_waiver_expiration_date = date_util.load_date_str(
+                waiver_expiration_date,
+            )
+
+        for loan_report in loan_reports:
+            loan_report.debt_facility_id = debt_facility_id
+            loan_report.debt_facility_added_date = date_util.now_as_date()
+
+            if new_debt_facility_status == CompanyDebtFacilityStatus.ELIGIBLE:
                 loan_report.debt_facility_status = LoanDebtFacilityStatus.SOLD_INTO_DEBT_FACILITY
                 loan_report.debt_facility_waiver_date = None
                 loan_report.debt_facility_waiver_expiration_date = None
-                
-                loans_updated_count += 1
-    
-    elif _check_if_status_change_moves_loans_to_update_required(
-        old_debt_facility_status,
-        new_debt_facility_status,
-    ):
-        company.debt_facility_waiver_date = None
-        company.debt_facility_waiver_expiration_date = None
-        
-        for loan_report in loan_reports:
-            if (
-                loan_report.debt_facility_status == LoanDebtFacilityStatus.SOLD_INTO_DEBT_FACILITY or \
-             loan_report.debt_facility_status == LoanDebtFacilityStatus.WAIVER or \
-             loan_report.debt_facility_status == CompanyDebtFacilityStatus.WAIVER
-            ):
-                
-                loan_report.debt_facility_id = None
-                loan_report.debt_facility_status = LoanDebtFacilityStatus.UPDATE_REQUIRED
-                loan_report.debt_facility_waiver_date = None
-                loan_report.debt_facility_waiver_expiration_date = None
-                
-                loans_updated_count += 1
-    
-    elif new_debt_facility_status == CompanyDebtFacilityStatus.WAIVER:
-        company.debt_facility_waiver_date = date_util.load_date_str( waiver_date )
-        company.debt_facility_waiver_expiration_date = date_util.load_date_str(
-            waiver_expiration_date,
-        )
-        
-        for loan_report in loan_reports:
-            if (
-                loan_report.debt_facility_status != LoanDebtFacilityStatus.BESPOKE_BALANCE_SHEET and \
-             loan_report.debt_facility_status != LoanDebtFacilityStatus.REPURCHASED
-            ):
-                
-                loan_report.debt_facility_id = debt_facility_id
+            else:
                 loan_report.debt_facility_status = CompanyDebtFacilityStatus.WAIVER
                 loan_report.debt_facility_waiver_date = date_util.load_date_str( waiver_date )
                 loan_report.debt_facility_waiver_expiration_date = date_util.load_date_str(
                     waiver_expiration_date,
                 )
-                
-                loans_updated_count += 1
+
+            loans_updated_count += 1
+    else:
+        pass
+        """
+            For these status changes, we do nothing according to the finance team:
+            - ineligible to pending waiver
+            - ineligible to pending waiver to ineligible
+            - eligible to pending waiver
+            - eligible to pending waiver to waiver
+            - pending waiver to eligible
+            - any status to itself
+        """
     
     return loans_updated_count, None
 
@@ -369,7 +337,7 @@ def check_past_due_loans(
                 # Step 6b - Change company's debt facility status to ineligible for facility
                 if not has_company_waiver or \
                  (has_company_waiver and company_waiver_expiration_date < today_date):
-                    company.debt_facility_status = CompanyDebtFacilityStatus.INELIGIBLE_FOR_FACILITY
+                    company.debt_facility_status = CompanyDebtFacilityStatus.INELIGIBLE
                     company.debt_facility_waiver_date = None
                     company.debt_facility_waiver_expiration_date = None
                     

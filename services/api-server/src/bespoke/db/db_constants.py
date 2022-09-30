@@ -120,6 +120,12 @@ ALL_CUSTOM_MESSAGES = [
 ]
 
 class CompanyDebtFacilityStatus(object):
+	ELIGIBLE = 'eligible'
+	INELIGIBLE = 'ineligible'
+	WAIVER = 'waiver_company'
+	PENDING_WAIVER = 'pending_waiver'
+	
+class OldCompanyDebtFacilityStatus(object):
 	GOOD_STANDING = 'good_standing'
 	ON_PROBATION = 'on_probation'
 	OUT_OF_COMPLIANCE = 'out_of_compliance' # aka: on pause

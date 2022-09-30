@@ -9,12 +9,10 @@ interface Props {
 }
 
 const StatusToColor = {
-  [DebtFacilityCompanyStatusEnum.GoodStanding]: "#769362", // Bespoke's green
-  [DebtFacilityCompanyStatusEnum.OnProbation]: "#cba679", // Bespoke's gold/brown
-  [DebtFacilityCompanyStatusEnum.OutOfCompliance]: "#ff9999", // pink
-  [DebtFacilityCompanyStatusEnum.Defaulting]: "#ff9999", // pink
-  [DebtFacilityCompanyStatusEnum.IneligibleForFacility]: "#939393", // gray
-  [DebtFacilityCompanyStatusEnum.Waiver]: "#939393", // gray
+  [DebtFacilityCompanyStatusEnum.Eligible]: "#769362", // Bespoke's green
+  [DebtFacilityCompanyStatusEnum.Ineligible]: "#ff9999", // Bespoke's gold/brown
+  [DebtFacilityCompanyStatusEnum.Waiver]: "#939393", // pink
+  [DebtFacilityCompanyStatusEnum.PendingWaiver]: "#cba679", // pink
 };
 
 export default function DebtFacilityCompanyStatusChip({
