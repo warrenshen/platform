@@ -1016,7 +1016,8 @@ class Transaction(Base):
 	payment_id = Column(GUID, nullable=False)
 	to_principal = Column(Numeric, nullable=False)
 	to_interest = Column(Numeric, nullable=False)
-	to_fees = Column(Numeric, nullable=False)
+	to_fees = Column(Numeric, nullable=False) # A better name for this columns would be to_late_fees.
+	# There is an implicit to_account_fees, which equals: amount - (to_principal + to_interest + to_fees).
 	effective_date = Column(Date, nullable=False)
 	created_by_user_id = Column(GUID)
 	is_deleted = Column(Boolean)
