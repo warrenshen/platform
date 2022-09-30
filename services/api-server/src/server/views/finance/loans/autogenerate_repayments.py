@@ -22,7 +22,8 @@ class AutogenerateRepaymentView(MethodView):
 	decorators = [auth_util.requires_async_magic_header]
 
 	product_types_with_autogenerate: List[str] = [
-		ProductType.DISPENSARY_FINANCING
+		ProductType.DISPENSARY_FINANCING,
+		ProductType.INVENTORY_FINANCING,
 	]
 
 	@handler_util.catch_bad_json_request
@@ -181,7 +182,8 @@ class AutogenerateRepaymentWeeklyAlertView(MethodView):
 	decorators = [auth_util.requires_async_magic_header]
 
 	product_types_with_autogenerate: List[str] = [
-		ProductType.DISPENSARY_FINANCING
+		ProductType.DISPENSARY_FINANCING,
+		ProductType.INVENTORY_FINANCING,
 	]
 
 	@handler_util.catch_bad_json_request

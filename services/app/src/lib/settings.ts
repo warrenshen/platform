@@ -110,6 +110,9 @@ export class SettingsHelper {
   }
 
   shouldShowAutogenerateRepayments(): boolean {
-    return this._productType === ProductTypeEnum.DispensaryFinancing;
+    return (
+      this._productType === ProductTypeEnum.DispensaryFinancing ||
+      this._productType === ProductTypeEnum.InventoryFinancing
+    );
   }
 }
