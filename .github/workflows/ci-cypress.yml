@@ -22,7 +22,7 @@ jobs:
           runTests: false
 
       - name: Create Build
-        run: yarn build
+        run: export NODE_OPTIONS="--max_old_space_size=4096" yarn build
 
       - name: Save build folder
         uses: actions/upload-artifact@v2
