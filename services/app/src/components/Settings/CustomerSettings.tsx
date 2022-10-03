@@ -74,7 +74,7 @@ export default function CustomerSettings({
     return null;
   }
 
-  const isActiveContract = !!contract;
+  const isVendorOrActiveCustomer = company.is_vendor || !!contract;
 
   return (
     <Box>
@@ -83,7 +83,7 @@ export default function CustomerSettings({
         <Box mt={3}>
           <CompanyInfo
             isEditAllowed={
-              check(role, Action.EditBankAccount) && isActiveContract
+              check(role, Action.EditBankAccount) && isVendorOrActiveCustomer
             }
             company={company}
             handleDataChange={handleDataChange}
@@ -148,7 +148,7 @@ export default function CustomerSettings({
               <ModalButton
                 dataCy={"add-bank-account-button"}
                 label={"Add Bank Account"}
-                isDisabled={!isActiveContract}
+                isDisabled={!isVendorOrActiveCustomer}
                 modal={({ handleClose }) => (
                   <CreateUpdateBankAccountModal
                     companyId={companyId}
@@ -167,7 +167,8 @@ export default function CustomerSettings({
               <ModalButton
                 dataCy={"edit-bank-account-button"}
                 isDisabled={
-                  selectedBankAccountIds.length !== 1 || !isActiveContract
+                  selectedBankAccountIds.length !== 1 ||
+                  !isVendorOrActiveCustomer
                 }
                 label={"Edit Bank Account"}
                 modal={({ handleClose }) => (
@@ -190,7 +191,8 @@ export default function CustomerSettings({
               <ModalButton
                 dataCy={"delete-bank-account-button"}
                 isDisabled={
-                  selectedBankAccountIds.length !== 1 || !isActiveContract
+                  selectedBankAccountIds.length !== 1 ||
+                  !isVendorOrActiveCustomer
                 }
                 label={"Delete Bank Account"}
                 variant={"outlined"}
@@ -219,7 +221,7 @@ export default function CustomerSettings({
       <Box mt={4}>
         <ManageUsersArea
           company={company}
-          isActiveContract={isActiveContract}
+          isVendorOrActiveCustomer={isVendorOrActiveCustomer}
         />
       </Box>
     </Box>

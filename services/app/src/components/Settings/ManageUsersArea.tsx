@@ -18,20 +18,23 @@ import { useMemo, useState } from "react";
 
 interface Props {
   company: NonNullable<GetCompanyForCustomerQuery["companies_by_pk"]>;
-  isActiveContract: boolean;
+  isVendorOrActiveCustomer: boolean;
 }
 
 interface ActiveUsersTabProps {
   company: NonNullable<GetCompanyForCustomerQuery["companies_by_pk"]>;
-  isActiveContract: boolean;
+  isVendorOrActiveCustomer: boolean;
 }
 
 interface DeactivatedUsersTabProps {
   company: NonNullable<GetCompanyForCustomerQuery["companies_by_pk"]>;
-  isActiveContract: boolean;
+  isVendorOrActiveCustomer: boolean;
 }
 
-function ActiveUsersTab({ company, isActiveContract }: ActiveUsersTabProps) {
+function ActiveUsersTab({
+  company,
+  isVendorOrActiveCustomer,
+}: ActiveUsersTabProps) {
   const { data, refetch } = useGetUsersForCompanyQuery({
     variables: {
       parent_company_id: company.parent_company_id,
@@ -63,7 +66,7 @@ function ActiveUsersTab({ company, isActiveContract }: ActiveUsersTabProps) {
         <Can perform={Action.ManipulateUser}>
           <ModalButton
             dataCy="create-user-button"
-            isDisabled={selectedUsers.length > 0 || !isActiveContract}
+            isDisabled={selectedUsers.length > 0 || !isVendorOrActiveCustomer}
             label={"Create User"}
             modal={({ handleClose }) => (
               <InviteUserModal
@@ -81,7 +84,9 @@ function ActiveUsersTab({ company, isActiveContract }: ActiveUsersTabProps) {
           <Box mr={2}>
             <ModalButton
               dataCy="edit-user-button"
-              isDisabled={selectedUsers.length !== 1 || !isActiveContract}
+              isDisabled={
+                selectedUsers.length !== 1 || !isVendorOrActiveCustomer
+              }
               label={"Edit User"}
               modal={({ handleClose }) => (
                 <EditUserProfileModal
@@ -102,7 +107,9 @@ function ActiveUsersTab({ company, isActiveContract }: ActiveUsersTabProps) {
           <Box mr={2}>
             <ModalButton
               dataCy="deactivate-user-button"
-              isDisabled={selectedUsers.length !== 1 || !isActiveContract}
+              isDisabled={
+                selectedUsers.length !== 1 || !isVendorOrActiveCustomer
+              }
               label={"Deactivate User"}
               modal={({ handleClose }) => (
                 <DeactivateUserModal
@@ -137,7 +144,7 @@ function ActiveUsersTab({ company, isActiveContract }: ActiveUsersTabProps) {
 
 function DeactivatedUsersTab({
   company,
-  isActiveContract,
+  isVendorOrActiveCustomer,
 }: DeactivatedUsersTabProps) {
   const { data, refetch } = useGetDeactivatedUsersForCompanyQuery({
     variables: {
@@ -168,7 +175,9 @@ function DeactivatedUsersTab({
         <Can perform={Action.ManipulateUser}>
           <Box mr={2}>
             <ModalButton
-              isDisabled={selectedUsers.length !== 1 || !isActiveContract}
+              isDisabled={
+                selectedUsers.length !== 1 || !isVendorOrActiveCustomer
+              }
               label={"Re-activate User"}
               modal={({ handleClose }) => (
                 <ReactivateUserModal
@@ -201,7 +210,10 @@ function DeactivatedUsersTab({
   );
 }
 
-export default function ManageUsersArea({ company, isActiveContract }: Props) {
+export default function ManageUsersArea({
+  company,
+  isVendorOrActiveCustomer,
+}: Props) {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
   return (
@@ -218,11 +230,14 @@ export default function ManageUsersArea({ company, isActiveContract }: Props) {
       </Tabs>
       <br />
       {selectedTabIndex === 0 ? (
-        <ActiveUsersTab company={company} isActiveContract={isActiveContract} />
+        <ActiveUsersTab
+          company={company}
+          isVendorOrActiveCustomer={isVendorOrActiveCustomer}
+        />
       ) : (
         <DeactivatedUsersTab
           company={company}
-          isActiveContract={isActiveContract}
+          isVendorOrActiveCustomer={isVendorOrActiveCustomer}
         />
       )}
     </Box>
