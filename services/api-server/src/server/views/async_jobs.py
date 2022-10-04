@@ -131,6 +131,8 @@ class GenerateJobsView(MethodView):
 		if not form:
 			return handler_util.make_error_response('No data provided')
 		
+		form = form['payload']
+
 		required_keys = [
 			'job_name',
 		]
