@@ -233,8 +233,8 @@ def fund_loans_with_advance(
 
 			# What is the disbursement identifier?
 			#
-			# Disbursement identifier is a legacy algorithm
-			# Bespoke Financial uses to assign identifiers to loans.
+			# Disbursement identifier is an algorithm from the XLSX world
+			# which Bespoke Financial uses to assign identifiers to loans.
 			# A loan is assigned a disbursement identifier when it is funded.
 			#
 			# For a customer C, a loan that is funded by the 5th advance
