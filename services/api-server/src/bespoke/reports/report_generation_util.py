@@ -276,7 +276,7 @@ def process_coming_due_loan_chunk(
 					template_data=template_data,
 					# TODO: uncomment once job is running
 					# recipients=[contact_user.email],
-					recipients=["do-not-reply-development@bespokefinancial.com"],
+					recipients=["grace@bespokefinancial.com"],
 					filter_out_contact_only=True,
 					cc_recipients=[config.NO_REPLY_EMAIL_ADDRESS]
 				)

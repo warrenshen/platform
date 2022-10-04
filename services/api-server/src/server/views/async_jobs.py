@@ -164,13 +164,12 @@ class KickOffHandlerView(MethodView):
 		logging.info("Received async job kick off handler request")
 		cfg = cast(Config, current_app.app_config)
 
-		with session_scope(current_app.session_maker) as session:
-			in_progress_job_ids, err = async_jobs_util.kick_off_handler(
-				session = session,
-				available_job_number = int(cfg.ASYNC_JOB_CAPACITY)
-			)
-			if err:
-				raise err
+		in_progress_job_ids, err = async_jobs_util.kick_off_handler(
+			session_maker = current_app.session_maker,
+			available_job_number = int(cfg.ASYNC_JOB_CAPACITY)
+		)
+		if err:
+			raise err
 
 		if len(in_progress_job_ids) != 0:
 			logging.info(f"Started Jobs with ids: {in_progress_job_ids}")

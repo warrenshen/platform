@@ -8,6 +8,7 @@ from bespoke.config.config_util import (
 from bespoke.config import config_util
 from bespoke.email.email_manager import EmailConfigDict, SendGridConfigDict
 from bespoke.security import security_util
+from concurrent.futures import ThreadPoolExecutor
 
 
 def _string_to_bool(text: str) -> bool:
@@ -105,6 +106,12 @@ class Config(object):
 
 		self.BOT_USER_ID = os.environ.get('BOT_USER_ID')
 		self.ASYNC_JOB_CAPACITY = os.environ.get('ASYNC_JOB_CAPACITY')
+		self.THREAD_POOL_MAX_WORKERS = int(os.environ.get('THREAD_POOL_MAX_WORKERS')) if os.environ.get('THREAD_POOL_MAX_WORKERS') is not None else 5
+		self.ASYNC_MAX_FAILED_ATTMEPTS = int(os.environ.get('ASYNC_MAX_FAILED_ATTMEPTS')) if os.environ.get('ASYNC_MAX_FAILED_ATTMEPTS') is not None else 3
+		self.THREAD_POOL = ThreadPoolExecutor(
+			max_workers=self.THREAD_POOL_MAX_WORKERS, 
+			thread_name_prefix="async-jobs"
+		)
 
 	def get_security_config(self) -> security_util.ConfigDict:
 		return security_util.ConfigDict(

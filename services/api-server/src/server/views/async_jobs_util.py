@@ -23,6 +23,8 @@ from bespoke.slack import slack_util
 from server.config import Config
 from sqlalchemy import or_
 from sqlalchemy.orm.session import Session
+from bespoke.db.models import session_scope
+
 
 @errors.return_error_tuple
 def generate_jobs(
@@ -139,65 +141,88 @@ def retry_job(
 
 @errors.return_error_tuple
 def kick_off_handler(
-	session: Session,
+	session_maker: Callable,
 	available_job_number: int,
 ) -> Tuple[List[str], errors.Error]:
 
 	max_failed_attempts = 3
+	cfg = cast(Config, current_app.app_config)
+	sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
 
-	currently_running_jobs = cast(
-		List[models.AsyncJob],
-		session.query(models.AsyncJob).filter(
-			models.AsyncJob.status == AsyncJobStatusEnum.IN_PROGRESS
-		).order_by(
-			models.AsyncJob.queued_at.desc()
-		).all())
+	with session_scope(session_maker) as session:
+		currently_running_jobs = cast(
+			List[models.AsyncJob],
+			session.query(models.AsyncJob).filter(
+				models.AsyncJob.status == AsyncJobStatusEnum.IN_PROGRESS
+			).order_by(
+				models.AsyncJob.queued_at.desc()
+			).all())
 
-	number_of_running_jobs = len(currently_running_jobs)
-	if number_of_running_jobs == available_job_number:
-		return [], None
+		number_of_running_jobs = len(currently_running_jobs)
+		if number_of_running_jobs == available_job_number:
+			return [], None
 
-	queued_jobs = cast(
-		List[models.AsyncJob],
-		session.query(models.AsyncJob).filter(
-			models.AsyncJob.status == AsyncJobStatusEnum.QUEUED
-		).filter(
-			cast(Callable, models.AsyncJob.is_deleted.isnot)(True)
-		).order_by(
-			models.AsyncJob.is_high_priority.desc()
-		).order_by(
-			models.AsyncJob.queued_at.asc()
-		).all())
+		queued_jobs = cast(
+			List[models.AsyncJob],
+			session.query(models.AsyncJob).filter(
+				models.AsyncJob.status == AsyncJobStatusEnum.QUEUED
+			).filter(
+				cast(Callable, models.AsyncJob.is_deleted.isnot)(True)
+			).order_by(
+				models.AsyncJob.is_high_priority.desc()
+			).order_by(
+				models.AsyncJob.queued_at.asc()
+			).all())
 
-	number_of_queued_jobs = len(queued_jobs)
-	number_of_jobs_available = available_job_number - number_of_running_jobs
-	starting_jobs = queued_jobs[:min(number_of_queued_jobs, number_of_jobs_available)]
+		number_of_queued_jobs = len(queued_jobs)
+		number_of_jobs_available = available_job_number - number_of_running_jobs
+		starting_jobs = queued_jobs[:min(number_of_queued_jobs, number_of_jobs_available)]
+		modified_ids = [job.id for job in starting_jobs]
 
-	for job in starting_jobs:
+		# Cfg and sendgrid_client need to be passed in too the thread function 
+		# or else the app instance is not recognized once a thread is spawned
+		for job in starting_jobs:
+			session.expire_on_commit=False
+			cfg.THREAD_POOL.submit(execute_job, session_maker, cfg, sendgrid_client, job)
+		return [job.id for job in starting_jobs], None
+	return [], None
 
+def execute_job(
+	session_maker: Callable,
+	cfg: Config,
+	sendgrid_client: sendgrid_util.Client,
+	job: models.AsyncJob,
+) -> Tuple[bool, errors.Error]:
+	with session_scope(session_maker) as session:
+		
 		job.status = AsyncJobStatusEnum.IN_PROGRESS
 		job.updated_at = date_util.now()
 		job.started_at = date_util.now()
-		session.commit()
 		payload = job.retry_payload if job.num_retries != 0 and job.retry_payload is not None else job.job_payload
 		payload = cast(Dict[str, Any], payload)
-		job_success, err_msg = ASYNC_JOB_ORCHESTRATION_LOOKUP[job.name](session, payload)
+
+		try:
+			job_success, err_msg = ASYNC_JOB_ORCHESTRATION_LOOKUP[job.name](session, cfg, sendgrid_client, payload)
+		except Exception as e:
+			try_catch_exception = e
 		if job_success:
 			job.status = AsyncJobStatusEnum.COMPLETED
 		else:
-			if job.num_retries >= max_failed_attempts:
+			if job.num_retries >= cfg.ASYNC_MAX_FAILED_ATTMEPTS:
 				job.status = AsyncJobStatusEnum.FAILED
+				slack_util.send_job_slack_message(job)
 			else:
 				job.status = AsyncJobStatusEnum.QUEUED
 				job.queued_at = date_util.now()
 			job.num_retries += 1
-			job.err_details = [str(err_msg)]
+			error_message = try_catch_exception if (try_catch_exception != None) else err_msg
+			job.err_details = [str(error_message)]
 
 		job.ended_at = date_util.now()
 		job.updated_at = date_util.now()
+		session.merge(job)
 		session.commit()
-		# slack_util.send_job_slack_message(job)
-	return [job.id for job in starting_jobs], None
+	return True, None
 
 @errors.return_error_tuple
 def create_job_summary(
@@ -223,13 +248,13 @@ def create_job_summary(
 @errors.return_error_tuple
 def loans_coming_due_job(
 	session: Session,
+	cfg: Config,
+	sendgrid_client: sendgrid_util.Client,
 	job_payload: Dict[str, Any],
 ) -> Tuple[bool, errors.Error]:
 	company_id = job_payload["company_id"]
 	if "company_id" not in job_payload:
 		return False, errors.Error("Company id does not exist in job payload")
-	cfg = cast(Config, current_app.app_config)
-	sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
 
 	report_link = cfg.BESPOKE_DOMAIN + "/1/reports"
 	payment_link = cfg.BESPOKE_DOMAIN + "/1/loans"
@@ -345,12 +370,12 @@ def generate_companies_loans_past_due_job(
 @errors.return_error_tuple
 def loans_past_due_job(
 	session: Session,
+	cfg: Config,
+	sendgrid_client: sendgrid_util.Client,
 	job_payload: Dict[str, Any],
 ) -> Tuple[bool, errors.Error]:
-	company_id = job_payload["company_id"]
-	cfg = cast(Config, current_app.app_config)
-	sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
 
+	company_id = job_payload["company_id"]
 	report_link = cfg.BESPOKE_DOMAIN + "/1/reports"
 	payment_link = cfg.BESPOKE_DOMAIN + "/1/loans"
 	today_date = date_util.now_as_date(date_util.DEFAULT_TIMEZONE)
@@ -397,6 +422,8 @@ def autogenerate_repayment_customers(
 
 def autogenerate_repayments(
 	session: Session,
+	cfg: Config,
+	sendgrid_client: sendgrid_util.Client,
 	job_payload: Dict[str, Any],
 ) -> Tuple[bool, errors.Error]:
 	"""
@@ -430,14 +457,12 @@ def autogenerate_repayments(
 	company_id = job_payload["company_id"]
 
 	logging.info(f"Autogenerating repayments for {company_id} that opted in")
-	cfg = cast(Config, current_app.app_config)
 	bot_user_id = cfg.BOT_USER_ID
 
 	product_types_with_autogenerate: List[str] = [
 		ProductType.DISPENSARY_FINANCING
 	]
 
-	sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
 	if sendgrid_client is None:
 		return False, errors.Error("Cannot find sendgrid client")
 
@@ -523,7 +548,7 @@ def autogenerate_repayments(
 				template_name = sendgrid_util.TemplateNames.ALERT_FOR_AUTO_GENERATED_REPAYMENTS,
 				template_data = template_data,
 				# TODO : change this to the contact user email once in prod
-				recipients = ["do-not-reply-development@bespokefinancial.com"],
+				recipients = ["grace@bespokefinancial.com"],
 				# recipients = [contact_user.email],
 				filter_out_contact_only = True,
 				attachment = None,
@@ -588,6 +613,8 @@ def autogenerate_repayment_alerts_customers(
 
 def autogenerate_repayment_alerts(
 	session: Session,
+	cfg: Config,
+	sendgrid_client: sendgrid_util.Client,
 	job_payload: Dict[str, Any],
 ) -> Tuple[bool, errors.Error]:
 	"""
@@ -615,14 +642,12 @@ def autogenerate_repayment_alerts(
 	"""
 	company_id = job_payload["company_id"]
 	logging.info(f"Autogenerating repayment alerts for customer {company_id} that opted in")
-	cfg = cast(Config, current_app.app_config)
 	bot_user_id = cfg.BOT_USER_ID
 
 	product_types_with_autogenerate: List[str] = [
 		ProductType.DISPENSARY_FINANCING
 	]
 
-	sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
 	if sendgrid_client is None:
 		return False, errors.Error("Cannot find sendgrid client")
 
@@ -709,7 +734,7 @@ def autogenerate_repayment_alerts(
 				template_name = sendgrid_util.TemplateNames.ALERT_FOR_WEEKLY_SCHEDULED_AUTO_GENERATED_REPAYMENTS,
 				template_data = template_data,
 				# TODO : change this to the contact user email once in prod
-				recipients = ["do-not-reply-development@bespokefinancial.com"],
+				recipients = ["grace@bespokefinancial.com"],
 				# recipients = [contact_user.email],
 				filter_out_contact_only = True,
 				attachment = None,
@@ -758,6 +783,8 @@ def update_company_balances_job(
 @errors.return_error_tuple
 def update_dirty_company_balances_job(
 	session: Session,
+	cfg: Config,
+	sendgrid_client: sendgrid_util.Client,
 	job_payload: Dict[str, Any],
 ) -> Tuple[bool, errors.Error]:
 	# before this was done for all companies at once now the update is going to be done for one company at a time
@@ -860,6 +887,8 @@ def reports_monthly_loan_summary_Non_LOC_generate(
 @errors.return_error_tuple
 def reports_monthly_loan_summary_Non_LOC(
 	session: Session,
+	cfg: Config,
+	sendgrid_client: sendgrid_util.Client,
 	job_payload: Dict[str, Any],
 ) -> Tuple[bool, errors.Error]:	
 	company_id = job_payload["company_id"]
@@ -868,8 +897,6 @@ def reports_monthly_loan_summary_Non_LOC(
 	as_of_date = job_payload["as_of_date"]
 	user_id = job_payload["user_id"]
 	print("Sending out monthly summary report emails for non-LOC customers")
-	cfg = cast(Config, current_app.app_config)
-	sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
 	if sendgrid_client is None:
 		return False, errors.Error('Cannot find sendgrid client')
 
@@ -1036,6 +1063,8 @@ def reports_monthly_loan_summary_LOC_generate(
 @errors.return_error_tuple
 def reports_monthly_loan_summary_LOC(
 	session: Session,
+	cfg: Config,
+	sendgrid_client: sendgrid_util.Client,
 	job_payload: Dict[str, Any],
 ) -> Tuple[bool, errors.Error]:	
 	company_id = job_payload["company_id"]
@@ -1045,8 +1074,6 @@ def reports_monthly_loan_summary_LOC(
 	user_id = job_payload["user_id"]
 
 	print("Sending out monthly summary report emails for LOC customers")
-	cfg = cast(Config, current_app.app_config)
-	sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
 	if sendgrid_client is None:
 		return False, errors.Error('Cannot find sendgrid client')
 
@@ -1151,11 +1178,11 @@ def automatic_debit_courtesy_alerts_generate_job(
 @errors.return_error_tuple
 def automatic_debit_courtesy_alerts_job(
 	session: Session,
+	cfg: Config,
+	sendgrid_client: sendgrid_util.Client,
 	job_payload: Dict[str, Any],
 ) -> Tuple[bool, errors.Error]:
 	logging.info("Sending out courtesy alert for automatic monthly debits")
-	cfg = cast(Config, current_app.app_config)
-	sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
 
 	today = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
 	company_id = job_payload["company_id"]

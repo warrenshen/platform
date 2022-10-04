@@ -395,7 +395,7 @@ class AsyncJobNameEnum(object):
 	UPDATE_COMPANY_BALANCES="update_company_balances"
 	AUTOMATIC_DEBIT_COURTESY_ALERTS="automatic_debit_courtesy_alerts"
 	NON_LOC_MONTHLY_REPORT_SUMMARY="non_loc_monthly_report_summary"
-	LOC_MONTHLY_REPORT_SUMMARY = "loc_monthly_report_summary"
+	LOC_MONTHLY_REPORT_SUMMARY="loc_monthly_report_summary"
 
 AsyncJobNameEnumToLabel = {
 	AsyncJobNameEnum.LOANS_COMING_DUE: 'Loans coming due',
