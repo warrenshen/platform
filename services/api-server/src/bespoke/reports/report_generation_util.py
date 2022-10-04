@@ -706,9 +706,7 @@ def process_loan_chunk_for_non_loc_monthly_summary(
 				_, err = sendgrid_client.send(
 					template_name=sendgrid_util.TemplateNames.REPORT_MONTHLY_SUMMARY_NON_LOC,
 					template_data=template_data,
-					# TODO: change this back for prod
-					recipients=["do-not-reply-development@bespokefinancial.com"],
-					# recipients=[contact_user.email],
+					recipients=[contact_user.email],
 					filter_out_contact_only=True,
 					attachment=attached_report,
 					cc_recipients=[config.NO_REPLY_EMAIL_ADDRESS]
