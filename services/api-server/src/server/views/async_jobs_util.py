@@ -991,6 +991,7 @@ def reports_monthly_loan_summary_Non_LOC(
 			"user_id": str(user.id)
 		}
 		report_generation_util.record_report_run_metadata(
+			session = session,
 			name = "monthly_summary_live_run",
 			status = "succeeded",
 			internal_state = recorded_state,
@@ -1145,6 +1146,7 @@ def reports_monthly_loan_summary_LOC(
 			"user_id": str(user.id)
 		}
 		report_generation_util.record_report_run_metadata(
+			session = session,
 			name = "monthly_summary_live_run",
 			status = "succeeded",
 			internal_state = recorded_state,

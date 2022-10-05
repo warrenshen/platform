@@ -1027,6 +1027,7 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 					"user_id": str(user.id)
 				}
 				record_report_run_metadata(
+					session = session,
 					name = "monthly_summary_live_run",
 					status = "succeeded",
 					internal_state = recorded_state,
@@ -1535,6 +1536,7 @@ class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 					"user_id": str(user.id)
 				}
 				record_report_run_metadata(
+					session = session,
 					name = "monthly_summary_live_run",
 					status = "succeeded",
 					internal_state = recorded_state,
