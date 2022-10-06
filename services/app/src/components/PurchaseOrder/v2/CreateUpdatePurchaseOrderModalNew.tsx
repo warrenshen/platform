@@ -1,9 +1,14 @@
 import { Box, Button, Typography } from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
 import PurchaseOrderFormManualNew from "components/PurchaseOrder/v2/PurchaseOrderFormManualNew";
 import PurchaseOrderFormMetrcNew from "components/PurchaseOrder/v2/PurchaseOrderFormMetrcNew";
 import MetrcLogo from "components/Shared/Images/MetrcLogo.png";
 import { ReactComponent as KeyboardIcon } from "components/Shared/Layout/Icons/Keyboard.svg";
 import Modal from "components/Shared/Modal/Modal";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
 import {
   Companies,
   Files,
@@ -31,7 +36,7 @@ import {
 } from "lib/enum";
 import { isPurchaseOrderDueDateValid } from "lib/purchaseOrders";
 import { isNull, mergeWith, uniqBy } from "lodash";
-import { useMemo, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import styled from "styled-components";
 
 const Buttons = styled.div`
@@ -82,6 +87,11 @@ export default function CreateUpdatePurchaseOrderModalNew({
   const snackbar = useSnackbar();
 
   const isActionTypeUpdate = actionType === ActionType.Update;
+
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
+  const isBankUser = isRoleBankUser(role);
 
   // Default PurchaseOrder for CREATE case.
   const newPurchaseOrder: PurchaseOrdersInsertInput = {
@@ -557,6 +567,18 @@ export default function CreateUpdatePurchaseOrderModalNew({
             </Banner>
           </Box>
         ))}
+      {isBankUser && (
+        <Box mt={2} mb={6}>
+          <Alert severity="warning" style={{ alignItems: "center " }}>
+            <Typography variant="body1">
+              {`Warning: you are ${
+                isActionTypeUpdate ? "editing" : "creating"
+              } a purchase order on behalf of this
+                customer (only bank admins can do this).`}
+            </Typography>
+          </Alert>
+        </Box>
+      )}
       {isMetrcEnabled ? (
         isMetrcBased !== null &&
         (!!isMetrcBased ? (
