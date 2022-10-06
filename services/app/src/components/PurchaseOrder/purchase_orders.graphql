@@ -295,3 +295,22 @@ query GetVendorReviewablePurchaseOrders($vendor_id: uuid!) {
     ...PurchaseOrderLimitedNew
   }
 }
+
+query GetPurchaseOrdersChangesRequestedCountForCustomer($company_id: uuid!) {
+  purchase_orders(
+    where: {
+      _and: [
+        { company_id: { _eq: $company_id } }
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { new_purchase_order_status: { _in: ["changes_requested_by_vendor", "changes_requested_by_bespoke"] } }
+      ]
+    }
+  ) {
+    id
+  }
+}

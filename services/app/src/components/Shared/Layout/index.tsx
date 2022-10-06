@@ -30,6 +30,7 @@ import {
   useGetLoansCountForBankSubscription,
   useGetOpenLoansByDebtFacilityStatusesSubscription,
   useGetPartnershipRequestsCountForBankSubscription,
+  useGetPurchaseOrdersChangesRequestedCountForCustomerQuery,
   useGetRepaymentsCountForBankSubscription,
 } from "generated/graphql";
 import {
@@ -120,7 +121,8 @@ const getCustomerNavItems = (
   productType: ProductTypeEnum | null,
   financialCertificationsMissingCount: number,
   isLatestBorrowingBaseMissing: boolean,
-  isMetrcBased: boolean
+  isMetrcBased: boolean,
+  purchaseOrdersChangesRequestedCount: number
 ): NavItem[] => {
   const environment = process.env.REACT_APP_BESPOKE_ENVIRONMENT;
 
@@ -157,6 +159,8 @@ const getCustomerNavItems = (
       iconNode: PurchaseOrdersIcon,
       text: "Purchase Orders New",
       link: customerRoutes.purchaseOrdersNew,
+      counterColor: "rgb(230, 126, 34)",
+      counter: purchaseOrdersChangesRequestedCount,
     },
     {
       dataCy: "invoices",
@@ -428,6 +432,14 @@ export default function Layout({
       },
     });
 
+  const { data: purchaseOrdersChangesRequestedCountData } =
+    useGetPurchaseOrdersChangesRequestedCountForCustomerQuery({
+      skip: !companyId,
+      variables: {
+        company_id: companyId,
+      },
+    });
+
   const loansCount = loansCountData?.loans?.length || 0;
   const repaymentsCount = repaymentsCountData?.payments?.length || 0;
   const ebbaApplicationsCount =
@@ -436,6 +448,8 @@ export default function Layout({
     partnershipRequestsCountData?.company_partnership_requests?.length || 0;
   const debtFacilityUpdateCount =
     debtFacilityUpdateCountData?.loans?.length || 0;
+  const purchaseOrdersChangesRequestedCount =
+    purchaseOrdersChangesRequestedCountData?.purchase_orders?.length || 0;
 
   const { missingFinancialReportCount, isLatestBorrowingBaseMissing } =
     useGetMissingReportsInfo(companyId);
@@ -469,7 +483,8 @@ export default function Layout({
         productType,
         missingFinancialReportCount,
         isLatestBorrowingBaseMissing,
-        isMetrcBased
+        isMetrcBased,
+        purchaseOrdersChangesRequestedCount
       );
 
   return (

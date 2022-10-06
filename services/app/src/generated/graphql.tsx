@@ -86,6 +86,170 @@ export type StringComparisonExp = {
   _similar?: Maybe<Scalars["String"]>;
 };
 
+/** columns and relationships of "async_job_summaries" */
+export type AsyncJobSummaries = {
+  created_at: Scalars["timestamptz"];
+  date: Scalars["date"];
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  id: Scalars["uuid"];
+  metadata_info: Scalars["json"];
+  name: Scalars["String"];
+  updated_at: Scalars["timestamptz"];
+};
+
+/** columns and relationships of "async_job_summaries" */
+export type AsyncJobSummariesMetadataInfoArgs = {
+  path?: Maybe<Scalars["String"]>;
+};
+
+/** aggregated selection of "async_job_summaries" */
+export type AsyncJobSummariesAggregate = {
+  aggregate?: Maybe<AsyncJobSummariesAggregateFields>;
+  nodes: Array<AsyncJobSummaries>;
+};
+
+/** aggregate fields of "async_job_summaries" */
+export type AsyncJobSummariesAggregateFields = {
+  count: Scalars["Int"];
+  max?: Maybe<AsyncJobSummariesMaxFields>;
+  min?: Maybe<AsyncJobSummariesMinFields>;
+};
+
+/** aggregate fields of "async_job_summaries" */
+export type AsyncJobSummariesAggregateFieldsCountArgs = {
+  columns?: Maybe<Array<AsyncJobSummariesSelectColumn>>;
+  distinct?: Maybe<Scalars["Boolean"]>;
+};
+
+/** Boolean expression to filter rows from the table "async_job_summaries". All fields are combined with a logical 'AND'. */
+export type AsyncJobSummariesBoolExp = {
+  _and?: Maybe<Array<AsyncJobSummariesBoolExp>>;
+  _not?: Maybe<AsyncJobSummariesBoolExp>;
+  _or?: Maybe<Array<AsyncJobSummariesBoolExp>>;
+  created_at?: Maybe<TimestamptzComparisonExp>;
+  date?: Maybe<DateComparisonExp>;
+  deleted_at?: Maybe<TimestamptzComparisonExp>;
+  id?: Maybe<UuidComparisonExp>;
+  metadata_info?: Maybe<JsonComparisonExp>;
+  name?: Maybe<StringComparisonExp>;
+  updated_at?: Maybe<TimestamptzComparisonExp>;
+};
+
+/** unique or primary key constraints on table "async_job_summaries" */
+export enum AsyncJobSummariesConstraint {
+  /** unique or primary key constraint */
+  AsyncJobSummariesPkey = "async_job_summaries_pkey",
+}
+
+/** input type for inserting data into table "async_job_summaries" */
+export type AsyncJobSummariesInsertInput = {
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  date?: Maybe<Scalars["date"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  metadata_info?: Maybe<Scalars["json"]>;
+  name?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** aggregate max on columns */
+export type AsyncJobSummariesMaxFields = {
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  date?: Maybe<Scalars["date"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  name?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** aggregate min on columns */
+export type AsyncJobSummariesMinFields = {
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  date?: Maybe<Scalars["date"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  name?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** response of any mutation on the table "async_job_summaries" */
+export type AsyncJobSummariesMutationResponse = {
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars["Int"];
+  /** data from the rows affected by the mutation */
+  returning: Array<AsyncJobSummaries>;
+};
+
+/** on_conflict condition type for table "async_job_summaries" */
+export type AsyncJobSummariesOnConflict = {
+  constraint: AsyncJobSummariesConstraint;
+  update_columns?: Array<AsyncJobSummariesUpdateColumn>;
+  where?: Maybe<AsyncJobSummariesBoolExp>;
+};
+
+/** Ordering options when selecting data from "async_job_summaries". */
+export type AsyncJobSummariesOrderBy = {
+  created_at?: Maybe<OrderBy>;
+  date?: Maybe<OrderBy>;
+  deleted_at?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  metadata_info?: Maybe<OrderBy>;
+  name?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
+};
+
+/** primary key columns input for table: async_job_summaries */
+export type AsyncJobSummariesPkColumnsInput = {
+  id: Scalars["uuid"];
+};
+
+/** select columns of table "async_job_summaries" */
+export enum AsyncJobSummariesSelectColumn {
+  /** column name */
+  CreatedAt = "created_at",
+  /** column name */
+  Date = "date",
+  /** column name */
+  DeletedAt = "deleted_at",
+  /** column name */
+  Id = "id",
+  /** column name */
+  MetadataInfo = "metadata_info",
+  /** column name */
+  Name = "name",
+  /** column name */
+  UpdatedAt = "updated_at",
+}
+
+/** input type for updating data in table "async_job_summaries" */
+export type AsyncJobSummariesSetInput = {
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  date?: Maybe<Scalars["date"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  metadata_info?: Maybe<Scalars["json"]>;
+  name?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** update columns of table "async_job_summaries" */
+export enum AsyncJobSummariesUpdateColumn {
+  /** column name */
+  CreatedAt = "created_at",
+  /** column name */
+  Date = "date",
+  /** column name */
+  DeletedAt = "deleted_at",
+  /** column name */
+  Id = "id",
+  /** column name */
+  MetadataInfo = "metadata_info",
+  /** column name */
+  Name = "name",
+  /** column name */
+  UpdatedAt = "updated_at",
+}
+
 /** columns and relationships of "async_jobs" */
 export type AsyncJobs = {
   created_at: Scalars["timestamptz"];
@@ -16682,7 +16846,7 @@ export type MonthlySummaryCalculations = {
   company: Companies;
   company_id: Scalars["uuid"];
   id: Scalars["uuid"];
-  minimum_payment: Scalars["numeric"];
+  minimum_payment?: Maybe<Scalars["numeric"]>;
   report_month: Scalars["date"];
 };
 
@@ -16942,6 +17106,10 @@ export type MonthlySummaryCalculationsVarianceOrderBy = {
 
 /** mutation root */
 export type MutationRoot = {
+  /** delete data from the table: "async_job_summaries" */
+  delete_async_job_summaries?: Maybe<AsyncJobSummariesMutationResponse>;
+  /** delete single row from the table: "async_job_summaries" */
+  delete_async_job_summaries_by_pk?: Maybe<AsyncJobSummaries>;
   /** delete data from the table: "async_jobs" */
   delete_async_jobs?: Maybe<AsyncJobsMutationResponse>;
   /** delete single row from the table: "async_jobs" */
@@ -17202,6 +17370,10 @@ export type MutationRoot = {
   delete_vendor_change_requests_by_pk?: Maybe<VendorChangeRequests>;
   /** delete data from the table: "vendors" */
   delete_vendors?: Maybe<VendorsMutationResponse>;
+  /** insert data into the table: "async_job_summaries" */
+  insert_async_job_summaries?: Maybe<AsyncJobSummariesMutationResponse>;
+  /** insert a single row into the table: "async_job_summaries" */
+  insert_async_job_summaries_one?: Maybe<AsyncJobSummaries>;
   /** insert data into the table: "async_jobs" */
   insert_async_jobs?: Maybe<AsyncJobsMutationResponse>;
   /** insert a single row into the table: "async_jobs" */
@@ -17466,6 +17638,10 @@ export type MutationRoot = {
   insert_vendors?: Maybe<VendorsMutationResponse>;
   /** insert a single row into the table: "vendors" */
   insert_vendors_one?: Maybe<Vendors>;
+  /** update data of the table: "async_job_summaries" */
+  update_async_job_summaries?: Maybe<AsyncJobSummariesMutationResponse>;
+  /** update single row of the table: "async_job_summaries" */
+  update_async_job_summaries_by_pk?: Maybe<AsyncJobSummaries>;
   /** update data of the table: "async_jobs" */
   update_async_jobs?: Maybe<AsyncJobsMutationResponse>;
   /** update single row of the table: "async_jobs" */
@@ -17726,6 +17902,16 @@ export type MutationRoot = {
   update_vendor_change_requests_by_pk?: Maybe<VendorChangeRequests>;
   /** update data of the table: "vendors" */
   update_vendors?: Maybe<VendorsMutationResponse>;
+};
+
+/** mutation root */
+export type MutationRootDeleteAsyncJobSummariesArgs = {
+  where: AsyncJobSummariesBoolExp;
+};
+
+/** mutation root */
+export type MutationRootDeleteAsyncJobSummariesByPkArgs = {
+  id: Scalars["uuid"];
 };
 
 /** mutation root */
@@ -18379,6 +18565,18 @@ export type MutationRootDeleteVendorChangeRequestsByPkArgs = {
 /** mutation root */
 export type MutationRootDeleteVendorsArgs = {
   where: VendorsBoolExp;
+};
+
+/** mutation root */
+export type MutationRootInsertAsyncJobSummariesArgs = {
+  objects: Array<AsyncJobSummariesInsertInput>;
+  on_conflict?: Maybe<AsyncJobSummariesOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertAsyncJobSummariesOneArgs = {
+  object: AsyncJobSummariesInsertInput;
+  on_conflict?: Maybe<AsyncJobSummariesOnConflict>;
 };
 
 /** mutation root */
@@ -19167,6 +19365,18 @@ export type MutationRootInsertVendorsArgs = {
 /** mutation root */
 export type MutationRootInsertVendorsOneArgs = {
   object: VendorsInsertInput;
+};
+
+/** mutation root */
+export type MutationRootUpdateAsyncJobSummariesArgs = {
+  _set?: Maybe<AsyncJobSummariesSetInput>;
+  where: AsyncJobSummariesBoolExp;
+};
+
+/** mutation root */
+export type MutationRootUpdateAsyncJobSummariesByPkArgs = {
+  _set?: Maybe<AsyncJobSummariesSetInput>;
+  pk_columns: AsyncJobSummariesPkColumnsInput;
 };
 
 /** mutation root */
@@ -21933,7 +22143,6 @@ export type PurchaseOrders = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
-  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   /** An object relationship */
@@ -22138,7 +22347,6 @@ export type PurchaseOrdersBoolExp = {
   all_customer_notes?: Maybe<JsonComparisonExp>;
   amount?: Maybe<NumericComparisonExp>;
   amount_funded?: Maybe<NumericComparisonExp>;
-  amount_updated_at?: Maybe<TimestamptzComparisonExp>;
   approved_at?: Maybe<TimestamptzComparisonExp>;
   approved_by_user_id?: Maybe<UuidComparisonExp>;
   approving_user_id?: Maybe<UsersBoolExp>;
@@ -22212,7 +22420,6 @@ export type PurchaseOrdersInsertInput = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
-  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   approving_user_id?: Maybe<UsersObjRelInsertInput>;
@@ -22261,7 +22468,6 @@ export type PurchaseOrdersMaxFields = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
-  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -22296,7 +22502,6 @@ export type PurchaseOrdersMaxOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
-  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   bank_incomplete_note?: Maybe<OrderBy>;
@@ -22331,7 +22536,6 @@ export type PurchaseOrdersMinFields = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
-  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -22366,7 +22570,6 @@ export type PurchaseOrdersMinOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
-  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   bank_incomplete_note?: Maybe<OrderBy>;
@@ -22424,7 +22627,6 @@ export type PurchaseOrdersOrderBy = {
   all_customer_notes?: Maybe<OrderBy>;
   amount?: Maybe<OrderBy>;
   amount_funded?: Maybe<OrderBy>;
-  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   approving_user_id?: Maybe<UsersOrderBy>;
@@ -22482,8 +22684,6 @@ export enum PurchaseOrdersSelectColumn {
   Amount = "amount",
   /** column name */
   AmountFunded = "amount_funded",
-  /** column name */
-  AmountUpdatedAt = "amount_updated_at",
   /** column name */
   ApprovedAt = "approved_at",
   /** column name */
@@ -22549,7 +22749,6 @@ export type PurchaseOrdersSetInput = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
-  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -22661,8 +22860,6 @@ export enum PurchaseOrdersUpdateColumn {
   /** column name */
   AmountFunded = "amount_funded",
   /** column name */
-  AmountUpdatedAt = "amount_updated_at",
-  /** column name */
   ApprovedAt = "approved_at",
   /** column name */
   ApprovedByUserId = "approved_by_user_id",
@@ -22769,6 +22966,12 @@ export type PurchaseOrdersVarianceOrderBy = {
 };
 
 export type QueryRoot = {
+  /** fetch data from the table: "async_job_summaries" */
+  async_job_summaries: Array<AsyncJobSummaries>;
+  /** fetch aggregated fields from the table: "async_job_summaries" */
+  async_job_summaries_aggregate: AsyncJobSummariesAggregate;
+  /** fetch data from the table: "async_job_summaries" using primary key columns */
+  async_job_summaries_by_pk?: Maybe<AsyncJobSummaries>;
   /** fetch data from the table: "async_jobs" */
   async_jobs: Array<AsyncJobs>;
   /** fetch aggregated fields from the table: "async_jobs" */
@@ -23161,6 +23364,26 @@ export type QueryRoot = {
   vendors: Array<Vendors>;
   /** fetch aggregated fields from the table: "vendors" */
   vendors_aggregate: VendorsAggregate;
+};
+
+export type QueryRootAsyncJobSummariesArgs = {
+  distinct_on?: Maybe<Array<AsyncJobSummariesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<AsyncJobSummariesOrderBy>>;
+  where?: Maybe<AsyncJobSummariesBoolExp>;
+};
+
+export type QueryRootAsyncJobSummariesAggregateArgs = {
+  distinct_on?: Maybe<Array<AsyncJobSummariesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<AsyncJobSummariesOrderBy>>;
+  where?: Maybe<AsyncJobSummariesBoolExp>;
+};
+
+export type QueryRootAsyncJobSummariesByPkArgs = {
+  id: Scalars["uuid"];
 };
 
 export type QueryRootAsyncJobsArgs = {
@@ -24735,6 +24958,12 @@ export enum RevokedTokensUpdateColumn {
 }
 
 export type SubscriptionRoot = {
+  /** fetch data from the table: "async_job_summaries" */
+  async_job_summaries: Array<AsyncJobSummaries>;
+  /** fetch aggregated fields from the table: "async_job_summaries" */
+  async_job_summaries_aggregate: AsyncJobSummariesAggregate;
+  /** fetch data from the table: "async_job_summaries" using primary key columns */
+  async_job_summaries_by_pk?: Maybe<AsyncJobSummaries>;
   /** fetch data from the table: "async_jobs" */
   async_jobs: Array<AsyncJobs>;
   /** fetch aggregated fields from the table: "async_jobs" */
@@ -25127,6 +25356,26 @@ export type SubscriptionRoot = {
   vendors: Array<Vendors>;
   /** fetch aggregated fields from the table: "vendors" */
   vendors_aggregate: VendorsAggregate;
+};
+
+export type SubscriptionRootAsyncJobSummariesArgs = {
+  distinct_on?: Maybe<Array<AsyncJobSummariesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<AsyncJobSummariesOrderBy>>;
+  where?: Maybe<AsyncJobSummariesBoolExp>;
+};
+
+export type SubscriptionRootAsyncJobSummariesAggregateArgs = {
+  distinct_on?: Maybe<Array<AsyncJobSummariesSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<AsyncJobSummariesOrderBy>>;
+  where?: Maybe<AsyncJobSummariesBoolExp>;
+};
+
+export type SubscriptionRootAsyncJobSummariesByPkArgs = {
+  id: Scalars["uuid"];
 };
 
 export type SubscriptionRootAsyncJobsArgs = {
@@ -29698,6 +29947,15 @@ export type GetVendorReviewablePurchaseOrdersQueryVariables = Exact<{
 
 export type GetVendorReviewablePurchaseOrdersQuery = {
   purchase_orders: Array<PurchaseOrderLimitedNewFragment>;
+};
+
+export type GetPurchaseOrdersChangesRequestedCountForCustomerQueryVariables =
+  Exact<{
+    company_id: Scalars["uuid"];
+  }>;
+
+export type GetPurchaseOrdersChangesRequestedCountForCustomerQuery = {
+  purchase_orders: Array<Pick<PurchaseOrders, "id">>;
 };
 
 export type GetPaymentQueryVariables = Exact<{
@@ -40363,6 +40621,83 @@ export type GetVendorReviewablePurchaseOrdersQueryResult = Apollo.QueryResult<
   GetVendorReviewablePurchaseOrdersQuery,
   GetVendorReviewablePurchaseOrdersQueryVariables
 >;
+export const GetPurchaseOrdersChangesRequestedCountForCustomerDocument = gql`
+  query GetPurchaseOrdersChangesRequestedCountForCustomer($company_id: uuid!) {
+    purchase_orders(
+      where: {
+        _and: [
+          { company_id: { _eq: $company_id } }
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          {
+            new_purchase_order_status: {
+              _in: [
+                "changes_requested_by_vendor"
+                "changes_requested_by_bespoke"
+              ]
+            }
+          }
+        ]
+      }
+    ) {
+      id
+    }
+  }
+`;
+
+/**
+ * __useGetPurchaseOrdersChangesRequestedCountForCustomerQuery__
+ *
+ * To run a query within a React component, call `useGetPurchaseOrdersChangesRequestedCountForCustomerQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPurchaseOrdersChangesRequestedCountForCustomerQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPurchaseOrdersChangesRequestedCountForCustomerQuery({
+ *   variables: {
+ *      company_id: // value for 'company_id'
+ *   },
+ * });
+ */
+export function useGetPurchaseOrdersChangesRequestedCountForCustomerQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetPurchaseOrdersChangesRequestedCountForCustomerQuery,
+    GetPurchaseOrdersChangesRequestedCountForCustomerQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetPurchaseOrdersChangesRequestedCountForCustomerQuery,
+    GetPurchaseOrdersChangesRequestedCountForCustomerQueryVariables
+  >(GetPurchaseOrdersChangesRequestedCountForCustomerDocument, baseOptions);
+}
+export function useGetPurchaseOrdersChangesRequestedCountForCustomerLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetPurchaseOrdersChangesRequestedCountForCustomerQuery,
+    GetPurchaseOrdersChangesRequestedCountForCustomerQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetPurchaseOrdersChangesRequestedCountForCustomerQuery,
+    GetPurchaseOrdersChangesRequestedCountForCustomerQueryVariables
+  >(GetPurchaseOrdersChangesRequestedCountForCustomerDocument, baseOptions);
+}
+export type GetPurchaseOrdersChangesRequestedCountForCustomerQueryHookResult =
+  ReturnType<typeof useGetPurchaseOrdersChangesRequestedCountForCustomerQuery>;
+export type GetPurchaseOrdersChangesRequestedCountForCustomerLazyQueryHookResult =
+  ReturnType<
+    typeof useGetPurchaseOrdersChangesRequestedCountForCustomerLazyQuery
+  >;
+export type GetPurchaseOrdersChangesRequestedCountForCustomerQueryResult =
+  Apollo.QueryResult<
+    GetPurchaseOrdersChangesRequestedCountForCustomerQuery,
+    GetPurchaseOrdersChangesRequestedCountForCustomerQueryVariables
+  >;
 export const GetPaymentDocument = gql`
   query GetPayment($id: uuid!) {
     payments_by_pk(id: $id) {

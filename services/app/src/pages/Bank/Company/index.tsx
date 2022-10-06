@@ -17,6 +17,7 @@ import {
   useGetCompanyForBankCompanyPageQuery,
   useGetCompanySettingsByCompanyIdForCustomerQuery,
   useGetMostRecentFinancialSummaryAndContractByCompanyIdQuery,
+  useGetPurchaseOrdersChangesRequestedCountForCustomerQuery,
 } from "generated/graphql";
 import {
   FeatureFlagEnum,
@@ -180,7 +181,8 @@ const getCustomerPaths = (
   productType: ProductTypeEnum | null,
   isActiveContract: boolean,
   isMetrcBased: boolean,
-  isBankUser: boolean
+  isBankUser: boolean,
+  purchaseOrdersChangesRequestedCount: number
 ) => {
   const environment = process.env.REACT_APP_BESPOKE_ENVIRONMENT;
 
@@ -220,6 +222,8 @@ const getCustomerPaths = (
           dataCy: "customer-purchase-orders-new",
           label: "Purchase Orders New",
           path: bankRoutes.company.purchaseOrdersNew,
+          counter: purchaseOrdersChangesRequestedCount,
+          counterColor: "rgb(230, 126, 34)",
           component: BankCustomerPurchaseOrdersSubpageNew,
         },
         {
@@ -400,6 +404,14 @@ export default function BankCompanyPage() {
       },
     });
 
+  const { data: purchaseOrdersChangesRequestedCountData } =
+    useGetPurchaseOrdersChangesRequestedCountForCustomerQuery({
+      skip: !companyId,
+      variables: {
+        company_id: companyId,
+      },
+    });
+
   const featureFlags =
     companySettingsData?.company_settings?.[0]?.feature_flags_payload || {};
   const isMetrcBased =
@@ -408,6 +420,8 @@ export default function BankCompanyPage() {
       ? featureFlags[FeatureFlagEnum.ReportingRequirementsCategory] ===
         ReportingRequirementsCategoryEnum.Four
       : false;
+  const purchaseOrdersChangesRequestedCount =
+    purchaseOrdersChangesRequestedCountData?.purchase_orders?.length || 0;
 
   const renderSurveillanceStatus = () => {
     if (!surveillanceStatus) {
@@ -444,7 +458,8 @@ export default function BankCompanyPage() {
               productType,
               isActiveContract,
               isMetrcBased,
-              isRoleBankUser(role)
+              isRoleBankUser(role),
+              purchaseOrdersChangesRequestedCount
             )
               .filter(
                 (section) => section.visible == null || !!section?.visible
@@ -521,7 +536,8 @@ export default function BankCompanyPage() {
               productType,
               isActiveContract,
               isMetrcBased,
-              isRoleBankUser(role)
+              isRoleBankUser(role),
+              purchaseOrdersChangesRequestedCount
             ).map((section) => section.paths)
           ).map((companyPath) => (
             <PrivateRoute
