@@ -98,11 +98,15 @@ export default function KickoffMonthlySummaryEmailsModal({
 
     if (nonLOCResponse.status !== "OK" || locResponse.status !== "OK") {
       snackbar.showError(
-        `Could not send out test emails! Error: ${errorMessage}`
+        `Could not send out ${
+          isTestRun ? "test" : "live"
+        } emails! Error: ${errorMessage}`
       );
     } else {
       snackbar.showSuccess(
-        "Test emails successfully sent out. Please check your inbox."
+        `${
+          isTestRun ? "Test" : "Live"
+        } emails successfully sent out. Please check your inbox.`
       );
       handleClose();
     }

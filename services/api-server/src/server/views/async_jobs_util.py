@@ -150,6 +150,7 @@ def kick_off_handler(
 	sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
 
 	with session_scope(session_maker) as session:
+		session.expire_on_commit=False
 		currently_running_jobs = cast(
 			List[models.AsyncJob],
 			session.query(models.AsyncJob).filter(
@@ -182,7 +183,10 @@ def kick_off_handler(
 		# Cfg and sendgrid_client need to be passed in too the thread function 
 		# or else the app instance is not recognized once a thread is spawned
 		for job in starting_jobs:
-			session.expire_on_commit=False
+			job.status = AsyncJobStatusEnum.IN_PROGRESS
+			job.updated_at = date_util.now()
+			job.started_at = date_util.now()
+			session.commit()
 			cfg.THREAD_POOL.submit(execute_job, session_maker, cfg, sendgrid_client, job)
 		return [job.id for job in starting_jobs], None
 	return [], None
@@ -195,9 +199,6 @@ def execute_job(
 ) -> Tuple[bool, errors.Error]:
 	with session_scope(session_maker) as session:
 		
-		job.status = AsyncJobStatusEnum.IN_PROGRESS
-		job.updated_at = date_util.now()
-		job.started_at = date_util.now()
 		payload = job.retry_payload if job.num_retries != 0 and job.retry_payload is not None else job.job_payload
 		payload = cast(Dict[str, Any], payload)
 
