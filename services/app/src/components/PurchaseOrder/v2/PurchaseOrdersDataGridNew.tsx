@@ -1,7 +1,7 @@
 import { Box, Button, Tooltip, Typography } from "@material-ui/core";
 import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import CommentIcon from "@material-ui/icons/Comment";
-import PurchaseOrderDrawer from "components/PurchaseOrder/PurchaseOrderDrawer";
+import BankPurchaseOrderDrawer from "components/PurchaseOrder/v2/BankPurchaseOrderDrawer";
 import PurchaseOrderStatusChip from "components/Shared/Chip/PurchaseOrderStatusChip";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import DataGridActionMenu, {
@@ -30,8 +30,6 @@ import { CurrencyPrecision, formatCurrency } from "lib/number";
 import { computePurchaseOrderDueDateDateStringClientNew } from "lib/purchaseOrders";
 import { ColumnWidths, formatRowModel, truncateString } from "lib/tables";
 import { useContext, useMemo, useState } from "react";
-
-import BankPurchaseOrderDrawer from "./BankPurchaseOrderDrawer";
 
 const getProperNote = (purchaseOrder: PurchaseOrderFragment) => {
   if (purchaseOrder?.status === RequestStatusEnum.Rejected) {
@@ -117,31 +115,26 @@ export default function PurchaseOrdersDataGridNew({
         dataField: "order_number",
         caption: "PO Number",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) =>
-          true ? (
-            <Box display="flex" alignItems="center">
-              <ClickableDataGridCell
-                onClick={() => setSelectedPurchaseOrderId(params.row.data.id)}
-                label={params.row.data.order_number}
-              />
-              {params.row.data?.is_metrc_based && (
-                <Tooltip
-                  arrow
-                  interactive
-                  title={"Purchase order created from Metrc manifest"}
-                >
-                  <img
-                    src={MetrcLogo}
-                    alt="Metrc Logo"
-                    width={24}
-                    height={24}
-                  />
-                </Tooltip>
-              )}
-            </Box>
-          ) : (
-            <div></div>
-          ),
+        cellRender: (params: ValueFormatterParams) => (
+          <Box display="flex" alignItems="center">
+            <ClickableDataGridCell
+              onClick={() => {
+                console.log("SELECTED:", params.row.data.id);
+                setSelectedPurchaseOrderId(params.row.data.id);
+              }}
+              label={params.row.data.order_number}
+            />
+            {params.row.data?.is_metrc_based && (
+              <Tooltip
+                arrow
+                interactive
+                title={"Purchase order created from Metrc manifest"}
+              >
+                <img src={MetrcLogo} alt="Metrc Logo" width={24} height={24} />
+              </Tooltip>
+            )}
+          </Box>
+        ),
       },
       {
         dataField: "action",
@@ -207,7 +200,7 @@ export default function PurchaseOrdersDataGridNew({
       },
       {
         dataField: "requested_at",
-        caption: "Date Submitted",
+        caption: "Date Submitted to Vendor",
         width: ColumnWidths.Date,
         alignment: "center",
         format: "shortDate",
@@ -321,10 +314,6 @@ export default function PurchaseOrdersDataGridNew({
     [handleSelectPurchaseOrders]
   );
 
-  const showBankPurchaseOrderDrawer = !!selectedPurchaseOrderId && isBankUser;
-  const showCustomerPurchaseOrderDrawer =
-    !!selectedPurchaseOrderId && !isBankUser;
-
   return (
     <Box
       data-cy={dataCy}
@@ -332,15 +321,10 @@ export default function PurchaseOrdersDataGridNew({
       flexDirection="column"
       className="purchase-orders-data-grid-new"
     >
-      {showBankPurchaseOrderDrawer && (
+      {!!selectedPurchaseOrderId && (
         <BankPurchaseOrderDrawer
           purchaseOrderId={selectedPurchaseOrderId}
-          handleClose={() => setSelectedPurchaseOrderId(null)}
-        />
-      )}
-      {showCustomerPurchaseOrderDrawer && (
-        <PurchaseOrderDrawer
-          purchaseOrderId={selectedPurchaseOrderId}
+          isBankUser={isBankUser}
           handleClose={() => setSelectedPurchaseOrderId(null)}
         />
       )}

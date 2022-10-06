@@ -79,7 +79,7 @@ function ReviewPurchaseOrderRejectModalNew({
   const isSubmitDisabled = !rejectionNote || isRejectPurchaseOrderLoading;
 
   return (
-    <ModalDialog title={"Record Rejection Reason"} handleClose={handleClose}>
+    <ModalDialog title={"Reject Completely"} handleClose={handleClose}>
       <DialogContent>
         <Text textVariant={TextVariants.Paragraph} color={SecondaryTextColor}>
           Please enter in a reason for your rejection of the Purchase Order.

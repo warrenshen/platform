@@ -36,17 +36,22 @@ const PurchaseOrderTabMap: {
 
 interface Props {
   purchaseOrderId: PurchaseOrders["id"];
+  isBankUser: boolean;
   handleClose: () => void;
 }
 
-const BankPurchaseOrderDrawer = ({ purchaseOrderId, handleClose }: Props) => {
+const BankPurchaseOrderDrawer = ({
+  purchaseOrderId,
+  isBankUser,
+  handleClose,
+}: Props) => {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
   const { data } = useGetPurchaseOrderForCombinedQuery({
     fetchPolicy: "network-only",
     variables: {
       id: purchaseOrderId,
-      is_bank_user: true,
+      is_bank_user: isBankUser,
     },
   });
 
@@ -77,16 +82,25 @@ const BankPurchaseOrderDrawer = ({ purchaseOrderId, handleClose }: Props) => {
           marginRight: "100px",
         }}
       >
-        {BankPurchaseOrdersDrawerTabLabelsNew.map((label) => (
-          <Tab
-            // Replace space with underscore and change to lower case
-            // eg:- Not Confirmed Pos to not-confirmed-pos
-            data-cy={label.replace(/\s+/g, "-").toLowerCase()}
-            key={label}
-            label={label}
-            style={{ width: "200px" }}
-          />
-        ))}
+        {BankPurchaseOrdersDrawerTabLabelsNew.map((label) => {
+          if (
+            !isBankUser &&
+            label === BankPurchaseOrdersDrawerTabLabelNew.OnlyForBank
+          ) {
+            return null;
+          }
+
+          return (
+            <Tab
+              // Replace space with underscore and change to lower case
+              // eg:- Not Confirmed Pos to not-confirmed-pos
+              data-cy={label.replace(/\s+/g, "-").toLowerCase()}
+              key={label}
+              label={label}
+              style={{ width: "200px" }}
+            />
+          );
+        })}
       </Tabs>
       <TabComponent purchaseOrder={purchaseOrder} />
     </Modal>

@@ -1,10 +1,4 @@
-import {
-  Box,
-  Theme,
-  Typography,
-  createStyles,
-  makeStyles,
-} from "@material-ui/core";
+import { Box, Theme, createStyles, makeStyles } from "@material-ui/core";
 import ArchivePurchaseOrderModalNew from "components/PurchaseOrder/v2/ArchivePurchaseOrderModalNew";
 import CreateUpdatePurchaseOrderModalNew from "components/PurchaseOrder/v2/CreateUpdatePurchaseOrderModalNew";
 import ManagePurchaseOrderFinancingModal from "components/PurchaseOrder/v2/ManagePurchaseOrderFinancingModal";
@@ -13,6 +7,8 @@ import PurchaseOrdersDataGridNew from "components/PurchaseOrder/v2/PurchaseOrder
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
 import SecondaryButton from "components/Shared/Button/SecondaryButton";
 import Can from "components/Shared/Can";
+import { TextColor } from "components/Shared/Colors/GlobalColors";
+import Text, { TextVariants } from "components/Shared/Text/Text";
 import {
   Companies,
   PurchaseOrderNewFragment,
@@ -221,8 +217,6 @@ export default function CustomerPurchaseOrdersOpenTabNew({
 
   const isFormLoading = isSubmitPurchaseOrderLoading;
 
-  console.log(selectedApprovedPurchaseOrdersMap);
-
   return (
     <Container>
       {isArchiveModalOpenForNotApprovedPurchaseOrders && (
@@ -285,9 +279,15 @@ export default function CustomerPurchaseOrdersOpenTabNew({
         <Box className={classes.sectionSpace} />
         <Box display="flex" justifyContent="space-between">
           <Box display="flex" alignItems="center">
-            <Typography variant="h6">
-              Not Ready to Request Financing New
-            </Typography>
+            <Text
+              isDatagridCheckboxSelected={
+                selectedNotApprovedPurchaseOrderIds.length > 0
+              }
+              textVariant={TextVariants.ParagraphLead}
+              color={TextColor}
+            >
+              Not Ready to Request Financing
+            </Text>
           </Box>
           <Box my={2} display="flex" flexDirection="row-reverse">
             {(selectedNotApprovedPurchaseOrdersMap.hasOwnProperty(
@@ -297,52 +297,44 @@ export default function CustomerPurchaseOrdersOpenTabNew({
                 NewPurchaseOrderStatus.PendingApprovalByVendor
               )) && (
               <Can perform={Action.EditPurchaseOrders}>
-                <Box mr={2}>
-                  <PrimaryButton
-                    dataCy={"submit-to-vendor-button"}
-                    isDisabled={
-                      !selectedNotApprovedPurchaseOrder ||
-                      isFormLoading ||
-                      !isActiveContract
-                    }
-                    text={"Submit to Vendor"}
-                    onClick={handleSubmitPurchaseOrder}
-                  />
-                </Box>
+                <PrimaryButton
+                  dataCy={"submit-to-vendor-button"}
+                  isDisabled={
+                    !selectedNotApprovedPurchaseOrder ||
+                    isFormLoading ||
+                    !isActiveContract
+                  }
+                  text={"Submit to Vendor"}
+                  onClick={handleSubmitPurchaseOrder}
+                />
               </Can>
             )}
             {Object.keys(selectedNotApprovedPurchaseOrdersMap).length > 0 && (
               <Can perform={Action.EditPurchaseOrders}>
-                <Box mr={2}>
-                  <PrimaryButton
-                    dataCy={"edit-not-ready-po-button"}
-                    isDisabled={
-                      !selectedNotApprovedPurchaseOrder || !isActiveContract
-                    }
-                    text={"Edit"}
-                    onClick={() =>
-                      setIsCreateUpdateModalOpenForNotApprovedPurchaseOrders(
-                        true
-                      )
-                    }
-                  />
-                </Box>
+                <PrimaryButton
+                  dataCy={"edit-not-ready-po-button"}
+                  isDisabled={
+                    !selectedNotApprovedPurchaseOrder || !isActiveContract
+                  }
+                  text={"Edit"}
+                  onClick={() =>
+                    setIsCreateUpdateModalOpenForNotApprovedPurchaseOrders(true)
+                  }
+                />
               </Can>
             )}
             {Object.keys(selectedNotApprovedPurchaseOrdersMap).length > 0 && (
               <Can perform={Action.ArchivePurchaseOrders}>
-                <Box mr={2}>
-                  <SecondaryButton
-                    dataCy={"archive-not-ready-po-button"}
-                    isDisabled={
-                      !selectedNotApprovedPurchaseOrder || !isActiveContract
-                    }
-                    text={"Archive"}
-                    onClick={() =>
-                      setIsArchiveModalOpenForNotApprovedPurchaseOrders(true)
-                    }
-                  />
-                </Box>
+                <SecondaryButton
+                  dataCy={"archive-not-ready-po-button"}
+                  isDisabled={
+                    !selectedNotApprovedPurchaseOrder || !isActiveContract
+                  }
+                  text={"Archive"}
+                  onClick={() =>
+                    setIsArchiveModalOpenForNotApprovedPurchaseOrders(true)
+                  }
+                />
               </Can>
             )}
           </Box>
@@ -366,38 +358,44 @@ export default function CustomerPurchaseOrdersOpenTabNew({
         >
           <Box display="flex" justifyContent="space-between">
             <Box display="flex" alignItems="center">
-              <Typography variant="h6">Ready to Request Financing</Typography>
+              <Text
+                isDatagridCheckboxSelected={
+                  selectedApprovedPurchaseOrderIds.length > 0
+                }
+                textVariant={TextVariants.ParagraphLead}
+                color={TextColor}
+              >
+                Ready to Request Financing
+              </Text>
             </Box>
             <Box my={2} display="flex" flexDirection="row-reverse">
               {selectedApprovedPurchaseOrdersMap.hasOwnProperty(
                 NewPurchaseOrderStatus.ReadyToRequestFinancing
               ) && (
                 <Can perform={Action.FundPurchaseOrders}>
-                  <Box mr={2}>
-                    {selectedApprovedPurchaseOrder ? (
-                      <PrimaryButton
-                        dataCy={"request-financing-button"}
-                        isDisabled={
-                          Object.keys(selectedApprovedPurchaseOrdersMap)
-                            .length > 1 || !isActiveContract
-                        }
-                        text={"Request Financing"}
-                        onClick={() => setIsManagePOFinancingModalOpen(true)}
-                      />
-                    ) : (
-                      <PrimaryButton
-                        dataCy={"request-financing-button"}
-                        isDisabled={
-                          Object.keys(selectedApprovedPurchaseOrdersMap)
-                            .length > 1 || !isActiveContract
-                        }
-                        text={"Request Financing"}
-                        onClick={() =>
-                          setIsManagePOFinancingModalMultipleOpen(true)
-                        }
-                      />
-                    )}
-                  </Box>
+                  {selectedApprovedPurchaseOrder ? (
+                    <PrimaryButton
+                      dataCy={"request-financing-button"}
+                      isDisabled={
+                        Object.keys(selectedApprovedPurchaseOrdersMap).length >
+                          1 || !isActiveContract
+                      }
+                      text={"Request Financing"}
+                      onClick={() => setIsManagePOFinancingModalOpen(true)}
+                    />
+                  ) : (
+                    <PrimaryButton
+                      dataCy={"request-financing-button"}
+                      isDisabled={
+                        Object.keys(selectedApprovedPurchaseOrdersMap).length >
+                          1 || !isActiveContract
+                      }
+                      text={"Request Financing"}
+                      onClick={() =>
+                        setIsManagePOFinancingModalMultipleOpen(true)
+                      }
+                    />
+                  )}
                 </Can>
               )}
               {(selectedApprovedPurchaseOrdersMap.hasOwnProperty(
@@ -407,21 +405,19 @@ export default function CustomerPurchaseOrdersOpenTabNew({
                   NewPurchaseOrderStatus.FinancingRequestApproved
                 )) && (
                 <Can perform={Action.FundPurchaseOrders}>
-                  <Box mr={2}>
-                    <PrimaryButton
-                      dataCy={"edit-financing-request-button"}
-                      isDisabled={
-                        !(
-                          selectedApprovedPurchaseOrder &&
-                          (selectedApprovedPurchaseOrder.new_purchase_order_status ===
-                            NewPurchaseOrderStatus.FinancingPendingApproval ||
-                            NewPurchaseOrderStatus.FinancingRequestApproved)
-                        ) || !isActiveContract
-                      }
-                      text={"Edit Financing"}
-                      onClick={() => setIsManagePOFinancingModalOpen(true)}
-                    />
-                  </Box>
+                  <PrimaryButton
+                    dataCy={"edit-financing-request-button"}
+                    isDisabled={
+                      !(
+                        selectedApprovedPurchaseOrder &&
+                        (selectedApprovedPurchaseOrder.new_purchase_order_status ===
+                          NewPurchaseOrderStatus.FinancingPendingApproval ||
+                          NewPurchaseOrderStatus.FinancingRequestApproved)
+                      ) || !isActiveContract
+                    }
+                    text={"Edit Financing"}
+                    onClick={() => setIsManagePOFinancingModalOpen(true)}
+                  />
                 </Can>
               )}
               {Object.keys(selectedApprovedPurchaseOrdersMap).length > 0 && (
@@ -436,7 +432,6 @@ export default function CustomerPurchaseOrdersOpenTabNew({
                       setIsArchiveModalOpenForApprovedPurchaseOrders(true)
                     }
                   />
-                  <Box mr={2} />
                 </Can>
               )}
             </Box>

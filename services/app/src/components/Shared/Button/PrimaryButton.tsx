@@ -21,6 +21,7 @@ interface Props {
   margin?: string;
   padding?: string;
   dataCy?: string;
+  icon?: React.ReactNode;
   onClick: () => void;
 }
 
@@ -33,6 +34,7 @@ export default function PrimaryButton({
   margin,
   padding,
   dataCy,
+  icon,
   onClick,
 }: Props) {
   return (
@@ -46,6 +48,7 @@ export default function PrimaryButton({
       margin={margin}
       padding={padding}
       dataCy={dataCy}
+      icon={icon}
       boxShadowXOffset={PrimaryBoxShadowXOffset}
       boxShadowYOffset={PrimaryBoxShadowYOffset}
       boxShadowBlurRadius={PrimaryBoxShadowBlurRadius}

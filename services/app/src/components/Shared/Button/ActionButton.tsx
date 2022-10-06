@@ -67,6 +67,7 @@ interface Props {
   margin?: string;
   padding?: string;
   dataCy?: string;
+  icon?: React.ReactNode;
 
   // base colors
   backgroundColor: string;
@@ -104,6 +105,7 @@ export default function ActionButton({
   borderColor,
   color,
   dataCy,
+  icon,
   hoverBackgroundColor,
   hoverBorderColor,
   hoverColor,
@@ -152,6 +154,7 @@ export default function ActionButton({
       $height={height}
       $margin={margin}
       $padding={padding}
+      startIcon={icon}
     >
       {text}
     </StyledActionButton>

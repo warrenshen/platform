@@ -20,19 +20,19 @@ export enum TextVariants {
 const VariantBottomMarginDefault = {
   [TextVariants.Header]: "32",
   [TextVariants.SubHeader]: "32",
-  [TextVariants.ParagraphLead]: "24",
-  [TextVariants.Paragraph]: "24",
+  [TextVariants.ParagraphLead]: "16",
+  [TextVariants.Paragraph]: "16",
   [TextVariants.Label]: "8",
   [TextVariants.SmallLabel]: "8",
 };
 
 const VariantLineHeightDefault = {
-  [TextVariants.Header]: "137%",
-  [TextVariants.SubHeader]: "27px",
-  [TextVariants.ParagraphLead]: "145%",
-  [TextVariants.Paragraph]: "145%",
-  [TextVariants.Label]: "16px",
-  [TextVariants.SmallLabel]: "133%",
+  [TextVariants.Header]: "50px",
+  [TextVariants.SubHeader]: "34px",
+  [TextVariants.ParagraphLead]: "26px",
+  [TextVariants.Paragraph]: "22px",
+  [TextVariants.Label]: "19px",
+  [TextVariants.SmallLabel]: "16px",
 };
 
 const VariantFontWeightDefault = {
@@ -68,6 +68,7 @@ const StyledText = styled(Typography)<{
   $textAlignment: string;
   $bottomMargin: Maybe<number>;
   $isBold: Maybe<boolean>;
+  $isDatagridCheckboxSelected: Maybe<boolean>;
   $isClickable: Maybe<boolean>;
 }>`
   color: ${(props) =>
@@ -80,6 +81,7 @@ const StyledText = styled(Typography)<{
   font-size: ${(props) => VariantFontSizeDefault[props.$textVariant]}px;
   line-height: ${(props) => VariantLineHeightDefault[props.$textVariant]};
   margin: 0 0 0 0;
+  margin-top: ${(props) => (!!props.$isDatagridCheckboxSelected ? 16 : 0)}px;
   margin-bottom: ${(props) =>
     !!props.$bottomMargin || props.$bottomMargin === 0
       ? props.$bottomMargin
@@ -104,6 +106,7 @@ interface Props {
   dataCy?: string;
   materialVariant?: any;
   isBold?: Maybe<boolean>;
+  isDatagridCheckboxSelected?: Maybe<boolean>;
   color?: string;
   alignment?: string;
   bottomMargin?: Maybe<number>;
@@ -116,6 +119,7 @@ export default function Text({
   dataCy = "",
   materialVariant = "h5",
   isBold = false,
+  isDatagridCheckboxSelected = false,
   color = TextColor,
   alignment = "left",
   bottomMargin = null,
@@ -129,6 +133,7 @@ export default function Text({
       onClick={handleClick}
       $color={color}
       $isBold={isBold}
+      $isDatagridCheckboxSelected={isDatagridCheckboxSelected}
       $textAlignment={alignment}
       $bottomMargin={bottomMargin}
       $textVariant={textVariant}

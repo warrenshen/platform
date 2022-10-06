@@ -1,7 +1,7 @@
 import { Box, Tab, Tabs } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import CreateUpdatePurchaseOrderModalNew from "components/PurchaseOrder/v2/CreateUpdatePurchaseOrderModalNew";
-import ModalButton from "components/Shared/Modal/ModalButton";
+import PrimaryButton from "components/Shared/Button/PrimaryButton";
 import PageContent from "components/Shared/Page/PageContent";
 import { Companies } from "generated/graphql";
 import {
@@ -53,58 +53,64 @@ export default function CustomerPurchaseOrdersPageContentNew({
   isActiveContract,
 }: Props) {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   return (
-    <PageContent
-      title={"Purchase Orders New"}
-      subtitle={
-        "Create, edit, and request financing for Purchase Orders (POs)."
-      }
-      customerActions={
-        <Box>
-          <ModalButton
-            label={"Add PO"}
-            dataCy={"create-purchase-order-button"}
-            isDisabled={!isActiveContract}
-            startIcon={<AddIcon />}
-            modal={({ handleClose }) => (
-              <CreateUpdatePurchaseOrderModalNew
-                actionType={ActionType.New}
-                purchaseOrderId={null}
-                companyId={companyId}
-                productType={productType}
-                handleClose={() => {
-                  handleClose();
-                }}
-              />
-            )}
-          />
-        </Box>
-      }
-    >
-      <Tabs
-        value={selectedTabIndex}
-        indicatorColor="primary"
-        textColor="primary"
-        onChange={(_: any, value: number) => setSelectedTabIndex(value)}
-      >
-        {CustomerPurchaseOrdersTabLabelsNew.map(
-          (label: CustomerPurchaseOrdersTabLabelNew) => (
-            <Tab
-              data-cy={`${label.replace(/\s+/g, "-").toLowerCase()}-tab`}
-              key={label}
-              label={label}
+    <>
+      {isCreateModalOpen && (
+        <CreateUpdatePurchaseOrderModalNew
+          actionType={ActionType.New}
+          purchaseOrderId={null}
+          companyId={companyId}
+          productType={productType}
+          handleClose={() => {
+            setIsCreateModalOpen(false);
+          }}
+        />
+      )}
+      <PageContent
+        title={"Purchase Orders New"}
+        subtitle={
+          "Create, edit, and request financing for Purchase Orders (POs)."
+        }
+        customerActions={
+          <Box>
+            <PrimaryButton
+              text={"Create PO"}
+              dataCy={"create-purchase-order-button"}
+              isDisabled={!isActiveContract}
+              icon={<AddIcon width={24} height={24} />}
+              onClick={() => {
+                setIsCreateModalOpen(true);
+              }}
             />
-          )
-        )}
-      </Tabs>
-      {PurchaseOrderComponentMap[
-        CustomerPurchaseOrdersTabLabelsNew[selectedTabIndex]
-      ]({
-        companyId,
-        productType,
-        isActiveContract,
-      })}
-    </PageContent>
+          </Box>
+        }
+      >
+        <Tabs
+          value={selectedTabIndex}
+          indicatorColor="primary"
+          textColor="primary"
+          onChange={(_: any, value: number) => setSelectedTabIndex(value)}
+        >
+          {CustomerPurchaseOrdersTabLabelsNew.map(
+            (label: CustomerPurchaseOrdersTabLabelNew) => (
+              <Tab
+                data-cy={`${label.replace(/\s+/g, "-").toLowerCase()}-tab`}
+                key={label}
+                label={label}
+              />
+            )
+          )}
+        </Tabs>
+        {PurchaseOrderComponentMap[
+          CustomerPurchaseOrdersTabLabelsNew[selectedTabIndex]
+        ]({
+          companyId,
+          productType,
+          isActiveContract,
+        })}
+      </PageContent>
+    </>
   );
 }
