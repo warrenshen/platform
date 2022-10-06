@@ -61,16 +61,21 @@ function CustomerLoansPageLoansTab({
 
   return (
     <Box className={classes.container} mt={3}>
-      <Box className={classes.section}>
-        <Typography variant="h6">Not Funded Loans</Typography>
-        <LoansNotFunded
-          companyId={companyId}
-          productType={productType}
-          isActiveContract={isActiveContract}
-          data={data}
-          handleDataChange={refetch}
-        />
-      </Box>
+      {productType === ProductTypeEnum.LineOfCredit && (
+        <Box>
+          <Box className={classes.section}>
+            <Typography variant="h6">Not Funded Loans</Typography>
+            <LoansNotFunded
+              companyId={companyId}
+              productType={productType}
+              isActiveContract={isActiveContract}
+              data={data}
+              handleDataChange={refetch}
+            />
+          </Box>
+          <Box className={classes.sectionSpace} />
+        </Box>
+      )}
       <Box className={classes.sectionSpace} />
       <Box className={classes.section}>
         <Typography variant="h6">Funded Loans</Typography>
