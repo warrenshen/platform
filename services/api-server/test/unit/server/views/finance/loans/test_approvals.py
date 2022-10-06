@@ -53,6 +53,7 @@ class TestSubmitForApproval(db_unittest.TestCase):
 		loan_ids = []
 		artifact_ids = []
 		company_id = seed.get_company_id('company_admin', index=0)
+		user_id = seed.get_user_id('bank_admin')
 
 		with session_scope(session_maker) as session:
 			contract = test['contract']
@@ -87,7 +88,7 @@ class TestSubmitForApproval(db_unittest.TestCase):
 				session=session,
 				loan_id=loan_id,
 				triggered_by_autofinancing=False,
-				requested_by_user_id=str(uuid.uuid4()),
+				requested_by_user_id=user_id,
 				now_for_test=test['now_for_test'],
 			)
 			if test.get('in_err_msg'):
@@ -469,6 +470,7 @@ class TestSubmitViaAutoFinancing(db_unittest.TestCase):
 		artifact_id = None
 		artifact_amount = None
 		company_id = seed.get_company_id('company_admin', index=0)
+		user_id = seed.get_user_id('bank_admin')
 
 		with session_scope(session_maker) as session:
 
@@ -500,7 +502,7 @@ class TestSubmitViaAutoFinancing(db_unittest.TestCase):
 				amount=artifact_amount,
 				artifact_id=artifact_id,
 				now_for_test=test['now_for_test'],
-				requested_by_user_id=str(uuid.uuid4()),
+				requested_by_user_id=user_id,
 			)
 			if test.get('in_err_msg'):
 				self.assertIn(test['in_err_msg'], err.msg if err else '')

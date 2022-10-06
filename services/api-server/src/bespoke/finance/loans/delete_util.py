@@ -85,7 +85,8 @@ def delete_loan(
 				session = session,
 				purchase_order_id = loan.artifact_id,
 				created_by_user_id = str(user_id),
-				created_by_user_full_name = user.full_name
+				created_by_user_full_name = user.full_name,
+				is_financing_request_delete = True
 			)
 
 	return True, None

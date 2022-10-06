@@ -181,6 +181,31 @@ query GetOpenPurchaseOrdersByCompanyId($company_id: uuid!) {
   }
 }
 
+query GetAllPurchaseOrdersByCompanyIdNew($company_id: uuid!) {
+  companies_by_pk(id: $company_id) {
+    id
+    settings {
+      id
+      has_autofinancing
+    }
+  }
+  purchase_orders(
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { company_id: { _eq: $company_id } }
+      ]
+    }
+  ) {
+    ...PurchaseOrderLimitedNew
+  }
+}
+
 query GetOpenPurchaseOrdersByCompanyIdNew($company_id: uuid!) {
   companies_by_pk(id: $company_id) {
     id

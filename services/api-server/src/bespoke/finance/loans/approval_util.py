@@ -1,6 +1,7 @@
 import datetime
 import decimal
 from typing import Callable, Dict, List, Tuple, cast
+from urllib import request
 
 from bespoke import errors
 from bespoke.date import date_util
@@ -371,7 +372,18 @@ def submit_for_approval(
 		if err:
 			raise err
 		
+		user = session.query(models.User) \
+			.filter(models.User.id == requested_by_user_id) \
+			.first()
 		purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.FINANCING_PENDING_APPROVAL
+		purchase_orders_util.update_purchase_order_history(
+			purchase_order = purchase_order,
+			user_id = requested_by_user_id,
+			user_full_name = user.full_name,
+			action = "PO financing request created",
+			new_status = NewPurchaseOrderStatus.FINANCING_PENDING_APPROVAL,
+		)
+
 
 		loan_html = f"""<ul>
 <li>Loan type: Inventory Financing</li>

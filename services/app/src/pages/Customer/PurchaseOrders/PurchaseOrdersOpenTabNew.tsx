@@ -9,11 +9,12 @@ import SecondaryButton from "components/Shared/Button/SecondaryButton";
 import Can from "components/Shared/Can";
 import { TextColor } from "components/Shared/Colors/GlobalColors";
 import Text, { TextVariants } from "components/Shared/Text/Text";
+import { CurrentCustomerContext } from "contexts/CurrentCustomerContext";
 import {
   Companies,
+  PurchaseOrderLimitedNewFragment,
   PurchaseOrderNewFragment,
   PurchaseOrders,
-  useGetOpenPurchaseOrdersByCompanyIdNewQuery,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -26,8 +27,10 @@ import {
   ProductTypeEnum,
   ReadyNewPurchaseOrderStatuses,
 } from "lib/enum";
-import { useMemo, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import styled from "styled-components";
+
+import LinearFinancialSummaryOverview from "./LinearFinancialSummaryOverview";
 
 const Container = styled.div`
   display: flex;
@@ -48,32 +51,21 @@ interface Props {
   companyId: Companies["id"];
   productType: ProductTypeEnum;
   isActiveContract: boolean;
+  purchaseOrders: PurchaseOrderLimitedNewFragment[];
+  refetchPurchaseOrders: () => void;
 }
 
 export default function CustomerPurchaseOrdersOpenTabNew({
   companyId,
   productType,
   isActiveContract,
+  purchaseOrders,
+  refetchPurchaseOrders,
 }: Props) {
   const classes = useStyles();
   const snackbar = useSnackbar();
 
-  const { data, error, refetch } = useGetOpenPurchaseOrdersByCompanyIdNewQuery({
-    fetchPolicy: "network-only",
-    variables: {
-      company_id: companyId,
-    },
-  });
-
-  if (error) {
-    console.error({ error });
-    alert(`Error in query (details in console): ${error.message}`);
-  }
-
-  const purchaseOrders = useMemo(
-    () => data?.purchase_orders || [],
-    [data?.purchase_orders]
-  );
+  const { financialSummary } = useContext(CurrentCustomerContext);
 
   // Not approved POs
   const [
@@ -210,7 +202,7 @@ export default function CustomerPurchaseOrdersOpenTabNew({
       snackbar.showSuccess(
         `Purchase order ${purchaseOrder.order_number} submitted to vendor for review.`
       );
-      refetch();
+      refetchPurchaseOrders();
       setSelectedNotApprovedPurchaseOrdersMap({});
     }
   };
@@ -219,6 +211,11 @@ export default function CustomerPurchaseOrdersOpenTabNew({
 
   return (
     <Container>
+      {financialSummary && (
+        <Box mt={3}>
+          <LinearFinancialSummaryOverview {...financialSummary} />
+        </Box>
+      )}
       {isArchiveModalOpenForNotApprovedPurchaseOrders && (
         <ArchivePurchaseOrderModalNew
           action={Action.ArchivePurchaseOrders}
@@ -246,7 +243,7 @@ export default function CustomerPurchaseOrdersOpenTabNew({
           companyId={companyId}
           productType={productType}
           handleClose={() => {
-            refetch();
+            refetchPurchaseOrders();
             setSelectedNotApprovedPurchaseOrdersMap({});
             setIsCreateUpdateModalOpenForNotApprovedPurchaseOrders(false);
           }}
@@ -257,7 +254,7 @@ export default function CustomerPurchaseOrdersOpenTabNew({
           companyId={companyId}
           purchaseOrderId={selectedApprovedPurchaseOrder?.id}
           handleClose={() => {
-            refetch();
+            refetchPurchaseOrders();
             setSelectedApprovedPurchaseOrdersMap({});
             setIsManagePOFinancingModalOpen(false);
           }}
@@ -268,7 +265,7 @@ export default function CustomerPurchaseOrdersOpenTabNew({
           companyId={companyId}
           purchaseOrderIds={selectedApprovedPurchaseOrderIds}
           handleClose={() => {
-            refetch();
+            refetchPurchaseOrders();
             setSelectedApprovedPurchaseOrdersMap({});
             setIsManagePOFinancingModalMultipleOpen(false);
           }}
@@ -276,7 +273,6 @@ export default function CustomerPurchaseOrdersOpenTabNew({
       )}
 
       <Box flex={1} display="flex" flexDirection="column" width="100%">
-        <Box className={classes.sectionSpace} />
         <Box display="flex" justifyContent="space-between">
           <Box display="flex" alignItems="center">
             <Text

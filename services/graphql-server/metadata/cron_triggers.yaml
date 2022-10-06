@@ -17,7 +17,7 @@
       value_from_env: ASYNC_SERVER_API_KEY
 - name: async_jobs_orchestration_handler
   webhook: '{{ASYNC_SERVER_BASE_URL}}/async_jobs/kick-off-handler'
-  schedule: '0,30 * * * *'
+  schedule: 0,30 * * * *
   include_in_metadata: true
   payload: {}
   headers:

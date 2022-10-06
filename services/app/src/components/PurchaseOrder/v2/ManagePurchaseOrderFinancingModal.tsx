@@ -18,6 +18,7 @@ import { CheckIcon, CloseIcon, PlusIcon } from "icons";
 import { submitLoanMutationNew } from "lib/api/loans";
 import { LoanStatusEnum } from "lib/enum";
 import { isPurchaseOrderDueDateValid } from "lib/purchaseOrders";
+import { partition } from "lodash";
 import { useState } from "react";
 import styled from "styled-components";
 import { v4 as uuidv4 } from "uuid";
@@ -26,6 +27,7 @@ import PurchaseOrderPreviewCard from "../PurchaseOrderPreviewCard";
 import FinancingRequestCreateCard from "./FinancingRequestCreateCard";
 import FinancingRequestViewCard from "./FinancingRequestViewCard";
 import FloatingIconActionButton from "./FloatingIconActionButton";
+import FundedLoansViewCard from "./FundedLoansViewCard";
 
 const StyledAlert = styled(Alert)`
   justify-content: center;
@@ -54,6 +56,7 @@ const mapFinancingRequestToLoanInsertInput = (
     requested_payment_date: loan.requested_payment_date,
     amount: loan.amount,
     status: loan.status,
+    customer_notes: loan.customer_notes || "",
   };
 };
 
@@ -108,6 +111,7 @@ function ManagePurchaseOrderFinancingModal({
   const [financingRequests, setFinancingRequests] = useState<
     LoansInsertInput[]
   >([]);
+  const [fundedLoans, setFundedLoans] = useState<LoansInsertInput[]>([]);
   const [
     deleteExistingFinancingRequestIds,
     setDeleteExistingFinancingRequestIds,
@@ -120,8 +124,17 @@ function ManagePurchaseOrderFinancingModal({
       artifact_id: purchaseOrder?.id,
     },
     onCompleted: (data) => {
+      const [fundedLoans, notFundedLoans] = partition(
+        data.loans,
+        (loan) => loan.funded_at !== null
+      );
       setFinancingRequests(
-        data.loans.map((loan) =>
+        notFundedLoans.map((loan) =>
+          mapFinancingRequestToLoanInsertInput(loan, purchaseOrderId)
+        )
+      );
+      setFundedLoans(
+        fundedLoans.map((loan) =>
           mapFinancingRequestToLoanInsertInput(loan, purchaseOrderId)
         )
       );
@@ -201,11 +214,12 @@ function ManagePurchaseOrderFinancingModal({
 
   const amountRemaining = purchaseOrder.amount - purchaseOrder.amount_funded;
 
-  const proposedLoansTotalAmount =
-    purchaseOrder.amount_funded +
-    financingRequests.reduce((amountRequested, financingRequest) => {
+  const proposedLoansTotalAmount = financingRequests.reduce(
+    (amountRequested, financingRequest) => {
       return amountRequested + financingRequest.amount;
-    }, 0);
+    },
+    0
+  );
 
   const isSaveSubmitDisabled = proposedLoansTotalAmount > amountRemaining;
 
@@ -219,7 +233,7 @@ function ManagePurchaseOrderFinancingModal({
     isSubmitLoanNewLoading ||
     isSaveSubmitDisabled ||
     (!canCreateNewFinancingRequest && isNewLoanShown) ||
-    currentlyEditingLoan.id;
+    !!currentlyEditingLoan.id;
 
   return (
     <Modal
@@ -237,12 +251,19 @@ function ManagePurchaseOrderFinancingModal({
         )}
         <Box mt={4} mb={4}>
           <ProgressBar
-            amountLeft={amountRemaining - proposedLoansTotalAmount}
+            amountFunded={
+              purchaseOrder.amount_funded + proposedLoansTotalAmount
+            }
             totalAmount={purchaseOrder.amount}
           />
         </Box>
         <Typography variant="subtitle1">Request Financing</Typography>
         <Box mt={2}>
+          {fundedLoans.map((loan) => (
+            <Box mb={2}>
+              <FundedLoansViewCard loan={loan} status={LoanStatusEnum.Funded} />
+            </Box>
+          ))}
           {financingRequests
             .filter(
               (financingRequest) =>
@@ -298,7 +319,8 @@ function ManagePurchaseOrderFinancingModal({
                   <FinancingRequestViewCard
                     key={financingRequest.id}
                     loan={financingRequest}
-                    status={financingRequest.status as RequestStatusEnum}
+                    status={financingRequest.status as LoanStatusEnum}
+                    comments={financingRequest.customer_notes}
                     setCurrentlyEditingLoan={setCurrentlyEditingLoan}
                     deleteFinancingRequestFromState={() =>
                       setFinancingRequests(

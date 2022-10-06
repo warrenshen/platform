@@ -4,11 +4,12 @@ import ArchivePurchaseOrderModalNew from "components/PurchaseOrder/v2/ArchivePur
 import PurchaseOrdersDataGridNew from "components/PurchaseOrder/v2/PurchaseOrdersDataGridNew";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
+import { CurrentCustomerContext } from "contexts/CurrentCustomerContext";
 import {
   Companies,
   PurchaseOrderFragment,
+  PurchaseOrderLimitedNewFragment,
   PurchaseOrders,
-  useGetClosedPurchaseOrdersByCompanyIdQuery,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import {
@@ -16,8 +17,10 @@ import {
   ClosedNewPurchaseOrderStatuses,
   ProductTypeEnum,
 } from "lib/enum";
-import { useMemo, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import styled from "styled-components";
+
+import LinearFinancialSummaryOverview from "./LinearFinancialSummaryOverview";
 
 const Container = styled.div`
   display: flex;
@@ -42,31 +45,20 @@ interface Props {
   companyId: Companies["id"];
   productType: ProductTypeEnum;
   isActiveContract: boolean;
+  purchaseOrders: PurchaseOrderLimitedNewFragment[];
+  refetchPurchaseOrders: () => void;
 }
 
 export default function CustomerPurchaseOrdersClosedTabNew({
   companyId,
   productType,
   isActiveContract,
+  purchaseOrders,
+  refetchPurchaseOrders,
 }: Props) {
   const classes = useStyles();
 
-  const { data, error, refetch } = useGetClosedPurchaseOrdersByCompanyIdQuery({
-    fetchPolicy: "network-only",
-    variables: {
-      company_id: companyId,
-    },
-  });
-
-  if (error) {
-    console.error({ error });
-    alert(`Error in query (details in console): ${error.message}`);
-  }
-
-  const purchaseOrders = useMemo(
-    () => data?.purchase_orders || [],
-    [data?.purchase_orders]
-  );
+  const { financialSummary } = useContext(CurrentCustomerContext);
 
   const [selectedPurchaseOrderIds, setSelectedPurchaseOrderIds] = useState<
     PurchaseOrders["id"][]
@@ -93,6 +85,11 @@ export default function CustomerPurchaseOrdersClosedTabNew({
 
   return (
     <Container>
+      {financialSummary && (
+        <Box mt={3}>
+          <LinearFinancialSummaryOverview {...financialSummary} />
+        </Box>
+      )}
       <Box flex={1} display="flex" flexDirection="column" width="100%">
         <Box className={classes.section}>
           <Box my={2} display="flex" flexDirection="row-reverse">
@@ -110,7 +107,7 @@ export default function CustomerPurchaseOrdersClosedTabNew({
                           purchaseOrderId={selectedPurchaseOrder?.id}
                           productType={productType}
                           handleClose={() => {
-                            refetch();
+                            refetchPurchaseOrders();
                             handleClose();
                             setSelectedPurchaseOrderIds([]);
                           }}
@@ -130,7 +127,7 @@ export default function CustomerPurchaseOrdersClosedTabNew({
                           purchaseOrder={selectedPurchaseOrder || null}
                           action={Action.ReopenPurchaseOrders}
                           handleClose={() => {
-                            refetch();
+                            refetchPurchaseOrders();
                             handleClose();
                             setSelectedPurchaseOrderIds([]);
                           }}

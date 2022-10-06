@@ -21,12 +21,12 @@ const BorderLinearProgressBar = withStyles((theme) => ({
 }))(LinearProgress);
 
 interface Props {
-  amountLeft: number;
+  amountFunded: number;
   totalAmount: number;
 }
 
-export default function ProgressBar({ amountLeft, totalAmount }: Props) {
-  const roundedPercentValue = round((amountLeft / totalAmount) * 100, 2);
+export default function ProgressBar({ amountFunded, totalAmount }: Props) {
+  const roundedPercentValue = round((amountFunded / totalAmount) * 100, 2);
   return (
     <Box display="flex" flexDirection="column" alignItems="center">
       <BorderLinearProgressBar
@@ -34,7 +34,9 @@ export default function ProgressBar({ amountLeft, totalAmount }: Props) {
         value={roundedPercentValue}
       />
       <Box display="flex" mt={1}>
-        <strong style={{ marginRight: 4 }}>{formatCurrency(amountLeft)}</strong>
+        <strong style={{ marginRight: 4 }}>
+          {formatCurrency(totalAmount - amountFunded)}
+        </strong>
         <span>{"left to request financing for"}</span>
       </Box>
     </Box>

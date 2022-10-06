@@ -1,8 +1,9 @@
 import { Box, Card, CardContent, Divider, IconButton } from "@material-ui/core";
-import RequestStatusChipNew from "components/Shared/Chip/RequestStatusChipNew";
-import { LoansInsertInput, RequestStatusEnum } from "generated/graphql";
+import RequestStatusChipNew from "components/Shared/Chip/FinancingRequestStatusChipNew";
+import { LoansInsertInput, Maybe, RequestStatusEnum } from "generated/graphql";
 import { EditIcon, TrashIcon } from "icons/index";
 import { formatDateString } from "lib/date";
+import { LoanStatusEnum } from "lib/enum";
 import { formatCurrency } from "lib/number";
 import { Dispatch, SetStateAction } from "react";
 import styled from "styled-components";
@@ -31,7 +32,8 @@ const StyledCardContent = styled(CardContent)`
 
 interface Props {
   loan: LoansInsertInput;
-  status: RequestStatusEnum;
+  status: LoanStatusEnum;
+  comments: Maybe<string> | undefined;
   deleteExistingFianancingRequestsIds: Set<string>;
   handleClickAddFinancingRequest: () => void;
   handleClickRemoveNewFinancingRequest: () => void;
@@ -43,6 +45,7 @@ interface Props {
 export default function FinancingRequestViewCard({
   loan,
   status,
+  comments,
   deleteExistingFianancingRequestsIds,
   handleClickAddFinancingRequest,
   handleClickRemoveNewFinancingRequest,
@@ -54,50 +57,81 @@ export default function FinancingRequestViewCard({
     <FinancingRequestCard>
       <StyledCardContent>
         <Box display="flex" justifyContent="space-between">
-          <Box display="flex" flexDirection="column">
-            <Label>Requested payment date</Label>
-            <Value>{formatDateString(loan.requested_payment_date)}</Value>
-            <Box m={2} />
-            <Label>Amount</Label>
-            <Value>{formatCurrency(loan.amount)}</Value>
-          </Box>
-          <Box display="flex" flexDirection="column" justifyContent="center">
-            <RequestStatusChipNew requestStatus={status} />
-          </Box>
-          <Box display="flex">
-            <Box>
-              <Divider orientation="vertical" />
+          <Box display="flex" justifyContent="space-between" flex={1}>
+            <Box display="flex" flexDirection="column">
+              <Label>Requested payment date</Label>
+              <Value>{formatDateString(loan.requested_payment_date)}</Value>
+              <Box m={2} />
+              <Label>Amount</Label>
+              <Value>{formatCurrency(loan.amount)}</Value>
             </Box>
-            <Box display="flex" flexDirection="column" justifyContent="center">
-              <IconButton
-                onClick={() => {
-                  if (loan.status === RequestStatusEnum.Drafted) {
-                    deleteFinancingRequestFromState();
-                    return;
-                  }
-                  const newDeleteExistingFinancingRequestIds = new Set(
-                    deleteExistingFianancingRequestsIds
-                  );
-                  newDeleteExistingFinancingRequestIds.add(loan.id);
-                  setDeleteExistingFinancingRequestIds(
-                    newDeleteExistingFinancingRequestIds
-                  );
-                }}
-              >
-                <TrashIcon />
-              </IconButton>
-              <Box mb={4} />
-              <IconButton
-                onClick={() => {
-                  setCurrentlyEditingLoan(loan);
-                  handleClickAddFinancingRequest();
-                  handleClickRemoveNewFinancingRequest();
-                }}
-              >
-                <EditIcon />
-              </IconButton>
+            <Box
+              display="flex"
+              flexDirection="column"
+              mr={3}
+              alignItems="flex-end"
+            >
+              <Box height={30} mb={5}>
+                <RequestStatusChipNew loanStatus={status} />
+              </Box>
+              <Box display="flex" flexDirection="column">
+                <Label style={{ textAlign: "right" }}>Comments</Label>
+                <Value
+                  style={{
+                    textAlign: "right",
+                    textOverflow: "ellipsis",
+                    maxWidth: 300,
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                  }}
+                >
+                  {comments ? comments : "-"}
+                </Value>
+              </Box>
             </Box>
           </Box>
+          {status === LoanStatusEnum.Approved ? (
+            <Box m={3} />
+          ) : (
+            <Box display="flex">
+              <Box>
+                <Divider orientation="vertical" />
+              </Box>
+              <Box
+                display="flex"
+                flexDirection="column"
+                justifyContent="center"
+              >
+                <IconButton
+                  onClick={() => {
+                    if (loan.status === RequestStatusEnum.Drafted) {
+                      deleteFinancingRequestFromState();
+                      return;
+                    }
+                    const newDeleteExistingFinancingRequestIds = new Set(
+                      deleteExistingFianancingRequestsIds
+                    );
+                    newDeleteExistingFinancingRequestIds.add(loan.id);
+                    setDeleteExistingFinancingRequestIds(
+                      newDeleteExistingFinancingRequestIds
+                    );
+                  }}
+                >
+                  <TrashIcon />
+                </IconButton>
+                <Box mb={4} />
+                <IconButton
+                  onClick={() => {
+                    setCurrentlyEditingLoan(loan);
+                    handleClickAddFinancingRequest();
+                    handleClickRemoveNewFinancingRequest();
+                  }}
+                >
+                  <EditIcon />
+                </IconButton>
+              </Box>
+            </Box>
+          )}
         </Box>
       </StyledCardContent>
     </FinancingRequestCard>

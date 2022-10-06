@@ -263,6 +263,7 @@ fragment LoanLimited on loans {
   rejected_at
   funded_at
   closed_at
+  customer_notes
   company {
     id
     identifier

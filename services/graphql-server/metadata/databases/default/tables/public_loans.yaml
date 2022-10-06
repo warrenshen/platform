@@ -60,6 +60,7 @@ insert_permissions:
         - amount
         - artifact_id
         - company_id
+        - customer_notes
         - identifier
         - loan_type
         - requested_payment_date
@@ -91,6 +92,7 @@ select_permissions:
         - closed_at
         - company_id
         - created_at
+        - customer_notes
         - disbursement_identifier
         - funded_at
         - funded_by_user_id
@@ -227,6 +229,7 @@ update_permissions:
     permission:
       columns:
         - amount
+        - customer_notes
         - notes
         - rejection_note
         - requested_payment_date
@@ -236,6 +239,7 @@ update_permissions:
     permission:
       columns:
         - amount
+        - customer_notes
         - notes
         - requested_payment_date
       filter:

@@ -423,16 +423,32 @@ def fund_loans_with_advance(
 					artifact.funded_at = date_util.now()
 					if loan_type == db_constants.LoanTypeEnum.INVENTORY:
 						purchase_order = cast(models.PurchaseOrder, artifact)
+						purchase_order.amount_funded = decimal.Decimal(funded_amount)
 						purchase_order.new_purchase_order_status = db_constants.NewPurchaseOrderStatus.ARCHIVED
 						user, err = queries.get_user_by_id(session, bank_admin_user_id)
 						if err:
 							raise err
 						purchase_order.history.append(purchase_orders_util.get_purchase_order_history_event(
-							action = "PO archived",
+							action = "PO fully funded",
 							new_purchase_order_status = db_constants.NewPurchaseOrderStatus.ARCHIVED,
 							created_by_user_id = str(bank_admin_user_id),
 							created_by_user_full_name = user.full_name
 						))
+				else:
+					if loan_type == db_constants.LoanTypeEnum.INVENTORY:
+						purchase_order = cast(models.PurchaseOrder, artifact)
+						purchase_order.amount_funded = decimal.Decimal(funded_amount)
+						purchase_order.new_purchase_order_status = db_constants.NewPurchaseOrderStatus.READY_TO_REQUEST_FINANCING
+						user, err = queries.get_user_by_id(session, bank_admin_user_id)
+						if err:
+							raise err
+						purchase_orders_util.update_purchase_order_status(
+							session = session,
+							purchase_order_id = purchase_order.id,
+							created_by_user_id = str(bank_admin_user_id),
+							created_by_user_full_name = user.full_name,
+							is_financing_request_partially_funded=True
+						)
 
 	return FundLoansRespDict(
 		payment_id=str(payment_id),

@@ -29904,6 +29904,19 @@ export type GetOpenPurchaseOrdersByCompanyIdQuery = {
   purchase_orders: Array<PurchaseOrderLimitedFragment>;
 };
 
+export type GetAllPurchaseOrdersByCompanyIdNewQueryVariables = Exact<{
+  company_id: Scalars["uuid"];
+}>;
+
+export type GetAllPurchaseOrdersByCompanyIdNewQuery = {
+  companies_by_pk?: Maybe<
+    Pick<Companies, "id"> & {
+      settings?: Maybe<Pick<CompanySettings, "id" | "has_autofinancing">>;
+    }
+  >;
+  purchase_orders: Array<PurchaseOrderLimitedNewFragment>;
+};
+
 export type GetOpenPurchaseOrdersByCompanyIdNewQueryVariables = Exact<{
   company_id: Scalars["uuid"];
 }>;
@@ -31913,6 +31926,7 @@ export type LoanLimitedFragment = Pick<
   | "rejected_at"
   | "funded_at"
   | "closed_at"
+  | "customer_notes"
 > & {
   company: Pick<Companies, "id" | "identifier"> & CompanyLimitedFragment;
   requested_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
@@ -32861,6 +32875,7 @@ export const LoanLimitedFragmentDoc = gql`
     rejected_at
     funded_at
     closed_at
+    customer_notes
     company {
       id
       identifier
@@ -40250,6 +40265,82 @@ export type GetOpenPurchaseOrdersByCompanyIdLazyQueryHookResult = ReturnType<
 export type GetOpenPurchaseOrdersByCompanyIdQueryResult = Apollo.QueryResult<
   GetOpenPurchaseOrdersByCompanyIdQuery,
   GetOpenPurchaseOrdersByCompanyIdQueryVariables
+>;
+export const GetAllPurchaseOrdersByCompanyIdNewDocument = gql`
+  query GetAllPurchaseOrdersByCompanyIdNew($company_id: uuid!) {
+    companies_by_pk(id: $company_id) {
+      id
+      settings {
+        id
+        has_autofinancing
+      }
+    }
+    purchase_orders(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { company_id: { _eq: $company_id } }
+        ]
+      }
+    ) {
+      ...PurchaseOrderLimitedNew
+    }
+  }
+  ${PurchaseOrderLimitedNewFragmentDoc}
+`;
+
+/**
+ * __useGetAllPurchaseOrdersByCompanyIdNewQuery__
+ *
+ * To run a query within a React component, call `useGetAllPurchaseOrdersByCompanyIdNewQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAllPurchaseOrdersByCompanyIdNewQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAllPurchaseOrdersByCompanyIdNewQuery({
+ *   variables: {
+ *      company_id: // value for 'company_id'
+ *   },
+ * });
+ */
+export function useGetAllPurchaseOrdersByCompanyIdNewQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetAllPurchaseOrdersByCompanyIdNewQuery,
+    GetAllPurchaseOrdersByCompanyIdNewQueryVariables
+  >
+) {
+  return Apollo.useQuery<
+    GetAllPurchaseOrdersByCompanyIdNewQuery,
+    GetAllPurchaseOrdersByCompanyIdNewQueryVariables
+  >(GetAllPurchaseOrdersByCompanyIdNewDocument, baseOptions);
+}
+export function useGetAllPurchaseOrdersByCompanyIdNewLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetAllPurchaseOrdersByCompanyIdNewQuery,
+    GetAllPurchaseOrdersByCompanyIdNewQueryVariables
+  >
+) {
+  return Apollo.useLazyQuery<
+    GetAllPurchaseOrdersByCompanyIdNewQuery,
+    GetAllPurchaseOrdersByCompanyIdNewQueryVariables
+  >(GetAllPurchaseOrdersByCompanyIdNewDocument, baseOptions);
+}
+export type GetAllPurchaseOrdersByCompanyIdNewQueryHookResult = ReturnType<
+  typeof useGetAllPurchaseOrdersByCompanyIdNewQuery
+>;
+export type GetAllPurchaseOrdersByCompanyIdNewLazyQueryHookResult = ReturnType<
+  typeof useGetAllPurchaseOrdersByCompanyIdNewLazyQuery
+>;
+export type GetAllPurchaseOrdersByCompanyIdNewQueryResult = Apollo.QueryResult<
+  GetAllPurchaseOrdersByCompanyIdNewQuery,
+  GetAllPurchaseOrdersByCompanyIdNewQueryVariables
 >;
 export const GetOpenPurchaseOrdersByCompanyIdNewDocument = gql`
   query GetOpenPurchaseOrdersByCompanyIdNew($company_id: uuid!) {

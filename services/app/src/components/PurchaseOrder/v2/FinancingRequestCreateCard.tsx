@@ -52,6 +52,8 @@ export default function FinancingRequestCreateCard({
     amountError = "Please enter amount for your financing request";
   }
 
+  console.log({ loan, customer_notes: loan.customer_notes });
+
   return (
     <FinancingRequestCard>
       <CardContent>
@@ -104,11 +106,12 @@ export default function FinancingRequestCreateCard({
         <FormControl fullWidth>
           <TextField
             label={"Comments"}
-            value={loan?.customer_notes || ""}
+            defaultValue={loan.customer_notes}
             onChange={({ target: { value } }) =>
               setLoan({
                 ...loan,
                 customer_notes: value,
+                notes: value,
               })
             }
           />

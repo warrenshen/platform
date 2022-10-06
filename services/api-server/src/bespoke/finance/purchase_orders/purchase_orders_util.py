@@ -842,13 +842,15 @@ def submit_purchase_order_for_approval_new(
 
 	return purchase_order, vendor_users, is_vendor_missing_bank_account, None
 
-# TODO: consider case in which it diverges
+# Only used post PO approval to reconcile loan statuses with new PO status
 @errors.return_error_tuple
 def update_purchase_order_status(
 	session: Session,
 	purchase_order_id: str,
 	created_by_user_id: str,
 	created_by_user_full_name: str,
+	is_financing_request_delete: bool = False,
+	is_financing_request_partially_funded: bool = False,
 ) -> Tuple[bool, errors.Error]:
 	purchase_order = cast(
 		models.PurchaseOrder,
@@ -872,11 +874,19 @@ def update_purchase_order_status(
 	# FUNDED (partial), other loans (follows above logic) => FINANCING_REQUEST_APPROVED or FINANCING_PENDING_APPROVAL
 	# FUNDED (fully) => ARCHIVED
 	amount_funded = float(purchase_order.amount_funded) if purchase_order.amount_funded else float(0)
-	all_loan_statuses = set([loan.status for loan in loans])
+	all_loan_statuses = set([loan.status for loan in loans if loan.funded_at is None])
+
+	if is_financing_request_delete:
+		action = "PO financing request deleted"
+	elif is_financing_request_partially_funded:
+		action = "PO partially funded"
+	else:
+		action = None
+
 	if number_util.float_eq(amount_funded, float(purchase_order.amount)):
 		purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.ARCHIVED
 		purchase_order.history.append(purchase_orders_util.get_purchase_order_history_event(
-			action = "Po archived",
+			action = "PO archived",
 			new_purchase_order_status = NewPurchaseOrderStatus.ARCHIVED,
 			created_by_user_id = created_by_user_id,
 			created_by_user_full_name = created_by_user_full_name
@@ -885,7 +895,7 @@ def update_purchase_order_status(
 	elif LoanStatusEnum.APPROVED in all_loan_statuses and LoanStatusEnum.APPROVAL_REQUESTED not in all_loan_statuses:
 		purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.FINANCING_REQUEST_APPROVED
 		purchase_order.history.append(purchase_orders_util.get_purchase_order_history_event(
-			action = "PO financing request approved",
+			action = action if action else "PO financing request approved",
 			new_purchase_order_status = NewPurchaseOrderStatus.FINANCING_REQUEST_APPROVED,
 			created_by_user_id = created_by_user_id,
 			created_by_user_full_name = created_by_user_full_name
@@ -894,21 +904,22 @@ def update_purchase_order_status(
 	elif LoanStatusEnum.APPROVAL_REQUESTED in all_loan_statuses:
 		purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.FINANCING_PENDING_APPROVAL
 		purchase_order.history.append(purchase_orders_util.get_purchase_order_history_event(
-			action = "Po financing request created",
+			action = action if is_financing_request_delete else "PO financing request created",
 			new_purchase_order_status = NewPurchaseOrderStatus.FINANCING_PENDING_APPROVAL,
 			created_by_user_id = created_by_user_id,
 			created_by_user_full_name = created_by_user_full_name
 		))
 		return True, None
-	elif len(all_loan_statuses) == 0 or purchase_order.amount_funded > 0:
+	elif len(all_loan_statuses) == 0 or purchase_order.amount_funded and purchase_order.amount_funded > 0:
 		purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.READY_TO_REQUEST_FINANCING
 		purchase_order.history.append(purchase_orders_util.get_purchase_order_history_event(
-			action = "Po approved",
+			action = action,
 			new_purchase_order_status = NewPurchaseOrderStatus.READY_TO_REQUEST_FINANCING,
 			created_by_user_id = created_by_user_id,
 			created_by_user_full_name = created_by_user_full_name
 		))
 		return True, None
+
 	else:
 		return None, errors.Error("Could not update status for purchase_order_id: " + purchase_order_id)
 
@@ -1344,8 +1355,8 @@ def update_purchase_order(
 			return None, errors.Error("Cannot update purchase order, no matches with the provided id were found.")
 
 		did_amount_change = not number_util.float_eq(
-			float(purchase_order_input.amount), 
-			float(purchase_order.amount)
+			float(purchase_order_input.amount or 0), 
+			float(purchase_order.amount or 0)
 		) or \
 			purchase_order.approved_at is None
 
