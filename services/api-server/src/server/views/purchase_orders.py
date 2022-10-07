@@ -7,7 +7,7 @@ from bespoke import errors
 from bespoke.audit import events
 from bespoke.date import date_util
 from bespoke.db import models, models_util, queries
-from bespoke.db.db_constants import RequestStatusEnum, TwoFactorLinkType, NewPurchaseOrderStatus
+from bespoke.db.db_constants import RequestStatusEnum, NewPurchaseOrderStatus, LoanStatusEnum, UserRoles
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from bespoke.finance import number_util
@@ -1160,6 +1160,19 @@ class CloseView(MethodView):
 				return handler_util.make_error_response('Access Denied')
 
 			purchase_order.closed_at = date_util.now()
+			purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.ARCHIVED
+
+			user = session.query(models.User) \
+				.filter(models.User.id == user_session.get_user_id()) \
+				.first()
+
+			purchase_orders_util.update_purchase_order_history(
+				purchase_order = purchase_order,
+				user_id = user_session.get_user_id(),
+				user_full_name = user.full_name,
+				action = "PO archived",
+				new_status = NewPurchaseOrderStatus.ARCHIVED
+			)
 
 		return make_response(json.dumps({
 			'status': 'OK',
@@ -1192,10 +1205,62 @@ class ReopenView(MethodView):
 			if not user_session.is_bank_or_this_company_admin(str(purchase_order.company_id)):
 				return handler_util.make_error_response('Access Denied')
 
-			if purchase_order.funded_at is not None:
+			if purchase_order.funded_at is not None and number_util.float_eq(float(purchase_order.amount), float(purchase_order.amount_funded)):
 				return handler_util.make_error_response('Cannot reopen a fully funded purchase order')
 
 			purchase_order.closed_at = None
+			user, err = queries.get_user_by_id(session, user_session.get_user_id())
+			if err:
+				raise err
+			new_status = None
+
+			# If the PO has a working history (Created after new PO flow has launched)
+			# the most recent event (-1) will be ARCHIVE, hence we look at the previous event
+			# which will hold the status prior to it becoming archived
+			if purchase_order.history and len(purchase_order.history) >= 2:
+				new_status = purchase_order.history[-2]['new_purchase_order_status']
+			else:
+				if purchase_order.approved_at:
+					loans = cast(
+						List[models.Loan],
+						session.query(models.Loan).filter(
+							models.Loan.artifact_id == str(purchase_order_id)
+						).filter(
+							cast(Callable, models.Loan.is_deleted.isnot)(True)
+						).all()
+					)
+					amount_funded = float(purchase_order.amount_funded) if purchase_order.amount_funded else float(0)
+					all_loan_statuses = set([loan.status for loan in loans if loan.funded_at is None])
+					if number_util.float_eq(amount_funded, float(purchase_order.amount)):
+						new_status = NewPurchaseOrderStatus.ARCHIVED
+					elif LoanStatusEnum.APPROVED in all_loan_statuses and LoanStatusEnum.APPROVAL_REQUESTED not in all_loan_statuses:
+						new_status = NewPurchaseOrderStatus.FINANCING_REQUEST_APPROVED
+					elif LoanStatusEnum.APPROVAL_REQUESTED in all_loan_statuses:
+						new_status = NewPurchaseOrderStatus.FINANCING_PENDING_APPROVAL
+					elif len(all_loan_statuses) == 0 or purchase_order.amount_funded and purchase_order.amount_funded > 0:
+						new_status = NewPurchaseOrderStatus.READY_TO_REQUEST_FINANCING
+
+				elif purchase_order.requested_at:
+					new_status = NewPurchaseOrderStatus.PENDING_APPROVAL_BY_VENDOR
+				elif purchase_order.rejected_at and purchase_order.rejected_by_user_id:
+					rejected_by_user = session.query(models.User) \
+						.filter(models.User.id == user_session.get_user_id()) \
+						.first()
+					if rejected_by_user.role != UserRoles.BANK_ADMIN:
+						new_status = NewPurchaseOrderStatus.REJECTED_BY_VENDOR
+				elif purchase_order.rejected_at:
+					new_status = NewPurchaseOrderStatus.REJECTED_BY_BESPOKE
+				elif not purchase_order.requested_at:
+					new_status = NewPurchaseOrderStatus.DRAFT
+
+			purchase_order.new_purchase_order_status = new_status
+			purchase_orders_util.update_purchase_order_history(
+				purchase_order = purchase_order,
+				user_id = str(user.id),
+				user_full_name = user.full_name,
+				action = "PO unarchived",
+				new_status = new_status
+			)
 
 		return make_response(json.dumps({
 			'status': 'OK',

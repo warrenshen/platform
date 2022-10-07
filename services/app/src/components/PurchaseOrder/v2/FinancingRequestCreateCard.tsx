@@ -18,7 +18,9 @@ interface Props {
   amountLeft: number;
   loan: LoansInsertInput;
   hasBeenFocused: boolean;
+  hasEdited: boolean;
   setLoan: (loan: LoansInsertInput) => void;
+  setHasEdited: (hasEdited: boolean) => void;
 }
 
 const FinancingRequestCard = styled.div`
@@ -36,7 +38,9 @@ export default function FinancingRequestCreateCard({
   amountLeft,
   loan,
   hasBeenFocused,
+  hasEdited,
   setLoan,
+  setHasEdited,
 }: Props) {
   const [hasDateBeenFocusedOnce, setHasDateBeenFocusedOnce] =
     useState<boolean>(hasBeenFocused);
@@ -52,8 +56,6 @@ export default function FinancingRequestCreateCard({
     amountError = "Please enter amount for your financing request";
   }
 
-  console.log({ loan, customer_notes: loan.customer_notes });
-
   return (
     <FinancingRequestCard>
       <CardContent>
@@ -68,6 +70,9 @@ export default function FinancingRequestCreateCard({
             error={hasDateBeenFocusedOnce && !loan.requested_payment_date}
             onBlur={() => setHasDateBeenFocusedOnce(true)}
             onChange={(value) => {
+              if (!hasEdited) {
+                setHasEdited(true);
+              }
               setLoan({
                 ...loan,
                 requested_payment_date: value,
@@ -95,25 +100,31 @@ export default function FinancingRequestCreateCard({
             value={loan.amount}
             onBlur={() => setHasAmountBeenFocusedOnce(true)}
             error={amountError}
-            handleChange={(value) =>
+            handleChange={(value) => {
+              if (!hasEdited) {
+                setHasEdited(true);
+              }
               setLoan({
                 ...loan,
                 amount: value,
-              })
-            }
+              });
+            }}
           />
         </FormControl>
         <FormControl fullWidth>
           <TextField
             label={"Comments"}
-            defaultValue={loan.customer_notes}
-            onChange={({ target: { value } }) =>
+            value={loan.customer_notes}
+            onChange={({ target: { value } }) => {
+              if (!hasEdited) {
+                setHasEdited(true);
+              }
               setLoan({
                 ...loan,
                 customer_notes: value,
                 notes: value,
-              })
-            }
+              });
+            }}
           />
         </FormControl>
       </CardContent>

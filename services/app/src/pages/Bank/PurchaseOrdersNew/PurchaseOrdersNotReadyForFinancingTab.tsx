@@ -19,7 +19,7 @@ import { SearchIcon } from "icons";
 import { Action } from "lib/auth/rbac-rules";
 import {
   NewPurchaseOrderStatus,
-  ReadyNewPurchaseOrderStatuses,
+  NotReadyNewPurchaseOrderStatuses,
 } from "lib/enum";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useMemo, useState } from "react";
@@ -117,46 +117,55 @@ export default function BankPurchaseOrdersReadyForFinancingTab() {
           handleRejectSuccess={() => {}}
         />
       )}
+      <Box>
+        <Typography variant="h6">Not Ready for Financing</Typography>
+      </Box>
       <Box
+        width="100%"
         display="flex"
-        justifyContent="space-between"
+        flexDirection="row-reverse"
         alignItems="flex-end"
-        mt={1}
-        mb={2}
       >
-        <Box>
-          <Typography variant="h6">Not Ready for Financing</Typography>
-        </Box>
-        <Box display="flex" flexDirection="row-reverse">
-          <Can perform={Action.ApprovePurchaseOrders}>
-            <PrimaryButton
-              isDisabled={!selectedPurchaseOrder}
-              text={"Approve"}
-              onClick={() => setIsApproveModalOpen(true)}
-            />
-          </Can>
-          <Can perform={Action.ApprovePurchaseOrders}>
-            <PrimaryButton
-              isDisabled={!selectedPurchaseOrder}
-              text={"Request Changes"}
-              onClick={() => setIsRequestChangesModalOpen(true)}
-            />
-          </Can>
-          <Can perform={Action.DeletePurchaseOrders}>
-            <SecondaryWarningButton
-              isDisabled={!selectedPurchaseOrder}
-              text={"Reject completely"}
-              onClick={() => setIsRejectModalOpen(true)}
-            />
-          </Can>
-          <Can perform={Action.ArchivePurchaseOrders}>
-            <SecondaryButton
-              isDisabled={!selectedPurchaseOrder}
-              text={"Archive"}
-              onClick={() => setIsArchiveModalOpen(true)}
-            />
-          </Can>
-        </Box>
+        <Can perform={Action.ApprovePurchaseOrders}>
+          <PrimaryButton
+            isDisabled={
+              !selectedPurchaseOrder ||
+              selectedPurchaseOrder.new_purchase_order_status ===
+                NewPurchaseOrderStatus.ChangesRequestedByBespoke ||
+              selectedPurchaseOrder.new_purchase_order_status ===
+                NewPurchaseOrderStatus.ChangesRequestedByVendor
+            }
+            text={"Approve as Vendor"}
+            onClick={() => setIsApproveModalOpen(true)}
+          />
+        </Can>
+        <Can perform={Action.ApprovePurchaseOrders}>
+          <PrimaryButton
+            isDisabled={
+              !selectedPurchaseOrder ||
+              selectedPurchaseOrder.new_purchase_order_status ===
+                NewPurchaseOrderStatus.ChangesRequestedByBespoke ||
+              selectedPurchaseOrder.new_purchase_order_status ===
+                NewPurchaseOrderStatus.ChangesRequestedByVendor
+            }
+            text={"Request Changes"}
+            onClick={() => setIsRequestChangesModalOpen(true)}
+          />
+        </Can>
+        <Can perform={Action.DeletePurchaseOrders}>
+          <SecondaryWarningButton
+            isDisabled={!selectedPurchaseOrder}
+            text={"Reject completely"}
+            onClick={() => setIsRejectModalOpen(true)}
+          />
+        </Can>
+        <Can perform={Action.ArchivePurchaseOrders}>
+          <SecondaryButton
+            isDisabled={!selectedPurchaseOrder}
+            text={"Archive"}
+            onClick={() => setIsArchiveModalOpen(true)}
+          />
+        </Can>
       </Box>
       <Box display="flex" mb={4}>
         <TextField
@@ -182,7 +191,7 @@ export default function BankPurchaseOrdersReadyForFinancingTab() {
         <BankPurchaseOrdersDataGridNew
           purchaseOrders={purchaseOrders}
           selectedPurchaseOrderIds={selectedPurchaseOrderIds}
-          selectablePurchaseOrderStatuses={ReadyNewPurchaseOrderStatuses}
+          selectablePurchaseOrderStatuses={NotReadyNewPurchaseOrderStatuses}
           handleClickCustomer={handleClickCustomer}
           handleSelectPurchaseOrders={handleSelectPurchaseOrders}
           isApprovedByVendor={false}

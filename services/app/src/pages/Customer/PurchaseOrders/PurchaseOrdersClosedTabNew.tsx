@@ -1,9 +1,8 @@
 import { Box, Theme, createStyles, makeStyles } from "@material-ui/core";
-import CreateUpdatePurchaseOrderModal from "components/PurchaseOrder/CreateUpdatePurchaseOrderModal";
 import ArchivePurchaseOrderModalNew from "components/PurchaseOrder/v2/ArchivePurchaseOrderModalNew";
 import PurchaseOrdersDataGridNew from "components/PurchaseOrder/v2/PurchaseOrdersDataGridNew";
+import SecondaryButton from "components/Shared/Button/SecondaryButton";
 import Can from "components/Shared/Can";
-import ModalButton from "components/Shared/Modal/ModalButton";
 import { CurrentCustomerContext } from "contexts/CurrentCustomerContext";
 import {
   Companies,
@@ -12,11 +11,7 @@ import {
   PurchaseOrders,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
-import {
-  ActionType,
-  ClosedNewPurchaseOrderStatuses,
-  ProductTypeEnum,
-} from "lib/enum";
+import { ClosedNewPurchaseOrderStatuses, ProductTypeEnum } from "lib/enum";
 import { useContext, useMemo, useState } from "react";
 import styled from "styled-components";
 
@@ -60,6 +55,7 @@ export default function CustomerPurchaseOrdersClosedTabNew({
 
   const { financialSummary } = useContext(CurrentCustomerContext);
 
+  const [isUnArchiveModalOpen, setIsUnArchiveModalOpen] = useState(false);
   const [selectedPurchaseOrderIds, setSelectedPurchaseOrderIds] = useState<
     PurchaseOrders["id"][]
   >([]);
@@ -85,6 +81,17 @@ export default function CustomerPurchaseOrdersClosedTabNew({
 
   return (
     <Container>
+      {isUnArchiveModalOpen && (
+        <ArchivePurchaseOrderModalNew
+          action={Action.ReopenPurchaseOrders}
+          purchaseOrder={selectedPurchaseOrder}
+          handleClose={() => {
+            setSelectedPurchaseOrderIds([]);
+            setIsUnArchiveModalOpen(false);
+            refetchPurchaseOrders();
+          }}
+        />
+      )}
       {financialSummary && (
         <Box mt={3}>
           <LinearFinancialSummaryOverview {...financialSummary} />
@@ -94,49 +101,15 @@ export default function CustomerPurchaseOrdersClosedTabNew({
         <Box className={classes.section}>
           <Box my={2} display="flex" flexDirection="row-reverse">
             {selectedPurchaseOrderIds.length > 0 && (
-              <>
-                <Can perform={Action.EditPurchaseOrders}>
-                  <Box>
-                    <ModalButton
-                      isDisabled={!selectedPurchaseOrder || !isActiveContract}
-                      label={"Edit PO"}
-                      modal={({ handleClose }) => (
-                        <CreateUpdatePurchaseOrderModal
-                          actionType={ActionType.Update}
-                          companyId={companyId}
-                          purchaseOrderId={selectedPurchaseOrder?.id}
-                          productType={productType}
-                          handleClose={() => {
-                            refetchPurchaseOrders();
-                            handleClose();
-                            setSelectedPurchaseOrderIds([]);
-                          }}
-                        />
-                      )}
-                    />
-                  </Box>
-                </Can>
-                <Can perform={Action.ReopenPurchaseOrders}>
-                  <Box mr={2}>
-                    <ModalButton
-                      isDisabled={!selectedPurchaseOrder || !isActiveContract}
-                      label={"Unarchive"}
-                      variant={"outlined"}
-                      modal={({ handleClose }) => (
-                        <ArchivePurchaseOrderModalNew
-                          purchaseOrder={selectedPurchaseOrder || null}
-                          action={Action.ReopenPurchaseOrders}
-                          handleClose={() => {
-                            refetchPurchaseOrders();
-                            handleClose();
-                            setSelectedPurchaseOrderIds([]);
-                          }}
-                        />
-                      )}
-                    />
-                  </Box>
-                </Can>
-              </>
+              <Can perform={Action.ReopenPurchaseOrders}>
+                <Box mr={2}>
+                  <SecondaryButton
+                    isDisabled={!selectedPurchaseOrder || !isActiveContract}
+                    text={"Unarchive"}
+                    onClick={() => setIsUnArchiveModalOpen(true)}
+                  />
+                </Box>
+              </Can>
             )}
           </Box>
           <PurchaseOrdersDataGridNew

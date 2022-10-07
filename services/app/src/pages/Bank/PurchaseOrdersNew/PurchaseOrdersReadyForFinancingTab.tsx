@@ -24,7 +24,6 @@ import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
 
-// STUB: Use appropriate query and filter for each tab
 export default function BankPurchaseOrdersReadyForFinancingTab() {
   const history = useHistory();
   const [searchQuery, setSearchQuery] = useState("");

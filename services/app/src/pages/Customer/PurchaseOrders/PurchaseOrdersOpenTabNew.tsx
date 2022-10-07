@@ -168,6 +168,10 @@ export default function CustomerPurchaseOrdersOpenTabNew({
     isCreateUpdateModalOpenForNotApprovedPurchaseOrders,
     setIsCreateUpdateModalOpenForNotApprovedPurchaseOrders,
   ] = useState(false);
+  const [
+    isCreateUpdateModalOpenForApprovedPurchaseOrders,
+    setIsCreateUpdateModalOpenForApprovedPurchaseOrders,
+  ] = useState(false);
   const [isManagePOFinancingModalOpen, setIsManagePOFinancingModalOpen] =
     useState(false);
   const [
@@ -221,6 +225,7 @@ export default function CustomerPurchaseOrdersOpenTabNew({
           action={Action.ArchivePurchaseOrders}
           purchaseOrder={selectedNotApprovedPurchaseOrder}
           handleClose={() => {
+            refetchPurchaseOrders();
             setSelectedNotApprovedPurchaseOrdersMap({});
             setIsArchiveModalOpenForNotApprovedPurchaseOrders(false);
           }}
@@ -231,6 +236,7 @@ export default function CustomerPurchaseOrdersOpenTabNew({
           action={Action.ArchivePurchaseOrders}
           purchaseOrder={selectedApprovedPurchaseOrder}
           handleClose={() => {
+            refetchPurchaseOrders();
             setSelectedApprovedPurchaseOrdersMap({});
             setIsArchiveModalOpenForApprovedPurchaseOrders(false);
           }}
@@ -246,6 +252,19 @@ export default function CustomerPurchaseOrdersOpenTabNew({
             refetchPurchaseOrders();
             setSelectedNotApprovedPurchaseOrdersMap({});
             setIsCreateUpdateModalOpenForNotApprovedPurchaseOrders(false);
+          }}
+        />
+      )}
+      {isCreateUpdateModalOpenForApprovedPurchaseOrders && (
+        <CreateUpdatePurchaseOrderModalNew
+          actionType={ActionType.Update}
+          purchaseOrderId={selectedApprovedPurchaseOrder?.id}
+          companyId={companyId}
+          productType={productType}
+          handleClose={() => {
+            refetchPurchaseOrders();
+            setSelectedNotApprovedPurchaseOrdersMap({});
+            setIsCreateUpdateModalOpenForApprovedPurchaseOrders(false);
           }}
         />
       )}
@@ -413,6 +432,22 @@ export default function CustomerPurchaseOrdersOpenTabNew({
                     }
                     text={"Edit Financing"}
                     onClick={() => setIsManagePOFinancingModalOpen(true)}
+                  />
+                </Can>
+              )}
+              {selectedApprovedPurchaseOrdersMap.hasOwnProperty(
+                NewPurchaseOrderStatus.ChangesRequestedByBespoke
+              ) && (
+                <Can perform={Action.EditPurchaseOrders}>
+                  <PrimaryButton
+                    dataCy={"edit-changes-requested-po-button"}
+                    isDisabled={
+                      !selectedApprovedPurchaseOrder || !isActiveContract
+                    }
+                    text={"Edit"}
+                    onClick={() =>
+                      setIsCreateUpdateModalOpenForApprovedPurchaseOrders(true)
+                    }
                   />
                 </Can>
               )}

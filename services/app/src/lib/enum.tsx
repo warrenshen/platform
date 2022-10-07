@@ -259,6 +259,7 @@ export const ReadyNewPurchaseOrderStatuses = [
   NewPurchaseOrderStatus.ReadyToRequestFinancing,
   NewPurchaseOrderStatus.FinancingPendingApproval,
   NewPurchaseOrderStatus.FinancingRequestApproved,
+  NewPurchaseOrderStatus.ChangesRequestedByBespoke,
 ];
 
 export const ClosedNewPurchaseOrderStatuses = [

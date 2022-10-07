@@ -104,6 +104,7 @@ function ManagePurchaseOrderFinancingModal({
     customer_notes: "",
   };
 
+  const [hasEdited, setHasEdited] = useState<boolean>(false);
   const [currentlyEditingLoan, setCurrentlyEditingLoan] =
     useState<LoansInsertInput>(defaultLoan);
   const [newLoan, setNewLoan] = useState<LoansInsertInput>(defaultLoan);
@@ -213,21 +214,24 @@ function ManagePurchaseOrderFinancingModal({
   );
 
   const amountRemaining = purchaseOrder.amount - purchaseOrder.amount_funded;
-
-  const proposedLoansTotalAmount = financingRequests.reduce(
-    (amountRequested, financingRequest) => {
-      return amountRequested + financingRequest.amount;
-    },
-    0
-  );
+  const currentlyEditingLoanAmount =
+    currentlyEditingLoan?.amount || newLoan?.amount || 0;
+  const proposedLoansTotalAmount =
+    financingRequests
+      .filter(
+        (financingRequest) => financingRequest.id !== currentlyEditingLoan?.id
+      )
+      .reduce((amountRequested, financingRequest) => {
+        return amountRequested + financingRequest.amount;
+      }, 0) + currentlyEditingLoanAmount;
 
   const isSaveSubmitDisabled = proposedLoansTotalAmount > amountRemaining;
 
   const canCreateNewFinancingRequest =
     isDueDateValid &&
-    newLoan.requested_payment_date &&
     newLoan.amount &&
-    newLoan.amount + proposedLoansTotalAmount <= amountRemaining;
+    newLoan.requested_payment_date &&
+    proposedLoansTotalAmount <= amountRemaining;
 
   const isPrimaryActionDisabled =
     isSubmitLoanNewLoading ||
@@ -252,7 +256,10 @@ function ManagePurchaseOrderFinancingModal({
         <Box mt={4} mb={4}>
           <ProgressBar
             amountFunded={
-              purchaseOrder.amount_funded + proposedLoansTotalAmount
+              purchaseOrder.amount_funded + proposedLoansTotalAmount <=
+              purchaseOrder.amount
+                ? purchaseOrder.amount_funded + proposedLoansTotalAmount
+                : purchaseOrder.amount
             }
             totalAmount={purchaseOrder.amount}
           />
@@ -285,10 +292,11 @@ function ManagePurchaseOrderFinancingModal({
                     hasBeenFocused={false}
                     amountLeft={
                       amountRemaining -
-                      proposedLoansTotalAmount +
-                      financingRequest.amount
+                      (proposedLoansTotalAmount - financingRequest.amount)
                     }
+                    hasEdited={hasEdited}
                     setLoan={setCurrentlyEditingLoan}
+                    setHasEdited={setHasEdited}
                   />
                   <Box ml={3}>
                     <FloatingIconActionButton
@@ -349,10 +357,13 @@ function ManagePurchaseOrderFinancingModal({
         {!currentlyEditingLoan.id && isNewLoanShown && (
           <Box mt={2}>
             <FinancingRequestCreateCard
+              key={currentlyEditingLoan.id}
               loan={newLoan}
               hasBeenFocused={false}
-              amountLeft={amountRemaining - proposedLoansTotalAmount}
+              amountLeft={amountRemaining}
+              hasEdited={hasEdited}
               setLoan={setNewLoan}
+              setHasEdited={setHasEdited}
             />
           </Box>
         )}
@@ -384,34 +395,29 @@ function ManagePurchaseOrderFinancingModal({
             </Box>
           )}
       </Box>
-      {isNewLoanShown &&
-        !canCreateNewFinancingRequest &&
-        financingRequests.length > 0 && (
-          <Box
-            mt={2}
-            overflow="auto"
-            width="100vw"
-            position="absolute"
-            bottom={84}
-            left="50%"
-            right="50%"
-            ml="-50vw"
-            mr="-50vw"
-            justifyContent="center"
-            alignItems="center"
-          >
-            <StyledAlert
-              severity="warning"
-              style={{ justifyContent: "center" }}
-            >
-              <Typography variant="body1">
-                Important: you have unsaved changes. Please press "Save and
-                Submit" below to save your changes. If you want to cancel your
-                changes, you may close this window.
-              </Typography>
-            </StyledAlert>
-          </Box>
-        )}
+      {hasEdited && (
+        <Box
+          mt={2}
+          overflow="auto"
+          width="100vw"
+          position="absolute"
+          bottom={84}
+          left="50%"
+          right="50%"
+          ml="-50vw"
+          mr="-50vw"
+          justifyContent="center"
+          alignItems="center"
+        >
+          <StyledAlert severity="warning" style={{ justifyContent: "center" }}>
+            <Typography variant="body1">
+              Important: you have unsaved changes. Please press "Save and
+              Submit" below to save your changes. If you want to cancel your
+              changes, you may close this window.
+            </Typography>
+          </StyledAlert>
+        </Box>
+      )}
     </Modal>
   );
 }

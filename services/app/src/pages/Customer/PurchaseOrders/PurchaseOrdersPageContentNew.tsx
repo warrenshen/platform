@@ -140,7 +140,10 @@ export default function CustomerPurchaseOrdersPageContentNew({
           value={selectedTabIndex}
           indicatorColor="primary"
           textColor="primary"
-          onChange={(_: any, value: number) => setSelectedTabIndex(value)}
+          onChange={(_: any, value: number) => {
+            refetch();
+            setSelectedTabIndex(value);
+          }}
         >
           {CustomerPurchaseOrdersTabLabelsNew.map(
             (label: CustomerPurchaseOrdersTabLabelNew) => (
