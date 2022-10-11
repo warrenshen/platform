@@ -9,7 +9,7 @@ import {
   formatDateString,
   todayAsDateStringServer,
 } from "lib/date";
-import { AdvanceMethodEnum, USStates } from "lib/enum";
+import { AdvanceMethodEnum } from "lib/enum";
 import { uniq } from "lodash";
 import { useState } from "react";
 import styled from "styled-components";
@@ -21,9 +21,11 @@ const Container = styled.div`
   width: 100%;
 `;
 
+const NoneValue = "None";
+
 export default function BankAdvancesExportAchsTab() {
   const [selectedDate, setSelectedDate] = useState(todayAsDateStringServer());
-  const [selectedState, setSelectedState] = useState(USStates["None"].full);
+  const [selectedState, setSelectedState] = useState(NoneValue);
 
   const { data, error } = useGetAdvancesByMethodAndPaymentDateQuery({
     fetchPolicy: "network-only",
@@ -42,12 +44,11 @@ export default function BankAdvancesExportAchsTab() {
     data?.payments.filter(
       ({ company_bank_account }) =>
         company_bank_account?.us_state === selectedState ||
-        (selectedState === USStates["None"].full &&
-          !company_bank_account?.us_state)
+        (selectedState === NoneValue && !company_bank_account?.us_state)
     ) || [];
 
   const states = uniq([
-    USStates["None"].full,
+    NoneValue,
     ...(data?.payments
       .filter(({ company_bank_account }) => company_bank_account?.us_state)
       .map(
@@ -77,7 +78,7 @@ export default function BankAdvancesExportAchsTab() {
               <TextField {...params} label="State" />
             )}
             onChange={(_, state: string | null) => {
-              setSelectedState(state || USStates["None"].full);
+              setSelectedState(state || NoneValue);
             }}
           />
         </Box>
@@ -99,7 +100,7 @@ export default function BankAdvancesExportAchsTab() {
           exportFileName={`ACHs ${formatDateString(
             selectedDate,
             DateFormatFileName
-          )} ${selectedState === USStates["None"].full ? "" : selectedState}`}
+          )} ${selectedState === NoneValue ? "" : selectedState}`}
         />
       </Box>
     </Container>

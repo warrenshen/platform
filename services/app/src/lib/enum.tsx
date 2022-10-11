@@ -67,7 +67,6 @@ export interface USStateEnum {
 }
 
 export const USStates: USStateEnum = {
-  None: { abbreviation: "", full: "None" },
   AL: { abbreviation: "AL", full: "Alabama" },
   AK: { abbreviation: "AK", full: "Alaska" },
   AZ: { abbreviation: "AZ", full: "Arizona" },

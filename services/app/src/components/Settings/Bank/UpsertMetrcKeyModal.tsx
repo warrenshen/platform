@@ -13,6 +13,7 @@ import {
   createStyles,
   makeStyles,
 } from "@material-ui/core";
+import USStateDropdown from "components/Shared/FormInputs/USStateDropdown";
 import { Companies, MetrcApiKeyFragment } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -106,24 +107,21 @@ export default function UpsertMetrcKeyModal({
       maxWidth="md"
       classes={{ paper: classes.dialog }}
     >
-      <DialogTitle>{hasKey ? "Edit Metrc Key" : "Add Metrc Key"}</DialogTitle>
+      <DialogTitle>
+        {hasKey ? "Edit Metrc API Key" : "Add Metrc API Key"}
+      </DialogTitle>
       <DialogContent>
         <Box display="flex" flexDirection="column">
           <TextField
             autoFocus
-            label="API Key"
+            label="Metrc API Key"
             required
             value={apiKey}
             onChange={({ target: { value } }) => setApiKey(value)}
           />
         </Box>
         <Box display="flex" flexDirection="column" mt={2}>
-          <TextField
-            label="US State"
-            required
-            value={usState}
-            onChange={({ target: { value } }) => setUsState(value)}
-          />
+          <USStateDropdown isMetrcOnly value={usState} setValue={setUsState} />
         </Box>
         <Box display="flex" flexDirection="column" mt={2}>
           <FormControlLabel

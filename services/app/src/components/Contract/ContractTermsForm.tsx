@@ -14,6 +14,7 @@ import {
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import JsonFormInput from "components/Shared/FormInputs/JsonFormInput";
+import USStateDropdown from "components/Shared/FormInputs/USStateDropdown";
 import { ContractsInsertInput } from "generated/graphql";
 import {
   ContractTermNames,
@@ -25,12 +26,7 @@ import {
   isProductConfigFieldInvalid,
 } from "lib/contracts";
 import { dateAsDateStringServer, parseDateStringServer } from "lib/date";
-import {
-  AllProductTypes,
-  ProductTypeEnum,
-  ProductTypeToLabel,
-  USStates,
-} from "lib/enum";
+import { AllProductTypes, ProductTypeEnum, ProductTypeToLabel } from "lib/enum";
 import { groupBy } from "lodash";
 import { ChangeEvent, useMemo } from "react";
 import SelectTimezoneMaterialUi from "select-timezone-material-ui";
@@ -232,41 +228,13 @@ export default function ContractTermsForm({
       );
     } else if (item.type === "us_state") {
       return (
-        <FormControl>
-          <FormHelperText>US State *</FormHelperText>
-          <Select
-            data-cy={"us-state-dropdown"}
-            id={item.internal_name}
-            style={{ width: "100%" }}
-            displayEmpty={true}
-            renderValue={() => (
-              <span>
-                {item.value ? USStates[item.value].full : item.display_name}
-              </span>
-            )}
-            value={item.value || ""}
-            onChange={(e: any) => {
-              const state_abbreviation = e.target.value;
-              findAndReplaceInJSON(item, state_abbreviation);
-            }}
-          >
-            {Object.keys(USStates).map((key: string) => {
-              return (
-                <MenuItem
-                  data-cy={"us-state-dropdown-item"}
-                  classes={{
-                    root: "us-state-option",
-                  }}
-                  key={USStates[key].abbreviation}
-                  value={USStates[key].abbreviation}
-                >
-                  {USStates[key].full}
-                </MenuItem>
-              );
-            })}
-          </Select>
-          <FormHelperText>Please select a state from the list</FormHelperText>
-        </FormControl>
+        <USStateDropdown
+          dataCy={"us-state-dropdown"}
+          helperText={"Please select a US state from the list"}
+          id={item.internal_name}
+          value={item.value || null}
+          setValue={(value) => findAndReplaceInJSON(item, value)}
+        />
       );
     } else if (item.type === "timezone") {
       return (
