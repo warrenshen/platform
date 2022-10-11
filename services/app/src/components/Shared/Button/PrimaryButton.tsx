@@ -14,32 +14,36 @@ import {
 
 interface Props {
   isDisabled?: boolean;
-  isIconVisible?: boolean;
+  isSmallIcon?: boolean;
+  isBorderHidden?: boolean;
+  icon?: React.ReactNode;
   text: string;
   width?: string;
   height?: string;
   margin?: string;
   padding?: string;
   dataCy?: string;
-  icon?: React.ReactNode;
   onClick: () => void;
 }
 
 export default function PrimaryButton({
   isDisabled = false,
-  isIconVisible = false,
+  isSmallIcon = false,
+  isBorderHidden = false,
+  icon = null,
   text,
   width,
   height,
   margin,
   padding,
   dataCy,
-  icon,
   onClick,
 }: Props) {
   return (
     <ActionButton
       isDisabled={isDisabled}
+      isSmallIcon={isSmallIcon}
+      isBorderHidden={isBorderHidden}
       variant={"outlined"}
       text={text}
       onClick={onClick}

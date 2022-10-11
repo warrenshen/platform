@@ -7,7 +7,7 @@ import {
   createStyles,
   makeStyles,
 } from "@material-ui/core";
-import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
+import BankAccountInfoCardNew from "components/BankAccount/BankAccountInfoCardNew";
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
 import SecondaryButton from "components/Shared/Button/SecondaryButton";
 import ModalDialog from "components/Shared/Modal/ModalDialog";
@@ -26,7 +26,7 @@ import { useContext } from "react";
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     dialog: {
-      width: 400,
+      width: 600,
     },
     dialogTitle: {
       borderBottom: "1px solid #c7c7c7",
@@ -102,7 +102,6 @@ function ReviewPurchaseOrderApproveModalNew({
     if (response.status !== "OK") {
       snackbar.showError(`Something went wrong. Reason: ${response.msg}`);
     } else {
-      snackbar.showSuccess("Purchase order approved.");
       handleApproveSuccess();
     }
   };
@@ -122,7 +121,7 @@ function ReviewPurchaseOrderApproveModalNew({
           information is not up-to-date, please contact us.
         </DialogContentText>
         <Box>
-          <BankAccountInfoCard bankAccount={vendorBankAccount} />
+          <BankAccountInfoCardNew bankAccount={vendorBankAccount} />
         </Box>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>

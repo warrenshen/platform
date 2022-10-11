@@ -11,6 +11,7 @@ import FlexContent from "components/Shared/Page/FlexContent";
 import Text, { TextVariants } from "components/Shared/Text/Text";
 import MetrcTransferInfoCardForVendor from "components/Transfers/MetrcTransferInfoCardForVendor";
 import {
+  Maybe,
   PurchaseOrderFileTypeEnum,
   RequestStatusEnum,
   useGetPurchaseOrderForReviewQuery,
@@ -22,23 +23,29 @@ import { formatCurrency } from "lib/number";
 import { computePurchaseOrderDueDateDateStringClient } from "lib/purchaseOrders";
 import { anonymousRoutes } from "lib/routes";
 import { useMemo, useState } from "react";
+import { isMobile } from "react-device-detect";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
-const Buttons = styled.div`
+const Buttons = styled(Box)<{
+  $padding: Maybe<string>;
+}>`
   display: flex;
   align-items: center;
-  justify-content: center;
 
   width: 100%;
+
+  padding: ${(props) => (props.$padding ? props.$padding : "0")};
 `;
 
-const FixedBox = styled(Box)`
+const FixedBox = styled(Box)<{
+  $height: number;
+}>`
   position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 96px;
+  height: ${(props) => props.$height}px;
   border-top: #d4d3d0 1px solid;
   padding: 23px 0;
   background: #fff;
@@ -59,10 +66,6 @@ const useStyles = makeStyles((theme: Theme) =>
       flexDirection: "column",
       width: "100%",
       maxWidth: 600,
-      paddingTop: "25px",
-      paddingBottom: theme.spacing(8),
-      paddingLeft: 0,
-      paddingRight: 0,
     },
   })
 );
@@ -140,193 +143,240 @@ export default function ReviewPurchaseOrderPage({ location }: Props) {
 
   return (
     <FlexContent>
-      <Box className={classes.wrapper}>
-        <Box className={classes.container}>
-          {!isDataReady ? (
-            <Box display="flex" flexDirection="column">
-              {!!error ? (
-                <Box display="flex" flexDirection="column" mt={2}>
-                  <Text textVariant={TextVariants.Paragraph}>
-                    A network error occurred. Please check your network
-                    connection and try again.
-                  </Text>
-                  <PrimaryButton
-                    dataCy={"vendor-review-retry-data-load-button"}
-                    text={"Retry"}
-                    height={"40px"}
-                    margin={"0"}
-                    onClick={() => refetch()}
-                  />
-                </Box>
-              ) : (
-                <Box
-                  display="flex"
-                  flexDirection="column"
-                  alignItems="center"
-                  mt={2}
-                >
-                  <Text textVariant={TextVariants.Paragraph}>Loading...</Text>
-                </Box>
-              )}
-            </Box>
-          ) : !purchaseOrder || !!purchaseOrder.is_deleted ? (
-            <Box display="flex" flexDirection="column">
-              <Text textVariant={TextVariants.Paragraph}>
-                Purchase order does not exist
-              </Text>
-            </Box>
-          ) : (
-            <>
-              <Text textVariant={TextVariants.Header}>
-                {`Approval Request for PO ${purchaseOrder.order_number}`}
-              </Text>
-              <Text textVariant={TextVariants.ParagraphLead}>
-                This purchase order new requires your approval before Bespoke
-                Financial can finance it. Please review the information and
-                select either approve, reject, or request changes.
-              </Text>
-              {isMetrcBased && (
-                <Box display="flex" flexDirection="column" mt={2}>
-                  <Text
-                    textVariant={TextVariants.Paragraph}
-                    color="textSecondary"
-                  >
-                    Related Metrc manifest
-                  </Text>
-                  {metrcTransfers.map((metrcTransfer) => (
-                    <Box
-                      key={metrcTransfer.id}
-                      display="flex"
-                      flexDirection="column"
-                      mt={1}
-                    >
-                      <MetrcTransferInfoCardForVendor
-                        metrcTransfer={metrcTransfer}
-                      />
-                    </Box>
-                  ))}
-                </Box>
-              )}
-              <ModalDataPoint
-                subtitle={"Buyer"}
-                text={getCompanyDisplayName(purchaseOrder.company)}
-              />
-              <ModalDataPoint
-                subtitle={"PO Number"}
-                text={purchaseOrder.order_number}
-              />
-              <ModalDataPoint
-                subtitle={"Amount"}
-                text={formatCurrency(purchaseOrder.amount)}
-              />
-              <ModalDataPoint
-                subtitle={"PO Date"}
-                text={formatDateString(purchaseOrder.order_date)}
-              />
-              <ModalDataPoint
-                subtitle={"Due Date"}
-                text={computePurchaseOrderDueDateDateStringClient(
-                  purchaseOrder
-                )}
-              />
+      <Box className={classes.container}>
+        {!isDataReady ? (
+          <Box display="flex" flexDirection="column">
+            {!!error ? (
               <Box display="flex" flexDirection="column" mt={2}>
                 <Text textVariant={TextVariants.Paragraph}>
-                  Purchase Order File
+                  A network error occurred. Please check your network connection
+                  and try again.
+                </Text>
+                <PrimaryButton
+                  dataCy={"vendor-review-retry-data-load-button"}
+                  text={"Retry"}
+                  height={"40px"}
+                  margin={"0"}
+                  onClick={() => refetch()}
+                />
+              </Box>
+            ) : (
+              <Box
+                display="flex"
+                flexDirection="column"
+                alignItems="center"
+                mt={2}
+              >
+                <Text textVariant={TextVariants.Paragraph}>Loading...</Text>
+              </Box>
+            )}
+          </Box>
+        ) : !purchaseOrder || !!purchaseOrder.is_deleted ? (
+          <Box display="flex" flexDirection="column">
+            <Text textVariant={TextVariants.Paragraph}>
+              Purchase order does not exist
+            </Text>
+          </Box>
+        ) : (
+          <>
+            <Text
+              alignment={"center"}
+              textVariant={
+                isMobile ? TextVariants.ParagraphLead : TextVariants.Header
+              }
+            >
+              {`Approval Request for PO ${purchaseOrder.order_number}`}
+            </Text>
+            <Text
+              textVariant={
+                isMobile ? TextVariants.Paragraph : TextVariants.ParagraphLead
+              }
+            >
+              This purchase order new requires your approval before Bespoke
+              Financial can finance it. Please review the information and select
+              either approve, reject, or request changes.
+            </Text>
+            {isMetrcBased && (
+              <Box display="flex" flexDirection="column" mt={2}>
+                <Text
+                  textVariant={TextVariants.Paragraph}
+                  color="textSecondary"
+                >
+                  Related Metrc manifest
+                </Text>
+                {metrcTransfers.map((metrcTransfer) => (
+                  <Box
+                    key={metrcTransfer.id}
+                    display="flex"
+                    flexDirection="column"
+                    mt={1}
+                  >
+                    <MetrcTransferInfoCardForVendor
+                      metrcTransfer={metrcTransfer}
+                    />
+                  </Box>
+                ))}
+              </Box>
+            )}
+            <ModalDataPoint
+              subtitle={"Buyer"}
+              text={getCompanyDisplayName(purchaseOrder.company)}
+            />
+            <ModalDataPoint
+              subtitle={"PO Number"}
+              text={purchaseOrder.order_number}
+            />
+            <ModalDataPoint
+              subtitle={"Amount"}
+              text={formatCurrency(purchaseOrder.amount)}
+            />
+            <ModalDataPoint
+              subtitle={"PO Date"}
+              text={formatDateString(purchaseOrder.order_date)}
+            />
+            <ModalDataPoint
+              subtitle={"Due Date"}
+              text={computePurchaseOrderDueDateDateStringClient(purchaseOrder)}
+            />
+            <Box display="flex" flexDirection="column" mt={2}>
+              <Text textVariant={TextVariants.Paragraph}>
+                Purchase Order File
+              </Text>
+              <DownloadThumbnail
+                fileIds={purchaseOrderFileIds}
+                fileType={FileTypeEnum.PurchaseOrder}
+              />
+            </Box>
+            {!isMetrcBased && purchaseOrder.is_cannabis && (
+              <Box display="flex" flexDirection="column" mt={2}>
+                <Text textVariant={TextVariants.Paragraph}>
+                  Cannabis or Derivatives File(s)
                 </Text>
                 <DownloadThumbnail
-                  fileIds={purchaseOrderFileIds}
+                  fileIds={purchaseOrderCannabisFileIds}
                   fileType={FileTypeEnum.PurchaseOrder}
                 />
               </Box>
-              {!isMetrcBased && purchaseOrder.is_cannabis && (
-                <Box display="flex" flexDirection="column" mt={2}>
-                  <Text textVariant={TextVariants.Paragraph}>
-                    Cannabis or Derivatives File(s)
-                  </Text>
-                  <DownloadThumbnail
-                    fileIds={purchaseOrderCannabisFileIds}
-                    fileType={FileTypeEnum.PurchaseOrder}
-                  />
-                </Box>
+            )}
+            <Box display="flex" justifyContent="center" mt={6}>
+              {isApproveModalOpen && (
+                <ReviewPurchaseOrderApproveModalNew
+                  purchaseOrder={purchaseOrder}
+                  linkVal={linkVal}
+                  handleClose={() => setIsApproveModalOpen(false)}
+                  handleApproveSuccess={() => {
+                    history.push({
+                      pathname: anonymousRoutes.reviewPurchaseOrderComplete,
+                      state: {
+                        vendor_id: purchaseOrder.vendor_id,
+                        link_val: linkVal,
+                      },
+                    });
+                  }}
+                />
               )}
-              <Box display="flex" justifyContent="center" mt={6}>
-                {isApproveModalOpen && (
-                  <ReviewPurchaseOrderApproveModalNew
-                    purchaseOrder={purchaseOrder}
-                    linkVal={linkVal}
-                    handleClose={() => setIsApproveModalOpen(false)}
-                    handleApproveSuccess={() => {
-                      history.push({
-                        pathname: anonymousRoutes.reviewPurchaseOrderComplete,
-                        state: {
-                          vendor_id: purchaseOrder.vendor_id,
-                          link_val: linkVal,
-                        },
-                      });
-                    }}
-                  />
-                )}
-                {isRequestChangesModalOpen && (
-                  <ReviewPurchaseOrderRequestChangesModal
-                    purchaseOrderId={purchaseOrder.id}
-                    linkVal={linkVal}
-                    handleClose={() => setIsRequestChangesModalOpen(false)}
-                    handleRequestChangesSuccess={() =>
-                      history.push({
-                        pathname: anonymousRoutes.reviewPurchaseOrderComplete,
-                        state: {
-                          vendor_id: purchaseOrder.vendor_id,
-                          link_val: linkVal,
-                        },
-                      })
-                    }
-                  />
-                )}
-                {isRejectModalOpen && (
-                  <ReviewPurchaseOrderRejectModalNew
-                    purchaseOrderId={purchaseOrder.id}
-                    linkVal={linkVal}
-                    handleClose={() => setIsRejectModalOpen(false)}
-                    handleRejectSuccess={() =>
-                      history.push({
-                        pathname: anonymousRoutes.reviewPurchaseOrderComplete,
-                        state: {
-                          vendor_id: purchaseOrder.vendor_id,
-                          link_val: linkVal,
-                        },
-                      })
-                    }
-                  />
-                )}
-                <FixedBox>
-                  <Buttons>
+              {isRequestChangesModalOpen && (
+                <ReviewPurchaseOrderRequestChangesModal
+                  purchaseOrderId={purchaseOrder.id}
+                  linkVal={linkVal}
+                  handleClose={() => setIsRequestChangesModalOpen(false)}
+                  handleRequestChangesSuccess={() =>
+                    history.push({
+                      pathname: anonymousRoutes.reviewPurchaseOrderComplete,
+                      state: {
+                        vendor_id: purchaseOrder.vendor_id,
+                        link_val: linkVal,
+                      },
+                    })
+                  }
+                />
+              )}
+              {isRejectModalOpen && (
+                <ReviewPurchaseOrderRejectModalNew
+                  purchaseOrderId={purchaseOrder.id}
+                  linkVal={linkVal}
+                  handleClose={() => setIsRejectModalOpen(false)}
+                  handleRejectSuccess={() =>
+                    history.push({
+                      pathname: anonymousRoutes.reviewPurchaseOrderComplete,
+                      state: {
+                        vendor_id: purchaseOrder.vendor_id,
+                        link_val: linkVal,
+                      },
+                    })
+                  }
+                />
+              )}
+              {isMobile ? (
+                <FixedBox display="flex" flexDirection="column" $height={140}>
+                  <Buttons
+                    mb={"16px"}
+                    $padding={"0 10px"}
+                    display="flex"
+                    flexDirection="row"
+                    justifyContent="space-between"
+                  >
+                    <SecondaryWarningButton
+                      dataCy={"vendor-reject-completely-button"}
+                      text={"Reject completely"}
+                      margin={"0"}
+                      padding={"11px 0"}
+                      width={"48%"}
+                      height={"40px"}
+                      onClick={() => setIsRejectModalOpen(true)}
+                    />
+                    <SecondaryButton
+                      dataCy={"vendor-requests-changes-button"}
+                      text={"Request Changes"}
+                      margin={"0"}
+                      padding={"11px 0"}
+                      width={"48%"}
+                      height={"40px"}
+                      onClick={() => setIsRequestChangesModalOpen(true)}
+                    />
+                  </Buttons>
+                  <Buttons $padding={"0 10px"} justifyContent="center">
+                    <PrimaryButton
+                      dataCy={"vendor-approve-button"}
+                      text={"Approve"}
+                      margin={"0"}
+                      padding={"11px 0"}
+                      width={"100%"}
+                      height={"40px"}
+                      onClick={() => setIsApproveModalOpen(true)}
+                    />
+                  </Buttons>
+                </FixedBox>
+              ) : (
+                <FixedBox display="flex" flexDirection="column" $height={86}>
+                  <Buttons $padding={"0"} justifyContent="center">
                     <SecondaryWarningButton
                       dataCy={"vendor-reject-completely-button"}
                       text={"Reject completely"}
                       width={"288px"}
-                      height={"50px"}
+                      height={"40px"}
                       onClick={() => setIsRejectModalOpen(true)}
                     />
                     <SecondaryButton
                       dataCy={"vendor-requests-changes-button"}
                       text={"Request Changes"}
                       width={"288px"}
-                      height={"50px"}
+                      height={"40px"}
                       onClick={() => setIsRequestChangesModalOpen(true)}
                     />
                     <PrimaryButton
                       dataCy={"vendor-approve-button"}
                       text={"Approve"}
                       width={"288px"}
-                      height={"50px"}
+                      height={"40px"}
                       onClick={() => setIsApproveModalOpen(true)}
                     />
                   </Buttons>
                 </FixedBox>
-              </Box>
-            </>
-          )}
-        </Box>
+              )}
+            </Box>
+          </>
+        )}
       </Box>
     </FlexContent>
   );

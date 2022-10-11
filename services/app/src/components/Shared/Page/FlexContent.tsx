@@ -4,10 +4,13 @@ import styled from "styled-components";
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-
   flex: 1;
+  align-items: center;
 
-  padding: 64px 96px;
+  width: 100vw;
+  height: 100vh;
+
+  padding: 10px;
 `;
 
 interface Props {

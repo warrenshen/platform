@@ -73,7 +73,6 @@ export default function ReviewPurchaseOrderRequestChangesModal({
         `Error! Something went wrong. Reason: ${response.data?.msg}`
       );
     } else {
-      snackbar.showSuccess("Purchase order changes requested.");
       handleRequestChangesSuccess();
     }
   };

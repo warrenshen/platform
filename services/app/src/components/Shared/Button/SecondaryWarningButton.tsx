@@ -10,7 +10,9 @@ import {
 
 interface Props {
   isDisabled?: boolean;
-  isIconVisible?: boolean;
+  isSmallIcon?: boolean;
+  isBorderHidden?: boolean;
+  icon?: React.ReactNode;
   text: string;
   width?: string;
   height?: string;
@@ -22,7 +24,9 @@ interface Props {
 
 export default function SecondaryWarningButton({
   isDisabled = false,
-  isIconVisible = false,
+  isSmallIcon = false,
+  isBorderHidden = false,
+  icon = null,
   text,
   width,
   height,
@@ -35,11 +39,15 @@ export default function SecondaryWarningButton({
     <ActionButton
       dataCy={dataCy}
       isDisabled={isDisabled}
+      isSmallIcon={isSmallIcon}
+      isBorderHidden={isBorderHidden}
       variant={"outlined"}
       text={text}
       onClick={onClick}
       width={width}
       height={height}
+      margin={margin}
+      padding={padding}
       backgroundColor={Transparent}
       borderColor={
         !!isDisabled ? DisabledSecondaryBorderColor : WarningDefaultColor

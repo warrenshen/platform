@@ -30,6 +30,7 @@
     "prettier": "^2.6.2",
     "pure-react-carousel": "^1.27.6",
     "react": "^17.0.1",
+    "react-device-detect": "^2.2.2",
     "react-dom": "^17.0.1",
     "react-dropzone": "^11.2.4",
     "react-helmet": "^6.1.0",

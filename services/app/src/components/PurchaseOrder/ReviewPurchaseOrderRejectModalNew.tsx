@@ -71,7 +71,6 @@ function ReviewPurchaseOrderRejectModalNew({
         `Error! Something went wrong. Reason: ${response.data?.msg}`
       );
     } else {
-      snackbar.showSuccess("Purchase order rejected.");
       handleRejectSuccess();
     }
   };

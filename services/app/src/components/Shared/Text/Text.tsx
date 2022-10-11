@@ -67,6 +67,7 @@ const StyledText = styled(Typography)<{
   $color: string;
   $textAlignment: string;
   $bottomMargin: Maybe<number>;
+  $lineHeight: Maybe<string>;
   $isBold: Maybe<boolean>;
   $isDatagridCheckboxSelected: Maybe<boolean>;
   $isClickable: Maybe<boolean>;
@@ -79,7 +80,10 @@ const StyledText = styled(Typography)<{
       ? VariantSemiBoldFontWeightDefault[props.$textVariant]
       : VariantFontWeightDefault[props.$textVariant]};
   font-size: ${(props) => VariantFontSizeDefault[props.$textVariant]}px;
-  line-height: ${(props) => VariantLineHeightDefault[props.$textVariant]};
+  line-height: ${(props) =>
+    !!props.$lineHeight
+      ? props.$lineHeight
+      : VariantLineHeightDefault[props.$textVariant]};
   margin: 0 0 0 0;
   margin-top: ${(props) => (!!props.$isDatagridCheckboxSelected ? 16 : 0)}px;
   margin-bottom: ${(props) =>
@@ -110,6 +114,7 @@ interface Props {
   color?: string;
   alignment?: string;
   bottomMargin?: Maybe<number>;
+  lineHeight?: Maybe<string>;
   children?: JSX.Element | JSX.Element[] | string;
   handleClick?: () => void;
 }
@@ -123,6 +128,7 @@ export default function Text({
   color = TextColor,
   alignment = "left",
   bottomMargin = null,
+  lineHeight = null,
   children,
   handleClick,
 }: Props) {
@@ -136,6 +142,7 @@ export default function Text({
       $isDatagridCheckboxSelected={isDatagridCheckboxSelected}
       $textAlignment={alignment}
       $bottomMargin={bottomMargin}
+      $lineHeight={lineHeight}
       $textVariant={textVariant}
       $isClickable={!!handleClick}
     >

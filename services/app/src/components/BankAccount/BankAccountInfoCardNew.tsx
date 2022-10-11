@@ -1,31 +1,12 @@
-import {
-  Box,
-  Button,
-  Card,
-  CardActions,
-  CardContent,
-  Checkbox,
-} from "@material-ui/core";
-import CreateUpdateBankAccountModal from "components/BankAccount/CreateUpdateBankAccountModal";
-import ModalButton from "components/Shared/Modal/ModalButton";
+import { Box, Checkbox } from "@material-ui/core";
+import CardLine from "components/Shared/Card/CardLine";
 import {
   BankAccountForVendorFragment,
   BankAccountFragment,
   BankAccountLimitedFragment,
 } from "generated/graphql";
 import { formatDateString } from "lib/date";
-import { obfuscateBankNumbers } from "lib/privacy";
-import { useState } from "react";
 import styled from "styled-components";
-
-const Label = styled.div`
-  width: 174px;
-  color: #abaaa9;
-`;
-
-const StyledCardContent = styled(CardContent)`
-  padding: 0px;
-`;
 
 const StyledCheckbox = styled(Checkbox)`
   padding: 4px;
@@ -65,209 +46,137 @@ const BankAccountInfoCardNew = ({
   bankAccount,
   handleDataChange,
 }: Props) => {
-  const [isObfuscateEnabled, setIsObfuscateEnabled] = useState(true);
+  const castedBankAccount = bankAccount as BankAccountFragment;
 
   return (
-    <Card>
-      <StyledCardContent>
-        <Box display="flex" mb={1} mt={1}>
-          <Label>Bank Name</Label>
-          <Box>{bankAccount.bank_name}</Box>
-        </Box>
-        <Box display="flex" mb={1}>
-          <Label>Account Name</Label>
-          <Box>{bankAccount.account_title}</Box>
-        </Box>
-        <Box display="flex" mb={1}>
-          <Label>Account Type</Label>
-          <Box>{bankAccount.account_type}</Box>
-        </Box>
-        <Box display="flex" mb={1}>
-          <Label>Account Number</Label>
-          <Box>
-            {isObfuscateEnabled
-              ? obfuscateBankNumbers(bankAccount.account_number)
-              : bankAccount.account_number}
-          </Box>
-        </Box>
-        <Box display="flex" alignItems="center" pt={0.5} pb={1}>
-          <StyledCheckbox
-            checked={(bankAccount as BankAccountFragment).can_wire}
-            icon={<CustomCheckboxUnchecked />}
-            checkedIcon={<CustomCheckboxChecked />}
-          />
-          <Box pl={1}>{"ACH"}</Box>
-        </Box>
-        {!!(bankAccount as BankAccountFragment).can_ach && (
-          <Box display="flex" flexDirection="column">
-            <Box display="flex" mb={1}>
-              <Label>ACH Routing Number</Label>
-              <Box>
-                {isObfuscateEnabled && !!bankAccount?.routing_number
-                  ? obfuscateBankNumbers(bankAccount.routing_number)
-                  : bankAccount.routing_number}
-              </Box>
-            </Box>
-            <Box display="flex" mb={1}>
-              <Label>ACH Default Memo</Label>
-              <Box>{(bankAccount as BankAccountFragment).ach_default_memo}</Box>
-            </Box>
-          </Box>
-        )}
-        <Box display="flex" alignItems="center" pt={0.5} pb={1}>
-          <StyledCheckbox
-            checked={(bankAccount as BankAccountFragment).can_wire}
-            icon={<CustomCheckboxUnchecked />}
-            checkedIcon={<CustomCheckboxChecked />}
-          />
-          <Box pl={1}>{"Wire?"}</Box>
-        </Box>
-        {!!(bankAccount as BankAccountFragment).can_wire && (
-          <Box display="flex" flexDirection="column">
-            <Box display="flex" alignItems="center" pt={0.5} pb={1}>
-              <StyledCheckbox
-                checked={
-                  (bankAccount as BankAccountFragment)
-                    .is_wire_intermediary as boolean
-                }
-                icon={<CustomCheckboxUnchecked />}
-                checkedIcon={<CustomCheckboxChecked />}
-              />
-              <Box pl={1}>{"Is intermediary bank?"}</Box>
-            </Box>
-            {!!(bankAccount as BankAccountFragment).is_wire_intermediary && (
-              <Box display="flex" flexDirection="column">
-                <Box display="flex" mb={1}>
-                  <Label>Intermediary Bank Name</Label>
-                  <Box>
-                    {
-                      (bankAccount as BankAccountFragment)
-                        .intermediary_bank_name
-                    }
-                  </Box>
-                </Box>
-                <Box display="flex" mb={1}>
-                  <Label>Intermediary Bank Address</Label>
-                  <Box>
-                    {
-                      (bankAccount as BankAccountFragment)
-                        .intermediary_bank_address
-                    }
-                  </Box>
-                </Box>
-                <Box display="flex" mb={1}>
-                  <Label>Intermediary Account Name</Label>
-                  <Box>
-                    {
-                      (bankAccount as BankAccountFragment)
-                        .intermediary_account_name
-                    }
-                  </Box>
-                </Box>
-                <Box display="flex" mb={1}>
-                  <Label>Intermediary Account Number</Label>
-                  <Box>
-                    {isObfuscateEnabled
-                      ? obfuscateBankNumbers(
-                          bankAccount.intermediary_account_number || ""
-                        )
-                      : bankAccount.intermediary_account_number}
-                  </Box>
-                </Box>
-              </Box>
-            )}
-            <Box display="flex" mb={1}>
-              <Label>Wire Routing Number</Label>
-              <Box>
-                {isObfuscateEnabled
-                  ? obfuscateBankNumbers(bankAccount.wire_routing_number || "")
-                  : bankAccount.wire_routing_number}
-              </Box>
-            </Box>
-            <Box display="flex" mb={1}>
-              <Label>Recipient Address</Label>
-              <Box>
-                {(bankAccount as BankAccountFragment).recipient_address}
-              </Box>
-            </Box>
-            <Box display="flex" mb={1}>
-              <Label>Recipient Address 2</Label>
-              <Box>
-                {(bankAccount as BankAccountFragment).recipient_address_2}
-              </Box>
-            </Box>
-            <Box display="flex" mb={1}>
-              <Label>Wire Default Memo</Label>
-              <Box>
-                {(bankAccount as BankAccountFragment).wire_default_memo}
-              </Box>
-            </Box>
-          </Box>
-        )}
-        {isCannabisCompliantVisible && (
-          <Box display="flex" alignItems="center" pt={0.5} pb={1}>
-            <StyledCheckbox
-              checked={
-                (bankAccount as BankAccountFragment).is_cannabis_compliant
-              }
-              icon={<CustomCheckboxUnchecked />}
-              checkedIcon={<CustomCheckboxChecked />}
-            />
-            <Box pl={1}>{"Is cannabis compliant?"}</Box>
-          </Box>
-        )}
-        {isVerificationVisible && (
-          <Box display="flex" alignItems="center" pt={0.5} pb={1}>
-            <StyledCheckbox
-              checked={
-                (bankAccount as BankAccountFragment).verified_at &&
-                (bankAccount as BankAccountFragment).verified_date
-              }
-              icon={<CustomCheckboxUnchecked />}
-              checkedIcon={<CustomCheckboxChecked />}
-            />
-            <Box pl={1}>
-              {(bankAccount as BankAccountFragment).verified_at &&
-              (bankAccount as BankAccountFragment).verified_date
-                ? `Verified on ${formatDateString(
-                    (bankAccount as BankAccountFragment).verified_date
-                  )}`
-                : "Not yet verified"}
-            </Box>
-          </Box>
-        )}
-        <Box display="flex" pt={0.5}>
-          <Button
-            color="default"
-            size="small"
-            variant="outlined"
-            onClick={() => setIsObfuscateEnabled(!isObfuscateEnabled)}
-          >
-            {isObfuscateEnabled ? "Reveal Numbers" : "Hide Numbers"}
-          </Button>
-        </Box>
-      </StyledCardContent>
-      {isEditAllowed && (
-        <CardActions>
-          <ModalButton
-            label={"Edit"}
-            color="default"
-            size="small"
-            variant="outlined"
-            modal={({ handleClose }) => (
-              <CreateUpdateBankAccountModal
-                companyId={bankAccount.company_id}
-                existingBankAccount={bankAccount as BankAccountFragment}
-                handleClose={() => {
-                  !!handleDataChange && handleDataChange();
-                  handleClose();
-                }}
-              />
-            )}
-          />
-        </CardActions>
+    <Box>
+      <CardLine
+        labelText={"Bank Name"}
+        valueText={bankAccount.bank_name}
+        valueAlignment={"left"}
+      />
+      <CardLine
+        labelText={"Account Name"}
+        valueText={bankAccount.account_title || ""}
+        valueAlignment={"left"}
+      />
+      <CardLine
+        labelText={"Account Type"}
+        valueText={bankAccount.account_type}
+        valueAlignment={"left"}
+      />
+      <CardLine
+        isValueObfuscated
+        labelText={"Account Number"}
+        valueText={bankAccount.account_number}
+        valueAlignment={"left"}
+      />
+      <Box display="flex" alignItems="center" pt={0.5} pb={1}>
+        <StyledCheckbox
+          disabled
+          checked={castedBankAccount.can_ach}
+          icon={<CustomCheckboxUnchecked />}
+          checkedIcon={<CustomCheckboxChecked />}
+        />
+        <Box pl={1}>{"ACH"}</Box>
+      </Box>
+      {castedBankAccount.can_ach && (
+        <CardLine
+          isValueObfuscated
+          labelText={"ACH Routing Number"}
+          valueText={bankAccount.routing_number || ""}
+          valueAlignment={"left"}
+        />
       )}
-    </Card>
+      <Box display="flex" alignItems="center" pt={0.5} pb={1}>
+        <StyledCheckbox
+          checked={castedBankAccount.can_wire}
+          icon={<CustomCheckboxUnchecked />}
+          checkedIcon={<CustomCheckboxChecked />}
+        />
+        <Box pl={1}>{"Wire?"}</Box>
+      </Box>
+      {castedBankAccount.can_wire && (
+        <>
+          <Box display="flex" alignItems="center" pt={0.5} pb={1}>
+            <StyledCheckbox
+              checked={castedBankAccount.is_wire_intermediary as boolean}
+              icon={<CustomCheckboxUnchecked />}
+              checkedIcon={<CustomCheckboxChecked />}
+            />
+            <Box pl={1}>{"Is intermediary bank?"}</Box>
+          </Box>
+          {castedBankAccount.is_wire_intermediary && (
+            <>
+              <CardLine
+                labelText={"Intermediary Bank Name"}
+                valueText={bankAccount.intermediary_bank_name || ""}
+                valueAlignment={"left"}
+              />
+              <CardLine
+                labelText={"Intermediary Bank Address"}
+                valueText={bankAccount.intermediary_bank_address || ""}
+                valueAlignment={"left"}
+              />
+              <CardLine
+                labelText={"Intermediary Account Name"}
+                valueText={bankAccount.intermediary_account_name || ""}
+                valueAlignment={"left"}
+              />
+              <CardLine
+                labelText={"Intermediary Account Number"}
+                valueText={bankAccount.intermediary_account_number || ""}
+                valueAlignment={"left"}
+              />
+            </>
+          )}
+          <CardLine
+            isValueObfuscated
+            labelText={"Wire Routing Number"}
+            valueText={bankAccount.wire_routing_number || ""}
+            valueAlignment={"left"}
+          />
+          <CardLine
+            labelText={"Recipient Address"}
+            valueText={bankAccount.recipient_address || ""}
+            valueAlignment={"left"}
+          />
+          <CardLine
+            labelText={"Recipient Address 2"}
+            valueText={bankAccount.recipient_address_2 || ""}
+            valueAlignment={"left"}
+          />
+        </>
+      )}
+      {isCannabisCompliantVisible && (
+        <Box display="flex" alignItems="center" pt={0.5} pb={1}>
+          <StyledCheckbox
+            checked={(bankAccount as BankAccountFragment).is_cannabis_compliant}
+            icon={<CustomCheckboxUnchecked />}
+            checkedIcon={<CustomCheckboxChecked />}
+          />
+          <Box pl={1}>{"Is cannabis compliant?"}</Box>
+        </Box>
+      )}
+      <Box display="flex" alignItems="center" pt={0.5} pb={1}>
+        <StyledCheckbox
+          checked={
+            (bankAccount as BankAccountFragment).verified_at &&
+            (bankAccount as BankAccountFragment).verified_date
+          }
+          icon={<CustomCheckboxUnchecked />}
+          checkedIcon={<CustomCheckboxChecked />}
+        />
+        <Box pl={1}>
+          {(bankAccount as BankAccountFragment).verified_at &&
+          (bankAccount as BankAccountFragment).verified_date
+            ? `Verified on ${formatDateString(
+                (bankAccount as BankAccountFragment).verified_date
+              )}`
+            : "Not yet verified"}
+        </Box>
+      </Box>
+    </Box>
   );
 };
 

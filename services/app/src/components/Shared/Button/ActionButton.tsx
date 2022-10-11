@@ -1,4 +1,5 @@
 import { Button } from "@material-ui/core";
+import Text, { TextVariants } from "components/Shared/Text/Text";
 import styled from "styled-components";
 
 const StyledActionButton = styled(Button)<{
@@ -8,6 +9,8 @@ const StyledActionButton = styled(Button)<{
   $padding: string;
   $borderColor: string;
   $backgroundColor: string;
+  $isBorderHidden: boolean;
+  $isSmallIcon: boolean;
   $color: string;
   $hoverBorderColor: string;
   $hoverBackgroundColor: string;
@@ -18,7 +21,8 @@ const StyledActionButton = styled(Button)<{
   $boxShadow: string;
 }>`
   background-color: ${(props) => props.$backgroundColor};
-  border: ${(props) => props.$borderColor} 2px solid;
+  border: ${(props) =>
+    props.$isBorderHidden ? "none" : `${props.$borderColor} 2px solid`};
   border-radius: 8px;
   color: ${(props) => props.$color};
 
@@ -40,26 +44,48 @@ const StyledActionButton = styled(Button)<{
 
   :disabled {
     background-color: ${(props) => props.$backgroundColor};
-    border: ${(props) => props.$borderColor} 2px solid;
+    border: ${(props) =>
+      props.$isBorderHidden ? "none" : `${props.$borderColor} 2px solid`};
     color: ${(props) => props.$color};
   }
 
   :hover {
     background-color: ${(props) => props.$hoverBackgroundColor};
     color: ${(props) => props.$hoverColor};
-    border: ${(props) => props.$hoverBorderColor} 2px solid;
+    border: ${(props) =>
+      props.$isBorderHidden ? "none" : `${props.$borderColor} 2px solid`};
+
+    h5 {
+      cursor: pointer;
+    }
   }
 
   :active {
     background-color: ${(props) => props.$activeBackgroundColor};
     color: ${(props) => props.$activeColor};
-    border: ${(props) => props.$activeBorderColor} 2px solid;
+    border: ${(props) =>
+      props.$isBorderHidden ? "none" : `${props.$borderColor} 2px solid`};
+  }
+
+  ${(props) =>
+    props.$isSmallIcon &&
+    `
+    .MuiButton-startIcon {
+      margin-left: 0;
+      margin-right: 0;
+    }
+  `}
+
+  &.MuiButton-root {
+    min-width: 0;
   }
 `;
 
 interface Props {
   text: string;
   isDisabled?: boolean;
+  isSmallIcon?: boolean;
+  isBorderHidden?: boolean;
   variant?: any;
   onClick: () => void;
   width?: string;
@@ -95,6 +121,8 @@ interface Props {
 export default function ActionButton({
   text,
   isDisabled = false,
+  isSmallIcon = false,
+  isBorderHidden = false,
   variant = "contained",
   onClick,
   width = "auto",
@@ -142,6 +170,8 @@ export default function ActionButton({
       onClick={onClick}
       $backgroundColor={backgroundColor}
       $borderColor={borderColor}
+      $isBorderHidden={isBorderHidden}
+      $isSmallIcon={isSmallIcon}
       $color={color}
       $hoverBackgroundColor={hoverBackgroundColor}
       $hoverBorderColor={hoverBorderColor}
@@ -156,7 +186,16 @@ export default function ActionButton({
       $padding={padding}
       startIcon={icon}
     >
-      {text}
+      {text.length > 0 && (
+        <Text
+          alignment={"center"}
+          bottomMargin={0}
+          color={color}
+          textVariant={TextVariants.Label}
+        >
+          {text}
+        </Text>
+      )}
     </StyledActionButton>
   );
 }
