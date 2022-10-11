@@ -85,7 +85,7 @@ export default function PurchaseOrderForm({
               order_date: value,
             })
           }
-          keyboardIcon={<DateInputIcon />}
+          keyboardIcon={<DateInputIcon width="16px" height="16px" />}
         />
       </Box>
       <Box display="flex" flexDirection="column" mt={3}>

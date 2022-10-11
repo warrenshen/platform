@@ -78,7 +78,7 @@ export default function FinancingRequestCreateCard({
                 requested_payment_date: value,
               });
             }}
-            keyboardIcon={<DateInputIcon />}
+            keyboardIcon={<DateInputIcon width="16px" height="16px" />}
           />
           {hasDateBeenFocusedOnce && !loan.requested_payment_date && (
             <DateInputErrorText>
@@ -111,6 +111,7 @@ export default function FinancingRequestCreateCard({
             }}
           />
         </FormControl>
+        <Box mt={4} />
         <FormControl fullWidth>
           <TextField
             label={"Comments"}

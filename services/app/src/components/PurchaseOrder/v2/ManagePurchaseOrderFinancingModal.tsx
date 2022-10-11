@@ -1,5 +1,9 @@
 import { Box, Button, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
+import {
+  SecondaryTextColor,
+  WarningDefaultColor,
+} from "components/Shared/Colors/GlobalColors";
 import Modal from "components/Shared/Modal/Modal";
 import ProgressBar from "components/Shared/ProgressBar/ProgressBar";
 import {
@@ -373,7 +377,7 @@ function ManagePurchaseOrderFinancingModal({
               <StyledButton
                 variant="outlined"
                 startIcon={<PlusIcon />}
-                $color="#abaaa9"
+                $color={SecondaryTextColor}
                 onClick={handleClickAddFinancingRequest}
               >
                 Add Financing Request
@@ -386,7 +390,7 @@ function ManagePurchaseOrderFinancingModal({
             <Box display="flex" justifyContent="center" mt={3}>
               <StyledButton
                 variant="outlined"
-                startIcon={<StyledCloseIcon />}
+                startIcon={<StyledCloseIcon fillColor={WarningDefaultColor} />}
                 $color="#e75d5d"
                 onClick={handleClickRemoveNewFinancingRequest}
               >
