@@ -21,6 +21,7 @@ const StyledCardContent = styled(CardContent)<{}>`
 
 interface Props {
   children?: JSX.Element | JSX.Element[] | string;
+  width?: string;
 }
 
 export default function CardContainer({ children }: Props) {

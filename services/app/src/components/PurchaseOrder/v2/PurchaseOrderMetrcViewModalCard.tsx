@@ -1,6 +1,7 @@
 import CardContainer from "components/Shared/Card/CardContainer";
 import ModalDataPoint from "components/Shared/Modal/ModalDataPoint";
 import Text, { TextVariants } from "components/Shared/Text/Text";
+import MetrcTransferDrawer from "components/Transfers/v2/MetrcTransferDrawer";
 import {
   CurrentUserContext,
   isRoleBankUser,
@@ -10,13 +11,7 @@ import {
   PurchaseOrderMetrcTransferWithRelationshipsFragment,
 } from "generated/graphql";
 import { formatDatetimeString } from "lib/date";
-import {
-  BankCompanyRouteEnum,
-  bankRoutes,
-  getBankCompanyRoute,
-} from "lib/routes";
-import { useContext } from "react";
-import { useHistory } from "react-router-dom";
+import { useContext, useState } from "react";
 
 interface Props {
   companyId: Companies["id"];
@@ -27,11 +22,13 @@ export default function PurchaseOrderViewModalCard({
   companyId,
   metrcTransfer,
 }: Props) {
-  const history = useHistory();
   const {
     user: { role },
   } = useContext(CurrentUserContext);
   const isBankUser = isRoleBankUser(role);
+
+  const [isMetrcTransferDrawerOpen, setIsMetrcTransferDrawerOpen] =
+    useState<boolean>(false);
 
   const manifestNumber = !!metrcTransfer?.metrc_transfer?.manifest_number
     ? metrcTransfer.metrc_transfer.manifest_number
@@ -58,32 +55,35 @@ export default function PurchaseOrderViewModalCard({
     : "";
 
   return (
-    <CardContainer>
-      <Text
-        materialVariant="h3"
-        isBold
-        textVariant={TextVariants.SubHeader}
-        bottomMargin={22}
-        handleClick={() => {
-          history.push(
-            isBankUser
-              ? bankRoutes.metrcRoot
-              : getBankCompanyRoute(companyId, BankCompanyRouteEnum.Loans)
-          );
-        }}
-      >
-        {manifestNumber}
-      </Text>
-      <ModalDataPoint
-        subtitle={"License from / to"}
-        text={`${shipperFacilityLicenseNumber} -> ${recipientFacilityLicenseNumber}`}
-      />
-      <ModalDataPoint
-        subtitle={"Received at"}
-        text={formatDatetimeString(receivedDateTime, true)}
-      />
-      <ModalDataPoint subtitle={"Package(s) count"} text={packageCount} />
-      <ModalDataPoint subtitle={"Lab result"} text={labResult} />
-    </CardContainer>
+    <>
+      {isMetrcTransferDrawerOpen && (
+        <MetrcTransferDrawer
+          metrcTransferId={metrcTransfer.metrc_transfer.id}
+          isBankUser={isBankUser}
+          handleClose={() => setIsMetrcTransferDrawerOpen(false)}
+        />
+      )}
+      <CardContainer>
+        <Text
+          materialVariant="h3"
+          isBold
+          textVariant={TextVariants.SubHeader}
+          bottomMargin={22}
+          handleClick={() => setIsMetrcTransferDrawerOpen(true)}
+        >
+          {manifestNumber}
+        </Text>
+        <ModalDataPoint
+          subtitle={"License from / to"}
+          text={`${shipperFacilityLicenseNumber} -> ${recipientFacilityLicenseNumber}`}
+        />
+        <ModalDataPoint
+          subtitle={"Received at"}
+          text={formatDatetimeString(receivedDateTime, true)}
+        />
+        <ModalDataPoint subtitle={"Package(s) count"} text={packageCount} />
+        <ModalDataPoint subtitle={"Lab result"} text={labResult} />
+      </CardContainer>
+    </>
   );
 }

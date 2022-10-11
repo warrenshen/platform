@@ -80,6 +80,7 @@ const Content = styled.div<{
   width: ${(props) => props.$width}px;
   padding-top: ${(props) => props.$paddingTop || 0}px;
   padding-bottom: ${(props) => props.$paddingBottom || 0}px;
+  justify-content: center;
 `;
 
 const Footer = styled.div`

@@ -983,6 +983,11 @@ export enum MetrcTabLabel {
   CannabisLicenses = "Cannabis Licenses",
 }
 
+export enum MetrcTransferDrawerTabLabel {
+  GeneralInformation = "General information",
+  OnlyForBank = "Only for bank",
+}
+
 export type TabLabel =
   | typeof MetrcTabLabel.MetrcApiKeys
   | typeof MetrcTabLabel.MetrcTransfers
