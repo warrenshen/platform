@@ -270,7 +270,6 @@ def compute_bank_financial_summaries(
 
 	for company in companies:
 		if not company.contract_id:
-			logging.warn('[WARNING]: Company "{}" has no contract setup for it'.format(company.name))
 			ignore_company_ids.add(str(company.id))
 			continue
 
