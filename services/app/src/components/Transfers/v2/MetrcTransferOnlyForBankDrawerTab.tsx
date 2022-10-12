@@ -10,7 +10,7 @@ interface Props {
 const MetrcTransferOnlyForBankDrawerTab = ({ metrcTransfer }: Props) => {
   return (
     <TabContainer>
-      <Box width={600} ml={25}>
+      <Box width={600}>
         <MetrcTransferPackageOnlyForBankCard
           metrcTransferOrPackage={metrcTransfer}
         />

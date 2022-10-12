@@ -2,6 +2,7 @@ import { Box, Button, Typography } from "@material-ui/core";
 import { PurchaseOrderViewModalProps } from "components/PurchaseOrder/v2/BankPurchaseOrderDrawer";
 import PurchaseOrderMetrcViewModalCard from "components/PurchaseOrder/v2/PurchaseOrderMetrcViewModalCard";
 import PurchaseOrderViewModalCard from "components/PurchaseOrder/v2/PurchaseOrderViewModalCard";
+import { DisabledSecondaryTextColor } from "components/Shared/Colors/GlobalColors";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import FileViewer from "components/Shared/File/FileViewer";
 import LabeledCheckbox from "components/Shared/FormInputs/LabeledCheckbox";
@@ -49,6 +50,7 @@ const BankPurchaseOrderGeneralInformationDrawerTab = ({
           isDisabled={true}
           isChecked={isMetrcBased}
           label={"Order based on Metrc manifest?"}
+          color={DisabledSecondaryTextColor}
         />
       </Box>
       <>
@@ -88,6 +90,7 @@ const BankPurchaseOrderGeneralInformationDrawerTab = ({
               isDisabled={true}
               isChecked={!!purchaseOrder.is_cannabis}
               label={"Order includes cannabis or derivatives?"}
+              color={DisabledSecondaryTextColor}
             />
             {isCannabis && (
               <Box display="flex" flexDirection="column" mt={2}>

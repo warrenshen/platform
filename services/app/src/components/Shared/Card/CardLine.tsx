@@ -63,7 +63,7 @@ export default function CardLine({
                 width={"24px"}
                 height={"24px"}
                 text={""}
-                icon={<EyeClosedIcon width={"16"} height={"16"} />}
+                icon={<EyeClosedIcon />}
                 padding={"0"}
                 onClick={() => setCurrentlyObfuscated(false)}
               />

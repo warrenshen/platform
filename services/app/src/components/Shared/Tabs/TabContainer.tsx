@@ -2,7 +2,7 @@ import { Box } from "@material-ui/core";
 import styled from "styled-components";
 
 const Container = styled(Box)<{ $width: number }>`
-  width: ${(props) => props.width}px;
+  width: ${(props) => props.$width}px;
   margin: 0 auto;
   padding: 25px 0;
 `;
