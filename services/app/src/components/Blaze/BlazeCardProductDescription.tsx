@@ -18,7 +18,7 @@ export default function BlazeCardProductDescription() {
       <Box display="flex" flexDirection="column" mt={4}>
         <Typography variant="body2" color="textSecondary" align="center">
           <strong>
-            GROW YOUR BUSINESS WITH FINANCING... HOW DOES THIS WORK?
+            GROW YOUR BUSINESS WITH FINANCING... HOW WILL THIS WORK?
           </strong>
         </Typography>
       </Box>
@@ -27,7 +27,7 @@ export default function BlazeCardProductDescription() {
           <Typography variant="body2">1</Typography>
         </StyledNumber>
         <Typography variant="body1">
-          Easy access to financing with no obligations
+          Easy access to financing with no application fees
         </Typography>
       </Box>
       <Box display="flex" alignItems="center" mt={2}>
@@ -51,7 +51,7 @@ export default function BlazeCardProductDescription() {
           <Typography variant="body2">4</Typography>
         </StyledNumber>
         <Typography variant="body1">
-          No hidden fees, no application fees, no prepayment penalties
+          No hidden fees or prepayment penalties
         </Typography>
       </Box>
     </>
