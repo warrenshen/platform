@@ -10,6 +10,7 @@ import Autocomplete from "@material-ui/lab/Autocomplete";
 import BankAccountTypeDropdown from "components/BankAccount/BankAccountTypeDropdown";
 import FileUploader from "components/Shared/File/FileUploader";
 import PhoneInput from "components/Shared/FormInputs/PhoneInput";
+import USStateDropdown from "components/Shared/FormInputs/USStateDropdown";
 import AutocompleteVendors from "components/Vendors/AutocompleteVendors";
 import {
   BankAccounts,
@@ -171,6 +172,15 @@ export default function CreateUpdateVendorPartnershipRequestForm({
           onChange={({ target: { value } }) => {
             setVendorInput({ ...vendorInput, dba: value });
           }}
+        />
+      </Box>
+      <Box display="flex" flexDirection="column" mt={4}>
+        <USStateDropdown
+          isMetrcOnly
+          value={vendorInput?.usState || ""}
+          setValue={(value) =>
+            setVendorInput({ ...vendorInput, usState: value })
+          }
         />
       </Box>
 
@@ -473,6 +483,21 @@ export default function CreateUpdateVendorPartnershipRequestForm({
             <Typography variant="body1" color="textSecondary">
               Type N/A to indicate not applicable if your company is not a
               cannabis license holder.
+            </Typography>
+          </Box>
+          <Box display="flex" flexDirection="column" mt={4}>
+            <TextField
+              autoFocus
+              label="Metrc API Key"
+              required
+              value={vendorInput?.metrcApiKey || ""}
+              onChange={({ target: { value } }) =>
+                setVendorInput({ ...vendorInput, metrcApiKey: value })
+              }
+            />
+            <Typography variant="body1" color="textSecondary">
+              Bespoke Financial is a Metrc read-only vendor. We rely on Metrc
+              data to validate cannabis transactions.
             </Typography>
           </Box>
           <Box display="flex" flexDirection="column" mt={4}>

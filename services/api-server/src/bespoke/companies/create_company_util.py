@@ -3,6 +3,7 @@
 """
 import datetime
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union, cast
+from urllib import request
 
 from bespoke import errors
 from bespoke.companies import create_user_util
@@ -12,9 +13,12 @@ from bespoke.db.db_constants import (CompanyDebtFacilityStatus, CompanySurveilla
 	CompanyType, TwoFactorMessageMethod, UserRoles, PartnershipRequestType)
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util
+from bespoke.metrc import metrc_util
+from server.config import Config
 from mypy_extensions import TypedDict
 from sqlalchemy.sql import or_, and_
 from sqlalchemy.orm.session import Session
+from flask import current_app
 
 # Should match with the graphql types for inserting objects into the DB.
 CompanyInsertInputDict = TypedDict('CompanyInsertInputDict', {
@@ -24,6 +28,8 @@ CompanyInsertInputDict = TypedDict('CompanyInsertInputDict', {
 	'contract_name': str,
 	'dba_name': str,
 	'is_cannabis': bool,
+	'metrc_api_key': str,
+	'us_state': str,
 }, total=False)
 
 CompanySettingsInsertInputDict = TypedDict('CompanySettingsInsertInputDict', {
@@ -85,6 +91,8 @@ PartnershipRequestRequestInfoDict = TypedDict('PartnershipRequestRequestInfoDict
 	'beneficiary_address': str,
 	'bank_instructions_attachment_id': str,
 	'type': db_constants.PartnershipRequestType,
+	'metrc_api_key': str,
+	'us_state': str,
 })
 
 CreatePartnershipRequestInputDict = TypedDict('CreatePartnershipRequestInputDict', {
@@ -938,8 +946,6 @@ def create_partnership_new(
 			models.User.email == user_info.get("email", "").lower()
 	).first())
 
-	print("EXISTING:", existing_user.id)
-
 	if existing_user is None:
 		user_id, err = create_user_util.create_bank_or_customer_user_with_session(
 			req = create_user_util.CreateBankOrCustomerUserInputDict(
@@ -1023,6 +1029,24 @@ def create_partnership_new(
 		company_vendor_contact.vendor_user_id = contact_user_id
 		session.add(company_vendor_contact)
 		session.flush()
+
+		request_info = cast(PartnershipRequestRequestInfoDict, partnership_req.request_info)
+		metrc_api_key = request_info.get('metrc_api_key', '')
+		us_state = request_info.get('us_state', '')
+
+		if company.is_cannabis and len(metrc_api_key) > 0 and metrc_api_key.lower() != 'n/a' and metrc_api_key.lower() != 'na':
+			cfg = cast(Config, current_app.app_config)
+			_, err = metrc_util.upsert_api_key(
+				company_id=company_id,
+				api_key=metrc_api_key,
+				metrc_api_key_id=None,
+				us_state=us_state,
+				use_saved_licenses_only=False,
+				security_cfg=cfg.get_security_config(),
+				session=session
+			)
+			if err:
+				raise err
 
 	else:
 		raise errors.Error('Unexpected company_type {}'.format(company_type))
@@ -1180,6 +1204,9 @@ def _create_or_update_partnership_request_new(
 	company_input = req['company']
 	company_name = company_input['name']
 	is_cannabis = company_input['is_cannabis']
+	us_state = company_input['us_state']
+	metrc_api_key = company_input['metrc_api_key']
+
 
 	user_input = req['user']
 	user_first_name = user_input['first_name']
@@ -1243,6 +1270,8 @@ def _create_or_update_partnership_request_new(
 		'beneficiary_address': request_info_beneficiary_address,
 		'bank_instructions_attachment_id': request_info_bank_instructions_attachment_id,
 		'type': request_type,
+		'metrc_api_key': metrc_api_key,
+		'us_state': us_state
 	}
 
 	# Set the submitted_by_user_id from partnership invite

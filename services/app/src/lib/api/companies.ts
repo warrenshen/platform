@@ -196,6 +196,8 @@ export type LicenseInfoNew = {
 export type CompanyInfo = {
   name: string;
   is_cannabis: boolean;
+  us_state?: string;
+  metrc_api_key?: string;
 };
 
 export type PartnershipRequestUserInfo = {

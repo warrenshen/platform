@@ -2,6 +2,7 @@ import json
 import enum
 from typing import Any, cast
 
+
 from bespoke import errors
 from bespoke.audit import events
 from bespoke.companies import create_company_util, partnership_util, vendor_change_util
@@ -288,6 +289,8 @@ class CreatePartnershipRequestNewView(MethodView):
 
 		partner_name = req['company']['name']
 		user_email = req['user']['email']
+		metrc_api_key = req['company']['metrc_api_key']
+		us_state = req['company']['us_state']
 
 		with session_scope(current_app.session_maker) as session:
 
@@ -315,8 +318,6 @@ class CreatePartnershipRequestNewView(MethodView):
 				session.query(models.CompanySettings).filter(
 					models.CompanySettings.company_id == customer_id
 				).first())
-
-			
 
 			template_data = {
 				'customer_name': customer.get_display_name(),

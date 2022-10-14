@@ -47,6 +47,8 @@ export type CreateVendorInput = {
   selected_vendor_id?: string;
   selected_user_id?: string;
   selected_bank_account_id?: string;
+  metrcApiKey?: string;
+  usState?: string;
 };
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -114,6 +116,8 @@ export default function VendorFormPage() {
     selected_vendor_id: "",
     selected_user_id: "",
     selected_bank_account_id: "",
+    metrcApiKey: "",
+    usState: "",
   });
 
   const [errorMessage, setErrorMessage] = useState("");
@@ -171,6 +175,8 @@ export default function VendorFormPage() {
         company: {
           name: vendorInput.name,
           is_cannabis: vendorInput.isCannabis,
+          us_state: vendorInput.usState,
+          metrc_api_key: vendorInput.metrcApiKey,
         },
         user: {
           first_name: vendorInput.contactFirstName,
