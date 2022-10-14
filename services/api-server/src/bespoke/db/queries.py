@@ -606,7 +606,7 @@ def get_user_by_id(
         ).first())
 
     if not user:
-        return None, errors.Error('Could not find client success user with the provided id of {user_id}')
+        return None, errors.Error('Could not find user with the provided id of {user_id}')
 
     return user, None
 
