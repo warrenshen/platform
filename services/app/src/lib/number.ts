@@ -27,3 +27,10 @@ export function formatPercentage(
 export function roundToFiveDigits(value: number | null) {
   return value !== null ? parseFloat(value.toFixed(5)) : null;
 }
+
+export const floatEq = (a: number, b: number, epsilon = 0.0001) => {
+  if (!a || !b) {
+    return false;
+  }
+  return Math.abs(a - b) < epsilon;
+};

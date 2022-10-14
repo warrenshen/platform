@@ -67,6 +67,7 @@ interface Props {
   isApprovedByVendor?: boolean;
   isBankNoteVisible?: boolean;
   isCompanyVisible: boolean;
+  isStatusVisible?: boolean;
   isCustomerNoteVisible?: boolean;
   isExcelExport?: boolean;
   isMultiSelectEnabled?: boolean;
@@ -89,6 +90,7 @@ export default function PurchaseOrdersDataGridNew({
   isApprovedByVendor = true,
   isBankNoteVisible = false,
   isCompanyVisible,
+  isStatusVisible = true,
   isCustomerNoteVisible = true,
   isExcelExport = true,
   isFilteringEnabled = false,
@@ -147,6 +149,7 @@ export default function PurchaseOrdersDataGridNew({
         ),
       },
       {
+        visible: isStatusVisible,
         dataField: "new_purchase_order_status",
         caption: "Status",
         width: ColumnWidths.StatusChip,

@@ -178,6 +178,7 @@ function ManagePurchaseOrderFinancingModal({
   const handleClickSubmit = async () => {
     const create_or_update_loans = [...financingRequests]
       .filter((loan) => !deleteExistingFinancingRequestIds.has(loan.id))
+      .filter((loan) => loan.status !== RequestStatusEnum.Approved)
       .map((loan) => ({
         amount: loan.amount,
         artifact_id: loan.artifact_id,

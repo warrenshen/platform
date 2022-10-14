@@ -1,4 +1,3 @@
-import { Box } from "@material-ui/core";
 import TabContainer from "components/Shared/Tabs/TabContainer";
 import MetrcTransferPackageOnlyForBankCard from "components/Transfers/v2/MetrcTransferPackageOnlyForBankCard";
 import { GetMetrcTransferQuery } from "generated/graphql";
@@ -10,11 +9,9 @@ interface Props {
 const MetrcTransferOnlyForBankDrawerTab = ({ metrcTransfer }: Props) => {
   return (
     <TabContainer>
-      <Box width={600}>
-        <MetrcTransferPackageOnlyForBankCard
-          metrcTransferOrPackage={metrcTransfer}
-        />
-      </Box>
+      <MetrcTransferPackageOnlyForBankCard
+        metrcTransferOrPackage={metrcTransfer}
+      />
     </TabContainer>
   );
 };

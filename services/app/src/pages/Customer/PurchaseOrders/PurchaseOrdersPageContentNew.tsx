@@ -14,6 +14,7 @@ import {
   CustomerPurchaseOrdersTabLabelsNew,
   ProductTypeEnum,
 } from "lib/enum";
+import { floatEq } from "lib/number";
 import { partition } from "lodash";
 import CustomerPurchaseOrdersClosedTabNew from "pages/Customer/PurchaseOrders/PurchaseOrdersClosedTabNew";
 import CustomerPurchaseOrdersOpenTabNew from "pages/Customer/PurchaseOrders/PurchaseOrdersOpenTabNew";
@@ -90,7 +91,7 @@ export default function CustomerPurchaseOrdersPageContentNew({
       data?.purchase_orders
         ? partition(data.purchase_orders, (purchaseOrder) => {
             return (
-              purchaseOrder.funded_at === null &&
+              !floatEq(purchaseOrder.amount, purchaseOrder.amount_funded) &&
               purchaseOrder.closed_at === null
             );
           })
