@@ -35,7 +35,31 @@ function getRows(
   >["payments"]
 ) {
   if (isLineOfCredit) {
-    return payments.map((payment) => {
+    const filteredReverseRepayments = payments.filter((payment) => {
+      return !!payment?.reversed_at;
+    });
+    const reverseRepayments = filteredReverseRepayments.map((repayment) => {
+      return {
+        ...repayment,
+        amount: repayment.amount * -1,
+      };
+    });
+    const paymentsCopy = payments.map((repayment) => {
+      return {
+        ...repayment,
+        amount: repayment.amount,
+      };
+    });
+    const allPayments = paymentsCopy.concat(reverseRepayments).sort((a, b) => {
+      if (Number(a.settlement_identifier) === Number(b.settlement_identifier)) {
+        return Number(a.amount) - Number(b.amount);
+      } else {
+        return (
+          Number(a.settlement_identifier) - Number(b.settlement_identifier)
+        );
+      }
+    });
+    return allPayments.map((payment) => {
       return formatRowModel({
         adjusted_maturity_date: !!payment.transactions?.[0]?.loan
           ?.adjusted_maturity_date
@@ -54,7 +78,8 @@ function getRows(
         payment_settlement_date: !!payment?.settlement_date
           ? parseDateStringServer(payment.settlement_date)
           : null,
-        status: !!payment.reversed_at ? "Reversed" : "Settled",
+        status:
+          !!payment.reversed_at && payment.amount < 0 ? "Reversed" : "Settled",
         to_account_fees: payment.items_covered?.requested_to_account_fees
           ? payment.items_covered.requested_to_account_fees
           : 0,
@@ -67,9 +92,34 @@ function getRows(
       });
     });
   } else {
+    const filteredReverseRepayments = payments.filter((payment) => {
+      return !!payment?.reversed_at;
+    });
+    const reverseRepayments = filteredReverseRepayments.map((repayment) => {
+      return {
+        ...repayment,
+        amount: repayment.amount * -1,
+      };
+    });
+    const paymentsCopy = payments.map((repayment) => {
+      return {
+        ...repayment,
+        amount: repayment.amount,
+      };
+    });
+
+    const allPayments = paymentsCopy.concat(reverseRepayments).sort((a, b) => {
+      if (Number(a.settlement_identifier) === Number(b.settlement_identifier)) {
+        return Number(a.amount) - Number(b.amount);
+      } else {
+        return (
+          Number(a.settlement_identifier) - Number(b.settlement_identifier)
+        );
+      }
+    });
     return flatten(
-      payments.map((payment) =>
-        !!payment.reversed_at
+      allPayments.map((payment) =>
+        !!payment.reversed_at && payment.amount < 0
           ? [
               formatRowModel({
                 company_id: payment.company_id,
