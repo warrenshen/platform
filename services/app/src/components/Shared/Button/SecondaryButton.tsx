@@ -55,14 +55,26 @@ export default function SecondaryButton({
         !!isDisabled ? DisabledSecondaryBorderColor : SecondaryBorderColor
       }
       color={!!isDisabled ? DisabledSecondaryTextColor : SecondaryTextColor}
-      hoverBackgroundColor={!!isDisabled ? Transparent : SecondaryHoverColor}
+      hoverBackgroundColor={
+        !!isSmallIcon
+          ? "none"
+          : !!isDisabled
+          ? Transparent
+          : SecondaryHoverColor
+      }
       hoverBorderColor={
         !!isDisabled ? DisabledSecondaryBorderColor : SecondaryBorderColor
       }
       hoverColor={
         !!isDisabled ? DisabledSecondaryTextColor : SecondaryTextColor
       }
-      activeBackgroundColor={!!isDisabled ? Transparent : SecondaryActiveColor}
+      activeBackgroundColor={
+        !!isSmallIcon
+          ? "none"
+          : !!isDisabled
+          ? Transparent
+          : SecondaryActiveColor
+      }
       activeBorderColor={
         !!isDisabled ? DisabledSecondaryBorderColor : SecondaryBorderColor
       }

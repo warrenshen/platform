@@ -40,6 +40,7 @@ export default function CardLine({
     >
       <Box width={"40%"}>
         <Text
+          materialVariant={"p"}
           textVariant={TextVariants.Label}
           color={DisabledSecondaryTextColor}
           bottomMargin={0}
@@ -47,41 +48,40 @@ export default function CardLine({
           {labelText}
         </Text>
       </Box>
-      <Box width={"60%"}>
+      <Box width={"60%"} display="flex" flexDirection="row">
         <Text
+          materialVariant={"p"}
           textVariant={TextVariants.Label}
           color={TextColor}
           alignment={valueAlignment}
           bottomMargin={0}
         >
-          <>
-            {displayValue}
-            {isValueObfuscated && currentlyObfuscated && (
-              <SecondaryButton
-                isBorderHidden
-                isSmallIcon
-                width={"24px"}
-                height={"24px"}
-                text={""}
-                icon={<EyeClosedIcon />}
-                padding={"0"}
-                onClick={() => setCurrentlyObfuscated(false)}
-              />
-            )}
-            {isValueObfuscated && !currentlyObfuscated && (
-              <SecondaryButton
-                isBorderHidden
-                isSmallIcon
-                width={"24px"}
-                height={"24px"}
-                text={""}
-                icon={<EyeOpenIcon />}
-                padding={"0"}
-                onClick={() => setCurrentlyObfuscated(true)}
-              />
-            )}
-          </>
+          {displayValue}
         </Text>
+        {isValueObfuscated && currentlyObfuscated && (
+          <SecondaryButton
+            isBorderHidden
+            isSmallIcon
+            width={"24px"}
+            height={"24px"}
+            text={""}
+            icon={<EyeClosedIcon />}
+            padding={"0"}
+            onClick={() => setCurrentlyObfuscated(false)}
+          />
+        )}
+        {isValueObfuscated && !currentlyObfuscated && (
+          <SecondaryButton
+            isBorderHidden
+            isSmallIcon
+            width={"24px"}
+            height={"24px"}
+            text={""}
+            icon={<EyeOpenIcon />}
+            padding={"0"}
+            onClick={() => setCurrentlyObfuscated(true)}
+          />
+        )}
       </Box>
     </Box>
   );

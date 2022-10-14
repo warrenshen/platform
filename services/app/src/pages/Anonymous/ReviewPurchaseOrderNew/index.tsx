@@ -181,6 +181,7 @@ export default function ReviewPurchaseOrderPage({ location }: Props) {
           <>
             <Text
               alignment={"center"}
+              materialVariant={"h1"}
               textVariant={
                 isMobile ? TextVariants.ParagraphLead : TextVariants.Header
               }
@@ -188,6 +189,7 @@ export default function ReviewPurchaseOrderPage({ location }: Props) {
               {`Approval Request for PO ${purchaseOrder.order_number}`}
             </Text>
             <Text
+              materialVariant={"p"}
               textVariant={
                 isMobile ? TextVariants.Paragraph : TextVariants.ParagraphLead
               }

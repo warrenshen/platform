@@ -1,8 +1,20 @@
-import { Button } from "@material-ui/core";
 import Text, { TextVariants } from "components/Shared/Text/Text";
 import styled from "styled-components";
 
-const StyledActionButton = styled(Button)<{
+const IconWrapper = styled.span`
+  display: inline-block;
+  margin-left: -4px;
+  margin-right: 8px;
+  position: relative;
+  top: 2px;
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+`;
+
+const StyledActionButton = styled.button<{
   $width: string;
   $height: string;
   $margin: string;
@@ -25,6 +37,9 @@ const StyledActionButton = styled(Button)<{
     props.$isBorderHidden ? "none" : `${props.$borderColor} 2px solid`};
   border-radius: 8px;
   color: ${(props) => props.$color};
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   font-weight: 500;
   font-size: 16px;
@@ -52,6 +67,7 @@ const StyledActionButton = styled(Button)<{
   :hover {
     background-color: ${(props) => props.$hoverBackgroundColor};
     color: ${(props) => props.$hoverColor};
+    cursor: pointer;
     border: ${(props) =>
       props.$isBorderHidden ? "none" : `${props.$borderColor} 2px solid`};
 
@@ -166,7 +182,6 @@ export default function ActionButton({
       className={"action-button"}
       data-cy={dataCy}
       disabled={isDisabled}
-      variant={variant}
       onClick={onClick}
       $backgroundColor={backgroundColor}
       $borderColor={borderColor}
@@ -184,18 +199,21 @@ export default function ActionButton({
       $height={height}
       $margin={margin}
       $padding={padding}
-      startIcon={icon}
     >
-      {text.length > 0 && (
-        <Text
-          alignment={"center"}
-          bottomMargin={0}
-          color={color}
-          textVariant={TextVariants.Label}
-        >
-          {text}
-        </Text>
-      )}
+      <>
+        {!!icon && <IconWrapper>{icon}</IconWrapper>}
+        {text.length > 0 && (
+          <Text
+            alignment={"center"}
+            bottomMargin={0}
+            color={color}
+            textVariant={TextVariants.Label}
+            width={"100%"}
+          >
+            {text}
+          </Text>
+        )}
+      </>
     </StyledActionButton>
   );
 }

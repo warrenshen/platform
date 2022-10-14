@@ -24,7 +24,7 @@ interface Props {
 export default function PrimaryWarningButton({
   isDisabled = false,
   isSmallIcon = false,
-  isBorderHidden = false,
+  isBorderHidden = true,
   icon = null,
   text,
   width,

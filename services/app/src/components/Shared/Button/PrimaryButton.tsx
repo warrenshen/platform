@@ -29,7 +29,7 @@ interface Props {
 export default function PrimaryButton({
   isDisabled = false,
   isSmallIcon = false,
-  isBorderHidden = false,
+  isBorderHidden = true,
   icon = null,
   text,
   width,
