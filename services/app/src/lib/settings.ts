@@ -91,6 +91,7 @@ export class SettingsHelper {
   shouldShowVendorOnboardingLink(): boolean {
     return (
       this._productType === ProductTypeEnum.LineOfCredit ||
+      this._productType === ProductTypeEnum.InventoryFinancing ||
       this._productType === ProductTypeEnum.DispensaryFinancing
     );
   }

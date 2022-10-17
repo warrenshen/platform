@@ -65,7 +65,7 @@ class AutogenerateRepaymentView(MethodView):
 			return handler_util.make_error_response('Cannot find sendgrid client')
 
 		with models.session_scope(current_app.session_maker) as session:
-			customers, err = queries.get_all_customers(session)
+			customers, has_more_customers, err = queries.get_all_customers(session)
 			if err:
 				raise err
 
@@ -220,7 +220,7 @@ class AutogenerateRepaymentWeeklyAlertView(MethodView):
 			return handler_util.make_error_response('Cannot find sendgrid client')
 
 		with models.session_scope(current_app.session_maker) as session:
-			customers, err = queries.get_all_customers(session)
+			customers, has_more_customers, err = queries.get_all_customers(session)
 			if err:
 				raise err
 

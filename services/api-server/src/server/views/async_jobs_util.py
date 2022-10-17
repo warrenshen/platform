@@ -283,22 +283,26 @@ def generate_companies_loans_coming_due_job(
 	while not is_done:
 
 		try:
-			companies = cast(
-				List[models.Company],
-				session.query(models.Company).order_by(
-					models.Company.id.asc()
-				).offset(
-					current_page * BATCH_SIZE
-				).limit(BATCH_SIZE).all())
-
-			if len(companies) <= 0:
+			companies, has_more_customers, err = queries.get_all_customers(
+				session,
+				is_active = True,
+				offset = current_page * BATCH_SIZE,
+				batch_size = BATCH_SIZE,
+			)
+			
+			# Normally, we would check for the length of companies here
+			# However, we set up `get_all_customers` to filter for active customers
+			# Once nice thing about that function is that it returns an error before
+			# filtering if no customers are found. This error based exit
+			# plays nicely with our offset approach used here
+			if not has_more_customers:
 				is_done = True
 				continue
 
 			for company in companies:
 				company_id = str(company.id)
 
-				loans_to_notify = report_generation_util.get_coming_due_loans_to_notify(session, company_id, today_date)				
+				loans_to_notify = report_generation_util.get_coming_due_loans_to_notify(session, company_id, today_date)		
 				payload = {"company_id" : str(company.id)}
 
 				if len(loans_to_notify) != 0:
@@ -325,7 +329,7 @@ def generate_companies_loans_past_due_job(
 ) -> Tuple[bool, errors.Error]:
 	current_page = 0
 	BATCH_SIZE = 50
-	is_done = False
+	is_done = False 
 
 	today_date=date_util.now_as_date(date_util.DEFAULT_TIMEZONE)
 	cfg = cast(Config, current_app.app_config)
@@ -333,15 +337,19 @@ def generate_companies_loans_past_due_job(
 	while not is_done:
 
 		try:
-			companies = cast(
-				List[models.Company],
-				session.query(models.Company).order_by(
-					models.Company.id.asc()
-				).offset(
-					current_page * BATCH_SIZE
-				).limit(BATCH_SIZE).all())
-
-			if len(companies) <= 0:
+			companies, has_more_customers, err = queries.get_all_customers(
+				session,
+				is_active = True,
+				offset = current_page * BATCH_SIZE,
+				batch_size = BATCH_SIZE,
+			)
+			
+			# Normally, we would check for the length of companies here
+			# However, we set up `get_all_customers` to filter for active customers
+			# Once nice thing about that function is that it returns an error before
+			# filtering if no customers are found. This error based exit
+			# plays nicely with our offset approach used here
+			if not has_more_customers:
 				is_done = True
 				continue
 
@@ -393,7 +401,7 @@ def autogenerate_repayment_customers(
 	session: Session,
 ) -> Tuple[bool, errors.Error]:
 	cfg = cast(Config, current_app.app_config)
-	customers, err = queries.get_all_customers(session)
+	customers, has_more_customers, err = queries.get_all_customers(session)
 
 	product_types_with_autogenerate: List[str] = [
 		ProductType.DISPENSARY_FINANCING
@@ -583,7 +591,7 @@ def autogenerate_repayment_alerts_customers(
 	session: Session,
 ) -> Tuple[bool, errors.Error]:
 	cfg = cast(Config, current_app.app_config)
-	customers, err = queries.get_all_customers(session)
+	customers, has_more_customers, err = queries.get_all_customers(session)
 
 	product_types_with_autogenerate: List[str] = [
 		ProductType.DISPENSARY_FINANCING

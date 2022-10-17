@@ -233,11 +233,12 @@ def process_coming_due_loan_chunk(
 ) -> Tuple[bool, errors.Error]:
 	is_notifiable = is_customer_notifiable_customer_by_company_id(session, company_id)
 	is_line_of_credit = loans[0].loan_type == LoanTypeEnum.LINE_OF_CREDIT
-	company = cast(
-		models.Company,
-		session.query(models.Company).filter(
-			models.Company.id == company_id)
-		.first())
+	company, err = queries.get_company_by_id(
+		session,
+		company_id,
+	)
+	if err:
+		return None, err
 	
 	all_users = models_util.get_active_users(
 		company_id=company_id, 
@@ -276,9 +277,7 @@ def process_coming_due_loan_chunk(
 				_, err = sendgrid_client.send(
 					template_name=sendgrid_util.TemplateNames.REPORT_LOANS_COMING_DUE,
 					template_data=template_data,
-					# TODO: uncomment once job is running
-					# recipients=[contact_user.email],
-					recipients=["grace@bespokefinancial.com"],
+					recipients=[contact_user.email],
 					filter_out_contact_only=True,
 					cc_recipients=[config.NO_REPLY_EMAIL_ADDRESS]
 				)
@@ -302,6 +301,7 @@ def get_all_open_loans_from_company(
 		models.Loan.status == LoanStatusEnum.APPROVED,
 		models.Loan.loan_type != LoanTypeEnum.LINE_OF_CREDIT,
 		models.Loan.company_id == company_id,
+		cast(Callable, models.Loan.is_deleted.isnot)(True),
 	]
 
 	if is_past_due:
@@ -355,12 +355,13 @@ def process_past_due_loan_chunk(
 ) -> Tuple[bool, errors.Error]:
 	is_notifiable = is_customer_notifiable_customer_by_company_id(session, company_id)
 	is_line_of_credit = loans[0].loan_type == LoanTypeEnum.LINE_OF_CREDIT
-	company = cast(
-		models.Company,
-		session.query(models.Company).filter(
-			models.Company.id == company_id)
-		.first())
-
+	company, err = queries.get_company_by_id(
+		session,
+		company_id,
+	)
+	if err:
+		return None, err
+	
 	all_users = models_util.get_active_users(
 		company_id=company_id, 
 		session=session,
@@ -369,7 +370,7 @@ def process_past_due_loan_chunk(
 	for contact_user in all_users:
 		contact_user_full_name = contact_user.first_name + " " + contact_user.last_name
 
-		running_total, rows_html =prepare_past_due_email_rows(
+		running_total, rows_html = prepare_past_due_email_rows(
 			session, 
 			loans,
 			date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
@@ -399,9 +400,7 @@ def process_past_due_loan_chunk(
 			_, err = sendgrid_client.send(
 				template_name=sendgrid_util.TemplateNames.REPORT_LOANS_PAST_DUE,
 				template_data=template_data,
-				# TODO: uncomment once job is running
-				# recipients=[contact_user.email],
-				recipients=["grace@bespokefinancial.com"],
+				recipients=[contact_user.email],
 				filter_out_contact_only=True,
 				cc_recipients=[config.NO_REPLY_EMAIL_ADDRESS]
 			)

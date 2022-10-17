@@ -2,7 +2,6 @@ import Text, { TextVariants } from "components/Shared/Text/Text";
 import styled from "styled-components";
 
 const IconWrapper = styled.span`
-  display: inline-block;
   margin-left: -4px;
   margin-right: 8px;
   position: relative;

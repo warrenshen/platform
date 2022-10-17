@@ -16,25 +16,60 @@ from sqlalchemy.orm.session import Session
 
 def get_all_customers(
     session: Session,
-) -> Tuple[ List[models.Company], errors.Error ]:
+    is_active: bool = False,
+    offset: int = None,
+    batch_size: int = None,
+) -> Tuple[ List[models.Company], bool, errors.Error ]:
+    has_more_customers = offset is not None
+
     filters = [
         models.Company.is_customer == True
     ]
 
     # fmt: off
-    customers = cast(
-        List[models.Company],
-        session.query(models.Company).filter(
-            *filters
-        ).order_by(
-            models.Company.name.asc()
-        ).all())
+    query = session.query(models.Company).filter(
+        *filters
+    ).order_by(
+        models.Company.name.asc()
+    )
     # fmt: on
 
-    if not customers:
-        return None, errors.Error("No customers have been found in the system")
+    if offset:
+        query = query.offset(offset)
 
-    return customers, None
+    if batch_size:
+        query = query.limit(batch_size)
+
+    customers = cast(
+        List[models.Company],
+        query.all())
+
+    if not customers:
+        has_more_customers = False
+        return None, has_more_customers, errors.Error("No customers have been found in the system")
+
+    if is_active:
+        customer_ids = [customer.id for customer in customers]
+        financial_summaries, err = get_financial_summaries_for_target_customers(
+            session,
+            customer_ids,
+            date_util.now_as_date(),
+        )
+        if err:
+            return None, False, err
+
+        company_id_to_summary = {}
+        for summary in financial_summaries:
+            company_id_to_summary[str(summary.company_id)] = summary
+
+        active_customers = []
+        for customer in customers:
+            if company_id_to_summary[str(customer.id)].product_type is not None:
+                active_customers.append(customer)
+
+        customers = active_customers
+
+    return customers, has_more_customers, None
 
 def get_company_by_id(
     session: Session,

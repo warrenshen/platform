@@ -88,7 +88,7 @@ class TestGetOptInCustomers(db_unittest.TestCase):
 				bank_override_flag = False,
 			)
 
-			customers, customers_err = queries.get_all_customers(session)
+			customers, has_more_customers, customers_err = queries.get_all_customers(session)
 			self.assertEqual(len(customers), 1)
 			self.assertIsNone(customers_err)
 
@@ -119,7 +119,7 @@ class TestGetOptInCustomers(db_unittest.TestCase):
 				bank_override_flag = False,
 			)
 
-			customers, customers_err = queries.get_all_customers(session)
+			customers, has_more_customers, customers_err = queries.get_all_customers(session)
 			self.assertEqual(len(customers), 1)
 			self.assertIsNone(customers_err)
 
@@ -154,7 +154,7 @@ class TestGetOptInCustomers(db_unittest.TestCase):
 					bank_override_flag = False,
 				)
 
-			customers, customers_err = queries.get_all_customers(session)
+			customers, has_more_customers, customers_err = queries.get_all_customers(session)
 			self.assertEqual(len(customers), 2)
 			self.assertIsNone(customers_err)
 
@@ -186,7 +186,7 @@ class TestGetOptInCustomers(db_unittest.TestCase):
 				bank_override_flag = True,
 			)
 
-			customers, customers_err = queries.get_all_customers(session)
+			customers, has_more_customers, customers_err = queries.get_all_customers(session)
 			self.assertEqual(len(customers), 1)
 			self.assertIsNone(customers_err)
 
@@ -218,7 +218,7 @@ class TestGetOptInCustomers(db_unittest.TestCase):
 				bank_override_flag = False,
 			)
 
-			customers, customers_err = queries.get_all_customers(session)
+			customers, has_more_customers, customers_err = queries.get_all_customers(session)
 			self.assertEqual(len(customers), 1)
 			self.assertIsNone(customers_err)
 
@@ -250,7 +250,7 @@ class TestGetOptInCustomers(db_unittest.TestCase):
 				skip_financial_summaries = True,
 			)
 
-			customers, customers_err = queries.get_all_customers(session)
+			customers, has_more_customers, customers_err = queries.get_all_customers(session)
 			self.assertEqual(len(customers), 1)
 			self.assertIsNone(customers_err)
 
@@ -642,7 +642,7 @@ class TestGenerateRepaymentsForMatureLoans(db_unittest.TestCase):
 				setup_loans = True,
 			)
 
-			customers, customers_err = queries.get_all_customers(session)
+			customers, has_more_customers, customers_err = queries.get_all_customers(session)
 			self.assertEqual(len(customers), 4)
 			self.assertIsNone(customers_err)
 
