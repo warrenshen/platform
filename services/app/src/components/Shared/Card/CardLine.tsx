@@ -48,7 +48,12 @@ export default function CardLine({
           {labelText}
         </Text>
       </Box>
-      <Box width={"60%"} display="flex" flexDirection="row">
+      <Box
+        width={"60%"}
+        display="flex"
+        flexDirection="row"
+        justifyContent={valueAlignment === "right" ? "flex-end" : "flex-start"}
+      >
         <Text
           materialVariant={"p"}
           textVariant={TextVariants.Label}
