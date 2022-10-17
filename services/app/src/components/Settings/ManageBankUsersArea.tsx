@@ -7,18 +7,27 @@ import InviteUserModal from "components/Users/InviteUserModal";
 import ReactivateUserModal from "components/Users/ReactivateUserModal";
 import UsersDataGrid from "components/Users/UsersDataGrid";
 import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
+import {
   UserRolesEnum,
   Users,
   useGetActiveUsersByRolesQuery,
   useGetDeactivatedUsersByRolesQuery,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
-import { useMemo, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 
 function ActiveUsersTab() {
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
+  const isBankUser = isRoleBankUser(role);
   const { data, refetch } = useGetActiveUsersByRolesQuery({
     variables: {
       roles: [UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly],
+      isBankUser: isBankUser,
     },
   });
 
@@ -71,6 +80,7 @@ function ActiveUsersTab() {
                   userRoles={bankUserRoles}
                   isCompanyRoleVisible
                   originalUserProfile={selectedUsers[0]}
+                  isEditBankUser={true}
                   handleClose={() => {
                     refetch();
                     handleClose();

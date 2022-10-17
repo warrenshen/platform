@@ -7,6 +7,10 @@ import InviteUserModal from "components/Users/InviteUserModal";
 import ReactivateUserModal from "components/Users/ReactivateUserModal";
 import UsersDataGrid from "components/Users/UsersDataGrid";
 import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
+import {
   GetCompanyForCustomerQuery,
   Users,
   useGetDeactivatedUsersForCompanyQuery,
@@ -14,7 +18,7 @@ import {
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { getCompanyUserRolesForCompany } from "lib/companies";
-import { useMemo, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 
 interface Props {
   company: NonNullable<GetCompanyForCustomerQuery["companies_by_pk"]>;
@@ -35,10 +39,16 @@ function ActiveUsersTab({
   company,
   isVendorOrActiveCustomer,
 }: ActiveUsersTabProps) {
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
+  const isBankUser = isRoleBankUser(role);
+
   const { data, refetch } = useGetUsersForCompanyQuery({
     variables: {
       parent_company_id: company.parent_company_id,
       company_id: company.id,
+      isBankUser: isBankUser,
     },
   });
 
@@ -133,6 +143,7 @@ function ActiveUsersTab({
             users={users}
             selectedUserIds={selectedUserIds}
             handleSelectUsers={handleSelectUsers}
+            isCustomerUserGrid={true}
           />
         ) : (
           <Typography variant="body2">No users set up yet</Typography>
@@ -201,6 +212,7 @@ function DeactivatedUsersTab({
             users={users}
             selectedUserIds={selectedUserIds}
             handleSelectUsers={handleSelectUsers}
+            isCustomerUserGrid={true}
           />
         ) : (
           <Typography variant="body2">No deactivated users to show</Typography>

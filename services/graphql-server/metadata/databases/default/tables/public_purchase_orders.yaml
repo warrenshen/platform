@@ -220,7 +220,6 @@ select_permissions:
         - customer_note
         - delivery_date
         - funded_at
-        - history
         - id
         - incompleted_at
         - is_cannabis

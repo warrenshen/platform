@@ -1,14 +1,23 @@
 import { Box, IconButton } from "@material-ui/core";
-import { ValueFormatterParams } from "@material-ui/data-grid";
+import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
 import EditIcon from "@material-ui/icons/Edit";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
-import { UserFragment, UserRolesEnum, Users } from "generated/graphql";
-import { BespokeCompanyRole, UserRoleToLabel } from "lib/enum";
-import { ColumnWidths } from "lib/tables";
-import { Dispatch, SetStateAction, useMemo } from "react";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
+import { UserRolesEnum, UserWrapperFragment, Users } from "generated/graphql";
+import {
+  BespokeCompanyRole,
+  CustomerRoleEnum,
+  CustomerRoleToLabel,
+  UserRoleToLabel,
+} from "lib/enum";
+import { ColumnWidths, formatRowModel } from "lib/tables";
+import { Dispatch, SetStateAction, useContext, useMemo } from "react";
 
 import { BespokeCompanyRoleToLabel } from "../../lib/enum";
 
@@ -19,13 +28,29 @@ interface Props {
   isRoleVisible?: boolean;
   isCompanyRoleVisible?: boolean;
   pager?: boolean;
-  users: UserFragment[];
+  users: UserWrapperFragment[];
   selectedUserIds?: Users["id"][];
   handleSelectUsers?: (users: Users[]) => void;
   handleImpersonateClick?: (userId: Users["id"]) => void;
   actionItems?: DataGridActionItem[];
   setSelectedUserProfile?: Dispatch<SetStateAction<Users["id"]>>;
   isEditIconVisible?: boolean;
+  isCustomerUserGrid?: boolean;
+}
+
+function getRows(users: UserWrapperFragment[]): RowsProp {
+  return users.map((user) => {
+    return formatRowModel({
+      ...user,
+      customer_role_labels: user.hasOwnProperty("company_role_new")
+        ? !!user?.company_role_new?.["customer_roles"]
+          ? user.company_role_new["customer_roles"].map(
+              (role: CustomerRoleEnum) => CustomerRoleToLabel[role]
+            )
+          : ""
+        : "",
+    });
+  });
 }
 
 export default function UsersDataGrid({
@@ -41,8 +66,13 @@ export default function UsersDataGrid({
   actionItems,
   setSelectedUserProfile,
   isEditIconVisible = false,
+  isCustomerUserGrid = false,
 }: Props) {
-  const rows = users;
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
+  const isBankUser = isRoleBankUser(role);
+  const rows = useMemo(() => getRows(users), [users]);
   const columns = useMemo(
     () => [
       {
@@ -96,6 +126,12 @@ export default function UsersDataGrid({
           BespokeCompanyRoleToLabel[company_role as BespokeCompanyRole],
       },
       {
+        visible: isCustomerUserGrid && isBankUser,
+        caption: "New Role",
+        dataField: "customer_role_labels",
+        width: ColumnWidths.UserRole,
+      },
+      {
         caption: "First Name",
         dataField: "first_name",
         minWidth: ColumnWidths.MinWidth,
@@ -117,12 +153,14 @@ export default function UsersDataGrid({
       },
     ],
     [
+      isBankUser,
       isCompanyVisible,
       isCompanyRoleVisible,
       isRoleVisible,
       actionItems,
       setSelectedUserProfile,
       isEditIconVisible,
+      isCustomerUserGrid,
     ]
   );
 

@@ -17,6 +17,18 @@ fragment User on users {
   created_at
 }
 
+
+fragment UserWrapper on users {
+   id
+   ...User
+   ...UserBankOnly @include(if: $isBankUser)
+}
+
+fragment UserBankOnly on users {
+   id
+   company_role_new 
+}
+
 ## Companies
 
 # A company agreement can also correspond to an agreement that a vendor signs with Bespoke as well

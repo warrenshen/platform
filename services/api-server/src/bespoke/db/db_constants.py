@@ -19,6 +19,13 @@ class BespokeCompanyRole(object):
   BUSINESS_DEVELOPMENT = "business_development",
   UNDERWRITER = "underwriter",
 
+class CustomerRoles(object):
+	FINANCIALS = 'financials'
+	PURCHASE_ORDER_EDITS = 'purchase_order_edits'
+	REPAYMENTS = 'repayments'
+	EXECUTIVE = 'executive'
+	SALES_REP = 'sales_rep'
+	OTHER = 'other'
 
 ALL_USER_ROLES = [
 	UserRoles.BANK_ADMIN,

@@ -1,6 +1,7 @@
 import { Box, Button, TextField, Typography } from "@material-ui/core";
 import UsersDataGrid from "components/Users/UsersDataGrid";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
+import { isRoleBankUser } from "contexts/CurrentUserContext";
 import {
   UserRolesEnum,
   Users,
@@ -17,9 +18,14 @@ const ImpersonateBankUserArea = () => {
   const snackbar = useSnackbar();
   const history = useHistory();
   const { impersonateUser } = useContext(CurrentUserContext);
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
+  const isBankUser = isRoleBankUser(role);
   const { data } = useGetActiveUsersByRolesQuery({
     variables: {
       roles: [UserRolesEnum.CompanyAdmin],
+      isBankUser: isBankUser,
     },
   });
 
@@ -89,6 +95,7 @@ const ImpersonateBankUserArea = () => {
             isMultiSelectEnabled
             isRoleVisible
             isCompanyVisible
+            isCustomerUserGrid={true}
             users={usersSortedByCompanyName}
             selectedUserIds={selectedUserIds}
             handleSelectUsers={handleSelectUsers}

@@ -1018,7 +1018,7 @@ def reports_monthly_loan_summary_LOC_generate(
 	user_id: str,
 	companies: List[str]
 ) -> Tuple[bool, errors.Error]:
-	logging.info("Received request to generate loan summary for non loc")
+	logging.info("Received request to generate loan summary for loc")
 
 	# if no companies specified then create monthly summary report for ALL companies
 	if len(companies) == 0:

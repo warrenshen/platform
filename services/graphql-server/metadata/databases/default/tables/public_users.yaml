@@ -13,6 +13,8 @@ select_permissions:
     permission:
       columns:
         - company_id
+        - company_role
+        - company_role_new
         - created_at
         - email
         - first_name
@@ -24,13 +26,14 @@ select_permissions:
         - parent_company_id
         - phone_number
         - role
-        - company_role
         - updated_at
       filter: {}
   - role: bank_read_only
     permission:
       columns:
         - company_id
+        - company_role
+        - company_role_new
         - created_at
         - email
         - first_name
@@ -42,7 +45,6 @@ select_permissions:
         - parent_company_id
         - phone_number
         - role
-        - company_role
         - updated_at
       filter: {}
   - role: company_admin
@@ -111,6 +113,7 @@ update_permissions:
   - role: bank_admin
     permission:
       columns:
+        - company_role_new
         - email
         - first_name
         - last_name

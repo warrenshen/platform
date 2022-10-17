@@ -362,10 +362,16 @@ class UpdateUserView(MethodView):
         if not role:
             return handler_util.make_error_response("role is required to be set for this request")
 
+        edited_company_roles = variables.get("company_role_new", None)
+
+        other_role = variables.get("other_role", None)
+
         with models.session_scope(current_app.session_maker) as session:
             user = cast(
                 models.User,
-                session.query(models.User).filter_by(id=user_id).first(),
+                session.query(models.User).filter(
+                	models.User.id==user_id
+                ).first(),
             )
 
             if not user:
@@ -379,12 +385,22 @@ class UpdateUserView(MethodView):
 				):
                     return handler_util.make_error_response("User with email already exists")
                 user.email = email
+            if user.company_role_new == None:
+	            user.company_role_new = {
+	    			"other_role": [],
+	    			"customer_roles": [],
+	    			"bespoke_roles": []
+	    			}
+	    			
+            new_company_roles = json.loads(json.dumps(user.company_role_new))
+            new_company_roles["customer_roles"] = edited_company_roles
+            new_company_roles["other_role"] = other_role
 
             user.first_name = first_name
             user.last_name = last_name
             user.role = role
             user.company_role = variables.get("company_role", None)
-
+            user.company_role_new = new_company_roles
             phone_number = variables.get("phone_number", None)
             if phone_number:
                 user.phone_number = phone_number

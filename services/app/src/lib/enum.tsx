@@ -583,6 +583,26 @@ export const PaymentOptionToLabel = {
   [RepaymentMethodEnum.Unknown]: "Unknown",
 };
 
+export enum CustomerRoleEnum {
+  Financials = "financials",
+  PurchaseOrderEdits = "purchase_order_edits",
+  Repayments = "repayments",
+  Executive = "executive",
+  SalesRep = "sales_rep",
+  None = "none",
+  Other = "other",
+}
+
+export const CustomerRoleToLabel = {
+  [CustomerRoleEnum.Financials]: "Financials",
+  [CustomerRoleEnum.PurchaseOrderEdits]: "PO Edits",
+  [CustomerRoleEnum.Repayments]: "Repayments",
+  [CustomerRoleEnum.Executive]: "Executive",
+  [CustomerRoleEnum.SalesRep]: "Sales Rep",
+  [CustomerRoleEnum.None]: "None",
+  [CustomerRoleEnum.Other]: "Other",
+};
+
 // Product Type enum related.
 export enum ProductTypeEnum {
   DispensaryFinancing = "dispensary_financing",

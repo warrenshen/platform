@@ -1,22 +1,27 @@
 import {
   Box,
   Button,
+  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   FormControl,
+  FormControlLabel,
   InputLabel,
+  List,
+  ListItem,
   MenuItem,
   Select,
   TextField,
   Theme,
+  Typography,
   createStyles,
   makeStyles,
 } from "@material-ui/core";
 import PhoneInput from "components/Shared/FormInputs/PhoneInput";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { UserFragment, UserRolesEnum } from "generated/graphql";
+import { UserRolesEnum, UserWrapperFragment } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { updateUser } from "lib/api/users";
@@ -24,10 +29,12 @@ import {
   BespokeCompanyRole,
   BespokeCompanyRoleToLabel,
   BespokeCompanyRoles,
+  CustomerRoleEnum,
+  CustomerRoleToLabel,
   UserRoleToLabel,
 } from "lib/enum";
 import { isEmailValid } from "lib/validation";
-import { useContext, useState } from "react";
+import { ChangeEvent, useContext, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -50,8 +57,9 @@ interface Props {
   userId: string;
   isCompanyRoleVisible?: boolean;
   userRoles: UserRolesEnum[];
-  originalUserProfile: UserFragment;
+  originalUserProfile: UserWrapperFragment;
   handleClose: () => void;
+  isEditBankUser?: Boolean;
 }
 
 function EditUserProfileModal({
@@ -59,6 +67,7 @@ function EditUserProfileModal({
   userRoles,
   originalUserProfile,
   handleClose,
+  isEditBankUser = false,
 }: Props) {
   const snackbar = useSnackbar();
   const classes = useStyles();
@@ -72,15 +81,22 @@ function EditUserProfileModal({
     useCustomMutation(updateUser);
 
   const handleSubmit = async () => {
+    const selectedRoles = Object.entries(selectionState)
+      .map((state) => {
+        return state[1] ? state[0] : null;
+      })
+      .filter((state) => !!state);
     const response = await updateUserDetails({
       variables: {
         id: userProfile.id,
         role: userProfile.role,
         company_role: userProfile.company_role,
+        company_role_new: selectedRoles,
         first_name: userProfile.first_name,
         last_name: userProfile.last_name,
         phone_number: userProfile.phone_number,
         email: userProfile.email,
+        other_role: otherRole,
       },
     });
 
@@ -91,6 +107,42 @@ function EditUserProfileModal({
       handleClose();
     }
   };
+
+  const supportedCompanyRoles = userProfile.hasOwnProperty("company_role_new")
+    ? !!userProfile?.company_role_new?.["customer_roles"]
+      ? userProfile.company_role_new["customer_roles"]
+      : []
+    : [];
+  const [otherRole, setOtherRole] = useState(
+    userProfile.hasOwnProperty("company_role_new")
+      ? !!userProfile?.company_role_new?.["other_role"]
+        ? userProfile.company_role_new["other_role"]
+        : []
+      : ""
+  );
+
+  const [selectionState, setSelectionState] = useState<Record<string, boolean>>(
+    {
+      [CustomerRoleEnum.Financials]: supportedCompanyRoles.includes(
+        CustomerRoleEnum.Financials
+      ),
+      [CustomerRoleEnum.PurchaseOrderEdits]: supportedCompanyRoles.includes(
+        CustomerRoleEnum.PurchaseOrderEdits
+      ),
+      [CustomerRoleEnum.Repayments]: supportedCompanyRoles.includes(
+        CustomerRoleEnum.Repayments
+      ),
+      [CustomerRoleEnum.Executive]: supportedCompanyRoles.includes(
+        CustomerRoleEnum.Executive
+      ),
+      [CustomerRoleEnum.SalesRep]: supportedCompanyRoles.includes(
+        CustomerRoleEnum.SalesRep
+      ),
+      [CustomerRoleEnum.Other]: supportedCompanyRoles.includes(
+        CustomerRoleEnum.Other
+      ),
+    }
+  );
 
   const updateButtonDisabled =
     !userProfile.role ||
@@ -137,7 +189,7 @@ function EditUserProfileModal({
             <Box display="flex" flexDirection="column" mt={4}>
               <FormControl>
                 <InputLabel id="user-company-role-select-label">
-                  Company Role
+                  Bespoke Company Role
                 </InputLabel>
                 <Select
                   required
@@ -207,6 +259,53 @@ function EditUserProfileModal({
               }
             />
           </Box>
+        </Box>
+        <Box display="flex" flexDirection="column">
+          {role === UserRolesEnum.BankAdmin && !isEditBankUser && (
+            <Box display="flex" flexDirection="column" mt={4}>
+              <Typography variant="body2" color="textSecondary">
+                Supported Customer Roles
+              </Typography>
+              <List component="div">
+                {Object.entries(CustomerRoleEnum).map(([key, value]) =>
+                  value !== CustomerRoleEnum.None ? (
+                    <ListItem key={value} value={value}>
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            disabled={role !== UserRolesEnum.BankAdmin} // ONLY bank ADMINs can edit role of a user.
+                            checked={selectionState[value]}
+                            onChange={(
+                              event: ChangeEvent<HTMLInputElement>
+                            ) => {
+                              setSelectionState({
+                                ...selectionState,
+                                [value]: event.target.checked,
+                              });
+                            }}
+                            color="primary"
+                          />
+                        }
+                        label={CustomerRoleToLabel[value as CustomerRoleEnum]}
+                      />
+                    </ListItem>
+                  ) : (
+                    <></>
+                  )
+                )}
+              </List>
+              {selectionState[CustomerRoleEnum.Other] === true && (
+                <Box ml={6}>
+                  <TextField
+                    multiline
+                    label={"Other Role Information"}
+                    value={otherRole}
+                    onChange={({ target: { value } }) => setOtherRole(value)}
+                  />
+                </Box>
+              )}
+            </Box>
+          )}
         </Box>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>

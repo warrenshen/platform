@@ -5,7 +5,7 @@ query GetUser($id: uuid!) {
   }
 }
 
-query GetActiveUsersByRoles($roles: [user_roles_enum!]!) {
+query GetActiveUsersByRoles($roles: [user_roles_enum!]!, $isBankUser: Boolean = false) {
   users(
     where: {
       _and: [
@@ -20,7 +20,7 @@ query GetActiveUsersByRoles($roles: [user_roles_enum!]!) {
     }
   ) {
     id
-    ...User
+    ...UserWrapper
     company {
       id
       name
@@ -88,7 +88,7 @@ query GetDeactivatedUsersByRoles($roles: [user_roles_enum!]!) {
   }
 }
 
-query GetUsersForCompany($parent_company_id: uuid!, $company_id: uuid!) {
+query GetUsersForCompany($parent_company_id: uuid!, $company_id: uuid!, $isBankUser: Boolean = false) {
   users(
     where: {
       _and: [
@@ -108,7 +108,7 @@ query GetUsersForCompany($parent_company_id: uuid!, $company_id: uuid!) {
     }
     order_by: { full_name: asc }
   ) {
-    ...User
+    ...UserWrapper
   }
 }
 

@@ -109,6 +109,7 @@ class User(Base):
 	password = Column(Text)
 	role = Column(String(120))
 	company_role = Column(String(120))
+	company_role_new = Column(JSON, nullable=True) # TODO (grace) temporary until new role migration is complete
 	first_name = Column(Text, nullable=False)
 	last_name = Column(Text, nullable=False)
 	full_name = Column(Text)

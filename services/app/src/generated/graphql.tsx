@@ -7337,6 +7337,8 @@ export type CustomerSurveillanceResultsBoolExp = {
 /** unique or primary key constraints on table "customer_surveillance_results" */
 export enum CustomerSurveillanceResultsConstraint {
   /** unique or primary key constraint */
+  CompanyProductQualificationsCompanyIdQualifyingDateKey = "company_product_qualifications_company_id_qualifying_date_key",
+  /** unique or primary key constraint */
   CompanyProductQualificationsPkey = "company_product_qualifications_pkey",
 }
 
@@ -8414,7 +8416,7 @@ export type EbbaApplications = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["timestamp"]>;
   /** An object relationship */
   rejected_by_user?: Maybe<Users>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
@@ -8539,7 +8541,7 @@ export type EbbaApplicationsBoolExp = {
   monthly_accounts_receivable?: Maybe<NumericComparisonExp>;
   monthly_cash?: Maybe<NumericComparisonExp>;
   monthly_inventory?: Maybe<NumericComparisonExp>;
-  rejected_at?: Maybe<TimestamptzComparisonExp>;
+  rejected_at?: Maybe<TimestampComparisonExp>;
   rejected_by_user?: Maybe<UsersBoolExp>;
   rejected_by_user_id?: Maybe<UuidComparisonExp>;
   rejection_note?: Maybe<StringComparisonExp>;
@@ -8588,7 +8590,7 @@ export type EbbaApplicationsInsertInput = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["timestamp"]>;
   rejected_by_user?: Maybe<UsersObjRelInsertInput>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
@@ -8617,7 +8619,7 @@ export type EbbaApplicationsMaxFields = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["timestamp"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -8669,7 +8671,7 @@ export type EbbaApplicationsMinFields = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["timestamp"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -8834,7 +8836,7 @@ export type EbbaApplicationsSetInput = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["timestamp"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -27645,6 +27647,7 @@ export type Users = {
   company?: Maybe<Companies>;
   company_id?: Maybe<Scalars["uuid"]>;
   company_role?: Maybe<Scalars["String"]>;
+  company_role_new?: Maybe<Scalars["json"]>;
   created_at: Scalars["timestamptz"];
   email: Scalars["String"];
   first_name: Scalars["String"];
@@ -27660,6 +27663,11 @@ export type Users = {
   phone_number?: Maybe<Scalars["String"]>;
   role?: Maybe<UserRolesEnum>;
   updated_at: Scalars["timestamptz"];
+};
+
+/** columns and relationships of "users" */
+export type UsersCompanyRoleNewArgs = {
+  path?: Maybe<Scalars["String"]>;
 };
 
 /** aggregated selection of "users" */
@@ -27703,6 +27711,7 @@ export type UsersBoolExp = {
   company?: Maybe<CompaniesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
   company_role?: Maybe<StringComparisonExp>;
+  company_role_new?: Maybe<JsonComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
   email?: Maybe<StringComparisonExp>;
   first_name?: Maybe<StringComparisonExp>;
@@ -27732,6 +27741,7 @@ export type UsersInsertInput = {
   company?: Maybe<CompaniesObjRelInsertInput>;
   company_id?: Maybe<Scalars["uuid"]>;
   company_role?: Maybe<Scalars["String"]>;
+  company_role_new?: Maybe<Scalars["json"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   email?: Maybe<Scalars["String"]>;
   first_name?: Maybe<Scalars["String"]>;
@@ -27843,6 +27853,7 @@ export type UsersOrderBy = {
   company?: Maybe<CompaniesOrderBy>;
   company_id?: Maybe<OrderBy>;
   company_role?: Maybe<OrderBy>;
+  company_role_new?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
   email?: Maybe<OrderBy>;
   first_name?: Maybe<OrderBy>;
@@ -27870,6 +27881,8 @@ export enum UsersSelectColumn {
   CompanyId = "company_id",
   /** column name */
   CompanyRole = "company_role",
+  /** column name */
+  CompanyRoleNew = "company_role_new",
   /** column name */
   CreatedAt = "created_at",
   /** column name */
@@ -27902,6 +27915,7 @@ export enum UsersSelectColumn {
 export type UsersSetInput = {
   company_id?: Maybe<Scalars["uuid"]>;
   company_role?: Maybe<Scalars["String"]>;
+  company_role_new?: Maybe<Scalars["json"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   email?: Maybe<Scalars["String"]>;
   first_name?: Maybe<Scalars["String"]>;
@@ -27923,6 +27937,8 @@ export enum UsersUpdateColumn {
   CompanyId = "company_id",
   /** column name */
   CompanyRole = "company_role",
+  /** column name */
+  CompanyRoleNew = "company_role_new",
   /** column name */
   CreatedAt = "created_at",
   /** column name */
@@ -30263,13 +30279,14 @@ export type GetUserQuery = {
 
 export type GetActiveUsersByRolesQueryVariables = Exact<{
   roles: Array<UserRolesEnum>;
+  isBankUser?: Maybe<Scalars["Boolean"]>;
 }>;
 
 export type GetActiveUsersByRolesQuery = {
   users: Array<
     Pick<Users, "id"> & {
       company?: Maybe<Pick<Companies, "id" | "name">>;
-    } & UserFragment
+    } & UserWrapperFragment
   >;
 };
 
@@ -30294,9 +30311,10 @@ export type GetDeactivatedUsersByRolesQuery = {
 export type GetUsersForCompanyQueryVariables = Exact<{
   parent_company_id: Scalars["uuid"];
   company_id: Scalars["uuid"];
+  isBankUser?: Maybe<Scalars["Boolean"]>;
 }>;
 
-export type GetUsersForCompanyQuery = { users: Array<UserFragment> };
+export type GetUsersForCompanyQuery = { users: Array<UserWrapperFragment> };
 
 export type GetDeactivatedUsersForCompanyQueryVariables = Exact<{
   parent_company_id: Scalars["uuid"];
@@ -30589,6 +30607,12 @@ export type UserFragment = Pick<
   | "company_role"
   | "created_at"
 >;
+
+export type UserWrapperFragment = Pick<Users, "id"> &
+  UserFragment &
+  UserBankOnlyFragment;
+
+export type UserBankOnlyFragment = Pick<Users, "id" | "company_role_new">;
 
 export type CompanyAgreementFragment = Pick<
   CompanyAgreements,
@@ -32219,6 +32243,21 @@ export const UserFragmentDoc = gql`
     company_role
     created_at
   }
+`;
+export const UserBankOnlyFragmentDoc = gql`
+  fragment UserBankOnly on users {
+    id
+    company_role_new
+  }
+`;
+export const UserWrapperFragmentDoc = gql`
+  fragment UserWrapper on users {
+    id
+    ...User
+    ...UserBankOnly @include(if: $isBankUser)
+  }
+  ${UserFragmentDoc}
+  ${UserBankOnlyFragmentDoc}
 `;
 export const CompanyAgreementFragmentDoc = gql`
   fragment CompanyAgreement on company_agreements {
@@ -42289,7 +42328,10 @@ export type GetUserQueryResult = Apollo.QueryResult<
   GetUserQueryVariables
 >;
 export const GetActiveUsersByRolesDocument = gql`
-  query GetActiveUsersByRoles($roles: [user_roles_enum!]!) {
+  query GetActiveUsersByRoles(
+    $roles: [user_roles_enum!]!
+    $isBankUser: Boolean = false
+  ) {
     users(
       where: {
         _and: [
@@ -42304,14 +42346,14 @@ export const GetActiveUsersByRolesDocument = gql`
       }
     ) {
       id
-      ...User
+      ...UserWrapper
       company {
         id
         name
       }
     }
   }
-  ${UserFragmentDoc}
+  ${UserWrapperFragmentDoc}
 `;
 
 /**
@@ -42327,6 +42369,7 @@ export const GetActiveUsersByRolesDocument = gql`
  * const { data, loading, error } = useGetActiveUsersByRolesQuery({
  *   variables: {
  *      roles: // value for 'roles'
+ *      isBankUser: // value for 'isBankUser'
  *   },
  * });
  */
@@ -42525,7 +42568,11 @@ export type GetDeactivatedUsersByRolesQueryResult = Apollo.QueryResult<
   GetDeactivatedUsersByRolesQueryVariables
 >;
 export const GetUsersForCompanyDocument = gql`
-  query GetUsersForCompany($parent_company_id: uuid!, $company_id: uuid!) {
+  query GetUsersForCompany(
+    $parent_company_id: uuid!
+    $company_id: uuid!
+    $isBankUser: Boolean = false
+  ) {
     users(
       where: {
         _and: [
@@ -42545,10 +42592,10 @@ export const GetUsersForCompanyDocument = gql`
       }
       order_by: { full_name: asc }
     ) {
-      ...User
+      ...UserWrapper
     }
   }
-  ${UserFragmentDoc}
+  ${UserWrapperFragmentDoc}
 `;
 
 /**
@@ -42565,6 +42612,7 @@ export const GetUsersForCompanyDocument = gql`
  *   variables: {
  *      parent_company_id: // value for 'parent_company_id'
  *      company_id: // value for 'company_id'
+ *      isBankUser: // value for 'isBankUser'
  *   },
  * });
  */
