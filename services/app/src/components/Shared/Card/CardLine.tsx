@@ -12,6 +12,7 @@ import { useState } from "react";
 interface Props {
   labelText: string;
   valueText: string;
+  labelWidth?: string;
   valueAlignment?: string;
   isValueObfuscated?: boolean;
 }
@@ -19,6 +20,7 @@ interface Props {
 export default function CardLine({
   labelText,
   valueText,
+  labelWidth,
   valueAlignment = "right",
   isValueObfuscated = false,
 }: Props) {
@@ -34,7 +36,7 @@ export default function CardLine({
     <Box
       display="flex"
       flexDirection="row"
-      justifyContent="space-between"
+      justifyContent={labelWidth ? "flex-start" : "space-between"}
       width={"100%"}
       mb={"16px"}
     >
@@ -44,6 +46,7 @@ export default function CardLine({
           textVariant={TextVariants.Label}
           color={DisabledSecondaryTextColor}
           bottomMargin={0}
+          width={labelWidth}
         >
           {labelText}
         </Text>

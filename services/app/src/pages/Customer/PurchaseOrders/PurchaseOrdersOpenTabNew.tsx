@@ -8,6 +8,7 @@ import PrimaryButton from "components/Shared/Button/PrimaryButton";
 import SecondaryButton from "components/Shared/Button/SecondaryButton";
 import Can from "components/Shared/Can";
 import { TextColor } from "components/Shared/Colors/GlobalColors";
+import LinearFinancialSummaryOverview from "components/Shared/FinancialSummaries/LinearFinancialSummaryOverview";
 import Text, { TextVariants } from "components/Shared/Text/Text";
 import { CurrentCustomerContext } from "contexts/CurrentCustomerContext";
 import {
@@ -29,8 +30,6 @@ import {
 } from "lib/enum";
 import { useContext, useMemo, useState } from "react";
 import styled from "styled-components";
-
-import LinearFinancialSummaryOverview from "./LinearFinancialSummaryOverview";
 
 const Container = styled.div`
   display: flex;

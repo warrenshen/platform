@@ -1,11 +1,15 @@
+import { Box } from "@material-ui/core";
 import { RowsProp } from "@material-ui/data-grid";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
 import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
-import { LoanLimitedFragment } from "generated/graphql";
+import { LoanFragment, LoanLimitedFragment } from "generated/graphql";
 import { parseDateStringServer } from "lib/date";
 import { LoanStatusEnum } from "lib/enum";
-import { createLoanCustomerIdentifier } from "lib/loans";
+import {
+  createLoanCustomerIdentifier,
+  createLoanDisbursementIdentifier,
+} from "lib/loans";
 import { CurrencyPrecision } from "lib/number";
 import { ColumnWidths, formatRowModel } from "lib/tables";
 import { useMemo } from "react";
@@ -13,6 +17,9 @@ import { useMemo } from "react";
 interface Props {
   financingRequests: LoanLimitedFragment[];
   isMultiSelectEnabled?: boolean;
+  showComments?: boolean;
+  pager?: boolean;
+  handleSelectFinancingRequests?: (loans: LoanFragment[]) => void;
 }
 
 function getRows(financingRequests: LoanLimitedFragment[]): RowsProp {
@@ -20,6 +27,8 @@ function getRows(financingRequests: LoanLimitedFragment[]): RowsProp {
     return formatRowModel({
       ...financingRequest,
       customer_identifier: createLoanCustomerIdentifier(financingRequest),
+      disbursement_identifier:
+        createLoanDisbursementIdentifier(financingRequest),
       requested_payment_date: parseDateStringServer(
         financingRequest.requested_payment_date
       ),
@@ -30,6 +39,9 @@ function getRows(financingRequests: LoanLimitedFragment[]): RowsProp {
 const FinancialRequestsDataGrid = ({
   financingRequests,
   isMultiSelectEnabled = false,
+  showComments = true,
+  pager = false,
+  handleSelectFinancingRequests,
 }: Props) => {
   const rows = getRows(financingRequests);
   const columns = useMemo(
@@ -38,11 +50,21 @@ const FinancialRequestsDataGrid = ({
         fixed: true,
         caption: "Customer Identifier",
         dataField: "customer_identifier",
-        maxWidth: ColumnWidths.Identifier,
+        minWidth: ColumnWidths.Identifier,
         cellRender: ({ value, data }: { value: string; data: any }) => (
           <LoanDrawerLauncher label={value} loanId={data.id} />
         ),
       },
+      {
+        fixed: true,
+        caption: "Disbursement Identifier",
+        dataField: "disbursement_identifier",
+        minWidth: ColumnWidths.Identifier,
+        cellRender: ({ value, data }: { value: string; data: any }) => (
+          <LoanDrawerLauncher label={value} loanId={data.id} />
+        ),
+      },
+
       {
         caption: "Approval Status",
         dataField: "status",
@@ -69,6 +91,7 @@ const FinancialRequestsDataGrid = ({
         format: "shortDate",
       },
       {
+        isVisible: !!showComments,
         caption: "Comments",
         dataField: "customer_notes",
         width: 340,
@@ -78,12 +101,24 @@ const FinancialRequestsDataGrid = ({
     []
   );
 
+  const handleSelectionChanged = useMemo(
+    () =>
+      ({ selectedRowsData }: any) =>
+        handleSelectFinancingRequests &&
+        handleSelectFinancingRequests(selectedRowsData as LoanFragment[]),
+    [handleSelectFinancingRequests]
+  );
+
   return (
-    <ControlledDataGrid
-      dataSource={rows}
-      columns={columns}
-      select={isMultiSelectEnabled}
-    />
+    <Box className="financing-requests-data-grid">
+      <ControlledDataGrid
+        dataSource={rows}
+        columns={columns}
+        select={isMultiSelectEnabled}
+        onSelectionChanged={handleSelectionChanged}
+        pager={pager}
+      />
+    </Box>
   );
 };
 

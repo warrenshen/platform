@@ -8,7 +8,7 @@ export default function CustomerFinancialCertificationsPage() {
     user: { companyId, productType, isActiveContract },
   } = useContext(CurrentUserContext);
   return (
-    <Page appBarTitle={"Financial Certifications"}>
+    <Page appBarTitle={"Financing Requests"}>
       {companyId && productType && (
         <FinancialCertificationsPageContent
           companyId={companyId}

@@ -50,8 +50,10 @@ import CustomerAccountPage from "pages/Customer/AccountFeesCredits";
 import CustomerBorrowingBasePage from "pages/Customer/BorrowingBase";
 import CustomerContractPage from "pages/Customer/Contract";
 import CustomerFinancialCertificationsPage from "pages/Customer/FinancialCertifications";
+import CustomerFinancingRequestsPage from "pages/Customer/FinancingRequests";
 import CustomerInvoicesPages from "pages/Customer/Invoices";
 import CustomerLoansPage from "pages/Customer/Loans";
+import CustomerLoansPageNew from "pages/Customer/LoansNew";
 import CustomerLocationsPage from "pages/Customer/Locations";
 import CustomerOverviewPage from "pages/Customer/Overview";
 import CustomerPayorsPage from "pages/Customer/Payors";
@@ -224,6 +226,16 @@ export default function App() {
         </PrivateRoute>
         <PrivateRoute
           exact
+          path={customerRoutes.financingRequests}
+          requiredRoles={[
+            UserRolesEnum.CompanyAdmin,
+            UserRolesEnum.CompanyReadOnly,
+          ]}
+        >
+          <CustomerFinancingRequestsPage />
+        </PrivateRoute>
+        <PrivateRoute
+          exact
           path={customerRoutes.loans}
           requiredRoles={[
             UserRolesEnum.CompanyAdmin,
@@ -231,6 +243,16 @@ export default function App() {
           ]}
         >
           <CustomerLoansPage />
+        </PrivateRoute>
+        <PrivateRoute
+          exact
+          path={customerRoutes.loansNew}
+          requiredRoles={[
+            UserRolesEnum.CompanyAdmin,
+            UserRolesEnum.CompanyReadOnly,
+          ]}
+        >
+          <CustomerLoansPageNew />
         </PrivateRoute>
         <PrivateRoute
           exact

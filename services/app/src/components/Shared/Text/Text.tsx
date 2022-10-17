@@ -135,8 +135,8 @@ export default function Text({
   color = TextColor,
   alignment = "left",
   bottomMargin = null,
-  lineHeight = null,
   width = "auto",
+  lineHeight = null,
   children,
   handleClick,
 }: Props) {

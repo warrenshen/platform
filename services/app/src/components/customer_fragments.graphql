@@ -291,7 +291,7 @@ fragment LoanArtifactLimited on loans {
   purchase_order {
     id
     ...PurchaseOrderLimited
-  }
+  } 
 }
 
 fragment PaymentLimited on payments {

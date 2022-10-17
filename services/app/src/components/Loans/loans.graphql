@@ -121,6 +121,39 @@ query GetActiveLoansForCompany($companyId: uuid!, $loanType: loan_type_enum) {
   }
 }
 
+# Financing Requests are just loans that have not yet been funded
+query GetFinancingRequestsForCompany($companyId: uuid!, $loanType: loan_type_enum) {
+  companies_by_pk(id: $companyId) {
+    id
+    name
+    loans(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { closed_at: { _is_null: true } }
+          { funded_at: { _is_null: true } }
+        ]
+      }
+      order_by: [
+        { adjusted_maturity_date: asc }
+        { origination_date: asc }
+        { created_at: asc }
+        { amount: asc }
+      ]
+    ) {
+      id
+      ...LoanLimited
+      ...LoanArtifactLimited
+    }
+  }
+}
+
+
 query GetClosedLoansForCompany($companyId: uuid!, $loanType: loan_type_enum) {
   companies_by_pk(id: $companyId) {
     id

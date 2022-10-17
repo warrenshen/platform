@@ -76,6 +76,7 @@ export default function CreateRepaymentDefaultSection({
       ) || [],
     [data?.loans, payment.items_covered.loan_ids]
   );
+  console.log({ selectedLoans, notSelectedLoans });
 
   return (
     <Box display="flex" flexDirection="column">

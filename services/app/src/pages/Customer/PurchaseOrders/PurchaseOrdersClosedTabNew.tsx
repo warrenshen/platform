@@ -3,6 +3,7 @@ import ArchivePurchaseOrderModalNew from "components/PurchaseOrder/v2/ArchivePur
 import PurchaseOrdersDataGridNew from "components/PurchaseOrder/v2/PurchaseOrdersDataGridNew";
 import SecondaryButton from "components/Shared/Button/SecondaryButton";
 import Can from "components/Shared/Can";
+import LinearFinancialSummaryOverview from "components/Shared/FinancialSummaries/LinearFinancialSummaryOverview";
 import { CurrentCustomerContext } from "contexts/CurrentCustomerContext";
 import {
   Companies,
@@ -14,8 +15,6 @@ import { Action } from "lib/auth/rbac-rules";
 import { ClosedNewPurchaseOrderStatuses, ProductTypeEnum } from "lib/enum";
 import { useContext, useMemo, useState } from "react";
 import styled from "styled-components";
-
-import LinearFinancialSummaryOverview from "./LinearFinancialSummaryOverview";
 
 const Container = styled.div`
   display: flex;

@@ -44,8 +44,10 @@ import styled from "styled-components";
 import BankCustomerAccountFeesCreditsSubpage from "./AccountFeesCredits";
 import BankCustomerBorrowingBaseSubpage from "./BorrowingBase";
 import BankCustomerFinancialCertificationsSubpage from "./FinancialCertifications";
+import BankCustomerFinancingRequestsSubpage from "./FinancingRequests";
 import BankCustomerInvoicesSubpage from "./Invoices";
 import BankCustomerLoansSubpage from "./Loans";
+import BankCustomerLoansSubpageNew from "./LoansNew";
 import BankCustomerMetrcSubpage from "./Metrc";
 import BankCustomerOverviewSubpage from "./Overview";
 import BankCompanyPayorPartnershipsSubpage from "./PayorPartnerships";
@@ -239,10 +241,24 @@ const getCustomerPaths = (
           component: BankCustomerInvoicesSubpage,
         },
         {
+          visible: isBankUser, // TODO: Remove this when we want to rollout to the users
+          dataCy: "customer-financing-requests",
+          label: "Financing Requests",
+          path: bankRoutes.company.financingRequests,
+          component: BankCustomerFinancingRequestsSubpage,
+        },
+        {
           dataCy: "customer-loans",
           label: "Loans",
           path: bankRoutes.company.loans,
           component: BankCustomerLoansSubpage,
+        },
+        {
+          visible: isBankUser, // TODO: Remove this when we want to rollout to the users
+          dataCy: "customer-loans-new",
+          label: "Loans New",
+          path: bankRoutes.company.loansNew,
+          component: BankCustomerLoansSubpageNew,
         },
         {
           dataCy: "customer-repayments",
