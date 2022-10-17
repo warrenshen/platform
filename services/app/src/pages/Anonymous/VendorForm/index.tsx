@@ -43,7 +43,6 @@ export type CreateVendorInput = {
   bankInstructionsAttachmentId: string;
   isCannabis: boolean;
   cannabisLicenseNumber: LicenseInfo;
-  cannabisLicenseCopyAttachmentId: string;
   selected_vendor_id?: string;
   selected_user_id?: string;
   selected_bank_account_id?: string;
@@ -112,7 +111,6 @@ export default function VendorFormPage() {
     bankInstructionsAttachmentId: "",
     isCannabis: false,
     cannabisLicenseNumber: { license_ids: [] },
-    cannabisLicenseCopyAttachmentId: "",
     selected_vendor_id: "",
     selected_user_id: "",
     selected_bank_account_id: "",
@@ -186,7 +184,6 @@ export default function VendorFormPage() {
         },
         license_info: {
           license_ids: vendorInput.cannabisLicenseNumber.license_ids,
-          license_file_id: vendorInput.cannabisLicenseCopyAttachmentId,
         },
         request_info: {
           dba_name: vendorInput.dba,
@@ -234,11 +231,7 @@ export default function VendorFormPage() {
     !vendorInput.beneficiaryAddress ||
     !vendorInput.bankInstructionsAttachmentId ||
     (vendorInput.isCannabis &&
-      !vendorInput.cannabisLicenseNumber.license_ids.length) ||
-    // cannabisLicenseCopyAttachment is required only if the cannabisLicenseNumber exists
-    (vendorInput.isCannabis &&
-      vendorInput.cannabisLicenseNumber.license_ids[0] !== "N/A" &&
-      !vendorInput.cannabisLicenseCopyAttachmentId);
+      !vendorInput.cannabisLicenseNumber.license_ids.length);
 
   return (
     <Box className={classes.wrapper}>

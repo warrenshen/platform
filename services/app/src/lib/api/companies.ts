@@ -190,7 +190,6 @@ export async function addNewVendorMutation(
 
 export type LicenseInfoNew = {
   license_ids: Array<string>;
-  license_file_id: string;
 };
 
 export type CompanyInfo = {

@@ -84,10 +84,8 @@ export default function EditPartnershipRequestModal({
     cannabisLicenseNumber: !!partnerRequest?.license_info?.license_ids
       ? { license_ids: partnerRequest.license_info.license_ids }
       : { license_ids: [] },
-    cannabisLicenseCopyAttachmentId: !!partnerRequest?.license_info
-      ?.license_file_id
-      ? partnerRequest.license_info.license_file_id
-      : "",
+    metrcApiKey: partnerRequest?.request_info?.metrc_api_key || "",
+    usState: partnerRequest?.request_info?.us_state || "",
   });
 
   const isSubmitDisabled =
@@ -106,11 +104,7 @@ export default function EditPartnershipRequestModal({
     !vendorInput.beneficiaryAddress ||
     !vendorInput.bankInstructionsAttachmentId ||
     (vendorInput.isCannabis &&
-      !vendorInput.cannabisLicenseNumber.license_ids.length) ||
-    // cannabisLicenseCopyAttachment is required only if the cannabisLicenseNumber exists
-    (vendorInput.isCannabis &&
-      vendorInput.cannabisLicenseNumber.license_ids[0] !== "N/A" &&
-      !vendorInput.cannabisLicenseCopyAttachmentId);
+      !vendorInput.cannabisLicenseNumber.license_ids.length);
 
   const handleSubmit = async () => {
     const response = await updatePartnershipRequestNewMutation({
@@ -119,6 +113,8 @@ export default function EditPartnershipRequestModal({
         company: {
           name: vendorInput.name,
           is_cannabis: vendorInput.isCannabis,
+          us_state: vendorInput.usState,
+          metrc_api_key: vendorInput.metrcApiKey,
         },
         user: {
           first_name: vendorInput.contactFirstName,
@@ -128,7 +124,6 @@ export default function EditPartnershipRequestModal({
         },
         license_info: {
           license_ids: vendorInput.cannabisLicenseNumber.license_ids,
-          license_file_id: vendorInput.cannabisLicenseCopyAttachmentId,
         },
         request_info: {
           dba_name: vendorInput.dba,

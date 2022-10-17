@@ -78,14 +78,6 @@ export default function CreateUpdateVendorPartnershipRequestForm({
     [vendorInput.bankInstructionsAttachmentId]
   );
 
-  const cannabisLicenseCopyAttachmentIds = useMemo(
-    () =>
-      vendorInput.cannabisLicenseCopyAttachmentId
-        ? [vendorInput.cannabisLicenseCopyAttachmentId]
-        : undefined,
-    [vendorInput.cannabisLicenseCopyAttachmentId]
-  );
-
   const users = selectedVendor?.users ? selectedVendor.users : [];
   const bankAccounts = selectedVendor?.bank_accounts
     ? selectedVendor.bank_accounts
@@ -146,7 +138,6 @@ export default function CreateUpdateVendorPartnershipRequestForm({
                   bankInstructionsAttachmentId: "",
                   isCannabis: false,
                   cannabisLicenseNumber: { license_ids: [] },
-                  cannabisLicenseCopyAttachmentId: "",
                 });
               }
             }}
@@ -448,7 +439,11 @@ export default function CreateUpdateVendorPartnershipRequestForm({
             />
           }
           label={
-            "Do you sell cannabis or cannabis derivatives products and have cannabis license(s)?"
+            <span>
+              Do you sell cannabis or cannabis derivative products and have
+              cannabis license(s)?
+              <strong> If so, please provide all licenses.</strong>
+            </span>
           }
         />
       </Box>
@@ -496,37 +491,10 @@ export default function CreateUpdateVendorPartnershipRequestForm({
               }
             />
             <Typography variant="body1" color="textSecondary">
-              Bespoke Financial is a Metrc read-only vendor. We rely on Metrc
-              data to validate cannabis transactions.
+              Bespoke Financial is a validated Metrc vendor with read-only
+              access. We rely on Metrc data to validate cannabis and cannabis
+              related transactions.
             </Typography>
-          </Box>
-          <Box display="flex" flexDirection="column" mt={4}>
-            <Box mb={1}>
-              <Typography variant="subtitle1" color="textSecondary">
-                Cannabis License Copy File Attachment
-              </Typography>
-            </Box>
-            <FileUploader
-              isCountVisible={false}
-              companyId={companyId}
-              fileType={FileTypeEnum.CompanyLicense}
-              maxFilesAllowed={1}
-              fileIds={cannabisLicenseCopyAttachmentIds}
-              frozenFileIds={[]}
-              isAnonymousUser={!isUpdate}
-              handleDeleteFileById={() =>
-                setVendorInput({
-                  ...vendorInput,
-                  cannabisLicenseCopyAttachmentId: "",
-                })
-              }
-              handleNewFiles={(files: FileFragment[]) =>
-                setVendorInput({
-                  ...vendorInput,
-                  cannabisLicenseCopyAttachmentId: files[0].id,
-                })
-              }
-            />
           </Box>
         </>
       )}
