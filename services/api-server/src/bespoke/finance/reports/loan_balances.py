@@ -677,8 +677,8 @@ class CustomerBalance(object):
 		financial_summary.available_limit = decimal.Decimal(number_util.round_currency(summary_update['available_limit']))
 		financial_summary.minimum_monthly_payload = minimum_interest_info
 		financial_summary.minimum_interest_duration = minimum_interest_info['duration']
-		financial_summary.minimum_interest_amount = minimum_interest_info['minimum_amount']
-		financial_summary.minimum_interest_remaining = minimum_interest_info['amount_short']
+		financial_summary.minimum_interest_amount = decimal.Decimal(number_util.round_currency(minimum_interest_info['minimum_amount'])) if minimum_interest_info['minimum_amount'] is not None else None
+		financial_summary.minimum_interest_remaining = decimal.Decimal(number_util.round_currency(minimum_interest_info['amount_short'])) if minimum_interest_info['minimum_amount'] is not None else None
 		financial_summary.account_level_balance_payload = cast(Dict, summary_update['account_level_balance_payload'])
 		financial_summary.day_volume_threshold_met = summary_update['day_volume_threshold_met']
 		financial_summary.product_type = summary_update['product_type']
