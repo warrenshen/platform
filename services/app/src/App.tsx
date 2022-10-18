@@ -274,18 +274,16 @@ export default function App() {
         >
           <CustomerPurchaseOrdersPage />
         </PrivateRoute>
-        {environment !== "production" && (
-          <PrivateRoute
-            exact
-            path={customerRoutes.purchaseOrdersNew}
-            requiredRoles={[
-              UserRolesEnum.CompanyAdmin,
-              UserRolesEnum.CompanyReadOnly,
-            ]}
-          >
-            <CustomerPurchaseOrdersPageNew />
-          </PrivateRoute>
-        )}
+        <PrivateRoute
+          exact
+          path={customerRoutes.purchaseOrdersNew}
+          requiredRoles={[
+            UserRolesEnum.CompanyAdmin,
+            UserRolesEnum.CompanyReadOnly,
+          ]}
+        >
+          <CustomerPurchaseOrdersPageNew />
+        </PrivateRoute>
         <PrivateRoute
           exact
           path={customerRoutes.invoices}
