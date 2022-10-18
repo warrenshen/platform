@@ -356,14 +356,46 @@ def compute_and_update_bank_financial_summaries(
 	session: Session, 
 	report_date: datetime.date
 ) -> errors.Error:
-	bank_financial_summaries, err = compute_bank_financial_summaries(session, report_date)
+	new_bank_financial_summaries, err = compute_bank_financial_summaries(session, report_date)
 	if err:
 		return err
 
-	delete_old_bank_financial_summaries(session, report_date)
+	existing_bank_summaries = cast(
+		List[models.BankFinancialSummary],
+		session.query(models.BankFinancialSummary).filter(
+			models.BankFinancialSummary.date == report_date
+		).all()
+	)
 
-	for new_bank_summary in bank_financial_summaries:
-		session.add(new_bank_summary)
+	if existing_bank_summaries:
+		# Order may differ between existing and new bank summaries
+		# Map the product type string to the financial summaries so
+		# that we can update correctly while iterating through the
+		# existing bank financial summaries
+		new_bank_summary_map: Dict[str, models.BankFinancialSummary] = {}
+		for bank_summary in new_bank_financial_summaries:
+			new_bank_summary_map[str(bank_summary.product_type)] = bank_summary
+
+		# Now that the product types are mapped, update
+		# the exsiting bank financial summaries with
+		# the newly calculated amounts
+		for existing_bank_summary in existing_bank_summaries:
+			product_type = str(bank_summary.product_type)
+
+			existing_bank_summary.total_limit = new_bank_summary_map[product_type].total_limit
+			existing_bank_summary.total_outstanding_principal = new_bank_summary_map[product_type].total_outstanding_principal
+			existing_bank_summary.total_outstanding_principal_for_interest = new_bank_summary_map[product_type].total_outstanding_principal_for_interest
+			existing_bank_summary.total_outstanding_principal_past_due = new_bank_summary_map[product_type].total_outstanding_principal_past_due
+			existing_bank_summary.total_outstanding_interest = new_bank_summary_map[product_type].total_outstanding_interest
+			existing_bank_summary.total_outstanding_fees = new_bank_summary_map[product_type].total_outstanding_fees
+			existing_bank_summary.total_principal_in_requested_state = new_bank_summary_map[product_type].total_principal_in_requested_state
+			existing_bank_summary.available_limit = new_bank_summary_map[product_type].available_limit
+			existing_bank_summary.adjusted_total_limit = new_bank_summary_map[product_type].adjusted_total_limit
+			existing_bank_summary.interest_accrued_today = new_bank_summary_map[product_type].interest_accrued_today
+			existing_bank_summary.late_fees_accrued_today = new_bank_summary_map[product_type].late_fees_accrued_today
+	else:
+		for new_bank_summary in new_bank_financial_summaries:
+			session.add(new_bank_summary)
 
 	return None
 

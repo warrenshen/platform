@@ -119,6 +119,7 @@ class UpdateDirtyCompanyBalancesView(MethodView):
 		logging.debug("Received request to update dirty company balances")
 
 		today = date_util.now_as_date(date_util.DEFAULT_TIMEZONE)
+		dates_updated = None
 		with session_scope(current_app.session_maker) as session:
 			compute_requests = reports_util.list_financial_summaries_that_need_balances_recomputed(
 				session, today, amount_to_fetch=5)
@@ -136,12 +137,15 @@ class UpdateDirtyCompanyBalancesView(MethodView):
 				logging.error(f"Got FATAL error while recomputing balances for companies that need it: '{fatal_error}'")
 				return handler_util.make_error_response(fatal_error)
 
+			logging.info("Finished request to update {} dirty financial summaries".format(len(compute_requests)))
+
+		with session_scope(current_app.session_maker) as session:
 			for cur_date in dates_updated:
 				fatal_error = reports_util.compute_and_update_bank_financial_summaries(session, cur_date)
 				if fatal_error:
 					raise errors.Error('FAILED to update bank financial summary on {}'.format(fatal_error))
 
-			logging.info("Finished request to update {} dirty financial summaries".format(len(compute_requests)))
+			logging.info("Finished request to update bank financial summaries")
 
 		return make_response(json.dumps({
 			"status": "OK",
