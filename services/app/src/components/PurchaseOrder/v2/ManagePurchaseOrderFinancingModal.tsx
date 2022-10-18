@@ -21,7 +21,10 @@ import useSnackbar from "hooks/useSnackbar";
 import { CheckIcon, CloseIcon, PlusIcon } from "icons";
 import { submitLoanMutationNew } from "lib/api/loans";
 import { LoanStatusEnum } from "lib/enum";
-import { isPurchaseOrderDueDateValid } from "lib/purchaseOrders";
+import {
+  isPurchaseOrderCurrentlyFundable,
+  isPurchaseOrderDueDateValid,
+} from "lib/purchaseOrders";
 import { partition } from "lodash";
 import { useState } from "react";
 import styled from "styled-components";
@@ -96,6 +99,9 @@ function ManagePurchaseOrderFinancingModal({
     });
 
   const purchaseOrder = data?.purchase_orders_by_pk || null;
+  const hasUnfundablyOldPurchaseOrder = !!purchaseOrder
+    ? !isPurchaseOrderCurrentlyFundable(purchaseOrder)
+    : true;
 
   const defaultLoan: LoansInsertInput = {
     artifact_id: purchaseOrderId,
@@ -242,7 +248,8 @@ function ManagePurchaseOrderFinancingModal({
     isSubmitLoanNewLoading ||
     isSaveSubmitDisabled ||
     (!canCreateNewFinancingRequest && isNewLoanShown) ||
-    !!currentlyEditingLoan.id;
+    !!currentlyEditingLoan.id ||
+    hasUnfundablyOldPurchaseOrder;
 
   return (
     <Modal
@@ -269,136 +276,155 @@ function ManagePurchaseOrderFinancingModal({
             totalAmount={purchaseOrder.amount}
           />
         </Box>
-        <Typography variant="subtitle1">Request Financing</Typography>
-        <Box mt={2}>
-          {fundedLoans.map((loan) => (
-            <Box mb={2}>
-              <FundedLoansViewCard loan={loan} status={LoanStatusEnum.Funded} />
-            </Box>
-          ))}
-          {financingRequests
-            .filter(
-              (financingRequest) =>
-                !deleteExistingFinancingRequestIds.has(financingRequest.id)
-            )
-            .map((financingRequest) =>
-              financingRequest.id === currentlyEditingLoan.id ? (
-                <Box
-                  display="flex"
-                  flexDirection="row"
-                  alignItems="center"
-                  mb={2}
-                  width={672}
-                  overflow="auto"
-                >
-                  <FinancingRequestCreateCard
-                    key={financingRequest.id}
-                    loan={financingRequest}
-                    hasBeenFocused={false}
-                    amountLeft={
-                      amountRemaining -
-                      (proposedLoansTotalAmount - financingRequest.amount)
-                    }
-                    hasEdited={hasEdited}
-                    setLoan={setCurrentlyEditingLoan}
-                    setHasEdited={setHasEdited}
-                  />
-                  <Box ml={3}>
-                    <FloatingIconActionButton
-                      variant="filled"
-                      disabled={
-                        !canSaveFinancingRequest(
-                          currentlyEditingLoan,
-                          amountRemaining + proposedLoansTotalAmount
-                        )
-                      }
-                      handleClick={() => {
-                        setFinancingRequests(
-                          financingRequests.map((financingRequest) =>
-                            financingRequest.id === currentlyEditingLoan.id
-                              ? currentlyEditingLoan
-                              : financingRequest
-                          )
-                        );
-                        setCurrentlyEditingLoan(defaultLoan);
-                      }}
-                    >
-                      <CheckIcon />
-                    </FloatingIconActionButton>
-                  </Box>
-                </Box>
-              ) : (
-                <Box mb={2}>
-                  <FinancingRequestViewCard
-                    key={financingRequest.id}
-                    loan={financingRequest}
-                    status={financingRequest.status as LoanStatusEnum}
-                    comments={financingRequest.customer_notes}
-                    setCurrentlyEditingLoan={setCurrentlyEditingLoan}
-                    deleteFinancingRequestFromState={() =>
-                      setFinancingRequests(
-                        financingRequests.filter(
-                          (request) => request.id !== financingRequest.id
-                        )
-                      )
-                    }
-                    deleteExistingFianancingRequestsIds={
-                      deleteExistingFinancingRequestIds
-                    }
-                    setDeleteExistingFinancingRequestIds={
-                      setDeleteExistingFinancingRequestIds
-                    }
-                    handleClickAddFinancingRequest={
-                      handleClickAddFinancingRequest
-                    }
-                    handleClickRemoveNewFinancingRequest={
-                      handleClickRemoveNewFinancingRequest
-                    }
-                  />
-                </Box>
-              )
-            )}
-        </Box>
-        {!currentlyEditingLoan.id && isNewLoanShown && (
-          <Box mt={2}>
-            <FinancingRequestCreateCard
-              key={currentlyEditingLoan.id}
-              loan={newLoan}
-              hasBeenFocused={false}
-              amountLeft={amountRemaining}
-              hasEdited={hasEdited}
-              setLoan={setNewLoan}
-              setHasEdited={setHasEdited}
-            />
+        {hasUnfundablyOldPurchaseOrder && (
+          <Box mt={2} mb={6}>
+            <Alert severity="error">
+              <Typography variant="body1">
+                {`Your selected purchase order has a due date older than 60 days. Please select a more recent purchase order for financing.`}
+              </Typography>
+            </Alert>
           </Box>
         )}
-        {(canCreateNewFinancingRequest || !isNewLoanShown) &&
-          !currentlyEditingLoan.id && (
-            <Box display="flex" justifyContent="center" mt={3}>
-              <StyledButton
-                variant="outlined"
-                startIcon={<PlusIcon />}
-                $color={SecondaryTextColor}
-                onClick={handleClickAddFinancingRequest}
-              >
-                Add Financing Request
-              </StyledButton>
+        {!hasUnfundablyOldPurchaseOrder && (
+          <>
+            <Typography variant="subtitle1">Request Financing</Typography>
+            <Box mt={2}>
+              {fundedLoans.map((loan) => (
+                <Box mb={2}>
+                  <FundedLoansViewCard
+                    loan={loan}
+                    status={LoanStatusEnum.Funded}
+                  />
+                </Box>
+              ))}
+              {financingRequests
+                .filter(
+                  (financingRequest) =>
+                    !deleteExistingFinancingRequestIds.has(financingRequest.id)
+                )
+                .map((financingRequest) =>
+                  financingRequest.id === currentlyEditingLoan.id ? (
+                    <Box
+                      display="flex"
+                      flexDirection="row"
+                      alignItems="center"
+                      mb={2}
+                      width={672}
+                      overflow="auto"
+                    >
+                      <FinancingRequestCreateCard
+                        key={financingRequest.id}
+                        loan={financingRequest}
+                        hasBeenFocused={false}
+                        amountLeft={
+                          amountRemaining -
+                          (proposedLoansTotalAmount - financingRequest.amount)
+                        }
+                        hasEdited={hasEdited}
+                        setLoan={setCurrentlyEditingLoan}
+                        setHasEdited={setHasEdited}
+                      />
+                      <Box ml={3}>
+                        <FloatingIconActionButton
+                          variant="filled"
+                          disabled={
+                            !canSaveFinancingRequest(
+                              currentlyEditingLoan,
+                              amountRemaining + proposedLoansTotalAmount
+                            )
+                          }
+                          handleClick={() => {
+                            setFinancingRequests(
+                              financingRequests.map((financingRequest) =>
+                                financingRequest.id === currentlyEditingLoan.id
+                                  ? currentlyEditingLoan
+                                  : financingRequest
+                              )
+                            );
+                            setCurrentlyEditingLoan(defaultLoan);
+                          }}
+                        >
+                          <CheckIcon />
+                        </FloatingIconActionButton>
+                      </Box>
+                    </Box>
+                  ) : (
+                    <Box mb={2}>
+                      <FinancingRequestViewCard
+                        key={financingRequest.id}
+                        loan={financingRequest}
+                        status={financingRequest.status as LoanStatusEnum}
+                        comments={financingRequest.customer_notes}
+                        setCurrentlyEditingLoan={setCurrentlyEditingLoan}
+                        deleteFinancingRequestFromState={() =>
+                          setFinancingRequests(
+                            financingRequests.filter(
+                              (request) => request.id !== financingRequest.id
+                            )
+                          )
+                        }
+                        deleteExistingFianancingRequestsIds={
+                          deleteExistingFinancingRequestIds
+                        }
+                        setDeleteExistingFinancingRequestIds={
+                          setDeleteExistingFinancingRequestIds
+                        }
+                        handleClickAddFinancingRequest={
+                          handleClickAddFinancingRequest
+                        }
+                        handleClickRemoveNewFinancingRequest={
+                          handleClickRemoveNewFinancingRequest
+                        }
+                      />
+                    </Box>
+                  )
+                )}
             </Box>
-          )}
-        {isNewLoanShown &&
-          !canCreateNewFinancingRequest &&
-          financingRequests.length > 0 && (
-            <Box display="flex" justifyContent="center" mt={3}>
-              <StyledButton
-                variant="outlined"
-                startIcon={<StyledCloseIcon fillColor={WarningDefaultColor} />}
-                $color="#e75d5d"
-                onClick={handleClickRemoveNewFinancingRequest}
-              >
-                Remove Financing Request
-              </StyledButton>
-            </Box>
-          )}
+            {!currentlyEditingLoan.id && isNewLoanShown && (
+              <Box mt={2}>
+                <FinancingRequestCreateCard
+                  key={currentlyEditingLoan.id}
+                  loan={newLoan}
+                  hasBeenFocused={false}
+                  amountLeft={amountRemaining}
+                  hasEdited={hasEdited}
+                  setLoan={setNewLoan}
+                  setHasEdited={setHasEdited}
+                />
+              </Box>
+            )}
+            {(canCreateNewFinancingRequest || !isNewLoanShown) &&
+              !currentlyEditingLoan.id &&
+              proposedLoansTotalAmount !== amountRemaining && (
+                <Box display="flex" justifyContent="center" mt={3}>
+                  <StyledButton
+                    variant="outlined"
+                    startIcon={<PlusIcon />}
+                    $color={SecondaryTextColor}
+                    onClick={handleClickAddFinancingRequest}
+                  >
+                    Add Financing Request
+                  </StyledButton>
+                </Box>
+              )}
+            {isNewLoanShown &&
+              !canCreateNewFinancingRequest &&
+              financingRequests.length > 0 && (
+                <Box display="flex" justifyContent="center" mt={3}>
+                  <StyledButton
+                    variant="outlined"
+                    startIcon={
+                      <StyledCloseIcon fillColor={WarningDefaultColor} />
+                    }
+                    $color="#e75d5d"
+                    onClick={handleClickRemoveNewFinancingRequest}
+                  >
+                    Remove Financing Request
+                  </StyledButton>
+                </Box>
+              )}
+          </>
+        )}
       </Box>
       {hasEdited && (
         <Box

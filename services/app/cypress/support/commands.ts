@@ -854,6 +854,7 @@ function addTwoFactorLink({
 function addUser({
   company_id,
   company_role,
+  company_role_new,
   created_at,
   email,
   first_name,
@@ -871,6 +872,7 @@ function addUser({
   cy.request("POST", `${Cypress.env("apiServerUrl")}/cypress/add_user`, {
     company_id: company_id || null,
     company_role: company_role || null,
+    company_role_new: company_role_new || null,
     created_at: created_at || null,
     email: email || null,
     first_name: first_name || null,

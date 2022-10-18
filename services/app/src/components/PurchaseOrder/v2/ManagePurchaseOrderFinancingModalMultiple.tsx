@@ -34,7 +34,10 @@ import {
   upsertPurchaseOrdersLoansMutation,
 } from "lib/finance/loans/purchaseOrders";
 import { CurrencyPrecision } from "lib/number";
-import { computePurchaseOrderDueDateDateStringClientNew } from "lib/purchaseOrders";
+import {
+  computePurchaseOrderDueDateDateStringClientNew,
+  isPurchaseOrderCurrentlyFundable,
+} from "lib/purchaseOrders";
 import { ColumnWidths, formatRowModel } from "lib/tables";
 import { useContext, useMemo, useState } from "react";
 import styled from "styled-components";
@@ -202,6 +205,13 @@ function ManagePurchaseOrderFinancingModalMultiple({
   );
   const rows = getRows(computedPurchaseOrderLoans);
 
+  const unfundablyOldPurchaseOrders = !!purchaseOrdersData?.purchase_orders
+    ? purchaseOrdersData.purchase_orders.filter(
+        (po) => !isPurchaseOrderCurrentlyFundable(po)
+      )
+    : [];
+  const hasUnfundablyOldPurchaseOrders = unfundablyOldPurchaseOrders.length > 0;
+
   const handleClickSubmit = async () => {
     if (paymentDate) {
       const purchaseOrderLoanUpserts = decorateLoansWithPaymentDate(
@@ -255,7 +265,7 @@ function ManagePurchaseOrderFinancingModalMultiple({
       primaryActionText={"Save & Submit"}
       handleClose={handleClose}
       handlePrimaryAction={handleClickSubmit}
-      isPrimaryActionDisabled={!paymentDate}
+      isPrimaryActionDisabled={!paymentDate || hasUnfundablyOldPurchaseOrders}
       contentWidth={600}
     >
       <Box>
@@ -275,35 +285,48 @@ function ManagePurchaseOrderFinancingModalMultiple({
             isExcelExport={false}
           />
         </Box>
-        <Box mt={4} mb={2}>
-          <Typography variant={"body1"}>Request Financing</Typography>
-        </Box>
-        <DateInputContainer fullWidth>
-          <DateInput
-            dataCy={"requested-payment-date-date-picker"}
-            id="requested-payment-date-date-picker"
-            label="Requested Payment Date"
-            disablePast
-            disableNonBankDays
-            value={paymentDate}
-            onChange={(value) => setPaymentDate(value)}
-            keyboardIcon={<DateInputIcon />}
-          />
-          <Box mt={2}>
-            <Typography variant="body2" color="textSecondary">
-              This is the date you want the vendor to receive financing. Within
-              banking limitations, Bespoke Financial will try to adhere to this
-              request.
-            </Typography>
+        {hasUnfundablyOldPurchaseOrders && (
+          <Box mt={2} mb={6}>
+            <Alert severity="error">
+              <Typography variant="body1">
+                {`You have at least one purchase order with a due date older than 60 days. Please remove old purchase orders from your request for financing.`}
+              </Typography>
+            </Alert>
           </Box>
-        </DateInputContainer>
-        <Box mt={2} mb={6}>
-          <Alert severity="info">
-            <Typography variant="body1">
-              {`You can’t change the amount in multiple Creating mode, in that mode automatically will take the full amount. You can still change the amount in the Creating mode.`}
-            </Typography>
-          </Alert>
-        </Box>
+        )}
+        {!hasUnfundablyOldPurchaseOrders && (
+          <>
+            <Box mt={4} mb={2}>
+              <Typography variant={"body1"}>Request Financing</Typography>
+            </Box>
+            <DateInputContainer fullWidth>
+              <DateInput
+                dataCy={"requested-payment-date-date-picker"}
+                id="requested-payment-date-date-picker"
+                label="Requested Payment Date"
+                disablePast
+                disableNonBankDays
+                value={paymentDate}
+                onChange={(value) => setPaymentDate(value)}
+                keyboardIcon={<DateInputIcon />}
+              />
+              <Box mt={2}>
+                <Typography variant="body2" color="textSecondary">
+                  This is the date you want the vendor to receive financing.
+                  Within banking limitations, Bespoke Financial will try to
+                  adhere to this request.
+                </Typography>
+              </Box>
+            </DateInputContainer>
+            <Box mt={2} mb={6}>
+              <Alert severity="info">
+                <Typography variant="body1">
+                  {`If you would like to request financing for a partial amount of a purchase order, please request financing for one purchase order at a time.`}
+                </Typography>
+              </Alert>
+            </Box>
+          </>
+        )}
       </Box>
     </Modal>
   );

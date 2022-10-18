@@ -7,7 +7,7 @@ import { ReactComponent as AdvancesIcon } from "components/Shared/Layout/Icons/A
 import { ReactComponent as ContractsIcon } from "components/Shared/Layout/Icons/Contracts.svg";
 import { ReactComponent as CustomersIcon } from "components/Shared/Layout/Icons/Customers.svg";
 import { ReactComponent as EbbaApplicationsIcon } from "components/Shared/Layout/Icons/EbbaApplications.svg";
-import { ReactComponent as FinancingRequestsIcon } from "components/Shared/Layout/Icons/FinancingRequests.svg";
+//import { ReactComponent as FinancingRequestsIcon } from "components/Shared/Layout/Icons/FinancingRequests.svg";
 import { ReactComponent as InvoicesIcon } from "components/Shared/Layout/Icons/Invoices.svg";
 import { ReactComponent as LoansIcon } from "components/Shared/Layout/Icons/Loans.svg";
 import { ReactComponent as MetrcIcon } from "components/Shared/Layout/Icons/Metrc.svg";
@@ -34,7 +34,7 @@ import {
   useGetPurchaseOrdersChangesRequestedCountForCustomerQuery,
   useGetRepaymentsCountForBankSubscription,
 } from "generated/graphql";
-import { FinancingRequestsSidebarIcon } from "icons";
+//import { FinancingRequestsSidebarIcon } from "icons";
 import {
   FeatureFlagEnum,
   ProductTypeEnum,
@@ -126,8 +126,6 @@ const getCustomerNavItems = (
   isMetrcBased: boolean,
   purchaseOrdersChangesRequestedCount: number
 ): NavItem[] => {
-  const environment = process.env.REACT_APP_BESPOKE_ENVIRONMENT;
-
   return [
     {
       dataCy: "overview",
@@ -136,7 +134,7 @@ const getCustomerNavItems = (
       link: customerRoutes.overview,
     },
     {
-      dataCy: "purchase-orders",
+      dataCy: "purchase-orders-new",
       visible:
         !!productType &&
         [
@@ -146,20 +144,6 @@ const getCustomerNavItems = (
         ].includes(productType),
       iconNode: PurchaseOrdersIcon,
       text: "Purchase Orders",
-      link: customerRoutes.purchaseOrders,
-    },
-    {
-      dataCy: "purchase-orders-new",
-      visible:
-        environment !== "production" &&
-        !!productType &&
-        [
-          ProductTypeEnum.DispensaryFinancing,
-          ProductTypeEnum.InventoryFinancing,
-          ProductTypeEnum.PurchaseMoneyFinancing,
-        ].includes(productType),
-      iconNode: PurchaseOrdersIcon,
-      text: "Purchase Orders New",
       link: customerRoutes.purchaseOrdersNew,
       counterColor: "rgb(230, 126, 34)",
       counter: purchaseOrdersChangesRequestedCount,
@@ -277,8 +261,6 @@ const getBankNavItems = (
   partnershipRequestsCount: number,
   debtFacilityUpdateCount: number
 ): NavItem[] => {
-  const environment = process.env.REACT_APP_BESPOKE_ENVIRONMENT;
-
   return [
     {
       dataCy: "overview",
@@ -312,17 +294,9 @@ const getBankNavItems = (
       isBankMenu: true,
     },
     {
-      dataCy: "purchase-orders",
-      iconNode: PurchaseOrdersIcon,
-      text: "Purchase Orders",
-      link: bankRoutes.purchaseOrders,
-      isBankMenu: true,
-    },
-    {
-      visible: environment !== "production",
       dataCy: "purchase-orders-new",
       iconNode: PurchaseOrdersIcon,
-      text: "Purchase Orders New",
+      text: "Purchase Orders",
       link: bankRoutes.purchaseOrdersNew,
       isBankMenu: true,
     },

@@ -119,7 +119,7 @@ export default function CustomerPurchaseOrdersPageContentNew({
         />
       )}
       <PageContent
-        title={"Purchase Orders New"}
+        title={"Purchase Orders"}
         subtitle={
           "Create, edit, and request financing for Purchase Orders (POs)."
         }

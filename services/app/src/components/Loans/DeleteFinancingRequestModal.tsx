@@ -10,7 +10,6 @@ import {
 import CardLine from "components/Shared/Card/CardLine";
 import {
   LoanArtifactLimitedFragment,
-  LoanFragment,
   LoanLimitedFragment,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";

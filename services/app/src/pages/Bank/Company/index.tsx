@@ -52,7 +52,6 @@ import BankCustomerMetrcSubpage from "./Metrc";
 import BankCustomerOverviewSubpage from "./Overview";
 import BankCompanyPayorPartnershipsSubpage from "./PayorPartnerships";
 import BankCustomerPayorsSubpage from "./Payors";
-import BankCustomerPurchaseOrdersSubpage from "./PurchaseOrders";
 import BankCustomerPurchaseOrdersSubpageNew from "./PurchaseOrdersNew";
 import BankCustomerPaymentsSubpage from "./Repayments";
 import BankCustomerReportsSubpage from "./Reports";
@@ -186,8 +185,6 @@ const getCustomerPaths = (
   isBankUser: boolean,
   purchaseOrdersChangesRequestedCount: number
 ) => {
-  const environment = process.env.REACT_APP_BESPOKE_ENVIRONMENT;
-
   return [
     {
       visible: !!company?.is_customer,
@@ -207,22 +204,8 @@ const getCustomerPaths = (
               ProductTypeEnum.InventoryFinancing,
               ProductTypeEnum.PurchaseMoneyFinancing,
             ].includes(productType),
-          dataCy: "customer-purchase-orders",
-          label: "Purchase Orders",
-          path: bankRoutes.company.purchaseOrders,
-          component: BankCustomerPurchaseOrdersSubpage,
-        },
-        {
-          visible:
-            !!productType &&
-            [
-              ProductTypeEnum.DispensaryFinancing,
-              ProductTypeEnum.InventoryFinancing,
-              ProductTypeEnum.PurchaseMoneyFinancing,
-            ].includes(productType) &&
-            environment !== "production",
           dataCy: "customer-purchase-orders-new",
-          label: "Purchase Orders New",
+          label: "Purchase Orders",
           path: bankRoutes.company.purchaseOrdersNew,
           counter: purchaseOrdersChangesRequestedCount,
           counterColor: "rgb(230, 126, 34)",

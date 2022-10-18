@@ -1122,6 +1122,7 @@ class AddUserView(MethodView):
 		password = get_field_or_default(form, 'password', 'Password123!')
 		role = get_field_or_default(form, 'role', None)
 		company_role = get_field_or_default(form, 'company_role', None)
+		company_role_new = get_field_or_default(form, 'company_role_new', {})
 		first_name = get_field_or_default(form, 'first_name', 'Oscar')
 		last_name = get_field_or_default(form, 'last_name', 'the Grouch')
 		phone_number = get_field_or_default(form, 'phone_number', '3010987654')
@@ -1142,6 +1143,7 @@ class AddUserView(MethodView):
 				password,
 				role,
 				company_role,
+				company_role_new,
 				first_name,
 				last_name,
 				phone_number,

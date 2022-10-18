@@ -10,13 +10,13 @@ describe("Request financing", () => {
     }).then((results) => {
       cy.addContract({
         company_id: results.companyId,
-        product_type: "inventory_financing",
+        product_type: "line_of_credit",
       });
       cy.addFinancialSummary({
         adjusted_total_limit: 10000,
         available_limit: 10000,
         company_id: results.companyId,
-        product_type: "inventory_financing",
+        product_type: "line_of_credit",
         total_limit: 10000,
       });
 

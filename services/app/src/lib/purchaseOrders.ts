@@ -8,6 +8,7 @@ import {
   dateAsDateStringClient,
   dateAsDateStringServer,
   dateStringPlusXDaysDate,
+  getDifferenceInDays,
   parseDateStringServer,
 } from "lib/date";
 
@@ -33,12 +34,12 @@ export function computePurchaseOrderDueDateDateStringClient(
 export function computePurchaseOrderDueDateDateStringClientNew(
   purchaseOrder: PurchaseOrderFragment
 ) {
-  const dueDateDate = computePurchaseOrderDueDate(
+  const dueDate = computePurchaseOrderDueDate(
     purchaseOrder.order_date,
     purchaseOrder.net_terms as number
   );
-  return !!dueDateDate
-    ? parseDateStringServer(dateAsDateStringServer(dueDateDate))
+  return !!dueDate
+    ? parseDateStringServer(dateAsDateStringServer(dueDate))
     : null;
 }
 
@@ -57,6 +58,29 @@ export function isPurchaseOrderDueDateValid(
         computePurchaseOrderDueDateCutoffDate(),
     dueDateDate: dueDateDate,
   };
+}
+
+export function isPurchaseOrderCurrentlyFundable(
+  purchaseOrder: PurchaseOrderFragment
+): boolean {
+  const dueDate = computePurchaseOrderDueDate(
+    purchaseOrder.order_date,
+    purchaseOrder.net_terms as number
+  );
+
+  // The due date should always be populated, but
+  // if parseDateStringServer fails, this implies
+  // a malformed date. A malformed date suggests that
+  // something has gone very wrong in the data and
+  // that we should investigate before funding
+  const diffDays = !!dueDate
+    ? getDifferenceInDays(dueDate, new Date())
+    : Number.MIN_SAFE_INTEGER;
+
+  // 60 calendar days past the due date is the latest
+  // date we will approve funding for, the negative is
+  // due to parameter ordering in getDifferenceInDays
+  return diffDays > -60;
 }
 
 export function getPurchaseOrderFilesOfType(

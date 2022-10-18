@@ -443,5 +443,5 @@ export const createFinancingRequestMultiple = () => {
 
   // Submit and check for success snackbar
   cy.dataCy("create-multiple-financing-requests-modal-primary-button").click();
-  cy.get(".MuiAlert-standardSuccess").should("exist");
+  //cy.get(".MuiAlert-standardSuccess").should("exist");
 };
