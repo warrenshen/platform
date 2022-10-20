@@ -40,7 +40,6 @@ import BankMetrcPage from "pages/Bank/Metrc";
 import BankOverviewPage from "pages/Bank/Overview";
 import BankPartnershipsPage from "pages/Bank/Partnerships";
 import BankPayorsPage from "pages/Bank/Payors";
-import BankPurchaseOrdersPage from "pages/Bank/PurchaseOrders";
 import BankPurchaseOrdersPageNew from "pages/Bank/PurchaseOrdersNew";
 import BankRepaymentsPage from "pages/Bank/Repayments";
 import BankReportsPage from "pages/Bank/Reports";
@@ -57,7 +56,6 @@ import CustomerLoansPageNew from "pages/Customer/LoansNew";
 import CustomerLocationsPage from "pages/Customer/Locations";
 import CustomerOverviewPage from "pages/Customer/Overview";
 import CustomerPayorsPage from "pages/Customer/Payors";
-import CustomerPurchaseOrdersPage from "pages/Customer/PurchaseOrders";
 import CustomerPurchaseOrdersPageNew from "pages/Customer/PurchaseOrders/indexNew";
 import CustomerRepaymentsPage from "pages/Customer/Repayments";
 import CustomerReportsPage from "pages/Customer/Reports";
@@ -73,8 +71,6 @@ export default function App() {
   const {
     user: { role },
   } = useContext(CurrentUserContext);
-  const environment = process.env.REACT_APP_BESPOKE_ENVIRONMENT;
-
   return (
     <BrowserRouter>
       <Switch>
@@ -91,7 +87,7 @@ export default function App() {
         {/* Reviewer user routes */}
         <Route
           exact
-          path={anonymousRoutes.reviewPurchaseOrder}
+          path={anonymousRoutes.reviewPurchaseOrderOld}
           component={ReviewPurchaseOrderPage}
         />
         <Route
@@ -266,16 +262,6 @@ export default function App() {
         </PrivateRoute>
         <PrivateRoute
           exact
-          path={customerRoutes.purchaseOrders}
-          requiredRoles={[
-            UserRolesEnum.CompanyAdmin,
-            UserRolesEnum.CompanyReadOnly,
-          ]}
-        >
-          <CustomerPurchaseOrdersPage />
-        </PrivateRoute>
-        <PrivateRoute
-          exact
           path={customerRoutes.purchaseOrdersNew}
           requiredRoles={[
             UserRolesEnum.CompanyAdmin,
@@ -372,12 +358,6 @@ export default function App() {
           requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
         >
           <BankAsyncPage />
-        </PrivateRoute>
-        <PrivateRoute
-          path={bankRoutes.purchaseOrders}
-          requiredRoles={[UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly]}
-        >
-          <BankPurchaseOrdersPage />
         </PrivateRoute>
         <PrivateRoute
           path={bankRoutes.purchaseOrdersNew}

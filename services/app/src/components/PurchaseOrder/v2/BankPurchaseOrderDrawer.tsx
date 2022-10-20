@@ -71,6 +71,7 @@ const BankPurchaseOrderDrawer = ({
       handleClose={handleClose}
     >
       <Tabs
+        centered
         value={selectedTabIndex}
         indicatorColor="primary"
         textColor="primary"

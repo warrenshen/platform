@@ -206,7 +206,7 @@ const getCustomerPaths = (
             ].includes(productType),
           dataCy: "customer-purchase-orders-new",
           label: "Purchase Orders",
-          path: bankRoutes.company.purchaseOrdersNew,
+          path: bankRoutes.company.purchaseOrders,
           counter: purchaseOrdersChangesRequestedCount,
           counterColor: "rgb(230, 126, 34)",
           component: BankCustomerPurchaseOrdersSubpageNew,

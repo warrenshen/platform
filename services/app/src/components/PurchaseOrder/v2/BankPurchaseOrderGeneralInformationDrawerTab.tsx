@@ -17,6 +17,8 @@ const BankPurchaseOrderGeneralInformationDrawerTab = ({
   purchaseOrder,
 }: PurchaseOrderViewModalProps) => {
   const [isFileViewerOpen, setIsFileViewerOpen] = useState(false);
+  const [isCannabisFileViewerOpen, setIsCannabisFileViewerOpen] =
+    useState(false);
 
   const purchaseOrderFileIds = useMemo(() => {
     return getPurchaseOrderFilesOfType(
@@ -59,7 +61,7 @@ const BankPurchaseOrderGeneralInformationDrawerTab = ({
             <Box mb={2}>
               <Box mb={2}>
                 <Text
-                  materialVariant={"body2"}
+                  materialVariant={"p"}
                   textVariant={TextVariants.Paragraph}
                 >
                   Metrc Manifest
@@ -82,6 +84,22 @@ const BankPurchaseOrderGeneralInformationDrawerTab = ({
           fileIds={purchaseOrderFileIds}
           fileType={FileTypeEnum.PurchaseOrder}
         />
+        <Button
+          style={{ alignSelf: "flex-start" }}
+          variant="outlined"
+          size="small"
+          onClick={() => setIsFileViewerOpen(!isFileViewerOpen)}
+        >
+          {isFileViewerOpen ? "Hide File(s)" : "Show File(s)"}
+        </Button>
+        {isFileViewerOpen && (
+          <Box mt={1}>
+            <FileViewer
+              fileIds={purchaseOrderCannabisFileIds}
+              fileType={FileTypeEnum.PurchaseOrder}
+            />
+          </Box>
+        )}
       </Box>
       <>
         {!isMetrcBased && (
@@ -108,16 +126,17 @@ const BankPurchaseOrderGeneralInformationDrawerTab = ({
                   style={{ alignSelf: "flex-start" }}
                   variant="outlined"
                   size="small"
-                  onClick={() => setIsFileViewerOpen(!isFileViewerOpen)}
+                  onClick={() =>
+                    setIsCannabisFileViewerOpen(!isCannabisFileViewerOpen)
+                  }
                 >
                   {isFileViewerOpen ? "Hide File(s)" : "Show File(s)"}
                 </Button>
-                {isFileViewerOpen && (
+                {isCannabisFileViewerOpen && (
                   <Box mt={1}>
                     <FileViewer
                       fileIds={purchaseOrderCannabisFileIds}
                       fileType={FileTypeEnum.PurchaseOrder}
-                      /*setIsFileViewerOpen={setIsFileViewerOpen}*/
                     />
                   </Box>
                 )}
@@ -136,10 +155,7 @@ const BankPurchaseOrderGeneralInformationDrawerTab = ({
                   Analysis)
                 </Typography>
               </Box>
-              <Text
-                materialVariant={"body2"}
-                textVariant={TextVariants.Paragraph}
-              >
+              <Text materialVariant={"p"} textVariant={TextVariants.Paragraph}>
                 No cannabis file attachments because the purchase order is Metrc
                 based on a Metrc manifest.
               </Text>

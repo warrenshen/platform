@@ -75,7 +75,7 @@ function ReviewPurchaseOrderCompletePage(props: any) {
           </Text>
           <Text
             textVariant={TextVariants.Paragraph}
-            materialVariant="body2"
+            materialVariant="p"
             bottomMargin={40}
           >
             {successMessage}

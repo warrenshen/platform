@@ -214,11 +214,12 @@ export default function CustomerPurchaseOrdersOpenTabNew({
 
   return (
     <Container>
-      {financialSummary && (
-        <Box mt={3}>
-          <LinearFinancialSummaryOverview {...financialSummary} />
-        </Box>
-      )}
+      <Box mt={3}>
+        <LinearFinancialSummaryOverview
+          adjustedTotalLimit={financialSummary?.adjusted_total_limit || null}
+          availableLimit={financialSummary?.available_limit || null}
+        />
+      </Box>
       {isArchiveModalOpenForNotApprovedPurchaseOrders && (
         <ArchivePurchaseOrderModalNew
           action={Action.ArchivePurchaseOrders}

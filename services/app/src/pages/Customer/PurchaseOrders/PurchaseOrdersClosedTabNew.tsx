@@ -91,11 +91,12 @@ export default function CustomerPurchaseOrdersClosedTabNew({
           }}
         />
       )}
-      {financialSummary && (
-        <Box mt={3}>
-          <LinearFinancialSummaryOverview {...financialSummary} />
-        </Box>
-      )}
+      <Box mt={3}>
+        <LinearFinancialSummaryOverview
+          adjustedTotalLimit={financialSummary?.adjusted_total_limit || null}
+          availableLimit={financialSummary?.available_limit || null}
+        />
+      </Box>
       <Box flex={1} display="flex" flexDirection="column" width="100%">
         <Box className={classes.section}>
           <Box my={2} display="flex" flexDirection="row-reverse">

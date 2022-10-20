@@ -64,7 +64,7 @@ function CustomerLoansPageLoansTab({
       {productType === ProductTypeEnum.LineOfCredit && (
         <Box>
           <Box className={classes.section}>
-            <Typography variant="h6">Not Funded Loans</Typography>
+            <Typography variant="h6">Inactive Loans</Typography>
             <LoansNotFunded
               companyId={companyId}
               productType={productType}
@@ -76,9 +76,8 @@ function CustomerLoansPageLoansTab({
           <Box className={classes.sectionSpace} />
         </Box>
       )}
-      <Box className={classes.sectionSpace} />
       <Box className={classes.section}>
-        <Typography variant="h6">Funded Loans</Typography>
+        <Typography variant="h6">Active Loans</Typography>
         <LoansFunded
           companyId={companyId}
           productType={productType}

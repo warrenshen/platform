@@ -98,7 +98,7 @@ const FinancialRequestsDataGrid = ({
         alignment: "right",
       },
     ],
-    []
+    [showComments]
   );
 
   const handleSelectionChanged = useMemo(

@@ -75,7 +75,8 @@ const StyledText = styled.span<{
   h1,
   h3,
   h5,
-  p {
+  p,
+  span {
     color: ${(props) =>
       props.$isClickable ? PrimaryDefaultColor : props.$color};
     font-style: normal;
@@ -158,6 +159,7 @@ export default function Text({
       {materialVariant === "h3" && <h3>{children}</h3>}
       {materialVariant === "h5" && <h5>{children}</h5>}
       {materialVariant === "p" && <p>{children}</p>}
+      {materialVariant === "span" && <span>{children}</span>}
     </StyledText>
   );
 }

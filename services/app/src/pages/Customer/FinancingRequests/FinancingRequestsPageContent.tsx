@@ -133,9 +133,10 @@ const FinancingRequestsPageContent = ({
         />
       )}
       <Box display="flex" flexDirection="column">
-        {!!financialSummary && (
-          <LinearFinancialSummaryOverview {...financialSummary} />
-        )}
+        <LinearFinancialSummaryOverview
+          adjustedTotalLimit={financialSummary?.adjusted_total_limit || null}
+          availableLimit={financialSummary?.available_limit || null}
+        />
         <Box display="flex" justifyContent="space-between" mb={2}>
           <Box display="flex" alignItems="center">
             <Typography variant="h6">Financing Requests</Typography>

@@ -15,7 +15,7 @@ const BankPurchaseOrderFinancingDrawerTab = ({ purchaseOrder }: Props) => {
   );
 
   return (
-    <Box style={{ overflow: "scroll" }}>
+    <Box>
       <Box m={4} />
       <Typography variant="h6">Loans</Typography>
       <Box m={2} />

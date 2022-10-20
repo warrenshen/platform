@@ -2,7 +2,9 @@ import {
   Box,
   DialogActions,
   DialogContent,
+  Theme,
   Typography,
+  createStyles,
   makeStyles,
 } from "@material-ui/core";
 import PrimaryWarningButton from "components/Shared/Button/PrimaryWarningButton";
@@ -17,16 +19,21 @@ import { getCompanyDisplayName } from "lib/companies";
 import { formatDateString } from "lib/date";
 import { formatCurrency } from "lib/number";
 
-const useStyles = makeStyles({
-  label: {
-    width: 174,
-    color: "#abaaa9",
-  },
-  confirmButton: {
-    color: "#fff",
-    marginLeft: 24,
-  },
-});
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    label: {
+      width: 174,
+      color: "#abaaa9",
+    },
+    dialogActions: {
+      margin: theme.spacing(2),
+    },
+    confirmButton: {
+      color: "#fff",
+      marginLeft: 24,
+    },
+  })
+);
 
 interface Props {
   purchaseOrder: any;
@@ -123,22 +130,20 @@ function ArchivePurchaseOrderModalNew({
           </>
         )}
       </DialogContent>
-      <DialogActions>
-        <Box style={{ margin: 32, padding: 0 }}>
-          <SecondaryButton
-            dataCy={"archive-po-cancel-button"}
-            text={"Cancel"}
-            onClick={handleClose}
-          />
-          <PrimaryWarningButton
-            dataCy={"archive-po-confirm-button"}
-            isDisabled={
-              isArchivePurchaseOrderLoading || isUnArchivePurchaseOrderLoading
-            }
-            text={"Confirm"}
-            onClick={handleClickConfirm}
-          />
-        </Box>
+      <DialogActions className={classes.dialogActions}>
+        <SecondaryButton
+          dataCy={"archive-po-cancel-button"}
+          text={"Cancel"}
+          onClick={handleClose}
+        />
+        <PrimaryWarningButton
+          dataCy={"archive-po-confirm-button"}
+          isDisabled={
+            isArchivePurchaseOrderLoading || isUnArchivePurchaseOrderLoading
+          }
+          text={"Confirm"}
+          onClick={handleClickConfirm}
+        />
       </DialogActions>
     </ModalDialog>
   );

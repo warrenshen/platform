@@ -294,6 +294,7 @@ export default function PurchaseOrdersDataGridNew({
       isCompanyVisible,
       isApprovedByVendor,
       isCustomerNoteVisible,
+      isStatusVisible,
       actionItems,
       selectablePurchaseOrderStatuses,
       handleClickCustomer,
