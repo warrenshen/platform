@@ -37,6 +37,7 @@ import {
   Files,
   FinancialSummaries,
   Loans,
+  Payments,
   PurchaseOrderFiles,
   PurchaseOrders,
   TwoFactorLinks,
@@ -1026,6 +1027,73 @@ function addEbbaApplication({
   });
 }
 
+function addPayment({
+  id,
+  amount,
+  type,
+  company_id,
+  method,
+  company_bank_account_id,
+  submitted_at,
+  settled_at,
+  items_covered,
+  settlement_date,
+  payment_date,
+  submitted_by_user_id,
+  settled_by_user_id,
+  requested_payment_date,
+  requested_by_user_id,
+  created_at,
+  updated_at,
+  deposit_date,
+  requested_amount,
+  originating_payment_id,
+  is_deleted,
+  identifier,
+  settlement_identifier,
+  customer_note,
+  bank_note,
+  reversed_at,
+  recipient_bank_account_id,
+}: Payments) {
+  cy.request("POST", `${Cypress.env("apiServerUrl")}/cypress/add_payment`, {
+    id: id || null,
+    amount: amount || null,
+    type: type || null,
+    company_id: company_id || null,
+    method: method || null,
+    company_bank_account_id: company_bank_account_id || null,
+    submitted_at: submitted_at || null,
+    settled_at: settled_at || null,
+    items_covered: items_covered || null,
+    settlement_date: settlement_date || null,
+    payment_date: payment_date || null,
+    submitted_by_user_id: submitted_by_user_id || null,
+    settled_by_user_id: settled_by_user_id || null,
+    requested_payment_date: requested_payment_date || null,
+    requested_by_user_id: requested_by_user_id || null,
+    created_at: created_at || null,
+    updated_at: updated_at || null,
+    deposit_date: deposit_date || null,
+    requested_amount: requested_amount || null,
+    originating_payment_id: originating_payment_id || null,
+    is_deleted: is_deleted || null,
+    identifier: identifier || null,
+    settlement_identifier: settlement_identifier || null,
+    customer_note: customer_note || null,
+    bank_note: bank_note || null,
+    reversed_at: reversed_at || null,
+    recipient_bank_account_id: recipient_bank_account_id || null,
+  }).then((response) => {
+    const paymentId = !!response?.body?.data?.paymentId
+      ? response.body.data.paymentId
+      : null;
+    return cy.wrap({
+      paymentId: paymentId,
+    });
+  });
+}
+
 Cypress.Commands.add("addBankAccount", addBankAccount);
 Cypress.Commands.add("addContract", addContract);
 Cypress.Commands.add("addCompany", addCompany);
@@ -1047,6 +1115,7 @@ Cypress.Commands.add("addTwoFactorLink", addTwoFactorLink);
 Cypress.Commands.add("addUser", addUser);
 Cypress.Commands.add("addLoan", addLoan);
 Cypress.Commands.add("addEbbaApplication", addEbbaApplication);
+Cypress.Commands.add("addPayment", addPayment);
 
 // ///////////////////////////////
 // UTILITY ACTIONS

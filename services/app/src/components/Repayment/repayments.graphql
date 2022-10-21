@@ -50,7 +50,7 @@ subscription GetRepayments {
   }
 }
 
-query GetRepaymentsByDepositDate($date: date!) {
+query GetRepaymentsByDepositDateRange($start_date: date!, $end_date: date!) {
   payments(
     where: {
       _and: [
@@ -61,7 +61,7 @@ query GetRepaymentsByDepositDate($date: date!) {
           ]
         }
         { type: { _in: ["repayment", "repayment_account_fee"] } }
-        { deposit_date: { _eq: $date } }
+        { deposit_date: { _gte: $start_date, _lte: $end_date }}
       ]
     }
     order_by: [{ settlement_date: asc }, { created_at: asc }]

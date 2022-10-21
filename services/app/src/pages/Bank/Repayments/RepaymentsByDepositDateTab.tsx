@@ -1,9 +1,17 @@
 import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
+import TextField from "@mui/material/TextField";
+import {
+  DateRange,
+  DateRangePicker,
+} from "@mui/x-date-pickers-pro/DateRangePicker";
 import RepaymentsDataGrid from "components/Repayment/RepaymentsDataGrid";
-import DateInput from "components/Shared/FormInputs/DateInput";
-import { useGetRepaymentsByDepositDateQuery } from "generated/graphql";
-import { previousBizDayAsDateStringServer } from "lib/date";
+import { Dayjs } from "dayjs";
+import { useGetRepaymentsByDepositDateRangeQuery } from "generated/graphql";
+import {
+  dateAsDateStringServer,
+  previousBizDayAsDateStringServer,
+} from "lib/date";
 import { useState } from "react";
 import styled from "styled-components";
 
@@ -17,14 +25,18 @@ const Container = styled.div`
 `;
 
 export default function BankRepaymentsAllTab() {
-  const [selectedDate, setSelectedDate] = useState(
+  const [startDate, setStartDate] = useState<string | null>(
+    previousBizDayAsDateStringServer()
+  );
+  const [endDate, setEndDate] = useState<string | null>(
     previousBizDayAsDateStringServer()
   );
 
-  const { data, error } = useGetRepaymentsByDepositDateQuery({
+  const { data, error } = useGetRepaymentsByDepositDateRangeQuery({
     fetchPolicy: "network-only",
     variables: {
-      date: selectedDate,
+      start_date: startDate,
+      end_date: endDate,
     },
   });
 
@@ -38,14 +50,31 @@ export default function BankRepaymentsAllTab() {
   return (
     <Container>
       <Box mb={2}>
-        <DateInput
-          id="deposite-date-date-picker"
-          label="Deposit Date"
-          disableFuture
-          value={selectedDate}
-          onChange={(value) =>
-            setSelectedDate(value || previousBizDayAsDateStringServer())
-          }
+        <DateRangePicker
+          data-cy="repayments-deposit-date-picker"
+          value={[startDate, endDate]}
+          onChange={([startDateObject, endDateObject]: DateRange<Dayjs>) => {
+            if (!!startDateObject && startDateObject.isValid()) {
+              setStartDate(dateAsDateStringServer(startDateObject.toDate()));
+            }
+            if (!!endDateObject && endDateObject.isValid()) {
+              setEndDate(dateAsDateStringServer(endDateObject.toDate()));
+            }
+          }}
+          PopperProps={{ placement: "bottom-start" }}
+          renderInput={(startProps, endProps) => (
+            <>
+              <TextField
+                data-cy="repayments-deposit-date-picker-start"
+                {...startProps}
+              />
+              <Box m={2}> to </Box>
+              <TextField
+                data-cy="repayments-deposit-date-picker-end"
+                {...endProps}
+              />
+            </>
+          )}
         />
       </Box>
       <Box display="flex" flexDirection="column">

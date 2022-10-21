@@ -1356,6 +1356,100 @@ class AddEbbaApplicationView(MethodView):
 			}
 		}))
 
+class addPaymentView(MethodView):
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		session_maker, err = run_cypress_preflight_checks()
+		if err:
+			raise err
+		
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response("No data provided")	
+		
+		models_relationships_to_ignore = [
+			'company',
+		]
+		
+		required_keys = [attr for attr in dir(models.Payment()) if not callable(getattr(models.Payment(), attr)) \
+			and not attr.startswith('_') and attr != 'metadata' and attr not in models_relationships_to_ignore]
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in response to creating a user for a Cypress test')
+
+		id = get_field_or_default(form, 'id', None)
+		amount = get_field_or_default(form, 'amount', 0.0)
+		type = get_field_or_default(form, 'type', None)
+		company_id = get_field_or_default(form, 'company_id', None)
+		method = get_field_or_default(form, 'method', None)
+		company_bank_account_id = get_field_or_default(form, 'company_bank_account_id', None)
+		submitted_at = get_field_or_default(form, 'submitted_at', None)
+		settled_at = get_field_or_default(form, 'settled_at', None)
+		items_covered = get_field_or_default(form, 'items_covered', None)
+		settlement_date = get_field_or_default(form, 'settlement_date', None)
+		payment_date = get_field_or_default(form, 'payment_date', None)
+		submitted_by_user_id = get_field_or_default(form, 'submitted_by_user_id', None)
+		settled_by_user_id = get_field_or_default(form, 'settled_by_user_id', None)
+		requested_by_user_id = get_field_or_default(form, 'requested_by_user_id', None)
+		created_at = get_field_or_default(form, 'created_at', None)
+		updated_at = get_field_or_default(form, 'updated_at', None)
+		deposit_date = get_field_or_default(form, 'deposit_date', None)
+		requested_amount = get_field_or_default(form, 'requested_amount', None)
+		originating_payment_id = get_field_or_default(form, 'originating_payment_id', None)
+		is_deleted = get_field_or_default(form, 'is_deleted', False)
+		settlement_identifier = get_field_or_default(form, 'settlement_identifier', None)
+		customer_note = get_field_or_default(form, 'customer_note', None)
+		bank_note = get_field_or_default(form, 'bank_note', None)
+		reversed_at = get_field_or_default(form, 'reversed_at', None)
+		recipient_bank_account_id = get_field_or_default(form, 'recipient_bank_account_id', None)
+
+		with session_scope(session_maker) as session:
+			logging.info('Adding payment for cypress test...')
+
+			payment, err = seed_util.create_payment(
+				session,
+				id,
+				amount,
+				type,
+				company_id,
+				method,
+				company_bank_account_id,
+				submitted_at,
+				settled_at,
+				items_covered,
+				settlement_date,
+				payment_date,
+				submitted_by_user_id,
+				settled_by_user_id,
+				requested_by_user_id,
+				created_at,
+				updated_at,
+				deposit_date,
+				requested_amount,
+				originating_payment_id,
+				is_deleted,
+				settlement_identifier,
+				customer_note,
+				bank_note,
+				reversed_at,
+				recipient_bank_account_id,
+			)
+			if err:
+				raise err
+			
+			payment_id = str(payment.id)
+
+			logging.info('Finished adding payment for cypress test...')
+		
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': 'Success',
+			'data': {
+				'payment_id': payment_id,
+			}
+		}))
+
 handler.add_url_rule(
 	'/reset_database',
 	view_func=ResetDatabaseView.as_view(name='reset_database_view'),
@@ -1434,4 +1528,9 @@ handler.add_url_rule(
 handler.add_url_rule(
 	'/add_ebba_application',
 	view_func=AddEbbaApplicationView.as_view(name='add_ebba_application_view'),
+)
+
+handler.add_url_rule(
+	'/add_payment',
+	view_func=addPaymentView.as_view(name='add_payment_view'),
 )

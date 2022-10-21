@@ -7337,6 +7337,8 @@ export type CustomerSurveillanceResultsBoolExp = {
 /** unique or primary key constraints on table "customer_surveillance_results" */
 export enum CustomerSurveillanceResultsConstraint {
   /** unique or primary key constraint */
+  CompanyProductQualificationsCompanyIdQualifyingDateKey = "company_product_qualifications_company_id_qualifying_date_key",
+  /** unique or primary key constraint */
   CompanyProductQualificationsPkey = "company_product_qualifications_pkey",
 }
 
@@ -30093,11 +30095,12 @@ export type GetRepaymentsSubscription = {
   >;
 };
 
-export type GetRepaymentsByDepositDateQueryVariables = Exact<{
-  date: Scalars["date"];
+export type GetRepaymentsByDepositDateRangeQueryVariables = Exact<{
+  start_date: Scalars["date"];
+  end_date: Scalars["date"];
 }>;
 
-export type GetRepaymentsByDepositDateQuery = {
+export type GetRepaymentsByDepositDateRangeQuery = {
   payments: Array<
     Pick<Payments, "id"> & {
       company: Pick<Companies, "id" | "name">;
@@ -41255,8 +41258,8 @@ export type GetRepaymentsSubscriptionHookResult = ReturnType<
 >;
 export type GetRepaymentsSubscriptionResult =
   Apollo.SubscriptionResult<GetRepaymentsSubscription>;
-export const GetRepaymentsByDepositDateDocument = gql`
-  query GetRepaymentsByDepositDate($date: date!) {
+export const GetRepaymentsByDepositDateRangeDocument = gql`
+  query GetRepaymentsByDepositDateRange($start_date: date!, $end_date: date!) {
     payments(
       where: {
         _and: [
@@ -41267,7 +41270,7 @@ export const GetRepaymentsByDepositDateDocument = gql`
             ]
           }
           { type: { _in: ["repayment", "repayment_account_fee"] } }
-          { deposit_date: { _eq: $date } }
+          { deposit_date: { _gte: $start_date, _lte: $end_date } }
         ]
       }
       order_by: [{ settlement_date: asc }, { created_at: asc }]
@@ -41288,52 +41291,53 @@ export const GetRepaymentsByDepositDateDocument = gql`
 `;
 
 /**
- * __useGetRepaymentsByDepositDateQuery__
+ * __useGetRepaymentsByDepositDateRangeQuery__
  *
- * To run a query within a React component, call `useGetRepaymentsByDepositDateQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetRepaymentsByDepositDateQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetRepaymentsByDepositDateRangeQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetRepaymentsByDepositDateRangeQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetRepaymentsByDepositDateQuery({
+ * const { data, loading, error } = useGetRepaymentsByDepositDateRangeQuery({
  *   variables: {
- *      date: // value for 'date'
+ *      start_date: // value for 'start_date'
+ *      end_date: // value for 'end_date'
  *   },
  * });
  */
-export function useGetRepaymentsByDepositDateQuery(
+export function useGetRepaymentsByDepositDateRangeQuery(
   baseOptions: Apollo.QueryHookOptions<
-    GetRepaymentsByDepositDateQuery,
-    GetRepaymentsByDepositDateQueryVariables
+    GetRepaymentsByDepositDateRangeQuery,
+    GetRepaymentsByDepositDateRangeQueryVariables
   >
 ) {
   return Apollo.useQuery<
-    GetRepaymentsByDepositDateQuery,
-    GetRepaymentsByDepositDateQueryVariables
-  >(GetRepaymentsByDepositDateDocument, baseOptions);
+    GetRepaymentsByDepositDateRangeQuery,
+    GetRepaymentsByDepositDateRangeQueryVariables
+  >(GetRepaymentsByDepositDateRangeDocument, baseOptions);
 }
-export function useGetRepaymentsByDepositDateLazyQuery(
+export function useGetRepaymentsByDepositDateRangeLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
-    GetRepaymentsByDepositDateQuery,
-    GetRepaymentsByDepositDateQueryVariables
+    GetRepaymentsByDepositDateRangeQuery,
+    GetRepaymentsByDepositDateRangeQueryVariables
   >
 ) {
   return Apollo.useLazyQuery<
-    GetRepaymentsByDepositDateQuery,
-    GetRepaymentsByDepositDateQueryVariables
-  >(GetRepaymentsByDepositDateDocument, baseOptions);
+    GetRepaymentsByDepositDateRangeQuery,
+    GetRepaymentsByDepositDateRangeQueryVariables
+  >(GetRepaymentsByDepositDateRangeDocument, baseOptions);
 }
-export type GetRepaymentsByDepositDateQueryHookResult = ReturnType<
-  typeof useGetRepaymentsByDepositDateQuery
+export type GetRepaymentsByDepositDateRangeQueryHookResult = ReturnType<
+  typeof useGetRepaymentsByDepositDateRangeQuery
 >;
-export type GetRepaymentsByDepositDateLazyQueryHookResult = ReturnType<
-  typeof useGetRepaymentsByDepositDateLazyQuery
+export type GetRepaymentsByDepositDateRangeLazyQueryHookResult = ReturnType<
+  typeof useGetRepaymentsByDepositDateRangeLazyQuery
 >;
-export type GetRepaymentsByDepositDateQueryResult = Apollo.QueryResult<
-  GetRepaymentsByDepositDateQuery,
-  GetRepaymentsByDepositDateQueryVariables
+export type GetRepaymentsByDepositDateRangeQueryResult = Apollo.QueryResult<
+  GetRepaymentsByDepositDateRangeQuery,
+  GetRepaymentsByDepositDateRangeQueryVariables
 >;
 export const GetSubmittedPaymentsDocument = gql`
   subscription GetSubmittedPayments {

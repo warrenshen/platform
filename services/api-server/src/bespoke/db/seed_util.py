@@ -959,3 +959,64 @@ def create_company_vendor_partnership(
     )
     session.add(company_vendor_partnership)
     session.flush()
+
+def create_payment(
+    session: Session,
+    id: str,
+    amount: str,
+    type: str,
+    company_id: str,
+    method: str,
+    company_bank_account_id: str,
+    submitted_at: str,
+    settled_at: str,
+    items_covered: str,
+    settlement_date: datetime.datetime,
+    payment_date: datetime.datetime,
+    submitted_by_user_id: str,
+    settled_by_user_id: str,
+    requested_by_user_id: str,
+    created_at: datetime.datetime,
+    updated_at: datetime.datetime,
+    deposit_date: datetime.datetime,
+    requested_amount: str,
+    originating_payment_id: str,
+    is_deleted: bool,
+    settlement_identifier: str,
+    customer_note: str,
+    bank_note: str,
+    reversed_at: datetime.datetime,
+    recipient_bank_account_id: str,
+) -> Tuple[models.Payment, errors.Error]:
+    payment = models.Payment( # type: ignore
+        id = id,
+        amount = amount,
+        type = type,
+        company_id = company_id,
+        method = method,
+        company_bank_account_id = company_bank_account_id,
+        submitted_at = submitted_at,
+        settled_at = settled_at,
+        items_covered = items_covered,
+        settlement_date = settlement_date,
+        payment_date = payment_date,
+        submitted_by_user_id = submitted_by_user_id,
+        settled_by_user_id = settled_by_user_id,
+        requested_by_user_id = requested_by_user_id,
+        created_at = created_at,
+        updated_at = updated_at,
+        deposit_date = deposit_date,
+        requested_amount = requested_amount,
+        originating_payment_id = originating_payment_id,
+        is_deleted = is_deleted,
+        settlement_identifier = settlement_identifier,
+        customer_note = customer_note,
+        bank_note = bank_note,
+        reversed_at = reversed_at,
+        recipient_bank_account_id = recipient_bank_account_id,
+
+    )
+    session.add(payment)
+    session.flush()
+
+    return payment, None

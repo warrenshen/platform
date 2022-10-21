@@ -5,11 +5,10 @@ import {
   DateRangePicker,
 } from "@mui/x-date-pickers-pro/DateRangePicker";
 import TransactionsDataGrid from "components/Transactions/TransactionsDataGrid";
-import { format } from "date-fns";
 import { Dayjs } from "dayjs";
 import { useGetTransactionsForDateRangeQuery } from "generated/graphql";
 import {
-  DateFormatServer,
+  dateAsDateStringServer,
   todayAsDateStringServer,
   todayMinusXMonthsDateStringServer,
 } from "lib/date";
@@ -44,11 +43,11 @@ function BankTransactionsPage() {
       <DateRangePicker
         value={[startDate, endDate]}
         onChange={([startDateObject, endDateObject]: DateRange<Dayjs>) => {
-          if (startDateObject) {
-            setStartDate(format(startDateObject.toDate(), DateFormatServer));
+          if (!!startDateObject && startDateObject.isValid()) {
+            setStartDate(dateAsDateStringServer(startDateObject.toDate()));
           }
-          if (endDateObject) {
-            setEndDate(format(endDateObject.toDate(), DateFormatServer));
+          if (!!endDateObject && endDateObject.isValid()) {
+            setEndDate(dateAsDateStringServer(endDateObject.toDate()));
           }
         }}
         PopperProps={{ placement: "bottom-start" }}
