@@ -1483,9 +1483,8 @@ class RequestPurchaseOrderChangesView(MethodView):
 				raise errors.Error('There are no users configured for this customer')
 
 			customer_name = purchase_order.company.get_display_name()
-			#customer_emails = [user.email for user in customer_users]
-			customer_emails = [cfg.NO_REPLY_EMAIL_ADDRESS]
-
+			customer_emails = [user.email for user in customer_users]
+			
 			if is_bank_admin:
 				template_name = sendgrid_util.TemplateNames.BANK_REQUESTS_CHANGES_TO_PURCHASE_ORDER
 				template_data = {

@@ -208,6 +208,7 @@ select_permissions:
   - role: purchase_order_reviewer
     permission:
       columns:
+        - all_customer_notes
         - amount
         - amount_funded
         - approved_at
@@ -220,6 +221,7 @@ select_permissions:
         - customer_note
         - delivery_date
         - funded_at
+        - history
         - id
         - incompleted_at
         - is_cannabis
