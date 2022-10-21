@@ -65,6 +65,7 @@ const StyledText = styled.span<{
   $textVariant: TextVariants;
   $color: string;
   $textAlignment: string;
+  $textVerticalAlignment: string;
   $bottomMargin: Maybe<number>;
   $lineHeight: Maybe<string>;
   $width: string;
@@ -120,6 +121,7 @@ interface Props {
   isDatagridCheckboxSelected?: Maybe<boolean>;
   color?: string;
   alignment?: string;
+  verticalAlignment?: string;
   bottomMargin?: Maybe<number>;
   lineHeight?: Maybe<string>;
   width?: string;
@@ -135,6 +137,7 @@ export default function Text({
   isDatagridCheckboxSelected = false,
   color = TextColor,
   alignment = "left",
+  verticalAlignment = "center",
   bottomMargin = null,
   width = "auto",
   lineHeight = null,
@@ -149,6 +152,7 @@ export default function Text({
       $isBold={isBold}
       $isDatagridCheckboxSelected={isDatagridCheckboxSelected}
       $textAlignment={alignment}
+      $textVerticalAlignment={verticalAlignment}
       $bottomMargin={bottomMargin}
       $lineHeight={lineHeight}
       $width={width}

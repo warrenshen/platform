@@ -589,3 +589,27 @@ export const FinancingRequestsSidebarIcon = ({
     />
   </StyledSVG>
 );
+
+export const ArrowRightIcon = ({
+  fillColor = SecondaryTextColor,
+  width = "24",
+  height = "24",
+}: SVGProps): JSX.Element => (
+  <StyledSVG
+    width={width}
+    height={height}
+    viewBox={`0 0 24 24`}
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    preserveAspectRatio="none"
+    $width2={width}
+    $height2={height}
+  >
+    <StyledPath
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M14.0798 7.45351C13.778 7.73719 13.7633 8.21184 14.047 8.51366L16.6189 11.25H6C5.58579 11.25 5.25 11.5858 5.25 12C5.25 12.4142 5.58579 12.75 6 12.75H16.6189L14.047 15.4863C13.7633 15.7882 13.778 16.2628 14.0798 16.5465C14.3817 16.8302 14.8563 16.8155 15.14 16.5137L18.2807 13.1722C18.9064 12.5065 18.9064 11.4936 18.2807 10.8278L15.14 7.48634C14.8563 7.18452 14.3817 7.16982 14.0798 7.45351Z"
+      $fillColor={fillColor}
+    />
+  </StyledSVG>
+);

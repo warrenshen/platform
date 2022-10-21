@@ -12,6 +12,8 @@ import { useState } from "react";
 interface Props {
   labelText: string;
   valueText: string;
+  valueTextVariant?: TextVariants;
+  valueIsBold?: boolean;
   labelWidth?: string;
   valueAlignment?: string;
   isValueObfuscated?: boolean;
@@ -20,6 +22,8 @@ interface Props {
 export default function CardLine({
   labelText,
   valueText,
+  valueTextVariant = TextVariants.Label,
+  valueIsBold = false,
   labelWidth,
   valueAlignment = "right",
   isValueObfuscated = false,
@@ -59,7 +63,8 @@ export default function CardLine({
       >
         <Text
           materialVariant={"p"}
-          textVariant={TextVariants.Label}
+          textVariant={valueTextVariant}
+          isBold={valueIsBold}
           color={TextColor}
           alignment={valueAlignment}
           bottomMargin={0}
