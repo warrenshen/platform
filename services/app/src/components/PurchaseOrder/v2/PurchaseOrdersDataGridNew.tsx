@@ -121,7 +121,6 @@ export default function PurchaseOrdersDataGridNew({
           <Box display="flex" alignItems="center">
             <ClickableDataGridCell
               onClick={() => {
-                console.log("SELECTED:", params.row.data.id);
                 setSelectedPurchaseOrderId(params.row.data.id);
               }}
               label={params.row.data.order_number}

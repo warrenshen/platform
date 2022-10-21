@@ -30,9 +30,11 @@ export default function PurchaseOrderViewModalCard({ purchaseOrder }: Props) {
     ? formatDateString(purchaseOrder.order_date) || ""
     : "";
 
-  const dueDate = !!purchaseOrder?.net_terms
-    ? computePurchaseOrderDueDateDateStringClient(purchaseOrder)
-    : "";
+  // dueDate cannot follow the !! pattern because 0 is a valid net_terms value
+  const dueDate =
+    purchaseOrder?.net_terms !== null
+      ? computePurchaseOrderDueDateDateStringClient(purchaseOrder)
+      : "";
 
   const amountFunded = !!purchaseOrder?.amount_funded
     ? formatCurrency(purchaseOrder.amount_funded)
