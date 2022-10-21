@@ -102,6 +102,9 @@ export default function HandlePartnershipRequestNewModal({
     recipient_address: partnerRequest.request_info?.beneficiary_address,
   };
 
+  const metrcApiKey = partnerRequest.request_info?.metrc_api_key;
+  const usState = partnerRequest.request_info?.us_state;
+
   return (
     <Modal
       dataCy={"triage-partnership-request-modal"}
@@ -164,6 +167,20 @@ export default function HandlePartnershipRequestNewModal({
             });
           }}
         />
+      </Box>
+      <Box display="flex" flexDirection="column" mt={4}>
+        <Typography variant="subtitle2" color="textSecondary">
+          Metrc API Key
+        </Typography>
+        <Typography variant={"body1"}>
+          {metrcApiKey ? metrcApiKey : "-"}
+        </Typography>
+      </Box>
+      <Box display="flex" flexDirection="column" mt={4}>
+        <Typography variant="subtitle2" color="textSecondary">
+          US State
+        </Typography>
+        <Typography variant={"body1"}>{usState ? usState : "-"}</Typography>
       </Box>
 
       {partnerRequest.license_info?.license_file_id && (
