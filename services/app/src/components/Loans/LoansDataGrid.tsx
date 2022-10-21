@@ -4,7 +4,7 @@ import CommentIcon from "@material-ui/icons/Comment";
 import CustomerSurveillanceStatusChip from "components/CustomerSurveillance/CustomerSurveillanceStatusChip";
 import InvoiceDrawer from "components/Invoices/InvoiceDrawer";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
-import PurchaseOrderDrawer from "components/PurchaseOrder/PurchaseOrderDrawer";
+import BankPurchaseOrderDrawer from "components/PurchaseOrder/v2/BankPurchaseOrderDrawer";
 import DebtFacilityCompanyStatusChip from "components/Shared/Chip/DebtFacilityCompanyStatusChip";
 import LoanPaymentStatusChip from "components/Shared/Chip/LoanPaymentStatusChip";
 import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
@@ -14,6 +14,10 @@ import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
 import PurchaseOrderIdentifierDataGridCell from "components/Shared/DataGrid/PurchaseOrderIdentifierDataGridCell";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
 import {
   Companies,
   Invoices,
@@ -49,7 +53,7 @@ import {
 } from "lib/loans";
 import { CurrencyPrecision } from "lib/number";
 import { ColumnWidths, formatRowModel, truncateString } from "lib/tables";
-import { useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 
 type Loan = LoanFragment & {
   loan_report?: Maybe<LoanReportFragment>;
@@ -177,6 +181,10 @@ export default function LoansDataGrid({
   handleClickPurchaseOrderBankNote,
   handleSelectLoans,
 }: Props) {
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
+  const isBankUser = isRoleBankUser(role);
   const [dataGrid, setDataGrid] = useState<any>(null);
   const rows = useMemo(() => getRows(loans), [loans]);
 
@@ -609,8 +617,9 @@ export default function LoansDataGrid({
   return (
     <>
       {!!selectedPurchaseOrderId && (
-        <PurchaseOrderDrawer
+        <BankPurchaseOrderDrawer
           purchaseOrderId={selectedPurchaseOrderId}
+          isBankUser={isBankUser}
           handleClose={() => setSelectedPurchaseOrderId(null)}
         />
       )}
