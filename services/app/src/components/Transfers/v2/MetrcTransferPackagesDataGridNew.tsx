@@ -71,11 +71,11 @@ export default function MetrcTransferPackagesDataGridNew({
       //       />
       //     ),
       //   },
-      //   {
-      //     dataField: "product_name",
-      //     caption: "Product Name",
-      //     minWidth: ColumnWidths.MinWidth,
-      //   },
+      {
+        dataField: "product_name",
+        caption: "Product Name",
+        minWidth: ColumnWidths.MinWidth,
+      },
       //   {
       //     dataField: "shipped_quantity",
       //     caption: "Shipped Quantity (UoM)",
