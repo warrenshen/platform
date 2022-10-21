@@ -693,6 +693,7 @@ def autogenerate_repayment_alerts(
 		customer = customer_lookup[company_id]
 		customer_balance_lookup[company_id] = loan_balances.CustomerBalance(customer.as_dict(), session)
 
+	# returns a dict of company id to another dict that is due date to loan for next four days
 	company_to_per_date_loans, err = autogenerate_repayment_util.find_loans_for_weekly_repayment_reminder(
 		session,
 		filtered_customer_ids,
@@ -702,6 +703,12 @@ def autogenerate_repayment_alerts(
 	)
 	if err:
 		return False, errors.Error(str(err))
+	company_loans_by_date = company_to_per_date_loans[company_id]
+	total_number_of_loans = 0
+	for loans in company_loans_by_date.values():
+		total_number_of_loans += len(loans)
+	if total_number_of_loans == 0:
+		return True, None
 
 	company_html, err = autogenerate_repayment_util.generate_html_for_weekly_repayment_reminder(
 		session,
