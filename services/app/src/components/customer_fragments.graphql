@@ -36,6 +36,7 @@ fragment CompanyLicenseLimitedAnonymous on company_licenses {
 fragment BankAccountLimited on bank_accounts {
   id
   is_cannabis_compliant
+  is_bank_international
   verified_at
   verified_date
   ...BankAccountForVendor

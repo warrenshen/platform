@@ -92,6 +92,7 @@ def prepare_bank_account_info_dict(
 		ach_default_memo = 'Test ACH Default Memo',
 		can_wire = True,
 		is_wire_intermediary = True,
+		is_bank_international = False,
 		intermediary_bank_name = 'Test Intermediary Bank',
 		intermediary_bank_address = '123 Main Street, Annapolis, MD 21401', 
 		intermediary_account_name = 'Test Intermediary Checking', 

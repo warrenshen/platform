@@ -347,6 +347,28 @@ export default function BankAccountForm({
           />
         </Box>
       )}
+      {(role === UserRolesEnum.BankAdmin ||
+        role === UserRolesEnum.CompanyAdmin) && (
+        <Box display="flex" flexDirection="column" mt={2}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                data-cy="bank-account-form-is-bank-international"
+                checked={!!bankAccount.is_bank_international}
+                onChange={(_: ChangeEvent<HTMLInputElement>) => {
+                  setBankAccount({
+                    ...bankAccount,
+                    is_bank_international: !bankAccount.is_bank_international,
+                  });
+                }}
+                color="primary"
+                disabled={isFormDisabled}
+              />
+            }
+            label={"Is bank international?"}
+          />
+        </Box>
+      )}
       {role === UserRolesEnum.BankAdmin && (
         <Box display="flex" flexDirection="column" mt={2}>
           <FormControlLabel

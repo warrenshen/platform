@@ -1497,6 +1497,7 @@ class BankAccount(Base):
 	# Wire related fields below.
 	can_wire = Column(Boolean)
 	is_wire_intermediary = Column(Boolean)
+	is_bank_international = Column(Boolean)
 	intermediary_bank_name = Column(String) # Only used if wire is done via intermediary bank.
 	intermediary_bank_address = Column(String) # Only used if wire is done via intermediary bank.
 	intermediary_account_name = Column(String) # Only used if wire is done via intermediary bank.

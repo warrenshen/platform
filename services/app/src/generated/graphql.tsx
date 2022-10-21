@@ -979,6 +979,7 @@ export type BankAccounts = {
   intermediary_account_number?: Maybe<Scalars["String"]>;
   intermediary_bank_address?: Maybe<Scalars["String"]>;
   intermediary_bank_name?: Maybe<Scalars["String"]>;
+  is_bank_international?: Maybe<Scalars["Boolean"]>;
   is_cannabis_compliant: Scalars["Boolean"];
   is_deleted?: Maybe<Scalars["Boolean"]>;
   is_wire_intermediary?: Maybe<Scalars["Boolean"]>;
@@ -1091,6 +1092,7 @@ export type BankAccountsBoolExp = {
   intermediary_account_number?: Maybe<StringComparisonExp>;
   intermediary_bank_address?: Maybe<StringComparisonExp>;
   intermediary_bank_name?: Maybe<StringComparisonExp>;
+  is_bank_international?: Maybe<BooleanComparisonExp>;
   is_cannabis_compliant?: Maybe<BooleanComparisonExp>;
   is_deleted?: Maybe<BooleanComparisonExp>;
   is_wire_intermediary?: Maybe<BooleanComparisonExp>;
@@ -1136,6 +1138,7 @@ export type BankAccountsInsertInput = {
   intermediary_account_number?: Maybe<Scalars["String"]>;
   intermediary_bank_address?: Maybe<Scalars["String"]>;
   intermediary_bank_name?: Maybe<Scalars["String"]>;
+  is_bank_international?: Maybe<Scalars["Boolean"]>;
   is_cannabis_compliant?: Maybe<Scalars["Boolean"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
   is_wire_intermediary?: Maybe<Scalars["Boolean"]>;
@@ -1317,6 +1320,7 @@ export type BankAccountsOrderBy = {
   intermediary_account_number?: Maybe<OrderBy>;
   intermediary_bank_address?: Maybe<OrderBy>;
   intermediary_bank_name?: Maybe<OrderBy>;
+  is_bank_international?: Maybe<OrderBy>;
   is_cannabis_compliant?: Maybe<OrderBy>;
   is_deleted?: Maybe<OrderBy>;
   is_wire_intermediary?: Maybe<OrderBy>;
@@ -1374,6 +1378,8 @@ export enum BankAccountsSelectColumn {
   /** column name */
   IntermediaryBankName = "intermediary_bank_name",
   /** column name */
+  IsBankInternational = "is_bank_international",
+  /** column name */
   IsCannabisCompliant = "is_cannabis_compliant",
   /** column name */
   IsDeleted = "is_deleted",
@@ -1423,6 +1429,7 @@ export type BankAccountsSetInput = {
   intermediary_account_number?: Maybe<Scalars["String"]>;
   intermediary_bank_address?: Maybe<Scalars["String"]>;
   intermediary_bank_name?: Maybe<Scalars["String"]>;
+  is_bank_international?: Maybe<Scalars["Boolean"]>;
   is_cannabis_compliant?: Maybe<Scalars["Boolean"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
   is_wire_intermediary?: Maybe<Scalars["Boolean"]>;
@@ -1474,6 +1481,8 @@ export enum BankAccountsUpdateColumn {
   IntermediaryBankAddress = "intermediary_bank_address",
   /** column name */
   IntermediaryBankName = "intermediary_bank_name",
+  /** column name */
+  IsBankInternational = "is_bank_international",
   /** column name */
   IsCannabisCompliant = "is_cannabis_compliant",
   /** column name */
@@ -30719,6 +30728,7 @@ export type BankAccountForVendorFragment = Pick<
   | "ach_default_memo"
   | "can_wire"
   | "is_wire_intermediary"
+  | "is_bank_international"
   | "intermediary_bank_name"
   | "intermediary_bank_address"
   | "intermediary_account_name"
@@ -31820,7 +31830,11 @@ export type CompanyLicenseLimitedAnonymousFragment = Pick<
 
 export type BankAccountLimitedFragment = Pick<
   BankAccounts,
-  "id" | "is_cannabis_compliant" | "verified_at" | "verified_date"
+  | "id"
+  | "is_cannabis_compliant"
+  | "is_bank_international"
+  | "verified_at"
+  | "verified_date"
 > &
   BankAccountForVendorFragment;
 
@@ -32798,6 +32812,7 @@ export const BankAccountForVendorFragmentDoc = gql`
     ach_default_memo
     can_wire
     is_wire_intermediary
+    is_bank_international
     intermediary_bank_name
     intermediary_bank_address
     intermediary_account_name
@@ -32813,6 +32828,7 @@ export const BankAccountLimitedFragmentDoc = gql`
   fragment BankAccountLimited on bank_accounts {
     id
     is_cannabis_compliant
+    is_bank_international
     verified_at
     verified_date
     ...BankAccountForVendor

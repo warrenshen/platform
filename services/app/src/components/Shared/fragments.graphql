@@ -126,6 +126,7 @@ fragment BankAccountForVendor on bank_accounts {
 
   can_wire
   is_wire_intermediary
+  is_bank_international
   intermediary_bank_name
   intermediary_bank_address
   intermediary_account_name

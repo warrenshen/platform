@@ -18,6 +18,7 @@ BankAccountInputDict = TypedDict('BankAccountInputDict', {
 	'ach_default_memo': str,
 	'can_wire': bool,
 	'is_wire_intermediary': bool,
+	'is_bank_international': bool,
 	'intermediary_bank_name': str,
 	'intermediary_bank_address': str, 
 	'intermediary_account_name': str, 
@@ -119,6 +120,7 @@ def add_bank_account(
 		ach_default_memo = bank_account_input['ach_default_memo'],
 		can_wire = bank_account_input['can_wire'],
 		is_wire_intermediary = bank_account_input['is_wire_intermediary'],
+		is_bank_international = bank_account_input['is_bank_international'],
 		intermediary_bank_name = bank_account_input['intermediary_bank_name'],
 		intermediary_bank_address = bank_account_input['intermediary_bank_address'], 
 		intermediary_account_name = bank_account_input['intermediary_account_name'], 
@@ -199,6 +201,7 @@ def update_bank_account(
 	existing_bank_account.ach_default_memo = bank_account_input['ach_default_memo']
 	existing_bank_account.can_wire = bool(bank_account_input['can_wire'])
 	existing_bank_account.is_wire_intermediary = bool(bank_account_input['is_wire_intermediary'])
+	existing_bank_account.is_bank_international = bool(bank_account_input['is_bank_international'])
 	existing_bank_account.intermediary_bank_name = bank_account_input['intermediary_bank_name']
 	existing_bank_account.intermediary_bank_address = bank_account_input['intermediary_bank_address']
 	existing_bank_account.intermediary_account_name = bank_account_input['intermediary_account_name']
