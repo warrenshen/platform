@@ -28,6 +28,7 @@ import {
   ProductTypeEnum,
   ReadyNewPurchaseOrderStatuses,
 } from "lib/enum";
+import { partition } from "lodash";
 import { useContext, useMemo, useState } from "react";
 import styled from "styled-components";
 
@@ -146,14 +147,19 @@ export default function CustomerPurchaseOrdersOpenTabNew({
     [purchaseOrders, selectedApprovedPurchaseOrderIds]
   );
 
-  const approvedPurchaseOrders = useMemo(
-    () => purchaseOrders.filter((purchaseOrder) => !!purchaseOrder.approved_at),
-    [purchaseOrders]
-  );
-  const notApprovedPurchaseOrders = useMemo(
-    () => purchaseOrders.filter((purchaseOrder) => !purchaseOrder.approved_at),
-    [purchaseOrders]
-  );
+  const [approvedPurchaseOrders, notApprovedPurchaseOrders] = useMemo(() => {
+    if (purchaseOrders) {
+      return partition(
+        purchaseOrders,
+        (purchaseOrder) =>
+          purchaseOrder.new_purchase_order_status &&
+          ReadyNewPurchaseOrderStatuses.includes(
+            purchaseOrder.new_purchase_order_status as NewPurchaseOrderStatus
+          )
+      );
+    }
+    return [[], []];
+  }, [purchaseOrders]);
 
   const [
     isArchiveModalOpenForNotApprovedPurchaseOrders,
