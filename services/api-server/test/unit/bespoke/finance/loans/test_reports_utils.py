@@ -457,8 +457,6 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 		seed = test_helper.BasicSeed.create(self.session_maker, self)
 		seed.initialize()
 
-		company_id = seed.get_company_id('company_admin', index=0)
-
 		with session_scope(self.session_maker) as session:
 			self._add_summary_for_company(session, seed.get_company_id('company_admin', index=0), ProductType.INVENTORY_FINANCING)
 			self._add_summary_for_company(session, seed.get_company_id('company_admin', index=1), ProductType.LINE_OF_CREDIT)
@@ -471,9 +469,11 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 			count = session.query(models.FinancialSummary).filter(models.FinancialSummary.needs_recompute == True).count()
 			self.assertEqual(count, 0)
 
+		company_one_id = seed.get_company_id('company_admin', index=0)
+
 		with session_scope(self.session_maker) as session:
 			reports_util.set_needs_balance_recomputed(
-				company_ids=[seed.get_company_id('company_admin', index=0)],
+				company_ids=[company_one_id],
 				cur_date=TODAY,
 				create_if_missing=True,
 				days_to_compute_back=14,
@@ -489,7 +489,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 
 		with session_scope(self.session_maker) as session:
 			reports_util.set_needs_balance_recomputed(
-				company_ids=[seed.get_company_id('company_admin', index=0)],
+				company_ids=[company_one_id],
 				cur_date=TODAY + timedelta(days=1),
 				create_if_missing=True,
 				days_to_compute_back=14,
@@ -502,7 +502,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 		with session_scope(self.session_maker) as session:
 			# We already created TODAY + 1day for company index=0, so one more gets added for index=1
 			reports_util.set_needs_balance_recomputed(
-				company_ids=[seed.get_company_id('company_admin', index=0), seed.get_company_id('company_admin', index=1)],
+				company_ids=[company_one_id, seed.get_company_id('company_admin', index=1)],
 				cur_date=TODAY + timedelta(days=1),
 				create_if_missing=True,
 				days_to_compute_back=14,
@@ -514,6 +514,72 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 
 		with session_scope(self.session_maker) as session:
 			compute_requests = reports_util.list_financial_summaries_that_need_balances_recomputed(session, today=TODAY, amount_to_fetch=2)
-		self.assertEqual(seed.get_company_id('company_admin', index=0), compute_requests[0]['company_id'])
-		self.assertEqual(seed.get_company_id('company_admin', index=0), compute_requests[0]['company']['id'])
+		self.assertEqual(company_one_id, compute_requests[0]['company_id'])
+		self.assertEqual(company_one_id, compute_requests[0]['company']['id'])
 		
+	def test_set_needs_balance_recomputed_skips_correct_financial_summaries(self) -> None:
+		self.reset()
+		seed = test_helper.BasicSeed.create(self.session_maker, self)
+		seed.initialize()
+
+		with session_scope(self.session_maker) as session:
+			self._add_summary_for_company(session, seed.get_company_id('company_admin', index=0), ProductType.INVENTORY_FINANCING)
+			self._add_summary_for_company(session, seed.get_company_id('company_admin', index=1), ProductType.LINE_OF_CREDIT)
+			self._add_summary_for_company(session, seed.get_company_id('company_admin', index=2), ProductType.INVOICE_FINANCING)
+			self._add_summary_for_company(session, seed.get_company_id('company_admin', index=3), ProductType.PURCHASE_MONEY_FINANCING)
+
+			count = session.query(models.FinancialSummary).count()
+			self.assertEqual(count, 8) # 4 today, 4 we created that were for future dates
+
+			count = session.query(models.FinancialSummary).filter(models.FinancialSummary.needs_recompute == True).count()
+			self.assertEqual(count, 0)
+
+		company_one_id = seed.get_company_id('company_admin', index=0)
+
+		with session_scope(self.session_maker) as session:
+			reports_util.set_needs_balance_recomputed(
+				company_ids=[company_one_id],
+				cur_date=TODAY,
+				create_if_missing=True,
+				days_to_compute_back=7,
+				session=session
+			)
+		
+		with session_scope(self.session_maker) as session:
+			count = session.query(models.FinancialSummary).filter(models.FinancialSummary.needs_recompute == True).count()
+			self.assertEqual(1, count)
+
+			financial_summary = session.query(models.FinancialSummary).filter(models.FinancialSummary.needs_recompute == True).first()
+			self.assertEqual(7, financial_summary.days_to_compute_back)
+
+		with session_scope(self.session_maker) as session:
+			reports_util.set_needs_balance_recomputed(
+				company_ids=[company_one_id],
+				cur_date=TODAY,
+				create_if_missing=True,
+				days_to_compute_back=0,
+				session=session
+			)
+		
+		with session_scope(self.session_maker) as session:
+			count = session.query(models.FinancialSummary).filter(models.FinancialSummary.needs_recompute == True).count()
+			self.assertEqual(1, count)
+
+			financial_summary = session.query(models.FinancialSummary).filter(models.FinancialSummary.needs_recompute == True).first()
+			self.assertEqual(7, financial_summary.days_to_compute_back)
+
+		with session_scope(self.session_maker) as session:
+			reports_util.set_needs_balance_recomputed(
+				company_ids=[company_one_id],
+				cur_date=TODAY,
+				create_if_missing=True,
+				days_to_compute_back=14,
+				session=session
+			)
+		
+		with session_scope(self.session_maker) as session:
+			count = session.query(models.FinancialSummary).filter(models.FinancialSummary.needs_recompute == True).count()
+			self.assertEqual(1, count)
+
+			financial_summary = session.query(models.FinancialSummary).filter(models.FinancialSummary.needs_recompute == True).first()
+			self.assertEqual(14, financial_summary.days_to_compute_back)

@@ -13,6 +13,8 @@ from bespoke.db.models import session_scope
 from bespoke.finance import financial_summary_util, number_util, contract_util
 from bespoke.finance.reports import loan_balances
 from bespoke.finance.reports.loan_balances import CustomerUpdateDict
+
+from sqlalchemy import or_, and_
 from sqlalchemy.orm.session import Session
 
 DAYS_TO_COMPUTE_BACK = 14
@@ -64,6 +66,25 @@ def set_needs_balance_recomputed(
 	create_if_missing: bool, 
 	days_to_compute_back: int, 
 ) -> Tuple[bool, errors.Error]:
+	# Case 1: existing financial_summary.needs_recompute = False -> update is necessary
+	# Case 2: existing financial_summary.needs_recompute = True -> update is necessary ONLY IF existing financial_summary.days_to_compute_back < days_to_compute_back
+	# If neither of the above two cases is true, then we do not need to update the financial summary and thus we do not need to fetch it from the database.
+	# financial_summaries = cast(
+	# 	List[models.FinancialSummary],
+	# 	session.query(models.FinancialSummary).filter(
+	# 		models.FinancialSummary.company_id.in_(company_ids)
+	# 	).filter(
+	# 		models.FinancialSummary.date == cur_date
+	# 	).filter(
+	# 		 or_(
+	# 			models.FinancialSummary.needs_recompute == False,
+	# 			and_(
+	# 				models.FinancialSummary.needs_recompute == True,
+	# 				models.FinancialSummary.days_to_compute_back < days_to_compute_back
+	# 			),
+	# 		)
+	# 	).all())
+
 	financial_summaries = cast(
 		List[models.FinancialSummary], 
 		session.query(models.FinancialSummary).filter(
@@ -103,7 +124,6 @@ def set_needs_balance_recomputed(
 					account_level_balance_payload={},
 				)
 				session.add(financial_summary)
-
 	else:	
 		if not financial_summaries:
 			return None, errors.Error(
@@ -113,8 +133,18 @@ def set_needs_balance_recomputed(
 			return None, errors.Error('Failed to find all financial summaries associated with company_ids {} on {}'.format(company_ids, cur_date))
 
 	for financial_summary in financial_summaries:
-		financial_summary.needs_recompute = True
-		financial_summary.days_to_compute_back = days_to_compute_back
+	# 		 or_(
+	# 			models.FinancialSummary.needs_recompute == False,
+	# 			and_(
+	# 				models.FinancialSummary.needs_recompute == True,
+	# 				models.FinancialSummary.days_to_compute_back < days_to_compute_back
+	# 			),
+		if (
+			not financial_summary.needs_recompute or
+			(financial_summary.needs_recompute and financial_summary.days_to_compute_back < days_to_compute_back)
+		):
+			financial_summary.needs_recompute = True
+			financial_summary.days_to_compute_back = days_to_compute_back
 
 	return True, None
 
@@ -401,14 +431,17 @@ def compute_and_update_bank_financial_summaries(
 	return None
 
 def list_financial_summaries_that_need_balances_recomputed(
-	session: Session, 
+	session: Session,
 	today: datetime.date, 
 	amount_to_fetch: int
 ) -> List[ComputeSummaryRequest]:
 	# Prioritize the financial summaries that calculate today's balances first
 	financial_summaries = session.query(models.FinancialSummary).filter(
 		models.FinancialSummary.needs_recompute == True
-	).filter(models.FinancialSummary.date == today
+	).filter(
+		models.FinancialSummary.date == today
+	).order_by(
+		models.FinancialSummary.updated_at.asc()
 	).limit(amount_to_fetch).all()
 
 	# creates a ComputeSummaryRequest from all the financial summaries
