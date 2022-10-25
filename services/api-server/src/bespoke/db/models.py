@@ -1187,7 +1187,7 @@ class FinancialSummary(Base):
 	company_id = Column(GUID, nullable=False)
 	date = Column(Date)
 
-	# created_at = Column(DateTime, default=datetime.datetime.utcnow)
+	created_at = Column(DateTime, default=datetime.datetime.utcnow)
 	updated_at = Column(DateTime, default=datetime.datetime.utcnow)
 
 	total_outstanding_principal = Column(Numeric, nullable=False)
