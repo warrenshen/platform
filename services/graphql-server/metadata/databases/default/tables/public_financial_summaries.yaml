@@ -39,8 +39,6 @@ select_permissions:
         - most_overdue_loan_days
         - late_fees_accrued_today
         - loans_info
-        - interest_accrued_today_adjustment
-        - late_fees_accrued_today_adjustment
         - created_at
       filter: {}
   - role: bank_read_only
@@ -57,9 +55,7 @@ select_permissions:
         - available_limit
         - daily_interest_rate
         - interest_accrued_today
-        - interest_accrued_today_adjustment
         - late_fees_accrued_today
-        - late_fees_accrued_today_adjustment
         - minimum_interest_amount
         - minimum_interest_remaining
         - total_amount_to_pay_interest_on
