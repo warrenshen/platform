@@ -1179,6 +1179,60 @@ class CloseView(MethodView):
 			'msg': 'Purchase Order {} closed'.format(purchase_order_id)
 		}), 200)
 
+
+class ArchiveMultipleView(MethodView):
+	decorators = [auth_util.login_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		data = json.loads(request.data)
+		if not data:
+			raise errors.Error('No data provided')
+
+		purchase_order_ids = data['purchase_order_ids']
+
+		if not purchase_order_ids:
+			raise errors.Error('No Purchase Order ID provided')
+
+		user_session = auth_util.UserSession.from_session()
+		user_id = user_session.get_user_id()
+
+		with session_scope(current_app.session_maker) as session:
+			purchase_orders, err = queries.get_purchase_orders(
+				session,
+				purchase_order_ids,
+			)
+			if err:
+				raise err
+
+			for purchase_order in purchase_orders:
+				if not user_session.is_bank_or_this_company_admin(str(purchase_order.company_id)):
+					return handler_util.make_error_response('Access Denied')
+
+				purchase_order.closed_at = date_util.now()
+				purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.ARCHIVED
+
+				user, err = queries.get_user_by_id(
+					session,
+					user_id,
+				)
+				if err:
+					raise err
+
+				purchase_orders_util.update_purchase_order_history(
+					purchase_order = purchase_order,
+					user_id = user_id,
+					user_full_name = user.full_name,
+					action = "PO archived",
+					new_status = NewPurchaseOrderStatus.ARCHIVED
+				)
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': 'Purchase orders with ids {} closed'.format(purchase_order_ids)
+		}), 200)
+
+
 class ReopenView(MethodView):
 	decorators = [auth_util.login_required]
 
@@ -1607,6 +1661,11 @@ handler.add_url_rule(
 handler.add_url_rule(
 	'/close',
 	view_func=CloseView.as_view(name='close')
+)
+
+handler.add_url_rule(
+	'/archive_multiple',
+	view_func=ArchiveMultipleView.as_view(name='archive_multiple')
 )
 
 handler.add_url_rule(

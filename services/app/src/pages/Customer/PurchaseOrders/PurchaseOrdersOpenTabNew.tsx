@@ -1,4 +1,5 @@
 import { Box, Theme, createStyles, makeStyles } from "@material-ui/core";
+import ArchivePurchaseOrderModalMultiple from "components/PurchaseOrder/v2/ArchivePurchaseOrderModalMultiple";
 import ArchivePurchaseOrderModalNew from "components/PurchaseOrder/v2/ArchivePurchaseOrderModalNew";
 import CreateUpdatePurchaseOrderModalNew from "components/PurchaseOrder/v2/CreateUpdatePurchaseOrderModalNew";
 import ManagePurchaseOrderFinancingModal from "components/PurchaseOrder/v2/ManagePurchaseOrderFinancingModal";
@@ -169,6 +170,8 @@ export default function CustomerPurchaseOrdersOpenTabNew({
     isArchiveModalOpenForApprovedPurchaseOrders,
     setIsArchiveModalOpenForApprovedPurchaseOrders,
   ] = useState(false);
+  const [isArchiveModalMultipleOpen, setIsArchiveModalMultipleOpen] =
+    useState(false);
   const [
     isCreateUpdateModalOpenForNotApprovedPurchaseOrders,
     setIsCreateUpdateModalOpenForNotApprovedPurchaseOrders,
@@ -245,6 +248,28 @@ export default function CustomerPurchaseOrdersOpenTabNew({
             refetchPurchaseOrders();
             setSelectedApprovedPurchaseOrdersMap({});
             setIsArchiveModalOpenForApprovedPurchaseOrders(false);
+          }}
+        />
+      )}
+      {isArchiveModalMultipleOpen && (
+        <ArchivePurchaseOrderModalMultiple
+          purchaseOrderIds={[
+            ...selectedApprovedPurchaseOrderIds,
+            ...selectedNotApprovedPurchaseOrderIds,
+          ]}
+          purchaseOrderNumbers={purchaseOrders
+            .filter((purchaseOrder) =>
+              [
+                ...selectedApprovedPurchaseOrderIds,
+                ...selectedNotApprovedPurchaseOrderIds,
+              ].includes(purchaseOrder.id)
+            )
+            .map((purchaseOrder) => purchaseOrder.order_number)}
+          handleClose={() => {
+            refetchPurchaseOrders();
+            setSelectedApprovedPurchaseOrdersMap({});
+            setSelectedNotApprovedPurchaseOrdersMap({});
+            setIsArchiveModalMultipleOpen(false);
           }}
         />
       )}
@@ -349,12 +374,15 @@ export default function CustomerPurchaseOrdersOpenTabNew({
                 <SecondaryButton
                   dataCy={"archive-not-ready-po-button"}
                   isDisabled={
-                    !selectedNotApprovedPurchaseOrder || !isActiveContract
+                    selectedApprovedPurchaseOrderIds.length === 0 ||
+                    !isActiveContract
                   }
                   text={"Archive"}
-                  onClick={() =>
-                    setIsArchiveModalOpenForNotApprovedPurchaseOrders(true)
-                  }
+                  onClick={() => {
+                    selectedApprovedPurchaseOrder
+                      ? setIsArchiveModalOpenForNotApprovedPurchaseOrders(true)
+                      : setIsArchiveModalMultipleOpen(true);
+                  }}
                 />
               </Can>
             )}
@@ -462,12 +490,15 @@ export default function CustomerPurchaseOrdersOpenTabNew({
                   <SecondaryButton
                     dataCy={"archive-ready-po-button"}
                     isDisabled={
-                      !selectedApprovedPurchaseOrder || !isActiveContract
+                      selectedApprovedPurchaseOrderIds.length === 0 ||
+                      !isActiveContract
                     }
                     text={"Archive"}
-                    onClick={() =>
-                      setIsArchiveModalOpenForApprovedPurchaseOrders(true)
-                    }
+                    onClick={() => {
+                      selectedApprovedPurchaseOrder
+                        ? setIsArchiveModalOpenForApprovedPurchaseOrders(true)
+                        : setIsArchiveModalMultipleOpen(true);
+                    }}
                   />
                 </Can>
               )}

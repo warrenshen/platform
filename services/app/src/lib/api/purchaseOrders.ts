@@ -421,6 +421,30 @@ export async function closePurchaseOrderMutation(
     );
 }
 
+export type ClosePurchaseOrderMultipleReq = {
+  variables: {
+    purchase_order_ids: PurchaseOrders["id"][];
+  };
+};
+
+export async function archivePurchaseOrderMultipleMutation(
+  req: ClosePurchaseOrderMultipleReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(purchaseOrdersRoutes.archiveMultiple, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.error(error);
+        return {
+          status: "ERROR",
+          msg: "Could not close purchase order",
+        };
+      }
+    );
+}
+
 export type ReopenPurchaseOrderReq = {
   variables: {
     purchase_order_id: PurchaseOrders["id"];

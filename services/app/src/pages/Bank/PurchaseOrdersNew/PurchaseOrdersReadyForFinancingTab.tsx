@@ -1,6 +1,7 @@
 import { Box, InputAdornment, TextField, Typography } from "@material-ui/core";
 import ReviewPurchaseOrderRejectModalNew from "components/PurchaseOrder/ReviewPurchaseOrderRejectModalNew";
 import ReviewPurchaseOrderRequestChangesModal from "components/PurchaseOrder/ReviewPurchaseOrderRequestChangesModal";
+import ArchivePurchaseOrderModalMultiple from "components/PurchaseOrder/v2/ArchivePurchaseOrderModalMultiple";
 import ArchivePurchaseOrderModalNew from "components/PurchaseOrder/v2/ArchivePurchaseOrderModalNew";
 import BankPurchaseOrdersDataGridNew from "components/PurchaseOrder/v2/BankPurchaseOrdersDataGridNew";
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
@@ -29,6 +30,8 @@ export default function BankPurchaseOrdersReadyForFinancingTab() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
+  const [isArchiveModalMultipleOpen, setIsArchiveModalMultipleOpen] =
+    useState(false);
   const [isRequestChangesModalOpen, setIsRequestChangesModalOpen] =
     useState(false);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
@@ -93,6 +96,21 @@ export default function BankPurchaseOrdersReadyForFinancingTab() {
           }}
         />
       )}
+      ,
+      {isArchiveModalMultipleOpen && (
+        <ArchivePurchaseOrderModalMultiple
+          purchaseOrderIds={selectedPurchaseOrderIds}
+          purchaseOrderNumbers={purchaseOrders
+            .filter((purchaseOrder) =>
+              selectedPurchaseOrderIds.includes(purchaseOrder.id)
+            )
+            .map((purchaseOrder) => purchaseOrder.order_number)}
+          handleClose={() => {
+            setSelectedPurchaseOrderIds([]);
+            setIsArchiveModalMultipleOpen(false);
+          }}
+        />
+      )}
       {!!selectedPurchaseOrder && isRequestChangesModalOpen && (
         <ReviewPurchaseOrderRequestChangesModal
           purchaseOrderId={selectedPurchaseOrder.id}
@@ -136,9 +154,13 @@ export default function BankPurchaseOrdersReadyForFinancingTab() {
           <Box mr={2} />
           <Can perform={Action.ArchivePurchaseOrders}>
             <SecondaryButton
-              isDisabled={!selectedPurchaseOrder}
+              isDisabled={selectedPurchaseOrderIds.length === 0}
               text={"Archive"}
-              onClick={() => setIsArchiveModalOpen(true)}
+              onClick={() => {
+                selectedPurchaseOrderIds.length === 1
+                  ? setIsArchiveModalOpen(true)
+                  : setIsArchiveModalMultipleOpen(true);
+              }}
             />
           </Can>
         </Box>

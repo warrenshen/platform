@@ -126,6 +126,7 @@ export const purchaseOrdersRoutes = {
   delete: "/purchase_orders/delete",
   close: "/purchase_orders/close",
   reopen: "/purchase_orders/reopen",
+  archiveMultiple: "/purchase_orders/archive_multiple",
 };
 
 export const invoicesRoutes = {
