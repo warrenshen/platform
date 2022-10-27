@@ -11,12 +11,12 @@ import { useFilterUserByCompanyName } from "hooks/useFilterUsers";
 import useSnackbar from "hooks/useSnackbar";
 import { customerRoutes } from "lib/routes";
 import { useContext, useMemo, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const ImpersonateBankUserArea = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const snackbar = useSnackbar();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { impersonateUser } = useContext(CurrentUserContext);
   const {
     user: { role },
@@ -59,7 +59,7 @@ const ImpersonateBankUserArea = () => {
     if (errorMsg) {
       return snackbar.showError("Could not impersonate user: ", errorMsg);
     }
-    history.push(customerRoutes.overview);
+    navigate(customerRoutes.overview);
   };
 
   return (

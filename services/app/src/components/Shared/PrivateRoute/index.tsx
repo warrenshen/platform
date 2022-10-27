@@ -10,14 +10,15 @@ import {
 import { ProductTypeEnum } from "lib/enum";
 import { routes } from "lib/routes";
 import { useContext, useEffect } from "react";
-import { Redirect, Route, RouteProps } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 interface Props {
+  children: React.ReactNode;
   requiredRoles: Array<UserRolesEnum>;
 }
 
-export default function PrivateRoute(props: Props & RouteProps) {
-  const { children, component, ...rest } = props;
+export default function PrivateRoute(props: Props) {
+  const { children } = props;
   const {
     user: { companyId, role },
     setUserProductType,
@@ -82,23 +83,5 @@ export default function PrivateRoute(props: Props & RouteProps) {
     setUserIsActiveContract,
   ]);
 
-  return (
-    <Route
-      {...rest}
-      render={({ location }) =>
-        shouldRender ? (
-          children
-        ) : (
-          <Redirect
-            to={{
-              pathname: routes.signIn,
-              state: {
-                from: canVisitRoute ? location : routes.root,
-              },
-            }}
-          />
-        )
-      }
-    />
-  );
+  return <>{shouldRender ? children : <Navigate to={routes.signIn} />}</>;
 }

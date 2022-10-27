@@ -1,5 +1,4 @@
 import { Box } from "@material-ui/core";
-import { RowsProp } from "@material-ui/data-grid";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
 import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
@@ -22,7 +21,7 @@ interface Props {
   handleSelectFinancingRequests?: (loans: LoanFragment[]) => void;
 }
 
-function getRows(financingRequests: LoanLimitedFragment[]): RowsProp {
+function getRows(financingRequests: LoanLimitedFragment[]) {
   return financingRequests.map((financingRequest) => {
     return formatRowModel({
       ...financingRequest,

@@ -1,4 +1,4 @@
-import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import DataGridActionMenu, {
   DataGridActionItem,
@@ -28,7 +28,7 @@ interface Props {
   handleSelectRequests?: (requests: any[]) => void;
 }
 
-function getRows(requests: any[]): RowsProp {
+function getRows(requests: any[]) {
   return requests.map((request) => ({
     ...request,
     category: !!request?.category ? request.category : "",
@@ -75,7 +75,7 @@ export default function PartnershipsDataGrid({
         caption: "Action",
         alignment: "center",
         width: 80,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <DataGridActionMenu params={params} actionItems={actionItems} />
         ),
       },

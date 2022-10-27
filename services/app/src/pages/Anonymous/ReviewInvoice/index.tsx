@@ -18,7 +18,7 @@ import { FileTypeEnum } from "lib/enum";
 import { formatCurrency } from "lib/number";
 import { anonymousRoutes } from "lib/routes";
 import { useMemo, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 import ReviewInvoiceApproveModal from "./ReviewInvoiceApproveModal";
@@ -69,7 +69,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default function ReviewInvoicePage(props: Props) {
   const classes = useStyles();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const location: any = props.location;
   const payload = location.state?.payload;
@@ -122,7 +122,7 @@ export default function ReviewInvoicePage(props: Props) {
   ) {
     // If the invoice was already reviewed, redirect the user to the complete page.
     // This is so the user cannot re-review an already reviewed invoice.
-    history.replace(anonymousRoutes.reviewInvoiceComplete);
+    navigate(anonymousRoutes.reviewInvoiceComplete, { replace: true });
   }
 
   const isDataReady = !isInvoiceLoading && !error;
@@ -258,7 +258,7 @@ export default function ReviewInvoicePage(props: Props) {
                   linkVal={linkVal}
                   handleClose={() => setIsApproveModalOpen(false)}
                   handleApproveSuccess={() => {
-                    history.push({
+                    navigate({
                       pathname: anonymousRoutes.reviewInvoiceComplete,
                     });
                   }}
@@ -270,7 +270,7 @@ export default function ReviewInvoicePage(props: Props) {
                   linkVal={linkVal}
                   handleClose={() => setIsRejectModalOpen(false)}
                   handleRejectSuccess={() =>
-                    history.push({
+                    navigate({
                       pathname: anonymousRoutes.reviewInvoiceComplete,
                     })
                   }

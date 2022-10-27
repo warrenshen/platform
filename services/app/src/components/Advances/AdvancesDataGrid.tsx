@@ -1,4 +1,4 @@
-import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
@@ -18,9 +18,7 @@ type PaymentWithFinancialSummary = PaymentFragment & {
   };
 };
 
-function getRows(
-  payments: (PaymentFragment | PaymentWithFinancialSummary)[]
-): RowsProp {
+function getRows(payments: (PaymentFragment | PaymentWithFinancialSummary)[]) {
   return payments.map((payment) => {
     return {
       ...payment,
@@ -64,7 +62,7 @@ export default function AdvancesDataGrid({
         caption: "Customer Name",
         dataField: "company.name",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <ClickableDataGridCell
             label={params.row.data.company.name}
             onClick={() => handleClickCustomer(params.row.data.company.name)}
@@ -87,7 +85,7 @@ export default function AdvancesDataGrid({
         dataField: "amount",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.amount} />
         ),
       },
@@ -101,7 +99,7 @@ export default function AdvancesDataGrid({
         dataField: "payment_date",
         width: ColumnWidths.Date,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <DateDataGridCell dateString={params.row.data.payment_date} />
         ),
       },
@@ -110,7 +108,7 @@ export default function AdvancesDataGrid({
         dataField: "deposit_date",
         width: ColumnWidths.Date,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <DateDataGridCell dateString={params.row.data.deposit_date} />
         ),
       },
@@ -119,7 +117,7 @@ export default function AdvancesDataGrid({
         dataField: "settlement_date",
         width: ColumnWidths.Date,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <DateDataGridCell dateString={params.row.data.settlement_date} />
         ),
       },

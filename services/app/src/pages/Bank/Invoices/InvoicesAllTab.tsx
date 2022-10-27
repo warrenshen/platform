@@ -12,10 +12,10 @@ import { Action } from "lib/auth/rbac-rules";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { filter } from "lodash";
 import { useMemo, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function BankInvoicesAllTab() {
-  const history = useHistory();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedInvoiceIds, setSelectedInvoiceIds] = useState<Invoices["id"]>(
     []
@@ -103,7 +103,7 @@ export default function BankInvoicesAllTab() {
           invoices={invoices}
           selectedInvoiceIds={selectedInvoiceIds}
           handleClickCustomer={(customerId) =>
-            history.push(
+            navigate(
               getBankCompanyRoute(customerId, BankCompanyRouteEnum.Invoices)
             )
           }

@@ -1,4 +1,4 @@
-import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import DatetimeDataGridCell from "components/Shared/DataGrid/DatetimeDataGridCell";
 import {
@@ -21,7 +21,7 @@ interface Props {
   ) => void;
 }
 
-function getRows(requests: any[]): RowsProp {
+function getRows(requests: any[]) {
   return requests.map((request) => ({
     ...request,
     name: request.metadata_info?.name ? request.metadata_info.name : "-",
@@ -71,7 +71,7 @@ export default function PartnershipsDataGrid({
         dataField: "requested_at",
         width: ColumnWidths.Datetime,
         alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <DatetimeDataGridCell
             isTimeVisible
             datetimeString={params.row.data.requested_at}
@@ -83,7 +83,7 @@ export default function PartnershipsDataGrid({
         dataField: "closed_at",
         width: ColumnWidths.Datetime,
         alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <DatetimeDataGridCell
             isTimeVisible
             datetimeString={params.row.data.closed_at}

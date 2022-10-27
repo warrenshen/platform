@@ -2,7 +2,7 @@ import { Box } from "@material-ui/core";
 import BankLoansDataGrid from "components/Loans/BankLoansDataGrid";
 import { useGetLoansForBankSubscription } from "generated/graphql";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -15,7 +15,7 @@ const Container = styled.div`
 `;
 
 export default function BankLoansAllTab() {
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const { data, error } = useGetLoansForBankSubscription();
 
@@ -36,7 +36,7 @@ export default function BankLoansAllTab() {
           isReportingVisible
           loans={loans}
           handleClickCustomer={(customerId) =>
-            history.push(
+            navigate(
               getBankCompanyRoute(customerId, BankCompanyRouteEnum.Loans)
             )
           }

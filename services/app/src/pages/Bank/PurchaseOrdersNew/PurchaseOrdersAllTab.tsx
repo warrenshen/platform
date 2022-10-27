@@ -9,10 +9,10 @@ import { SearchIcon } from "icons";
 import { ReadyNewPurchaseOrderStatuses } from "lib/enum";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useMemo, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function BankPurchaseOrdersAllTab() {
-  const history = useHistory();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
 
   const { data, error } = useGetPurchaseOrdersSubscription();
@@ -26,10 +26,10 @@ export default function BankPurchaseOrdersAllTab() {
 
   const handleClickCustomer = useMemo(
     () => (customerId: CustomerForBankFragment["id"]) =>
-      history.push(
+      navigate(
         getBankCompanyRoute(customerId, BankCompanyRouteEnum.PurchaseOrders)
       ),
-    [history]
+    [navigate]
   );
 
   return (

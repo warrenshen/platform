@@ -1,5 +1,5 @@
 import { Box, Typography } from "@material-ui/core";
-import { ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import { Alert } from "@material-ui/lab";
 import MinimumInterestFeesDataGrid from "components/Fee/MinimumInterestFeesDataGrid";
 import DateInput from "components/Shared/FormInputs/DateInput";
@@ -156,7 +156,7 @@ export default function CreateMinimumInterestFeesModal({ handleClose }: Props) {
                 {
                   key: "remove",
                   label: "Remove",
-                  handleClick: (params: ValueFormatterParams) => {
+                  handleClick: (params: GridValueFormatterParams) => {
                     const companyId = params.row.data.id;
                     const newMinimumInterestFeesDuePayload = Object.assign(
                       {},

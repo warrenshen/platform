@@ -1,4 +1,3 @@
-import { RowsProp } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CSS from "csstype";
 import { BankFinancialSummaryFragment } from "generated/graphql";
@@ -36,9 +35,7 @@ function DefineCellStyle(col: Number) {
   return cellStyle;
 }
 
-function getRows(
-  bankFinancialSummaries: BankFinancialSummaryFragment[]
-): RowsProp {
+function getRows(bankFinancialSummaries: BankFinancialSummaryFragment[]) {
   return bankFinancialSummaries.map((bankFinancialSummary) => {
     return formatRowModel({
       ...bankFinancialSummary,

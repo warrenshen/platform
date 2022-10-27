@@ -22,7 +22,7 @@ import {
 import { Action } from "lib/auth/rbac-rules";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useMemo, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -54,7 +54,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default function BankRepaymentsActionRequiredTab() {
   const classes = useStyles();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const { data } = useGetSubmittedPaymentsSubscription();
 
@@ -181,7 +181,7 @@ export default function BankRepaymentsActionRequiredTab() {
             payments={notScheduledPayments}
             selectedPaymentIds={selectedSchedulePaymentIds}
             handleClickCustomer={(customerId) =>
-              history.push(
+              navigate(
                 getBankCompanyRoute(customerId, BankCompanyRouteEnum.Overview)
               )
             }
@@ -242,7 +242,7 @@ export default function BankRepaymentsActionRequiredTab() {
             payments={pendingReverseDraftPayments}
             selectedPaymentIds={selectedSettlePaymentIds}
             handleClickCustomer={(customerId) =>
-              history.push(
+              navigate(
                 getBankCompanyRoute(customerId, BankCompanyRouteEnum.Overview)
               )
             }
@@ -300,7 +300,7 @@ export default function BankRepaymentsActionRequiredTab() {
             payments={notifyPayments}
             selectedPaymentIds={selectedNotifyPaymentIds}
             handleClickCustomer={(customerId) =>
-              history.push(
+              navigate(
                 getBankCompanyRoute(customerId, BankCompanyRouteEnum.Overview)
               )
             }

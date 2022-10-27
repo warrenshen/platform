@@ -267,7 +267,7 @@ export default function FileUploadDropzone({
   }, []);
 
   const handleDropFiles = useCallback(
-    (acceptedFiles) => {
+    (acceptedFiles: any) => {
       if (maxFilesAllowed !== null && acceptedFiles.length > maxFilesAllowed) {
         setMessage(`Only ${maxFilesAllowed} file(s) may be uploaded!`);
       } else {

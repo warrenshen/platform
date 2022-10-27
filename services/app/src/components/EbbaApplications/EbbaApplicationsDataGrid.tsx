@@ -1,5 +1,5 @@
 import { Box, Button } from "@material-ui/core";
-import { ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import CommentIcon from "@material-ui/icons/Comment";
 import EbbaApplicationDrawer from "components/EbbaApplication/EbbaApplicationDrawer";
 import EbbaApplicationStatusChip from "components/EbbaApplication/EbbaApplicationStatusChip";
@@ -123,7 +123,7 @@ export default function EbbaApplicationsDataGrid({
         dataField: "id",
         caption: "",
         width: ColumnWidths.Open,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <ClickableDataGridCell
             onClick={() => setSelectedEbbaApplicationId(params.row.data.id)}
             label={"OPEN"}
@@ -135,7 +135,7 @@ export default function EbbaApplicationsDataGrid({
         dataField: "company_name",
         caption: "Customer Name",
         width: ColumnWidths.Comment,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <ClickableDataGridCell
             url={getBankCompanyRoute(
               params.row.data.company_id,
@@ -190,7 +190,7 @@ export default function EbbaApplicationsDataGrid({
         caption: "Status",
         width: ColumnWidths.Status,
         alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <EbbaApplicationStatusChip
             requestStatus={params.row.data.status as RequestStatusEnum}
           />
@@ -264,7 +264,7 @@ export default function EbbaApplicationsDataGrid({
         caption: "Accounts Receivable Balance",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <CurrencyDataGridCell
             value={params.row.data.monthly_accounts_receivable}
           />
@@ -323,7 +323,7 @@ export default function EbbaApplicationsDataGrid({
         dataField: "bank_note",
         width: 100,
         alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <Button
             color="default"
             variant="text"

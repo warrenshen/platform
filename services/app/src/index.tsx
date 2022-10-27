@@ -6,7 +6,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LicenseInfo } from "@mui/x-license-pro";
 import * as Sentry from "@sentry/react";
 import { SnackbarProvider } from "material-ui-snackbar-provider";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import { Helmet } from "react-helmet";
 
 import App from "./App";
@@ -24,7 +24,9 @@ if (!!process.env.REACT_APP_MUI_PRO_LICENSE) {
   LicenseInfo.setLicenseKey(process.env.REACT_APP_MUI_PRO_LICENSE);
 }
 
-ReactDOM.render(
+const container = document.getElementById("root");
+const root = createRoot(container!);
+root.render(
   <CurrentUserProvider>
     <Helmet>
       <script>
@@ -49,8 +51,7 @@ ReactDOM.render(
         </LocalizationProvider>
       </SnackbarProvider>
     </ApolloWrapper>
-  </CurrentUserProvider>,
-  document.getElementById("root")
+  </CurrentUserProvider>
 );
 
 // If you want to start measuring performance in your app, pass a function

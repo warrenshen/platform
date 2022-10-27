@@ -15,7 +15,7 @@ import { useGetUserMenuInfoQuery } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
 import { bankRoutes, customerRoutes, routes } from "lib/routes";
 import { useContext, useState } from "react";
-import { Link, useHistory } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 const LocationBanner = styled.div`
@@ -57,7 +57,7 @@ export default function UserMenu({ isLocationsPage }: Props) {
     signOut,
     undoImpersonation,
   } = useContext(CurrentUserContext);
-  const history = useHistory();
+  const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const { data, error } = useGetUserMenuInfoQuery({
@@ -91,7 +91,7 @@ export default function UserMenu({ isLocationsPage }: Props) {
     if (errorMsg) {
       return snackbar.showError("Could not undo impersonation: ", errorMsg);
     }
-    history.push(bankRoutes.settings);
+    navigate(bankRoutes.settings);
   };
 
   return (
@@ -100,7 +100,7 @@ export default function UserMenu({ isLocationsPage }: Props) {
         <LocationBanner>
           <LocationName>{company.name}</LocationName>
           <Button
-            onClick={() => history.push(customerRoutes.locations)}
+            onClick={() => navigate(customerRoutes.locations)}
             data-cy={"switch-location-button"}
           >
             <Switch>

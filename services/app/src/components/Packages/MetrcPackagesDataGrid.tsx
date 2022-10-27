@@ -1,4 +1,4 @@
-import { ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import MetrcPackageDrawerLauncher from "components/Packages/MetrcPackageDrawerLauncher";
 import MetrcPackageModal from "components/Packages/MetrcPackageModal";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
@@ -40,7 +40,7 @@ export default function MetrcPackagesDataGrid({
         dataField: "package_id",
         caption: "Package ID (Metrc)",
         width: ColumnWidths.MetrcId,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <MetrcPackageDrawerLauncher
             label={params.row.data.package_id}
             metrcPackageId={params.row.data.id}
@@ -52,7 +52,7 @@ export default function MetrcPackagesDataGrid({
         dataField: undefined,
         caption: "",
         width: 90,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <ModalButton
             label={"View"}
             color="default"
@@ -82,7 +82,7 @@ export default function MetrcPackagesDataGrid({
         dataField: "packaged_date",
         width: ColumnWidths.Date,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <DateDataGridCell dateString={params.row.data.packaged_date} />
         ),
       },
@@ -91,7 +91,7 @@ export default function MetrcPackagesDataGrid({
         dataField: "last_modified_at",
         width: ColumnWidths.Datetime,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <DatetimeDataGridCell
             isTimeVisible
             datetimeString={params.row.data.last_modified_at}

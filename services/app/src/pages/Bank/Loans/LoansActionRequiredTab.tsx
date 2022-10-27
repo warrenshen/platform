@@ -17,7 +17,7 @@ import { Action, check } from "lib/auth/rbac-rules";
 import { LoanStatusEnum } from "lib/enum";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useContext, useMemo, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -30,7 +30,7 @@ const Container = styled.div`
 `;
 
 export default function BankLoansActionRequiredTab() {
-  const history = useHistory();
+  const navigate = useNavigate();
   const snackbar = useSnackbar();
 
   const {
@@ -182,7 +182,7 @@ export default function BankLoansActionRequiredTab() {
           loans={loans}
           selectedLoanIds={selectedLoanIds}
           handleClickCustomer={(customerId) =>
-            history.push(
+            navigate(
               getBankCompanyRoute(customerId, BankCompanyRouteEnum.Loans)
             )
           }

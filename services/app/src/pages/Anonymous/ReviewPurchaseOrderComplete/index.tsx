@@ -5,7 +5,7 @@ import Text, { TextVariants } from "components/Shared/Text/Text";
 import { useGetVendorReviewablePurchaseOrdersQuery } from "generated/graphql";
 import { CheckIcon } from "icons";
 import { anonymousRoutes } from "lib/routes";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -32,7 +32,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 function ReviewPurchaseOrderCompletePage(props: any) {
   const classes = useStyles();
-  const history = useHistory();
+  const navigate = useNavigate();
   const vendorId = !!props?.history?.location?.state?.vendor_id
     ? props.history.location.state.vendor_id
     : null;
@@ -91,8 +91,7 @@ function ReviewPurchaseOrderCompletePage(props: any) {
                   dataCy={`purchase-order-review-card${index}`}
                   purchaseOrder={purchaseOrder}
                   handleClick={() => {
-                    history.push({
-                      pathname: anonymousRoutes.reviewPurchaseOrderNew,
+                    navigate(anonymousRoutes.reviewPurchaseOrderNew, {
                       state: {
                         payload: {
                           purchase_order_id: purchaseOrder.id,

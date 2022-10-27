@@ -1,4 +1,4 @@
-import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import CustomerSurveillanceStatusChip from "components/CustomerSurveillance/CustomerSurveillanceStatusChip";
 import DebtFacilityCompanyStatusChip from "components/Shared/Chip/DebtFacilityCompanyStatusChip";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
@@ -54,7 +54,7 @@ function getApplicationDate(company: CustomersWithMetadataFragment) {
   return !!applicationDate ? parseDateStringServer(applicationDate) : null;
 }
 
-function getRows(customers: CustomersWithMetadataFragment[]): RowsProp {
+function getRows(customers: CustomersWithMetadataFragment[]) {
   return customers.map((company) => {
     return formatRowModel({
       ...company,
@@ -180,7 +180,7 @@ export default function CustomersDataGrid({
           valueExpr: "debt_facility_status",
           displayExpr: "label",
         },
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <DebtFacilityCompanyStatusChip
             debtFacilityCompanyStatus={params.row.data.debt_facility_status}
           />
@@ -207,7 +207,7 @@ export default function CustomersDataGrid({
           valueExpr: "surveillance_status",
           displayExpr: "label",
         },
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <CustomerSurveillanceStatusChip
             surveillanceStatus={params.row.data.surveillance_status}
           />

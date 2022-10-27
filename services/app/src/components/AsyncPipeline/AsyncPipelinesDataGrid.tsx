@@ -1,4 +1,4 @@
-import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import DatetimeDataGridCell from "components/Shared/DataGrid/DatetimeDataGridCell";
@@ -16,7 +16,7 @@ interface Props {
   handleClickAsyncPipeline: (asyncPipelineId: AsyncPipelines["id"]) => void;
 }
 
-function getRows(asyncPipelines: any[]): RowsProp {
+function getRows(asyncPipelines: any[]) {
   return asyncPipelines.map((asyncPipeline) => ({
     ...asyncPipeline,
   }));
@@ -36,7 +36,7 @@ export default function AsyncPipelinesDataGrid({
         dataField: "id",
         caption: "Platform ID",
         width: 140,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <ClickableDataGridCell
             onClick={() => handleClickAsyncPipeline(params.row.data.id)}
             label={params.row.data.id}
@@ -47,7 +47,7 @@ export default function AsyncPipelinesDataGrid({
         dataField: "created_at",
         caption: "Created At",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <DatetimeDataGridCell
             isTimeVisible
             datetimeString={params.row.data.created_at}
@@ -58,7 +58,7 @@ export default function AsyncPipelinesDataGrid({
         dataField: "updated_at",
         caption: "Updated At",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <DatetimeDataGridCell
             isTimeVisible
             datetimeString={params.row.data.updated_at}

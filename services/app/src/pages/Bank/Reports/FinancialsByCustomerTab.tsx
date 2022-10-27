@@ -21,7 +21,7 @@ import { QuestionMarkIcon } from "icons";
 import { Action } from "lib/auth/rbac-rules";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 const StyledTooltip = styled((props) => (
@@ -39,7 +39,7 @@ const StyledTooltip = styled((props) => (
 `;
 
 export default function BankReportsFinancialsByCustomerTab() {
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const [companyId, setCompanyId] = useState<Companies["id"]>("");
   const [companyName, setCompanyName] = useState<Companies["name"]>("");
@@ -222,7 +222,7 @@ export default function BankReportsFinancialsByCustomerTab() {
                   isProductTypeVisible
                   financialSummaries={financialSummariesByCompanyId}
                   handleClickCustomer={(customerId) =>
-                    history.push(
+                    navigate(
                       getBankCompanyRoute(
                         customerId,
                         BankCompanyRouteEnum.Overview

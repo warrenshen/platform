@@ -1,5 +1,5 @@
 import { Box, Button, IconButton } from "@material-ui/core";
-import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import CommentIcon from "@material-ui/icons/Comment";
 import DeleteIcon from "@material-ui/icons/Delete";
 import DeleteSurveillanceResultModal from "components/CustomerSurveillance/DeleteSurveillanceResultModal";
@@ -22,9 +22,7 @@ interface Props {
   handleClickBankNote: (id: CustomerSurveillanceResults["id"]) => void;
 }
 
-function getRows(
-  surveillanceResults: CustomerSurveillanceResultFragment[]
-): RowsProp {
+function getRows(surveillanceResults: CustomerSurveillanceResultFragment[]) {
   return surveillanceResults.map((surveillanceResult) => {
     return formatRowModel({
       ...surveillanceResult,
@@ -57,7 +55,7 @@ export default function CustomerSurveillanceResultDataGrid({
       {
         // purposefully blank caption
         width: ColumnWidths.IconButton,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <Box>
             <IconButton
               onClick={() => {
@@ -81,7 +79,7 @@ export default function CustomerSurveillanceResultDataGrid({
         dataField: "bank_note",
         alignment: "center",
         width: ColumnWidths.Open,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <Button
             color="default"
             variant="text"

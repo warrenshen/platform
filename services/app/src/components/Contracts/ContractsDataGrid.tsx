@@ -1,4 +1,4 @@
-import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import ContractDrawerLauncher from "components/Contract/ContractDrawerLauncher";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import { ContractFragment, Contracts } from "generated/graphql";
@@ -15,7 +15,7 @@ interface Props {
   handleSelectContracts: (contracts: ContractFragment[]) => void;
 }
 
-const getRows = (contracts: ContractFragment[]): RowsProp =>
+const getRows = (contracts: ContractFragment[]) =>
   contracts.map((contract) => ({
     ...contract,
     adjusted_end_date:
@@ -52,7 +52,7 @@ export default function ContractsDataGrid({
         dataField: "date_range",
         caption: "Contract",
         width: ColumnWidths.DateContract,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <ContractDrawerLauncher
             label={params.row.data.date_range}
             contractId={params.row.data.id}

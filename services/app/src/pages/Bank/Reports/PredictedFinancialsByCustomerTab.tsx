@@ -30,7 +30,7 @@ import { ProductTypeEnum } from "lib/enum";
 import { runCustomerLoanPredictionsMutation } from "lib/finance/loans/reports";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -176,7 +176,7 @@ export interface LateFeeSchedule {
 
 export default function BankReportsFinancialsByCustomerTab() {
   const snackbar = useSnackbar();
-  const history = useHistory();
+  const navigate = useNavigate();
   const classes = useStyles();
 
   const [companyId, setCompanyId] = useState<Companies["id"]>("");
@@ -331,7 +331,7 @@ export default function BankReportsFinancialsByCustomerTab() {
                   loanMaturityDateLookup={loanMaturityDateLookup}
                   loanPredictions={loanPredictions}
                   handleClickCustomer={(customerId) =>
-                    history.push(
+                    navigate(
                       getBankCompanyRoute(
                         customerId,
                         BankCompanyRouteEnum.Overview

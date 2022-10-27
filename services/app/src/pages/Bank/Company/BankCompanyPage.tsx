@@ -5,7 +5,7 @@ import { Alert } from "@material-ui/lab";
 import { Color } from "@material-ui/lab/Alert";
 import CounterChip from "components/Shared/Chip/CounterChip";
 import Page from "components/Shared/Page";
-import PrivateRoute from "components/Shared/PrivateRoute";
+import CurrentCustomerProvider from "contexts/CurrentCustomerProvider";
 import {
   CurrentUserContext,
   isRoleBankUser,
@@ -13,7 +13,6 @@ import {
 import {
   Companies,
   GetCompanyForBankCompanyPageQuery,
-  UserRolesEnum,
   useGetCompanyForBankCompanyPageQuery,
   useGetCompanySettingsByCompanyIdForCustomerQuery,
   useGetMostRecentFinancialSummaryAndContractByCompanyIdQuery,
@@ -27,18 +26,15 @@ import {
   SurveillanceStatusToLabel,
 } from "lib/enum";
 import { useGetMissingReportsInfo } from "lib/finance/reports/reports";
-import { bankRoutes } from "lib/routes";
+import {
+  BankCompanyRouteEnum,
+  bankRoutes,
+  getBankCompanyRoute,
+} from "lib/routes";
 import { isPayorsTabVisible, isVendorsTabVisible } from "lib/settings";
-import { flatten } from "lodash";
 import BankCustomerContractPage from "pages/Bank/Company/Contract";
 import { useContext } from "react";
-import {
-  Link,
-  matchPath,
-  useLocation,
-  useParams,
-  useRouteMatch,
-} from "react-router-dom";
+import { Link, matchPath, useLocation, useParams } from "react-router-dom";
 import styled from "styled-components";
 
 import BankCustomerAccountFeesCreditsSubpage from "./AccountFeesCredits";
@@ -52,7 +48,7 @@ import BankCustomerMetrcSubpage from "./Metrc";
 import BankCustomerOverviewSubpage from "./Overview";
 import BankCompanyPayorPartnershipsSubpage from "./PayorPartnerships";
 import BankCustomerPayorsSubpage from "./Payors";
-import BankCustomerPurchaseOrdersSubpageNew from "./PurchaseOrdersNew";
+//import BankCustomerPurchaseOrdersSubpageNew from "./PurchaseOrdersNew";
 import BankCustomerPaymentsSubpage from "./Repayments";
 import BankCustomerReportsSubpage from "./Reports";
 import BankCustomerSettingsSubpage from "./Settings";
@@ -209,7 +205,7 @@ const getCustomerPaths = (
           path: bankRoutes.company.purchaseOrders,
           counter: purchaseOrdersChangesRequestedCount,
           counterColor: "rgb(230, 126, 34)",
-          component: BankCustomerPurchaseOrdersSubpageNew,
+          component: BankCustomerInvoicesSubpage,
         },
         {
           visible:
@@ -358,14 +354,27 @@ const getCustomerPaths = (
     },
   ];
 };
-export default function BankCompanyPage() {
+
+interface Props {
+  children: ({
+    companyId,
+    productType,
+    isActiveContract,
+  }: {
+    companyId: string;
+    productType: ProductTypeEnum;
+    isActiveContract: boolean;
+  }) => NonNullable<JSX.Element>;
+}
+
+export default function BankCompanyPage({ children }: Props) {
   const {
     user: { role },
   } = useContext(CurrentUserContext);
   const { companyId } = useParams<{
     companyId: Companies["id"];
   }>();
-  const { url, path } = useRouteMatch();
+
   const location = useLocation();
   const classes = useStyles();
 
@@ -444,119 +453,102 @@ export default function BankCompanyPage() {
   };
   return (
     <Page appBarTitle={companyName || ""}>
-      <Box display="flex" width="100%">
-        <Box className={classes.drawer}>
-          <TitleText>{companyName || ""}</TitleText>
-          {isRoleBankUser(role) && renderSurveillanceStatus()}
-
-          <List className={classes.list}>
-            {getCustomerPaths(
-              company,
-              missingFinancialReportCount,
-              isLatestBorrowingBaseMissing,
-              productType,
-              isActiveContract,
-              isMetrcBased,
-              isRoleBankUser(role),
-              purchaseOrdersChangesRequestedCount
-            )
-              .filter(
-                (section) => section.visible == null || !!section?.visible
-              )
-              .map((section) => (
-                <Box
-                  key={section.label}
-                  display="flex"
-                  flexDirection="column"
-                  mt={2}
-                >
-                  <Box mb={1}>
-                    <Typography variant="subtitle2" color="textSecondary">
-                      <strong>{section.label.toUpperCase()}</strong>
-                    </Typography>
-                  </Box>
-                  <List>
-                    {section.paths
-                      .filter(
-                        (companyPath) =>
-                          companyPath.visible == null || !!companyPath?.visible
-                      )
-                      .map((companyPath) => (
-                        <ListItem
-                          key={companyPath.path}
-                          data-cy={`company-sidebar-item-${companyPath.dataCy}`}
-                          button
-                          component={Link}
-                          to={`${url}${companyPath.path}`}
-                          selected={Boolean(
-                            matchPath(
-                              location.pathname,
-                              `/companies/:companyId${companyPath.path}`
-                            )
-                          )}
-                        >
-                          <ListItemText
-                            primaryTypographyProps={{
-                              className: classes.listItemText,
-                              variant: "subtitle1",
-                            }}
-                          >
-                            <Box
-                              display="flex"
-                              alignItems="center"
-                              justifyContent="space-between"
-                            >
-                              <span>{companyPath.label}</span>
-                              {!!companyPath.counter && (
-                                <CounterChip
-                                  chipCount={
-                                    companyPath.counter > 5
-                                      ? "5+"
-                                      : companyPath.counter.toString()
-                                  }
-                                  chipColor={companyPath.counterColor}
-                                />
-                              )}
-                            </Box>
-                          </ListItemText>
-                        </ListItem>
-                      ))}
-                  </List>
-                </Box>
-              ))}
-          </List>
-        </Box>
-        <Box className={classes.content}>
-          {flatten(
-            getCustomerPaths(
-              company,
-              missingFinancialReportCount,
-              isLatestBorrowingBaseMissing,
-              productType,
-              isActiveContract,
-              isMetrcBased,
-              isRoleBankUser(role),
-              purchaseOrdersChangesRequestedCount
-            ).map((section) => section.paths)
-          ).map((companyPath) => (
-            <PrivateRoute
-              key={companyPath.path}
-              exact
-              path={`${path}${companyPath.path}`}
-              requiredRoles={[
-                UserRolesEnum.BankAdmin,
-                UserRolesEnum.BankReadOnly,
-              ]}
-            >
-              {companyPath.component({
-                companyId,
+      <CurrentCustomerProvider companyId={companyId}>
+        <Box display="flex" width="100%">
+          <Box className={classes.drawer}>
+            <TitleText>{companyName || ""}</TitleText>
+            {isRoleBankUser(role) && renderSurveillanceStatus()}
+            <List className={classes.list}>
+              {getCustomerPaths(
+                company,
+                missingFinancialReportCount,
+                isLatestBorrowingBaseMissing,
                 productType,
                 isActiveContract,
-              })}
-            </PrivateRoute>
-          ))}
+                isMetrcBased,
+                isRoleBankUser(role),
+                purchaseOrdersChangesRequestedCount
+              )
+                .filter(
+                  (section) => section.visible == null || !!section?.visible
+                )
+                .map((section) => (
+                  <Box
+                    key={section.label}
+                    display="flex"
+                    flexDirection="column"
+                    mt={2}
+                  >
+                    <Box mb={1}>
+                      <Typography variant="subtitle2" color="textSecondary">
+                        <strong>{section.label.toUpperCase()}</strong>
+                      </Typography>
+                    </Box>
+                    <List>
+                      {section.paths
+                        .filter(
+                          (companyPath) =>
+                            companyPath.visible == null ||
+                            !!companyPath?.visible
+                        )
+                        .map((companyPath) => (
+                          <ListItem
+                            key={companyPath.path}
+                            data-cy={`company-sidebar-item-${companyPath.dataCy}`}
+                            button
+                            component={Link}
+                            to={getBankCompanyRoute(
+                              companyId,
+                              companyPath.path as BankCompanyRouteEnum
+                            )}
+                            selected={Boolean(
+                              matchPath(
+                                location.pathname,
+                                getBankCompanyRoute(
+                                  companyId,
+                                  companyPath.path as BankCompanyRouteEnum
+                                )
+                              )
+                            )}
+                          >
+                            <ListItemText
+                              primaryTypographyProps={{
+                                className: classes.listItemText,
+                                variant: "subtitle1",
+                              }}
+                            >
+                              <Box
+                                display="flex"
+                                alignItems="center"
+                                justifyContent="space-between"
+                              >
+                                <span>{companyPath.label}</span>
+                                {!!companyPath.counter && (
+                                  <CounterChip
+                                    chipCount={
+                                      companyPath.counter > 5
+                                        ? "5+"
+                                        : companyPath.counter.toString()
+                                    }
+                                    chipColor={companyPath.counterColor}
+                                  />
+                                )}
+                              </Box>
+                            </ListItemText>
+                          </ListItem>
+                        ))}
+                    </List>
+                  </Box>
+                ))}
+            </List>
+          </Box>
+          <>
+            {!!productType
+              ? children({ companyId, productType, isActiveContract })
+              : null}
+          </>
         </Box>
-      </Box>
+      </CurrentCustomerProvider>
     </Page>
   );
 }

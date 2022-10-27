@@ -1,5 +1,5 @@
 import { Box, Button, Typography } from "@material-ui/core";
-import { ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import CommentIcon from "@material-ui/icons/Comment";
 import PaymentDrawerLauncher from "components/Payment/PaymentDrawerLauncher";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
@@ -103,7 +103,7 @@ export default function RepaymentsDataGrid({
         dataField: "id",
         caption: "Payment ID",
         width: 140,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <PaymentDrawerLauncher paymentId={params.row.data.id} showBankInfo />
         ),
       },
@@ -112,7 +112,7 @@ export default function RepaymentsDataGrid({
         dataField: "company.name",
         caption: "Customer Name",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) =>
+        cellRender: (params: GridValueFormatterParams) =>
           handleClickCustomer ? (
             <ClickableDataGridCell
               label={params.row.data.company.name}
@@ -267,7 +267,7 @@ export default function RepaymentsDataGrid({
         caption: "Bank Note",
         dataField: "bank_note",
         width: 340,
-        cellRender: (params: ValueFormatterParams) =>
+        cellRender: (params: GridValueFormatterParams) =>
           params.row.data.bank_note !== "N/A" ? (
             <Button
               color="default"

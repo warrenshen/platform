@@ -1,4 +1,4 @@
-import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import DebtFacilityCompanyStatusChip from "components/Shared/Chip/DebtFacilityCompanyStatusChip";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
@@ -19,9 +19,8 @@ import { formatRowModel } from "lib/tables";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
-function getRows(financialSummaries: FinancialSummaryFragment[]): RowsProp {
+function getRows(financialSummaries: FinancialSummaryFragment[]) {
   return financialSummaries.map((financialSummary) => {
-    console.log(financialSummary);
     return formatRowModel({
       ...financialSummary,
       adjusted_total_limit: financialSummary.adjusted_total_limit,
@@ -108,7 +107,7 @@ export default function FinancialSummariesDataGrid({
         dataField: "company.name",
         caption: "Customer Name",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) =>
+        cellRender: (params: GridValueFormatterParams) =>
           handleClickCustomer ? (
             <ClickableDataGridCell
               label={params.row.data.company.name}
@@ -144,7 +143,7 @@ export default function FinancialSummariesDataGrid({
           valueExpr: "debt_facility_status",
           displayExpr: "label",
         },
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <DebtFacilityCompanyStatusChip
             debtFacilityCompanyStatus={
               params.row.data.company.debt_facility_status

@@ -14,7 +14,7 @@ import { setAccessToken, setRefreshToken } from "lib/auth/tokenStorage";
 import { todayAsDateStringServer } from "lib/date";
 import { customerRoutes } from "lib/routes";
 import { useContext } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   parentCompanyId: ParentCompanies["id"];
@@ -23,7 +23,7 @@ interface Props {
 export default function CustomerLocationsPageContent({
   parentCompanyId,
 }: Props) {
-  const history = useHistory();
+  const navigate = useNavigate();
   const snackbar = useSnackbar();
   const { resetUser, user } = useContext(CurrentUserContext);
 
@@ -60,7 +60,7 @@ export default function CustomerLocationsPageContent({
       setAccessToken(response.data?.access_token);
       setRefreshToken(response.data?.refresh_token);
       resetUser();
-      history.push(customerRoutes.overview);
+      navigate(customerRoutes.overview);
     }
   };
 

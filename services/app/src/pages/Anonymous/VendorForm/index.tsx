@@ -20,7 +20,7 @@ import { anonymousRoutes, routes } from "lib/routes";
 import { isEmailValid } from "lib/validation";
 import { debounce } from "lodash";
 import { useState } from "react";
-import { useHistory, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 export type LicenseInfo = {
   license_ids: Array<string>;
@@ -83,7 +83,7 @@ const useStyles = makeStyles((theme: Theme) =>
 export default function VendorFormPage() {
   const classes = useStyles();
   const snackbar = useSnackbar();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const { companyId } = useParams<{
     companyId: Companies["id"];
@@ -161,7 +161,7 @@ export default function VendorFormPage() {
 
   // Redirect to '/' if we are not able to fetch the company details from the uuid
   if (!companyName) {
-    history.push({
+    navigate({
       pathname: routes.root,
     });
   }
@@ -208,7 +208,7 @@ export default function VendorFormPage() {
       );
     } else {
       // Show thank you page on success
-      history.push({
+      navigate({
         pathname: anonymousRoutes.createVendorComplete,
       });
     }

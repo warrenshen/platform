@@ -1,5 +1,4 @@
 import { makeStyles } from "@material-ui/core";
-import { CellValue } from "@material-ui/data-grid";
 import ClearIcon from "@material-ui/icons/Clear";
 import DoneIcon from "@material-ui/icons/Done";
 import Chip from "components/Shared/Chip";
@@ -10,7 +9,7 @@ const useStyles = makeStyles({
   },
 });
 
-export default function VerificationChip({ value }: { value: CellValue }) {
+export default function VerificationChip({ value }: { value: any }) {
   const classes = useStyles({ color: "white" });
   const isVerified = !!value;
 

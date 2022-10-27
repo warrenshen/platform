@@ -35,6 +35,7 @@ export default function CurrentCustomerProvider({
     <CurrentCustomerContext.Provider
       value={{
         financialSummary,
+        companyId,
       }}
     >
       {children}

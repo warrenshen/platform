@@ -1,4 +1,4 @@
-import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DataGridActionMenu, {
@@ -7,7 +7,7 @@ import DataGridActionMenu, {
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
-function getRows(monthEndPayments: any[]): RowsProp {
+function getRows(monthEndPayments: any[]) {
   return monthEndPayments.map((monthEndPayment) => {
     return {
       ...monthEndPayment,
@@ -42,7 +42,7 @@ export default function MonthEndPaymentsDataGrid({
         caption: "Action",
         alignment: "center",
         width: 80,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <DataGridActionMenu params={params} actionItems={actionItems} />
         ),
       },
@@ -56,7 +56,7 @@ export default function MonthEndPaymentsDataGrid({
         dataField: "fee_amount",
         caption: "Total Amount",
         minWidth: ColumnWidths.Currency,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.fee_amount} />
         ),
       },
@@ -64,7 +64,7 @@ export default function MonthEndPaymentsDataGrid({
         dataField: "total_outstanding_interest",
         caption: "Amount To Accrued Interest",
         minWidth: ColumnWidths.Currency,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <CurrencyDataGridCell
             value={params.row.data.total_outstanding_interest}
           />
@@ -75,7 +75,7 @@ export default function MonthEndPaymentsDataGrid({
         caption: "Amount To Minimum Interest Fee Due Now",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.fee_due} />
         ),
       },

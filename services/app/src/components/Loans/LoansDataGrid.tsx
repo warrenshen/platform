@@ -1,5 +1,5 @@
 import { Box, Button, Typography } from "@material-ui/core";
-import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import CommentIcon from "@material-ui/icons/Comment";
 import CustomerSurveillanceStatusChip from "components/CustomerSurveillance/CustomerSurveillanceStatusChip";
 import InvoiceDrawer from "components/Invoices/InvoiceDrawer";
@@ -104,7 +104,7 @@ function getSurveillanceResult(loan: any) {
     : null;
 }
 
-function getRows(loans: Loan[]): RowsProp {
+function getRows(loans: Loan[]) {
   return loans.map((loan) => {
     return formatRowModel({
       ...loan,
@@ -227,7 +227,7 @@ export default function LoansDataGrid({
         caption: "Action",
         alignment: "center",
         width: 80,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <DataGridActionMenu params={params} actionItems={actionItems} />
         ),
       },
@@ -236,7 +236,7 @@ export default function LoansDataGrid({
         dataField: "customer_identifier",
         caption: "Customer Identifier",
         width: ColumnWidths.Identifier,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <LoanDrawerLauncher
             label={params.row.data.customer_identifier}
             loanId={params.row.data.id as string}
@@ -249,7 +249,7 @@ export default function LoansDataGrid({
         dataField: "disbursement_identifier",
         caption: "Disbursement Identifier",
         width: ColumnWidths.Identifier,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <LoanDrawerLauncher
             label={params.row.data.disbursement_identifier}
             loanId={params.row.data.id as string}
@@ -262,7 +262,7 @@ export default function LoansDataGrid({
         caption: "Approval Status",
         width: ColumnWidths.Status,
         alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <LoanStatusChip loanStatus={params.value as LoanStatusEnum} />
         ),
         lookup: {
@@ -302,7 +302,7 @@ export default function LoansDataGrid({
           valueExpr: "loan_payment_status",
           displayExpr: "label",
         },
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <LoanPaymentStatusChip
             paymentStatus={
               params.row.data.payment_status as LoanPaymentStatusEnum
@@ -331,7 +331,7 @@ export default function LoansDataGrid({
           valueExpr: "debt_facility_status",
           displayExpr: "label",
         },
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <DebtFacilityCompanyStatusChip
             debtFacilityCompanyStatus={
               params.row.data.company.debt_facility_status
@@ -360,7 +360,7 @@ export default function LoansDataGrid({
           valueExpr: "surveillance_status",
           displayExpr: "label",
         },
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <CustomerSurveillanceStatusChip
             surveillanceStatus={params.row.data.most_recent_surveillance_status}
           />
@@ -371,7 +371,7 @@ export default function LoansDataGrid({
         dataField: "company.name",
         caption: "Customer Name",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) =>
+        cellRender: (params: GridValueFormatterParams) =>
           handleClickCustomer ? (
             <ClickableDataGridCell
               label={params.row.data.company.name}
@@ -404,7 +404,7 @@ export default function LoansDataGrid({
         dataField: "artifact_name",
         caption: "Purchase Order / Invoice",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) =>
+        cellRender: (params: GridValueFormatterParams) =>
           params.row.data.purchase_order ? (
             <PurchaseOrderIdentifierDataGridCell
               onClick={() => {
@@ -435,7 +435,7 @@ export default function LoansDataGrid({
         dataField: "artifact_bank_note",
         caption: "PO Bank Note",
         width: 340,
-        cellRender: (params: ValueFormatterParams) =>
+        cellRender: (params: GridValueFormatterParams) =>
           params.row.data.artifact_bank_note !== "N/A" ? (
             <Button
               color="default"

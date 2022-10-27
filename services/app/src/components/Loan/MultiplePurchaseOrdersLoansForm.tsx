@@ -1,5 +1,5 @@
 import { Box, Theme, createStyles, makeStyles } from "@material-ui/core";
-import { ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
@@ -29,7 +29,7 @@ const columns = [
     dataField: "vendor_name",
     caption: "Vendor Name",
     minWidth: ColumnWidths.MinWidth,
-    cellRender: (params: ValueFormatterParams) => (
+    cellRender: (params: GridValueFormatterParams) => (
       <span>{params.row.data.artifact.vendor.name}</span>
     ),
   },
@@ -37,7 +37,7 @@ const columns = [
     dataField: "order_number",
     caption: "PO Number",
     minWidth: ColumnWidths.Type,
-    cellRender: (params: ValueFormatterParams) => (
+    cellRender: (params: GridValueFormatterParams) => (
       <span>{params.row.data.artifact.order_number}</span>
     ),
   },
@@ -45,7 +45,7 @@ const columns = [
     caption: "PO Amount",
     width: ColumnWidths.Currency,
     alignment: "right",
-    cellRender: (params: ValueFormatterParams) => (
+    cellRender: (params: GridValueFormatterParams) => (
       <CurrencyDataGridCell value={params.row.data.artifact.amount} />
     ),
   },
@@ -53,7 +53,7 @@ const columns = [
     caption: "Loan Amount",
     width: ColumnWidths.Currency,
     alignment: "right",
-    cellRender: (params: ValueFormatterParams) => (
+    cellRender: (params: GridValueFormatterParams) => (
       <CurrencyDataGridCell value={params.row.data.loan.amount} />
     ),
   },
@@ -61,7 +61,7 @@ const columns = [
     caption: "PO Date",
     width: ColumnWidths.Date,
     alignment: "center",
-    cellRender: (params: ValueFormatterParams) => (
+    cellRender: (params: GridValueFormatterParams) => (
       <DateDataGridCell dateString={params.row.data.artifact.order_date} />
     ),
   },

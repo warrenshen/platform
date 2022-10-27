@@ -1,4 +1,4 @@
-import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import {
@@ -16,7 +16,7 @@ import {
 } from "pages/Bank/Reports/PredictedFinancialsByCustomerTab";
 import { useMemo } from "react";
 
-function getRows(loans: CombinedLoanData[]): RowsProp {
+function getRows(loans: CombinedLoanData[]) {
   return loans.map((loan, index) => {
     return formatRowModel({
       company_id: loan.companyId,
@@ -230,7 +230,7 @@ export default function PredictedFinancialSummariesDataGrid({
         dataField: "company_name",
         caption: "Customer Name",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) =>
+        cellRender: (params: GridValueFormatterParams) =>
           handleClickCustomer ? (
             <ClickableDataGridCell
               label={params.row.data.company_name}

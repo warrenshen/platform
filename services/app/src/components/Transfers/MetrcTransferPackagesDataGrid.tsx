@@ -1,4 +1,4 @@
-import { ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import MetrcTransferDrawerLauncher from "components/Transfers/MetrcTransferDrawerLauncher";
@@ -54,7 +54,7 @@ export default function MetrcTransferPackagesDataGrid({
         dataField: "package_id",
         caption: "Package ID (Metrc)",
         width: ColumnWidths.MetrcId,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <MetrcPackageDrawerLauncher
             label={params.row.data.package_id}
             metrcPackageId={params.row.data.id}
@@ -66,7 +66,7 @@ export default function MetrcTransferPackagesDataGrid({
         dataField: "manifest_number",
         caption: "Manifest #",
         width: ColumnWidths.MetrcId,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <MetrcTransferDrawerLauncher
             label={params.row.data.manifest_number}
             metrcTransferId={params.row.data.transfer_id}
@@ -78,7 +78,7 @@ export default function MetrcTransferPackagesDataGrid({
         dataField: undefined,
         caption: "",
         width: 90,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <ModalButton
             label={"View"}
             color="default"

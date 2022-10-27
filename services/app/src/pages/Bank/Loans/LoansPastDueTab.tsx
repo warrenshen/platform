@@ -4,7 +4,7 @@ import { useGetFundedLoansForBankSubscription } from "generated/graphql";
 import { parseDateStringServer } from "lib/date";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useMemo } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -17,7 +17,7 @@ const Container = styled.div`
 `;
 
 export default function BankLoansPastDueTab() {
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const { data, error } = useGetFundedLoansForBankSubscription();
 
@@ -47,7 +47,7 @@ export default function BankLoansPastDueTab() {
           isReportingVisible
           loans={pastDueLoans}
           handleClickCustomer={(customerId) =>
-            history.push(
+            navigate(
               getBankCompanyRoute(customerId, BankCompanyRouteEnum.Loans)
             )
           }

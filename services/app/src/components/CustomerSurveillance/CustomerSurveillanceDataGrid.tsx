@@ -1,4 +1,4 @@
-import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import CustomerSurveillanceDrawer from "components/CustomerSurveillance/CustomerSurveillanceDrawer";
 import CustomerSurveillanceStatusChip from "components/CustomerSurveillance/CustomerSurveillanceStatusChip";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
@@ -50,7 +50,7 @@ interface Props {
 function getRows(
   customers: GetCustomersSurveillanceSubscription["customers"],
   isCurrent: boolean
-): RowsProp {
+) {
   return customers.map((customer) => {
     const productType = getCustomerProductType(customer) as ProductTypeEnum;
     const percentagePastDue = getPercentagePastDue(customer);
@@ -138,7 +138,7 @@ export default function CustomerSurveillanceDataGrid({
         dataField: "id",
         caption: "",
         width: ColumnWidths.Open,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <ClickableDataGridCell
             onClick={() => setSelectedCustomerId(params.row.data.id)}
             label={"OPEN"}
@@ -165,7 +165,7 @@ export default function CustomerSurveillanceDataGrid({
         caption: "Surveillance Stage",
         width: ColumnWidths.Status,
         alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <CustomerSurveillanceStatusChip
             surveillanceStatus={
               params.row.data.selected_month_surveillance_status
@@ -242,7 +242,7 @@ export default function CustomerSurveillanceDataGrid({
         caption: "Days Until Financial Report Expires",
         width: ColumnWidths.Date,
         alignment: "center",
-        cellRender: (params: ValueFormatterParams) => {
+        cellRender: (params: GridValueFormatterParams) => {
           return !!params.row.data.is_customer_metrc_based ? (
             <img src={MetrcLogo} alt="Metrc Logo" width={24} height={24} />
           ) : (

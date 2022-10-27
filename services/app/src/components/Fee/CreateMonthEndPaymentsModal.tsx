@@ -1,5 +1,5 @@
 import { Box, Typography } from "@material-ui/core";
-import { ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import { Alert } from "@material-ui/lab";
 import MonthEndPaymentsDataGrid from "components/Fee/MonthEndPaymentsDataGrid";
 import DateInput from "components/Shared/FormInputs/DateInput";
@@ -162,7 +162,7 @@ export default function CreateMonthEndPaymentsModal({ handleClose }: Props) {
                 {
                   key: "remove",
                   label: "Remove",
-                  handleClick: (params: ValueFormatterParams) => {
+                  handleClick: (params: GridValueFormatterParams) => {
                     const companyId = params.row.data.id;
                     const newMonthEndPaymentsPayload = Object.assign(
                       {},

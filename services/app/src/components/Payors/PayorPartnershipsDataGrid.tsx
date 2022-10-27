@@ -1,4 +1,4 @@
-import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import PayorPartnershipDrawer from "components/Partnership/PayorPartnershipDrawer";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
@@ -12,11 +12,11 @@ import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { ColumnWidths } from "lib/tables";
 import { useMemo, useState } from "react";
 
-const verificationCellRenderer = (params: ValueFormatterParams) => (
+const verificationCellRenderer = (params: GridValueFormatterParams) => (
   <VerificationChip value={params.value} />
 );
 
-function getRows(payorPartnerships: PayorPartnershipFragment[]): RowsProp {
+function getRows(payorPartnerships: PayorPartnershipFragment[]) {
   return payorPartnerships.map((payorPartnership) => {
     return {
       ...payorPartnership,
@@ -53,7 +53,7 @@ export default function PayorPartnershipsDataGrid({
         dataField: "id",
         caption: "",
         width: ColumnWidths.Open,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <ClickableDataGridCell
             onClick={() => setSelectedPayorPartnershipId(params.row.data.id)}
             label={"OPEN"}

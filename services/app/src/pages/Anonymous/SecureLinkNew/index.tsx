@@ -4,7 +4,7 @@ import { twoFactorRoutes, unAuthenticatedApi } from "lib/api";
 import { setAccessToken, setRefreshToken } from "lib/auth/tokenStorage";
 import { anonymousRoutes, routes } from "lib/routes";
 import { useCallback, useContext, useState } from "react";
-import { useHistory, useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import AuthenticateViaTwoFactorPageNew from "../AuthenticateViaTwoFactorNew";
 
@@ -57,7 +57,7 @@ function SecureLink() {
   const query = useQuery();
   const linkVal = query.get("val");
   const [codeEntered, setCodeEntered] = useState<string>("");
-  const history = useHistory();
+  const navigate = useNavigate();
   const snackbar = useSnackbar();
 
   const { resetUser } = useContext(CurrentUserContext);
@@ -93,15 +93,14 @@ function SecureLink() {
         return;
       }
 
-      history.push({
-        pathname: linkTypeToRoute[resp.form_info.type],
+      navigate(linkTypeToRoute[resp.form_info.type], {
         state: {
           payload: resp.form_info.payload,
           link_val: linkVal,
         },
       });
     });
-  }, [linkVal, history, resetUser, codeEntered, snackbar]);
+  }, [linkVal, navigate, resetUser, codeEntered, snackbar]);
 
   return (
     <AuthenticateViaTwoFactorPageNew

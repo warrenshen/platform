@@ -1,4 +1,4 @@
-import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import CompanyLicenseDrawerLauncher from "components/CompanyLicenses/CompanyLicenseDrawerLauncher";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
@@ -7,7 +7,7 @@ import { CompanyLicenseFragment, CompanyLicenses } from "generated/graphql";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
-function getRows(companyLicenses: CompanyLicenseFragment[]): RowsProp {
+function getRows(companyLicenses: CompanyLicenseFragment[]) {
   return companyLicenses.map((companyLicense) => {
     return {
       ...companyLicense,
@@ -42,7 +42,7 @@ export default function CompanyLicensesDataGrid({
         caption: "License Number",
         dataField: "license_number",
         width: ColumnWidths.License,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <CompanyLicenseDrawerLauncher
             label={params.row.data.license_number}
             companyLicense={params.row.data as CompanyLicenseFragment}
@@ -54,7 +54,7 @@ export default function CompanyLicensesDataGrid({
         dataField: "us_state",
         caption: "US State",
         width: ColumnWidths.UsState,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <TextDataGridCell
             label={params.row.data.us_state ? params.row.data.us_state : "-"}
           />
@@ -65,7 +65,7 @@ export default function CompanyLicensesDataGrid({
         caption: "Facility Name",
         dataField: "facility_name",
         width: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <TextDataGridCell
             label={
               params.row.data.company_facility?.name
@@ -85,7 +85,7 @@ export default function CompanyLicensesDataGrid({
         dataField: "license_category",
         caption: "License Category",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <TextDataGridCell
             label={
               params.row.data.license_category
@@ -99,7 +99,7 @@ export default function CompanyLicensesDataGrid({
         dataField: "license_description",
         caption: "License Description",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <TextDataGridCell
             label={
               params.row.data.license_description
@@ -113,7 +113,7 @@ export default function CompanyLicensesDataGrid({
         dataField: "license_status",
         caption: "License Status",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <TextDataGridCell
             label={
               params.row.data.license_status
@@ -128,7 +128,7 @@ export default function CompanyLicensesDataGrid({
         dataField: "expiration_date",
         width: ColumnWidths.Date,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <DateDataGridCell dateString={params.row.data.expiration_date} />
         ),
       },
@@ -136,7 +136,7 @@ export default function CompanyLicensesDataGrid({
         caption: "Legal Name",
         dataField: "legal_name",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <TextDataGridCell
             label={
               params.row.data.legal_name ? params.row.data.legal_name : "-"

@@ -1,4 +1,4 @@
-import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import InvoiceDrawerLauncher from "components/Invoices/InvoiceDrawerLauncher";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
 import PurchaseOrderDrawerLauncher from "components/PurchaseOrder/PurchaseOrderDrawerLauncher";
@@ -47,9 +47,7 @@ export interface ArtifactLoansDataGridLoansProps {
   handleSelectLoans?: (loans: LoanFragment[]) => void;
 }
 
-function getRows(
-  loans: (LoanFragment & LoanArtifactLimitedFragment)[]
-): RowsProp {
+function getRows(loans: (LoanFragment & LoanArtifactLimitedFragment)[]) {
   return loans.map((loan) => {
     return formatRowModel({
       ...loan,
@@ -105,7 +103,7 @@ export default function ArtifactLoansDataGrid({
         dataField: "customer_identifier",
         caption: "Customer Identifier",
         width: ColumnWidths.Identifier,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <LoanDrawerLauncher
             label={params.row.data.customer_identifier}
             loanId={params.row.data.id as string}
@@ -118,7 +116,7 @@ export default function ArtifactLoansDataGrid({
         dataField: "disbursement_identifier",
         caption: "Disbursement Identifier",
         width: ColumnWidths.Identifier,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <LoanDrawerLauncher
             label={params.row.data.disbursement_identifier}
             loanId={params.row.data.id as string}
@@ -131,7 +129,7 @@ export default function ArtifactLoansDataGrid({
         caption: "Approval Status",
         width: ColumnWidths.Status,
         alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <LoanStatusChip
             loanStatus={params.row.data.status as LoanStatusEnum}
           />
@@ -143,7 +141,7 @@ export default function ArtifactLoansDataGrid({
         caption: "Repayment Status",
         width: ColumnWidths.Status,
         alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <LoanPaymentStatusChip
             paymentStatus={params.value as LoanPaymentStatusEnum}
           />
@@ -184,7 +182,7 @@ export default function ArtifactLoansDataGrid({
         dataField: "artifact_name",
         caption: artifactCaption,
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) =>
+        cellRender: (params: GridValueFormatterParams) =>
           params.row.data.purchase_order ? (
             <PurchaseOrderDrawerLauncher
               label={params.row.data.artifact_name}

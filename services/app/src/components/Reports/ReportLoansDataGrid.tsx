@@ -1,4 +1,4 @@
-import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import InvoiceDrawerLauncher from "components/Invoices/InvoiceDrawerLauncher";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
 import PurchaseOrderDrawerLauncher from "components/PurchaseOrder/PurchaseOrderDrawerLauncher";
@@ -59,7 +59,7 @@ function getRows(
   loans: (LoanFragment & {
     loan_report?: Maybe<LoanReportFragment>;
   } & (LoanArtifactFragment | LoanArtifactLimitedFragment))[]
-): RowsProp {
+) {
   return loans.map((loan) => ({
     ...loan,
     customer_identifier: createLoanCustomerIdentifier(loan),
@@ -172,7 +172,7 @@ export default function ReportLoansDataGrid({
         caption: "Action",
         alignment: "center",
         width: 80,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <DataGridActionMenu params={params} actionItems={actionItems} />
         ),
       },
@@ -182,7 +182,7 @@ export default function ReportLoansDataGrid({
         dataField: "disbursement_identifier",
         caption: "Disbursement Identifier",
         width: ColumnWidths.Identifier,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <LoanDrawerLauncher
             label={params.row.data.disbursement_identifier}
             loanId={params.row.data.id as string}
@@ -194,7 +194,7 @@ export default function ReportLoansDataGrid({
         dataField: "company.name",
         caption: "Customer Name",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) =>
+        cellRender: (params: GridValueFormatterParams) =>
           handleClickCustomer ? (
             <ClickableDataGridCell
               label={params.row.data.company.name}
@@ -209,7 +209,7 @@ export default function ReportLoansDataGrid({
         dataField: "amount",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.amount} />
         ),
       },
@@ -219,7 +219,7 @@ export default function ReportLoansDataGrid({
         dataField: "requested_payment_date",
         width: ColumnWidths.Date,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <DateDataGridCell
             dateString={params.row.data.requested_payment_date}
           />
@@ -230,7 +230,7 @@ export default function ReportLoansDataGrid({
         dataField: "artifact_name",
         caption: "Purchase Order / Invoice",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) =>
+        cellRender: (params: GridValueFormatterParams) =>
           params.row.data.purchase_order ? (
             <PurchaseOrderDrawerLauncher
               label={params.row.data.artifact_name}
@@ -250,7 +250,7 @@ export default function ReportLoansDataGrid({
         dataField: "vendor_name",
         caption: "Vendor Name",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <TextDataGridCell label={params.row.data.vendor_name} />
         ),
       },
@@ -260,7 +260,7 @@ export default function ReportLoansDataGrid({
         dataField: "origination_date",
         width: ColumnWidths.Date,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <DateDataGridCell dateString={params.row.data.origination_date} />
         ),
       },
@@ -270,7 +270,7 @@ export default function ReportLoansDataGrid({
         dataField: "adjusted_maturity_date",
         width: ColumnWidths.Date,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <DateDataGridCell
             dateString={params.row.data.adjusted_maturity_date}
           />
@@ -296,7 +296,7 @@ export default function ReportLoansDataGrid({
         caption: "Outstanding Principal",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <CurrencyDataGridCell
             value={params.row.data.outstanding_principal_balance}
           />
@@ -308,7 +308,7 @@ export default function ReportLoansDataGrid({
         caption: "Outstanding Interest",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.outstanding_interest} />
         ),
       },
@@ -318,7 +318,7 @@ export default function ReportLoansDataGrid({
         caption: "Oustanding Fees",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.outstanding_fees} />
         ),
       },
@@ -328,7 +328,7 @@ export default function ReportLoansDataGrid({
         caption: "Total Principal Paid",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.total_principal_paid} />
         ),
       },
@@ -338,7 +338,7 @@ export default function ReportLoansDataGrid({
         caption: "Total Interest Paid",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.total_interest_paid} />
         ),
       },
@@ -348,7 +348,7 @@ export default function ReportLoansDataGrid({
         caption: "Total Fees Paid",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.total_fees_paid} />
         ),
       },

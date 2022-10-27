@@ -1,4 +1,4 @@
-import { ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import MetrcPackageDrawerLauncher from "components/Transfers/v2/MetrcPackageDrawerLauncher";
 import { MetrcTransferPackageFragment } from "generated/graphql";
@@ -51,7 +51,7 @@ export default function MetrcTransferPackagesDataGridNew({
         dataField: "package_id",
         caption: "Package ID (Metrc)",
         width: ColumnWidths.MetrcId,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <MetrcPackageDrawerLauncher
             label={params.row.data.package_id}
             metrcPackageId={params.row.data.id}
@@ -64,7 +64,7 @@ export default function MetrcTransferPackagesDataGridNew({
       //     dataField: "manifest_number",
       //     caption: "Manifest #",
       //     width: ColumnWidths.MetrcId,
-      //     cellRender: (params: ValueFormatterParams) => (
+      //     cellRender: (params: GridValueFormatterParams) => (
       //       <MetrcTransferDrawerLauncher
       //         label={params.row.data.manifest_number}
       //         metrcTransferId={params.row.data.transfer_id}

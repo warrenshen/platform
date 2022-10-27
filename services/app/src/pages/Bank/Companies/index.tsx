@@ -1,5 +1,5 @@
 import { Box, TextField } from "@material-ui/core";
-import { ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import CreateCompanyModal from "components/Customer/CreateCompanyModal";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
@@ -70,7 +70,7 @@ export default function BankcompaniesPage() {
         dataField: "dba_name",
         caption: "DBA",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <TextDataGridCell label={params.row.data.dba_name} />
         ),
       },

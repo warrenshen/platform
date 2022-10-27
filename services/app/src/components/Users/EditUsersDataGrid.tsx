@@ -1,5 +1,5 @@
 import { Box, IconButton } from "@material-ui/core";
-import { ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import EditIcon from "@material-ui/icons/Edit";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import DataGridActionMenu, {
@@ -41,7 +41,7 @@ export default function UsersDataGrid({
     () => [
       {
         width: ColumnWidths.IconButton,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <Box>
             <IconButton
               onClick={() => {
@@ -68,7 +68,7 @@ export default function UsersDataGrid({
         visible: !!actionItems && actionItems.length > 0,
         caption: "Action",
         width: ColumnWidths.Actions,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <DataGridActionMenu params={params} actionItems={actionItems} />
         ),
       },

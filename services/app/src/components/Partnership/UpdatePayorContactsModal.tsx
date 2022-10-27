@@ -1,5 +1,5 @@
 import { Box, Checkbox, FormControlLabel, Typography } from "@material-ui/core";
-import { ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import Modal from "components/Shared/Modal/Modal";
 import UsersDataGrid from "components/Users/UsersDataGrid";
 import {
@@ -73,7 +73,7 @@ export default function UpdatePayorContactsModal({
       {
         key: "deselect-user",
         label: "Remove",
-        handleClick: (params: ValueFormatterParams) =>
+        handleClick: (params: GridValueFormatterParams) =>
           setSelectedUserIds(
             selectedUserIds.filter(
               (userId: Users["id"]) => userId !== params.row.data.id
@@ -89,7 +89,7 @@ export default function UpdatePayorContactsModal({
       {
         key: "select-user",
         label: "Add",
-        handleClick: (params: ValueFormatterParams) =>
+        handleClick: (params: GridValueFormatterParams) =>
           setSelectedUserIds([...selectedUserIds, params.row.data.id]),
       },
     ],

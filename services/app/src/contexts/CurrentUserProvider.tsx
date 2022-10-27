@@ -1,4 +1,4 @@
-import { ThemeProvider, createMuiTheme } from "@material-ui/core/styles";
+import { ThemeProvider, createTheme } from "@material-ui/core/styles";
 import * as Sentry from "@sentry/react";
 import axios from "axios";
 import BlazePreapprovalPage from "components/Blaze/BlazePreapprovalPage";
@@ -436,7 +436,7 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
   }, [authenticateBlazeUser, setUserFromAccessToken]);
 
   // Set theme values dynamically based on whether App is in embedded mode or not.
-  const theme = createMuiTheme({
+  const theme = createTheme({
     palette: {
       primary: {
         main: user.isEmbeddedModule ? BlazePrimaryMain : BespokePrimaryMain,

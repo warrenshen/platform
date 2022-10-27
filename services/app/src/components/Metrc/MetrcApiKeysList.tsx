@@ -1,5 +1,5 @@
 import { Box } from "@material-ui/core";
-import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import { Alert } from "@material-ui/lab";
 import MetrcApiKeyInfo from "components/Metrc/MetrcApiKeyInfo";
 import DeleteMetrcKeyModal from "components/Settings/Bank/DeleteMetrcKeyModal";
@@ -21,7 +21,7 @@ interface Props {
   companyId: Companies["id"];
 }
 
-function getRows(metrcApiKeys: MetrcApiKeyFragment[]): RowsProp {
+function getRows(metrcApiKeys: MetrcApiKeyFragment[]) {
   return metrcApiKeys.map((metrcApiKey, index) =>
     formatRowModel({
       ...metrcApiKey,
@@ -55,7 +55,7 @@ export default function MetrcApiKeysList({ companyId }: Props) {
         dataField: "us_state",
         caption: "US State",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <TextDataGridCell label={params.row.data.us_state} />
         ),
       },
@@ -74,7 +74,7 @@ export default function MetrcApiKeysList({ companyId }: Props) {
         dataField: "last_used_at",
         caption: "Last Functioning At",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <DatetimeDataGridCell
             isTimeVisible
             datetimeString={params.row.data.last_used_at}
@@ -85,7 +85,7 @@ export default function MetrcApiKeysList({ companyId }: Props) {
         dataField: "created_at",
         caption: "Created At",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <DatetimeDataGridCell
             isTimeVisible
             datetimeString={params.row.data.created_at}

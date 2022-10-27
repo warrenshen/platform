@@ -1,16 +1,16 @@
 import { Box, IconButton, Menu, MenuItem } from "@material-ui/core";
-import { ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 import { useState } from "react";
 
 export type DataGridActionItem = {
   key: string;
   label: string;
-  handleClick: (params: ValueFormatterParams) => void;
+  handleClick: (params: GridValueFormatterParams) => void;
 };
 
 interface Props {
-  params: ValueFormatterParams;
+  params: GridValueFormatterParams;
   actionItems?: DataGridActionItem[];
 }
 

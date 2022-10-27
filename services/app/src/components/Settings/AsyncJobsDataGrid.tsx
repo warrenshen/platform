@@ -1,4 +1,4 @@
-import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import AsyncJobDetailModal from "components/Settings/AsyncJobDetailModal";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
@@ -45,7 +45,7 @@ export default function AsyncJobsDataGrid({
   isFilteringEnabled = true,
   isRetryPayloadVisible = false,
 }: Props) {
-  function getRows(asyncJobs: AsyncJobFragment[]): RowsProp {
+  function getRows(asyncJobs: AsyncJobFragment[]) {
     return asyncJobs.map((asyncJob) => {
       return formatRowModel({
         ...asyncJob,
@@ -89,7 +89,7 @@ export default function AsyncJobsDataGrid({
         caption: "",
         dataField: "id",
         width: ColumnWidths.Open,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <ClickableDataGridCell
             onClick={() => setModalAsyncJobId(params.row.data.id)}
             label={"OPEN"}

@@ -21,7 +21,7 @@ import {
 } from "lib/enum";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useMemo, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -50,7 +50,7 @@ export default function DebtFacilityOpenTab({
   supportedProductTypes,
   defaultDebtFacilityId,
 }: Props) {
-  const history = useHistory();
+  const navigate = useNavigate();
   const [debtFacilitySearchQuery, setDebtFacilitySearchQuery] = useState("");
   const [bespokeSearchQuery, setBespokeSearchQuery] = useState("");
 
@@ -191,7 +191,7 @@ export default function DebtFacilityOpenTab({
               selectedLoanIds={selectedFacilityLoanIds}
               isDebtFacilityVisible
               handleClickCustomer={(customerId) =>
-                history.push(
+                navigate(
                   getBankCompanyRoute(customerId, BankCompanyRouteEnum.Loans)
                 )
               }
@@ -250,7 +250,7 @@ export default function DebtFacilityOpenTab({
             loans={bespokeLoans}
             selectedLoanIds={selectedBespokeLoanIds}
             handleClickCustomer={(customerId) =>
-              history.push(
+              navigate(
                 getBankCompanyRoute(customerId, BankCompanyRouteEnum.Loans)
               )
             }

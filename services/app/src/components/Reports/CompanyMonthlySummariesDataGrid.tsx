@@ -1,4 +1,3 @@
-import { RowsProp } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import { RecentMonthlyCalculationsFragment } from "generated/graphql";
 import { ColumnWidths } from "lib/tables";
@@ -14,7 +13,7 @@ interface Props {
   ) => void;
 }
 
-const getRows = (companies: RecentMonthlyCalculationsFragment[]): RowsProp =>
+const getRows = (companies: RecentMonthlyCalculationsFragment[]) =>
   companies.map((company) => ({
     ...company,
     company_name: !!company.name ? company.name : "",

@@ -8,7 +8,7 @@ import {
 } from "lib/enum";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -21,7 +21,7 @@ const Container = styled.div`
 `;
 
 export default function DebtFacilityAllTab() {
-  const history = useHistory();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
 
   const { data, error } = useGetOpenLoansByDebtFacilityStatusesSubscription({
@@ -65,7 +65,7 @@ export default function DebtFacilityAllTab() {
           <DebtFacilityLoansDataGrid
             loans={loans}
             handleClickCustomer={(customerId) =>
-              history.push(
+              navigate(
                 getBankCompanyRoute(customerId, BankCompanyRouteEnum.Loans)
               )
             }

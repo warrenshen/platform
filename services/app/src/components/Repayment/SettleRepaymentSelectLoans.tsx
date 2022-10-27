@@ -9,7 +9,7 @@ import {
   createStyles,
   makeStyles,
 } from "@material-ui/core";
-import { ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
 import RequestedRepaymentPreview from "components/Repayment/RequestedRepaymentPreview";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
@@ -106,7 +106,7 @@ export default function SettleRepaymentSelectLoans({
       {
         key: "deselect-loan",
         label: "Remove",
-        handleClick: (params: ValueFormatterParams) =>
+        handleClick: (params: GridValueFormatterParams) =>
           setPayment((payment) => ({
             ...payment,
             items_covered: {
@@ -126,7 +126,7 @@ export default function SettleRepaymentSelectLoans({
       {
         key: "select-loan",
         label: "Add",
-        handleClick: (params: ValueFormatterParams) =>
+        handleClick: (params: GridValueFormatterParams) =>
           setPayment((payment) => ({
             ...payment,
             items_covered: {

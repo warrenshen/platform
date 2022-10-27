@@ -1,4 +1,4 @@
-import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import VendorPartnershipDrawer from "components/Partnership/VendorPartnershipDrawer";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
@@ -25,7 +25,7 @@ function getRows(
     | VendorPartnershipFragment
     | VendorPartnershipLimitedFragment
   )[]
-): RowsProp {
+) {
   return vendorPartnerships.map((vendorPartnership) => {
     return {
       ...vendorPartnership,
@@ -89,7 +89,7 @@ export default function VendorPartnershipsDataGrid({
         dataField: "id",
         caption: "",
         width: ColumnWidths.Open,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <ClickableDataGridCell
             onClick={() => {
               setSelectedVendorPartnershipId(params.row.data.id);

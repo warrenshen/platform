@@ -1,11 +1,11 @@
-import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import { BankAccountFragment, BankAccounts } from "generated/graphql";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
-function getRows(bankAccounts: BankAccountFragment[]): RowsProp {
+function getRows(bankAccounts: BankAccountFragment[]) {
   return bankAccounts;
 }
 
@@ -70,7 +70,7 @@ export default function BankAccountsDataGrid({
         dataField: "verified_date",
         width: ColumnWidths.Date,
         alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <DateDataGridCell dateString={params.row.data.verified_date} />
         ),
       },

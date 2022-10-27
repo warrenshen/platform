@@ -1,4 +1,4 @@
-import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import InvoiceDrawerLauncher from "components/Invoices/InvoiceDrawerLauncher";
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
@@ -30,7 +30,7 @@ interface Props {
   handleSelectedInvoices?: (invoices: InvoiceFragment[]) => void;
 }
 
-function getRows(invoices: InvoiceFragment[]): RowsProp {
+function getRows(invoices: InvoiceFragment[]) {
   return invoices.map((invoice) => {
     return {
       ...invoice,
@@ -59,7 +59,7 @@ export default function InvoicesDataGrid({
         dataField: "invoice_number",
         caption: "Invoice",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <InvoiceDrawerLauncher
             label={params.row.data.invoice_number as string}
             invoiceId={params.row.data.id as string}
@@ -72,7 +72,7 @@ export default function InvoicesDataGrid({
         alignment: "center",
         width: ColumnWidths.Actions,
         visible: !!actionItems && actionItems.length > 0,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <DataGridActionMenu params={params} actionItems={actionItems} />
         ),
       },
@@ -81,7 +81,7 @@ export default function InvoicesDataGrid({
         caption: "Status",
         width: ColumnWidths.Status,
         alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <RequestStatusChip
             requestStatus={params.value as RequestStatusEnum}
           />
@@ -92,7 +92,7 @@ export default function InvoicesDataGrid({
         dataField: "company_name",
         caption: "Customer Name",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <TextDataGridCell label={params.row.data.company_name} />
         ),
       },
@@ -101,7 +101,7 @@ export default function InvoicesDataGrid({
         dataField: "product_type",
         caption: "Product Type",
         minWidth: ColumnWidths.ProductType,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <TextDataGridCell
             label={
               ProductTypeToLabel[
@@ -115,7 +115,7 @@ export default function InvoicesDataGrid({
         dataField: "payor_name",
         caption: "Payor Name",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <TextDataGridCell label={params.row.data.payor_name} />
         ),
       },
@@ -124,7 +124,7 @@ export default function InvoicesDataGrid({
         dataField: "subtotal_amount",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.subtotal_amount} />
         ),
       },
@@ -133,7 +133,7 @@ export default function InvoicesDataGrid({
         dataField: "taxes_amount",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.taxes_amount} />
         ),
       },
@@ -142,7 +142,7 @@ export default function InvoicesDataGrid({
         dataField: "total_amount",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.total_amount} />
         ),
       },
@@ -151,7 +151,7 @@ export default function InvoicesDataGrid({
         dataField: "invoice_date",
         width: ColumnWidths.Date,
         alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <DateDataGridCell dateString={params.row.data.invoice_date} />
         ),
       },
@@ -160,7 +160,7 @@ export default function InvoicesDataGrid({
         dataField: "invoice_due_date",
         width: ColumnWidths.Date,
         alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <DateDataGridCell dateString={params.row.data.invoice_due_date} />
         ),
       },

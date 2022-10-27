@@ -1,11 +1,11 @@
-import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
-function getRows(financialSummaries: any[]): RowsProp {
+function getRows(financialSummaries: any[]) {
   return financialSummaries.map((financialSummary) => {
     return {
       id: financialSummary.date,
@@ -32,7 +32,7 @@ export default function LoanFinancialSummariesDataGrid({
         caption: "Date",
         width: ColumnWidths.Date,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <DateDataGridCell dateString={params.row.data.date} />
         ),
       },
@@ -41,7 +41,7 @@ export default function LoanFinancialSummariesDataGrid({
         caption: "Principal Balance",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.outstanding_principal} />
         ),
       },
@@ -50,7 +50,7 @@ export default function LoanFinancialSummariesDataGrid({
         caption: "Interest Balance",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <CurrencyDataGridCell
             value={params.row.data.outstanding_principal_for_interest}
           />
@@ -61,7 +61,7 @@ export default function LoanFinancialSummariesDataGrid({
         caption: "Outstanding Interest",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.outstanding_interest} />
         ),
       },
@@ -70,7 +70,7 @@ export default function LoanFinancialSummariesDataGrid({
         caption: "Outstanding Late Fees",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.outstanding_fees} />
         ),
       },
@@ -79,7 +79,7 @@ export default function LoanFinancialSummariesDataGrid({
         caption: "Amount To Pay Interest On",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <CurrencyDataGridCell
             value={params.row.data.amount_to_pay_interest_on}
           />
@@ -90,7 +90,7 @@ export default function LoanFinancialSummariesDataGrid({
         caption: "Interest Due For Day",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.interest_due_for_day} />
         ),
       },
@@ -99,7 +99,7 @@ export default function LoanFinancialSummariesDataGrid({
         caption: "Fee For Day",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.fee_for_day} />
         ),
       },

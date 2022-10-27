@@ -1,4 +1,4 @@
-import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
 import LoanPaymentStatusChip from "components/Shared/Chip/LoanPaymentStatusChip";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
@@ -69,7 +69,7 @@ function getRows(
   lastDebtFacilityReportDate: string,
   isAnonymized: boolean,
   currentDebtFacilityReportDate: string
-): RowsProp {
+) {
   const filteredLoans = loans.filter((loan) => {
     return (
       (loansInfoLookup.hasOwnProperty(loan.company_id) &&
@@ -242,7 +242,7 @@ export default function DebtFacilityReportDataGrid({
         caption: "Customer Name",
         minWidth: ColumnWidths.MinWidth,
         alignment: "left",
-        cellRender: (params: ValueFormatterParams) =>
+        cellRender: (params: GridValueFormatterParams) =>
           handleClickCustomer ? (
             <ClickableDataGridCell
               label={params.row.data.customer_name}
@@ -258,7 +258,7 @@ export default function DebtFacilityReportDataGrid({
         caption: "Customer Identifier",
         width: ColumnWidths.Identifier,
         alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <LoanDrawerLauncher
             label={params.row.data.customer_identifier}
             loanId={params.row.data.id as string}
@@ -271,7 +271,7 @@ export default function DebtFacilityReportDataGrid({
         caption: "Disbursement Identifier",
         width: ColumnWidths.Identifier,
         alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <LoanDrawerLauncher
             label={params.row.data.disbursement_identifier}
             loanId={params.row.data.id as string}
@@ -334,7 +334,7 @@ export default function DebtFacilityReportDataGrid({
         caption: "Repayment Status",
         width: ColumnWidths.Status,
         alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <LoanPaymentStatusChip
             paymentStatus={
               params.row.data.payment_status as LoanPaymentStatusEnum

@@ -1,5 +1,5 @@
 import { Box } from "@material-ui/core";
-import { ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import InvoiceDrawerLauncher from "components/Invoices/InvoiceDrawerLauncher";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
 import PaymentDrawerLauncher from "components/Payment/PaymentDrawerLauncher";
@@ -220,7 +220,7 @@ export default function CustomerRepaymentTransactionsDataGrid({
         dataField: "payment.settlement_identifier",
         caption: "Repayment #",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <PaymentDrawerLauncher
             paymentId={params.row.data.payment.id}
             label={
@@ -237,7 +237,7 @@ export default function CustomerRepaymentTransactionsDataGrid({
         caption: "Customer Name",
         height: 40,
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) =>
+        cellRender: (params: GridValueFormatterParams) =>
           handleClickCustomer ? (
             <ClickableDataGridCell
               label={params.row.data.company_name}
@@ -291,7 +291,7 @@ export default function CustomerRepaymentTransactionsDataGrid({
         dataField: "transaction.loan.disbursement_identifier",
         caption: "Loan Disbursement Identifier",
         width: ColumnWidths.Identifier,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <Box>
             {params.row.data.transaction?.loan ? (
               <LoanDrawerLauncher
@@ -311,7 +311,7 @@ export default function CustomerRepaymentTransactionsDataGrid({
         dataField: "transaction.loan.artifact_name",
         caption: "Purchase Order / Invoice",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) =>
+        cellRender: (params: GridValueFormatterParams) =>
           params.row.data.transaction?.loan?.purchase_order ? (
             <PurchaseOrderDrawerLauncher
               label={params.row.data.transaction.loan.artifact_name}

@@ -1,5 +1,5 @@
 import { Box, Button, Tooltip, Typography } from "@material-ui/core";
-import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import CommentIcon from "@material-ui/icons/Comment";
 import PurchaseOrderDrawer from "components/PurchaseOrder/PurchaseOrderDrawer";
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
@@ -35,7 +35,7 @@ const getProperNote = (purchaseOrder: PurchaseOrderFragment) => {
     : purchaseOrder?.bank_note;
 };
 
-function getRows(purchaseOrders: PurchaseOrderFragment[]): RowsProp {
+function getRows(purchaseOrders: PurchaseOrderFragment[]) {
   return purchaseOrders.map((purchaseOrder) => {
     return formatRowModel({
       ...purchaseOrder,
@@ -102,7 +102,7 @@ export default function PurchaseOrdersDataGrid({
         dataField: "order_number",
         caption: "PO Number",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <Box display="flex" alignItems="center">
             <ClickableDataGridCell
               onClick={() => setSelectedPurchaseOrderId(params.row.data.id)}
@@ -126,7 +126,7 @@ export default function PurchaseOrdersDataGrid({
         alignment: "center",
         width: ColumnWidths.Actions,
         visible: !!actionItems && actionItems.length > 0,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <DataGridActionMenu params={params} actionItems={actionItems} />
         ),
       },
@@ -135,7 +135,7 @@ export default function PurchaseOrdersDataGrid({
         caption: "Confirmation Status",
         width: ColumnWidths.Status,
         alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <RequestStatusChip
             requestStatus={params.value as RequestStatusEnum}
           />
@@ -160,7 +160,7 @@ export default function PurchaseOrdersDataGrid({
         dataField: "company_name",
         caption: "Customer Name",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) =>
+        cellRender: (params: GridValueFormatterParams) =>
           handleClickCustomer ? (
             <ClickableDataGridCell
               label={params.row.data.company_name}
@@ -174,7 +174,7 @@ export default function PurchaseOrdersDataGrid({
         dataField: "vendor_name",
         caption: "Vendor Name",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <TextDataGridCell label={params.row.data.vendor_name} />
         ),
       },
@@ -189,7 +189,7 @@ export default function PurchaseOrdersDataGrid({
         dataField: "amount",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.amount} />
         ),
       },
@@ -199,7 +199,7 @@ export default function PurchaseOrdersDataGrid({
         dataField: "amount_funded",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <ProgressBarDataGridCell
             percentValue={params.row.data.percent_funded}
             tooltipLabel={`${formatCurrency(
@@ -231,7 +231,7 @@ export default function PurchaseOrdersDataGrid({
         caption: "Bank Note",
         dataField: "bank_note",
         width: 340,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <Button
             color="default"
             variant="text"

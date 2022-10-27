@@ -14,15 +14,13 @@ export default function BankCustomerOverviewSubpage({
   productType,
   isActiveContract,
 }: Props) {
-  return (
-    !!productType && (
-      <CurrentCustomerProvider companyId={companyId}>
-        <CustomerOverviewPageContent
-          companyId={companyId}
-          productType={productType}
-          isActiveContract={isActiveContract}
-        />
-      </CurrentCustomerProvider>
-    )
-  );
+  return !!productType ? (
+    <CurrentCustomerProvider companyId={companyId}>
+      <CustomerOverviewPageContent
+        companyId={companyId}
+        productType={productType}
+        isActiveContract={isActiveContract}
+      />
+    </CurrentCustomerProvider>
+  ) : null;
 }

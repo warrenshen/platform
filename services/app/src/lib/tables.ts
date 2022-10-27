@@ -1,4 +1,3 @@
-import { RowModel } from "@material-ui/data-grid";
 import { mapValues } from "lodash";
 
 export const ColumnWidths = {
@@ -38,7 +37,7 @@ export function truncateString(value: string, count: number = 64) {
 
 // Replaces every null value in given RowModel (an object) with the undefined value.
 // This is desired since a null value will break the export fucntionality of data grids.
-export function formatRowModel(rowModel: RowModel) {
+export function formatRowModel(rowModel: object) {
   return mapValues(rowModel, (value: any) =>
     value !== null ? value : undefined
   );

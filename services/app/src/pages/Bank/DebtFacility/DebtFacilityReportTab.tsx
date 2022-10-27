@@ -22,7 +22,7 @@ import {
 } from "lib/enum";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { ChangeEvent, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -55,7 +55,7 @@ export default function DebtFacilityReportTab({
   selectedDebtFacilityId,
   supportedProductTypes,
 }: Props) {
-  const history = useHistory();
+  const navigate = useNavigate();
   const classes = useStyles();
 
   const [lastDebtFacilityReportDate, setLastDebtFacilityReportDate] =
@@ -162,7 +162,7 @@ export default function DebtFacilityReportTab({
                 loansInfoLookup={loansInfoLookup}
                 isAnonymized={isAnonymized}
                 handleClickCustomer={(customerId) =>
-                  history.push(
+                  navigate(
                     getBankCompanyRoute(customerId, BankCompanyRouteEnum.Loans)
                   )
                 }

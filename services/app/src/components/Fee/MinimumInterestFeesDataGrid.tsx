@@ -1,4 +1,4 @@
-import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import DataGridActionMenu, {
@@ -7,7 +7,7 @@ import DataGridActionMenu, {
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
-function getRows(minimumInterestFees: any[]): RowsProp {
+function getRows(minimumInterestFees: any[]) {
   return minimumInterestFees.map((minimumInterestFee) => {
     return {
       ...minimumInterestFee,
@@ -40,7 +40,7 @@ export default function MinimumInterestFeesDataGrid({
         caption: "Action",
         alignment: "center",
         width: 80,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <DataGridActionMenu params={params} actionItems={actionItems} />
         ),
       },
@@ -60,7 +60,7 @@ export default function MinimumInterestFeesDataGrid({
         caption: "Minimum Interest Fee Amount",
         width: ColumnWidths.Currency,
         alignment: "right",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.fee_due} />
         ),
       },

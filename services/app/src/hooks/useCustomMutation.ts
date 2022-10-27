@@ -37,7 +37,7 @@ export default function useCustomMutation(
         errors: response.errors,
         data: response.data,
       };
-    } catch (error) {
+    } catch (error: any) {
       setError(error);
       setIsLoading(false);
       return {

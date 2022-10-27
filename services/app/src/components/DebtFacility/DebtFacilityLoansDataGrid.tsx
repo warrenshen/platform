@@ -1,4 +1,4 @@
-import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
 import DebtFacilityStatusChip from "components/Shared/Chip/DebtFacilityStatusChip";
 import LoanPaymentStatusChip from "components/Shared/Chip/LoanPaymentStatusChip";
@@ -62,7 +62,7 @@ interface Props {
 function getRows(
   loans: OpenLoanForDebtFacilityFragment[],
   supportedProductTypes: ProductTypeEnum[]
-): RowsProp {
+) {
   return loans.map((loan) => {
     const productType = getProductTypeFromOpenLoanForDebtFacilityFragment(loan);
 
@@ -136,7 +136,7 @@ export default function DebtFacilityLoansDataGrid({
         caption: "Customer Identifier",
         width: ColumnWidths.Identifier,
         alignment: "left",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <LoanDrawerLauncher
             label={params.row.data.customer_identifier}
             loanId={params.row.data.id as string}
@@ -149,7 +149,7 @@ export default function DebtFacilityLoansDataGrid({
         caption: "Disbursement Identifier",
         width: ColumnWidths.Identifier,
         alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <LoanDrawerLauncher
             label={params.row.data.disbursement_identifier}
             loanId={params.row.data.id as string}
@@ -161,7 +161,7 @@ export default function DebtFacilityLoansDataGrid({
         caption: "Debt Facility Status",
         width: ColumnWidths.Status,
         alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <DebtFacilityStatusChip
             debtFacilityStatus={
               params.row.data.debt_facility_status as DebtFacilityStatusEnum
@@ -190,7 +190,7 @@ export default function DebtFacilityLoansDataGrid({
         caption: "Repayment Status",
         width: ColumnWidths.Status,
         alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <LoanPaymentStatusChip
             paymentStatus={
               params.row.data.payment_status as LoanPaymentStatusEnum
@@ -219,7 +219,7 @@ export default function DebtFacilityLoansDataGrid({
         caption: "Customer Name",
         minWidth: ColumnWidths.MinWidth,
         alignment: "left",
-        cellRender: (params: ValueFormatterParams) =>
+        cellRender: (params: GridValueFormatterParams) =>
           handleClickCustomer ? (
             <ClickableDataGridCell
               label={params.row.data.company.name}

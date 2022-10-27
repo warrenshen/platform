@@ -1,5 +1,4 @@
 import { Chip as ChipMaterial, makeStyles } from "@material-ui/core";
-import { CellValue } from "@material-ui/data-grid";
 
 const useStyles = makeStyles({
   chip: {
@@ -15,7 +14,7 @@ function Chip({
   color,
   icon,
 }: {
-  label: CellValue;
+  label: any;
   icon?: JSX.Element;
   background?: string;
   color?: string;

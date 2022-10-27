@@ -7,9 +7,7 @@ export default function useCustomSnackbar() {
     const showMessage =
       (type: string) =>
       (message: string, action = "", handleAction = () => {}) => {
-        snackbar.showMessage(message, action, handleAction, {
-          type,
-        });
+        snackbar.showMessage(message, action, handleAction);
       };
     return {
       ...snackbar,

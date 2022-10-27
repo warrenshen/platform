@@ -1,4 +1,4 @@
-import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import {
@@ -44,7 +44,7 @@ function getRows(
   fees: (PaymentLimitedFragment & {
     transactions: Array<Pick<Transactions, "id"> & TransactionFragment>;
   })[]
-): RowsProp {
+) {
   const validFeeTypes = [
     PaymentTypeEnum.Fee,
     PaymentTypeEnum.FeeWaiver,
@@ -159,7 +159,7 @@ export default function FeesDataGrid({
         caption: "Customer Name",
         minWidth: ColumnWidths.MinWidth,
         calculateCellValue: ({ company }: any) => company?.name,
-        cellRender: (params: ValueFormatterParams) =>
+        cellRender: (params: GridValueFormatterParams) =>
           handleClickCustomer ? (
             <ClickableDataGridCell
               label={params.row.data.company.name}

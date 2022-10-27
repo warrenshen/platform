@@ -19,7 +19,7 @@ import { anonymousRoutes } from "lib/routes";
 import ReviewInvoicePaymentConfirmModal from "pages/Anonymous/ReviewInvoicePayment/ReviewInvoicePaymentConfirmModal";
 import ReviewInvoicePaymentRejectModal from "pages/Anonymous/ReviewInvoicePayment/ReviewInvoicePaymentRejectModal";
 import { useMemo, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 const Buttons = styled.div`
@@ -87,7 +87,7 @@ export default function ReviewInvoicePaymentPage(props: Props) {
   const linkVal = location.state?.link_val;
   const invoiceId = payload?.invoice_id;
 
-  const history = useHistory();
+  const navigate = useNavigate();
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
 
@@ -134,7 +134,7 @@ export default function ReviewInvoicePaymentPage(props: Props) {
     invoice &&
     (invoice.payment_confirmed_at || invoice.payment_rejected_at)
   ) {
-    history.replace(anonymousRoutes.reviewInvoicePaymentComplete);
+    navigate(anonymousRoutes.reviewInvoicePaymentComplete, { replace: true });
   }
 
   const isDataReady = !isInvoiceLoading && !error;
@@ -310,7 +310,7 @@ export default function ReviewInvoicePaymentPage(props: Props) {
                   linkVal={linkVal}
                   handleClose={() => setIsConfirmModalOpen(false)}
                   handleConfirmSuccess={() => {
-                    history.push({
+                    navigate({
                       pathname: anonymousRoutes.reviewInvoicePaymentComplete,
                     });
                   }}
@@ -322,7 +322,7 @@ export default function ReviewInvoicePaymentPage(props: Props) {
                   linkVal={linkVal}
                   handleClose={() => setIsRejectModalOpen(false)}
                   handleRejectSuccess={() =>
-                    history.push({
+                    navigate({
                       pathname: anonymousRoutes.reviewInvoicePaymentComplete,
                     })
                   }

@@ -1,5 +1,5 @@
 import { Box, Typography } from "@material-ui/core";
-import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import PurchaseOrderStatusChip from "components/Shared/Chip/PurchaseOrderStatusChip";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import { PurchaseOrderFragment } from "generated/graphql";
@@ -13,7 +13,7 @@ interface Props {
   purchaseOrder: PurchaseOrderFragment;
 }
 
-const getRows = (history: any[]): RowsProp => {
+const getRows = (history: any[]) => {
   return history
     .map((event) => ({
       ...event,
@@ -40,7 +40,7 @@ const columns = [
     dataField: "new_purchase_order_status",
     width: ColumnWidths.StatusChip,
     alignment: "left",
-    cellRender: (params: ValueFormatterParams) => {
+    cellRender: (params: GridValueFormatterParams) => {
       return (
         <PurchaseOrderStatusChip
           purchaseOrderStatus={

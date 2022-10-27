@@ -1,4 +1,4 @@
-import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
 import ListDataGridCell from "components/Shared/DataGrid/ListDataGridCell";
@@ -20,7 +20,7 @@ interface Props {
   pageSize?: number;
 }
 
-function getRows(facilities: Facilities): RowsProp {
+function getRows(facilities: Facilities) {
   return facilities.map((facility) => ({
     ...facility,
     supported_product_types: !!facility.product_types
@@ -56,7 +56,7 @@ export default function DebtFacilityCapacityDataGrid({
         dataField: "name",
         width: ColumnWidths.MinWidth,
         alignment: "left",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <TextDataGridCell label={params.row.data.name} />
         ),
       },
@@ -65,7 +65,7 @@ export default function DebtFacilityCapacityDataGrid({
         dataField: "product_types",
         width: ColumnWidths.ProductType,
         alignment: "left",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <ListDataGridCell values={params.row.data.supported_product_types} />
         ),
       },
@@ -74,7 +74,7 @@ export default function DebtFacilityCapacityDataGrid({
         dataField: "drawn_capacity",
         width: ColumnWidths.Currency,
         alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.drawn_capacity} />
         ),
       },
@@ -83,7 +83,7 @@ export default function DebtFacilityCapacityDataGrid({
         dataField: "max_capacity",
         width: ColumnWidths.Currency,
         alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <CurrencyDataGridCell value={params.row.data.max_capacity} />
         ),
       },

@@ -16,10 +16,10 @@ import {
 import { Action } from "lib/auth/rbac-rules";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useMemo, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function BankPurchaseOrdersDraftedTab() {
-  const history = useHistory();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
 
   const { data, error } = useGetDraftPurchaseOrdersSubscription();
@@ -51,10 +51,10 @@ export default function BankPurchaseOrdersDraftedTab() {
 
   const handleClickCustomer = useMemo(
     () => (customerId: CustomerForBankFragment["id"]) =>
-      history.push(
+      navigate(
         getBankCompanyRoute(customerId, BankCompanyRouteEnum.PurchaseOrders)
       ),
-    [history]
+    [navigate]
   );
 
   return (

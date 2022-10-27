@@ -15,7 +15,7 @@ import {
 import { todayAsDateStringServer } from "lib/date";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { ChangeEvent, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -42,7 +42,7 @@ export default function BankReportsFinancialsByDateTab() {
   const [isActiveSelected, setIsActiveSelected] = useState(true);
 
   const classes = useStyles();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const [selectedDate, setSelectedDate] = useState(todayAsDateStringServer());
 
@@ -125,7 +125,7 @@ export default function BankReportsFinancialsByDateTab() {
             isSortingDisabled={false}
             financialSummaries={financialSummariesByDate}
             handleClickCustomer={(customerId) =>
-              history.push(
+              navigate(
                 getBankCompanyRoute(customerId, BankCompanyRouteEnum.Overview)
               )
             }

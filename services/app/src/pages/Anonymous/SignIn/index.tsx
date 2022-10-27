@@ -10,7 +10,7 @@ import AuthPage from "components/Shared/Page/AuthPage";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { anonymousRoutes } from "lib/routes";
 import { useContext, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useTitle } from "react-use";
 
 export default function SignInPage() {
@@ -21,7 +21,7 @@ export default function SignInPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const onFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -31,7 +31,7 @@ export default function SignInPage() {
       // If sign in is successful, isSignedIn will flip to true and cause a history.push below.
       // `await` is necessary here (even though the IDE says it is not)
       // to catch any errors thrown by `signIn`.
-      await signIn(email, password, (successUrl) => history.push(successUrl));
+      await signIn(email, password, (successUrl) => navigate(successUrl));
     } catch (err) {
       setError("Error: email and password combination not valid.");
       setPassword("");

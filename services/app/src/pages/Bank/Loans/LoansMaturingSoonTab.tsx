@@ -10,7 +10,7 @@ import { useGetFundedLoansForBankSubscription } from "generated/graphql";
 import { parseDateStringServer } from "lib/date";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useMemo, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -25,7 +25,7 @@ const Container = styled.div`
 const matureDaysList = [7, 14, 30];
 
 export default function BankLoansMaturingSoonTab() {
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const [matureDays, setMatureDays] = useState(matureDaysList[1]);
 
@@ -84,7 +84,7 @@ export default function BankLoansMaturingSoonTab() {
           loans={maturingLoans}
           matureDays={matureDays}
           handleClickCustomer={(customerId) =>
-            history.push(
+            navigate(
               getBankCompanyRoute(customerId, BankCompanyRouteEnum.Loans)
             )
           }

@@ -1,5 +1,5 @@
 import { Box } from "@material-ui/core";
-import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import DatetimeDataGridCell from "components/Shared/DataGrid/DatetimeDataGridCell";
 import { ColumnWidths } from "lib/tables";
@@ -12,7 +12,7 @@ interface Props {
   partnershipRequests: any[];
 }
 
-function getRows(requests: any[]): RowsProp {
+function getRows(requests: any[]) {
   return requests.map((request) => ({
     ...request,
     requesting_company: {
@@ -61,7 +61,7 @@ export default function AwaitingPartnershipsDataGrid({
         dataField: "created_at",
         width: ColumnWidths.Type,
         alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <DatetimeDataGridCell
             isTimeVisible
             datetimeString={params.row.data.created_at}
@@ -73,7 +73,7 @@ export default function AwaitingPartnershipsDataGrid({
         dataField: "license_info",
         width: ColumnWidths.Type,
         alignment: "center",
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <Box>{params.row.data.license_ids}</Box>
         ),
       },

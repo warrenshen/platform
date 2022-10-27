@@ -1,4 +1,4 @@
-import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import PaymentDrawerLauncher from "components/Payment/PaymentDrawerLauncher";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import { GetAdvancesByMethodAndPaymentDateQuery } from "generated/graphql";
@@ -6,9 +6,7 @@ import { formatDateString } from "lib/date";
 import { ColumnWidths, formatRowModel } from "lib/tables";
 import { useMemo } from "react";
 
-function getRows(
-  payments: GetAdvancesByMethodAndPaymentDateQuery["payments"]
-): RowsProp {
+function getRows(payments: GetAdvancesByMethodAndPaymentDateQuery["payments"]) {
   return payments.map((payment) => {
     const bespokeBankAccount = payment.company_bank_account;
     const recipientBankAccount = payment.recipient_bank_account;
@@ -58,7 +56,7 @@ export default function WireAdvancesDataGrid({
         dataField: "id",
         caption: "Advance ID",
         width: 140,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <PaymentDrawerLauncher paymentId={params.row.data.id} />
         ),
       },

@@ -6,7 +6,6 @@ import {
   FormControl,
   Typography,
 } from "@material-ui/core";
-import { RowsProp } from "@material-ui/data-grid";
 import { Alert } from "@material-ui/lab";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import ClickableDataGridCell from "components/Shared/DataGrid/v2/ClickableDataGridCell";
@@ -64,7 +63,7 @@ const decorateLoansWithPaymentDate = (
     loan: { ...l.loan, requested_payment_date: paymentDate },
   }));
 
-function getRows(computedPurchaseOrderLoans: any[]): RowsProp {
+function getRows(computedPurchaseOrderLoans: any[]) {
   return computedPurchaseOrderLoans.map((computedPurchaseOrderLoan) => {
     const purchaseOrder = computedPurchaseOrderLoan.artifact;
     return formatRowModel({

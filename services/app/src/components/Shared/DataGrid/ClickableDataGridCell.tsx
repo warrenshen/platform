@@ -1,6 +1,6 @@
-import { Button, makeStyles } from "@material-ui/core";
+import { Button, Link, makeStyles } from "@material-ui/core";
 import { PrimaryDefaultColor } from "components/Shared/Colors/GlobalColors";
-import { Link } from "react-router-dom";
+//import { Link } from "react-router-dom";
 import styled from "styled-components";
 
 const ButtonText = styled.span<{ $useNewColor?: boolean }>`
@@ -47,11 +47,14 @@ export default function ClickableDataGridCell({
 }: Props) {
   const classes = useStyles();
 
-  return (
+  return !!url ? (
+    <Link href={url} style={{ textDecoration: "none" }}>
+      <ButtonText>{label}</ButtonText>
+    </Link>
+  ) : (
     <Button
       data-cy={dataCy}
       className={classes.clickableCell}
-      {...(url ? { component: Link, to: url } : {})}
       onClick={onClick}
     >
       <ButtonText>{label}</ButtonText>

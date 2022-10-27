@@ -1,4 +1,4 @@
-import { RowsProp, ValueFormatterParams } from "@material-ui/data-grid";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
 import PaymentDrawerLauncher from "components/Payment/PaymentDrawerLauncher";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
@@ -17,7 +17,7 @@ interface Props {
   isExcelExport?: boolean;
 }
 
-const getRows = (transactions: TransactionExtendedFragment[]): RowsProp => {
+const getRows = (transactions: TransactionExtendedFragment[]) => {
   const typeToPrefix: Record<string, string> = {
     [PaymentTypeEnum.Advance]: "A",
     [PaymentTypeEnum.Repayment]: "R",
@@ -120,7 +120,7 @@ function TransactionsDataGrid({
         caption: "Payment ID",
         visible: !isMiniTable,
         width: 140,
-        cellRender: (params: ValueFormatterParams) => (
+        cellRender: (params: GridValueFormatterParams) => (
           <PaymentDrawerLauncher paymentId={params.row.data.payment.id} />
         ),
       },
@@ -146,7 +146,7 @@ function TransactionsDataGrid({
         dataField: "loan_id",
         caption: "Loan ID",
         width: ColumnWidths.Identifier,
-        cellRender: (params: ValueFormatterParams) =>
+        cellRender: (params: GridValueFormatterParams) =>
           !!params.row.data.loan ? (
             <LoanDrawerLauncher
               label={params.row.data.loan.id}

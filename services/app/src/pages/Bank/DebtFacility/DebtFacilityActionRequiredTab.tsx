@@ -8,7 +8,7 @@ import { OpenLoanForDebtFacilityFragment } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useMemo, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -31,7 +31,7 @@ export default function DebtFacilityActionRequiredTab({
   searchQuery,
   setSearchQuery,
 }: Props) {
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const [selectedLoans, setSelectedLoans] = useState<
     OpenLoanForDebtFacilityFragment[]
@@ -105,7 +105,7 @@ export default function DebtFacilityActionRequiredTab({
             isMultiSelectEnabled
             loans={loans}
             handleClickCustomer={(customerId) =>
-              history.push(
+              navigate(
                 getBankCompanyRoute(customerId, BankCompanyRouteEnum.Loans)
               )
             }

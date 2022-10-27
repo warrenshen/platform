@@ -24,7 +24,7 @@ import { computePurchaseOrderDueDateDateStringClient } from "lib/purchaseOrders"
 import { anonymousRoutes } from "lib/routes";
 import { useMemo, useState } from "react";
 import { isMobile } from "react-device-detect";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 const Buttons = styled(Box)<{
@@ -81,7 +81,7 @@ export default function ReviewPurchaseOrderPage({ location }: Props) {
   const linkVal = location.state?.link_val;
   const purchaseOrderId = payload?.purchase_order_id;
 
-  const history = useHistory();
+  const navigate = useNavigate();
   const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
   const [isRequestChangesModalOpen, setIsRequestChangesModalOpen] =
     useState(false);
@@ -130,7 +130,7 @@ export default function ReviewPurchaseOrderPage({ location }: Props) {
   ) {
     // If Purchase Order is already reviewed, redirect the user to the complete page.
     // This is so the user cannot re-review an already reviewed Purchase Order.
-    history.replace(anonymousRoutes.reviewPurchaseOrderComplete);
+    navigate(anonymousRoutes.reviewPurchaseOrderComplete, { replace: true });
   }
 
   const isMetrcBased = !!purchaseOrder?.is_metrc_based;
@@ -267,8 +267,7 @@ export default function ReviewPurchaseOrderPage({ location }: Props) {
                   linkVal={linkVal}
                   handleClose={() => setIsApproveModalOpen(false)}
                   handleApproveSuccess={() => {
-                    history.push({
-                      pathname: anonymousRoutes.reviewPurchaseOrderComplete,
+                    navigate(anonymousRoutes.reviewPurchaseOrderComplete, {
                       state: {
                         vendor_id: purchaseOrder.vendor_id,
                         link_val: linkVal,
@@ -283,8 +282,7 @@ export default function ReviewPurchaseOrderPage({ location }: Props) {
                   linkVal={linkVal}
                   handleClose={() => setIsRequestChangesModalOpen(false)}
                   handleRequestChangesSuccess={() =>
-                    history.push({
-                      pathname: anonymousRoutes.reviewPurchaseOrderComplete,
+                    navigate(anonymousRoutes.reviewPurchaseOrderComplete, {
                       state: {
                         vendor_id: purchaseOrder.vendor_id,
                         link_val: linkVal,
@@ -299,8 +297,7 @@ export default function ReviewPurchaseOrderPage({ location }: Props) {
                   linkVal={linkVal}
                   handleClose={() => setIsRejectModalOpen(false)}
                   handleRejectSuccess={() =>
-                    history.push({
-                      pathname: anonymousRoutes.reviewPurchaseOrderComplete,
+                    navigate(anonymousRoutes.reviewPurchaseOrderComplete, {
                       state: {
                         vendor_id: purchaseOrder.vendor_id,
                         link_val: linkVal,
