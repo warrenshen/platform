@@ -136,7 +136,7 @@
   "proxy": "http://localhost:7000",
   "scripts": {
     "start": "export NODE_OPTIONS='--openssl-legacy-provider --max_old_space_size=2560' && cross-env PORT=3005 react-scripts start",
-    "start-test": "./node_modules/.bin/cross-env PORT=3006 react-scripts start",
+    "start-test": "export NODE_OPTIONS='--openssl-legacy-provider --max_old_space_size=2560' && ./node_modules/.bin/cross-env PORT=3006 react-scripts start",
     "start-test-app": "cross-env PORT=3006 REACT_APP_BESPOKE_API_ENDPOINT=http://localhost:7002 REACT_APP_BESPOKE_GRAPHQL_ENDPOINT=http://localhost:7004/v1/graphql REACT_APP_BESPOKE_WS_GRAPHQL_ENDPOINT=ws://localhost:7004/v1/graphql react-scripts start",
     "build": "export NODE_OPTIONS='--openssl-legacy-provider --max_old_space_size=2560' && react-scripts build",
     "test": "react-scripts test",
