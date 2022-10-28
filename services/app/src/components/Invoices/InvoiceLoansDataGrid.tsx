@@ -16,6 +16,7 @@ export default function InvoiceLoansDataGrid({
   pager = true,
   loans,
   selectedLoanIds,
+  isFilteringEnabled,
   handleSelectLoans,
 }: ArtifactLoansDataGridFlagProps & ArtifactLoansDataGridLoansProps) {
   return (
@@ -34,6 +35,7 @@ export default function InvoiceLoansDataGrid({
       selectedLoanIds={selectedLoanIds}
       handleSelectLoans={handleSelectLoans}
       artifactCaption={"Invoice Number"}
+      isFilteringEnabled={isFilteringEnabled}
     />
   );
 }

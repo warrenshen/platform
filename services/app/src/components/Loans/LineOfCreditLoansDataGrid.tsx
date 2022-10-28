@@ -7,6 +7,7 @@ function LineOfCreditLoansDataGrid({
   isApprovalStatusVisible = false,
   isDisbursementIdentifierVisible = false,
   isExcelExport = true,
+  isFilteringEnabled,
   isMaturityVisible = true,
   isMultiSelectEnabled,
   isOriginationDateVisible = true,
@@ -19,19 +20,20 @@ function LineOfCreditLoansDataGrid({
 }: ArtifactLoansDataGridFlagProps & ArtifactLoansDataGridLoansProps) {
   return (
     <ArtifactLoansDataGrid
+      artifactCaption={"Recipient Vendor"}
+      handleSelectLoans={handleSelectLoans}
       isApprovalStatusVisible={isApprovalStatusVisible}
       isDisbursementIdentifierVisible={isDisbursementIdentifierVisible}
       isExcelExport={isExcelExport}
+      isFilteringEnabled={isFilteringEnabled}
       isMaturityVisible={isMaturityVisible}
       isMultiSelectEnabled={isMultiSelectEnabled}
       isOriginationDateVisible={isOriginationDateVisible}
       isRequestedDateVisible={isRequestedDateVisible}
       isViewNotesEnabled={isViewNotesEnabled}
-      pager={pager}
       loans={loans}
+      pager={pager}
       selectedLoanIds={selectedLoanIds}
-      handleSelectLoans={handleSelectLoans}
-      artifactCaption={"Recipient Vendor"}
     />
   );
 }

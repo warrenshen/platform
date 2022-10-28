@@ -125,6 +125,7 @@ function LoansFunded({
         <Box display="flex" flex={1} data-cy="funded-loans-data-grid-container">
           <PolymorphicLoansDataGrid
             isDisbursementIdentifierVisible={isBankUser}
+            isFilteringEnabled={true}
             // We do not show loan outstanding principal, interest, late fees for Line of Credit.
             isMaturityVisible={productType !== ProductTypeEnum.LineOfCredit}
             isMultiSelectEnabled={

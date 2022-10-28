@@ -7,6 +7,7 @@ export default function PurchaseOrderLoansDataGrid({
   isApprovalStatusVisible = false,
   isDisbursementIdentifierVisible = false,
   isExcelExport = true,
+  isFilteringEnabled,
   isMaturityVisible = true,
   isMiniTable = false,
   isMultiSelectEnabled = false,
@@ -22,22 +23,23 @@ export default function PurchaseOrderLoansDataGrid({
 }: ArtifactLoansDataGridFlagProps & ArtifactLoansDataGridLoansProps) {
   return (
     <ArtifactLoansDataGrid
+      artifactCaption={"Purchase Order"}
+      handleSelectLoans={handleSelectLoans}
       isApprovalStatusVisible={isApprovalStatusVisible}
+      isDaysPastDueVisible={isDaysPastDueVisible}
       isDisbursementIdentifierVisible={isDisbursementIdentifierVisible}
+      isExcelExport={isExcelExport}
+      isFilteringEnabled={isFilteringEnabled}
       isMaturityVisible={isMaturityVisible}
       isMiniTable={isMiniTable}
       isMultiSelectEnabled={isMultiSelectEnabled}
       isOriginationDateVisible={isOriginationDateVisible}
       isRequestedDateVisible={isRequestedDateVisible}
       isViewNotesEnabled={isViewNotesEnabled}
-      isDaysPastDueVisible={isDaysPastDueVisible}
       isVendorVisible={isVendorVisible}
-      isExcelExport={isExcelExport}
-      pager={pager}
       loans={loans}
+      pager={pager}
       selectedLoanIds={selectedLoanIds}
-      handleSelectLoans={handleSelectLoans}
-      artifactCaption={"Purchase Order"}
     />
   );
 }

@@ -20,6 +20,7 @@ function PolymorphicLoansDataGrid({
   isOriginationDateVisible = true,
   isRequestedDateVisible = false,
   isDaysPastDueVisible = false,
+  isFilteringEnabled = false,
   isViewNotesEnabled,
   pager,
   productType,
@@ -37,6 +38,7 @@ function PolymorphicLoansDataGrid({
         isApprovalStatusVisible={isApprovalStatusVisible}
         isDisbursementIdentifierVisible={isDisbursementIdentifierVisible}
         isExcelExport={isExcelExport}
+        isFilteringEnabled={isFilteringEnabled}
         isMaturityVisible={isMaturityVisible}
         isMultiSelectEnabled={isMultiSelectEnabled}
         isOriginationDateVisible={isOriginationDateVisible}
@@ -55,6 +57,7 @@ function PolymorphicLoansDataGrid({
         isApprovalStatusVisible={isApprovalStatusVisible}
         isDisbursementIdentifierVisible={isDisbursementIdentifierVisible}
         isExcelExport={isExcelExport}
+        isFilteringEnabled={isFilteringEnabled}
         isMaturityVisible={isMaturityVisible}
         isMultiSelectEnabled={isMultiSelectEnabled}
         isOriginationDateVisible={isOriginationDateVisible}
@@ -72,6 +75,7 @@ function PolymorphicLoansDataGrid({
         isApprovalStatusVisible={isApprovalStatusVisible}
         isDisbursementIdentifierVisible={isDisbursementIdentifierVisible}
         isExcelExport={isExcelExport}
+        isFilteringEnabled={isFilteringEnabled}
         isMaturityVisible={isMaturityVisible}
         isMultiSelectEnabled={isMultiSelectEnabled}
         isOriginationDateVisible={isOriginationDateVisible}

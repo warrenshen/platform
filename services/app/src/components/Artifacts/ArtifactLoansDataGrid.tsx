@@ -11,7 +11,11 @@ import {
   Loans,
 } from "generated/graphql";
 import { parseDateStringServer } from "lib/date";
-import { LoanPaymentStatusEnum, LoanStatusEnum } from "lib/enum";
+import {
+  LoanPaymentStatusEnum,
+  LoanPaymentStatusToLabel,
+  LoanStatusEnum,
+} from "lib/enum";
 import {
   createLoanCustomerIdentifier,
   createLoanDisbursementIdentifier,
@@ -26,6 +30,7 @@ export interface ArtifactLoansDataGridFlagProps {
   isApprovalStatusVisible?: boolean;
   isDisbursementIdentifierVisible?: boolean;
   isExcelExport?: boolean;
+  isFilteringEnabled?: boolean;
   isMaturityVisible?: boolean; // Whether maturity date, principal balance, interest, and fees are visible.
   isMiniTable?: boolean;
   isMultiSelectEnabled?: boolean;
@@ -78,6 +83,7 @@ export default function ArtifactLoansDataGrid({
   isApprovalStatusVisible = false,
   isDisbursementIdentifierVisible = false,
   isExcelExport = true,
+  isFilteringEnabled = false,
   isMaturityVisible = true,
   isMiniTable = false,
   isMultiSelectEnabled = false,
@@ -146,6 +152,22 @@ export default function ArtifactLoansDataGrid({
             paymentStatus={params.value as LoanPaymentStatusEnum}
           />
         ),
+        lookup: {
+          dataSource: {
+            store: {
+              type: "array",
+              data: Object.values(LoanPaymentStatusEnum).map(
+                (loanPaymentStatus) => ({
+                  loan_payment_status: loanPaymentStatus,
+                  label: LoanPaymentStatusToLabel[loanPaymentStatus],
+                })
+              ),
+              key: "loan_payment_status",
+            },
+          },
+          valueExpr: "loan_payment_status",
+          displayExpr: "label",
+        },
       },
       {
         dataField: "requesting_user",
@@ -285,14 +307,15 @@ export default function ArtifactLoansDataGrid({
 
   return (
     <ControlledDataGrid
+      columns={columns}
+      dataSource={rows}
+      filtering={{ enable: isFilteringEnabled }}
       isExcelExport={isExcelExport}
+      onSelectionChanged={handleSelectionChanged}
       pager={pager}
       pageSize={isMiniTable ? 10 : 10}
       select={isMultiSelectEnabled && !isMiniTable}
-      dataSource={rows}
-      columns={columns}
       selectedRowKeys={selectedLoanIds}
-      onSelectionChanged={handleSelectionChanged}
     />
   );
 }
