@@ -1,4 +1,3 @@
-import { Box } from "@material-ui/core";
 import BankCompanyPage from "pages/Bank/Company/BankCompanyPage";
 import CustomerLoansPageContent from "pages/Customer/Loans/LoansPageContent";
 
@@ -6,13 +5,11 @@ export default function BankCompanyCustomerLoansPage() {
   return (
     <BankCompanyPage>
       {({ companyId, productType, isActiveContract }) => (
-        <Box width={`calc(100% - 200px)`}>
-          <CustomerLoansPageContent
-            companyId={companyId}
-            productType={productType}
-            isActiveContract={isActiveContract}
-          />
-        </Box>
+        <CustomerLoansPageContent
+          companyId={companyId}
+          productType={productType}
+          isActiveContract={isActiveContract}
+        />
       )}
     </BankCompanyPage>
   );

@@ -458,9 +458,9 @@ export default function BankCompanyPage({ children }: Props) {
   };
 
   return (
-    <Page appBarTitle={companyName || ""}>
-      <CurrentCustomerProvider companyId={companyId}>
-        <Box display="flex" width="100%">
+    <CurrentCustomerProvider companyId={companyId}>
+      <Page appBarTitle={companyName || ""}>
+        <Box display="flex" alignSelf="stretch">
           <Box className={classes.drawer}>
             <TitleText>{companyName || ""}</TitleText>
             {isRoleBankUser(role) && renderSurveillanceStatus()}
@@ -548,7 +548,7 @@ export default function BankCompanyPage({ children }: Props) {
                 ))}
             </List>
           </Box>
-          <>
+          <Box className={classes.content}>
             {!!companyId
               ? children({
                   companyId,
@@ -556,9 +556,9 @@ export default function BankCompanyPage({ children }: Props) {
                   isActiveContract: isActiveContract || null,
                 })
               : null}
-          </>
+          </Box>
         </Box>
-      </CurrentCustomerProvider>
-    </Page>
+      </Page>
+    </CurrentCustomerProvider>
   );
 }
