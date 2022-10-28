@@ -76,21 +76,21 @@ export default function MetrcTransferPackagesDataGridNew({
         caption: "Product Name",
         minWidth: ColumnWidths.MinWidth,
       },
-      //   {
-      //     dataField: "shipped_quantity",
-      //     caption: "Shipped Quantity (UoM)",
-      //     width: ColumnWidths.Count,
-      //   },
-      //   {
-      //     dataField: "shipper_wholesale_price",
-      //     caption: "Shipper Wholesale Price",
-      //     format: {
-      //       type: "currency",
-      //       precision: CurrencyPrecision,
-      //     },
-      //     width: ColumnWidths.Currency,
-      //     alignment: "right",
-      //   },
+      {
+        dataField: "shipped_quantity",
+        caption: "Shipped Quantity (UoM)",
+        width: ColumnWidths.Count,
+      },
+      {
+        dataField: "shipper_wholesale_price",
+        caption: "Shipper Wholesale Price",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
+        width: ColumnWidths.Currency,
+        alignment: "right",
+      },
       {
         dataField: "shipment_package_state",
         caption: "Shipment Package State",
@@ -146,11 +146,6 @@ export default function MetrcTransferPackagesDataGridNew({
         caption: "Item State",
         minWidth: ColumnWidths.MinWidth,
       },
-      // {
-      //   dataField: "uom",
-      //   caption: "UOM",
-      //   minWidth: ColumnWidths.MinWidth,
-      // },
       {
         dataField: "item_unit_quantity",
         caption: "Item Unit Quantity",

@@ -41,7 +41,6 @@ export default function BankPurchaseOrdersReadyForFinancingTab() {
   const { data, error } = useGetPurchaseOrdersByNewStatusSubscription({
     variables: {
       statuses: [
-        NewPurchaseOrderStatus.Draft,
         NewPurchaseOrderStatus.PendingApprovalByVendor,
         NewPurchaseOrderStatus.ChangesRequestedByVendor,
         NewPurchaseOrderStatus.ChangesRequestedByBespoke,
