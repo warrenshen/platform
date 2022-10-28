@@ -229,6 +229,7 @@ def dedupe_tuples(session: Session, row_tuples: List[List[str]]):
 		# De-dupe operations for both payor / vendor cases
 		# 1) Change company_licenses.company_id
 		# 2) Change users.company_id
+		# 3) Change metrc_api_keys.company_id
 		company_licenses = session.query(models.CompanyLicense).filter(
 			models.CompanyLicense.company_id == to_delete_company_id
 		).all()
@@ -247,6 +248,12 @@ def dedupe_tuples(session: Session, row_tuples: List[List[str]]):
 		).all()
 		for user in users:
 			user.company_id = replacing_company_id
+
+		metrc_api_keys = session.query(models.MetrcApiKey).filter(
+			models.MetrcApiKey.company_id == to_delete_company_id
+		).all()
+		for metrc_api_key in metrc_api_keys:
+			metrc_api_key.company_id = replacing_company_id
 
 		# Delete everything about the company ID to delete
 		_delete_company(to_delete_company_id, session)
