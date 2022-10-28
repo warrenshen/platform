@@ -32,28 +32,9 @@ import {
   getBankCompanyRoute,
 } from "lib/routes";
 import { isPayorsTabVisible, isVendorsTabVisible } from "lib/settings";
-import BankCustomerContractPage from "pages/Bank/Company/Contract";
 import { useContext } from "react";
 import { Link, matchPath, useLocation, useParams } from "react-router-dom";
 import styled from "styled-components";
-
-import BankCustomerAccountFeesCreditsSubpage from "./AccountFeesCredits";
-import BankCustomerBorrowingBaseSubpage from "./BorrowingBase";
-import BankCustomerFinancialCertificationsSubpage from "./FinancialCertifications";
-import BankCustomerFinancingRequestsSubpage from "./FinancingRequests";
-import BankCustomerInvoicesSubpage from "./Invoices";
-import BankCustomerLoansSubpage from "./Loans";
-import BankCustomerLoansSubpageNew from "./LoansNew";
-import BankCustomerMetrcSubpage from "./Metrc";
-import BankCustomerOverviewSubpage from "./Overview";
-import BankCompanyPayorPartnershipsSubpage from "./PayorPartnerships";
-import BankCustomerPayorsSubpage from "./Payors";
-//import BankCustomerPurchaseOrdersSubpageNew from "./PurchaseOrdersNew";
-import BankCustomerPaymentsSubpage from "./Repayments";
-import BankCustomerReportsSubpage from "./Reports";
-import BankCustomerSettingsSubpage from "./Settings";
-import BankCompanyVendorPartnershipsSubpage from "./VendorPartnerships";
-import BankCustomerVendorsSubpage from "./Vendors";
 
 const DRAWER_WIDTH = 200;
 
@@ -162,13 +143,6 @@ type BankCustomerPath = {
   path: string;
   counter?: number;
   counterColor?: string;
-  component: NonNullable<
-    React.FunctionComponent<{
-      companyId: Companies["id"];
-      productType: ProductTypeEnum | null;
-      isActiveContract: boolean;
-    }>
-  >;
 };
 
 const getCustomerPaths = (
@@ -192,7 +166,6 @@ const getCustomerPaths = (
           dataCy: "customer-overview",
           label: "Overview",
           path: bankRoutes.company.overview,
-          component: BankCustomerOverviewSubpage,
         },
         {
           visible:
@@ -207,7 +180,6 @@ const getCustomerPaths = (
           path: bankRoutes.company.purchaseOrders,
           counter: purchaseOrdersChangesRequestedCount,
           counterColor: "rgb(230, 126, 34)",
-          component: BankCustomerInvoicesSubpage,
         },
         {
           visible:
@@ -219,7 +191,6 @@ const getCustomerPaths = (
           dataCy: "customer-invoices",
           label: "Invoices",
           path: bankRoutes.company.invoices,
-          component: BankCustomerInvoicesSubpage,
         },
         {
           visible:
@@ -229,26 +200,22 @@ const getCustomerPaths = (
           dataCy: "customer-financing-requests",
           label: "Financing Requests",
           path: bankRoutes.company.financingRequests,
-          component: BankCustomerFinancingRequestsSubpage,
         },
         {
           dataCy: "customer-loans",
           label: "Loans",
           path: bankRoutes.company.loans,
-          component: BankCustomerLoansSubpage,
         },
         {
           visible: isBankUser && environment !== "production", // TODO: Remove this when we want to rollout to the users
           dataCy: "customer-loans-new",
           label: "Loans New",
           path: bankRoutes.company.loansNew,
-          component: BankCustomerLoansSubpageNew,
         },
         {
           dataCy: "customer-repayments",
           label: "Repayments",
           path: bankRoutes.company.payments,
-          component: BankCustomerPaymentsSubpage,
         },
         {
           dataCy: "borrowing-base",
@@ -259,7 +226,6 @@ const getCustomerPaths = (
           path: bankRoutes.company.borrowingBase,
           counter: isLatestBorrowingBaseMissing ? 1 : 0,
           counterColor: "rgb(230, 126, 34)",
-          component: BankCustomerBorrowingBaseSubpage,
         },
         {
           dataCy: "financial-certifications",
@@ -270,27 +236,23 @@ const getCustomerPaths = (
             missingFinancialReportCount > 1
               ? "rgb(230, 126, 34)"
               : "rgb(241, 196, 15)",
-          component: BankCustomerFinancialCertificationsSubpage,
         },
         {
           visible: isVendorsTabVisible(productType),
           dataCy: "customer-vendors",
           label: "Vendors",
           path: bankRoutes.company.vendors,
-          component: BankCustomerVendorsSubpage,
         },
         {
           visible: isPayorsTabVisible(productType),
           dataCy: "customer-payors",
           label: "Payors",
           path: bankRoutes.company.payors,
-          component: BankCustomerPayorsSubpage,
         },
         {
           dataCy: "customer-contract",
           label: "Contract",
           path: bankRoutes.company.contract,
-          component: BankCustomerContractPage,
         },
         {
           visible:
@@ -304,14 +266,12 @@ const getCustomerPaths = (
           dataCy: "customer-reports",
           label: "Reports",
           path: bankRoutes.company.reports,
-          component: BankCustomerReportsSubpage,
         },
         {
           visible: false,
           dataCy: "customer-account-fees-credits",
           label: "Account Fees & Credits",
           path: bankRoutes.company.accountFeesCredits,
-          component: BankCustomerAccountFeesCreditsSubpage,
         },
       ] as BankCustomerPath[],
     },
@@ -323,7 +283,6 @@ const getCustomerPaths = (
           dataCy: "payor-partnerships",
           label: "Partnerships",
           path: bankRoutes.company.payorPartnerships,
-          component: BankCompanyPayorPartnershipsSubpage,
         },
       ] as BankCustomerPath[],
     },
@@ -335,7 +294,6 @@ const getCustomerPaths = (
           dataCy: "vendor-partnerships",
           label: "Partnerships",
           path: bankRoutes.company.vendorPartnerships,
-          component: BankCompanyVendorPartnershipsSubpage,
         },
       ] as BankCustomerPath[],
     },
@@ -347,13 +305,11 @@ const getCustomerPaths = (
           dataCy: "general-metrc",
           label: "Metrc",
           path: bankRoutes.company.metrc,
-          component: BankCustomerMetrcSubpage,
         },
         {
           dataCy: "general-settings",
           label: "Settings",
           path: bankRoutes.company.settings,
-          component: BankCustomerSettingsSubpage,
         },
       ] as BankCustomerPath[],
     },

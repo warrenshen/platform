@@ -46,8 +46,8 @@ import BankCompanyCustomerPurchaseOrdersPage from "pages/Bank/Company/Customer/P
 import BankCompanyCustomerRepaymentsPage from "pages/Bank/Company/Customer/Repayments";
 import BankCompanyCustomerReportsPage from "pages/Bank/Company/Customer/Reports";
 import BankCompanyCustomerSettingsPage from "pages/Bank/Company/Customer/Settings";
-import BankCompanyVendorPartnershipsPage from "pages/Bank/Company/Customer/VendorPartnerships";
 import BankCompanyCustomerVendorsPage from "pages/Bank/Company/Customer/Vendors";
+import BankCompanyVendorPartnershipsPage from "pages/Bank/Company/Vendor/VendorPartnerships";
 import BankCustomersPage from "pages/Bank/Customers";
 import BankDebtFacilityPage from "pages/Bank/DebtFacility";
 import BankInvoicesPage from "pages/Bank/Invoices";
