@@ -181,6 +181,8 @@ const getCustomerPaths = (
   isBankUser: boolean,
   purchaseOrdersChangesRequestedCount: number
 ) => {
+  const environment = process.env.REACT_APP_BESPOKE_ENVIRONMENT;
+
   return [
     {
       visible: !!company?.is_customer,
@@ -220,7 +222,10 @@ const getCustomerPaths = (
           component: BankCustomerInvoicesSubpage,
         },
         {
-          visible: isBankUser, // TODO: Remove this when we want to rollout to the users
+          visible:
+            isBankUser &&
+            !!productType &&
+            [ProductTypeEnum.LineOfCredit].includes(productType), // TODO: Remove this when we want to rollout to the users
           dataCy: "customer-financing-requests",
           label: "Financing Requests",
           path: bankRoutes.company.financingRequests,
@@ -233,7 +238,7 @@ const getCustomerPaths = (
           component: BankCustomerLoansSubpage,
         },
         {
-          visible: isBankUser, // TODO: Remove this when we want to rollout to the users
+          visible: isBankUser && environment !== "production", // TODO: Remove this when we want to rollout to the users
           dataCy: "customer-loans-new",
           label: "Loans New",
           path: bankRoutes.company.loansNew,
@@ -362,8 +367,8 @@ interface Props {
     isActiveContract,
   }: {
     companyId: string;
-    productType: ProductTypeEnum;
-    isActiveContract: boolean;
+    productType: ProductTypeEnum | null;
+    isActiveContract: boolean | null;
   }) => NonNullable<JSX.Element>;
 }
 
@@ -451,6 +456,7 @@ export default function BankCompanyPage({ children }: Props) {
       </Box>
     );
   };
+
   return (
     <Page appBarTitle={companyName || ""}>
       <CurrentCustomerProvider companyId={companyId}>
@@ -543,8 +549,12 @@ export default function BankCompanyPage({ children }: Props) {
             </List>
           </Box>
           <>
-            {!!productType
-              ? children({ companyId, productType, isActiveContract })
+            {!!companyId
+              ? children({
+                  companyId,
+                  productType: productType || null,
+                  isActiveContract: isActiveContract || null,
+                })
               : null}
           </>
         </Box>

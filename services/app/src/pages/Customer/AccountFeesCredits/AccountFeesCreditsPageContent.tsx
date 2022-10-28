@@ -49,7 +49,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {
   companyId: string;
-  productType: ProductTypeEnum;
+  productType: ProductTypeEnum | null;
 }
 
 export default function CustomerAccountPageContent({
@@ -105,7 +105,7 @@ export default function CustomerAccountPageContent({
     [setSelectedPaymentIdsForFees]
   );
 
-  return (
+  return !!productType ? (
     <PageContent
       title={"Account Fees / Credits"}
       bankActions={
@@ -312,5 +312,5 @@ export default function CustomerAccountPageContent({
         </Box>
       </Box>
     </PageContent>
-  );
+  ) : null;
 }

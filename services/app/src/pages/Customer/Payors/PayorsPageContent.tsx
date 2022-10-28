@@ -16,7 +16,7 @@ import { useMemo } from "react";
 
 interface Props {
   companyId: Companies["id"];
-  isActiveContract: boolean;
+  isActiveContract: boolean | null;
 }
 
 export default function CustomerPayorsPageContent({
@@ -58,7 +58,7 @@ export default function CustomerPayorsPageContent({
     (companyPayorPartnership) => companyPayorPartnership.payor_limited?.name
   );
 
-  return (
+  return isActiveContract !== null ? (
     <PageContent title={"Payors"}>
       {awaitingPartnershipRequests.length > 0 && (
         <>
@@ -86,5 +86,5 @@ export default function CustomerPayorsPageContent({
         <PayorPartnershipsDataGrid payorPartnerships={payorPartnerships} />
       </Box>
     </PageContent>
-  );
+  ) : null;
 }

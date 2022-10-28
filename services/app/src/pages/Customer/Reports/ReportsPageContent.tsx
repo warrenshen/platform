@@ -10,14 +10,14 @@ import { ProductTypeEnum, ProductTypeToLoanType } from "lib/enum";
 
 interface Props {
   companyId: string;
-  productType: ProductTypeEnum;
+  productType: ProductTypeEnum | null;
 }
 
 export default function CustomerReportsPageContent({
   companyId,
   productType,
 }: Props) {
-  const loanType = ProductTypeToLoanType[productType];
+  const loanType = !!productType ? ProductTypeToLoanType[productType] : null;
 
   const { data: loansData, error: loansError } =
     useGetOpenFundedLoansByCompanyAndLoanTypeQuery({
@@ -84,7 +84,7 @@ export default function CustomerReportsPageContent({
       <p>There are no loans past due at this time.</p>
     );
 
-  return (
+  return !!productType ? (
     <PageContent
       title={"Reports"}
       subtitle={
@@ -106,5 +106,5 @@ export default function CustomerReportsPageContent({
         <h3>Month End Summary Non-LOC</h3>
       </Box>*/}
     </PageContent>
-  );
+  ) : null;
 }

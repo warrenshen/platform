@@ -25,8 +25,8 @@ import { useMemo, useState } from "react";
 
 interface Props {
   companyId: Companies["id"];
-  productType: ProductTypeEnum;
-  isActiveContract: boolean;
+  productType: ProductTypeEnum | null;
+  isActiveContract: boolean | null;
 }
 
 export default function CustomerFinancialCertificationsPageContent({
@@ -95,7 +95,7 @@ export default function CustomerFinancialCertificationsPageContent({
     []
   );
 
-  return (
+  return !!productType ? (
     <PageContent
       title={`Financial Report Certifications`}
       subtitle={
@@ -238,5 +238,5 @@ export default function CustomerFinancialCertificationsPageContent({
         </Box>
       </Box>
     </PageContent>
-  );
+  ) : null;
 }

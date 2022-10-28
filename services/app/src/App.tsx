@@ -46,6 +46,7 @@ import BankCompanyCustomerPurchaseOrdersPage from "pages/Bank/Company/Customer/P
 import BankCompanyCustomerRepaymentsPage from "pages/Bank/Company/Customer/Repayments";
 import BankCompanyCustomerReportsPage from "pages/Bank/Company/Customer/Reports";
 import BankCompanyCustomerSettingsPage from "pages/Bank/Company/Customer/Settings";
+import BankCompanyVendorPartnershipsPage from "pages/Bank/Company/Customer/VendorPartnerships";
 import BankCompanyCustomerVendorsPage from "pages/Bank/Company/Customer/Vendors";
 import BankCustomersPage from "pages/Bank/Customers";
 import BankDebtFacilityPage from "pages/Bank/DebtFacility";
@@ -82,6 +83,8 @@ import { useContext } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 export default function App() {
+  const environment = process.env.REACT_APP_BESPOKE_ENVIRONMENT;
+
   const {
     user: { role },
   } = useContext(CurrentUserContext);
@@ -269,19 +272,22 @@ export default function App() {
             </PrivateRoute>
           }
         />
-        <Route
-          path={customerRoutes.loansNew}
-          element={
-            <PrivateRoute
-              requiredRoles={[
-                UserRolesEnum.CompanyAdmin,
-                UserRolesEnum.CompanyReadOnly,
-              ]}
-            >
-              <CustomerLoansPageNew />
-            </PrivateRoute>
-          }
-        />
+        {environment !== "production" && (
+          <Route
+            path={customerRoutes.loansNew}
+            element={
+              <PrivateRoute
+                requiredRoles={[
+                  UserRolesEnum.CompanyAdmin,
+                  UserRolesEnum.CompanyReadOnly,
+                ]}
+              >
+                <CustomerLoansPageNew />
+              </PrivateRoute>
+            }
+          />
+        )}
+
         <Route
           path={customerRoutes.locations}
           element={
@@ -685,6 +691,20 @@ export default function App() {
               ]}
             >
               <BankCompanyCustomerReportsPage />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path={"companies/:companyId/vendor-partnerships"}
+          element={
+            <PrivateRoute
+              requiredRoles={[
+                UserRolesEnum.BankAdmin,
+                UserRolesEnum.BankReadOnly,
+              ]}
+            >
+              <BankCompanyVendorPartnershipsPage />
             </PrivateRoute>
           }
         />

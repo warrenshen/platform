@@ -22,8 +22,8 @@ import { useMemo, useState } from "react";
 
 interface Props {
   companyId: Companies["id"];
-  productType: ProductTypeEnum;
-  isActiveContract: boolean;
+  productType: ProductTypeEnum | null;
+  isActiveContract: boolean | null;
 }
 
 export type PartnershipAwatingApproval = {
@@ -151,7 +151,7 @@ export default function CustomerVendorsPageContent({
     ...awaitingInvitations,
     ...awaitingPartnerships,
   ];
-  return (
+  return !!productType ? (
     <PageContent title={"Vendors"}>
       <Box mb={2}>
         <Typography variant="h6">
@@ -202,5 +202,5 @@ export default function CustomerVendorsPageContent({
         />
       </Box>
     </PageContent>
-  );
+  ) : null;
 }

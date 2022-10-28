@@ -8,7 +8,7 @@ import { useState } from "react";
 
 interface Props {
   companyId: Companies["id"];
-  productType: ProductTypeEnum;
+  productType: ProductTypeEnum | null;
 }
 
 export default function InvoicesFundedUnfundedList({
@@ -17,7 +17,7 @@ export default function InvoicesFundedUnfundedList({
 }: Props) {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
-  return (
+  return !!productType ? (
     <PageContent
       title={"Invoices"}
       subtitle={
@@ -42,5 +42,5 @@ export default function InvoicesFundedUnfundedList({
         <CustomerInvoicesClosedTab companyId={companyId} />
       )}
     </PageContent>
-  );
+  ) : null;
 }

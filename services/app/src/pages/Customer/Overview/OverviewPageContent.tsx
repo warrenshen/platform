@@ -28,6 +28,7 @@ import {
 import {
   Companies,
   LoanFragment,
+  LoanTypeEnum,
   PaymentLimitedFragment,
   Payments,
   useGetCustomerOverviewQuery,
@@ -70,8 +71,8 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {
   companyId: Companies["id"];
-  productType: ProductTypeEnum;
-  isActiveContract: boolean;
+  productType: ProductTypeEnum | null;
+  isActiveContract: boolean | null;
 }
 
 export default function CustomerOverviewPageContent({
@@ -87,10 +88,16 @@ export default function CustomerOverviewPageContent({
   const isBankUser = isRoleBankUser(role);
 
   const { financialSummary } = useContext(CurrentCustomerContext);
+  // We default to LoanTypeEnum.PurchaseOrder in the case where
+  // the productType passed in is null. This "can" happen because
+  // BankCompanyPage, which wraps this component, is used by both
+  // customers (which have a product type) and vendors (which don't)
+  //
+  // In short, this solves a small runtime issue on first load
   const loanType =
     !!productType && productType in ProductTypeToLoanType
       ? ProductTypeToLoanType[productType]
-      : null;
+      : LoanTypeEnum.PurchaseOrder;
 
   const { data, refetch, error } = useGetCustomerOverviewQuery({
     fetchPolicy: "cache-and-network",
@@ -190,7 +197,7 @@ export default function CustomerOverviewPageContent({
    * - If Line of Credit, "Request New Loan" (this creates LineOfCredit row and Loan row).
    * 2. Make repayment action, "Make Repayment".
    */
-  return (
+  return !!productType ? (
     <PageContent
       title={"Overview"}
       bankActions={
@@ -511,5 +518,5 @@ export default function CustomerOverviewPageContent({
         )}
       </Box>
     </PageContent>
-  );
+  ) : null;
 }

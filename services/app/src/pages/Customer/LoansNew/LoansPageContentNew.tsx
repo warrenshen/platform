@@ -7,8 +7,8 @@ import { useState } from "react";
 
 interface Props {
   companyId: string;
-  productType: ProductTypeEnum;
-  isActiveContract: boolean;
+  productType: ProductTypeEnum | null;
+  isActiveContract: boolean | null;
 }
 
 export default function CustomerLoansPageContentNew({
@@ -18,7 +18,7 @@ export default function CustomerLoansPageContentNew({
 }: Props) {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
-  return (
+  return !!productType && isActiveContract !== null ? (
     <PageContent
       title={"Loans"}
       subtitle={
@@ -47,5 +47,5 @@ export default function CustomerLoansPageContentNew({
         />
       )}
     </PageContent>
-  );
+  ) : null;
 }

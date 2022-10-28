@@ -7,7 +7,7 @@ import { useMemo } from "react";
 
 interface Props {
   companyId: Companies["id"];
-  productType: ProductTypeEnum;
+  productType: ProductTypeEnum | null;
 }
 
 export default function CustomerRepaymentsPageContent({
@@ -29,7 +29,7 @@ export default function CustomerRepaymentsPageContent({
   const company = data?.companies_by_pk;
   const payments = useMemo(() => company?.payments || [], [company]);
 
-  return (
+  return !!productType ? (
     <PageContent
       title={"Repayments"}
       subtitle={"Review your historical repayments to Bespoke Financial."}
@@ -41,5 +41,5 @@ export default function CustomerRepaymentsPageContent({
         />
       </Box>
     </PageContent>
-  );
+  ) : null;
 }

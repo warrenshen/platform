@@ -22,8 +22,8 @@ import { useMemo, useState } from "react";
 
 interface Props {
   companyId: Companies["id"];
-  productType: ProductTypeEnum;
-  isActiveContract: boolean;
+  productType: ProductTypeEnum | null;
+  isActiveContract: boolean | null;
 }
 
 interface TabComponentProps {
@@ -104,7 +104,7 @@ export default function CustomerPurchaseOrdersPageContentNew({
     alert(`Error in query (details in console): ${error.message}`);
   }
 
-  return (
+  return !!productType && isActiveContract !== null ? (
     <>
       {isCreateModalOpen && (
         <CreateUpdatePurchaseOrderModalNew
@@ -161,12 +161,12 @@ export default function CustomerPurchaseOrdersPageContentNew({
         ]({
           companyId,
           productType,
-          isActiveContract,
+          isActiveContract: isActiveContract,
           purchaseOrders:
             selectedTabIndex === 0 ? openPurchaseOrders : closedPurchaseOrders,
           refetchPurchaseOrders: refetch,
         })}
       </PageContent>
     </>
-  );
+  ) : null;
 }

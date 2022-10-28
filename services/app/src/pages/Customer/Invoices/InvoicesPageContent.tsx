@@ -4,16 +4,18 @@ import InvoicesFundedUnfundedLists from "pages/Customer/Invoices/InvoicesFundedU
 
 interface Props {
   companyId: string;
-  productType: ProductTypeEnum;
+  productType: ProductTypeEnum | null;
 }
 
 export default function InvoicesPageContent({ companyId, productType }: Props) {
-  return productType === ProductTypeEnum.InvoiceFinancing ? (
-    <InvoicesFundedUnfundedLists
-      companyId={companyId}
-      productType={productType}
-    />
-  ) : (
-    <AllInvoicesList companyId={companyId} productType={productType} />
-  );
+  return !!productType ? (
+    productType === ProductTypeEnum.InvoiceFinancing ? (
+      <InvoicesFundedUnfundedLists
+        companyId={companyId}
+        productType={productType}
+      />
+    ) : (
+      <AllInvoicesList companyId={companyId} productType={productType} />
+    )
+  ) : null;
 }

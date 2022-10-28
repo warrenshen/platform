@@ -20,8 +20,8 @@ import { useContext, useMemo, useState } from "react";
 
 interface Props {
   companyId: Companies["id"];
-  productType: ProductTypeEnum;
-  isActiveContract: boolean;
+  productType: ProductTypeEnum | null;
+  isActiveContract: boolean | null;
 }
 
 const FinancingRequestsPageContent = ({
@@ -90,7 +90,7 @@ const FinancingRequestsPageContent = ({
     setIsDeleteFinancingRequestModalOpen,
   ] = useState<boolean>(false);
 
-  return (
+  return !!productType ? (
     <PageContent
       title={"Financing Requests"}
       subtitle={"Request financing."}
@@ -172,7 +172,7 @@ const FinancingRequestsPageContent = ({
         />
       </Box>
     </PageContent>
-  );
+  ) : null;
 };
 
 export default FinancingRequestsPageContent;

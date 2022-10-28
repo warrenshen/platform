@@ -11,8 +11,8 @@ import { useContext, useState } from "react";
 
 interface Props {
   companyId: string;
-  productType: ProductTypeEnum;
-  isActiveContract: boolean;
+  productType: ProductTypeEnum | null;
+  isActiveContract: boolean | null;
 }
 
 export default function CustomerLoansPageContent({
@@ -32,7 +32,7 @@ export default function CustomerLoansPageContent({
     : 100;
   const roundedLimitPercent = round(rawLimitPercent, 1);
 
-  return (
+  return !!productType && isActiveContract !== null ? (
     <PageContent
       title={"Loans"}
       subtitle={"Request new loans and make payments towards financed loans."}
@@ -79,5 +79,5 @@ export default function CustomerLoansPageContent({
         />
       )}
     </PageContent>
-  );
+  ) : null;
 }
