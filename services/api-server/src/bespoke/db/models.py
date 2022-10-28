@@ -138,7 +138,7 @@ class ParentCompany(Base):
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
-	name = Column(String)
+	name = Column(String, nullable=False, unique=True)
 
 CompanyDict = TypedDict('CompanyDict', {
 	'id': str,
