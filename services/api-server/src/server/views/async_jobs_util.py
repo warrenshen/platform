@@ -198,7 +198,7 @@ def execute_job(
 	job: models.AsyncJob,
 ) -> Tuple[bool, errors.Error]:
 	with session_scope(session_maker) as session:
-		
+
 		payload = job.retry_payload if job.num_retries != 0 and job.retry_payload is not None else job.job_payload
 		payload = cast(Dict[str, Any], payload)
 
@@ -211,7 +211,7 @@ def execute_job(
 		else:
 			if job.num_retries >= cfg.ASYNC_MAX_FAILED_ATTMEPTS:
 				job.status = AsyncJobStatusEnum.FAILED
-				slack_util.send_job_slack_message(job)
+				slack_util.send_job_slack_message(cfg, job)
 			else:
 				job.status = AsyncJobStatusEnum.QUEUED
 				job.queued_at = date_util.now()
@@ -229,7 +229,7 @@ def execute_job(
 def create_job_summary(
 	session: Session,
 ) -> Tuple[bool, errors.Error]:
-
+	cfg = cast(Config, current_app.app_config)
 	async_jobs = cast(
 		List[models.AsyncJob],
 		session.query(models.AsyncJob).filter(
@@ -242,7 +242,7 @@ def create_job_summary(
 			models.AsyncJobSummary.date == date_util.date_to_db_str(date_util.now_as_date())
 		).all())
 
-	slack_util.send_job_summary(async_jobs, async_job_summaries)
+	slack_util.send_job_summary(cfg, async_jobs, async_job_summaries)
 
 	return True, None
 

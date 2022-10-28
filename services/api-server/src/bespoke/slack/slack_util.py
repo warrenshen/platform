@@ -1,17 +1,15 @@
-import requests
 import json
-from typing import Dict, List, Tuple
-from bespoke.db import models
-from bespoke.db.db_constants import AsyncJobStatusEnum, AsyncJobNameEnum, AsyncJobNameEnumToLabel
-from bespoke.date import date_util
+import requests
 
 from bespoke import errors 
+from bespoke.date import date_util
+from bespoke.db import models
+from bespoke.db.db_constants import AsyncJobStatusEnum, AsyncJobNameEnum, AsyncJobNameEnumToLabel
+from server.config import Config
+from typing import Dict, List, Tuple
 
-# prod url
-# webhook = 'https://hooks.slack.com/services/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'
-# dev url
-webhook = 'https://hooks.slack.com/services/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'
 def send_job_summary(
+	cfg: Config,
 	async_jobs: List[models.AsyncJob],
 	async_job_summaries: List[models.AsyncJobSummary]
 ) -> Tuple[ int, errors.Error]:
@@ -48,7 +46,7 @@ def send_job_summary(
 	payload = {"blocks" : response_blocks}
 
 	response = requests.post(
-			url = webhook, 
+			url = cfg.ASYNC_JOB_SLACK_URL, 
 			data = json.dumps(payload), 
 			headers = headers,
 		)
@@ -97,6 +95,7 @@ def create_generation_failure_block(
 		}
 
 def send_job_slack_message(
+	cfg: Config,
 	job: models.AsyncJob
 ) -> Tuple[ int, errors.Error ]:
 
@@ -108,7 +107,7 @@ def send_job_slack_message(
 	else:
 		return None, None
 	response = requests.post(
-		url = webhook, 
+		url = cfg.ASYNC_JOB_SLACK_URL, 
 		data = json.dumps(payload), 
 		headers = headers,
 	)

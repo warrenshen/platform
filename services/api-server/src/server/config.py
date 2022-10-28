@@ -112,6 +112,7 @@ class Config(object):
 			max_workers=self.THREAD_POOL_MAX_WORKERS, 
 			thread_name_prefix="async-jobs"
 		)
+		self.ASYNC_JOB_SLACK_URL = os.environ.get('ASYNC_JOB_SLACK_URL')
 
 	def get_security_config(self) -> security_util.ConfigDict:
 		return security_util.ConfigDict(
