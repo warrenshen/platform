@@ -314,7 +314,7 @@ function ManagePurchaseOrderFinancingModal({
                     >
                       <FinancingRequestCreateCard
                         key={financingRequest.id}
-                        loan={financingRequest}
+                        loan={currentlyEditingLoan}
                         hasBeenFocused={false}
                         amountLeft={
                           amountRemaining -

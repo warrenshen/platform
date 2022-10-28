@@ -1,5 +1,5 @@
 import BankCompanyPage from "pages/Bank/Company/BankCompanyPage";
-import CustomerPurchaseOrdersPageContent from "pages/Customer/PurchaseOrders/PurchaseOrdersPageContent";
+import CustomerPurchaseOrdersPageContent from "pages/Customer/PurchaseOrders/PurchaseOrdersPageContentNew";
 
 export default function BankCompanyCustomerPurchaseOrderPage() {
   return (

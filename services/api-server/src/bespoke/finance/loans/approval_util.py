@@ -277,7 +277,7 @@ def create_or_update_loan_by_id(
 		loan.amount = decimal.Decimal(amount)
 		loan.loan_type = loan_type
 		loan.requested_payment_date = requested_payment_date
-		customer_notes = customer_notes if customer_notes is not None else None
+		loan.customer_notes = customer_notes if customer_notes is not None else None
 
 	session.flush()
 
