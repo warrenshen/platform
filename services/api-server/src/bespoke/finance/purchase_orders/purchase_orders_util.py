@@ -1318,6 +1318,7 @@ def update_purchase_order_fields(
 	existing_purchase_order.amount_funded = purchase_order_input.amount_funded
 	existing_purchase_order.is_cannabis = purchase_order_input.is_cannabis
 	existing_purchase_order.customer_note = purchase_order_input.customer_note
+	existing_purchase_order.vendor_id = purchase_order_input.vendor_id
 	
 	return existing_purchase_order
 
