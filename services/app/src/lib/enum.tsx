@@ -159,6 +159,34 @@ export const BankLoansTabLabels = [
   BankLoansTabLabel.All,
 ];
 
+export enum BankLoansTabLabelNew {
+  Active = "Active",
+  Closed = "Closed",
+  All = "All",
+}
+
+export const BankLoansTabLabelsNew = [
+  BankLoansTabLabelNew.Active,
+  BankLoansTabLabelNew.Closed,
+  BankLoansTabLabelNew.All,
+];
+
+export enum BankLoansMaturingInTimeWindow {
+  All = "All",
+  SevenDays = "Maturing in 7 days",
+  FourteenDays = "Maturing in 14 days",
+  ThirtyDays = "Maturing in 30 days",
+  PastDue = "Past Due",
+}
+
+export const BankLoansMaturingInTimeWindowList = [
+  BankLoansMaturingInTimeWindow.All,
+  BankLoansMaturingInTimeWindow.SevenDays,
+  BankLoansMaturingInTimeWindow.FourteenDays,
+  BankLoansMaturingInTimeWindow.ThirtyDays,
+  BankLoansMaturingInTimeWindow.PastDue,
+];
+
 export enum BankPurchaseOrdersTabLabel {
   DraftedPOs = "Draft POs",
   IncompletePOs = "Incomplete POs",

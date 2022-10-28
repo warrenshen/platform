@@ -51,6 +51,7 @@ import BankCustomersPage from "pages/Bank/Customers";
 import BankDebtFacilityPage from "pages/Bank/DebtFacility";
 import BankInvoicesPage from "pages/Bank/Invoices";
 import BankLoansPage from "pages/Bank/Loans";
+import BankLoansPageNew from "pages/Bank/LoansNew";
 import BankMetrcPage from "pages/Bank/Metrc";
 import BankOverviewPage from "pages/Bank/Overview";
 import BankPartnershipsPage from "pages/Bank/Partnerships";
@@ -410,6 +411,19 @@ export default function App() {
               ]}
             >
               <BankLoansPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={bankRoutes.loansNew}
+          element={
+            <PrivateRoute
+              requiredRoles={[
+                UserRolesEnum.BankAdmin,
+                UserRolesEnum.BankReadOnly,
+              ]}
+            >
+              <BankLoansPageNew />
             </PrivateRoute>
           }
         />

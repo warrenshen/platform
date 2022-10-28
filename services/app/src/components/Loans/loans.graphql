@@ -92,6 +92,37 @@ subscription GetFundedLoansForBank {
   }
 }
 
+subscription GetClosedLoansForBank {
+  loans(
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { funded_at: { _is_null: false } }
+        { closed_at: { _is_null: false } }
+      ]
+    }
+    order_by: [
+      { adjusted_maturity_date: asc }
+      { origination_date: asc }
+      { created_at: asc }
+      { amount: asc }
+    ]
+  ) {
+    id
+    ...Loan
+    ...LoanArtifact
+    loan_report {
+      ...LoanReport
+    }
+  }
+}
+
+
 query GetActiveLoansForCompany($companyId: uuid!, $loanType: loan_type_enum) {
   companies_by_pk(id: $companyId) {
     id

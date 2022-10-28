@@ -367,6 +367,7 @@ export default function LoansDataGrid({
         ),
       },
       {
+        fixed: true,
         visible: isCompanyVisible,
         dataField: "company.name",
         caption: "Customer Name",

@@ -278,6 +278,14 @@ const getBankNavItems = (
       isBankMenu: true,
     },
     {
+      dataCy: "loans-new",
+      iconNode: LoansIcon,
+      text: "Loans-new",
+      link: bankRoutes.loansNew,
+      counter: loansCount,
+      isBankMenu: true,
+    },
+    {
       dataCy: "advances",
       iconNode: AdvancesIcon,
       text: "Advances",
