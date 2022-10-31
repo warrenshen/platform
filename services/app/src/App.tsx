@@ -47,6 +47,7 @@ import BankCompanyCustomerRepaymentsPage from "pages/Bank/Company/Customer/Repay
 import BankCompanyCustomerReportsPage from "pages/Bank/Company/Customer/Reports";
 import BankCompanyCustomerSettingsPage from "pages/Bank/Company/Customer/Settings";
 import BankCompanyCustomerVendorsPage from "pages/Bank/Company/Customer/Vendors";
+import BankCompanyPayorPartnershipsPage from "pages/Bank/Company/Payor/PayorPartnerships";
 import BankCompanyVendorPartnershipsPage from "pages/Bank/Company/Vendor/VendorPartnerships";
 import BankCustomersPage from "pages/Bank/Customers";
 import BankDebtFacilityPage from "pages/Bank/DebtFacility";
@@ -708,6 +709,21 @@ export default function App() {
             </PrivateRoute>
           }
         />
+
+        <Route
+          path={"companies/:companyId/payor-partnerships"}
+          element={
+            <PrivateRoute
+              requiredRoles={[
+                UserRolesEnum.BankAdmin,
+                UserRolesEnum.BankReadOnly,
+              ]}
+            >
+              <BankCompanyPayorPartnershipsPage />
+            </PrivateRoute>
+          }
+        />
+
         <Route
           path={"companies/:companyId/settings"}
           element={
@@ -747,9 +763,6 @@ export default function App() {
             </PrivateRoute>
           }
         />
-
-        {/*import CustomerAccountPage from "pages/Customer/AccountFeesCredits";
-import CustomerLocationsPage from "pages/Customer/Locations";*/}
 
         <Route
           path={bankRoutes.ebbaApplications}
