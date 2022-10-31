@@ -32,7 +32,7 @@ export default function BankLoansActiveTab() {
     alert(`Error in query (details in console): ${error.message}`);
   }
 
-  const loans = data?.loans || [];
+  const loans = useMemo(() => data?.loans || [], [data?.loans]);
 
   const filteredLoans = useMemo(() => {
     if (maturingIn === BankLoansMaturingInTimeWindow.All) {
