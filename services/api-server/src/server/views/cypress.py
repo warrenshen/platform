@@ -101,6 +101,7 @@ class AddBankAccountView(MethodView):
 		intermediary_account_number = get_field_or_default(form, 'intermediary_account_number', None)
 		intermediary_bank_address = get_field_or_default(form, 'intermediary_bank_address', None)
 		intermediary_bank_name = get_field_or_default(form, 'intermediary_bank_name', None)
+		is_bank_international = get_field_or_default(form, 'is_bank_international', False)
 		is_cannabis_compliant = get_field_or_default(form, 'is_cannabis_compliant', True)
 		is_deleted = get_field_or_default(form, 'is_deleted', None)
 		is_wire_intermediary = get_field_or_default(form, 'is_wire_intermediary', False)
@@ -139,6 +140,7 @@ class AddBankAccountView(MethodView):
 				intermediary_account_number,
 				intermediary_bank_address,
 				intermediary_bank_name,
+				is_bank_international,
 				is_cannabis_compliant,
 				is_deleted,
 				is_wire_intermediary,

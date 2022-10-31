@@ -10,6 +10,7 @@ export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & {
   [SubKey in K]: Maybe<T[SubKey]>;
 };
+const defaultOptions = {};
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: string;
@@ -7346,8 +7347,6 @@ export type CustomerSurveillanceResultsBoolExp = {
 /** unique or primary key constraints on table "customer_surveillance_results" */
 export enum CustomerSurveillanceResultsConstraint {
   /** unique or primary key constraint */
-  CompanyProductQualificationsCompanyIdQualifyingDateKey = "company_product_qualifications_company_id_qualifying_date_key",
-  /** unique or primary key constraint */
   CompanyProductQualificationsPkey = "company_product_qualifications_pkey",
 }
 
@@ -8425,7 +8424,7 @@ export type EbbaApplications = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["timestamp"]>;
   /** An object relationship */
   rejected_by_user?: Maybe<Users>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
@@ -8550,7 +8549,7 @@ export type EbbaApplicationsBoolExp = {
   monthly_accounts_receivable?: Maybe<NumericComparisonExp>;
   monthly_cash?: Maybe<NumericComparisonExp>;
   monthly_inventory?: Maybe<NumericComparisonExp>;
-  rejected_at?: Maybe<TimestamptzComparisonExp>;
+  rejected_at?: Maybe<TimestampComparisonExp>;
   rejected_by_user?: Maybe<UsersBoolExp>;
   rejected_by_user_id?: Maybe<UuidComparisonExp>;
   rejection_note?: Maybe<StringComparisonExp>;
@@ -8599,7 +8598,7 @@ export type EbbaApplicationsInsertInput = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["timestamp"]>;
   rejected_by_user?: Maybe<UsersObjRelInsertInput>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
@@ -8628,7 +8627,7 @@ export type EbbaApplicationsMaxFields = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["timestamp"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -8680,7 +8679,7 @@ export type EbbaApplicationsMinFields = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["timestamp"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -8845,7 +8844,7 @@ export type EbbaApplicationsSetInput = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["timestamp"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -22154,6 +22153,7 @@ export type PurchaseOrders = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   /** An object relationship */
@@ -22358,6 +22358,7 @@ export type PurchaseOrdersBoolExp = {
   all_customer_notes?: Maybe<JsonComparisonExp>;
   amount?: Maybe<NumericComparisonExp>;
   amount_funded?: Maybe<NumericComparisonExp>;
+  amount_updated_at?: Maybe<TimestamptzComparisonExp>;
   approved_at?: Maybe<TimestamptzComparisonExp>;
   approved_by_user_id?: Maybe<UuidComparisonExp>;
   approving_user_id?: Maybe<UsersBoolExp>;
@@ -22431,6 +22432,7 @@ export type PurchaseOrdersInsertInput = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   approving_user_id?: Maybe<UsersObjRelInsertInput>;
@@ -22479,6 +22481,7 @@ export type PurchaseOrdersMaxFields = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -22513,6 +22516,7 @@ export type PurchaseOrdersMaxOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
+  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   bank_incomplete_note?: Maybe<OrderBy>;
@@ -22547,6 +22551,7 @@ export type PurchaseOrdersMinFields = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -22581,6 +22586,7 @@ export type PurchaseOrdersMinOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
+  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   bank_incomplete_note?: Maybe<OrderBy>;
@@ -22638,6 +22644,7 @@ export type PurchaseOrdersOrderBy = {
   all_customer_notes?: Maybe<OrderBy>;
   amount?: Maybe<OrderBy>;
   amount_funded?: Maybe<OrderBy>;
+  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   approving_user_id?: Maybe<UsersOrderBy>;
@@ -22695,6 +22702,8 @@ export enum PurchaseOrdersSelectColumn {
   Amount = "amount",
   /** column name */
   AmountFunded = "amount_funded",
+  /** column name */
+  AmountUpdatedAt = "amount_updated_at",
   /** column name */
   ApprovedAt = "approved_at",
   /** column name */
@@ -22760,6 +22769,7 @@ export type PurchaseOrdersSetInput = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -22870,6 +22880,8 @@ export enum PurchaseOrdersUpdateColumn {
   Amount = "amount",
   /** column name */
   AmountFunded = "amount_funded",
+  /** column name */
+  AmountUpdatedAt = "amount_updated_at",
   /** column name */
   ApprovedAt = "approved_at",
   /** column name */
@@ -29072,7 +29084,7 @@ export type GetSurveillanceResultByIdQuery = {
 };
 
 export type GetOpenLoansByDebtFacilityStatusesSubscriptionVariables = Exact<{
-  statuses?: Maybe<Array<Scalars["String"]>>;
+  statuses?: Maybe<Array<Scalars["String"]> | Scalars["String"]>;
 }>;
 
 export type GetOpenLoansByDebtFacilityStatusesSubscription = {
@@ -29080,8 +29092,8 @@ export type GetOpenLoansByDebtFacilityStatusesSubscription = {
 };
 
 export type GetOpenLoansByDebtFacilityIdSubscriptionVariables = Exact<{
-  statuses?: Maybe<Array<Scalars["String"]>>;
-  target_facility_ids?: Maybe<Array<Scalars["uuid"]>>;
+  statuses?: Maybe<Array<Scalars["String"]> | Scalars["String"]>;
+  target_facility_ids?: Maybe<Array<Scalars["uuid"]> | Scalars["uuid"]>;
 }>;
 
 export type GetOpenLoansByDebtFacilityIdSubscription = {
@@ -29089,9 +29101,9 @@ export type GetOpenLoansByDebtFacilityIdSubscription = {
 };
 
 export type GetReportLoansByDebtFacilityIdSubscriptionVariables = Exact<{
-  debt_facility_statuses?: Maybe<Array<Scalars["String"]>>;
-  other_statuses?: Maybe<Array<Scalars["String"]>>;
-  target_facility_ids?: Maybe<Array<Scalars["uuid"]>>;
+  debt_facility_statuses?: Maybe<Array<Scalars["String"]> | Scalars["String"]>;
+  other_statuses?: Maybe<Array<Scalars["String"]> | Scalars["String"]>;
+  target_facility_ids?: Maybe<Array<Scalars["uuid"]> | Scalars["uuid"]>;
   target_date: Scalars["date"];
 }>;
 
@@ -29105,7 +29117,7 @@ export type GetReportLoansByDebtFacilityIdSubscription = {
 };
 
 export type GetDebtFacilityLoansByIdQueryVariables = Exact<{
-  loan_ids?: Maybe<Array<Scalars["uuid"]>>;
+  loan_ids?: Maybe<Array<Scalars["uuid"]> | Scalars["uuid"]>;
 }>;
 
 export type GetDebtFacilityLoansByIdQuery = {
@@ -29387,7 +29399,7 @@ export type UpdateLineOfCreditAndLoanMutation = {
 };
 
 export type GetPurchaseOrdersForIdsQueryVariables = Exact<{
-  purchaseOrderIds?: Maybe<Array<Scalars["uuid"]>>;
+  purchaseOrderIds?: Maybe<Array<Scalars["uuid"]> | Scalars["uuid"]>;
 }>;
 
 export type GetPurchaseOrdersForIdsQuery = {
@@ -29399,7 +29411,7 @@ export type GetPurchaseOrdersForIdsQuery = {
 };
 
 export type GetPurchaseOrdersForIdsLimitedQueryVariables = Exact<{
-  purchaseOrderIds?: Maybe<Array<Scalars["uuid"]>>;
+  purchaseOrderIds?: Maybe<Array<Scalars["uuid"]> | Scalars["uuid"]>;
 }>;
 
 export type GetPurchaseOrdersForIdsLimitedQuery = {
@@ -29605,7 +29617,7 @@ export type GetOpenFundedLoansByCompanyAndLoanTypeQuery = {
 };
 
 export type GetLoansByLoanIdsQueryVariables = Exact<{
-  loan_ids: Array<Scalars["uuid"]>;
+  loan_ids: Array<Scalars["uuid"]> | Scalars["uuid"];
 }>;
 
 export type GetLoansByLoanIdsQuery = {
@@ -29620,7 +29632,7 @@ export type GetLoansByLoanIdsQuery = {
 };
 
 export type GetLimitedLoansByLoanIdsQueryVariables = Exact<{
-  loan_ids: Array<Scalars["uuid"]>;
+  loan_ids: Array<Scalars["uuid"]> | Scalars["uuid"];
 }>;
 
 export type GetLimitedLoansByLoanIdsQuery = {
@@ -29769,7 +29781,7 @@ export type GetIncomingFromVendorCompanyDeliveriesByCompanyIdQueryVariables =
   Exact<{
     company_id: Scalars["uuid"];
     start_created_date: Scalars["date"];
-    transfer_row_ids: Array<Scalars["uuid"]>;
+    transfer_row_ids: Array<Scalars["uuid"]> | Scalars["uuid"];
   }>;
 
 export type GetIncomingFromVendorCompanyDeliveriesByCompanyIdQuery = {
@@ -29913,7 +29925,7 @@ export type GetNotConfirmedPurchaseOrdersSubscription = {
 };
 
 export type GetPurchaseOrdersByNewStatusSubscriptionVariables = Exact<{
-  statuses?: Maybe<Array<Scalars["String"]>>;
+  statuses?: Maybe<Array<Scalars["String"]> | Scalars["String"]>;
 }>;
 
 export type GetPurchaseOrdersByNewStatusSubscription = {
@@ -30316,7 +30328,7 @@ export type GetUserQuery = {
 };
 
 export type GetActiveUsersByRolesQueryVariables = Exact<{
-  roles: Array<UserRolesEnum>;
+  roles: Array<UserRolesEnum> | UserRolesEnum;
   isBankUser?: Maybe<Scalars["Boolean"]>;
 }>;
 
@@ -30339,7 +30351,7 @@ export type GetActiveTeamMembersQuery = {
 };
 
 export type GetDeactivatedUsersByRolesQueryVariables = Exact<{
-  roles: Array<UserRolesEnum>;
+  roles: Array<UserRolesEnum> | UserRolesEnum;
 }>;
 
 export type GetDeactivatedUsersByRolesQuery = {
@@ -33803,10 +33815,11 @@ export function useGetAdvancesSubscription(
     GetAdvancesSubscriptionVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useSubscription<
     GetAdvancesSubscription,
     GetAdvancesSubscriptionVariables
-  >(GetAdvancesDocument, baseOptions);
+  >(GetAdvancesDocument, options);
 }
 export type GetAdvancesSubscriptionHookResult = ReturnType<
   typeof useGetAdvancesSubscription
@@ -33872,10 +33885,11 @@ export function useGetAdvancesByPaymentDateQuery(
     GetAdvancesByPaymentDateQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetAdvancesByPaymentDateQuery,
     GetAdvancesByPaymentDateQueryVariables
-  >(GetAdvancesByPaymentDateDocument, baseOptions);
+  >(GetAdvancesByPaymentDateDocument, options);
 }
 export function useGetAdvancesByPaymentDateLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -33883,10 +33897,11 @@ export function useGetAdvancesByPaymentDateLazyQuery(
     GetAdvancesByPaymentDateQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetAdvancesByPaymentDateQuery,
     GetAdvancesByPaymentDateQueryVariables
-  >(GetAdvancesByPaymentDateDocument, baseOptions);
+  >(GetAdvancesByPaymentDateDocument, options);
 }
 export type GetAdvancesByPaymentDateQueryHookResult = ReturnType<
   typeof useGetAdvancesByPaymentDateQuery
@@ -33955,10 +33970,11 @@ export function useGetAdvancesByMethodAndPaymentDateQuery(
     GetAdvancesByMethodAndPaymentDateQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetAdvancesByMethodAndPaymentDateQuery,
     GetAdvancesByMethodAndPaymentDateQueryVariables
-  >(GetAdvancesByMethodAndPaymentDateDocument, baseOptions);
+  >(GetAdvancesByMethodAndPaymentDateDocument, options);
 }
 export function useGetAdvancesByMethodAndPaymentDateLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -33966,10 +33982,11 @@ export function useGetAdvancesByMethodAndPaymentDateLazyQuery(
     GetAdvancesByMethodAndPaymentDateQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetAdvancesByMethodAndPaymentDateQuery,
     GetAdvancesByMethodAndPaymentDateQueryVariables
-  >(GetAdvancesByMethodAndPaymentDateDocument, baseOptions);
+  >(GetAdvancesByMethodAndPaymentDateDocument, options);
 }
 export type GetAdvancesByMethodAndPaymentDateQueryHookResult = ReturnType<
   typeof useGetAdvancesByMethodAndPaymentDateQuery
@@ -34015,10 +34032,11 @@ export function useGetAsyncPipelinesQuery(
     GetAsyncPipelinesQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetAsyncPipelinesQuery,
     GetAsyncPipelinesQueryVariables
-  >(GetAsyncPipelinesDocument, baseOptions);
+  >(GetAsyncPipelinesDocument, options);
 }
 export function useGetAsyncPipelinesLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -34026,10 +34044,11 @@ export function useGetAsyncPipelinesLazyQuery(
     GetAsyncPipelinesQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetAsyncPipelinesQuery,
     GetAsyncPipelinesQueryVariables
-  >(GetAsyncPipelinesDocument, baseOptions);
+  >(GetAsyncPipelinesDocument, options);
 }
 export type GetAsyncPipelinesQueryHookResult = ReturnType<
   typeof useGetAsyncPipelinesQuery
@@ -34073,9 +34092,10 @@ export function useGetAsyncPipelineQuery(
     GetAsyncPipelineQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<GetAsyncPipelineQuery, GetAsyncPipelineQueryVariables>(
     GetAsyncPipelineDocument,
-    baseOptions
+    options
   );
 }
 export function useGetAsyncPipelineLazyQuery(
@@ -34084,10 +34104,11 @@ export function useGetAsyncPipelineLazyQuery(
     GetAsyncPipelineQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetAsyncPipelineQuery,
     GetAsyncPipelineQueryVariables
-  >(GetAsyncPipelineDocument, baseOptions);
+  >(GetAsyncPipelineDocument, options);
 }
 export type GetAsyncPipelineQueryHookResult = ReturnType<
   typeof useGetAsyncPipelineQuery
@@ -34141,10 +34162,11 @@ export function useGetBespokeBankAccountsQuery(
     GetBespokeBankAccountsQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetBespokeBankAccountsQuery,
     GetBespokeBankAccountsQueryVariables
-  >(GetBespokeBankAccountsDocument, baseOptions);
+  >(GetBespokeBankAccountsDocument, options);
 }
 export function useGetBespokeBankAccountsLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -34152,10 +34174,11 @@ export function useGetBespokeBankAccountsLazyQuery(
     GetBespokeBankAccountsQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetBespokeBankAccountsQuery,
     GetBespokeBankAccountsQueryVariables
-  >(GetBespokeBankAccountsDocument, baseOptions);
+  >(GetBespokeBankAccountsDocument, options);
 }
 export type GetBespokeBankAccountsQueryHookResult = ReturnType<
   typeof useGetBespokeBankAccountsQuery
@@ -34198,10 +34221,11 @@ export function useGetBankAccountsByCompanyIdQuery(
     GetBankAccountsByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetBankAccountsByCompanyIdQuery,
     GetBankAccountsByCompanyIdQueryVariables
-  >(GetBankAccountsByCompanyIdDocument, baseOptions);
+  >(GetBankAccountsByCompanyIdDocument, options);
 }
 export function useGetBankAccountsByCompanyIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -34209,10 +34233,11 @@ export function useGetBankAccountsByCompanyIdLazyQuery(
     GetBankAccountsByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetBankAccountsByCompanyIdQuery,
     GetBankAccountsByCompanyIdQueryVariables
-  >(GetBankAccountsByCompanyIdDocument, baseOptions);
+  >(GetBankAccountsByCompanyIdDocument, options);
 }
 export type GetBankAccountsByCompanyIdQueryHookResult = ReturnType<
   typeof useGetBankAccountsByCompanyIdQuery
@@ -34278,10 +34303,11 @@ export function useGetAdvancesBankAccountsForCustomerQuery(
     GetAdvancesBankAccountsForCustomerQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetAdvancesBankAccountsForCustomerQuery,
     GetAdvancesBankAccountsForCustomerQueryVariables
-  >(GetAdvancesBankAccountsForCustomerDocument, baseOptions);
+  >(GetAdvancesBankAccountsForCustomerDocument, options);
 }
 export function useGetAdvancesBankAccountsForCustomerLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -34289,10 +34315,11 @@ export function useGetAdvancesBankAccountsForCustomerLazyQuery(
     GetAdvancesBankAccountsForCustomerQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetAdvancesBankAccountsForCustomerQuery,
     GetAdvancesBankAccountsForCustomerQueryVariables
-  >(GetAdvancesBankAccountsForCustomerDocument, baseOptions);
+  >(GetAdvancesBankAccountsForCustomerDocument, options);
 }
 export type GetAdvancesBankAccountsForCustomerQueryHookResult = ReturnType<
   typeof useGetAdvancesBankAccountsForCustomerQuery
@@ -34344,10 +34371,11 @@ export function useBankAccountsForTransferQuery(
     BankAccountsForTransferQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     BankAccountsForTransferQuery,
     BankAccountsForTransferQueryVariables
-  >(BankAccountsForTransferDocument, baseOptions);
+  >(BankAccountsForTransferDocument, options);
 }
 export function useBankAccountsForTransferLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -34355,10 +34383,11 @@ export function useBankAccountsForTransferLazyQuery(
     BankAccountsForTransferQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     BankAccountsForTransferQuery,
     BankAccountsForTransferQueryVariables
-  >(BankAccountsForTransferDocument, baseOptions);
+  >(BankAccountsForTransferDocument, options);
 }
 export type BankAccountsForTransferQueryHookResult = ReturnType<
   typeof useBankAccountsForTransferQuery
@@ -34402,10 +34431,11 @@ export function useGetCompanyFacilityQuery(
     GetCompanyFacilityQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetCompanyFacilityQuery,
     GetCompanyFacilityQueryVariables
-  >(GetCompanyFacilityDocument, baseOptions);
+  >(GetCompanyFacilityDocument, options);
 }
 export function useGetCompanyFacilityLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -34413,10 +34443,11 @@ export function useGetCompanyFacilityLazyQuery(
     GetCompanyFacilityQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetCompanyFacilityQuery,
     GetCompanyFacilityQueryVariables
-  >(GetCompanyFacilityDocument, baseOptions);
+  >(GetCompanyFacilityDocument, options);
 }
 export type GetCompanyFacilityQueryHookResult = ReturnType<
   typeof useGetCompanyFacilityQuery
@@ -34460,10 +34491,11 @@ export function useGetCompanyLicenseQuery(
     GetCompanyLicenseQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetCompanyLicenseQuery,
     GetCompanyLicenseQueryVariables
-  >(GetCompanyLicenseDocument, baseOptions);
+  >(GetCompanyLicenseDocument, options);
 }
 export function useGetCompanyLicenseLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -34471,10 +34503,11 @@ export function useGetCompanyLicenseLazyQuery(
     GetCompanyLicenseQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetCompanyLicenseQuery,
     GetCompanyLicenseQueryVariables
-  >(GetCompanyLicenseDocument, baseOptions);
+  >(GetCompanyLicenseDocument, options);
 }
 export type GetCompanyLicenseQueryHookResult = ReturnType<
   typeof useGetCompanyLicenseQuery
@@ -34529,10 +34562,11 @@ export function useGetCompanyLicenseRelationsByCompanyIdQuery(
     GetCompanyLicenseRelationsByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetCompanyLicenseRelationsByCompanyIdQuery,
     GetCompanyLicenseRelationsByCompanyIdQueryVariables
-  >(GetCompanyLicenseRelationsByCompanyIdDocument, baseOptions);
+  >(GetCompanyLicenseRelationsByCompanyIdDocument, options);
 }
 export function useGetCompanyLicenseRelationsByCompanyIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -34540,10 +34574,11 @@ export function useGetCompanyLicenseRelationsByCompanyIdLazyQuery(
     GetCompanyLicenseRelationsByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetCompanyLicenseRelationsByCompanyIdQuery,
     GetCompanyLicenseRelationsByCompanyIdQueryVariables
-  >(GetCompanyLicenseRelationsByCompanyIdDocument, baseOptions);
+  >(GetCompanyLicenseRelationsByCompanyIdDocument, options);
 }
 export type GetCompanyLicenseRelationsByCompanyIdQueryHookResult = ReturnType<
   typeof useGetCompanyLicenseRelationsByCompanyIdQuery
@@ -34600,10 +34635,11 @@ export function useGetCompanyLicensesByLicenseNumberQuery(
     GetCompanyLicensesByLicenseNumberQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetCompanyLicensesByLicenseNumberQuery,
     GetCompanyLicensesByLicenseNumberQueryVariables
-  >(GetCompanyLicensesByLicenseNumberDocument, baseOptions);
+  >(GetCompanyLicensesByLicenseNumberDocument, options);
 }
 export function useGetCompanyLicensesByLicenseNumberLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -34611,10 +34647,11 @@ export function useGetCompanyLicensesByLicenseNumberLazyQuery(
     GetCompanyLicensesByLicenseNumberQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetCompanyLicensesByLicenseNumberQuery,
     GetCompanyLicensesByLicenseNumberQueryVariables
-  >(GetCompanyLicensesByLicenseNumberDocument, baseOptions);
+  >(GetCompanyLicensesByLicenseNumberDocument, options);
 }
 export type GetCompanyLicensesByLicenseNumberQueryHookResult = ReturnType<
   typeof useGetCompanyLicensesByLicenseNumberQuery
@@ -34669,10 +34706,11 @@ export function useGetAllCompanyLicensesQuery(
     GetAllCompanyLicensesQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetAllCompanyLicensesQuery,
     GetAllCompanyLicensesQueryVariables
-  >(GetAllCompanyLicensesDocument, baseOptions);
+  >(GetAllCompanyLicensesDocument, options);
 }
 export function useGetAllCompanyLicensesLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -34680,10 +34718,11 @@ export function useGetAllCompanyLicensesLazyQuery(
     GetAllCompanyLicensesQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetAllCompanyLicensesQuery,
     GetAllCompanyLicensesQueryVariables
-  >(GetAllCompanyLicensesDocument, baseOptions);
+  >(GetAllCompanyLicensesDocument, options);
 }
 export type GetAllCompanyLicensesQueryHookResult = ReturnType<
   typeof useGetAllCompanyLicensesQuery
@@ -34739,10 +34778,11 @@ export function useGetCompanyLicensesForVendorOnboardingQuery(
     GetCompanyLicensesForVendorOnboardingQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetCompanyLicensesForVendorOnboardingQuery,
     GetCompanyLicensesForVendorOnboardingQueryVariables
-  >(GetCompanyLicensesForVendorOnboardingDocument, baseOptions);
+  >(GetCompanyLicensesForVendorOnboardingDocument, options);
 }
 export function useGetCompanyLicensesForVendorOnboardingLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -34750,10 +34790,11 @@ export function useGetCompanyLicensesForVendorOnboardingLazyQuery(
     GetCompanyLicensesForVendorOnboardingQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetCompanyLicensesForVendorOnboardingQuery,
     GetCompanyLicensesForVendorOnboardingQueryVariables
-  >(GetCompanyLicensesForVendorOnboardingDocument, baseOptions);
+  >(GetCompanyLicensesForVendorOnboardingDocument, options);
 }
 export type GetCompanyLicensesForVendorOnboardingQueryHookResult = ReturnType<
   typeof useGetCompanyLicensesForVendorOnboardingQuery
@@ -34804,10 +34845,11 @@ export function useGetCustomerFinancialSummaryByDateSubscription(
     GetCustomerFinancialSummaryByDateSubscriptionVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useSubscription<
     GetCustomerFinancialSummaryByDateSubscription,
     GetCustomerFinancialSummaryByDateSubscriptionVariables
-  >(GetCustomerFinancialSummaryByDateDocument, baseOptions);
+  >(GetCustomerFinancialSummaryByDateDocument, options);
 }
 export type GetCustomerFinancialSummaryByDateSubscriptionHookResult =
   ReturnType<typeof useGetCustomerFinancialSummaryByDateSubscription>;
@@ -34915,10 +34957,11 @@ export function useGetCustomerOverviewQuery(
     GetCustomerOverviewQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetCustomerOverviewQuery,
     GetCustomerOverviewQueryVariables
-  >(GetCustomerOverviewDocument, baseOptions);
+  >(GetCustomerOverviewDocument, options);
 }
 export function useGetCustomerOverviewLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -34926,10 +34969,11 @@ export function useGetCustomerOverviewLazyQuery(
     GetCustomerOverviewQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetCustomerOverviewQuery,
     GetCustomerOverviewQueryVariables
-  >(GetCustomerOverviewDocument, baseOptions);
+  >(GetCustomerOverviewDocument, options);
 }
 export type GetCustomerOverviewQueryHookResult = ReturnType<
   typeof useGetCustomerOverviewQuery
@@ -35022,10 +35066,11 @@ export function useGetCustomerAccountQuery(
     GetCustomerAccountQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetCustomerAccountQuery,
     GetCustomerAccountQueryVariables
-  >(GetCustomerAccountDocument, baseOptions);
+  >(GetCustomerAccountDocument, options);
 }
 export function useGetCustomerAccountLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -35033,10 +35078,11 @@ export function useGetCustomerAccountLazyQuery(
     GetCustomerAccountQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetCustomerAccountQuery,
     GetCustomerAccountQueryVariables
-  >(GetCustomerAccountDocument, baseOptions);
+  >(GetCustomerAccountDocument, options);
 }
 export type GetCustomerAccountQueryHookResult = ReturnType<
   typeof useGetCustomerAccountQuery
@@ -35103,10 +35149,11 @@ export function useGetCompanyForBankCompanyPageQuery(
     GetCompanyForBankCompanyPageQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetCompanyForBankCompanyPageQuery,
     GetCompanyForBankCompanyPageQueryVariables
-  >(GetCompanyForBankCompanyPageDocument, baseOptions);
+  >(GetCompanyForBankCompanyPageDocument, options);
 }
 export function useGetCompanyForBankCompanyPageLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -35114,10 +35161,11 @@ export function useGetCompanyForBankCompanyPageLazyQuery(
     GetCompanyForBankCompanyPageQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetCompanyForBankCompanyPageQuery,
     GetCompanyForBankCompanyPageQueryVariables
-  >(GetCompanyForBankCompanyPageDocument, baseOptions);
+  >(GetCompanyForBankCompanyPageDocument, options);
 }
 export type GetCompanyForBankCompanyPageQueryHookResult = ReturnType<
   typeof useGetCompanyForBankCompanyPageQuery
@@ -35160,10 +35208,11 @@ export function useGetCompanyForVendorOnboardingQuery(
     GetCompanyForVendorOnboardingQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetCompanyForVendorOnboardingQuery,
     GetCompanyForVendorOnboardingQueryVariables
-  >(GetCompanyForVendorOnboardingDocument, baseOptions);
+  >(GetCompanyForVendorOnboardingDocument, options);
 }
 export function useGetCompanyForVendorOnboardingLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -35171,10 +35220,11 @@ export function useGetCompanyForVendorOnboardingLazyQuery(
     GetCompanyForVendorOnboardingQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetCompanyForVendorOnboardingQuery,
     GetCompanyForVendorOnboardingQueryVariables
-  >(GetCompanyForVendorOnboardingDocument, baseOptions);
+  >(GetCompanyForVendorOnboardingDocument, options);
 }
 export type GetCompanyForVendorOnboardingQueryHookResult = ReturnType<
   typeof useGetCompanyForVendorOnboardingQuery
@@ -35222,10 +35272,11 @@ export function useGetCustomerOldestContractQuery(
     GetCustomerOldestContractQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetCustomerOldestContractQuery,
     GetCustomerOldestContractQueryVariables
-  >(GetCustomerOldestContractDocument, baseOptions);
+  >(GetCustomerOldestContractDocument, options);
 }
 export function useGetCustomerOldestContractLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -35233,10 +35284,11 @@ export function useGetCustomerOldestContractLazyQuery(
     GetCustomerOldestContractQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetCustomerOldestContractQuery,
     GetCustomerOldestContractQueryVariables
-  >(GetCustomerOldestContractDocument, baseOptions);
+  >(GetCustomerOldestContractDocument, options);
 }
 export type GetCustomerOldestContractQueryHookResult = ReturnType<
   typeof useGetCustomerOldestContractQuery
@@ -35288,10 +35340,11 @@ export function useGetFinancialSummariesByCompanyIdQuery(
     GetFinancialSummariesByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetFinancialSummariesByCompanyIdQuery,
     GetFinancialSummariesByCompanyIdQueryVariables
-  >(GetFinancialSummariesByCompanyIdDocument, baseOptions);
+  >(GetFinancialSummariesByCompanyIdDocument, options);
 }
 export function useGetFinancialSummariesByCompanyIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -35299,10 +35352,11 @@ export function useGetFinancialSummariesByCompanyIdLazyQuery(
     GetFinancialSummariesByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetFinancialSummariesByCompanyIdQuery,
     GetFinancialSummariesByCompanyIdQueryVariables
-  >(GetFinancialSummariesByCompanyIdDocument, baseOptions);
+  >(GetFinancialSummariesByCompanyIdDocument, options);
 }
 export type GetFinancialSummariesByCompanyIdQueryHookResult = ReturnType<
   typeof useGetFinancialSummariesByCompanyIdQuery
@@ -35360,10 +35414,11 @@ export function useGetMostRecentFinancialSummaryAndContractByCompanyIdQuery(
     GetMostRecentFinancialSummaryAndContractByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetMostRecentFinancialSummaryAndContractByCompanyIdQuery,
     GetMostRecentFinancialSummaryAndContractByCompanyIdQueryVariables
-  >(GetMostRecentFinancialSummaryAndContractByCompanyIdDocument, baseOptions);
+  >(GetMostRecentFinancialSummaryAndContractByCompanyIdDocument, options);
 }
 export function useGetMostRecentFinancialSummaryAndContractByCompanyIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -35371,10 +35426,11 @@ export function useGetMostRecentFinancialSummaryAndContractByCompanyIdLazyQuery(
     GetMostRecentFinancialSummaryAndContractByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetMostRecentFinancialSummaryAndContractByCompanyIdQuery,
     GetMostRecentFinancialSummaryAndContractByCompanyIdQueryVariables
-  >(GetMostRecentFinancialSummaryAndContractByCompanyIdDocument, baseOptions);
+  >(GetMostRecentFinancialSummaryAndContractByCompanyIdDocument, options);
 }
 export type GetMostRecentFinancialSummaryAndContractByCompanyIdQueryHookResult =
   ReturnType<
@@ -35425,10 +35481,11 @@ export function useGetFinancialSummariesByDateQuery(
     GetFinancialSummariesByDateQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetFinancialSummariesByDateQuery,
     GetFinancialSummariesByDateQueryVariables
-  >(GetFinancialSummariesByDateDocument, baseOptions);
+  >(GetFinancialSummariesByDateDocument, options);
 }
 export function useGetFinancialSummariesByDateLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -35436,10 +35493,11 @@ export function useGetFinancialSummariesByDateLazyQuery(
     GetFinancialSummariesByDateQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetFinancialSummariesByDateQuery,
     GetFinancialSummariesByDateQueryVariables
-  >(GetFinancialSummariesByDateDocument, baseOptions);
+  >(GetFinancialSummariesByDateDocument, options);
 }
 export type GetFinancialSummariesByDateQueryHookResult = ReturnType<
   typeof useGetFinancialSummariesByDateQuery
@@ -35503,10 +35561,11 @@ export function useGetActiveFinancialSummariesByDateQuery(
     GetActiveFinancialSummariesByDateQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetActiveFinancialSummariesByDateQuery,
     GetActiveFinancialSummariesByDateQueryVariables
-  >(GetActiveFinancialSummariesByDateDocument, baseOptions);
+  >(GetActiveFinancialSummariesByDateDocument, options);
 }
 export function useGetActiveFinancialSummariesByDateLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -35514,10 +35573,11 @@ export function useGetActiveFinancialSummariesByDateLazyQuery(
     GetActiveFinancialSummariesByDateQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetActiveFinancialSummariesByDateQuery,
     GetActiveFinancialSummariesByDateQueryVariables
-  >(GetActiveFinancialSummariesByDateDocument, baseOptions);
+  >(GetActiveFinancialSummariesByDateDocument, options);
 }
 export type GetActiveFinancialSummariesByDateQueryHookResult = ReturnType<
   typeof useGetActiveFinancialSummariesByDateQuery
@@ -35583,10 +35643,11 @@ export function useGetFinancialSummariesAndLoansByCompanyIdQuery(
     GetFinancialSummariesAndLoansByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetFinancialSummariesAndLoansByCompanyIdQuery,
     GetFinancialSummariesAndLoansByCompanyIdQueryVariables
-  >(GetFinancialSummariesAndLoansByCompanyIdDocument, baseOptions);
+  >(GetFinancialSummariesAndLoansByCompanyIdDocument, options);
 }
 export function useGetFinancialSummariesAndLoansByCompanyIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -35594,10 +35655,11 @@ export function useGetFinancialSummariesAndLoansByCompanyIdLazyQuery(
     GetFinancialSummariesAndLoansByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetFinancialSummariesAndLoansByCompanyIdQuery,
     GetFinancialSummariesAndLoansByCompanyIdQueryVariables
-  >(GetFinancialSummariesAndLoansByCompanyIdDocument, baseOptions);
+  >(GetFinancialSummariesAndLoansByCompanyIdDocument, options);
 }
 export type GetFinancialSummariesAndLoansByCompanyIdQueryHookResult =
   ReturnType<typeof useGetFinancialSummariesAndLoansByCompanyIdQuery>;
@@ -35653,10 +35715,11 @@ export function useGetCustomersSurveillanceSubscription(
     GetCustomersSurveillanceSubscriptionVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useSubscription<
     GetCustomersSurveillanceSubscription,
     GetCustomersSurveillanceSubscriptionVariables
-  >(GetCustomersSurveillanceDocument, baseOptions);
+  >(GetCustomersSurveillanceDocument, options);
 }
 export type GetCustomersSurveillanceSubscriptionHookResult = ReturnType<
   typeof useGetCustomersSurveillanceSubscription
@@ -35700,10 +35763,11 @@ export function useGetCustomersSurveillanceByCompanyIdQuery(
     GetCustomersSurveillanceByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetCustomersSurveillanceByCompanyIdQuery,
     GetCustomersSurveillanceByCompanyIdQueryVariables
-  >(GetCustomersSurveillanceByCompanyIdDocument, baseOptions);
+  >(GetCustomersSurveillanceByCompanyIdDocument, options);
 }
 export function useGetCustomersSurveillanceByCompanyIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -35711,10 +35775,11 @@ export function useGetCustomersSurveillanceByCompanyIdLazyQuery(
     GetCustomersSurveillanceByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetCustomersSurveillanceByCompanyIdQuery,
     GetCustomersSurveillanceByCompanyIdQueryVariables
-  >(GetCustomersSurveillanceByCompanyIdDocument, baseOptions);
+  >(GetCustomersSurveillanceByCompanyIdDocument, options);
 }
 export type GetCustomersSurveillanceByCompanyIdQueryHookResult = ReturnType<
   typeof useGetCustomersSurveillanceByCompanyIdQuery
@@ -35765,10 +35830,11 @@ export function useGetSurveillanceResultByIdQuery(
     GetSurveillanceResultByIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetSurveillanceResultByIdQuery,
     GetSurveillanceResultByIdQueryVariables
-  >(GetSurveillanceResultByIdDocument, baseOptions);
+  >(GetSurveillanceResultByIdDocument, options);
 }
 export function useGetSurveillanceResultByIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -35776,10 +35842,11 @@ export function useGetSurveillanceResultByIdLazyQuery(
     GetSurveillanceResultByIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetSurveillanceResultByIdQuery,
     GetSurveillanceResultByIdQueryVariables
-  >(GetSurveillanceResultByIdDocument, baseOptions);
+  >(GetSurveillanceResultByIdDocument, options);
 }
 export type GetSurveillanceResultByIdQueryHookResult = ReturnType<
   typeof useGetSurveillanceResultByIdQuery
@@ -35845,10 +35912,11 @@ export function useGetOpenLoansByDebtFacilityStatusesSubscription(
     GetOpenLoansByDebtFacilityStatusesSubscriptionVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useSubscription<
     GetOpenLoansByDebtFacilityStatusesSubscription,
     GetOpenLoansByDebtFacilityStatusesSubscriptionVariables
-  >(GetOpenLoansByDebtFacilityStatusesDocument, baseOptions);
+  >(GetOpenLoansByDebtFacilityStatusesDocument, options);
 }
 export type GetOpenLoansByDebtFacilityStatusesSubscriptionHookResult =
   ReturnType<typeof useGetOpenLoansByDebtFacilityStatusesSubscription>;
@@ -35913,10 +35981,11 @@ export function useGetOpenLoansByDebtFacilityIdSubscription(
     GetOpenLoansByDebtFacilityIdSubscriptionVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useSubscription<
     GetOpenLoansByDebtFacilityIdSubscription,
     GetOpenLoansByDebtFacilityIdSubscriptionVariables
-  >(GetOpenLoansByDebtFacilityIdDocument, baseOptions);
+  >(GetOpenLoansByDebtFacilityIdDocument, options);
 }
 export type GetOpenLoansByDebtFacilityIdSubscriptionHookResult = ReturnType<
   typeof useGetOpenLoansByDebtFacilityIdSubscription
@@ -36038,10 +36107,11 @@ export function useGetReportLoansByDebtFacilityIdSubscription(
     GetReportLoansByDebtFacilityIdSubscriptionVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useSubscription<
     GetReportLoansByDebtFacilityIdSubscription,
     GetReportLoansByDebtFacilityIdSubscriptionVariables
-  >(GetReportLoansByDebtFacilityIdDocument, baseOptions);
+  >(GetReportLoansByDebtFacilityIdDocument, options);
 }
 export type GetReportLoansByDebtFacilityIdSubscriptionHookResult = ReturnType<
   typeof useGetReportLoansByDebtFacilityIdSubscription
@@ -36080,10 +36150,11 @@ export function useGetDebtFacilityLoansByIdQuery(
     GetDebtFacilityLoansByIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetDebtFacilityLoansByIdQuery,
     GetDebtFacilityLoansByIdQueryVariables
-  >(GetDebtFacilityLoansByIdDocument, baseOptions);
+  >(GetDebtFacilityLoansByIdDocument, options);
 }
 export function useGetDebtFacilityLoansByIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -36091,10 +36162,11 @@ export function useGetDebtFacilityLoansByIdLazyQuery(
     GetDebtFacilityLoansByIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetDebtFacilityLoansByIdQuery,
     GetDebtFacilityLoansByIdQueryVariables
-  >(GetDebtFacilityLoansByIdDocument, baseOptions);
+  >(GetDebtFacilityLoansByIdDocument, options);
 }
 export type GetDebtFacilityLoansByIdQueryHookResult = ReturnType<
   typeof useGetDebtFacilityLoansByIdQuery
@@ -36137,10 +36209,11 @@ export function useGetDebtFacilitiesQuery(
     GetDebtFacilitiesQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetDebtFacilitiesQuery,
     GetDebtFacilitiesQueryVariables
-  >(GetDebtFacilitiesDocument, baseOptions);
+  >(GetDebtFacilitiesDocument, options);
 }
 export function useGetDebtFacilitiesLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -36148,10 +36221,11 @@ export function useGetDebtFacilitiesLazyQuery(
     GetDebtFacilitiesQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetDebtFacilitiesQuery,
     GetDebtFacilitiesQueryVariables
-  >(GetDebtFacilitiesDocument, baseOptions);
+  >(GetDebtFacilitiesDocument, options);
 }
 export type GetDebtFacilitiesQueryHookResult = ReturnType<
   typeof useGetDebtFacilitiesQuery
@@ -36195,10 +36269,11 @@ export function useGetDebtFacilityCurrentCapacitySubscription(
     GetDebtFacilityCurrentCapacitySubscriptionVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useSubscription<
     GetDebtFacilityCurrentCapacitySubscription,
     GetDebtFacilityCurrentCapacitySubscriptionVariables
-  >(GetDebtFacilityCurrentCapacityDocument, baseOptions);
+  >(GetDebtFacilityCurrentCapacityDocument, options);
 }
 export type GetDebtFacilityCurrentCapacitySubscriptionHookResult = ReturnType<
   typeof useGetDebtFacilityCurrentCapacitySubscription
@@ -36239,10 +36314,11 @@ export function useGetDebtFacilityEventsByLoanReportIdQuery(
     GetDebtFacilityEventsByLoanReportIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetDebtFacilityEventsByLoanReportIdQuery,
     GetDebtFacilityEventsByLoanReportIdQueryVariables
-  >(GetDebtFacilityEventsByLoanReportIdDocument, baseOptions);
+  >(GetDebtFacilityEventsByLoanReportIdDocument, options);
 }
 export function useGetDebtFacilityEventsByLoanReportIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -36250,10 +36326,11 @@ export function useGetDebtFacilityEventsByLoanReportIdLazyQuery(
     GetDebtFacilityEventsByLoanReportIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetDebtFacilityEventsByLoanReportIdQuery,
     GetDebtFacilityEventsByLoanReportIdQueryVariables
-  >(GetDebtFacilityEventsByLoanReportIdDocument, baseOptions);
+  >(GetDebtFacilityEventsByLoanReportIdDocument, options);
 }
 export type GetDebtFacilityEventsByLoanReportIdQueryHookResult = ReturnType<
   typeof useGetDebtFacilityEventsByLoanReportIdQuery
@@ -36314,10 +36391,11 @@ export function useGetEbbaApplicationQuery(
     GetEbbaApplicationQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetEbbaApplicationQuery,
     GetEbbaApplicationQueryVariables
-  >(GetEbbaApplicationDocument, baseOptions);
+  >(GetEbbaApplicationDocument, options);
 }
 export function useGetEbbaApplicationLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -36325,10 +36403,11 @@ export function useGetEbbaApplicationLazyQuery(
     GetEbbaApplicationQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetEbbaApplicationQuery,
     GetEbbaApplicationQueryVariables
-  >(GetEbbaApplicationDocument, baseOptions);
+  >(GetEbbaApplicationDocument, options);
 }
 export type GetEbbaApplicationQueryHookResult = ReturnType<
   typeof useGetEbbaApplicationQuery
@@ -36395,10 +36474,11 @@ export function useGetEbbaApplicationsByCompanyIdQuery(
     GetEbbaApplicationsByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetEbbaApplicationsByCompanyIdQuery,
     GetEbbaApplicationsByCompanyIdQueryVariables
-  >(GetEbbaApplicationsByCompanyIdDocument, baseOptions);
+  >(GetEbbaApplicationsByCompanyIdDocument, options);
 }
 export function useGetEbbaApplicationsByCompanyIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -36406,10 +36486,11 @@ export function useGetEbbaApplicationsByCompanyIdLazyQuery(
     GetEbbaApplicationsByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetEbbaApplicationsByCompanyIdQuery,
     GetEbbaApplicationsByCompanyIdQueryVariables
-  >(GetEbbaApplicationsByCompanyIdDocument, baseOptions);
+  >(GetEbbaApplicationsByCompanyIdDocument, options);
 }
 export type GetEbbaApplicationsByCompanyIdQueryHookResult = ReturnType<
   typeof useGetEbbaApplicationsByCompanyIdQuery
@@ -36463,10 +36544,11 @@ export function useGetOpenEbbaApplicationsCountForBankSubscription(
     GetOpenEbbaApplicationsCountForBankSubscriptionVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useSubscription<
     GetOpenEbbaApplicationsCountForBankSubscription,
     GetOpenEbbaApplicationsCountForBankSubscriptionVariables
-  >(GetOpenEbbaApplicationsCountForBankDocument, baseOptions);
+  >(GetOpenEbbaApplicationsCountForBankDocument, options);
 }
 export type GetOpenEbbaApplicationsCountForBankSubscriptionHookResult =
   ReturnType<typeof useGetOpenEbbaApplicationsCountForBankSubscription>;
@@ -36536,10 +36618,11 @@ export function useGetOpenEbbaApplicationsByCategoryQuery(
     GetOpenEbbaApplicationsByCategoryQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetOpenEbbaApplicationsByCategoryQuery,
     GetOpenEbbaApplicationsByCategoryQueryVariables
-  >(GetOpenEbbaApplicationsByCategoryDocument, baseOptions);
+  >(GetOpenEbbaApplicationsByCategoryDocument, options);
 }
 export function useGetOpenEbbaApplicationsByCategoryLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -36547,10 +36630,11 @@ export function useGetOpenEbbaApplicationsByCategoryLazyQuery(
     GetOpenEbbaApplicationsByCategoryQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetOpenEbbaApplicationsByCategoryQuery,
     GetOpenEbbaApplicationsByCategoryQueryVariables
-  >(GetOpenEbbaApplicationsByCategoryDocument, baseOptions);
+  >(GetOpenEbbaApplicationsByCategoryDocument, options);
 }
 export type GetOpenEbbaApplicationsByCategoryQueryHookResult = ReturnType<
   typeof useGetOpenEbbaApplicationsByCategoryQuery
@@ -36623,10 +36707,11 @@ export function useGetClosedEbbaApplicationsQuery(
     GetClosedEbbaApplicationsQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetClosedEbbaApplicationsQuery,
     GetClosedEbbaApplicationsQueryVariables
-  >(GetClosedEbbaApplicationsDocument, baseOptions);
+  >(GetClosedEbbaApplicationsDocument, options);
 }
 export function useGetClosedEbbaApplicationsLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -36634,10 +36719,11 @@ export function useGetClosedEbbaApplicationsLazyQuery(
     GetClosedEbbaApplicationsQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetClosedEbbaApplicationsQuery,
     GetClosedEbbaApplicationsQueryVariables
-  >(GetClosedEbbaApplicationsDocument, baseOptions);
+  >(GetClosedEbbaApplicationsDocument, options);
 }
 export type GetClosedEbbaApplicationsQueryHookResult = ReturnType<
   typeof useGetClosedEbbaApplicationsQuery
@@ -36731,10 +36817,11 @@ export function useGetClosedEbbaApplicationsByCompanyIdQuery(
     GetClosedEbbaApplicationsByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetClosedEbbaApplicationsByCompanyIdQuery,
     GetClosedEbbaApplicationsByCompanyIdQueryVariables
-  >(GetClosedEbbaApplicationsByCompanyIdDocument, baseOptions);
+  >(GetClosedEbbaApplicationsByCompanyIdDocument, options);
 }
 export function useGetClosedEbbaApplicationsByCompanyIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -36742,10 +36829,11 @@ export function useGetClosedEbbaApplicationsByCompanyIdLazyQuery(
     GetClosedEbbaApplicationsByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetClosedEbbaApplicationsByCompanyIdQuery,
     GetClosedEbbaApplicationsByCompanyIdQueryVariables
-  >(GetClosedEbbaApplicationsByCompanyIdDocument, baseOptions);
+  >(GetClosedEbbaApplicationsByCompanyIdDocument, options);
 }
 export type GetClosedEbbaApplicationsByCompanyIdQueryHookResult = ReturnType<
   typeof useGetClosedEbbaApplicationsByCompanyIdQuery
@@ -36795,10 +36883,11 @@ export function usePayorsByPartnerCompanyQuery(
     PayorsByPartnerCompanyQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     PayorsByPartnerCompanyQuery,
     PayorsByPartnerCompanyQueryVariables
-  >(PayorsByPartnerCompanyDocument, baseOptions);
+  >(PayorsByPartnerCompanyDocument, options);
 }
 export function usePayorsByPartnerCompanyLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -36806,10 +36895,11 @@ export function usePayorsByPartnerCompanyLazyQuery(
     PayorsByPartnerCompanyQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     PayorsByPartnerCompanyQuery,
     PayorsByPartnerCompanyQueryVariables
-  >(PayorsByPartnerCompanyDocument, baseOptions);
+  >(PayorsByPartnerCompanyDocument, options);
 }
 export type PayorsByPartnerCompanyQueryHookResult = ReturnType<
   typeof usePayorsByPartnerCompanyQuery
@@ -36869,9 +36959,10 @@ export function useGetInvoiceByIdQuery(
     GetInvoiceByIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<GetInvoiceByIdQuery, GetInvoiceByIdQueryVariables>(
     GetInvoiceByIdDocument,
-    baseOptions
+    options
   );
 }
 export function useGetInvoiceByIdLazyQuery(
@@ -36880,9 +36971,10 @@ export function useGetInvoiceByIdLazyQuery(
     GetInvoiceByIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<GetInvoiceByIdQuery, GetInvoiceByIdQueryVariables>(
     GetInvoiceByIdDocument,
-    baseOptions
+    options
   );
 }
 export type GetInvoiceByIdQueryHookResult = ReturnType<
@@ -36964,10 +37056,11 @@ export function useGetInvoiceForReviewQuery(
     GetInvoiceForReviewQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetInvoiceForReviewQuery,
     GetInvoiceForReviewQueryVariables
-  >(GetInvoiceForReviewDocument, baseOptions);
+  >(GetInvoiceForReviewDocument, options);
 }
 export function useGetInvoiceForReviewLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -36975,10 +37068,11 @@ export function useGetInvoiceForReviewLazyQuery(
     GetInvoiceForReviewQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetInvoiceForReviewQuery,
     GetInvoiceForReviewQueryVariables
-  >(GetInvoiceForReviewDocument, baseOptions);
+  >(GetInvoiceForReviewDocument, options);
 }
 export type GetInvoiceForReviewQueryHookResult = ReturnType<
   typeof useGetInvoiceForReviewQuery
@@ -37036,10 +37130,11 @@ export function useGetInvoicesSubscription(
     GetInvoicesSubscriptionVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useSubscription<
     GetInvoicesSubscription,
     GetInvoicesSubscriptionVariables
-  >(GetInvoicesDocument, baseOptions);
+  >(GetInvoicesDocument, options);
 }
 export type GetInvoicesSubscriptionHookResult = ReturnType<
   typeof useGetInvoicesSubscription
@@ -37099,10 +37194,11 @@ export function useGetAllUnconfirmedInvoicesSubscription(
     GetAllUnconfirmedInvoicesSubscriptionVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useSubscription<
     GetAllUnconfirmedInvoicesSubscription,
     GetAllUnconfirmedInvoicesSubscriptionVariables
-  >(GetAllUnconfirmedInvoicesDocument, baseOptions);
+  >(GetAllUnconfirmedInvoicesDocument, options);
 }
 export type GetAllUnconfirmedInvoicesSubscriptionHookResult = ReturnType<
   typeof useGetAllUnconfirmedInvoicesSubscription
@@ -37161,10 +37257,11 @@ export function useGetAllConfirmedInvoicesSubscription(
     GetAllConfirmedInvoicesSubscriptionVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useSubscription<
     GetAllConfirmedInvoicesSubscription,
     GetAllConfirmedInvoicesSubscriptionVariables
-  >(GetAllConfirmedInvoicesDocument, baseOptions);
+  >(GetAllConfirmedInvoicesDocument, options);
 }
 export type GetAllConfirmedInvoicesSubscriptionHookResult = ReturnType<
   typeof useGetAllConfirmedInvoicesSubscription
@@ -37214,10 +37311,11 @@ export function useGetInvoicesByCompanyIdQuery(
     GetInvoicesByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetInvoicesByCompanyIdQuery,
     GetInvoicesByCompanyIdQueryVariables
-  >(GetInvoicesByCompanyIdDocument, baseOptions);
+  >(GetInvoicesByCompanyIdDocument, options);
 }
 export function useGetInvoicesByCompanyIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -37225,10 +37323,11 @@ export function useGetInvoicesByCompanyIdLazyQuery(
     GetInvoicesByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetInvoicesByCompanyIdQuery,
     GetInvoicesByCompanyIdQueryVariables
-  >(GetInvoicesByCompanyIdDocument, baseOptions);
+  >(GetInvoicesByCompanyIdDocument, options);
 }
 export type GetInvoicesByCompanyIdQueryHookResult = ReturnType<
   typeof useGetInvoicesByCompanyIdQuery
@@ -37284,10 +37383,11 @@ export function useGetOpenInvoicesByCompanyIdQuery(
     GetOpenInvoicesByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetOpenInvoicesByCompanyIdQuery,
     GetOpenInvoicesByCompanyIdQueryVariables
-  >(GetOpenInvoicesByCompanyIdDocument, baseOptions);
+  >(GetOpenInvoicesByCompanyIdDocument, options);
 }
 export function useGetOpenInvoicesByCompanyIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -37295,10 +37395,11 @@ export function useGetOpenInvoicesByCompanyIdLazyQuery(
     GetOpenInvoicesByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetOpenInvoicesByCompanyIdQuery,
     GetOpenInvoicesByCompanyIdQueryVariables
-  >(GetOpenInvoicesByCompanyIdDocument, baseOptions);
+  >(GetOpenInvoicesByCompanyIdDocument, options);
 }
 export type GetOpenInvoicesByCompanyIdQueryHookResult = ReturnType<
   typeof useGetOpenInvoicesByCompanyIdQuery
@@ -37354,10 +37455,11 @@ export function useGetClosedInvoicesByCompanyIdQuery(
     GetClosedInvoicesByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetClosedInvoicesByCompanyIdQuery,
     GetClosedInvoicesByCompanyIdQueryVariables
-  >(GetClosedInvoicesByCompanyIdDocument, baseOptions);
+  >(GetClosedInvoicesByCompanyIdDocument, options);
 }
 export function useGetClosedInvoicesByCompanyIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -37365,10 +37467,11 @@ export function useGetClosedInvoicesByCompanyIdLazyQuery(
     GetClosedInvoicesByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetClosedInvoicesByCompanyIdQuery,
     GetClosedInvoicesByCompanyIdQueryVariables
-  >(GetClosedInvoicesByCompanyIdDocument, baseOptions);
+  >(GetClosedInvoicesByCompanyIdDocument, options);
 }
 export type GetClosedInvoicesByCompanyIdQueryHookResult = ReturnType<
   typeof useGetClosedInvoicesByCompanyIdQuery
@@ -37425,10 +37528,11 @@ export function useGetApprovedInvoicesByCompanyIdQuery(
     GetApprovedInvoicesByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetApprovedInvoicesByCompanyIdQuery,
     GetApprovedInvoicesByCompanyIdQueryVariables
-  >(GetApprovedInvoicesByCompanyIdDocument, baseOptions);
+  >(GetApprovedInvoicesByCompanyIdDocument, options);
 }
 export function useGetApprovedInvoicesByCompanyIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -37436,10 +37540,11 @@ export function useGetApprovedInvoicesByCompanyIdLazyQuery(
     GetApprovedInvoicesByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetApprovedInvoicesByCompanyIdQuery,
     GetApprovedInvoicesByCompanyIdQueryVariables
-  >(GetApprovedInvoicesByCompanyIdDocument, baseOptions);
+  >(GetApprovedInvoicesByCompanyIdDocument, options);
 }
 export type GetApprovedInvoicesByCompanyIdQueryHookResult = ReturnType<
   typeof useGetApprovedInvoicesByCompanyIdQuery
@@ -37488,10 +37593,11 @@ export function useAddLineOfCreditMutation(
     AddLineOfCreditMutationVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useMutation<
     AddLineOfCreditMutation,
     AddLineOfCreditMutationVariables
-  >(AddLineOfCreditDocument, baseOptions);
+  >(AddLineOfCreditDocument, options);
 }
 export type AddLineOfCreditMutationHookResult = ReturnType<
   typeof useAddLineOfCreditMutation
@@ -37555,10 +37661,11 @@ export function useUpdateLineOfCreditAndLoanMutation(
     UpdateLineOfCreditAndLoanMutationVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useMutation<
     UpdateLineOfCreditAndLoanMutation,
     UpdateLineOfCreditAndLoanMutationVariables
-  >(UpdateLineOfCreditAndLoanDocument, baseOptions);
+  >(UpdateLineOfCreditAndLoanDocument, options);
 }
 export type UpdateLineOfCreditAndLoanMutationHookResult = ReturnType<
   typeof useUpdateLineOfCreditAndLoanMutation
@@ -37614,10 +37721,11 @@ export function useGetPurchaseOrdersForIdsQuery(
     GetPurchaseOrdersForIdsQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetPurchaseOrdersForIdsQuery,
     GetPurchaseOrdersForIdsQueryVariables
-  >(GetPurchaseOrdersForIdsDocument, baseOptions);
+  >(GetPurchaseOrdersForIdsDocument, options);
 }
 export function useGetPurchaseOrdersForIdsLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -37625,10 +37733,11 @@ export function useGetPurchaseOrdersForIdsLazyQuery(
     GetPurchaseOrdersForIdsQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetPurchaseOrdersForIdsQuery,
     GetPurchaseOrdersForIdsQueryVariables
-  >(GetPurchaseOrdersForIdsDocument, baseOptions);
+  >(GetPurchaseOrdersForIdsDocument, options);
 }
 export type GetPurchaseOrdersForIdsQueryHookResult = ReturnType<
   typeof useGetPurchaseOrdersForIdsQuery
@@ -37691,10 +37800,11 @@ export function useGetPurchaseOrdersForIdsLimitedQuery(
     GetPurchaseOrdersForIdsLimitedQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetPurchaseOrdersForIdsLimitedQuery,
     GetPurchaseOrdersForIdsLimitedQueryVariables
-  >(GetPurchaseOrdersForIdsLimitedDocument, baseOptions);
+  >(GetPurchaseOrdersForIdsLimitedDocument, options);
 }
 export function useGetPurchaseOrdersForIdsLimitedLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -37702,10 +37812,11 @@ export function useGetPurchaseOrdersForIdsLimitedLazyQuery(
     GetPurchaseOrdersForIdsLimitedQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetPurchaseOrdersForIdsLimitedQuery,
     GetPurchaseOrdersForIdsLimitedQueryVariables
-  >(GetPurchaseOrdersForIdsLimitedDocument, baseOptions);
+  >(GetPurchaseOrdersForIdsLimitedDocument, options);
 }
 export type GetPurchaseOrdersForIdsLimitedQueryHookResult = ReturnType<
   typeof useGetPurchaseOrdersForIdsLimitedQuery
@@ -37745,17 +37856,19 @@ export const GetLoanDocument = gql`
 export function useGetLoanQuery(
   baseOptions: Apollo.QueryHookOptions<GetLoanQuery, GetLoanQueryVariables>
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<GetLoanQuery, GetLoanQueryVariables>(
     GetLoanDocument,
-    baseOptions
+    options
   );
 }
 export function useGetLoanLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<GetLoanQuery, GetLoanQueryVariables>
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<GetLoanQuery, GetLoanQueryVariables>(
     GetLoanDocument,
-    baseOptions
+    options
   );
 }
 export type GetLoanQueryHookResult = ReturnType<typeof useGetLoanQuery>;
@@ -37795,10 +37908,11 @@ export function useGetLoanForCustomerQuery(
     GetLoanForCustomerQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetLoanForCustomerQuery,
     GetLoanForCustomerQueryVariables
-  >(GetLoanForCustomerDocument, baseOptions);
+  >(GetLoanForCustomerDocument, options);
 }
 export function useGetLoanForCustomerLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -37806,10 +37920,11 @@ export function useGetLoanForCustomerLazyQuery(
     GetLoanForCustomerQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetLoanForCustomerQuery,
     GetLoanForCustomerQueryVariables
-  >(GetLoanForCustomerDocument, baseOptions);
+  >(GetLoanForCustomerDocument, options);
 }
 export type GetLoanForCustomerQueryHookResult = ReturnType<
   typeof useGetLoanForCustomerQuery
@@ -37854,10 +37969,11 @@ export function useGetLoanWithArtifactForCustomerQuery(
     GetLoanWithArtifactForCustomerQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetLoanWithArtifactForCustomerQuery,
     GetLoanWithArtifactForCustomerQueryVariables
-  >(GetLoanWithArtifactForCustomerDocument, baseOptions);
+  >(GetLoanWithArtifactForCustomerDocument, options);
 }
 export function useGetLoanWithArtifactForCustomerLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -37865,10 +37981,11 @@ export function useGetLoanWithArtifactForCustomerLazyQuery(
     GetLoanWithArtifactForCustomerQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetLoanWithArtifactForCustomerQuery,
     GetLoanWithArtifactForCustomerQueryVariables
-  >(GetLoanWithArtifactForCustomerDocument, baseOptions);
+  >(GetLoanWithArtifactForCustomerDocument, options);
 }
 export type GetLoanWithArtifactForCustomerQueryHookResult = ReturnType<
   typeof useGetLoanWithArtifactForCustomerQuery
@@ -37921,10 +38038,11 @@ export function useGetLoanWithArtifactForBankQuery(
     GetLoanWithArtifactForBankQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetLoanWithArtifactForBankQuery,
     GetLoanWithArtifactForBankQueryVariables
-  >(GetLoanWithArtifactForBankDocument, baseOptions);
+  >(GetLoanWithArtifactForBankDocument, options);
 }
 export function useGetLoanWithArtifactForBankLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -37932,10 +38050,11 @@ export function useGetLoanWithArtifactForBankLazyQuery(
     GetLoanWithArtifactForBankQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetLoanWithArtifactForBankQuery,
     GetLoanWithArtifactForBankQueryVariables
-  >(GetLoanWithArtifactForBankDocument, baseOptions);
+  >(GetLoanWithArtifactForBankDocument, options);
 }
 export type GetLoanWithArtifactForBankQueryHookResult = ReturnType<
   typeof useGetLoanWithArtifactForBankQuery
@@ -37991,10 +38110,11 @@ export function useGetTransactionsForLoanQuery(
     GetTransactionsForLoanQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetTransactionsForLoanQuery,
     GetTransactionsForLoanQueryVariables
-  >(GetTransactionsForLoanDocument, baseOptions);
+  >(GetTransactionsForLoanDocument, options);
 }
 export function useGetTransactionsForLoanLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -38002,10 +38122,11 @@ export function useGetTransactionsForLoanLazyQuery(
     GetTransactionsForLoanQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetTransactionsForLoanQuery,
     GetTransactionsForLoanQueryVariables
-  >(GetTransactionsForLoanDocument, baseOptions);
+  >(GetTransactionsForLoanDocument, options);
 }
 export type GetTransactionsForLoanQueryHookResult = ReturnType<
   typeof useGetTransactionsForLoanQuery
@@ -38053,9 +38174,10 @@ export function useAddLoanMutation(
     AddLoanMutationVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useMutation<AddLoanMutation, AddLoanMutationVariables>(
     AddLoanDocument,
-    baseOptions
+    options
   );
 }
 export type AddLoanMutationHookResult = ReturnType<typeof useAddLoanMutation>;
@@ -38101,9 +38223,10 @@ export function useUpdateLoanMutation(
     UpdateLoanMutationVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useMutation<UpdateLoanMutation, UpdateLoanMutationVariables>(
     UpdateLoanDocument,
-    baseOptions
+    options
   );
 }
 export type UpdateLoanMutationHookResult = ReturnType<
@@ -38168,10 +38291,11 @@ export function useGetLoansForBankSubscription(
     GetLoansForBankSubscriptionVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useSubscription<
     GetLoansForBankSubscription,
     GetLoansForBankSubscriptionVariables
-  >(GetLoansForBankDocument, baseOptions);
+  >(GetLoansForBankDocument, options);
 }
 export type GetLoansForBankSubscriptionHookResult = ReturnType<
   typeof useGetLoansForBankSubscription
@@ -38241,10 +38365,11 @@ export function useGetNotFundedLoansForBankSubscription(
     GetNotFundedLoansForBankSubscriptionVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useSubscription<
     GetNotFundedLoansForBankSubscription,
     GetNotFundedLoansForBankSubscriptionVariables
-  >(GetNotFundedLoansForBankDocument, baseOptions);
+  >(GetNotFundedLoansForBankDocument, options);
 }
 export type GetNotFundedLoansForBankSubscriptionHookResult = ReturnType<
   typeof useGetNotFundedLoansForBankSubscription
@@ -38307,10 +38432,11 @@ export function useGetFundedLoansForBankSubscription(
     GetFundedLoansForBankSubscriptionVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useSubscription<
     GetFundedLoansForBankSubscription,
     GetFundedLoansForBankSubscriptionVariables
-  >(GetFundedLoansForBankDocument, baseOptions);
+  >(GetFundedLoansForBankDocument, options);
 }
 export type GetFundedLoansForBankSubscriptionHookResult = ReturnType<
   typeof useGetFundedLoansForBankSubscription
@@ -38373,10 +38499,11 @@ export function useGetClosedLoansForBankSubscription(
     GetClosedLoansForBankSubscriptionVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useSubscription<
     GetClosedLoansForBankSubscription,
     GetClosedLoansForBankSubscriptionVariables
-  >(GetClosedLoansForBankDocument, baseOptions);
+  >(GetClosedLoansForBankDocument, options);
 }
 export type GetClosedLoansForBankSubscriptionHookResult = ReturnType<
   typeof useGetClosedLoansForBankSubscription
@@ -38439,10 +38566,11 @@ export function useGetActiveLoansForCompanyQuery(
     GetActiveLoansForCompanyQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetActiveLoansForCompanyQuery,
     GetActiveLoansForCompanyQueryVariables
-  >(GetActiveLoansForCompanyDocument, baseOptions);
+  >(GetActiveLoansForCompanyDocument, options);
 }
 export function useGetActiveLoansForCompanyLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -38450,10 +38578,11 @@ export function useGetActiveLoansForCompanyLazyQuery(
     GetActiveLoansForCompanyQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetActiveLoansForCompanyQuery,
     GetActiveLoansForCompanyQueryVariables
-  >(GetActiveLoansForCompanyDocument, baseOptions);
+  >(GetActiveLoansForCompanyDocument, options);
 }
 export type GetActiveLoansForCompanyQueryHookResult = ReturnType<
   typeof useGetActiveLoansForCompanyQuery
@@ -38526,10 +38655,11 @@ export function useGetFinancingRequestsForCompanyQuery(
     GetFinancingRequestsForCompanyQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetFinancingRequestsForCompanyQuery,
     GetFinancingRequestsForCompanyQueryVariables
-  >(GetFinancingRequestsForCompanyDocument, baseOptions);
+  >(GetFinancingRequestsForCompanyDocument, options);
 }
 export function useGetFinancingRequestsForCompanyLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -38537,10 +38667,11 @@ export function useGetFinancingRequestsForCompanyLazyQuery(
     GetFinancingRequestsForCompanyQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetFinancingRequestsForCompanyQuery,
     GetFinancingRequestsForCompanyQueryVariables
-  >(GetFinancingRequestsForCompanyDocument, baseOptions);
+  >(GetFinancingRequestsForCompanyDocument, options);
 }
 export type GetFinancingRequestsForCompanyQueryHookResult = ReturnType<
   typeof useGetFinancingRequestsForCompanyQuery
@@ -38608,10 +38739,11 @@ export function useGetClosedLoansForCompanyQuery(
     GetClosedLoansForCompanyQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetClosedLoansForCompanyQuery,
     GetClosedLoansForCompanyQueryVariables
-  >(GetClosedLoansForCompanyDocument, baseOptions);
+  >(GetClosedLoansForCompanyDocument, options);
 }
 export function useGetClosedLoansForCompanyLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -38619,10 +38751,11 @@ export function useGetClosedLoansForCompanyLazyQuery(
     GetClosedLoansForCompanyQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetClosedLoansForCompanyQuery,
     GetClosedLoansForCompanyQueryVariables
-  >(GetClosedLoansForCompanyDocument, baseOptions);
+  >(GetClosedLoansForCompanyDocument, options);
 }
 export type GetClosedLoansForCompanyQueryHookResult = ReturnType<
   typeof useGetClosedLoansForCompanyQuery
@@ -38686,10 +38819,11 @@ export function useGetAllLoansForCompanyQuery(
     GetAllLoansForCompanyQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetAllLoansForCompanyQuery,
     GetAllLoansForCompanyQueryVariables
-  >(GetAllLoansForCompanyDocument, baseOptions);
+  >(GetAllLoansForCompanyDocument, options);
 }
 export function useGetAllLoansForCompanyLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -38697,10 +38831,11 @@ export function useGetAllLoansForCompanyLazyQuery(
     GetAllLoansForCompanyQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetAllLoansForCompanyQuery,
     GetAllLoansForCompanyQueryVariables
-  >(GetAllLoansForCompanyDocument, baseOptions);
+  >(GetAllLoansForCompanyDocument, options);
 }
 export type GetAllLoansForCompanyQueryHookResult = ReturnType<
   typeof useGetAllLoansForCompanyQuery
@@ -38760,10 +38895,11 @@ export function useGetLoansByArtifactIdQuery(
     GetLoansByArtifactIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetLoansByArtifactIdQuery,
     GetLoansByArtifactIdQueryVariables
-  >(GetLoansByArtifactIdDocument, baseOptions);
+  >(GetLoansByArtifactIdDocument, options);
 }
 export function useGetLoansByArtifactIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -38771,10 +38907,11 @@ export function useGetLoansByArtifactIdLazyQuery(
     GetLoansByArtifactIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetLoansByArtifactIdQuery,
     GetLoansByArtifactIdQueryVariables
-  >(GetLoansByArtifactIdDocument, baseOptions);
+  >(GetLoansByArtifactIdDocument, options);
 }
 export type GetLoansByArtifactIdQueryHookResult = ReturnType<
   typeof useGetLoansByArtifactIdQuery
@@ -38845,10 +38982,11 @@ export function useGetOpenFundedLoansByCompanyAndLoanTypeQuery(
     GetOpenFundedLoansByCompanyAndLoanTypeQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetOpenFundedLoansByCompanyAndLoanTypeQuery,
     GetOpenFundedLoansByCompanyAndLoanTypeQueryVariables
-  >(GetOpenFundedLoansByCompanyAndLoanTypeDocument, baseOptions);
+  >(GetOpenFundedLoansByCompanyAndLoanTypeDocument, options);
 }
 export function useGetOpenFundedLoansByCompanyAndLoanTypeLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -38856,10 +38994,11 @@ export function useGetOpenFundedLoansByCompanyAndLoanTypeLazyQuery(
     GetOpenFundedLoansByCompanyAndLoanTypeQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetOpenFundedLoansByCompanyAndLoanTypeQuery,
     GetOpenFundedLoansByCompanyAndLoanTypeQueryVariables
-  >(GetOpenFundedLoansByCompanyAndLoanTypeDocument, baseOptions);
+  >(GetOpenFundedLoansByCompanyAndLoanTypeDocument, options);
 }
 export type GetOpenFundedLoansByCompanyAndLoanTypeQueryHookResult = ReturnType<
   typeof useGetOpenFundedLoansByCompanyAndLoanTypeQuery
@@ -38915,10 +39054,11 @@ export function useGetLoansByLoanIdsQuery(
     GetLoansByLoanIdsQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetLoansByLoanIdsQuery,
     GetLoansByLoanIdsQueryVariables
-  >(GetLoansByLoanIdsDocument, baseOptions);
+  >(GetLoansByLoanIdsDocument, options);
 }
 export function useGetLoansByLoanIdsLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -38926,10 +39066,11 @@ export function useGetLoansByLoanIdsLazyQuery(
     GetLoansByLoanIdsQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetLoansByLoanIdsQuery,
     GetLoansByLoanIdsQueryVariables
-  >(GetLoansByLoanIdsDocument, baseOptions);
+  >(GetLoansByLoanIdsDocument, options);
 }
 export type GetLoansByLoanIdsQueryHookResult = ReturnType<
   typeof useGetLoansByLoanIdsQuery
@@ -38985,10 +39126,11 @@ export function useGetLimitedLoansByLoanIdsQuery(
     GetLimitedLoansByLoanIdsQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetLimitedLoansByLoanIdsQuery,
     GetLimitedLoansByLoanIdsQueryVariables
-  >(GetLimitedLoansByLoanIdsDocument, baseOptions);
+  >(GetLimitedLoansByLoanIdsDocument, options);
 }
 export function useGetLimitedLoansByLoanIdsLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -38996,10 +39138,11 @@ export function useGetLimitedLoansByLoanIdsLazyQuery(
     GetLimitedLoansByLoanIdsQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetLimitedLoansByLoanIdsQuery,
     GetLimitedLoansByLoanIdsQueryVariables
-  >(GetLimitedLoansByLoanIdsDocument, baseOptions);
+  >(GetLimitedLoansByLoanIdsDocument, options);
 }
 export type GetLimitedLoansByLoanIdsQueryHookResult = ReturnType<
   typeof useGetLimitedLoansByLoanIdsQuery
@@ -39086,10 +39229,11 @@ export function useGetBankPayorPartnershipQuery(
     GetBankPayorPartnershipQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetBankPayorPartnershipQuery,
     GetBankPayorPartnershipQueryVariables
-  >(GetBankPayorPartnershipDocument, baseOptions);
+  >(GetBankPayorPartnershipDocument, options);
 }
 export function useGetBankPayorPartnershipLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -39097,10 +39241,11 @@ export function useGetBankPayorPartnershipLazyQuery(
     GetBankPayorPartnershipQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetBankPayorPartnershipQuery,
     GetBankPayorPartnershipQueryVariables
-  >(GetBankPayorPartnershipDocument, baseOptions);
+  >(GetBankPayorPartnershipDocument, options);
 }
 export type GetBankPayorPartnershipQueryHookResult = ReturnType<
   typeof useGetBankPayorPartnershipQuery
@@ -39156,10 +39301,11 @@ export function useGetPayorPartnershipForContactsQuery(
     GetPayorPartnershipForContactsQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetPayorPartnershipForContactsQuery,
     GetPayorPartnershipForContactsQueryVariables
-  >(GetPayorPartnershipForContactsDocument, baseOptions);
+  >(GetPayorPartnershipForContactsDocument, options);
 }
 export function useGetPayorPartnershipForContactsLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -39167,10 +39313,11 @@ export function useGetPayorPartnershipForContactsLazyQuery(
     GetPayorPartnershipForContactsQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetPayorPartnershipForContactsQuery,
     GetPayorPartnershipForContactsQueryVariables
-  >(GetPayorPartnershipForContactsDocument, baseOptions);
+  >(GetPayorPartnershipForContactsDocument, options);
 }
 export type GetPayorPartnershipForContactsQueryHookResult = ReturnType<
   typeof useGetPayorPartnershipForContactsQuery
@@ -39226,10 +39373,11 @@ export function useGetPayorPartnershipsForBankQuery(
     GetPayorPartnershipsForBankQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetPayorPartnershipsForBankQuery,
     GetPayorPartnershipsForBankQueryVariables
-  >(GetPayorPartnershipsForBankDocument, baseOptions);
+  >(GetPayorPartnershipsForBankDocument, options);
 }
 export function useGetPayorPartnershipsForBankLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -39237,10 +39385,11 @@ export function useGetPayorPartnershipsForBankLazyQuery(
     GetPayorPartnershipsForBankQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetPayorPartnershipsForBankQuery,
     GetPayorPartnershipsForBankQueryVariables
-  >(GetPayorPartnershipsForBankDocument, baseOptions);
+  >(GetPayorPartnershipsForBankDocument, options);
 }
 export type GetPayorPartnershipsForBankQueryHookResult = ReturnType<
   typeof useGetPayorPartnershipsForBankQuery
@@ -39287,10 +39436,11 @@ export function useGetPayorPartnershipsByPayorIdQuery(
     GetPayorPartnershipsByPayorIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetPayorPartnershipsByPayorIdQuery,
     GetPayorPartnershipsByPayorIdQueryVariables
-  >(GetPayorPartnershipsByPayorIdDocument, baseOptions);
+  >(GetPayorPartnershipsByPayorIdDocument, options);
 }
 export function useGetPayorPartnershipsByPayorIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -39298,10 +39448,11 @@ export function useGetPayorPartnershipsByPayorIdLazyQuery(
     GetPayorPartnershipsByPayorIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetPayorPartnershipsByPayorIdQuery,
     GetPayorPartnershipsByPayorIdQueryVariables
-  >(GetPayorPartnershipsByPayorIdDocument, baseOptions);
+  >(GetPayorPartnershipsByPayorIdDocument, options);
 }
 export type GetPayorPartnershipsByPayorIdQueryHookResult = ReturnType<
   typeof useGetPayorPartnershipsByPayorIdQuery
@@ -39359,10 +39510,11 @@ export function useUpdatePayorAgreementIdMutation(
     UpdatePayorAgreementIdMutationVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useMutation<
     UpdatePayorAgreementIdMutation,
     UpdatePayorAgreementIdMutationVariables
-  >(UpdatePayorAgreementIdDocument, baseOptions);
+  >(UpdatePayorAgreementIdDocument, options);
 }
 export type UpdatePayorAgreementIdMutationHookResult = ReturnType<
   typeof useUpdatePayorAgreementIdMutation
@@ -39411,10 +39563,11 @@ export function useAddCompanyPayorAgreementMutation(
     AddCompanyPayorAgreementMutationVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useMutation<
     AddCompanyPayorAgreementMutation,
     AddCompanyPayorAgreementMutationVariables
-  >(AddCompanyPayorAgreementDocument, baseOptions);
+  >(AddCompanyPayorAgreementDocument, options);
 }
 export type AddCompanyPayorAgreementMutationHookResult = ReturnType<
   typeof useAddCompanyPayorAgreementMutation
@@ -39462,10 +39615,11 @@ export function useListPayorPartnershipsByCompanyIdQuery(
     ListPayorPartnershipsByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     ListPayorPartnershipsByCompanyIdQuery,
     ListPayorPartnershipsByCompanyIdQueryVariables
-  >(ListPayorPartnershipsByCompanyIdDocument, baseOptions);
+  >(ListPayorPartnershipsByCompanyIdDocument, options);
 }
 export function useListPayorPartnershipsByCompanyIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -39473,10 +39627,11 @@ export function useListPayorPartnershipsByCompanyIdLazyQuery(
     ListPayorPartnershipsByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     ListPayorPartnershipsByCompanyIdQuery,
     ListPayorPartnershipsByCompanyIdQueryVariables
-  >(ListPayorPartnershipsByCompanyIdDocument, baseOptions);
+  >(ListPayorPartnershipsByCompanyIdDocument, options);
 }
 export type ListPayorPartnershipsByCompanyIdQueryHookResult = ReturnType<
   typeof useListPayorPartnershipsByCompanyIdQuery
@@ -39546,10 +39701,11 @@ export function useGetCompanyDeliveryQuery(
     GetCompanyDeliveryQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetCompanyDeliveryQuery,
     GetCompanyDeliveryQueryVariables
-  >(GetCompanyDeliveryDocument, baseOptions);
+  >(GetCompanyDeliveryDocument, options);
 }
 export function useGetCompanyDeliveryLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -39557,10 +39713,11 @@ export function useGetCompanyDeliveryLazyQuery(
     GetCompanyDeliveryQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetCompanyDeliveryQuery,
     GetCompanyDeliveryQueryVariables
-  >(GetCompanyDeliveryDocument, baseOptions);
+  >(GetCompanyDeliveryDocument, options);
 }
 export type GetCompanyDeliveryQueryHookResult = ReturnType<
   typeof useGetCompanyDeliveryQuery
@@ -39648,10 +39805,11 @@ export function useGetIncomingFromVendorCompanyDeliveriesByCompanyIdQuery(
     GetIncomingFromVendorCompanyDeliveriesByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetIncomingFromVendorCompanyDeliveriesByCompanyIdQuery,
     GetIncomingFromVendorCompanyDeliveriesByCompanyIdQueryVariables
-  >(GetIncomingFromVendorCompanyDeliveriesByCompanyIdDocument, baseOptions);
+  >(GetIncomingFromVendorCompanyDeliveriesByCompanyIdDocument, options);
 }
 export function useGetIncomingFromVendorCompanyDeliveriesByCompanyIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -39659,10 +39817,11 @@ export function useGetIncomingFromVendorCompanyDeliveriesByCompanyIdLazyQuery(
     GetIncomingFromVendorCompanyDeliveriesByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetIncomingFromVendorCompanyDeliveriesByCompanyIdQuery,
     GetIncomingFromVendorCompanyDeliveriesByCompanyIdQueryVariables
-  >(GetIncomingFromVendorCompanyDeliveriesByCompanyIdDocument, baseOptions);
+  >(GetIncomingFromVendorCompanyDeliveriesByCompanyIdDocument, options);
 }
 export type GetIncomingFromVendorCompanyDeliveriesByCompanyIdQueryHookResult =
   ReturnType<typeof useGetIncomingFromVendorCompanyDeliveriesByCompanyIdQuery>;
@@ -39731,10 +39890,11 @@ export function useGetPurchaseOrderForBankQuery(
     GetPurchaseOrderForBankQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetPurchaseOrderForBankQuery,
     GetPurchaseOrderForBankQueryVariables
-  >(GetPurchaseOrderForBankDocument, baseOptions);
+  >(GetPurchaseOrderForBankDocument, options);
 }
 export function useGetPurchaseOrderForBankLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -39742,10 +39902,11 @@ export function useGetPurchaseOrderForBankLazyQuery(
     GetPurchaseOrderForBankQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetPurchaseOrderForBankQuery,
     GetPurchaseOrderForBankQueryVariables
-  >(GetPurchaseOrderForBankDocument, baseOptions);
+  >(GetPurchaseOrderForBankDocument, options);
 }
 export type GetPurchaseOrderForBankQueryHookResult = ReturnType<
   typeof useGetPurchaseOrderForBankQuery
@@ -39820,10 +39981,11 @@ export function useGetPurchaseOrderForCustomerQuery(
     GetPurchaseOrderForCustomerQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetPurchaseOrderForCustomerQuery,
     GetPurchaseOrderForCustomerQueryVariables
-  >(GetPurchaseOrderForCustomerDocument, baseOptions);
+  >(GetPurchaseOrderForCustomerDocument, options);
 }
 export function useGetPurchaseOrderForCustomerLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -39831,10 +39993,11 @@ export function useGetPurchaseOrderForCustomerLazyQuery(
     GetPurchaseOrderForCustomerQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetPurchaseOrderForCustomerQuery,
     GetPurchaseOrderForCustomerQueryVariables
-  >(GetPurchaseOrderForCustomerDocument, baseOptions);
+  >(GetPurchaseOrderForCustomerDocument, options);
 }
 export type GetPurchaseOrderForCustomerQueryHookResult = ReturnType<
   typeof useGetPurchaseOrderForCustomerQuery
@@ -39879,10 +40042,11 @@ export function useGetPurchaseOrderForCombinedQuery(
     GetPurchaseOrderForCombinedQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetPurchaseOrderForCombinedQuery,
     GetPurchaseOrderForCombinedQueryVariables
-  >(GetPurchaseOrderForCombinedDocument, baseOptions);
+  >(GetPurchaseOrderForCombinedDocument, options);
 }
 export function useGetPurchaseOrderForCombinedLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -39890,10 +40054,11 @@ export function useGetPurchaseOrderForCombinedLazyQuery(
     GetPurchaseOrderForCombinedQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetPurchaseOrderForCombinedQuery,
     GetPurchaseOrderForCombinedQueryVariables
-  >(GetPurchaseOrderForCombinedDocument, baseOptions);
+  >(GetPurchaseOrderForCombinedDocument, options);
 }
 export type GetPurchaseOrderForCombinedQueryHookResult = ReturnType<
   typeof useGetPurchaseOrderForCombinedQuery
@@ -39977,10 +40142,11 @@ export function useGetPurchaseOrderForReviewQuery(
     GetPurchaseOrderForReviewQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetPurchaseOrderForReviewQuery,
     GetPurchaseOrderForReviewQueryVariables
-  >(GetPurchaseOrderForReviewDocument, baseOptions);
+  >(GetPurchaseOrderForReviewDocument, options);
 }
 export function useGetPurchaseOrderForReviewLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -39988,10 +40154,11 @@ export function useGetPurchaseOrderForReviewLazyQuery(
     GetPurchaseOrderForReviewQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetPurchaseOrderForReviewQuery,
     GetPurchaseOrderForReviewQueryVariables
-  >(GetPurchaseOrderForReviewDocument, baseOptions);
+  >(GetPurchaseOrderForReviewDocument, options);
 }
 export type GetPurchaseOrderForReviewQueryHookResult = ReturnType<
   typeof useGetPurchaseOrderForReviewQuery
@@ -40042,10 +40209,11 @@ export function useGetPurchaseOrdersSubscription(
     GetPurchaseOrdersSubscriptionVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useSubscription<
     GetPurchaseOrdersSubscription,
     GetPurchaseOrdersSubscriptionVariables
-  >(GetPurchaseOrdersDocument, baseOptions);
+  >(GetPurchaseOrdersDocument, options);
 }
 export type GetPurchaseOrdersSubscriptionHookResult = ReturnType<
   typeof useGetPurchaseOrdersSubscription
@@ -40094,10 +40262,11 @@ export function useGetIncompletePurchaseOrdersSubscription(
     GetIncompletePurchaseOrdersSubscriptionVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useSubscription<
     GetIncompletePurchaseOrdersSubscription,
     GetIncompletePurchaseOrdersSubscriptionVariables
-  >(GetIncompletePurchaseOrdersDocument, baseOptions);
+  >(GetIncompletePurchaseOrdersDocument, options);
 }
 export type GetIncompletePurchaseOrdersSubscriptionHookResult = ReturnType<
   typeof useGetIncompletePurchaseOrdersSubscription
@@ -40148,10 +40317,11 @@ export function useGetDraftPurchaseOrdersSubscription(
     GetDraftPurchaseOrdersSubscriptionVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useSubscription<
     GetDraftPurchaseOrdersSubscription,
     GetDraftPurchaseOrdersSubscriptionVariables
-  >(GetDraftPurchaseOrdersDocument, baseOptions);
+  >(GetDraftPurchaseOrdersDocument, options);
 }
 export type GetDraftPurchaseOrdersSubscriptionHookResult = ReturnType<
   typeof useGetDraftPurchaseOrdersSubscription
@@ -40204,10 +40374,11 @@ export function useGetNotConfirmedPurchaseOrdersSubscription(
     GetNotConfirmedPurchaseOrdersSubscriptionVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useSubscription<
     GetNotConfirmedPurchaseOrdersSubscription,
     GetNotConfirmedPurchaseOrdersSubscriptionVariables
-  >(GetNotConfirmedPurchaseOrdersDocument, baseOptions);
+  >(GetNotConfirmedPurchaseOrdersDocument, options);
 }
 export type GetNotConfirmedPurchaseOrdersSubscriptionHookResult = ReturnType<
   typeof useGetNotConfirmedPurchaseOrdersSubscription
@@ -40259,10 +40430,11 @@ export function useGetPurchaseOrdersByNewStatusSubscription(
     GetPurchaseOrdersByNewStatusSubscriptionVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useSubscription<
     GetPurchaseOrdersByNewStatusSubscription,
     GetPurchaseOrdersByNewStatusSubscriptionVariables
-  >(GetPurchaseOrdersByNewStatusDocument, baseOptions);
+  >(GetPurchaseOrdersByNewStatusDocument, options);
 }
 export type GetPurchaseOrdersByNewStatusSubscriptionHookResult = ReturnType<
   typeof useGetPurchaseOrdersByNewStatusSubscription
@@ -40313,10 +40485,11 @@ export function useGetConfirmedPurchaseOrdersSubscription(
     GetConfirmedPurchaseOrdersSubscriptionVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useSubscription<
     GetConfirmedPurchaseOrdersSubscription,
     GetConfirmedPurchaseOrdersSubscriptionVariables
-  >(GetConfirmedPurchaseOrdersDocument, baseOptions);
+  >(GetConfirmedPurchaseOrdersDocument, options);
 }
 export type GetConfirmedPurchaseOrdersSubscriptionHookResult = ReturnType<
   typeof useGetConfirmedPurchaseOrdersSubscription
@@ -40368,10 +40541,11 @@ export function useGetConfirmedPurchaseOrdersNewSubscription(
     GetConfirmedPurchaseOrdersNewSubscriptionVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useSubscription<
     GetConfirmedPurchaseOrdersNewSubscription,
     GetConfirmedPurchaseOrdersNewSubscriptionVariables
-  >(GetConfirmedPurchaseOrdersNewDocument, baseOptions);
+  >(GetConfirmedPurchaseOrdersNewDocument, options);
 }
 export type GetConfirmedPurchaseOrdersNewSubscriptionHookResult = ReturnType<
   typeof useGetConfirmedPurchaseOrdersNewSubscription
@@ -40422,10 +40596,11 @@ export function useGetArchivedPurchaseOrdersSubscription(
     GetArchivedPurchaseOrdersSubscriptionVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useSubscription<
     GetArchivedPurchaseOrdersSubscription,
     GetArchivedPurchaseOrdersSubscriptionVariables
-  >(GetArchivedPurchaseOrdersDocument, baseOptions);
+  >(GetArchivedPurchaseOrdersDocument, options);
 }
 export type GetArchivedPurchaseOrdersSubscriptionHookResult = ReturnType<
   typeof useGetArchivedPurchaseOrdersSubscription
@@ -40484,10 +40659,11 @@ export function useGetOpenPurchaseOrdersByCompanyIdQuery(
     GetOpenPurchaseOrdersByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetOpenPurchaseOrdersByCompanyIdQuery,
     GetOpenPurchaseOrdersByCompanyIdQueryVariables
-  >(GetOpenPurchaseOrdersByCompanyIdDocument, baseOptions);
+  >(GetOpenPurchaseOrdersByCompanyIdDocument, options);
 }
 export function useGetOpenPurchaseOrdersByCompanyIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -40495,10 +40671,11 @@ export function useGetOpenPurchaseOrdersByCompanyIdLazyQuery(
     GetOpenPurchaseOrdersByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetOpenPurchaseOrdersByCompanyIdQuery,
     GetOpenPurchaseOrdersByCompanyIdQueryVariables
-  >(GetOpenPurchaseOrdersByCompanyIdDocument, baseOptions);
+  >(GetOpenPurchaseOrdersByCompanyIdDocument, options);
 }
 export type GetOpenPurchaseOrdersByCompanyIdQueryHookResult = ReturnType<
   typeof useGetOpenPurchaseOrdersByCompanyIdQuery
@@ -40560,10 +40737,11 @@ export function useGetAllPurchaseOrdersByCompanyIdNewQuery(
     GetAllPurchaseOrdersByCompanyIdNewQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetAllPurchaseOrdersByCompanyIdNewQuery,
     GetAllPurchaseOrdersByCompanyIdNewQueryVariables
-  >(GetAllPurchaseOrdersByCompanyIdNewDocument, baseOptions);
+  >(GetAllPurchaseOrdersByCompanyIdNewDocument, options);
 }
 export function useGetAllPurchaseOrdersByCompanyIdNewLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -40571,10 +40749,11 @@ export function useGetAllPurchaseOrdersByCompanyIdNewLazyQuery(
     GetAllPurchaseOrdersByCompanyIdNewQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetAllPurchaseOrdersByCompanyIdNewQuery,
     GetAllPurchaseOrdersByCompanyIdNewQueryVariables
-  >(GetAllPurchaseOrdersByCompanyIdNewDocument, baseOptions);
+  >(GetAllPurchaseOrdersByCompanyIdNewDocument, options);
 }
 export type GetAllPurchaseOrdersByCompanyIdNewQueryHookResult = ReturnType<
   typeof useGetAllPurchaseOrdersByCompanyIdNewQuery
@@ -40638,10 +40817,11 @@ export function useGetOpenPurchaseOrdersByCompanyIdNewQuery(
     GetOpenPurchaseOrdersByCompanyIdNewQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetOpenPurchaseOrdersByCompanyIdNewQuery,
     GetOpenPurchaseOrdersByCompanyIdNewQueryVariables
-  >(GetOpenPurchaseOrdersByCompanyIdNewDocument, baseOptions);
+  >(GetOpenPurchaseOrdersByCompanyIdNewDocument, options);
 }
 export function useGetOpenPurchaseOrdersByCompanyIdNewLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -40649,10 +40829,11 @@ export function useGetOpenPurchaseOrdersByCompanyIdNewLazyQuery(
     GetOpenPurchaseOrdersByCompanyIdNewQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetOpenPurchaseOrdersByCompanyIdNewQuery,
     GetOpenPurchaseOrdersByCompanyIdNewQueryVariables
-  >(GetOpenPurchaseOrdersByCompanyIdNewDocument, baseOptions);
+  >(GetOpenPurchaseOrdersByCompanyIdNewDocument, options);
 }
 export type GetOpenPurchaseOrdersByCompanyIdNewQueryHookResult = ReturnType<
   typeof useGetOpenPurchaseOrdersByCompanyIdNewQuery
@@ -40713,10 +40894,11 @@ export function useGetClosedPurchaseOrdersByCompanyIdQuery(
     GetClosedPurchaseOrdersByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetClosedPurchaseOrdersByCompanyIdQuery,
     GetClosedPurchaseOrdersByCompanyIdQueryVariables
-  >(GetClosedPurchaseOrdersByCompanyIdDocument, baseOptions);
+  >(GetClosedPurchaseOrdersByCompanyIdDocument, options);
 }
 export function useGetClosedPurchaseOrdersByCompanyIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -40724,10 +40906,11 @@ export function useGetClosedPurchaseOrdersByCompanyIdLazyQuery(
     GetClosedPurchaseOrdersByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetClosedPurchaseOrdersByCompanyIdQuery,
     GetClosedPurchaseOrdersByCompanyIdQueryVariables
-  >(GetClosedPurchaseOrdersByCompanyIdDocument, baseOptions);
+  >(GetClosedPurchaseOrdersByCompanyIdDocument, options);
 }
 export type GetClosedPurchaseOrdersByCompanyIdQueryHookResult = ReturnType<
   typeof useGetClosedPurchaseOrdersByCompanyIdQuery
@@ -40788,10 +40971,11 @@ export function useGetClosedPurchaseOrdersByCompanyIdNewQuery(
     GetClosedPurchaseOrdersByCompanyIdNewQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetClosedPurchaseOrdersByCompanyIdNewQuery,
     GetClosedPurchaseOrdersByCompanyIdNewQueryVariables
-  >(GetClosedPurchaseOrdersByCompanyIdNewDocument, baseOptions);
+  >(GetClosedPurchaseOrdersByCompanyIdNewDocument, options);
 }
 export function useGetClosedPurchaseOrdersByCompanyIdNewLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -40799,10 +40983,11 @@ export function useGetClosedPurchaseOrdersByCompanyIdNewLazyQuery(
     GetClosedPurchaseOrdersByCompanyIdNewQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetClosedPurchaseOrdersByCompanyIdNewQuery,
     GetClosedPurchaseOrdersByCompanyIdNewQueryVariables
-  >(GetClosedPurchaseOrdersByCompanyIdNewDocument, baseOptions);
+  >(GetClosedPurchaseOrdersByCompanyIdNewDocument, options);
 }
 export type GetClosedPurchaseOrdersByCompanyIdNewQueryHookResult = ReturnType<
   typeof useGetClosedPurchaseOrdersByCompanyIdNewQuery
@@ -40859,10 +41044,11 @@ export function useGetFundablePurchaseOrdersByCompanyIdQuery(
     GetFundablePurchaseOrdersByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetFundablePurchaseOrdersByCompanyIdQuery,
     GetFundablePurchaseOrdersByCompanyIdQueryVariables
-  >(GetFundablePurchaseOrdersByCompanyIdDocument, baseOptions);
+  >(GetFundablePurchaseOrdersByCompanyIdDocument, options);
 }
 export function useGetFundablePurchaseOrdersByCompanyIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -40870,10 +41056,11 @@ export function useGetFundablePurchaseOrdersByCompanyIdLazyQuery(
     GetFundablePurchaseOrdersByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetFundablePurchaseOrdersByCompanyIdQuery,
     GetFundablePurchaseOrdersByCompanyIdQueryVariables
-  >(GetFundablePurchaseOrdersByCompanyIdDocument, baseOptions);
+  >(GetFundablePurchaseOrdersByCompanyIdDocument, options);
 }
 export type GetFundablePurchaseOrdersByCompanyIdQueryHookResult = ReturnType<
   typeof useGetFundablePurchaseOrdersByCompanyIdQuery
@@ -40930,10 +41117,11 @@ export function useGetVendorReviewablePurchaseOrdersQuery(
     GetVendorReviewablePurchaseOrdersQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetVendorReviewablePurchaseOrdersQuery,
     GetVendorReviewablePurchaseOrdersQueryVariables
-  >(GetVendorReviewablePurchaseOrdersDocument, baseOptions);
+  >(GetVendorReviewablePurchaseOrdersDocument, options);
 }
 export function useGetVendorReviewablePurchaseOrdersLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -40941,10 +41129,11 @@ export function useGetVendorReviewablePurchaseOrdersLazyQuery(
     GetVendorReviewablePurchaseOrdersQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetVendorReviewablePurchaseOrdersQuery,
     GetVendorReviewablePurchaseOrdersQueryVariables
-  >(GetVendorReviewablePurchaseOrdersDocument, baseOptions);
+  >(GetVendorReviewablePurchaseOrdersDocument, options);
 }
 export type GetVendorReviewablePurchaseOrdersQueryHookResult = ReturnType<
   typeof useGetVendorReviewablePurchaseOrdersQuery
@@ -41006,10 +41195,11 @@ export function useGetPurchaseOrdersChangesRequestedCountForCustomerQuery(
     GetPurchaseOrdersChangesRequestedCountForCustomerQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetPurchaseOrdersChangesRequestedCountForCustomerQuery,
     GetPurchaseOrdersChangesRequestedCountForCustomerQueryVariables
-  >(GetPurchaseOrdersChangesRequestedCountForCustomerDocument, baseOptions);
+  >(GetPurchaseOrdersChangesRequestedCountForCustomerDocument, options);
 }
 export function useGetPurchaseOrdersChangesRequestedCountForCustomerLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -41017,10 +41207,11 @@ export function useGetPurchaseOrdersChangesRequestedCountForCustomerLazyQuery(
     GetPurchaseOrdersChangesRequestedCountForCustomerQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetPurchaseOrdersChangesRequestedCountForCustomerQuery,
     GetPurchaseOrdersChangesRequestedCountForCustomerQueryVariables
-  >(GetPurchaseOrdersChangesRequestedCountForCustomerDocument, baseOptions);
+  >(GetPurchaseOrdersChangesRequestedCountForCustomerDocument, options);
 }
 export type GetPurchaseOrdersChangesRequestedCountForCustomerQueryHookResult =
   ReturnType<typeof useGetPurchaseOrdersChangesRequestedCountForCustomerQuery>;
@@ -41073,9 +41264,10 @@ export function useGetPaymentQuery(
     GetPaymentQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<GetPaymentQuery, GetPaymentQueryVariables>(
     GetPaymentDocument,
-    baseOptions
+    options
   );
 }
 export function useGetPaymentLazyQuery(
@@ -41084,9 +41276,10 @@ export function useGetPaymentLazyQuery(
     GetPaymentQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<GetPaymentQuery, GetPaymentQueryVariables>(
     GetPaymentDocument,
-    baseOptions
+    options
   );
 }
 export type GetPaymentQueryHookResult = ReturnType<typeof useGetPaymentQuery>;
@@ -41137,10 +41330,11 @@ export function useGetPaymentForBankQuery(
     GetPaymentForBankQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetPaymentForBankQuery,
     GetPaymentForBankQueryVariables
-  >(GetPaymentForBankDocument, baseOptions);
+  >(GetPaymentForBankDocument, options);
 }
 export function useGetPaymentForBankLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -41148,10 +41342,11 @@ export function useGetPaymentForBankLazyQuery(
     GetPaymentForBankQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetPaymentForBankQuery,
     GetPaymentForBankQueryVariables
-  >(GetPaymentForBankDocument, baseOptions);
+  >(GetPaymentForBankDocument, options);
 }
 export type GetPaymentForBankQueryHookResult = ReturnType<
   typeof useGetPaymentForBankQuery
@@ -41227,10 +41422,11 @@ export function useGetPaymentForSettlementQuery(
     GetPaymentForSettlementQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetPaymentForSettlementQuery,
     GetPaymentForSettlementQueryVariables
-  >(GetPaymentForSettlementDocument, baseOptions);
+  >(GetPaymentForSettlementDocument, options);
 }
 export function useGetPaymentForSettlementLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -41238,10 +41434,11 @@ export function useGetPaymentForSettlementLazyQuery(
     GetPaymentForSettlementQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetPaymentForSettlementQuery,
     GetPaymentForSettlementQueryVariables
-  >(GetPaymentForSettlementDocument, baseOptions);
+  >(GetPaymentForSettlementDocument, options);
 }
 export type GetPaymentForSettlementQueryHookResult = ReturnType<
   typeof useGetPaymentForSettlementQuery
@@ -41330,10 +41527,11 @@ export function useGetRepaymentsSubscription(
     GetRepaymentsSubscriptionVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useSubscription<
     GetRepaymentsSubscription,
     GetRepaymentsSubscriptionVariables
-  >(GetRepaymentsDocument, baseOptions);
+  >(GetRepaymentsDocument, options);
 }
 export type GetRepaymentsSubscriptionHookResult = ReturnType<
   typeof useGetRepaymentsSubscription
@@ -41395,10 +41593,11 @@ export function useGetRepaymentsByDepositDateRangeQuery(
     GetRepaymentsByDepositDateRangeQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetRepaymentsByDepositDateRangeQuery,
     GetRepaymentsByDepositDateRangeQueryVariables
-  >(GetRepaymentsByDepositDateRangeDocument, baseOptions);
+  >(GetRepaymentsByDepositDateRangeDocument, options);
 }
 export function useGetRepaymentsByDepositDateRangeLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -41406,10 +41605,11 @@ export function useGetRepaymentsByDepositDateRangeLazyQuery(
     GetRepaymentsByDepositDateRangeQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetRepaymentsByDepositDateRangeQuery,
     GetRepaymentsByDepositDateRangeQueryVariables
-  >(GetRepaymentsByDepositDateRangeDocument, baseOptions);
+  >(GetRepaymentsByDepositDateRangeDocument, options);
 }
 export type GetRepaymentsByDepositDateRangeQueryHookResult = ReturnType<
   typeof useGetRepaymentsByDepositDateRangeQuery
@@ -41479,10 +41679,11 @@ export function useGetSubmittedPaymentsSubscription(
     GetSubmittedPaymentsSubscriptionVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useSubscription<
     GetSubmittedPaymentsSubscription,
     GetSubmittedPaymentsSubscriptionVariables
-  >(GetSubmittedPaymentsDocument, baseOptions);
+  >(GetSubmittedPaymentsDocument, options);
 }
 export type GetSubmittedPaymentsSubscriptionHookResult = ReturnType<
   typeof useGetSubmittedPaymentsSubscription
@@ -41564,10 +41765,11 @@ export function useGetRepaymentsForCompanyQuery(
     GetRepaymentsForCompanyQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetRepaymentsForCompanyQuery,
     GetRepaymentsForCompanyQueryVariables
-  >(GetRepaymentsForCompanyDocument, baseOptions);
+  >(GetRepaymentsForCompanyDocument, options);
 }
 export function useGetRepaymentsForCompanyLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -41575,10 +41777,11 @@ export function useGetRepaymentsForCompanyLazyQuery(
     GetRepaymentsForCompanyQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetRepaymentsForCompanyQuery,
     GetRepaymentsForCompanyQueryVariables
-  >(GetRepaymentsForCompanyDocument, baseOptions);
+  >(GetRepaymentsForCompanyDocument, options);
 }
 export type GetRepaymentsForCompanyQueryHookResult = ReturnType<
   typeof useGetRepaymentsForCompanyQuery
@@ -41646,10 +41849,11 @@ export function useGetRepaymentsByMethodAndPaymentDateQuery(
     GetRepaymentsByMethodAndPaymentDateQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetRepaymentsByMethodAndPaymentDateQuery,
     GetRepaymentsByMethodAndPaymentDateQueryVariables
-  >(GetRepaymentsByMethodAndPaymentDateDocument, baseOptions);
+  >(GetRepaymentsByMethodAndPaymentDateDocument, options);
 }
 export function useGetRepaymentsByMethodAndPaymentDateLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -41657,10 +41861,11 @@ export function useGetRepaymentsByMethodAndPaymentDateLazyQuery(
     GetRepaymentsByMethodAndPaymentDateQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetRepaymentsByMethodAndPaymentDateQuery,
     GetRepaymentsByMethodAndPaymentDateQueryVariables
-  >(GetRepaymentsByMethodAndPaymentDateDocument, baseOptions);
+  >(GetRepaymentsByMethodAndPaymentDateDocument, options);
 }
 export type GetRepaymentsByMethodAndPaymentDateQueryHookResult = ReturnType<
   typeof useGetRepaymentsByMethodAndPaymentDateQuery
@@ -41717,10 +41922,11 @@ export function useGetMostRecentMonthlyCalculationsQuery(
     GetMostRecentMonthlyCalculationsQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetMostRecentMonthlyCalculationsQuery,
     GetMostRecentMonthlyCalculationsQueryVariables
-  >(GetMostRecentMonthlyCalculationsDocument, baseOptions);
+  >(GetMostRecentMonthlyCalculationsDocument, options);
 }
 export function useGetMostRecentMonthlyCalculationsLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -41728,10 +41934,11 @@ export function useGetMostRecentMonthlyCalculationsLazyQuery(
     GetMostRecentMonthlyCalculationsQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetMostRecentMonthlyCalculationsQuery,
     GetMostRecentMonthlyCalculationsQueryVariables
-  >(GetMostRecentMonthlyCalculationsDocument, baseOptions);
+  >(GetMostRecentMonthlyCalculationsDocument, options);
 }
 export type GetMostRecentMonthlyCalculationsQueryHookResult = ReturnType<
   typeof useGetMostRecentMonthlyCalculationsQuery
@@ -41780,10 +41987,11 @@ export function useLastMonthlySummaryReportLiveRunQuery(
     LastMonthlySummaryReportLiveRunQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     LastMonthlySummaryReportLiveRunQuery,
     LastMonthlySummaryReportLiveRunQueryVariables
-  >(LastMonthlySummaryReportLiveRunDocument, baseOptions);
+  >(LastMonthlySummaryReportLiveRunDocument, options);
 }
 export function useLastMonthlySummaryReportLiveRunLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -41791,10 +41999,11 @@ export function useLastMonthlySummaryReportLiveRunLazyQuery(
     LastMonthlySummaryReportLiveRunQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     LastMonthlySummaryReportLiveRunQuery,
     LastMonthlySummaryReportLiveRunQueryVariables
-  >(LastMonthlySummaryReportLiveRunDocument, baseOptions);
+  >(LastMonthlySummaryReportLiveRunDocument, options);
 }
 export type LastMonthlySummaryReportLiveRunQueryHookResult = ReturnType<
   typeof useLastMonthlySummaryReportLiveRunQuery
@@ -41850,10 +42059,11 @@ export function useGetMetrcApiKeysByCompanyIdQuery(
     GetMetrcApiKeysByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetMetrcApiKeysByCompanyIdQuery,
     GetMetrcApiKeysByCompanyIdQueryVariables
-  >(GetMetrcApiKeysByCompanyIdDocument, baseOptions);
+  >(GetMetrcApiKeysByCompanyIdDocument, options);
 }
 export function useGetMetrcApiKeysByCompanyIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -41861,10 +42071,11 @@ export function useGetMetrcApiKeysByCompanyIdLazyQuery(
     GetMetrcApiKeysByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetMetrcApiKeysByCompanyIdQuery,
     GetMetrcApiKeysByCompanyIdQueryVariables
-  >(GetMetrcApiKeysByCompanyIdDocument, baseOptions);
+  >(GetMetrcApiKeysByCompanyIdDocument, options);
 }
 export type GetMetrcApiKeysByCompanyIdQueryHookResult = ReturnType<
   typeof useGetMetrcApiKeysByCompanyIdQuery
@@ -41953,10 +42164,11 @@ export function useGetMetrcMetadataByCompanyIdQuery(
     GetMetrcMetadataByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetMetrcMetadataByCompanyIdQuery,
     GetMetrcMetadataByCompanyIdQueryVariables
-  >(GetMetrcMetadataByCompanyIdDocument, baseOptions);
+  >(GetMetrcMetadataByCompanyIdDocument, options);
 }
 export function useGetMetrcMetadataByCompanyIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -41964,10 +42176,11 @@ export function useGetMetrcMetadataByCompanyIdLazyQuery(
     GetMetrcMetadataByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetMetrcMetadataByCompanyIdQuery,
     GetMetrcMetadataByCompanyIdQueryVariables
-  >(GetMetrcMetadataByCompanyIdDocument, baseOptions);
+  >(GetMetrcMetadataByCompanyIdDocument, options);
 }
 export type GetMetrcMetadataByCompanyIdQueryHookResult = ReturnType<
   typeof useGetMetrcMetadataByCompanyIdQuery
@@ -42014,10 +42227,11 @@ export function useGetMetrcDownloadSummariesByMetrcApiKeyIdQuery(
     GetMetrcDownloadSummariesByMetrcApiKeyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetMetrcDownloadSummariesByMetrcApiKeyIdQuery,
     GetMetrcDownloadSummariesByMetrcApiKeyIdQueryVariables
-  >(GetMetrcDownloadSummariesByMetrcApiKeyIdDocument, baseOptions);
+  >(GetMetrcDownloadSummariesByMetrcApiKeyIdDocument, options);
 }
 export function useGetMetrcDownloadSummariesByMetrcApiKeyIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -42025,10 +42239,11 @@ export function useGetMetrcDownloadSummariesByMetrcApiKeyIdLazyQuery(
     GetMetrcDownloadSummariesByMetrcApiKeyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetMetrcDownloadSummariesByMetrcApiKeyIdQuery,
     GetMetrcDownloadSummariesByMetrcApiKeyIdQueryVariables
-  >(GetMetrcDownloadSummariesByMetrcApiKeyIdDocument, baseOptions);
+  >(GetMetrcDownloadSummariesByMetrcApiKeyIdDocument, options);
 }
 export type GetMetrcDownloadSummariesByMetrcApiKeyIdQueryHookResult =
   ReturnType<typeof useGetMetrcDownloadSummariesByMetrcApiKeyIdQuery>;
@@ -42079,10 +42294,11 @@ export function useGetOpenAsyncJobsSubscription(
     GetOpenAsyncJobsSubscriptionVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useSubscription<
     GetOpenAsyncJobsSubscription,
     GetOpenAsyncJobsSubscriptionVariables
-  >(GetOpenAsyncJobsDocument, baseOptions);
+  >(GetOpenAsyncJobsDocument, options);
 }
 export type GetOpenAsyncJobsSubscriptionHookResult = ReturnType<
   typeof useGetOpenAsyncJobsSubscription
@@ -42129,10 +42345,11 @@ export function useGetCompletedAsyncJobsSubscription(
     GetCompletedAsyncJobsSubscriptionVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useSubscription<
     GetCompletedAsyncJobsSubscription,
     GetCompletedAsyncJobsSubscriptionVariables
-  >(GetCompletedAsyncJobsDocument, baseOptions);
+  >(GetCompletedAsyncJobsDocument, options);
 }
 export type GetCompletedAsyncJobsSubscriptionHookResult = ReturnType<
   typeof useGetCompletedAsyncJobsSubscription
@@ -42171,9 +42388,10 @@ export function useGetAsyncJobByIdQuery(
     GetAsyncJobByIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<GetAsyncJobByIdQuery, GetAsyncJobByIdQueryVariables>(
     GetAsyncJobByIdDocument,
-    baseOptions
+    options
   );
 }
 export function useGetAsyncJobByIdLazyQuery(
@@ -42182,10 +42400,11 @@ export function useGetAsyncJobByIdLazyQuery(
     GetAsyncJobByIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetAsyncJobByIdQuery,
     GetAsyncJobByIdQueryVariables
-  >(GetAsyncJobByIdDocument, baseOptions);
+  >(GetAsyncJobByIdDocument, options);
 }
 export type GetAsyncJobByIdQueryHookResult = ReturnType<
   typeof useGetAsyncJobByIdQuery
@@ -42228,10 +42447,11 @@ export function useGetCompanySettingsQuery(
     GetCompanySettingsQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetCompanySettingsQuery,
     GetCompanySettingsQueryVariables
-  >(GetCompanySettingsDocument, baseOptions);
+  >(GetCompanySettingsDocument, options);
 }
 export function useGetCompanySettingsLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -42239,10 +42459,11 @@ export function useGetCompanySettingsLazyQuery(
     GetCompanySettingsQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetCompanySettingsQuery,
     GetCompanySettingsQueryVariables
-  >(GetCompanySettingsDocument, baseOptions);
+  >(GetCompanySettingsDocument, options);
 }
 export type GetCompanySettingsQueryHookResult = ReturnType<
   typeof useGetCompanySettingsQuery
@@ -42286,10 +42507,11 @@ export function useGetCompanySettingsByCompanyIdForCustomerQuery(
     GetCompanySettingsByCompanyIdForCustomerQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetCompanySettingsByCompanyIdForCustomerQuery,
     GetCompanySettingsByCompanyIdForCustomerQueryVariables
-  >(GetCompanySettingsByCompanyIdForCustomerDocument, baseOptions);
+  >(GetCompanySettingsByCompanyIdForCustomerDocument, options);
 }
 export function useGetCompanySettingsByCompanyIdForCustomerLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -42297,10 +42519,11 @@ export function useGetCompanySettingsByCompanyIdForCustomerLazyQuery(
     GetCompanySettingsByCompanyIdForCustomerQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetCompanySettingsByCompanyIdForCustomerQuery,
     GetCompanySettingsByCompanyIdForCustomerQueryVariables
-  >(GetCompanySettingsByCompanyIdForCustomerDocument, baseOptions);
+  >(GetCompanySettingsByCompanyIdForCustomerDocument, options);
 }
 export type GetCompanySettingsByCompanyIdForCustomerQueryHookResult =
   ReturnType<typeof useGetCompanySettingsByCompanyIdForCustomerQuery>;
@@ -42354,10 +42577,11 @@ export function useUpdateIsDummyAccountMutation(
     UpdateIsDummyAccountMutationVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useMutation<
     UpdateIsDummyAccountMutation,
     UpdateIsDummyAccountMutationVariables
-  >(UpdateIsDummyAccountDocument, baseOptions);
+  >(UpdateIsDummyAccountDocument, options);
 }
 export type UpdateIsDummyAccountMutationHookResult = ReturnType<
   typeof useUpdateIsDummyAccountMutation
@@ -42411,10 +42635,11 @@ export function useUpdateCompanySettingsMutation(
     UpdateCompanySettingsMutationVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useMutation<
     UpdateCompanySettingsMutation,
     UpdateCompanySettingsMutationVariables
-  >(UpdateCompanySettingsDocument, baseOptions);
+  >(UpdateCompanySettingsDocument, options);
 }
 export type UpdateCompanySettingsMutationHookResult = ReturnType<
   typeof useUpdateCompanySettingsMutation
@@ -42461,9 +42686,10 @@ export function useGetContractQuery(
     GetContractQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<GetContractQuery, GetContractQueryVariables>(
     GetContractDocument,
-    baseOptions
+    options
   );
 }
 export function useGetContractLazyQuery(
@@ -42472,9 +42698,10 @@ export function useGetContractLazyQuery(
     GetContractQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<GetContractQuery, GetContractQueryVariables>(
     GetContractDocument,
-    baseOptions
+    options
   );
 }
 export type GetContractQueryHookResult = ReturnType<typeof useGetContractQuery>;
@@ -42514,17 +42741,19 @@ export const GetUserDocument = gql`
 export function useGetUserQuery(
   baseOptions: Apollo.QueryHookOptions<GetUserQuery, GetUserQueryVariables>
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<GetUserQuery, GetUserQueryVariables>(
     GetUserDocument,
-    baseOptions
+    options
   );
 }
 export function useGetUserLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<GetUserQuery, GetUserQueryVariables>
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<GetUserQuery, GetUserQueryVariables>(
     GetUserDocument,
-    baseOptions
+    options
   );
 }
 export type GetUserQueryHookResult = ReturnType<typeof useGetUserQuery>;
@@ -42585,10 +42814,11 @@ export function useGetActiveUsersByRolesQuery(
     GetActiveUsersByRolesQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetActiveUsersByRolesQuery,
     GetActiveUsersByRolesQueryVariables
-  >(GetActiveUsersByRolesDocument, baseOptions);
+  >(GetActiveUsersByRolesDocument, options);
 }
 export function useGetActiveUsersByRolesLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -42596,10 +42826,11 @@ export function useGetActiveUsersByRolesLazyQuery(
     GetActiveUsersByRolesQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetActiveUsersByRolesQuery,
     GetActiveUsersByRolesQueryVariables
-  >(GetActiveUsersByRolesDocument, baseOptions);
+  >(GetActiveUsersByRolesDocument, options);
 }
 export type GetActiveUsersByRolesQueryHookResult = ReturnType<
   typeof useGetActiveUsersByRolesQuery
@@ -42685,10 +42916,11 @@ export function useGetActiveTeamMembersQuery(
     GetActiveTeamMembersQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetActiveTeamMembersQuery,
     GetActiveTeamMembersQueryVariables
-  >(GetActiveTeamMembersDocument, baseOptions);
+  >(GetActiveTeamMembersDocument, options);
 }
 export function useGetActiveTeamMembersLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -42696,10 +42928,11 @@ export function useGetActiveTeamMembersLazyQuery(
     GetActiveTeamMembersQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetActiveTeamMembersQuery,
     GetActiveTeamMembersQueryVariables
-  >(GetActiveTeamMembersDocument, baseOptions);
+  >(GetActiveTeamMembersDocument, options);
 }
 export type GetActiveTeamMembersQueryHookResult = ReturnType<
   typeof useGetActiveTeamMembersQuery
@@ -42747,10 +42980,11 @@ export function useGetDeactivatedUsersByRolesQuery(
     GetDeactivatedUsersByRolesQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetDeactivatedUsersByRolesQuery,
     GetDeactivatedUsersByRolesQueryVariables
-  >(GetDeactivatedUsersByRolesDocument, baseOptions);
+  >(GetDeactivatedUsersByRolesDocument, options);
 }
 export function useGetDeactivatedUsersByRolesLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -42758,10 +42992,11 @@ export function useGetDeactivatedUsersByRolesLazyQuery(
     GetDeactivatedUsersByRolesQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetDeactivatedUsersByRolesQuery,
     GetDeactivatedUsersByRolesQueryVariables
-  >(GetDeactivatedUsersByRolesDocument, baseOptions);
+  >(GetDeactivatedUsersByRolesDocument, options);
 }
 export type GetDeactivatedUsersByRolesQueryHookResult = ReturnType<
   typeof useGetDeactivatedUsersByRolesQuery
@@ -42828,10 +43063,11 @@ export function useGetUsersForCompanyQuery(
     GetUsersForCompanyQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetUsersForCompanyQuery,
     GetUsersForCompanyQueryVariables
-  >(GetUsersForCompanyDocument, baseOptions);
+  >(GetUsersForCompanyDocument, options);
 }
 export function useGetUsersForCompanyLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -42839,10 +43075,11 @@ export function useGetUsersForCompanyLazyQuery(
     GetUsersForCompanyQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetUsersForCompanyQuery,
     GetUsersForCompanyQueryVariables
-  >(GetUsersForCompanyDocument, baseOptions);
+  >(GetUsersForCompanyDocument, options);
 }
 export type GetUsersForCompanyQueryHookResult = ReturnType<
   typeof useGetUsersForCompanyQuery
@@ -42902,10 +43139,11 @@ export function useGetDeactivatedUsersForCompanyQuery(
     GetDeactivatedUsersForCompanyQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetDeactivatedUsersForCompanyQuery,
     GetDeactivatedUsersForCompanyQueryVariables
-  >(GetDeactivatedUsersForCompanyDocument, baseOptions);
+  >(GetDeactivatedUsersForCompanyDocument, options);
 }
 export function useGetDeactivatedUsersForCompanyLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -42913,10 +43151,11 @@ export function useGetDeactivatedUsersForCompanyLazyQuery(
     GetDeactivatedUsersForCompanyQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetDeactivatedUsersForCompanyQuery,
     GetDeactivatedUsersForCompanyQueryVariables
-  >(GetDeactivatedUsersForCompanyDocument, baseOptions);
+  >(GetDeactivatedUsersForCompanyDocument, options);
 }
 export type GetDeactivatedUsersForCompanyQueryHookResult = ReturnType<
   typeof useGetDeactivatedUsersForCompanyQuery
@@ -42975,10 +43214,11 @@ export function useAssignAdvancesBespokeBankAccountMutation(
     AssignAdvancesBespokeBankAccountMutationVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useMutation<
     AssignAdvancesBespokeBankAccountMutation,
     AssignAdvancesBespokeBankAccountMutationVariables
-  >(AssignAdvancesBespokeBankAccountDocument, baseOptions);
+  >(AssignAdvancesBespokeBankAccountDocument, options);
 }
 export type AssignAdvancesBespokeBankAccountMutationHookResult = ReturnType<
   typeof useAssignAdvancesBespokeBankAccountMutation
@@ -43037,10 +43277,11 @@ export function useAssignCollectionsBespokeBankAccountMutation(
     AssignCollectionsBespokeBankAccountMutationVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useMutation<
     AssignCollectionsBespokeBankAccountMutation,
     AssignCollectionsBespokeBankAccountMutationVariables
-  >(AssignCollectionsBespokeBankAccountDocument, baseOptions);
+  >(AssignCollectionsBespokeBankAccountDocument, options);
 }
 export type AssignCollectionsBespokeBankAccountMutationHookResult = ReturnType<
   typeof useAssignCollectionsBespokeBankAccountMutation
@@ -43098,10 +43339,11 @@ export function useAssignAdvancesBankAccountMutation(
     AssignAdvancesBankAccountMutationVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useMutation<
     AssignAdvancesBankAccountMutation,
     AssignAdvancesBankAccountMutationVariables
-  >(AssignAdvancesBankAccountDocument, baseOptions);
+  >(AssignAdvancesBankAccountDocument, options);
 }
 export type AssignAdvancesBankAccountMutationHookResult = ReturnType<
   typeof useAssignAdvancesBankAccountMutation
@@ -43159,10 +43401,11 @@ export function useAssignCollectionsBankAccountMutation(
     AssignCollectionsBankAccountMutationVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useMutation<
     AssignCollectionsBankAccountMutation,
     AssignCollectionsBankAccountMutationVariables
-  >(AssignCollectionsBankAccountDocument, baseOptions);
+  >(AssignCollectionsBankAccountDocument, options);
 }
 export type AssignCollectionsBankAccountMutationHookResult = ReturnType<
   typeof useAssignCollectionsBankAccountMutation
@@ -43216,10 +43459,11 @@ export function useGetCompaniesWithLicensesQuery(
     GetCompaniesWithLicensesQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetCompaniesWithLicensesQuery,
     GetCompaniesWithLicensesQueryVariables
-  >(GetCompaniesWithLicensesDocument, baseOptions);
+  >(GetCompaniesWithLicensesDocument, options);
 }
 export function useGetCompaniesWithLicensesLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -43227,10 +43471,11 @@ export function useGetCompaniesWithLicensesLazyQuery(
     GetCompaniesWithLicensesQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetCompaniesWithLicensesQuery,
     GetCompaniesWithLicensesQueryVariables
-  >(GetCompaniesWithLicensesDocument, baseOptions);
+  >(GetCompaniesWithLicensesDocument, options);
 }
 export type GetCompaniesWithLicensesQueryHookResult = ReturnType<
   typeof useGetCompaniesWithLicensesQuery
@@ -43287,10 +43532,11 @@ export function useGetParentCompanyWithCompaniesQuery(
     GetParentCompanyWithCompaniesQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetParentCompanyWithCompaniesQuery,
     GetParentCompanyWithCompaniesQueryVariables
-  >(GetParentCompanyWithCompaniesDocument, baseOptions);
+  >(GetParentCompanyWithCompaniesDocument, options);
 }
 export function useGetParentCompanyWithCompaniesLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -43298,10 +43544,11 @@ export function useGetParentCompanyWithCompaniesLazyQuery(
     GetParentCompanyWithCompaniesQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetParentCompanyWithCompaniesQuery,
     GetParentCompanyWithCompaniesQueryVariables
-  >(GetParentCompanyWithCompaniesDocument, baseOptions);
+  >(GetParentCompanyWithCompaniesDocument, options);
 }
 export type GetParentCompanyWithCompaniesQueryHookResult = ReturnType<
   typeof useGetParentCompanyWithCompaniesQuery
@@ -43348,10 +43595,11 @@ export function useGetBankFinancialSummariesByDateSubscription(
     GetBankFinancialSummariesByDateSubscriptionVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useSubscription<
     GetBankFinancialSummariesByDateSubscription,
     GetBankFinancialSummariesByDateSubscriptionVariables
-  >(GetBankFinancialSummariesByDateDocument, baseOptions);
+  >(GetBankFinancialSummariesByDateDocument, options);
 }
 export type GetBankFinancialSummariesByDateSubscriptionHookResult = ReturnType<
   typeof useGetBankFinancialSummariesByDateSubscription
@@ -43401,10 +43649,11 @@ export function useGetLoansCountForBankSubscription(
     GetLoansCountForBankSubscriptionVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useSubscription<
     GetLoansCountForBankSubscription,
     GetLoansCountForBankSubscriptionVariables
-  >(GetLoansCountForBankDocument, baseOptions);
+  >(GetLoansCountForBankDocument, options);
 }
 export type GetLoansCountForBankSubscriptionHookResult = ReturnType<
   typeof useGetLoansCountForBankSubscription
@@ -43455,10 +43704,11 @@ export function useGetRepaymentsCountForBankSubscription(
     GetRepaymentsCountForBankSubscriptionVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useSubscription<
     GetRepaymentsCountForBankSubscription,
     GetRepaymentsCountForBankSubscriptionVariables
-  >(GetRepaymentsCountForBankDocument, baseOptions);
+  >(GetRepaymentsCountForBankDocument, options);
 }
 export type GetRepaymentsCountForBankSubscriptionHookResult = ReturnType<
   typeof useGetRepaymentsCountForBankSubscription
@@ -43507,10 +43757,11 @@ export function useGetEbbaApplicationsCountForBankSubscription(
     GetEbbaApplicationsCountForBankSubscriptionVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useSubscription<
     GetEbbaApplicationsCountForBankSubscription,
     GetEbbaApplicationsCountForBankSubscriptionVariables
-  >(GetEbbaApplicationsCountForBankDocument, baseOptions);
+  >(GetEbbaApplicationsCountForBankDocument, options);
 }
 export type GetEbbaApplicationsCountForBankSubscriptionHookResult = ReturnType<
   typeof useGetEbbaApplicationsCountForBankSubscription
@@ -43552,10 +43803,11 @@ export function useGetCompanyWithActiveContractQuery(
     GetCompanyWithActiveContractQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetCompanyWithActiveContractQuery,
     GetCompanyWithActiveContractQueryVariables
-  >(GetCompanyWithActiveContractDocument, baseOptions);
+  >(GetCompanyWithActiveContractDocument, options);
 }
 export function useGetCompanyWithActiveContractLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -43563,10 +43815,11 @@ export function useGetCompanyWithActiveContractLazyQuery(
     GetCompanyWithActiveContractQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetCompanyWithActiveContractQuery,
     GetCompanyWithActiveContractQueryVariables
-  >(GetCompanyWithActiveContractDocument, baseOptions);
+  >(GetCompanyWithActiveContractDocument, options);
 }
 export type GetCompanyWithActiveContractQueryHookResult = ReturnType<
   typeof useGetCompanyWithActiveContractQuery
@@ -43648,10 +43901,11 @@ export function useGetCompanyEbbaApplicationsInfoQuery(
     GetCompanyEbbaApplicationsInfoQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetCompanyEbbaApplicationsInfoQuery,
     GetCompanyEbbaApplicationsInfoQueryVariables
-  >(GetCompanyEbbaApplicationsInfoDocument, baseOptions);
+  >(GetCompanyEbbaApplicationsInfoDocument, options);
 }
 export function useGetCompanyEbbaApplicationsInfoLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -43659,10 +43913,11 @@ export function useGetCompanyEbbaApplicationsInfoLazyQuery(
     GetCompanyEbbaApplicationsInfoQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetCompanyEbbaApplicationsInfoQuery,
     GetCompanyEbbaApplicationsInfoQueryVariables
-  >(GetCompanyEbbaApplicationsInfoDocument, baseOptions);
+  >(GetCompanyEbbaApplicationsInfoDocument, options);
 }
 export type GetCompanyEbbaApplicationsInfoQueryHookResult = ReturnType<
   typeof useGetCompanyEbbaApplicationsInfoQuery
@@ -43721,10 +43976,11 @@ export function useGetCompanyForCustomerContractPageQuery(
     GetCompanyForCustomerContractPageQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetCompanyForCustomerContractPageQuery,
     GetCompanyForCustomerContractPageQueryVariables
-  >(GetCompanyForCustomerContractPageDocument, baseOptions);
+  >(GetCompanyForCustomerContractPageDocument, options);
 }
 export function useGetCompanyForCustomerContractPageLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -43732,10 +43988,11 @@ export function useGetCompanyForCustomerContractPageLazyQuery(
     GetCompanyForCustomerContractPageQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetCompanyForCustomerContractPageQuery,
     GetCompanyForCustomerContractPageQueryVariables
-  >(GetCompanyForCustomerContractPageDocument, baseOptions);
+  >(GetCompanyForCustomerContractPageDocument, options);
 }
 export type GetCompanyForCustomerContractPageQueryHookResult = ReturnType<
   typeof useGetCompanyForCustomerContractPageQuery
@@ -43783,10 +44040,11 @@ export function useGetCompanyWithDetailsByCompanyIdQuery(
     GetCompanyWithDetailsByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetCompanyWithDetailsByCompanyIdQuery,
     GetCompanyWithDetailsByCompanyIdQueryVariables
-  >(GetCompanyWithDetailsByCompanyIdDocument, baseOptions);
+  >(GetCompanyWithDetailsByCompanyIdDocument, options);
 }
 export function useGetCompanyWithDetailsByCompanyIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -43794,10 +44052,11 @@ export function useGetCompanyWithDetailsByCompanyIdLazyQuery(
     GetCompanyWithDetailsByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetCompanyWithDetailsByCompanyIdQuery,
     GetCompanyWithDetailsByCompanyIdQueryVariables
-  >(GetCompanyWithDetailsByCompanyIdDocument, baseOptions);
+  >(GetCompanyWithDetailsByCompanyIdDocument, options);
 }
 export type GetCompanyWithDetailsByCompanyIdQueryHookResult = ReturnType<
   typeof useGetCompanyWithDetailsByCompanyIdQuery
@@ -43849,10 +44108,11 @@ export function useGetCompanyNextLoanIdentifierMutation(
     GetCompanyNextLoanIdentifierMutationVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useMutation<
     GetCompanyNextLoanIdentifierMutation,
     GetCompanyNextLoanIdentifierMutationVariables
-  >(GetCompanyNextLoanIdentifierDocument, baseOptions);
+  >(GetCompanyNextLoanIdentifierDocument, options);
 }
 export type GetCompanyNextLoanIdentifierMutationHookResult = ReturnType<
   typeof useGetCompanyNextLoanIdentifierMutation
@@ -43958,10 +44218,11 @@ export function useGetCompanyForBankQuery(
     GetCompanyForBankQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetCompanyForBankQuery,
     GetCompanyForBankQueryVariables
-  >(GetCompanyForBankDocument, baseOptions);
+  >(GetCompanyForBankDocument, options);
 }
 export function useGetCompanyForBankLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -43969,10 +44230,11 @@ export function useGetCompanyForBankLazyQuery(
     GetCompanyForBankQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetCompanyForBankQuery,
     GetCompanyForBankQueryVariables
-  >(GetCompanyForBankDocument, baseOptions);
+  >(GetCompanyForBankDocument, options);
 }
 export type GetCompanyForBankQueryHookResult = ReturnType<
   typeof useGetCompanyForBankQuery
@@ -44044,10 +44306,11 @@ export function useGetCompanyForCustomerQuery(
     GetCompanyForCustomerQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetCompanyForCustomerQuery,
     GetCompanyForCustomerQueryVariables
-  >(GetCompanyForCustomerDocument, baseOptions);
+  >(GetCompanyForCustomerDocument, options);
 }
 export function useGetCompanyForCustomerLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -44055,10 +44318,11 @@ export function useGetCompanyForCustomerLazyQuery(
     GetCompanyForCustomerQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetCompanyForCustomerQuery,
     GetCompanyForCustomerQueryVariables
-  >(GetCompanyForCustomerDocument, baseOptions);
+  >(GetCompanyForCustomerDocument, options);
 }
 export type GetCompanyForCustomerQueryHookResult = ReturnType<
   typeof useGetCompanyForCustomerQuery
@@ -44107,10 +44371,11 @@ export function useUpdateCompanyProfileMutation(
     UpdateCompanyProfileMutationVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useMutation<
     UpdateCompanyProfileMutation,
     UpdateCompanyProfileMutationVariables
-  >(UpdateCompanyProfileDocument, baseOptions);
+  >(UpdateCompanyProfileDocument, options);
 }
 export type UpdateCompanyProfileMutationHookResult = ReturnType<
   typeof useUpdateCompanyProfileMutation
@@ -44164,10 +44429,11 @@ export function useUpdateCompanyInfoMutation(
     UpdateCompanyInfoMutationVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useMutation<
     UpdateCompanyInfoMutation,
     UpdateCompanyInfoMutationVariables
-  >(UpdateCompanyInfoDocument, baseOptions);
+  >(UpdateCompanyInfoDocument, options);
 }
 export type UpdateCompanyInfoMutationHookResult = ReturnType<
   typeof useUpdateCompanyInfoMutation
@@ -44209,9 +44475,10 @@ export function useGetTransactionsQuery(
     GetTransactionsQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<GetTransactionsQuery, GetTransactionsQueryVariables>(
     GetTransactionsDocument,
-    baseOptions
+    options
   );
 }
 export function useGetTransactionsLazyQuery(
@@ -44220,10 +44487,11 @@ export function useGetTransactionsLazyQuery(
     GetTransactionsQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetTransactionsQuery,
     GetTransactionsQueryVariables
-  >(GetTransactionsDocument, baseOptions);
+  >(GetTransactionsDocument, options);
 }
 export type GetTransactionsQueryHookResult = ReturnType<
   typeof useGetTransactionsQuery
@@ -44271,10 +44539,11 @@ export function useGetTransactionsForDateRangeQuery(
     GetTransactionsForDateRangeQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetTransactionsForDateRangeQuery,
     GetTransactionsForDateRangeQueryVariables
-  >(GetTransactionsForDateRangeDocument, baseOptions);
+  >(GetTransactionsForDateRangeDocument, options);
 }
 export function useGetTransactionsForDateRangeLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -44282,10 +44551,11 @@ export function useGetTransactionsForDateRangeLazyQuery(
     GetTransactionsForDateRangeQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetTransactionsForDateRangeQuery,
     GetTransactionsForDateRangeQueryVariables
-  >(GetTransactionsForDateRangeDocument, baseOptions);
+  >(GetTransactionsForDateRangeDocument, options);
 }
 export type GetTransactionsForDateRangeQueryHookResult = ReturnType<
   typeof useGetTransactionsForDateRangeQuery
@@ -44339,9 +44609,10 @@ export function useGetMetrcTransferQuery(
     GetMetrcTransferQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<GetMetrcTransferQuery, GetMetrcTransferQueryVariables>(
     GetMetrcTransferDocument,
-    baseOptions
+    options
   );
 }
 export function useGetMetrcTransferLazyQuery(
@@ -44350,10 +44621,11 @@ export function useGetMetrcTransferLazyQuery(
     GetMetrcTransferQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetMetrcTransferQuery,
     GetMetrcTransferQueryVariables
-  >(GetMetrcTransferDocument, baseOptions);
+  >(GetMetrcTransferDocument, options);
 }
 export type GetMetrcTransferQueryHookResult = ReturnType<
   typeof useGetMetrcTransferQuery
@@ -44413,10 +44685,11 @@ export function useGetMetrcTransfersByUsStateManifestNumberQuery(
     GetMetrcTransfersByUsStateManifestNumberQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetMetrcTransfersByUsStateManifestNumberQuery,
     GetMetrcTransfersByUsStateManifestNumberQueryVariables
-  >(GetMetrcTransfersByUsStateManifestNumberDocument, baseOptions);
+  >(GetMetrcTransfersByUsStateManifestNumberDocument, options);
 }
 export function useGetMetrcTransfersByUsStateManifestNumberLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -44424,10 +44697,11 @@ export function useGetMetrcTransfersByUsStateManifestNumberLazyQuery(
     GetMetrcTransfersByUsStateManifestNumberQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetMetrcTransfersByUsStateManifestNumberQuery,
     GetMetrcTransfersByUsStateManifestNumberQueryVariables
-  >(GetMetrcTransfersByUsStateManifestNumberDocument, baseOptions);
+  >(GetMetrcTransfersByUsStateManifestNumberDocument, options);
 }
 export type GetMetrcTransfersByUsStateManifestNumberQueryHookResult =
   ReturnType<typeof useGetMetrcTransfersByUsStateManifestNumberQuery>;
@@ -44478,10 +44752,11 @@ export function useGetMetrcTransfersByCompanyIdQuery(
     GetMetrcTransfersByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetMetrcTransfersByCompanyIdQuery,
     GetMetrcTransfersByCompanyIdQueryVariables
-  >(GetMetrcTransfersByCompanyIdDocument, baseOptions);
+  >(GetMetrcTransfersByCompanyIdDocument, options);
 }
 export function useGetMetrcTransfersByCompanyIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -44489,10 +44764,11 @@ export function useGetMetrcTransfersByCompanyIdLazyQuery(
     GetMetrcTransfersByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetMetrcTransfersByCompanyIdQuery,
     GetMetrcTransfersByCompanyIdQueryVariables
-  >(GetMetrcTransfersByCompanyIdDocument, baseOptions);
+  >(GetMetrcTransfersByCompanyIdDocument, options);
 }
 export type GetMetrcTransfersByCompanyIdQueryHookResult = ReturnType<
   typeof useGetMetrcTransfersByCompanyIdQuery
@@ -44536,10 +44812,11 @@ export function useGetMetrcTransferPackageQuery(
     GetMetrcTransferPackageQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetMetrcTransferPackageQuery,
     GetMetrcTransferPackageQueryVariables
-  >(GetMetrcTransferPackageDocument, baseOptions);
+  >(GetMetrcTransferPackageDocument, options);
 }
 export function useGetMetrcTransferPackageLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -44547,10 +44824,11 @@ export function useGetMetrcTransferPackageLazyQuery(
     GetMetrcTransferPackageQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetMetrcTransferPackageQuery,
     GetMetrcTransferPackageQueryVariables
-  >(GetMetrcTransferPackageDocument, baseOptions);
+  >(GetMetrcTransferPackageDocument, options);
 }
 export type GetMetrcTransferPackageQueryHookResult = ReturnType<
   typeof useGetMetrcTransferPackageQuery
@@ -44604,10 +44882,11 @@ export function useGetMetrcTransferPackagesByCompanyIdQuery(
     GetMetrcTransferPackagesByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetMetrcTransferPackagesByCompanyIdQuery,
     GetMetrcTransferPackagesByCompanyIdQueryVariables
-  >(GetMetrcTransferPackagesByCompanyIdDocument, baseOptions);
+  >(GetMetrcTransferPackagesByCompanyIdDocument, options);
 }
 export function useGetMetrcTransferPackagesByCompanyIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -44615,10 +44894,11 @@ export function useGetMetrcTransferPackagesByCompanyIdLazyQuery(
     GetMetrcTransferPackagesByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetMetrcTransferPackagesByCompanyIdQuery,
     GetMetrcTransferPackagesByCompanyIdQueryVariables
-  >(GetMetrcTransferPackagesByCompanyIdDocument, baseOptions);
+  >(GetMetrcTransferPackagesByCompanyIdDocument, options);
 }
 export type GetMetrcTransferPackagesByCompanyIdQueryHookResult = ReturnType<
   typeof useGetMetrcTransferPackagesByCompanyIdQuery
@@ -44670,10 +44950,11 @@ export function useGetActiveMetrcPackagesByCompanyIdQuery(
     GetActiveMetrcPackagesByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetActiveMetrcPackagesByCompanyIdQuery,
     GetActiveMetrcPackagesByCompanyIdQueryVariables
-  >(GetActiveMetrcPackagesByCompanyIdDocument, baseOptions);
+  >(GetActiveMetrcPackagesByCompanyIdDocument, options);
 }
 export function useGetActiveMetrcPackagesByCompanyIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -44681,10 +44962,11 @@ export function useGetActiveMetrcPackagesByCompanyIdLazyQuery(
     GetActiveMetrcPackagesByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetActiveMetrcPackagesByCompanyIdQuery,
     GetActiveMetrcPackagesByCompanyIdQueryVariables
-  >(GetActiveMetrcPackagesByCompanyIdDocument, baseOptions);
+  >(GetActiveMetrcPackagesByCompanyIdDocument, options);
 }
 export type GetActiveMetrcPackagesByCompanyIdQueryHookResult = ReturnType<
   typeof useGetActiveMetrcPackagesByCompanyIdQuery
@@ -44728,9 +45010,10 @@ export function useGetMetrcPackageQuery(
     GetMetrcPackageQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<GetMetrcPackageQuery, GetMetrcPackageQueryVariables>(
     GetMetrcPackageDocument,
-    baseOptions
+    options
   );
 }
 export function useGetMetrcPackageLazyQuery(
@@ -44739,10 +45022,11 @@ export function useGetMetrcPackageLazyQuery(
     GetMetrcPackageQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetMetrcPackageQuery,
     GetMetrcPackageQueryVariables
-  >(GetMetrcPackageDocument, baseOptions);
+  >(GetMetrcPackageDocument, options);
 }
 export type GetMetrcPackageQueryHookResult = ReturnType<
   typeof useGetMetrcPackageQuery
@@ -44786,10 +45070,11 @@ export function useGetMetrcDownloadSummaryQuery(
     GetMetrcDownloadSummaryQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetMetrcDownloadSummaryQuery,
     GetMetrcDownloadSummaryQueryVariables
-  >(GetMetrcDownloadSummaryDocument, baseOptions);
+  >(GetMetrcDownloadSummaryDocument, options);
 }
 export function useGetMetrcDownloadSummaryLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -44797,10 +45082,11 @@ export function useGetMetrcDownloadSummaryLazyQuery(
     GetMetrcDownloadSummaryQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetMetrcDownloadSummaryQuery,
     GetMetrcDownloadSummaryQueryVariables
-  >(GetMetrcDownloadSummaryDocument, baseOptions);
+  >(GetMetrcDownloadSummaryDocument, options);
 }
 export type GetMetrcDownloadSummaryQueryHookResult = ReturnType<
   typeof useGetMetrcDownloadSummaryQuery
@@ -44867,10 +45153,11 @@ export function useGetVendorPartnershipQuery(
     GetVendorPartnershipQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetVendorPartnershipQuery,
     GetVendorPartnershipQueryVariables
-  >(GetVendorPartnershipDocument, baseOptions);
+  >(GetVendorPartnershipDocument, options);
 }
 export function useGetVendorPartnershipLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -44878,10 +45165,11 @@ export function useGetVendorPartnershipLazyQuery(
     GetVendorPartnershipQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetVendorPartnershipQuery,
     GetVendorPartnershipQueryVariables
-  >(GetVendorPartnershipDocument, baseOptions);
+  >(GetVendorPartnershipDocument, options);
 }
 export type GetVendorPartnershipQueryHookResult = ReturnType<
   typeof useGetVendorPartnershipQuery
@@ -44950,10 +45238,11 @@ export function useGetVendorContactsQuery(
     GetVendorContactsQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetVendorContactsQuery,
     GetVendorContactsQueryVariables
-  >(GetVendorContactsDocument, baseOptions);
+  >(GetVendorContactsDocument, options);
 }
 export function useGetVendorContactsLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -44961,10 +45250,11 @@ export function useGetVendorContactsLazyQuery(
     GetVendorContactsQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetVendorContactsQuery,
     GetVendorContactsQueryVariables
-  >(GetVendorContactsDocument, baseOptions);
+  >(GetVendorContactsDocument, options);
 }
 export type GetVendorContactsQueryHookResult = ReturnType<
   typeof useGetVendorContactsQuery
@@ -45021,10 +45311,11 @@ export function useGetVendorCompanyFileAttachmentsQuery(
     GetVendorCompanyFileAttachmentsQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetVendorCompanyFileAttachmentsQuery,
     GetVendorCompanyFileAttachmentsQueryVariables
-  >(GetVendorCompanyFileAttachmentsDocument, baseOptions);
+  >(GetVendorCompanyFileAttachmentsDocument, options);
 }
 export function useGetVendorCompanyFileAttachmentsLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -45032,10 +45323,11 @@ export function useGetVendorCompanyFileAttachmentsLazyQuery(
     GetVendorCompanyFileAttachmentsQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetVendorCompanyFileAttachmentsQuery,
     GetVendorCompanyFileAttachmentsQueryVariables
-  >(GetVendorCompanyFileAttachmentsDocument, baseOptions);
+  >(GetVendorCompanyFileAttachmentsDocument, options);
 }
 export type GetVendorCompanyFileAttachmentsQueryHookResult = ReturnType<
   typeof useGetVendorCompanyFileAttachmentsQuery
@@ -45142,10 +45434,11 @@ export function useGetVendorPartnershipForBankQuery(
     GetVendorPartnershipForBankQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetVendorPartnershipForBankQuery,
     GetVendorPartnershipForBankQueryVariables
-  >(GetVendorPartnershipForBankDocument, baseOptions);
+  >(GetVendorPartnershipForBankDocument, options);
 }
 export function useGetVendorPartnershipForBankLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -45153,10 +45446,11 @@ export function useGetVendorPartnershipForBankLazyQuery(
     GetVendorPartnershipForBankQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetVendorPartnershipForBankQuery,
     GetVendorPartnershipForBankQueryVariables
-  >(GetVendorPartnershipForBankDocument, baseOptions);
+  >(GetVendorPartnershipForBankDocument, options);
 }
 export type GetVendorPartnershipForBankQueryHookResult = ReturnType<
   typeof useGetVendorPartnershipForBankQuery
@@ -45219,10 +45513,11 @@ export function useGetVendorPartnershipForContactsQuery(
     GetVendorPartnershipForContactsQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetVendorPartnershipForContactsQuery,
     GetVendorPartnershipForContactsQueryVariables
-  >(GetVendorPartnershipForContactsDocument, baseOptions);
+  >(GetVendorPartnershipForContactsDocument, options);
 }
 export function useGetVendorPartnershipForContactsLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -45230,10 +45525,11 @@ export function useGetVendorPartnershipForContactsLazyQuery(
     GetVendorPartnershipForContactsQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetVendorPartnershipForContactsQuery,
     GetVendorPartnershipForContactsQueryVariables
-  >(GetVendorPartnershipForContactsDocument, baseOptions);
+  >(GetVendorPartnershipForContactsDocument, options);
 }
 export type GetVendorPartnershipForContactsQueryHookResult = ReturnType<
   typeof useGetVendorPartnershipForContactsQuery
@@ -45289,10 +45585,11 @@ export function useGetVendorPartnershipsForBankQuery(
     GetVendorPartnershipsForBankQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetVendorPartnershipsForBankQuery,
     GetVendorPartnershipsForBankQueryVariables
-  >(GetVendorPartnershipsForBankDocument, baseOptions);
+  >(GetVendorPartnershipsForBankDocument, options);
 }
 export function useGetVendorPartnershipsForBankLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -45300,10 +45597,11 @@ export function useGetVendorPartnershipsForBankLazyQuery(
     GetVendorPartnershipsForBankQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetVendorPartnershipsForBankQuery,
     GetVendorPartnershipsForBankQueryVariables
-  >(GetVendorPartnershipsForBankDocument, baseOptions);
+  >(GetVendorPartnershipsForBankDocument, options);
 }
 export type GetVendorPartnershipsForBankQueryHookResult = ReturnType<
   typeof useGetVendorPartnershipsForBankQuery
@@ -45362,10 +45660,11 @@ export function useGetNotApprovedVendorPartnershipsForBankQuery(
     GetNotApprovedVendorPartnershipsForBankQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetNotApprovedVendorPartnershipsForBankQuery,
     GetNotApprovedVendorPartnershipsForBankQueryVariables
-  >(GetNotApprovedVendorPartnershipsForBankDocument, baseOptions);
+  >(GetNotApprovedVendorPartnershipsForBankDocument, options);
 }
 export function useGetNotApprovedVendorPartnershipsForBankLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -45373,10 +45672,11 @@ export function useGetNotApprovedVendorPartnershipsForBankLazyQuery(
     GetNotApprovedVendorPartnershipsForBankQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetNotApprovedVendorPartnershipsForBankQuery,
     GetNotApprovedVendorPartnershipsForBankQueryVariables
-  >(GetNotApprovedVendorPartnershipsForBankDocument, baseOptions);
+  >(GetNotApprovedVendorPartnershipsForBankDocument, options);
 }
 export type GetNotApprovedVendorPartnershipsForBankQueryHookResult = ReturnType<
   typeof useGetNotApprovedVendorPartnershipsForBankQuery
@@ -45435,10 +45735,11 @@ export function useGetApprovedVendorPartnershipsForBankQuery(
     GetApprovedVendorPartnershipsForBankQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetApprovedVendorPartnershipsForBankQuery,
     GetApprovedVendorPartnershipsForBankQueryVariables
-  >(GetApprovedVendorPartnershipsForBankDocument, baseOptions);
+  >(GetApprovedVendorPartnershipsForBankDocument, options);
 }
 export function useGetApprovedVendorPartnershipsForBankLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -45446,10 +45747,11 @@ export function useGetApprovedVendorPartnershipsForBankLazyQuery(
     GetApprovedVendorPartnershipsForBankQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetApprovedVendorPartnershipsForBankQuery,
     GetApprovedVendorPartnershipsForBankQueryVariables
-  >(GetApprovedVendorPartnershipsForBankDocument, baseOptions);
+  >(GetApprovedVendorPartnershipsForBankDocument, options);
 }
 export type GetApprovedVendorPartnershipsForBankQueryHookResult = ReturnType<
   typeof useGetApprovedVendorPartnershipsForBankQuery
@@ -45496,10 +45798,11 @@ export function useGetVendorPartnershipsByVendorIdQuery(
     GetVendorPartnershipsByVendorIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetVendorPartnershipsByVendorIdQuery,
     GetVendorPartnershipsByVendorIdQueryVariables
-  >(GetVendorPartnershipsByVendorIdDocument, baseOptions);
+  >(GetVendorPartnershipsByVendorIdDocument, options);
 }
 export function useGetVendorPartnershipsByVendorIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -45507,10 +45810,11 @@ export function useGetVendorPartnershipsByVendorIdLazyQuery(
     GetVendorPartnershipsByVendorIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetVendorPartnershipsByVendorIdQuery,
     GetVendorPartnershipsByVendorIdQueryVariables
-  >(GetVendorPartnershipsByVendorIdDocument, baseOptions);
+  >(GetVendorPartnershipsByVendorIdDocument, options);
 }
 export type GetVendorPartnershipsByVendorIdQueryHookResult = ReturnType<
   typeof useGetVendorPartnershipsByVendorIdQuery
@@ -45553,10 +45857,11 @@ export function useCompanyBankAccountsQuery(
     CompanyBankAccountsQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     CompanyBankAccountsQuery,
     CompanyBankAccountsQueryVariables
-  >(CompanyBankAccountsDocument, baseOptions);
+  >(CompanyBankAccountsDocument, options);
 }
 export function useCompanyBankAccountsLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -45564,10 +45869,11 @@ export function useCompanyBankAccountsLazyQuery(
     CompanyBankAccountsQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     CompanyBankAccountsQuery,
     CompanyBankAccountsQueryVariables
-  >(CompanyBankAccountsDocument, baseOptions);
+  >(CompanyBankAccountsDocument, options);
 }
 export type CompanyBankAccountsQueryHookResult = ReturnType<
   typeof useCompanyBankAccountsQuery
@@ -45625,10 +45931,11 @@ export function useChangeBankAccountMutation(
     ChangeBankAccountMutationVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useMutation<
     ChangeBankAccountMutation,
     ChangeBankAccountMutationVariables
-  >(ChangeBankAccountDocument, baseOptions);
+  >(ChangeBankAccountDocument, options);
 }
 export type ChangeBankAccountMutationHookResult = ReturnType<
   typeof useChangeBankAccountMutation
@@ -45682,10 +45989,11 @@ export function useUpdateVendorInfoMutation(
     UpdateVendorInfoMutationVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useMutation<
     UpdateVendorInfoMutation,
     UpdateVendorInfoMutationVariables
-  >(UpdateVendorInfoDocument, baseOptions);
+  >(UpdateVendorInfoDocument, options);
 }
 export type UpdateVendorInfoMutationHookResult = ReturnType<
   typeof useUpdateVendorInfoMutation
@@ -45742,10 +46050,11 @@ export function useUpdateVendorAgreementIdMutation(
     UpdateVendorAgreementIdMutationVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useMutation<
     UpdateVendorAgreementIdMutation,
     UpdateVendorAgreementIdMutationVariables
-  >(UpdateVendorAgreementIdDocument, baseOptions);
+  >(UpdateVendorAgreementIdDocument, options);
 }
 export type UpdateVendorAgreementIdMutationHookResult = ReturnType<
   typeof useUpdateVendorAgreementIdMutation
@@ -45794,10 +46103,11 @@ export function useAddCompanyVendorAgreementMutation(
     AddCompanyVendorAgreementMutationVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useMutation<
     AddCompanyVendorAgreementMutation,
     AddCompanyVendorAgreementMutationVariables
-  >(AddCompanyVendorAgreementDocument, baseOptions);
+  >(AddCompanyVendorAgreementDocument, options);
 }
 export type AddCompanyVendorAgreementMutationHookResult = ReturnType<
   typeof useAddCompanyVendorAgreementMutation
@@ -45862,10 +46172,11 @@ export function useGetArtifactRelationsByCompanyIdQuery(
     GetArtifactRelationsByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetArtifactRelationsByCompanyIdQuery,
     GetArtifactRelationsByCompanyIdQueryVariables
-  >(GetArtifactRelationsByCompanyIdDocument, baseOptions);
+  >(GetArtifactRelationsByCompanyIdDocument, options);
 }
 export function useGetArtifactRelationsByCompanyIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -45873,10 +46184,11 @@ export function useGetArtifactRelationsByCompanyIdLazyQuery(
     GetArtifactRelationsByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetArtifactRelationsByCompanyIdQuery,
     GetArtifactRelationsByCompanyIdQueryVariables
-  >(GetArtifactRelationsByCompanyIdDocument, baseOptions);
+  >(GetArtifactRelationsByCompanyIdDocument, options);
 }
 export type GetArtifactRelationsByCompanyIdQueryHookResult = ReturnType<
   typeof useGetArtifactRelationsByCompanyIdQuery
@@ -45945,10 +46257,11 @@ export function useGetAllArtifactRelationsQuery(
     GetAllArtifactRelationsQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetAllArtifactRelationsQuery,
     GetAllArtifactRelationsQueryVariables
-  >(GetAllArtifactRelationsDocument, baseOptions);
+  >(GetAllArtifactRelationsDocument, options);
 }
 export function useGetAllArtifactRelationsLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -45956,10 +46269,11 @@ export function useGetAllArtifactRelationsLazyQuery(
     GetAllArtifactRelationsQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetAllArtifactRelationsQuery,
     GetAllArtifactRelationsQueryVariables
-  >(GetAllArtifactRelationsDocument, baseOptions);
+  >(GetAllArtifactRelationsDocument, options);
 }
 export type GetAllArtifactRelationsQueryHookResult = ReturnType<
   typeof useGetAllArtifactRelationsQuery
@@ -46002,10 +46316,11 @@ export function useGetVendorPartnershipsByCompanyIdQuery(
     GetVendorPartnershipsByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetVendorPartnershipsByCompanyIdQuery,
     GetVendorPartnershipsByCompanyIdQueryVariables
-  >(GetVendorPartnershipsByCompanyIdDocument, baseOptions);
+  >(GetVendorPartnershipsByCompanyIdDocument, options);
 }
 export function useGetVendorPartnershipsByCompanyIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -46013,10 +46328,11 @@ export function useGetVendorPartnershipsByCompanyIdLazyQuery(
     GetVendorPartnershipsByCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetVendorPartnershipsByCompanyIdQuery,
     GetVendorPartnershipsByCompanyIdQueryVariables
-  >(GetVendorPartnershipsByCompanyIdDocument, baseOptions);
+  >(GetVendorPartnershipsByCompanyIdDocument, options);
 }
 export type GetVendorPartnershipsByCompanyIdQueryHookResult = ReturnType<
   typeof useGetVendorPartnershipsByCompanyIdQuery
@@ -46070,10 +46386,11 @@ export function useCompanyVendorPartnershipForVendorQuery(
     CompanyVendorPartnershipForVendorQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     CompanyVendorPartnershipForVendorQuery,
     CompanyVendorPartnershipForVendorQueryVariables
-  >(CompanyVendorPartnershipForVendorDocument, baseOptions);
+  >(CompanyVendorPartnershipForVendorDocument, options);
 }
 export function useCompanyVendorPartnershipForVendorLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -46081,10 +46398,11 @@ export function useCompanyVendorPartnershipForVendorLazyQuery(
     CompanyVendorPartnershipForVendorQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     CompanyVendorPartnershipForVendorQuery,
     CompanyVendorPartnershipForVendorQueryVariables
-  >(CompanyVendorPartnershipForVendorDocument, baseOptions);
+  >(CompanyVendorPartnershipForVendorDocument, options);
 }
 export type CompanyVendorPartnershipForVendorQueryHookResult = ReturnType<
   typeof useCompanyVendorPartnershipForVendorQuery
@@ -46150,10 +46468,11 @@ export function useCompanyVendorPartnershipForCustomerQuery(
     CompanyVendorPartnershipForCustomerQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     CompanyVendorPartnershipForCustomerQuery,
     CompanyVendorPartnershipForCustomerQueryVariables
-  >(CompanyVendorPartnershipForCustomerDocument, baseOptions);
+  >(CompanyVendorPartnershipForCustomerDocument, options);
 }
 export function useCompanyVendorPartnershipForCustomerLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -46161,10 +46480,11 @@ export function useCompanyVendorPartnershipForCustomerLazyQuery(
     CompanyVendorPartnershipForCustomerQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     CompanyVendorPartnershipForCustomerQuery,
     CompanyVendorPartnershipForCustomerQueryVariables
-  >(CompanyVendorPartnershipForCustomerDocument, baseOptions);
+  >(CompanyVendorPartnershipForCustomerDocument, options);
 }
 export type CompanyVendorPartnershipForCustomerQueryHookResult = ReturnType<
   typeof useCompanyVendorPartnershipForCustomerQuery
@@ -46224,10 +46544,11 @@ export function useGetVendorPartnershipForContactsForCustomersQuery(
     GetVendorPartnershipForContactsForCustomersQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetVendorPartnershipForContactsForCustomersQuery,
     GetVendorPartnershipForContactsForCustomersQueryVariables
-  >(GetVendorPartnershipForContactsForCustomersDocument, baseOptions);
+  >(GetVendorPartnershipForContactsForCustomersDocument, options);
 }
 export function useGetVendorPartnershipForContactsForCustomersLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -46235,10 +46556,11 @@ export function useGetVendorPartnershipForContactsForCustomersLazyQuery(
     GetVendorPartnershipForContactsForCustomersQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetVendorPartnershipForContactsForCustomersQuery,
     GetVendorPartnershipForContactsForCustomersQueryVariables
-  >(GetVendorPartnershipForContactsForCustomersDocument, baseOptions);
+  >(GetVendorPartnershipForContactsForCustomersDocument, options);
 }
 export type GetVendorPartnershipForContactsForCustomersQueryHookResult =
   ReturnType<typeof useGetVendorPartnershipForContactsForCustomersQuery>;
@@ -46283,10 +46605,11 @@ export function useGetCustomersWithMetadataQuery(
     GetCustomersWithMetadataQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetCustomersWithMetadataQuery,
     GetCustomersWithMetadataQueryVariables
-  >(GetCustomersWithMetadataDocument, baseOptions);
+  >(GetCustomersWithMetadataDocument, options);
 }
 export function useGetCustomersWithMetadataLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -46294,10 +46617,11 @@ export function useGetCustomersWithMetadataLazyQuery(
     GetCustomersWithMetadataQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetCustomersWithMetadataQuery,
     GetCustomersWithMetadataQueryVariables
-  >(GetCustomersWithMetadataDocument, baseOptions);
+  >(GetCustomersWithMetadataDocument, options);
 }
 export type GetCustomersWithMetadataQueryHookResult = ReturnType<
   typeof useGetCustomersWithMetadataQuery
@@ -46354,10 +46678,11 @@ export function useGetActiveCustomersWithMetadataQuery(
     GetActiveCustomersWithMetadataQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetActiveCustomersWithMetadataQuery,
     GetActiveCustomersWithMetadataQueryVariables
-  >(GetActiveCustomersWithMetadataDocument, baseOptions);
+  >(GetActiveCustomersWithMetadataDocument, options);
 }
 export function useGetActiveCustomersWithMetadataLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -46365,10 +46690,11 @@ export function useGetActiveCustomersWithMetadataLazyQuery(
     GetActiveCustomersWithMetadataQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetActiveCustomersWithMetadataQuery,
     GetActiveCustomersWithMetadataQueryVariables
-  >(GetActiveCustomersWithMetadataDocument, baseOptions);
+  >(GetActiveCustomersWithMetadataDocument, options);
 }
 export type GetActiveCustomersWithMetadataQueryHookResult = ReturnType<
   typeof useGetActiveCustomersWithMetadataQuery
@@ -46414,10 +46740,11 @@ export function useGetCustomersForDropdownQuery(
     GetCustomersForDropdownQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetCustomersForDropdownQuery,
     GetCustomersForDropdownQueryVariables
-  >(GetCustomersForDropdownDocument, baseOptions);
+  >(GetCustomersForDropdownDocument, options);
 }
 export function useGetCustomersForDropdownLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -46425,10 +46752,11 @@ export function useGetCustomersForDropdownLazyQuery(
     GetCustomersForDropdownQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetCustomersForDropdownQuery,
     GetCustomersForDropdownQueryVariables
-  >(GetCustomersForDropdownDocument, baseOptions);
+  >(GetCustomersForDropdownDocument, options);
 }
 export type GetCustomersForDropdownQueryHookResult = ReturnType<
   typeof useGetCustomersForDropdownQuery
@@ -46485,10 +46813,11 @@ export function useGetActiveCustomersForDropdownQuery(
     GetActiveCustomersForDropdownQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetActiveCustomersForDropdownQuery,
     GetActiveCustomersForDropdownQueryVariables
-  >(GetActiveCustomersForDropdownDocument, baseOptions);
+  >(GetActiveCustomersForDropdownDocument, options);
 }
 export function useGetActiveCustomersForDropdownLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -46496,10 +46825,11 @@ export function useGetActiveCustomersForDropdownLazyQuery(
     GetActiveCustomersForDropdownQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetActiveCustomersForDropdownQuery,
     GetActiveCustomersForDropdownQueryVariables
-  >(GetActiveCustomersForDropdownDocument, baseOptions);
+  >(GetActiveCustomersForDropdownDocument, options);
 }
 export type GetActiveCustomersForDropdownQueryHookResult = ReturnType<
   typeof useGetActiveCustomersForDropdownQuery
@@ -46543,9 +46873,10 @@ export function useCompanyVendorsQuery(
     CompanyVendorsQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<CompanyVendorsQuery, CompanyVendorsQueryVariables>(
     CompanyVendorsDocument,
-    baseOptions
+    options
   );
 }
 export function useCompanyVendorsLazyQuery(
@@ -46554,9 +46885,10 @@ export function useCompanyVendorsLazyQuery(
     CompanyVendorsQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<CompanyVendorsQuery, CompanyVendorsQueryVariables>(
     CompanyVendorsDocument,
-    baseOptions
+    options
   );
 }
 export type CompanyVendorsQueryHookResult = ReturnType<
@@ -46610,10 +46942,11 @@ export function useGetCompaniesWithMetadataQuery(
     GetCompaniesWithMetadataQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetCompaniesWithMetadataQuery,
     GetCompaniesWithMetadataQueryVariables
-  >(GetCompaniesWithMetadataDocument, baseOptions);
+  >(GetCompaniesWithMetadataDocument, options);
 }
 export function useGetCompaniesWithMetadataLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -46621,10 +46954,11 @@ export function useGetCompaniesWithMetadataLazyQuery(
     GetCompaniesWithMetadataQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetCompaniesWithMetadataQuery,
     GetCompaniesWithMetadataQueryVariables
-  >(GetCompaniesWithMetadataDocument, baseOptions);
+  >(GetCompaniesWithMetadataDocument, options);
 }
 export type GetCompaniesWithMetadataQueryHookResult = ReturnType<
   typeof useGetCompaniesWithMetadataQuery
@@ -46673,10 +47007,11 @@ export function useGetPartnershipRequestsCountForBankSubscription(
     GetPartnershipRequestsCountForBankSubscriptionVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useSubscription<
     GetPartnershipRequestsCountForBankSubscription,
     GetPartnershipRequestsCountForBankSubscriptionVariables
-  >(GetPartnershipRequestsCountForBankDocument, baseOptions);
+  >(GetPartnershipRequestsCountForBankDocument, options);
 }
 export type GetPartnershipRequestsCountForBankSubscriptionHookResult =
   ReturnType<typeof useGetPartnershipRequestsCountForBankSubscription>;
@@ -46722,10 +47057,11 @@ export function useGetSettledPartnershipRequestsForBankSubscription(
     GetSettledPartnershipRequestsForBankSubscriptionVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useSubscription<
     GetSettledPartnershipRequestsForBankSubscription,
     GetSettledPartnershipRequestsForBankSubscriptionVariables
-  >(GetSettledPartnershipRequestsForBankDocument, baseOptions);
+  >(GetSettledPartnershipRequestsForBankDocument, options);
 }
 export type GetSettledPartnershipRequestsForBankSubscriptionHookResult =
   ReturnType<typeof useGetSettledPartnershipRequestsForBankSubscription>;
@@ -46771,10 +47107,11 @@ export function useGetPartnershipRequestsForBankSubscription(
     GetPartnershipRequestsForBankSubscriptionVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useSubscription<
     GetPartnershipRequestsForBankSubscription,
     GetPartnershipRequestsForBankSubscriptionVariables
-  >(GetPartnershipRequestsForBankDocument, baseOptions);
+  >(GetPartnershipRequestsForBankDocument, options);
 }
 export type GetPartnershipRequestsForBankSubscriptionHookResult = ReturnType<
   typeof useGetPartnershipRequestsForBankSubscription
@@ -46828,13 +47165,11 @@ export function useGetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubs
     GetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscriptionVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useSubscription<
     GetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscription,
     GetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscriptionVariables
-  >(
-    GetPartnershipRequestsForBankByRequestingCompanyIdAndTypeDocument,
-    baseOptions
-  );
+  >(GetPartnershipRequestsForBankByRequestingCompanyIdAndTypeDocument, options);
 }
 export type GetPartnershipRequestsForBankByRequestingCompanyIdAndTypeSubscriptionHookResult =
   ReturnType<
@@ -46876,10 +47211,11 @@ export function useGetPartnershipInvitationsForBankSubscription(
     GetPartnershipInvitationsForBankSubscriptionVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useSubscription<
     GetPartnershipInvitationsForBankSubscription,
     GetPartnershipInvitationsForBankSubscriptionVariables
-  >(GetPartnershipInvitationsForBankDocument, baseOptions);
+  >(GetPartnershipInvitationsForBankDocument, options);
 }
 export type GetPartnershipInvitationsForBankSubscriptionHookResult = ReturnType<
   typeof useGetPartnershipInvitationsForBankSubscription
@@ -46953,10 +47289,11 @@ export function useGetPartnershipRequestsAndInvitesByRequestingCompanyIdQuery(
     GetPartnershipRequestsAndInvitesByRequestingCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetPartnershipRequestsAndInvitesByRequestingCompanyIdQuery,
     GetPartnershipRequestsAndInvitesByRequestingCompanyIdQueryVariables
-  >(GetPartnershipRequestsAndInvitesByRequestingCompanyIdDocument, baseOptions);
+  >(GetPartnershipRequestsAndInvitesByRequestingCompanyIdDocument, options);
 }
 export function useGetPartnershipRequestsAndInvitesByRequestingCompanyIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -46964,10 +47301,11 @@ export function useGetPartnershipRequestsAndInvitesByRequestingCompanyIdLazyQuer
     GetPartnershipRequestsAndInvitesByRequestingCompanyIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetPartnershipRequestsAndInvitesByRequestingCompanyIdQuery,
     GetPartnershipRequestsAndInvitesByRequestingCompanyIdQueryVariables
-  >(GetPartnershipRequestsAndInvitesByRequestingCompanyIdDocument, baseOptions);
+  >(GetPartnershipRequestsAndInvitesByRequestingCompanyIdDocument, options);
 }
 export type GetPartnershipRequestsAndInvitesByRequestingCompanyIdQueryHookResult =
   ReturnType<
@@ -47044,10 +47382,11 @@ export function useGetPartnershipChangeRequestsForBankSubscription(
     GetPartnershipChangeRequestsForBankSubscriptionVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useSubscription<
     GetPartnershipChangeRequestsForBankSubscription,
     GetPartnershipChangeRequestsForBankSubscriptionVariables
-  >(GetPartnershipChangeRequestsForBankDocument, baseOptions);
+  >(GetPartnershipChangeRequestsForBankDocument, options);
 }
 export type GetPartnershipChangeRequestsForBankSubscriptionHookResult =
   ReturnType<typeof useGetPartnershipChangeRequestsForBankSubscription>;
@@ -47119,10 +47458,11 @@ export function useGetPartnershipChangeDetailsByIdQuery(
     GetPartnershipChangeDetailsByIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<
     GetPartnershipChangeDetailsByIdQuery,
     GetPartnershipChangeDetailsByIdQueryVariables
-  >(GetPartnershipChangeDetailsByIdDocument, baseOptions);
+  >(GetPartnershipChangeDetailsByIdDocument, options);
 }
 export function useGetPartnershipChangeDetailsByIdLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<
@@ -47130,10 +47470,11 @@ export function useGetPartnershipChangeDetailsByIdLazyQuery(
     GetPartnershipChangeDetailsByIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetPartnershipChangeDetailsByIdQuery,
     GetPartnershipChangeDetailsByIdQueryVariables
-  >(GetPartnershipChangeDetailsByIdDocument, baseOptions);
+  >(GetPartnershipChangeDetailsByIdDocument, options);
 }
 export type GetPartnershipChangeDetailsByIdQueryHookResult = ReturnType<
   typeof useGetPartnershipChangeDetailsByIdQuery
@@ -47188,9 +47529,10 @@ export function useGetUserByIdQuery(
     GetUserByIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<GetUserByIdQuery, GetUserByIdQueryVariables>(
     GetUserByIdDocument,
-    baseOptions
+    options
   );
 }
 export function useGetUserByIdLazyQuery(
@@ -47199,9 +47541,10 @@ export function useGetUserByIdLazyQuery(
     GetUserByIdQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<GetUserByIdQuery, GetUserByIdQueryVariables>(
     GetUserByIdDocument,
-    baseOptions
+    options
   );
 }
 export type GetUserByIdQueryHookResult = ReturnType<typeof useGetUserByIdQuery>;
@@ -47252,9 +47595,10 @@ export function useGetUserMenuInfoQuery(
     GetUserMenuInfoQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<GetUserMenuInfoQuery, GetUserMenuInfoQueryVariables>(
     GetUserMenuInfoDocument,
-    baseOptions
+    options
   );
 }
 export function useGetUserMenuInfoLazyQuery(
@@ -47263,10 +47607,11 @@ export function useGetUserMenuInfoLazyQuery(
     GetUserMenuInfoQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<
     GetUserMenuInfoQuery,
     GetUserMenuInfoQueryVariables
-  >(GetUserMenuInfoDocument, baseOptions);
+  >(GetUserMenuInfoDocument, options);
 }
 export type GetUserMenuInfoQueryHookResult = ReturnType<
   typeof useGetUserMenuInfoQuery
@@ -47310,9 +47655,10 @@ export function useUsersByEmailQuery(
     UsersByEmailQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<UsersByEmailQuery, UsersByEmailQueryVariables>(
     UsersByEmailDocument,
-    baseOptions
+    options
   );
 }
 export function useUsersByEmailLazyQuery(
@@ -47321,9 +47667,10 @@ export function useUsersByEmailLazyQuery(
     UsersByEmailQueryVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useLazyQuery<UsersByEmailQuery, UsersByEmailQueryVariables>(
     UsersByEmailDocument,
-    baseOptions
+    options
   );
 }
 export type UsersByEmailQueryHookResult = ReturnType<
@@ -47373,9 +47720,10 @@ export function useUpdateUserMutation(
     UpdateUserMutationVariables
   >
 ) {
+  const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useMutation<UpdateUserMutation, UpdateUserMutationVariables>(
     UpdateUserDocument,
-    baseOptions
+    options
   );
 }
 export type UpdateUserMutationHookResult = ReturnType<

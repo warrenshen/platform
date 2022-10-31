@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - staging
+    paths:
+      - 'services/app/**'
 
 jobs:
   install:
@@ -15,6 +17,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Read .nvmrc
+        run: echo ::set-output name=NVMRC::$(cat .nvmrc)
+        id: nvm
+      - name: Use Node.js ${{ steps.nvm.outputs.NVMRC }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: '${{ steps.nvm.outputs.NVMRC }}'
+
       - name: Cypress install
         uses: cypress-io/github-action@v2
         with:
@@ -22,10 +32,10 @@ jobs:
           runTests: false
 
       - name: Create Build
-        run: export NODE_OPTIONS="--max_old_space_size=4096" yarn build
+        run: yarn build
 
       - name: Save build folder
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: build
           if-no-files-found: error

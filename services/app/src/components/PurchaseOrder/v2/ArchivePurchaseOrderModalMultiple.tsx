@@ -47,7 +47,7 @@ const ArchivePurchaseOrderModalMultiple = ({
     <ModalDialog title={"Archive Purchase Orders"} handleClose={handleClose}>
       <DialogContent>
         <Text textVariant={TextVariants.Paragraph} bottomMargin={32}>
-          {"Are you sure you wnat to archive the following purchase orders?"}
+          {"Are you sure you want to archive the following purchase orders?"}
         </Text>
         {purchaseOrderNumbers.map((purchaseOrderNumber) => (
           <CardLine
@@ -60,12 +60,12 @@ const ArchivePurchaseOrderModalMultiple = ({
       <DialogActions>
         <Box display="flex" style={{ margin: 24, padding: 0 }}>
           <SecondaryButton
-            dataCy={"archive-loan-cancel-button"}
+            dataCy={"archive-po-cancel-button"}
             text={"Cancel"}
             onClick={handleClose}
           />
           <PrimaryWarningButton
-            dataCy={"archive-loan-confirm-button"}
+            dataCy={"archive-po-confirm-button"}
             isDisabled={loading}
             text={"Confirm"}
             onClick={handleClickConfirm}

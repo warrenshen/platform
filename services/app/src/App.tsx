@@ -108,7 +108,7 @@ export default function App() {
         />
         <Route
           path={anonymousRoutes.reviewPurchaseOrderNew}
-          element={<ReviewPurchaseOrderPageNew location={""} />}
+          element={<ReviewPurchaseOrderPageNew />}
         />
         <Route
           path={anonymousRoutes.reviewPurchaseOrderComplete}

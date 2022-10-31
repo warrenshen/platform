@@ -151,6 +151,7 @@ function addBankAccount({
   intermediary_account_number,
   intermediary_bank_address,
   intermediary_bank_name,
+  is_bank_international,
   is_cannabis_compliant,
   is_deleted,
   is_wire_intermediary,
@@ -187,6 +188,7 @@ function addBankAccount({
       intermediary_account_number: intermediary_account_number || null,
       intermediary_bank_address: intermediary_bank_address || null,
       intermediary_bank_name: intermediary_bank_name || null,
+      is_bank_international: is_bank_international || null,
       is_cannabis_compliant: is_cannabis_compliant || null,
       is_deleted: is_deleted || null,
       is_wire_intermediary: is_wire_intermediary || null,
@@ -683,6 +685,8 @@ function addFinancialSummary({
       most_overdue_loan_days: most_overdue_loan_days || null,
       late_fees_accrued_today: late_fees_accrued_today || null,
       loans_info: loans_info || null,
+      created_at: null,
+      updated_at: null,
     }
   ).then((response) => {
     const financialSummaryId = !!response?.body?.data?.financial_summary_id

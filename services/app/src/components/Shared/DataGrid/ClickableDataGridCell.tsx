@@ -48,7 +48,7 @@ export default function ClickableDataGridCell({
   const classes = useStyles();
 
   return !!url ? (
-    <Link href={url} style={{ textDecoration: "none" }}>
+    <Link data-cy={dataCy} href={url} style={{ textDecoration: "none" }}>
       <ButtonText>{label}</ButtonText>
     </Link>
   ) : (

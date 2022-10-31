@@ -1,55 +1,3 @@
-export const bankAdminCreatePurchaseOrderFlow = (
-  purchaseOrderNumber: string
-) => {
-  cy.loginBankAdmin();
-
-  // Go to Bank > Customers
-  cy.dataCy("sidebar-item-customers").click();
-  cy.url().should("include", "customers");
-
-  // Select Customer
-  cy.dataCy("customers-data-grid-view-customer-button-CC")
-    .first()
-    .click({ force: true });
-  cy.url().should("include", "overview");
-
-  // Go to Customer > Purchase Orders
-  cy.dataCy("company-sidebar-item-customer-purchase-orders").click();
-  cy.url().should("include", "purchase-orders");
-
-  // Create purchase order
-  cy.dataCy("create-purchase-order-button").click();
-
-  cy.dataCy("create-purchase-order-modal").should("be.visible");
-
-  // Select the first approved vendor
-  cy.dataCy("purchase-order-form-autocomplete-vendors").click();
-  cy.dataCy("purchase-order-form-autocomplete-vendors").type("{enter}");
-
-  // Fill out the form
-  cy.dataCySelector("purchase-order-form-input-order-number", "input").type(
-    purchaseOrderNumber
-  );
-  cy.dataCySelector("purchase-order-form-input-order-date", "input").type(
-    "07/31/2022"
-  );
-  cy.get("[data-cy='purchase-order-form-input-net-terms'] input")
-    .type("30")
-    .type("{enter}");
-  cy.dataCy("purchase-order-form-input-amount").type("10000.00");
-  cy.dataCy("purchase-order-form-input-customer-note").type("Cypress");
-  cy.uploadFileSynchronously(
-    "purchase-order-form-file-uploader-purchase-order-file"
-  );
-  cy.uploadFileSynchronously(
-    "purchase-order-form-file-uploader-cannabis-file-attachments"
-  );
-
-  // Submit and check for success snackbar
-  cy.dataCy("create-purchase-order-modal-primary-button").click();
-  cy.get(".MuiAlert-standardSuccess").should("exist");
-};
-
 export const bankAdminCreatePurchaseOrderFlowNew = (
   purchaseOrderNumber: string
 ) => {
@@ -81,7 +29,7 @@ export const bankAdminCreatePurchaseOrderFlowNew = (
     purchaseOrderNumber
   );
   cy.dataCySelector("purchase-order-form-input-order-date", "input").type(
-    "07/31/2022"
+    "10/31/2022"
   );
   cy.get("[data-cy='purchase-order-form-input-net-terms'] input")
     .type("30")

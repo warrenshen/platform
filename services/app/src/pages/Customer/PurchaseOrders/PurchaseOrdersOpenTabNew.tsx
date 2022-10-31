@@ -374,7 +374,7 @@ export default function CustomerPurchaseOrdersOpenTabNew({
                 <SecondaryButton
                   dataCy={"archive-not-ready-po-button"}
                   isDisabled={
-                    selectedApprovedPurchaseOrderIds.length === 0 ||
+                    selectedNotApprovedPurchaseOrderIds.length === 0 ||
                     !isActiveContract
                   }
                   text={"Archive"}

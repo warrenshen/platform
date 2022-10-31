@@ -63,6 +63,7 @@ def create_bank_account(
     intermediary_account_number: str,
     intermediary_bank_address: str,
     intermediary_bank_name: str,
+    is_bank_international: bool,
     is_cannabis_compliant: bool,
     is_deleted: bool,
     is_wire_intermediary: bool,
@@ -95,6 +96,7 @@ def create_bank_account(
         intermediary_account_number = intermediary_account_number,
         intermediary_bank_address = intermediary_bank_address,
         intermediary_bank_name = intermediary_bank_name,
+        is_bank_international = is_bank_international,
         is_cannabis_compliant = is_cannabis_compliant,
         is_deleted = is_deleted,
         is_wire_intermediary = is_wire_intermediary,
@@ -158,7 +160,7 @@ def create_company(
     if parent_company is None:
         parent_company = models.ParentCompany(
             id = parent_company_id,
-            name = 'Cypress Parent Company',
+            name = f'Cypress Parent Company {str(uuid.uuid4())}',
         )
         session.add(parent_company)
         session.flush()

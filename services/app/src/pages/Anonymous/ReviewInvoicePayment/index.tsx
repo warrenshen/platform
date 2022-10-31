@@ -19,7 +19,7 @@ import { anonymousRoutes } from "lib/routes";
 import ReviewInvoicePaymentConfirmModal from "pages/Anonymous/ReviewInvoicePayment/ReviewInvoicePaymentConfirmModal";
 import ReviewInvoicePaymentRejectModal from "pages/Anonymous/ReviewInvoicePayment/ReviewInvoicePaymentRejectModal";
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 const Buttons = styled.div`
@@ -82,9 +82,8 @@ const useStyles = makeStyles((theme: Theme) =>
 export default function ReviewInvoicePaymentPage(props: Props) {
   const classes = useStyles();
 
-  const location: any = props.location;
-  const payload = location.state?.payload;
-  const linkVal = location.state?.link_val;
+  const { state } = useLocation();
+  const { payload, link_val: linkVal } = state;
   const invoiceId = payload?.invoice_id;
 
   const navigate = useNavigate();

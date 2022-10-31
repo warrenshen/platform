@@ -282,6 +282,7 @@ select_permissions:
         - intermediary_account_number
         - intermediary_bank_address
         - intermediary_bank_name
+        - is_bank_international
         - is_cannabis_compliant
         - is_deleted
         - is_wire_intermediary

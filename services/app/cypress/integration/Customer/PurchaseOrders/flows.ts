@@ -129,7 +129,7 @@ export const customerArchivesPurchaseOrderFlow = ({
 }: ArchiveFlowProps) => {
   // Go to Customer > Borrowing Base
   cy.dataCy("sidebar-item-purchase-orders-new").click();
-  cy.url().should("include", "purchase-orders-new");
+  cy.url().should("include", "purchase-orders");
 
   cy.persistentClick(
     `[data-cy='${datagrid}'] tr[aria-rowindex='1'] td[aria-colindex='1'] .dx-select-checkbox`
@@ -153,7 +153,7 @@ export const customerEditsPurchaseOrderFlow = ({
 }: shouldSubmit) => {
   // Go to Customer > Borrowing Base
   cy.dataCy("sidebar-item-purchase-orders-new").click();
-  cy.url().should("include", "purchase-orders-new");
+  cy.url().should("include", "purchase-orders");
 
   cy.persistentClick(
     "[data-cy='not-ready-to-request-financing-data-grid'] tr[aria-rowindex='1'] td[aria-colindex='1'] .dx-select-checkbox"
@@ -213,8 +213,9 @@ export const customerCreatesPurchaseOrderFlow = (
   cy.dataCySelector("purchase-order-form-input-order-number", "input").type(
     purchaseOrderNumber
   );
+  const { paymentDate } = getFuturePaymentDate();
   cy.dataCySelector("purchase-order-form-input-order-date", "input").type(
-    "07/31/2022"
+    paymentDate
   );
   cy.get("[data-cy='purchase-order-form-input-net-terms'] input")
     .type("30")
@@ -242,7 +243,7 @@ interface CreateFlowProps {
 export const customerSubmitsDraftPurchaseOrder = () => {
   // Go to Customer > Borrowing Base
   cy.dataCy("sidebar-item-purchase-orders-new").click();
-  cy.url().should("include", "purchase-orders-new");
+  cy.url().should("include", "purchase-orders");
 
   //cy.wait(1000);
   cy.persistentClick(
@@ -260,7 +261,7 @@ export const customerCreatesPurchaseOrderFlowNew = ({
 }: CreateFlowProps) => {
   // Go to Customer > Borrowing Base
   cy.dataCy("sidebar-item-purchase-orders-new").click();
-  cy.url().should("include", "purchase-orders-new");
+  cy.url().should("include", "purchase-orders");
 
   // Create purchase order
   cy.dataCy("create-purchase-order-button").click();
@@ -275,8 +276,9 @@ export const customerCreatesPurchaseOrderFlowNew = ({
   cy.dataCySelector("purchase-order-form-input-order-number", "input").type(
     purchaseOrderNumber
   );
+  const { paymentDate } = getFuturePaymentDate();
   cy.dataCySelector("purchase-order-form-input-order-date", "input").type(
-    "07/31/2022"
+    paymentDate
   );
   cy.get("[data-cy='purchase-order-form-input-net-terms'] input")
     .type("30")
@@ -400,7 +402,7 @@ export const requestChangesPurchaseOrderAsVendor = (vendorEmail: string) => {
 export const createFinancingRequestSingle = () => {
   // Go to Purchase Orders New Tab
   cy.dataCy("sidebar-item-purchase-orders-new").click();
-  cy.url().should("include", "purchase-orders-new");
+  cy.url().should("include", "purchase-orders");
 
   // Click checkboxes next to purchase orders
   // We do not encourage cy.wait usage, but something about having 2 data grids
@@ -425,7 +427,7 @@ export const createFinancingRequestSingle = () => {
 export const createFinancingRequestMultiple = () => {
   // Go to Purchase Orders New Tab
   cy.dataCy("sidebar-item-purchase-orders-new").click();
-  cy.url().should("include", "purchase-orders-new");
+  cy.url().should("include", "purchase-orders");
 
   // Click checkboxes next to purchase orders
   // We do not encourage cy.wait usage, but something about having 2 data grids

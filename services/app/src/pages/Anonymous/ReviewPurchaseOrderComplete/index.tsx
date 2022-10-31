@@ -5,7 +5,7 @@ import Text, { TextVariants } from "components/Shared/Text/Text";
 import { useGetVendorReviewablePurchaseOrdersQuery } from "generated/graphql";
 import { CheckIcon } from "icons";
 import { anonymousRoutes } from "lib/routes";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -33,12 +33,9 @@ const useStyles = makeStyles((theme: Theme) =>
 function ReviewPurchaseOrderCompletePage(props: any) {
   const classes = useStyles();
   const navigate = useNavigate();
-  const vendorId = !!props?.history?.location?.state?.vendor_id
-    ? props.history.location.state.vendor_id
-    : null;
-  const linkVal = !!props?.history?.location?.state?.link_val
-    ? props.history.location.state.link_val
-    : null;
+
+  const { state } = useLocation();
+  const { vendor_id: vendorId, link_val: linkVal } = state;
 
   const { data, error } = useGetVendorReviewablePurchaseOrdersQuery({
     skip: !vendorId,

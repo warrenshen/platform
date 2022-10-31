@@ -10,6 +10,7 @@ describe("Setup borrowing base", () => {
       });
       cy.addFinancialSummary({
         company_id: results.companyId,
+        product_type: "line_of_credit",
       });
     });
   });

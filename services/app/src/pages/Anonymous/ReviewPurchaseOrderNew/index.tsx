@@ -24,7 +24,7 @@ import { computePurchaseOrderDueDateDateStringClient } from "lib/purchaseOrders"
 import { anonymousRoutes } from "lib/routes";
 import { useMemo, useState } from "react";
 import { isMobile } from "react-device-detect";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 const Buttons = styled(Box)<{
@@ -70,15 +70,11 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-interface Props {
-  location: any;
-}
-
-export default function ReviewPurchaseOrderPage({ location }: Props) {
+export default function ReviewPurchaseOrderPage() {
   const classes = useStyles();
 
-  const payload = location.state?.payload;
-  const linkVal = location.state?.link_val;
+  const { state } = useLocation();
+  const { payload, link_val: linkVal } = state;
   const purchaseOrderId = payload?.purchase_order_id;
 
   const navigate = useNavigate();
