@@ -60,3 +60,18 @@ mutation UpdateLoan($id: uuid!, $loan: loans_set_input!) {
     ...LoanLimited
   }
 }
+
+query GetLoanWithRelationships($id: uuid!, $is_bank_user: Boolean!) {
+  loans_by_pk(id: $id) {
+    id
+    ...Loan
+    purchase_order {
+      id
+      ...PurchaseOrderWithRelationships
+    }
+    company {
+      id
+      ...CompanyLimited
+    }
+  }
+}

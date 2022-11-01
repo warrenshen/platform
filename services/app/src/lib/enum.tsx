@@ -231,6 +231,20 @@ export const BankPurchaseOrdersDrawerTabLabelsNew = [
   BankPurchaseOrdersDrawerTabLabelNew.OnlyForBank,
 ];
 
+export enum BankLoansDrawerTabLabelNew {
+  GeneralInformation = "General information",
+  PurchaseOrderInformation = "PO Information",
+  RecipientBankInformation = "Recipient bank information",
+  OnlyForBank = "Only for bank",
+}
+
+export const BankLoansDrawerTabLabelsNew = [
+  BankLoansDrawerTabLabelNew.GeneralInformation,
+  BankLoansDrawerTabLabelNew.PurchaseOrderInformation,
+  BankLoansDrawerTabLabelNew.RecipientBankInformation,
+  BankLoansDrawerTabLabelNew.OnlyForBank,
+];
+
 export enum BankEbbaTabLabel {
   SurveillanceCurrent = "Surveillance - Current",
   FinancialReports = "Financial Certifications",
