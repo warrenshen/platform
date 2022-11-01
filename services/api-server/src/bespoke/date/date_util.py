@@ -25,6 +25,9 @@ def human_readable_monthyear(date: datetime.date) -> str:
 def human_readable_datetime(dt: datetime.datetime) -> str:
 	return dt.strftime('%a, %B %d, %Y, %I:%M:%S %p')
 
+def human_readable_day_of_week(dt: datetime.datetime) -> str:
+	return dt.strftime('%A')
+	
 def hours_from_today(hours: int) -> datetime.datetime:
 	"""
 		Returns a datetime N hours ahead of right now, e.g.,

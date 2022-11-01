@@ -14,9 +14,23 @@ def send_job_summary(
 	async_job_summaries: List[models.AsyncJobSummary]
 ) -> Tuple[ int, errors.Error]:
 	headers = {'Content-Type': 'application/json'}
+
 	# update company balances is skipped because it runs frequently
 	# Monthly report summary is skipped because it is tracked in the UI
-	skipped_jobs = [AsyncJobNameEnum.UPDATE_COMPANY_BALANCES, AsyncJobNameEnum.NON_LOC_MONTHLY_REPORT_SUMMARY, AsyncJobNameEnum.LOC_MONTHLY_REPORT_SUMMARY]
+	# automatic debit courtesty alerts wasn't running before but was still converted in case
+	skipped_jobs = [
+		AsyncJobNameEnum.UPDATE_COMPANY_BALANCES, 
+		AsyncJobNameEnum.NON_LOC_MONTHLY_REPORT_SUMMARY, 
+		AsyncJobNameEnum.LOC_MONTHLY_REPORT_SUMMARY,
+		AsyncJobNameEnum.AUTOMATIC_DEBIT_COURTESY_ALERTS]
+	
+	days_run = {
+		AsyncJobNameEnum.AUTOGENERATE_REPAYMENT_ALERTS: ["Wednesday"],
+		AsyncJobNameEnum.AUTOGENERATE_REPAYMENTS: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+		AsyncJobNameEnum.LOANS_PAST_DUE: ["Monday", "Thursday"],
+		AsyncJobNameEnum.LOANS_COMING_DUE: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+	}
+	
 	response_blocks = []
 	today_info = {
 			"type": "section",
@@ -26,24 +40,32 @@ def send_job_summary(
 			}
 		}
 	response_blocks.append(today_info)
-	generation_job_names = [summary.name for summary in async_job_summaries]
+	successfully_generated_job_names = [summary.name for summary in async_job_summaries]
 	for enum, label in AsyncJobNameEnumToLabel.items():
 		# skip over the adhoc jobs
 		if enum in skipped_jobs:
 			continue
 
-		all_async_jobs = [job for job in async_jobs if job.name == enum]
+		all_async_jobs_for_enum = [job for job in async_jobs if job.name == enum]
 		# jobs were generated
-		if enum in generation_job_names:
-			new_block = create_status_block(label, all_async_jobs)
+		if enum in successfully_generated_job_names:
+			new_block = create_status_block(label, all_async_jobs_for_enum)
 
-		# job did not properly generate any jobs
+		# job did not generate any jobs
 		else:
-			new_block = create_generation_failure_block(label)
+			day_of_week = date_util.human_readable_day_of_week(date_util.now())
+			# if job enum is in days_run that means it wasn't supposed to run today
+			if day_of_week not in days_run[enum]:
+				new_block = create_job_is_not_run_today_block(label, days_run[enum])
+			
+			else:
+				# this job was supposed to generate today but didn't
+				new_block = create_generation_failure_block(label)
 		response_blocks.append(new_block)
 
 	response_blocks.append(get_divider_bar_block())
 	payload = {"blocks" : response_blocks}
+
 
 	response = requests.post(
 			url = cfg.ASYNC_JOB_SLACK_URL, 
@@ -91,6 +113,19 @@ def create_generation_failure_block(
 			"text": {
 				"type": "plain_text",
 				"text": f":x: {job_name} job failed today (no tasks set up)"
+			}
+		}
+
+def create_job_is_not_run_today_block(
+	job_name: str,
+	dates: List[str],
+) -> Dict:
+	dates_string = ", ".join(dates)
+	return {
+			"type": "section",
+			"text": {
+				"type": "plain_text",
+				"text": f":white_large_square: {job_name} job does not run today (only on {dates_string})"
 			}
 		}
 
