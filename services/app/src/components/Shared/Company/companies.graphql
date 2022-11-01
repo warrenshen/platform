@@ -17,13 +17,14 @@ query GetCompaniesWithLicenses {
   }
 }
 
-query GetParentCompanyWithCompanies(
+query GetParentCompanyWithCustomerCompanies(
   $parent_company_id: uuid!,
   $date: date!,
 ) {
   parent_companies_by_pk(id: $parent_company_id) {
     id
     companies(
+      where: { is_customer: { _eq: true } }
       order_by: { name: asc }
     ) {
       id

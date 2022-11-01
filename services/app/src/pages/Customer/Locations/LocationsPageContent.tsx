@@ -5,7 +5,7 @@ import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Companies,
   ParentCompanies,
-  useGetParentCompanyWithCompaniesQuery,
+  useGetParentCompanyWithCustomerCompaniesQuery,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -27,7 +27,7 @@ export default function CustomerLocationsPageContent({
   const snackbar = useSnackbar();
   const { resetUser, user } = useContext(CurrentUserContext);
 
-  const { data, error } = useGetParentCompanyWithCompaniesQuery({
+  const { data, error } = useGetParentCompanyWithCustomerCompaniesQuery({
     skip: !parentCompanyId,
     fetchPolicy: "network-only",
     variables: {
