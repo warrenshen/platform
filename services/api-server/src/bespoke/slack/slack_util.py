@@ -19,7 +19,6 @@ def send_job_summary(
 	# Monthly report summary is skipped because it is tracked in the UI
 	# automatic debit courtesty alerts wasn't running before but was still converted in case
 	skipped_jobs = [
-		AsyncJobNameEnum.UPDATE_COMPANY_BALANCES, 
 		AsyncJobNameEnum.NON_LOC_MONTHLY_REPORT_SUMMARY, 
 		AsyncJobNameEnum.LOC_MONTHLY_REPORT_SUMMARY,
 		AsyncJobNameEnum.AUTOMATIC_DEBIT_COURTESY_ALERTS]
@@ -28,7 +27,8 @@ def send_job_summary(
 		AsyncJobNameEnum.AUTOGENERATE_REPAYMENT_ALERTS: ["Wednesday"],
 		AsyncJobNameEnum.AUTOGENERATE_REPAYMENTS: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
 		AsyncJobNameEnum.LOANS_PAST_DUE: ["Monday", "Thursday"],
-		AsyncJobNameEnum.LOANS_COMING_DUE: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+		AsyncJobNameEnum.LOANS_COMING_DUE: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+		AsyncJobNameEnum.UPDATE_COMPANY_BALANCES: ["Monday"]
 	}
 	
 	response_blocks = []

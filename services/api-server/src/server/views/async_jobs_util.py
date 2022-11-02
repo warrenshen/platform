@@ -806,9 +806,19 @@ def update_company_balances_job(
 			submitted_by_user_id=cfg.BOT_USER_ID,
 			is_high_priority=False,
 			job_payload=payload)
+
+	# this checks if a job summary already exists for the day, all the others
+	# should be duplicates, but we want to make sure that it runs once a day
+	first_job_summary = cast(
+        models.AsyncJobSummary,
+        session.query(models.AsyncJobSummary).filter(
+            models.AsyncJobSummary.date == date_util.now_as_date()
+        ).first())
+
+	if first_job_summary == None:
+		add_job_summary(session, AsyncJobNameEnum.UPDATE_COMPANY_BALANCES)
 	return True, None
 
-# TODO: sessionmaker should be eventually removed
 @errors.return_error_tuple
 def update_dirty_company_balances_job(
 	session: Session,
