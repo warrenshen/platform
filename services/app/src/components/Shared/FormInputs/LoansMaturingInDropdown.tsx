@@ -1,6 +1,4 @@
-import { Box, FormControl, MenuItem } from "@material-ui/core";
-import InputLabel from "@mui/material/InputLabel";
-import Select from "@mui/material/Select";
+import { Box, FormControl, MenuItem, TextField } from "@material-ui/core";
 import { BankLoansMaturingInTimeWindowList } from "lib/enum";
 
 interface Props {
@@ -19,15 +17,12 @@ export default function LoansMaturingInDropdown({
   return (
     <Box width={364}>
       <FormControl fullWidth>
-        <InputLabel id="loans-maturing-in-dropdown-label">
-          Loans maturing in / Past due
-        </InputLabel>
-        <Select
-          data-cy={dataCy}
-          id={id || "loans-maturing-in-dropdown"}
-          labelId="loans-maturing-in-dropdown-label"
+        <TextField
           value={value}
           onChange={({ target: { value } }) => setValue(value as string)}
+          select
+          variant="outlined"
+          label="Maturing in / Past due"
         >
           {BankLoansMaturingInTimeWindowList.map((key: string) => {
             return (
@@ -36,7 +31,7 @@ export default function LoansMaturingInDropdown({
               </MenuItem>
             );
           })}
-        </Select>
+        </TextField>
       </FormControl>
     </Box>
   );

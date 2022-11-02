@@ -20,11 +20,16 @@ const BankAccountInformationDrawerTab = ({
     error,
   } = useCompanyVendorPartnershipForVendorQuery({
     fetchPolicy: "network-only",
+    skip: !purchaseOrder,
     variables: {
-      companyId: purchaseOrder.company_id,
-      vendorId: purchaseOrder.vendor_id,
+      companyId: purchaseOrder?.company_id,
+      vendorId: purchaseOrder?.vendor_id,
     },
   });
+
+  if (!purchaseOrder) {
+    return <></>;
+  }
 
   if (error) {
     alert(`Error in query: ${error.message}`);

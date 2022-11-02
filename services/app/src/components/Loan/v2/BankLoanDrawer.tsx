@@ -1,8 +1,8 @@
 import { Tab, Tabs } from "@material-ui/core";
 import BankAccountInformationDrawerTab from "components/BankAccount/BankAccountInformationDrawerTab";
 import BankLoanGeneralInformationDrawerTab from "components/Loan/v2/BankLoanGeneralInformationDrawerTab";
+import BankLoanOnlyForBankDrawerTab from "components/Loan/v2/BankLoanOnlyForBankDrawerTab";
 import BankPurchaseOrderGeneralInformationDrawerTab from "components/PurchaseOrder/v2/BankPurchaseOrderGeneralInformationDrawerTab";
-import BankPurchaseOrderOnlyForBankDrawerTab from "components/PurchaseOrder/v2/BankPurchaseOrderOnlyForBankDrawerTab";
 import Modal from "components/Shared/Modal/Modal";
 import {
   LoanFragment,
@@ -13,6 +13,7 @@ import {
 import {
   BankLoansDrawerTabLabelNew,
   BankLoansDrawerTabLabelsNew,
+  UUIDEnum,
 } from "lib/enum";
 import { createLoanCustomerIdentifier } from "lib/loans";
 import { useState } from "react";
@@ -55,6 +56,8 @@ const BankLoanDrawer = ({ loanId, isBankUser, handleClose }: Props) => {
   }
 
   const customerIdentifier = createLoanCustomerIdentifier(loan);
+  const debtFacilityName = loan?.loan_report?.debt_facility?.name || "-";
+  const loanReportId = loan?.loan_report?.id || UUIDEnum.None;
 
   return (
     <Modal
@@ -71,8 +74,6 @@ const BankLoanDrawer = ({ loanId, isBankUser, handleClose }: Props) => {
         style={{
           display: "flex",
           justifyContent: "center",
-          marginLeft: "100px",
-          marginRight: "100px",
         }}
       >
         {BankLoansDrawerTabLabelsNew.map((label) => {
@@ -87,7 +88,7 @@ const BankLoanDrawer = ({ loanId, isBankUser, handleClose }: Props) => {
               data-cy={label.replace(/\s+/g, "-").toLowerCase()}
               key={label}
               label={label}
-              style={{ width: "200px" }}
+              style={{ width: "250px" }}
             />
           );
         })}
@@ -102,7 +103,12 @@ const BankLoanDrawer = ({ loanId, isBankUser, handleClose }: Props) => {
       ) : selectedTabIndex === 2 ? (
         <BankAccountInformationDrawerTab purchaseOrder={purchaseOrder} />
       ) : (
-        <BankPurchaseOrderOnlyForBankDrawerTab purchaseOrder={purchaseOrder} />
+        <BankLoanOnlyForBankDrawerTab
+          loan={loan}
+          debtFacilityName={debtFacilityName}
+          loanReportId={loanReportId}
+          isBankUser={isBankUser}
+        />
       )}
     </Modal>
   );

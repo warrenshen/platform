@@ -33,6 +33,10 @@ const BankPurchaseOrderGeneralInformationDrawerTab = ({
     );
   }, [purchaseOrder]);
 
+  if (!purchaseOrder) {
+    return <></>;
+  }
+
   const isMetrcBased = !!purchaseOrder.is_metrc_based;
   const isCannabis = !!purchaseOrder?.is_cannabis
     ? purchaseOrder.is_cannabis

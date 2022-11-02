@@ -73,5 +73,11 @@ query GetLoanWithRelationships($id: uuid!, $is_bank_user: Boolean!) {
       id
       ...CompanyLimited
     }
+    loan_report {
+      ...LoanReport
+      debt_facility {
+        ...DebtFacility
+      }
+    }
   }
 }

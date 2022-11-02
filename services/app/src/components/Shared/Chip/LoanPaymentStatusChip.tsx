@@ -7,10 +7,10 @@ interface Props {
 
 const StatusToColor = {
   [LoanPaymentStatusEnum.NoPayment]: "#3498db", // Blue,
-  [LoanPaymentStatusEnum.PartiallyPaid]: "#e67e22", // Orange
-  [LoanPaymentStatusEnum.Pending]: "#f1c40f", // Yellow
-  [LoanPaymentStatusEnum.Scheduled]: "#f1c40f", // Yellow
-  [LoanPaymentStatusEnum.Closed]: "#9b59b6", // Purple
+  [LoanPaymentStatusEnum.PartiallyPaid]: "#ee95a1", // Pink
+  [LoanPaymentStatusEnum.Pending]: "#ffc96b", // Yellow
+  [LoanPaymentStatusEnum.Scheduled]: "#cf8937", // Orange
+  [LoanPaymentStatusEnum.Closed]: "#594ca4", // Purple
 };
 
 export default function LoanPaymentStatusChip({ paymentStatus }: Props) {
