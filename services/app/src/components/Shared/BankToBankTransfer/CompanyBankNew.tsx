@@ -5,7 +5,7 @@ import {
   MenuItem,
   Select,
 } from "@material-ui/core";
-import BankAccountInfoCardNew from "components/BankAccount/BankAccountInfoCardNew";
+import BankAccountInfoCardContent from "components/BankAccount/BankAccountInfoCardContent";
 import {
   BankAccounts,
   Companies,
@@ -71,7 +71,7 @@ export default function CompanyBank({
       {companyBankAccount && (
         <Box mt={2}>
           <CardContainer>
-            <BankAccountInfoCardNew bankAccount={companyBankAccount} />
+            <BankAccountInfoCardContent bankAccount={companyBankAccount} />
           </CardContainer>
         </Box>
       )}

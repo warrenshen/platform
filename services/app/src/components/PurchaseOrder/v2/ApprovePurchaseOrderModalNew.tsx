@@ -8,7 +8,7 @@ import {
   Divider,
   Typography,
 } from "@material-ui/core";
-import BankAccountInfoCardNew from "components/BankAccount/BankAccountInfoCardNew";
+import BankAccountInfoCardContent from "components/BankAccount/BankAccountInfoCardContent";
 import {
   PurchaseOrderFragment,
   RequestStatusEnum,
@@ -117,7 +117,7 @@ const ApprovePurchaseOrderModalNew = ({
           {isCompanyVendorPartnershipLoading ? (
             <Typography variant="body1">Loading...</Typography>
           ) : vendorBankAccount ? (
-            <BankAccountInfoCardNew bankAccount={vendorBankAccount} />
+            <BankAccountInfoCardContent bankAccount={vendorBankAccount} />
           ) : (
             <Typography variant="body1">No bank account</Typography>
           )}

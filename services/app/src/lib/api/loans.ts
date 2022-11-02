@@ -27,7 +27,7 @@ export async function submitLoanMutation(
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error("error", error);
         return {
           status: "ERROR",
           msg: "Could not submit loan",
@@ -36,10 +36,7 @@ export async function submitLoanMutation(
     );
 }
 
-// type DeleteLoanReq
-
 type SubmitLoanReqNew = {
-  // variables: SubmitLoanInput[]
   variables: {
     create_or_update_loans: SubmitLoanReq["variables"][];
     delete_loan_ids: DeleteLoanReq["variables"][];
@@ -55,7 +52,7 @@ export async function submitLoanMutationNew(
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error("error", error);
         return {
           status: "ERROR",
           msg: "Could not submit loan",
@@ -80,7 +77,7 @@ export async function submitLoCLoanMutation(
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error("error", error);
         return {
           status: "ERROR",
           msg: "Could not submit loan",
@@ -105,10 +102,53 @@ export async function deleteLoanMutation(
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error("error", error);
         return {
           status: "ERROR",
           msg: "Could not delete loan",
+        };
+      }
+    );
+}
+
+type ArchiveLoanReq = {
+  variables: {
+    loan_id: Loans["id"];
+    company_id: Companies["id"];
+  };
+};
+
+export async function archiveLoanMutation(
+  req: ArchiveLoanReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(loansRoutes.archiveLoan, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.error("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not archive loan",
+        };
+      }
+    );
+}
+
+export async function unarchiveLoanMutation(
+  req: ArchiveLoanReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(loansRoutes.unarchiveLoan, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.error("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not unarchive loan",
         };
       }
     );
@@ -123,7 +163,7 @@ export async function approveLoans(
     .then(
       (response) => response,
       (error) => {
-        console.log("Error", error);
+        console.error("Error", error);
         return {
           status: "ERROR",
           msg: "Could not approve loan(s) for an unexpected reason",
@@ -152,7 +192,38 @@ export async function rejectLoanMutation(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not reject loan for an unexpected reason",
+        };
+      }
+    );
+}
+
+type RejectLoanReqNew = {
+  variables: {
+    loan_id: Loans["id"];
+    rejection_note: string;
+    reject_releated_purchase_order: boolean;
+    is_vendor_approval_required: boolean;
+  };
+};
+
+export async function rejectLoanNewMutation(
+  req: RejectLoanReqNew
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(loansRoutes.rejectLoanNew, req.variables)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.error("error", error);
         return {
           status: "ERROR",
           msg: "Could not reject loan for an unexpected reason",

@@ -7,7 +7,7 @@ import {
   createStyles,
   makeStyles,
 } from "@material-ui/core";
-import BankAccountInfoCardNew from "components/BankAccount/BankAccountInfoCardNew";
+import BankAccountInfoCardContent from "components/BankAccount/BankAccountInfoCardContent";
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
 import SecondaryButton from "components/Shared/Button/SecondaryButton";
 import ModalDialog from "components/Shared/Modal/ModalDialog";
@@ -121,7 +121,7 @@ function ReviewPurchaseOrderApproveModalNew({
           information is not up-to-date, please contact us.
         </DialogContentText>
         <Box>
-          <BankAccountInfoCardNew bankAccount={vendorBankAccount} />
+          <BankAccountInfoCardContent bankAccount={vendorBankAccount} />
         </Box>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>

@@ -1,23 +1,53 @@
-import { Box } from "@material-ui/core";
+import { Box, Button, Typography } from "@material-ui/core";
+import { GridValueFormatterParams } from "@material-ui/data-grid";
+import InvoiceDrawer from "components/Invoices/InvoiceDrawer";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
+import BankPurchaseOrderDrawer from "components/PurchaseOrder/v2/BankPurchaseOrderDrawer";
 import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
-import { LoanFragment, LoanLimitedFragment } from "generated/graphql";
+import PurchaseOrderIdentifierDataGridCell from "components/Shared/DataGrid/PurchaseOrderIdentifierDataGridCell";
+import ClickableDataGridCell from "components/Shared/DataGrid/v2/ClickableDataGridCell";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
+import {
+  Companies,
+  Invoices,
+  LoanFragment,
+  LoanLimitedFragment,
+  Loans,
+  PurchaseOrders,
+} from "generated/graphql";
+import { CommentIcon } from "icons";
 import { parseDateStringServer } from "lib/date";
 import { LoanStatusEnum } from "lib/enum";
 import {
   createLoanCustomerIdentifier,
   createLoanDisbursementIdentifier,
+  getLoanArtifactName,
+  getLoanVendorName,
 } from "lib/loans";
 import { CurrencyPrecision } from "lib/number";
 import { ColumnWidths, formatRowModel } from "lib/tables";
-import { useMemo } from "react";
+import { useContext, useMemo, useState } from "react";
 
 interface Props {
   financingRequests: LoanLimitedFragment[];
+  selectedFinancingRequestIds?: Loans["id"][];
+  isApprovalStatusVisible?: boolean;
+  isArtifactBankNoteVisible?: boolean;
+  isArtifactVisible?: boolean;
+  isCompanyNameVisible?: boolean;
+  isDisbursementIdentifierVisible?: boolean;
   isMultiSelectEnabled?: boolean;
+  isVendorVisible?: boolean;
   showComments?: boolean;
   pager?: boolean;
+  handleClickCustomer?: (customerId: Companies["id"]) => void;
+  handleClickPurchaseOrderBankNote?: (
+    purchaseOrderId: PurchaseOrders["id"]
+  ) => void;
   handleSelectFinancingRequests?: (loans: LoanFragment[]) => void;
 }
 
@@ -25,23 +55,44 @@ function getRows(financingRequests: LoanLimitedFragment[]) {
   return financingRequests.map((financingRequest) => {
     return formatRowModel({
       ...financingRequest,
+      artifact_name: getLoanArtifactName(financingRequest),
       customer_identifier: createLoanCustomerIdentifier(financingRequest),
+      customer_name: financingRequest.company?.name,
       disbursement_identifier:
         createLoanDisbursementIdentifier(financingRequest),
       requested_payment_date: parseDateStringServer(
         financingRequest.requested_payment_date
       ),
+      vendor_name: getLoanVendorName(financingRequest),
     });
   });
 }
 
 const FinancialRequestsDataGrid = ({
   financingRequests,
+  selectedFinancingRequestIds = [],
+  isApprovalStatusVisible = true,
+  isArtifactVisible = false,
+  isArtifactBankNoteVisible = false,
+  isCompanyNameVisible = false,
+  isDisbursementIdentifierVisible = false,
   isMultiSelectEnabled = false,
+  isVendorVisible = false,
   showComments = true,
   pager = false,
+  handleClickCustomer,
+  handleClickPurchaseOrderBankNote,
   handleSelectFinancingRequests,
 }: Props) => {
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
+  const isBankUser = isRoleBankUser(role);
+  const [selectedPurchaseOrderId, setSelectedPurchaseOrderId] =
+    useState<PurchaseOrders["id"]>(null);
+  const [selectedInvoiceId, setSelectedInvoiceId] =
+    useState<Invoices["id"]>(null);
+
   const rows = getRows(financingRequests);
   const columns = useMemo(
     () => [
@@ -56,6 +107,7 @@ const FinancialRequestsDataGrid = ({
       },
       {
         fixed: true,
+        visible: isDisbursementIdentifierVisible,
         caption: "Disbursement Identifier",
         dataField: "disbursement_identifier",
         minWidth: ColumnWidths.Identifier,
@@ -63,8 +115,28 @@ const FinancialRequestsDataGrid = ({
           <LoanDrawerLauncher label={value} loanId={data.id} />
         ),
       },
-
       {
+        fixed: true,
+        visible: isCompanyNameVisible,
+        caption: "Customer Name",
+        dataField: "customer_name",
+        minWidth: ColumnWidths.MinWidth,
+        alignment: "left",
+        cellRender: (params: GridValueFormatterParams) =>
+          handleClickCustomer ? (
+            <ClickableDataGridCell
+              label={params.row.data.company.name}
+              onClick={() =>
+                handleClickCustomer &&
+                handleClickCustomer(params.row.data.company_id)
+              }
+            />
+          ) : (
+            params.row.data.company.name
+          ),
+      },
+      {
+        visible: isApprovalStatusVisible,
         caption: "Approval Status",
         dataField: "status",
         width: ColumnWidths.Status,
@@ -90,14 +162,89 @@ const FinancialRequestsDataGrid = ({
         format: "shortDate",
       },
       {
-        isVisible: !!showComments,
+        visible: isArtifactVisible,
+        dataField: "artifact_name",
+        caption: "Purchase Order / Invoice",
+        minWidth: ColumnWidths.MinWidth,
+        cellRender: (params: GridValueFormatterParams) =>
+          params.row.data.purchase_order ? (
+            <PurchaseOrderIdentifierDataGridCell
+              onClick={() => {
+                setSelectedPurchaseOrderId(params.row.data.purchase_order.id);
+              }}
+              artifactName={params.row.data.artifact_name}
+              isMetrcBased={params.row.data.purchase_order.is_metrc_based}
+            />
+          ) : params.row.data.invoice ? (
+            <ClickableDataGridCell
+              onClick={() => {
+                setSelectedInvoiceId(params.row.data.invoice.id);
+              }}
+              label={params.row.data.artifact_name}
+            />
+          ) : params.row.data.line_of_credit ? (
+            "N/A"
+          ) : null,
+      },
+      {
+        visible: isVendorVisible,
+        dataField: "vendor_name",
+        caption: `Vendor / Payor Name`,
+        minWidth: ColumnWidths.MinWidth,
+      },
+      {
+        visible: showComments,
         caption: "Comments",
         dataField: "customer_notes",
         width: 340,
         alignment: "right",
       },
+      {
+        visible: isArtifactBankNoteVisible,
+        dataField: "artifact_bank_note",
+        caption: "PO Bank Note",
+        width: 340,
+        cellRender: (params: GridValueFormatterParams) =>
+          params.row.data.artifact_bank_note !== "N/A" ? (
+            <Button
+              color="default"
+              variant="text"
+              style={{
+                minWidth: 0,
+                textAlign: "left",
+              }}
+              onClick={() =>
+                !!handleClickPurchaseOrderBankNote &&
+                handleClickPurchaseOrderBankNote(params.row.data.artifact_id)
+              }
+            >
+              <Box display="flex" alignItems="center">
+                <CommentIcon />
+                {!!params.row.data.artifact_bank_note && (
+                  <Box ml={1}>
+                    <Typography variant="body2">
+                      {params.row.data.artifact_bank_note}
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
+            </Button>
+          ) : (
+            params.row.data.artifact_bank_note
+          ),
+      },
     ],
-    [showComments]
+    [
+      isApprovalStatusVisible,
+      isArtifactVisible,
+      isArtifactBankNoteVisible,
+      isCompanyNameVisible,
+      isDisbursementIdentifierVisible,
+      isVendorVisible,
+      showComments,
+      handleClickCustomer,
+      handleClickPurchaseOrderBankNote,
+    ]
   );
 
   const handleSelectionChanged = useMemo(
@@ -110,10 +257,24 @@ const FinancialRequestsDataGrid = ({
 
   return (
     <Box className="financing-requests-data-grid">
+      {!!selectedPurchaseOrderId && (
+        <BankPurchaseOrderDrawer
+          purchaseOrderId={selectedPurchaseOrderId}
+          isBankUser={isBankUser}
+          handleClose={() => setSelectedPurchaseOrderId(null)}
+        />
+      )}
+      {!!selectedInvoiceId && (
+        <InvoiceDrawer
+          invoiceId={selectedInvoiceId}
+          handleClose={() => setSelectedInvoiceId(null)}
+        />
+      )}
       <ControlledDataGrid
         dataSource={rows}
         columns={columns}
         select={isMultiSelectEnabled}
+        selectedRowKeys={selectedFinancingRequestIds}
         onSelectionChanged={handleSelectionChanged}
         pager={pager}
       />

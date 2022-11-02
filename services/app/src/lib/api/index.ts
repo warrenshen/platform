@@ -148,8 +148,11 @@ export const loansRoutes = {
 
   approveLoans: "/finance/loans/approvals/approve_loans",
   rejectLoan: "/finance/loans/approvals/reject_loan",
+  rejectLoanNew: "/finance/loans/approvals/reject_loan_new",
 
   deleteLoan: "/finance/loans/deletion/delete_loan",
+  archiveLoan: "/finance/loans/archive/archive_loan",
+  unarchiveLoan: "/finance/loans/archive/unarchive_loan",
 
   runCustomerBalances: "/finance/loans/reports/run_customer_balances",
   runLoanPredictions: "/finance/loans/reports/run_loan_predictions",

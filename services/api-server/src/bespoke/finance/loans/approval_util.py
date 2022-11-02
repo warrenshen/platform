@@ -1,5 +1,6 @@
 import datetime
 import decimal
+from re import template
 from typing import Callable, Dict, List, Tuple, cast
 from urllib import request
 
@@ -9,12 +10,12 @@ from bespoke.db import db_constants, models, models_util, queries
 from bespoke.db.db_constants import (ALL_LOAN_TYPES, LoanStatusEnum, LoanTypeEnum, NewPurchaseOrderStatus)
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
-from bespoke.finance import financial_summary_util
-from bespoke.finance import contract_util
+from bespoke.finance import financial_summary_util, contract_util, number_util
 from bespoke.finance.loans import sibling_util
 from bespoke.finance.purchase_orders import purchase_orders_util
 from mypy_extensions import TypedDict
 from sqlalchemy.orm import Session
+from server.views.common.auth_util import UserSession
 
 ApproveLoansReqDict = TypedDict('ApproveLoansReqDict', {
 	'loan_ids': List[str],
@@ -548,3 +549,99 @@ def submit_for_approval_if_has_autofinancing(
 		raise err
 
 	return resp, None
+
+
+@errors.return_error_tuple
+def reject_loan(
+	session: Session,
+	loan_id: str,
+	reject_related_purchase_order: bool,
+	rejection_note: str,
+	user_session: UserSession,
+) -> Tuple[Dict[str, str], List[str], errors.Error]:
+	loan, err = queries.get_loan(session=session, loan_id=loan_id)
+	if err:
+		return None, None, errors.Error('Could not find loan for given Loan ID')
+	
+	customer_id = loan.company_id
+	# When a loan gets rejected, we clear out
+	# any state about whether it was approved.
+	loan.rejection_note = rejection_note
+	loan.rejected_at = date_util.now()
+	loan.rejected_by_user_id = user_session.get_user_id()
+	loan.approved_at = None
+	loan.approved_by_user_id = None
+	# Reset loan approval status.
+	loan.status = models_util.compute_loan_approval_status(loan)
+
+	customer, err = queries.get_company_by_id(session, customer_id)
+	if err:
+		return None, None, err
+
+	loan_identifier = f'{customer.identifier}{loan.identifier}'
+	loan_amount = number_util.to_dollar_format(float(loan.amount))
+	loan_requested_payment_date = date_util.date_to_str(loan.requested_payment_date)
+	loan_requested_date = date_util.human_readable_yearmonthday(loan.requested_at)
+
+	customer_users = models_util.get_active_users(company_id=customer_id, session=session)
+	email_recipients = [user.email for user in customer_users]
+
+	template_data = {
+		'customer_name': customer.get_display_name(),
+		'loan_identifier': loan_identifier,
+		'loan_amount': loan_amount,
+		'loan_requested_payment_date': loan_requested_payment_date,
+		'loan_requested_date': loan_requested_date,
+		'rejection_note': rejection_note,
+	}
+
+	if loan.loan_type != db_constants.LoanTypeEnum.INVENTORY:
+		return template_data, email_recipients, None
+	
+	else:
+		user, err = queries.get_user_by_id(
+			session,
+			user_session.get_user_id(),
+		)
+		if err:
+			return None, None, err
+	
+		# If the user selected the option in the UI to reject the related purchase order
+		if reject_related_purchase_order:
+			purchase_order, err = purchase_orders_util.reject_purchase_order(
+				session=session,
+				purchase_order_id=loan.artifact_id,
+				rejected_by_user_id=str(user.id),
+				rejected_by_user_full_name=user.full_name,
+				rejection_note=rejection_note,
+				is_bank_admin=True,
+			)
+			if err:
+				return None, None, err
+			
+			purchase_order_number = purchase_order.order_number
+			purchase_order_amount = number_util.to_dollar_format(float(purchase_order.amount))
+			purchase_order_requested_date = date_util.human_readable_yearmonthday(
+				purchase_order.requested_at if purchase_order.requested_at is not None else date_util.now()
+			)
+
+			template_data['purchase_order_number'] = purchase_order_number
+			template_data['purchase_order_amount'] = purchase_order_amount
+			template_data['purchase_order_requested_date'] = purchase_order_requested_date
+
+			return template_data, email_recipients, None
+
+		else:
+			# TODO: https://www.notion.so/bespokefinancial/Properly-Handle-Reject-Financing-Request-Modal-options-26274e40736e4379ae29f2d4bd2fedb3
+			_, err = purchase_orders_util.request_purchase_order_changes(
+				session=session,
+				purchase_order_id=loan.artifact_id,
+				requested_by_user_id=str(user.id),
+				requested_by_user_full_name=user.full_name,
+				requested_changes_note=rejection_note,
+				is_bank_admin=True,
+			)
+			if err:
+				return None, None, err
+			
+			return template_data, email_recipients, None

@@ -1,5 +1,5 @@
 import { Box } from "@material-ui/core";
-import BankAccountInfoCardNew from "components/BankAccount/BankAccountInfoCardNew";
+import BankAccountInfoCardContent from "components/BankAccount/BankAccountInfoCardContent";
 import { PurchaseOrderViewModalProps } from "components/PurchaseOrder/v2/BankPurchaseOrderDrawer";
 import CardContainer from "components/Shared/Card/CardContainer";
 import TabContainer from "components/Shared/Tabs/TabContainer";
@@ -52,7 +52,7 @@ const BankAccountInformationDrawerTab = ({
       </Box>
       <CardContainer>
         <Box mb={2}>
-          <BankAccountInfoCardNew bankAccount={vendorBankAccount} />
+          <BankAccountInfoCardContent bankAccount={vendorBankAccount} />
         </Box>
       </CardContainer>
     </TabContainer>

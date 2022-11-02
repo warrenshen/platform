@@ -3,17 +3,14 @@ import {
   Checkbox,
   FormControl,
   FormControlLabel,
-  InputLabel,
   MenuItem,
-  Select,
   TextField,
-  Theme,
   Typography,
-  createStyles,
-  makeStyles,
 } from "@material-ui/core";
+import VerticalValueAndLabel from "components/Repayment/v2/VerticalValueAndLabel";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import { PaymentsInsertInput } from "generated/graphql";
+import { DateInputIcon } from "icons";
 import {
   AdvanceMethodEnum,
   AdvanceMethodToLabel,
@@ -21,14 +18,6 @@ import {
 } from "lib/enum";
 import { formatCurrency } from "lib/number";
 import { ChangeEvent } from "react";
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    inputField: {
-      width: 300,
-    },
-  })
-);
 
 interface Props {
   payment: PaymentsInsertInput;
@@ -43,27 +32,17 @@ export default function AdvanceForm({
   shouldChargeWireFee,
   setShouldChargeWireFee,
 }: Props) {
-  const classes = useStyles();
-
   return (
     <Box display="flex" flexDirection="column">
       <Box mt={4}>
-        <Typography variant="body2" color="textSecondary">
-          Total Amount
-        </Typography>
-        <Typography variant="body1">
-          {formatCurrency(payment.amount)}
-        </Typography>
+        <VerticalValueAndLabel
+          value={formatCurrency(payment.amount)}
+          label={"Total loan amount"}
+        />
       </Box>
-      <Box mt={4}>
-        <FormControl className={classes.inputField}>
-          <InputLabel id="select-payment-method-label" required>
-            Advance Method
-          </InputLabel>
-          <Select
-            data-cy="advance-form-select-payment-method"
-            id="select-payment-method"
-            labelId="select-payment-method-label"
+      <Box mt={1}>
+        <FormControl fullWidth>
+          <TextField
             value={payment.method}
             onChange={({ target: { value } }) =>
               setPayment({
@@ -71,6 +50,9 @@ export default function AdvanceForm({
                 method: value as AdvanceMethodEnum,
               })
             }
+            select
+            variant="outlined"
+            label="Advance Method"
           >
             {AllAdvanceMethods.map((advanceMethod) => (
               <MenuItem
@@ -81,7 +63,7 @@ export default function AdvanceForm({
                 {AdvanceMethodToLabel[advanceMethod]}
               </MenuItem>
             ))}
-          </Select>
+          </TextField>
         </FormControl>
       </Box>
       {payment.method === AdvanceMethodEnum.Wire && (
@@ -101,19 +83,21 @@ export default function AdvanceForm({
         </Box>
       )}
       <Box display="flex" flexDirection="column" mt={4}>
-        <DateInput
-          disableNonBankDays
-          className={classes.inputField}
-          id="payment-date-date-picker"
-          label="Payment Date"
-          value={payment.payment_date}
-          onChange={(value) =>
-            setPayment({
-              ...payment,
-              payment_date: value,
-            })
-          }
-        />
+        <FormControl fullWidth>
+          <DateInput
+            disableNonBankDays
+            id="payment-date-date-picker"
+            label="Payment Date"
+            value={payment.payment_date}
+            onChange={(value) =>
+              setPayment({
+                ...payment,
+                payment_date: value,
+              })
+            }
+            keyboardIcon={<DateInputIcon width="16px" height="16px" />}
+          />
+        </FormControl>
         <Box mt={1}>
           <Typography variant="body2" color="textSecondary">
             The date the advance was sent / will be sent{" "}
@@ -121,20 +105,22 @@ export default function AdvanceForm({
           </Typography>
         </Box>
       </Box>
-      <Box display="flex" flexDirection="column" mt={4}>
-        <DateInput
-          disableNonBankDays
-          className={classes.inputField}
-          id="settlement-date-date-picker"
-          label="Deposit / Settlement Date"
-          value={payment.settlement_date}
-          onChange={(value) =>
-            setPayment({
-              ...payment,
-              settlement_date: value,
-            })
-          }
-        />
+      <Box display="flex" flexDirection="column" mt={1}>
+        <FormControl fullWidth>
+          <DateInput
+            disableNonBankDays
+            id="settlement-date-date-picker"
+            label="Deposit / Settlement Date"
+            value={payment.settlement_date}
+            onChange={(value) =>
+              setPayment({
+                ...payment,
+                settlement_date: value,
+              })
+            }
+            keyboardIcon={<DateInputIcon width="16px" height="16px" />}
+          />
+        </FormControl>
         <Box mt={1}>
           <Typography variant="body2" color="textSecondary">
             The date the advance arrived / will arrive{" "}
@@ -143,7 +129,7 @@ export default function AdvanceForm({
           </Typography>
         </Box>
       </Box>
-      <Box display="flex" flexDirection="column" mt={4}>
+      <Box display="flex" flexDirection="column" mt={1}>
         <TextField
           inputProps={{
             maxLength: 140,

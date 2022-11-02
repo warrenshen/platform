@@ -34,7 +34,7 @@ import {
   useGetPurchaseOrdersChangesRequestedCountForCustomerQuery,
   useGetRepaymentsCountForBankSubscription,
 } from "generated/graphql";
-//import { FinancingRequestsSidebarIcon } from "icons";
+import { FinancingRequestsSidebarIcon } from "icons";
 import {
   FeatureFlagEnum,
   ProductTypeEnum,
@@ -202,15 +202,15 @@ const getCustomerNavItems = (
           : "rgb(241, 196, 15)",
       counter: financialCertificationsMissingCount,
     },
-    // {
-    //   dataCy: "financing-requests",
-    //   iconNode: FinancingRequestsSidebarIcon as React.FunctionComponent<
-    //     React.SVGProps<SVGSVGElement>
-    //   >,
-    //   visible: !!productType && productType === ProductTypeEnum.LineOfCredit,
-    //   text: "Financing Requests",
-    //   link: customerRoutes.financingRequests,
-    // },
+    {
+      dataCy: "financing-requests",
+      iconNode: FinancingRequestsSidebarIcon as React.FunctionComponent<
+        React.SVGProps<SVGSVGElement>
+      >,
+      visible: !!productType && productType === ProductTypeEnum.LineOfCredit,
+      text: "Financing Requests",
+      link: customerRoutes.financingRequests,
+    },
     {
       dataCy: "vendors",
       visible: isVendorsTabVisible(productType),
@@ -267,6 +267,16 @@ const getBankNavItems = (
       iconNode: OverviewIcon,
       text: "Overview",
       link: bankRoutes.overview,
+      isBankMenu: true,
+    },
+    {
+      dataCy: "financing-requests",
+      iconNode: FinancingRequestsSidebarIcon as React.FunctionComponent<
+        React.SVGProps<SVGSVGElement>
+      >,
+      text: "Financing Requests",
+      link: bankRoutes.financingRequests,
+      // counter: loansCount,
       isBankMenu: true,
     },
     {

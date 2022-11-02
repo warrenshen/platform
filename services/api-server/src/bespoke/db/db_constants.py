@@ -204,6 +204,7 @@ class LoanStatusEnum(object):
 	FUNDED = 'funded'
 	CLOSED = 'closed'
 	CLOSING = 'closing'
+	ARCHIVED = 'archived'
 
 class LoanTypeEnum(object):
 	LINE_OF_CREDIT = 'line_of_credit'

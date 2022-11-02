@@ -38,7 +38,7 @@ interface Props {
   handleDataChange?: () => void;
 }
 
-const BankAccountInfoCardNew = ({
+const BankAccountInfoCardContent = ({
   isCannabisCompliantVisible = false,
   isEditAllowed = false,
   isTemplateNameVisible = false,
@@ -180,4 +180,4 @@ const BankAccountInfoCardNew = ({
   );
 };
 
-export default BankAccountInfoCardNew;
+export default BankAccountInfoCardContent;

@@ -4,11 +4,12 @@ from typing import Any, Dict, List, Tuple, cast
 from bespoke import errors
 from bespoke.audit import events
 from bespoke.date import date_util
-from bespoke.db import models, models_util, queries
+from bespoke.db import models, models_util, queries, db_constants
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from bespoke.finance import number_util
 from bespoke.finance.loans import approval_util, delete_util
+from bespoke.finance.purchase_orders import purchase_orders_util
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from server.config import Config
@@ -208,6 +209,73 @@ class RejectLoanView(MethodView):
 		return make_response(json.dumps({
 			'status': 'OK'
 		}), 200)
+
+
+class RejectLoanNewView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@events.wrap(events.Actions.LOANS_REJECT)
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'loan_id',
+			'rejection_note',
+			'reject_related_purchase_order',
+			'is_vendor_approval_required'
+		]
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(
+					'Missing key {} from handle loan rejection'.format(key))
+
+		loan_id = form['loan_id']
+		rejection_note = form['rejection_note']
+		reject_related_purchase_order = form['reject_related_purchase_order']
+		is_vendor_approval_required = form['is_vendor_approval_required']
+		user_session = auth_util.UserSession.from_session()
+
+		sendgrid_client = cast(sendgrid_util.Client,
+							current_app.sendgrid_client)
+
+
+		with session_scope(current_app.session_maker) as session:
+			template_data, email_recipients, err = approval_util.reject_loan(
+				session=session,
+				loan_id=loan_id,
+				reject_related_purchase_order=reject_related_purchase_order,
+				rejection_note=rejection_note,
+				user_session=user_session,
+			)
+			if err:
+				raise err
+
+			if reject_related_purchase_order:
+				_, err = sendgrid_client.send(
+					sendgrid_util.TemplateNames.BANK_REJECTED_LOAN_AND_PURCHASE_ORDER,
+					template_data,
+					email_recipients,
+					filter_out_contact_only=True,
+				)
+				if err:
+					raise err
+			else:
+				_, err = sendgrid_client.send(
+					sendgrid_util.TemplateNames.BANK_REJECTED_LOAN,
+					template_data,
+					email_recipients,
+					filter_out_contact_only=True,
+				)
+				if err:
+					raise err
+				
+		return make_response(json.dumps({
+			'status': 'OK'
+		}), 200)
+
 
 class SubmitForApprovalView(MethodView):
 	decorators = [auth_util.login_required]
@@ -452,6 +520,9 @@ handler.add_url_rule(
 
 handler.add_url_rule(
 	'/reject_loan', view_func=RejectLoanView.as_view(name='reject_loan_view'))
+
+handler.add_url_rule(
+	'/reject_loan_new', view_func=RejectLoanNewView.as_view(name='reject_loan_new_view'))
 
 handler.add_url_rule(
 	'/submit_for_approval',

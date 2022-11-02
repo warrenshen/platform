@@ -25,6 +25,8 @@ export enum Action {
   DeleteLoans = "loans:delete",
   CreateAdvance = "loans:create-advance",
   RunBalances = "loans:run-balances",
+  ArchiveLoan = "loans:archive",
+  UnarchiveLoan = "loans:unarchive",
 
   // Fees
   BookFees = "fees:book_fees",
@@ -207,6 +209,8 @@ const rules: Rules = {
       Action.EditPurchaseOrderLoan,
       Action.RepayPurchaseOrderLoans,
       Action.DeleteLoans,
+      Action.ArchiveLoan,
+      Action.UnarchiveLoan,
 
       // Bank on-behalf-of vendor actions - bank performs on behalf of vendor.
       Action.ApprovePurchaseOrders,

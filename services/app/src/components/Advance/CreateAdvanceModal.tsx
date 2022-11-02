@@ -1,9 +1,12 @@
 import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import AdvanceForm from "components/Advance/AdvanceForm";
-import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
+import BankAccountInfoCardContent from "components/BankAccount/BankAccountInfoCardContent";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
+import CardContainer from "components/Shared/Card/CardContainer";
+import CardLine from "components/Shared/Card/CardLine";
 import Modal from "components/Shared/Modal/Modal";
+import Text, { TextVariants } from "components/Shared/Text/Text";
 import {
   BankAccountFragment,
   GetAdvancesBankAccountsForCustomerQuery,
@@ -232,24 +235,30 @@ export default function CreateAdvanceModal({
   return (
     <Modal
       isPrimaryActionDisabled={isSubmitDisabled}
-      title={"Create Advance(s)"}
-      contentWidth={800}
+      title={`Create Advance${selectedLoanIds.length > 1 ? "s" : ""}`}
+      contentWidth={600}
       primaryActionText={"Submit"}
       handleClose={handleClose}
       handlePrimaryAction={handleClickSubmit}
     >
-      <Box mt={4}>
+      <Box mt={3} mb={3}>
         <Typography>
           You are creating an advance for the loan(s) shown below. Please enter
           in information for the advance and then press "Submit".
         </Typography>
       </Box>
-      <Box mt={4}>
+      <Text textVariant={TextVariants.ParagraphLead}>
+        {selectedLoanIds.length > 1
+          ? `Loans (${selectedLoanIds.length})`
+          : "Loan"}
+      </Text>
+      <Box>
         <LoansDataGrid
           isArtifactVisible
           isCompanyVisible
           isSortingDisabled
           isStatusVisible={false}
+          pager={false}
           loans={selectedLoans}
         />
       </Box>
@@ -263,32 +272,34 @@ export default function CreateAdvanceModal({
           />
           {!!advancesBankAccount && (
             <Box mt={4}>
-              <Typography>{`Recipient bank information`}</Typography>
-              <Box mt={1}>
-                <Typography variant="body2" color="textSecondary">
-                  {`Recipient category (Customer or Vendor): ${
-                    isRecipientVendor ? "Vendor" : "Customer"
-                  }`}
-                </Typography>
-              </Box>
-              <Box mt={1}>
-                <Typography variant="body2" color="textSecondary">
-                  {`Recipient name: ${recipientCompany?.name}`}
-                </Typography>
-              </Box>
-              <Box mt={1}>
-                <BankAccountInfoCard
-                  isTemplateNameVisible
-                  isVerificationVisible
-                  bankAccount={advancesBankAccount}
-                />
+              <Text
+                textVariant={TextVariants.ParagraphLead}
+              >{`Recipient bank information`}</Text>
+              <CardLine
+                labelText={"Recipient category"}
+                valueText={isRecipientVendor ? "Vendor" : "Customer"}
+                valueAlignment={"left"}
+              />
+              <CardLine
+                labelText={"Recipient name"}
+                valueText={recipientCompany?.name || ""}
+                valueAlignment={"left"}
+              />
+              <Box mt={2}>
+                <CardContainer>
+                  <BankAccountInfoCardContent
+                    isTemplateNameVisible
+                    isVerificationVisible
+                    bankAccount={advancesBankAccount}
+                  />
+                </CardContainer>
               </Box>
             </Box>
           )}
         </Box>
       ) : (
-        <Box>
-          <Alert severity="warning">
+        <Box marginTop={3}>
+          <Alert severity="error" style={{ alignItems: "center" }}>
             You've selected loans corresponding to <strong>MULTIPLE</strong>{" "}
             recipient bank accounts. This is not allowed: an advance may only be
             sent to one recipient bank account. Please select different loans

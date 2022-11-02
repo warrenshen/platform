@@ -159,6 +159,16 @@ export const BankLoansTabLabels = [
   BankLoansTabLabel.All,
 ];
 
+export enum BankFinancingRequestsTabLabel {
+  ActionRequired = "Action Required",
+  Archived = "Archived",
+}
+
+export const BankFinancingRequestsTabLabels = [
+  BankFinancingRequestsTabLabel.ActionRequired,
+  BankFinancingRequestsTabLabel.Archived,
+];
+
 export enum BankLoansTabLabelNew {
   Active = "Active",
   Closed = "Closed",
@@ -490,6 +500,7 @@ export enum LoanStatusEnum {
   PastDue = "past_due",
   Closed = "closed",
   Closing = "closing",
+  Archived = "archived",
 }
 
 // TODO(dlluncor): Remove references to PastDue, Funded, Closed
@@ -504,6 +515,7 @@ export const LoanStatusToLabel = {
   [LoanStatusEnum.Funded]: "Funded",
   [LoanStatusEnum.Closed]: "Closed",
   [LoanStatusEnum.Closing]: "Closing",
+  [LoanStatusEnum.Archived]: "Archived",
 };
 
 export const AllLoanStatuses = [

@@ -14,6 +14,7 @@ const StatusToColor: { [key in LoanStatusEnum]: string } = {
   past_due: "",
   closed: "",
   closing: "",
+  archived: "",
 };
 
 const LoanStatusToLabel: { [key in LoanStatusEnum]: string } = {
@@ -25,6 +26,7 @@ const LoanStatusToLabel: { [key in LoanStatusEnum]: string } = {
   past_due: "",
   closed: "",
   closing: "",
+  archived: "",
 };
 
 export default function FinancingRequestStatusChipNew({ loanStatus }: Props) {
