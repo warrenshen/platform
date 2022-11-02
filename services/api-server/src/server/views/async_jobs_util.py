@@ -185,7 +185,23 @@ def kick_off_handler(
 			job.started_at = date_util.now()
 			session.commit()
 			cfg.THREAD_POOL.submit(execute_job, session_maker, cfg, sendgrid_client, job)
+
+		# jobs that have run for over an hour are put into failure state
+		for job in currently_running_jobs:
+			if job.started_at < date_util.hours_from_today(-1):
+				if job.num_retries >= cfg.ASYNC_MAX_FAILED_ATTMEPTS:
+					job.status = AsyncJobStatusEnum.FAILED
+					slack_util.send_job_slack_message(cfg, job)
+				else:
+					job.status = AsyncJobStatusEnum.QUEUED
+					job.queued_at = date_util.now()
+					
+				job.ended_at = date_util.now()
+				job.num_retries += 1
+				job.err_details = {"Error" : "Async job timed out."}
+
 		return [job.id for job in starting_jobs], None
+
 	return [], None
 
 def execute_job(
