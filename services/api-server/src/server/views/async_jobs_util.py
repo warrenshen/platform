@@ -140,7 +140,7 @@ def retry_job(
 	return True, None
 
 @errors.return_error_tuple
-def kick_off_handler(
+def orchestration_handler(
 	session_maker: Callable,
 	available_job_number: int,
 ) -> Tuple[List[str], errors.Error]:

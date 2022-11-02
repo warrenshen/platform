@@ -156,7 +156,7 @@ class GenerateJobsView(MethodView):
 		}), 200)
 
 
-class KickOffHandlerView(MethodView):
+class OrchestrationHandlerView(MethodView):
 	decorators = [auth_util.requires_async_header_or_bank_admin]
 
 	@handler_util.catch_bad_json_request
@@ -164,7 +164,7 @@ class KickOffHandlerView(MethodView):
 		logging.info("Received async job kick off handler request")
 		cfg = cast(Config, current_app.app_config)
 
-		in_progress_job_ids, err = async_jobs_util.kick_off_handler(
+		in_progress_job_ids, err = async_jobs_util.orchestration_handler(
 			session_maker = current_app.session_maker,
 			available_job_number = int(cfg.ASYNC_JOB_CAPACITY)
 		)
@@ -266,8 +266,8 @@ class DailyJobSummaryView(MethodView):
 
 
 handler.add_url_rule(
-	'/kick-off-handler',
-	view_func=KickOffHandlerView.as_view(name='kick_off_handler_view'))
+	'/orchestration-handler',
+	view_func=OrchestrationHandlerView.as_view(name='orchestration_handler_view'))
 
 handler.add_url_rule(
 	'/delete-job',
