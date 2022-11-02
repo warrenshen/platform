@@ -169,7 +169,7 @@ class AutogenerateRepaymentView(MethodView):
 			_, err = sendgrid_client.send(
 				template_name = sendgrid_util.TemplateNames.ALERT_FOR_AUTO_GENERATED_REPAYMENTS,
 				template_data = bespoke_template_data,
-				recipients = ["jr@bespokefinancial.com"],#[cfg.NO_REPLY_EMAIL_ADDRESS],
+				recipients = cfg.BANK_NOTIFY_EMAIL_ADDRESSES,
 				filter_out_contact_only = False,
 				attachment = None,
 			)

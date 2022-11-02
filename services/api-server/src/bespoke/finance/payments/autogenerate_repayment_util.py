@@ -382,7 +382,7 @@ def generate_repayments_for_mature_loans(
 		repayment.submitted_by_user_id = submitted_by_user_id
 		repayment.bank_note = 'This repayment was generated automatically by a recurring api job.'
 		session.add(repayment)
-		session.flush()
+		session.commit()
 
 		alert_data.append({
 			"customer_id": str(loan.company_id),

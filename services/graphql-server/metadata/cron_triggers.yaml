@@ -59,19 +59,6 @@
   headers:
     - name: x-api-key
       value_from_env: ASYNC_SERVER_API_KEY
-- name: auto_generate_loan_repayments
-  webhook: '{{ASYNC_SERVER_BASE_URL}}/autogenerate/autogenerate_repayment'
-  schedule: 0 9 * * 1-5
-  include_in_metadata: true
-  payload: {}
-  retry_conf:
-    num_retries: 0
-    timeout_seconds: 3600
-    tolerance_seconds: 21600
-    retry_interval_seconds: 10
-  headers:
-    - name: x-api-key
-      value_from_env: ASYNC_SERVER_API_KEY
 - name: download_all_metrc_data
   webhook: '{{ASYNC_SERVER_BASE_URL}}/triggers/download-metrc-data'
   schedule: 15 3,15 * * *

@@ -12,38 +12,38 @@ class TestSendGridClient(db_unittest.TestCase):
 	def test_maybe_add_or_remove_recipients(self) -> None:
 		tests: List[Dict] = [
 			{
-				'recipients': ['b@sweatequity.vc', 'b@sweatequity.vc'],
+				'recipients': ['b@customer.com', 'b@customer.com'],
 				'cfg': {
 					'flask_env': 'development'
 				},
 				'template_name': '',
-				'expected_recipients': ['b@sweatequity.vc']
+				'expected_recipients': ['b@customer.com']
 			},
 			{
-				'recipients': ['a@gmail.com', 'b@sweatequity.vc'],
+				'recipients': ['a@gmail.com', 'b@customer.com'],
 				'cfg': {
 					'flask_env': 'development'
 				},
 				'template_name': '',
-				'expected_recipients': ['b@sweatequity.vc']
+				'expected_recipients': ['b@customer.com']
 			},
 			{
-				'recipients': ['a@gmail.com', 'b@sweatequity.vc'],
+				'recipients': ['a@gmail.com', 'b@customer.com'],
 				'cfg': {
 					'flask_env': 'staging',
 					'no_reply_email_addr': 'no-reply@bespokefinancial.com'
 				},
 				'template_name': '',
-				'expected_recipients': ['b@sweatequity.vc']
+				'expected_recipients': ['b@customer.com']
 			},
 			{
-				'recipients': ['a@gmail.com', 'b@sweatequity.vc', 'c@bespokefinancial.com'],
+				'recipients': ['a@gmail.com', 'b@customer.com', 'c@bespokefinancial.com'],
 				'cfg': {
 					'flask_env': 'staging',
 					'no_reply_email_addr': 'no-reply@bespokefinancial.com'
 				},
 				'template_name': '',
-				'expected_recipients': ['b@sweatequity.vc', 'c@bespokefinancial.com']
+				'expected_recipients': ['b@customer.com', 'c@bespokefinancial.com']
 			},
 			{
 				'recipients': ['a@gmail.com'],

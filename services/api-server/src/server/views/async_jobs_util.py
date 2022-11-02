@@ -163,7 +163,7 @@ def kick_off_handler(
 		if number_of_running_jobs == available_job_number:
 			return [], None
 
-		queued_jobs = cast(
+		starting_jobs = cast(
 			List[models.AsyncJob],
 			session.query(models.AsyncJob).filter(
 				models.AsyncJob.status == AsyncJobStatusEnum.QUEUED
@@ -173,12 +173,9 @@ def kick_off_handler(
 				models.AsyncJob.is_high_priority.desc()
 			).order_by(
 				models.AsyncJob.queued_at.asc()
+			).limit(
+				available_job_number - number_of_running_jobs
 			).all())
-
-		number_of_queued_jobs = len(queued_jobs)
-		number_of_jobs_available = available_job_number - number_of_running_jobs
-		starting_jobs = queued_jobs[:min(number_of_queued_jobs, number_of_jobs_available)]
-		modified_ids = [job.id for job in starting_jobs]
 
 		# Cfg and sendgrid_client need to be passed in too the thread function 
 		# or else the app instance is not recognized once a thread is spawned
@@ -404,7 +401,8 @@ def autogenerate_repayment_customers(
 	customers, has_more_customers, err = queries.get_all_customers(session)
 
 	product_types_with_autogenerate: List[str] = [
-		ProductType.DISPENSARY_FINANCING
+		ProductType.DISPENSARY_FINANCING,
+		ProductType.INVENTORY_FINANCING,
 	]
 	today_date: datetime.date = date_util.now_as_date()
 
@@ -556,9 +554,7 @@ def autogenerate_repayments(
 			_, err = sendgrid_client.send(
 				template_name = sendgrid_util.TemplateNames.ALERT_FOR_AUTO_GENERATED_REPAYMENTS,
 				template_data = template_data,
-				# TODO : change this to the contact user email once in prod
-				recipients = ["grace@bespokefinancial.com"],
-				# recipients = [contact_user.email],
+				recipients = [contact_user.email],
 				filter_out_contact_only = True,
 				attachment = None,
 				cc_recipients = [cfg.NO_REPLY_EMAIL_ADDRESS]
@@ -578,7 +574,7 @@ def autogenerate_repayments(
 	_, err = sendgrid_client.send(
 		template_name = sendgrid_util.TemplateNames.ALERT_FOR_AUTO_GENERATED_REPAYMENTS,
 		template_data = bespoke_template_data,
-		recipients = [cfg.NO_REPLY_EMAIL_ADDRESS],
+		recipients = cfg.BANK_NOTIFY_EMAIL_ADDRESSES,
 		filter_out_contact_only = False,
 		attachment = None,
 	)
@@ -749,16 +745,16 @@ def autogenerate_repayment_alerts(
 			_, err = sendgrid_client.send(
 				template_name = sendgrid_util.TemplateNames.ALERT_FOR_WEEKLY_SCHEDULED_AUTO_GENERATED_REPAYMENTS,
 				template_data = template_data,
-				# TODO : change this to the contact user email once in prod
-				recipients = ["grace@bespokefinancial.com"],
-				# recipients = [contact_user.email],
+				recipients = [contact_user.email],
 				filter_out_contact_only = True,
 				attachment = None,
 				cc_recipients = [cfg.NO_REPLY_EMAIL_ADDRESS]
 			)
 			if err:
 				return False, errors.Error(str(err))
+
 	logging.info("Successfully sent out weekly alert to customers who have opted into the auto-generated repayment process.")
+
 	return True, None
 
 @errors.return_error_tuple
