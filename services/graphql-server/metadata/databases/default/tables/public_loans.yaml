@@ -123,41 +123,40 @@ select_permissions:
   - role: bank_read_only
     permission:
       columns:
-        - adjusted_maturity_date
-        - amount
-        - approved_at
-        - approved_by_user_id
-        - artifact_id
-        - closed_at
-        - company_id
-        - created_at
-        - customer_notes
-        - disbursement_identifier
-        - funded_at
-        - funded_by_user_id
-        - id
-        - identifier
         - is_deleted
-        - is_frozen
-        - loan_report_id
-        - loan_type
+        - adjusted_maturity_date
         - maturity_date
-        - modified_at
-        - modified_by_user_id
-        - notes
-        - origination_date
+        - amount
         - outstanding_fees
         - outstanding_interest
         - outstanding_principal_balance
-        - payment_status
-        - rejected_at
-        - rejected_by_user_id
+        - disbursement_identifier
+        - identifier
+        - loan_type
+        - notes
         - rejection_note
+        - approved_at
+        - closed_at
+        - created_at
+        - funded_at
+        - modified_at
+        - rejected_at
         - requested_at
-        - requested_by_user_id
-        - requested_payment_date
-        - status
         - updated_at
+        - approved_by_user_id
+        - artifact_id
+        - company_id
+        - funded_by_user_id
+        - id
+        - loan_report_id
+        - modified_by_user_id
+        - rejected_by_user_id
+        - requested_by_user_id
+        - is_frozen
+        - requested_payment_date
+        - payment_status
+        - status
+        - origination_date
       filter: {}
   - role: company_admin
     permission:
