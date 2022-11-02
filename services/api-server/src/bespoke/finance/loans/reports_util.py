@@ -126,11 +126,11 @@ def set_needs_balance_recomputed(
 				session.add(financial_summary)
 	else:	
 		if not financial_summaries:
-			return None, errors.Error(
+			return False, errors.Error(
 				"Failed to find any companys associated with company_ids {}".format(company_ids))
 
 		if len(financial_summaries) != len(company_ids):
-			return None, errors.Error('Failed to find all financial summaries associated with company_ids {} on {}'.format(company_ids, cur_date))
+			return False, errors.Error('Failed to find all financial summaries associated with company_ids {} on {}'.format(company_ids, cur_date))
 
 	for financial_summary in financial_summaries:
 	# 		 or_(

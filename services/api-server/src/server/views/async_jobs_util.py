@@ -215,6 +215,7 @@ def execute_job(
 		payload = job.retry_payload if job.num_retries != 0 and job.retry_payload is not None else job.job_payload
 		payload = cast(Dict[str, Any], payload)
 
+		try_catch_exception = None
 		try:
 			job_success, err_msg = ASYNC_JOB_ORCHESTRATION_LOOKUP[job.name](session, cfg, sendgrid_client, payload)
 		except Exception as e:
