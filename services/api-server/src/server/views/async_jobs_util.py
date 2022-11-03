@@ -154,7 +154,10 @@ def orchestration_handler(
 		currently_running_jobs = cast(
 			List[models.AsyncJob],
 			session.query(models.AsyncJob).filter(
-				models.AsyncJob.status == AsyncJobStatusEnum.IN_PROGRESS
+				or_ (
+					models.AsyncJob.status == AsyncJobStatusEnum.IN_PROGRESS,
+					models.AsyncJob.status == AsyncJobStatusEnum.INITIALIZED,
+				)
 			).order_by(
 				models.AsyncJob.queued_at.desc()
 			).all())
@@ -180,9 +183,9 @@ def orchestration_handler(
 		# Cfg and sendgrid_client need to be passed in too the thread function 
 		# or else the app instance is not recognized once a thread is spawned
 		for job in starting_jobs:
-			job.status = AsyncJobStatusEnum.IN_PROGRESS
+			job.status = AsyncJobStatusEnum.INITIALIZED
+			job.initialized_at = date_util.now()
 			job.updated_at = date_util.now()
-			job.started_at = date_util.now()
 			session.commit()
 			cfg.THREAD_POOL.submit(execute_job, session_maker, cfg, sendgrid_client, job)
 
@@ -211,6 +214,10 @@ def execute_job(
 	job: models.AsyncJob,
 ) -> Tuple[bool, errors.Error]:
 	with session_scope(session_maker) as session:
+		job.status = AsyncJobStatusEnum.IN_PROGRESS
+		job.updated_at = date_util.now()
+		job.started_at = date_util.now()
+		session.commit()
 
 		payload = job.retry_payload if job.num_retries != 0 and job.retry_payload is not None else job.job_payload
 		payload = cast(Dict[str, Any], payload)

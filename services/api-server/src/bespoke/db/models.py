@@ -1676,6 +1676,7 @@ class AsyncJob(Base):
 	name = Column(String) # enum: AsyncJobNameEnum
 
 	queued_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	initialized_at = Column(DateTime, nullable=True)
 	started_at = Column(DateTime, nullable=False)
 	ended_at = Column(DateTime, nullable=False)
 	is_deleted = Column(Boolean, nullable=False)

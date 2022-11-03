@@ -384,12 +384,14 @@ class PartnershipRequestType(object):
 # Async Job
 class AsyncJobStatusEnum(object):
 	QUEUED = 'queued'
+	INITIALIZED = 'initialized'
 	IN_PROGRESS = 'in_progress'
 	FAILED = 'failed'
 	COMPLETED = 'completed'
 
 AsyncJobStatusEnumToLabel = {
 	AsyncJobStatusEnum.QUEUED: 'Queued',
+	AsyncJobStatusEnum.INITIALIZED: 'Initialized',
 	AsyncJobStatusEnum.IN_PROGRESS: 'In Progress',
 	AsyncJobStatusEnum.FAILED: 'Failed',
 	AsyncJobStatusEnum.COMPLETED: 'Completed',
