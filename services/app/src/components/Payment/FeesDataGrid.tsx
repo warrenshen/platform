@@ -1,11 +1,12 @@
 import { GridValueFormatterParams } from "@material-ui/data-grid";
+import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import {
   Companies,
   PaymentLimitedFragment,
   Payments,
-  TransactionFragment,
+  TransactionWithLoanFragment,
   Transactions,
 } from "generated/graphql";
 import { parseDateStringServer } from "lib/date";
@@ -15,6 +16,7 @@ import {
   TransactionSubTypeEnum,
   TransactionSubTypeToLabel,
 } from "lib/enum";
+import { createLoanCustomerIdentifier } from "lib/loans";
 import { CurrencyPrecision } from "lib/number";
 import { ColumnWidths, formatRowModel } from "lib/tables";
 import { useMemo, useState } from "react";
@@ -33,7 +35,7 @@ interface Props {
   isMultiSelectEnabled?: boolean;
   repaymentType?: RepaymentTypeEnum;
   fees: (PaymentLimitedFragment & {
-    transactions: Array<Pick<Transactions, "id"> & TransactionFragment>;
+    transactions: Array<Pick<Transactions, "id"> & TransactionWithLoanFragment>;
   })[];
   selectedPaymentIds?: Payments["id"][];
   handleClickCustomer?: (customerId: Companies["id"]) => void;
@@ -42,7 +44,7 @@ interface Props {
 
 function getRows(
   fees: (PaymentLimitedFragment & {
-    transactions: Array<Pick<Transactions, "id"> & TransactionFragment>;
+    transactions: Array<TransactionWithLoanFragment>;
   })[]
 ) {
   const validFeeTypes = [
@@ -66,6 +68,7 @@ function getRows(
     });
 
   return filteredFees.map((fee) => {
+    console.log(!!fee?.loan ? fee : "none");
     return formatRowModel({
       ...fee,
       amount:
@@ -77,6 +80,7 @@ function getRows(
       settlement_date: !!fee.effective_date
         ? parseDateStringServer(fee.effective_date)
         : null,
+      loan_identifier: fee.loan ? createLoanCustomerIdentifier(fee.loan) : "-",
     });
   });
 }
@@ -127,6 +131,22 @@ export default function FeesDataGrid({
           },
           valueExpr: "fee_type",
           displayExpr: "label",
+        },
+      },
+      {
+        dataField: "loan_identifier",
+        caption: "Loan",
+        width: ColumnWidths.Identifier,
+        cellRender: (params: GridValueFormatterParams) => {
+          if (!params.row.data.loan_id) {
+            return "-";
+          }
+          return (
+            <LoanDrawerLauncher
+              label={params.row.data.loan_identifier}
+              loanId={params.row.data.loan_id as string}
+            />
+          );
         },
       },
       {

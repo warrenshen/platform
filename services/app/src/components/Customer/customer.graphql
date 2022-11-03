@@ -109,6 +109,10 @@ query GetCustomerAccount($company_id: uuid!) {
       transactions {
         id
         ...Transaction
+        loan {
+          id
+          ...Loan
+        }
       }
     }
     pending_payments: payments(

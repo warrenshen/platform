@@ -454,6 +454,24 @@ fragment Transaction on transactions {
   to_fees
 }
 
+fragment TransactionWithLoan on transactions {
+  id
+  created_at
+  loan_id
+  payment_id
+  type
+  subtype
+  amount
+  effective_date
+  to_principal
+  to_interest
+  to_fees
+  loan {
+  id
+  ...Loan
+  }
+}
+
 fragment TransactionExtended on transactions {
   id
   ...Transaction

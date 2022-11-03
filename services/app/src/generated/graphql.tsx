@@ -20414,8 +20414,6 @@ export type ParentCompaniesBoolExp = {
 /** unique or primary key constraints on table "parent_companies" */
 export enum ParentCompaniesConstraint {
   /** unique or primary key constraint */
-  ParentCompaniesNameKey = "parent_companies_name_key",
-  /** unique or primary key constraint */
   ParentCompaniesPkey = "parent_companies_pkey",
 }
 
@@ -22168,6 +22166,7 @@ export type PurchaseOrders = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   /** An object relationship */
@@ -22372,6 +22371,7 @@ export type PurchaseOrdersBoolExp = {
   all_customer_notes?: Maybe<JsonComparisonExp>;
   amount?: Maybe<NumericComparisonExp>;
   amount_funded?: Maybe<NumericComparisonExp>;
+  amount_updated_at?: Maybe<TimestamptzComparisonExp>;
   approved_at?: Maybe<TimestamptzComparisonExp>;
   approved_by_user_id?: Maybe<UuidComparisonExp>;
   approving_user_id?: Maybe<UsersBoolExp>;
@@ -22445,6 +22445,7 @@ export type PurchaseOrdersInsertInput = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   approving_user_id?: Maybe<UsersObjRelInsertInput>;
@@ -22493,6 +22494,7 @@ export type PurchaseOrdersMaxFields = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -22527,6 +22529,7 @@ export type PurchaseOrdersMaxOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
+  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   bank_incomplete_note?: Maybe<OrderBy>;
@@ -22561,6 +22564,7 @@ export type PurchaseOrdersMinFields = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -22595,6 +22599,7 @@ export type PurchaseOrdersMinOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
+  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   bank_incomplete_note?: Maybe<OrderBy>;
@@ -22652,6 +22657,7 @@ export type PurchaseOrdersOrderBy = {
   all_customer_notes?: Maybe<OrderBy>;
   amount?: Maybe<OrderBy>;
   amount_funded?: Maybe<OrderBy>;
+  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   approving_user_id?: Maybe<UsersOrderBy>;
@@ -22709,6 +22715,8 @@ export enum PurchaseOrdersSelectColumn {
   Amount = "amount",
   /** column name */
   AmountFunded = "amount_funded",
+  /** column name */
+  AmountUpdatedAt = "amount_updated_at",
   /** column name */
   ApprovedAt = "approved_at",
   /** column name */
@@ -22774,6 +22782,7 @@ export type PurchaseOrdersSetInput = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -22884,6 +22893,8 @@ export enum PurchaseOrdersUpdateColumn {
   Amount = "amount",
   /** column name */
   AmountFunded = "amount_funded",
+  /** column name */
+  AmountUpdatedAt = "amount_updated_at",
   /** column name */
   ApprovedAt = "approved_at",
   /** column name */
@@ -28938,7 +28949,11 @@ export type GetCustomerAccountQuery = {
     Pick<Companies, "id"> & {
       fee_payments: Array<
         Pick<Payments, "id"> & {
-          transactions: Array<Pick<Transactions, "id"> & TransactionFragment>;
+          transactions: Array<
+            Pick<Transactions, "id"> & {
+              loan?: Maybe<Pick<Loans, "id"> & LoanFragment>;
+            } & TransactionFragment
+          >;
         } & PaymentLimitedFragment
       >;
       pending_payments: Array<Pick<Payments, "id"> & PaymentLimitedFragment>;
@@ -31674,6 +31689,21 @@ export type TransactionFragment = Pick<
   | "to_fees"
 >;
 
+export type TransactionWithLoanFragment = Pick<
+  Transactions,
+  | "id"
+  | "created_at"
+  | "loan_id"
+  | "payment_id"
+  | "type"
+  | "subtype"
+  | "amount"
+  | "effective_date"
+  | "to_principal"
+  | "to_interest"
+  | "to_fees"
+> & { loan?: Maybe<Pick<Loans, "id"> & LoanFragment> };
+
 export type TransactionExtendedFragment = Pick<Transactions, "id"> & {
   payment: Pick<Payments, "id"> & {
     company: Pick<Companies, "id" | "name"> & {
@@ -32968,52 +32998,6 @@ export const PurchaseOrderNewFragmentDoc = gql`
   }
   ${PurchaseOrderLimitedNewFragmentDoc}
 `;
-export const LoanLimitedFragmentDoc = gql`
-  fragment LoanLimited on loans {
-    id
-    company_id
-    loan_type
-    artifact_id
-    identifier
-    disbursement_identifier
-    status
-    rejection_note
-    payment_status
-    amount
-    requested_payment_date
-    origination_date
-    maturity_date
-    adjusted_maturity_date
-    outstanding_principal_balance
-    outstanding_interest
-    outstanding_fees
-    requested_at
-    approved_at
-    rejected_at
-    funded_at
-    closed_at
-    customer_notes
-    company {
-      id
-      identifier
-      ...CompanyLimited
-    }
-    requested_by_user {
-      id
-      full_name
-    }
-  }
-  ${CompanyLimitedFragmentDoc}
-`;
-export const LoanFragmentDoc = gql`
-  fragment Loan on loans {
-    id
-    loan_report_id
-    notes
-    ...LoanLimited
-  }
-  ${LoanLimitedFragmentDoc}
-`;
 export const PayorLimitedFragmentDoc = gql`
   fragment PayorLimited on payors {
     id
@@ -33284,6 +33268,72 @@ export const PayorPartnershipFragmentDoc = gql`
     ...PayorPartnershipLimited
   }
   ${PayorPartnershipLimitedFragmentDoc}
+`;
+export const LoanLimitedFragmentDoc = gql`
+  fragment LoanLimited on loans {
+    id
+    company_id
+    loan_type
+    artifact_id
+    identifier
+    disbursement_identifier
+    status
+    rejection_note
+    payment_status
+    amount
+    requested_payment_date
+    origination_date
+    maturity_date
+    adjusted_maturity_date
+    outstanding_principal_balance
+    outstanding_interest
+    outstanding_fees
+    requested_at
+    approved_at
+    rejected_at
+    funded_at
+    closed_at
+    customer_notes
+    company {
+      id
+      identifier
+      ...CompanyLimited
+    }
+    requested_by_user {
+      id
+      full_name
+    }
+  }
+  ${CompanyLimitedFragmentDoc}
+`;
+export const LoanFragmentDoc = gql`
+  fragment Loan on loans {
+    id
+    loan_report_id
+    notes
+    ...LoanLimited
+  }
+  ${LoanLimitedFragmentDoc}
+`;
+export const TransactionWithLoanFragmentDoc = gql`
+  fragment TransactionWithLoan on transactions {
+    id
+    created_at
+    loan_id
+    payment_id
+    type
+    subtype
+    amount
+    effective_date
+    to_principal
+    to_interest
+    to_fees
+    loan {
+      id
+      ...Loan
+    }
+  }
+  ${LoanFragmentDoc}
 `;
 export const TransactionFragmentDoc = gql`
   fragment Transaction on transactions {
@@ -35037,6 +35087,10 @@ export const GetCustomerAccountDocument = gql`
         transactions {
           id
           ...Transaction
+          loan {
+            id
+            ...Loan
+          }
         }
       }
       pending_payments: payments(
@@ -35063,6 +35117,7 @@ export const GetCustomerAccountDocument = gql`
   }
   ${PaymentLimitedFragmentDoc}
   ${TransactionFragmentDoc}
+  ${LoanFragmentDoc}
 `;
 
 /**

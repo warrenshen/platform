@@ -16,7 +16,7 @@
     - name: x-api-key
       value_from_env: ASYNC_SERVER_API_KEY
 - name: async_jobs_orchestration_handler
-  webhook: '{{ASYNC_SERVER_BASE_URL}}/async_jobs/kick-off-handler'
+  webhook: '{{ASYNC_SERVER_BASE_URL}}/async_jobs/orchestration-handler'
   schedule: '* * * * *'
   include_in_metadata: true
   payload: {}
@@ -25,7 +25,7 @@
       value_from_env: ASYNC_SERVER_API_KEY
 - name: async_send_loans_coming_due_reports
   webhook: '{{ASYNC_SERVER_BASE_URL}}/async_jobs/generate_jobs'
-  schedule: 0 1 * * *
+  schedule: 0 0 * * *
   include_in_metadata: true
   payload:
     job_name: loans_coming_due
@@ -34,7 +34,7 @@
       value_from_env: ASYNC_SERVER_API_KEY
 - name: async_send_loans_past_due_reports
   webhook: '{{ASYNC_SERVER_BASE_URL}}/async_jobs/generate_jobs'
-  schedule: 0 1 * * 1,4
+  schedule: 0 0 * * 1,4
   include_in_metadata: true
   payload:
     job_name: loans_past_due

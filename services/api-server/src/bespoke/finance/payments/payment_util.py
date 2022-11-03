@@ -354,6 +354,7 @@ def _create_and_add_account_level_transaction(
 	effective_date: datetime.date,
 	items_covered: model_types.ItemsCoveredDict,
 	session: Session,
+	loan_id: str = None,
 ) -> str:
 	payment = create_payment(
 		company_id=company_id,
@@ -382,7 +383,10 @@ def _create_and_add_account_level_transaction(
 	t.to_principal = decimal.Decimal(0.0)
 	t.to_interest = decimal.Decimal(0.0)
 	t.to_fees = decimal.Decimal(0.0)
-	# NOTE: no loan_id is set for fees
+	# NOTE: no loan_id is set for fees in *MOST* cases, but we 
+	# do set it for wire fees so that the finance team can see
+	# which loan causes a wire fee to be accrued
+	t.loan_id = loan_id
 	t.payment_id = payment_id
 	t.created_by_user_id = created_by_user_id
 	t.effective_date = effective_date
@@ -398,6 +402,7 @@ def create_and_add_account_level_fee(
 	created_by_user_id: str,
 	effective_date: datetime.date,
 	session: Session,
+	loan_id: str = None
 ) -> str:
 	# If account level fee is for a minimum interest fee,
 	# force its effective date to be the last day of the month.
@@ -421,6 +426,7 @@ def create_and_add_account_level_fee(
 		effective_date=effective_date,
 		items_covered=items_covered,
 		session=session,
+		loan_id=loan_id if subtype == db_constants.TransactionSubType.WIRE_FEE else None,
 	)
 
 def create_and_add_account_level_fee_waiver(

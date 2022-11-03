@@ -71,6 +71,7 @@ export const extractRecipientCompanyId = (
   loans: Array<LoanArtifactLimitedFragment & LoanLimitedFragment>
 ) => {
   const allRecipientIds = loans.map((loan) => {
+    console.log("loan", loan);
     if (loan.loan_type === LoanTypeEnum.PurchaseOrder) {
       return loan.purchase_order?.vendor_id;
     }
@@ -80,6 +81,7 @@ export const extractRecipientCompanyId = (
     return loan.company_id;
   });
   const uniqueRecipientIds = uniq(allRecipientIds);
+  console.log("uniqueRecipientIds", uniqueRecipientIds);
   const isOnlyOneRecipient = uniqueRecipientIds.length <= 1;
 
   return isOnlyOneRecipient ? uniqueRecipientIds[0] : null;
