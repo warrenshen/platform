@@ -1,12 +1,8 @@
-import {
-  Box,
-  CardContent,
-  FormControl,
-  TextField,
-  Typography,
-} from "@material-ui/core";
+import { Box, CardContent, FormControl, TextField } from "@material-ui/core";
+import { SecondaryTextColor } from "components/Shared/Colors/GlobalColors";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DateInput from "components/Shared/FormInputs/DateInput";
+import Text, { TextVariants } from "components/Shared/Text/Text";
 import { LoansInsertInput } from "generated/graphql";
 import { DateInputIcon } from "icons/index";
 import { formatCurrency } from "lib/number";
@@ -87,11 +83,11 @@ export default function FinancingRequestCreateCard({
           )}
         </FormControl>
         <Box mt={2} mb={4}>
-          <Typography variant="body1" color="textSecondary">
+          <Text textVariant={TextVariants.Paragraph} color={SecondaryTextColor}>
             This is the date you want the vendor to receive financing. Within
             banking limitations, Bespoke Financial will try to adhere to this
             request.
-          </Typography>
+          </Text>
         </Box>
         <FormControl fullWidth>
           <CurrencyInput
@@ -128,6 +124,11 @@ export default function FinancingRequestCreateCard({
             }}
           />
         </FormControl>
+        <Box mt={2}>
+          <Text textVariant={TextVariants.Paragraph} color={SecondaryTextColor}>
+            Any comments about this financing request.
+          </Text>
+        </Box>
       </CardContent>
     </FinancingRequestCard>
   );

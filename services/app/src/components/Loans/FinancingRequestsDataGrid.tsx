@@ -3,7 +3,7 @@ import { GridValueFormatterParams } from "@material-ui/data-grid";
 import InvoiceDrawer from "components/Invoices/InvoiceDrawer";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
 import BankPurchaseOrderDrawer from "components/PurchaseOrder/v2/BankPurchaseOrderDrawer";
-import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
+import FinancingRequestStatusChipNew from "components/Shared/Chip/FinancingRequestStatusChipNew";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import PurchaseOrderIdentifierDataGridCell from "components/Shared/DataGrid/PurchaseOrderIdentifierDataGridCell";
 import ClickableDataGridCell from "components/Shared/DataGrid/v2/ClickableDataGridCell";
@@ -139,13 +139,13 @@ const FinancialRequestsDataGrid = ({
         visible: isApprovalStatusVisible,
         caption: "Approval Status",
         dataField: "status",
-        width: ColumnWidths.Status,
+        width: ColumnWidths.StatusChip,
         cellRender: ({ value }: { value: string }) => (
-          <LoanStatusChip loanStatus={value as LoanStatusEnum} />
+          <FinancingRequestStatusChipNew loanStatus={value as LoanStatusEnum} />
         ),
       },
       {
-        caption: "Loan Amount",
+        caption: "Amount",
         dataField: "amount",
         minWidth: ColumnWidths.Currency,
         width: ColumnWidths.Type,

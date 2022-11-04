@@ -1,5 +1,5 @@
 import { Box, Typography } from "@material-ui/core";
-import CreateUpdatePolymorphicLoanModal from "components/Loan/CreateUpdatePolymorphicLoanModal";
+import CreateUpdateFinancingRequestModal from "components/Loan/v2/CreateUpdateFinancingRequestModal";
 import DeleteFinancingRequestModal from "components/Loans/DeleteFinancingRequestModal";
 import FinancingRequestsDataGrid from "components/Loans/FinancingRequestsDataGrid";
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
@@ -105,18 +105,14 @@ const FinancingRequestsPageContent = ({
       }
     >
       {isCreateUpdateFinancingRequestModalOpen && (
-        <CreateUpdatePolymorphicLoanModal
+        <CreateUpdateFinancingRequestModal
           companyId={companyId}
-          productType={productType}
           actionType={
             selectedFinancingRequest ? ActionType.Update : ActionType.New
           }
-          artifactId={
-            selectedFinancingRequest
-              ? selectedFinancingRequest.artifact_id
-              : null
-          }
           loanId={selectedFinancingRequest ? selectedFinancingRequest.id : null}
+          adjustedTotalLimit={financialSummary?.adjusted_total_limit || 0}
+          availableLimit={financialSummary?.available_limit || 0}
           handleClose={() => {
             setIsCreateUpdateFinancingRequestModalOpen(false);
             refetch();
@@ -165,8 +161,10 @@ const FinancingRequestsPageContent = ({
         </Box>
         <FinancingRequestsDataGrid
           financingRequests={financingRequests}
+          selectedFinancingRequestIds={selectedFinancingRequestIds}
           isMultiSelectEnabled
           pager
+          isVendorVisible
           showComments={false}
           handleSelectFinancingRequests={handleSelectFinancingRequests}
         />

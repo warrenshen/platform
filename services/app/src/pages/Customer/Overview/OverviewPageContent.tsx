@@ -8,7 +8,7 @@ import {
 import { Alert } from "@material-ui/lab";
 import CustomerFinancialSummaryOverview from "components/CustomerFinancialSummary/CustomerFinancialSummaryOverview";
 import CreateUpdateInvoiceModal from "components/Invoices/CreateUpdateInvoiceModal";
-import CreateUpdatePolymorphicLoanModal from "components/Loan/CreateUpdatePolymorphicLoanModal";
+import CreateUpdateFinancingRequestModal from "components/Loan/v2/CreateUpdateFinancingRequestModal";
 import CreateAdjustmentModal from "components/Loans/CreateAdjustmentModal";
 import PolymorphicLoansDataGrid from "components/Loans/PolymorphicLoansDataGrid";
 import RunCustomerBalancesModal from "components/Loans/RunCustomerBalancesModal";
@@ -334,14 +334,16 @@ export default function CustomerOverviewPageContent({
                   }
                   color={"default"}
                   variant={"outlined"}
-                  label={"Request New Loan"}
+                  label={"Request Financing"}
                   modal={({ handleClose }) => (
-                    <CreateUpdatePolymorphicLoanModal
+                    <CreateUpdateFinancingRequestModal
                       companyId={companyId}
-                      productType={productType}
                       actionType={ActionType.New}
-                      artifactId={null}
                       loanId={null}
+                      adjustedTotalLimit={
+                        financialSummary?.adjusted_total_limit || 0
+                      }
+                      availableLimit={financialSummary?.available_limit || 0}
                       handleClose={() => {
                         refetch();
                         handleClose();

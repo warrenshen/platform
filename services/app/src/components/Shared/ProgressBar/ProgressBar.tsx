@@ -31,7 +31,7 @@ export default function ProgressBar({ amountFunded, totalAmount }: Props) {
     <Box display="flex" flexDirection="column" alignItems="center">
       <BorderLinearProgressBar
         variant="determinate"
-        value={roundedPercentValue}
+        value={roundedPercentValue > 100 ? 100 : roundedPercentValue}
       />
       <Box display="flex" mt={1}>
         <strong style={{ marginRight: 4 }}>
