@@ -263,6 +263,20 @@ def create_job_summary(
 			models.AsyncJobSummary.date == date_util.date_to_db_str(date_util.now_as_date())
 		).all())
 
+	# loans due jobs both run at midnight but the db date recorded is the day 
+	# before due to time zone differences.
+	async_job_loans = cast(
+		List[models.AsyncJobSummary],
+		session.query(models.AsyncJobSummary).filter(
+			or_(
+				models.AsyncJobSummary.name == AsyncJobNameEnum.LOANS_COMING_DUE,
+				models.AsyncJobSummary.name == AsyncJobNameEnum.LOANS_PAST_DUE
+			)
+		).filter(
+			models.AsyncJobSummary.date == date_util.date_to_db_str(date_util.hours_from_today(-24))
+		).all())
+
+	async_job_summaries += async_job_loans
 	slack_util.send_job_summary(cfg, async_jobs, async_job_summaries)
 
 	return True, None
