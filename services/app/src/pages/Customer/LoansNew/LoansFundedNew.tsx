@@ -78,7 +78,7 @@ const LoansFundedNew = ({
           }}
         />
       )}
-      <Box display="flex" justifyContent="space-between">
+      <Box display="flex" justifyContent="space-between" mb={2}>
         <Text textVariant={TextVariants.ParagraphLead}>Active</Text>
         <Can perform={Action.RepayPurchaseOrderLoans}>
           <PrimaryButton
@@ -106,6 +106,7 @@ const LoansFundedNew = ({
           isMultiSelectEnabled={
             !isLineOfCredit && check(role, Action.SelectLoan)
           }
+          isRequestingUserVisible={false}
           isViewNotesEnabled={check(role, Action.ViewLoanInternalNote)}
           isDaysPastDueVisible
           productType={productType}

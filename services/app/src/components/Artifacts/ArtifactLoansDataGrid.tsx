@@ -36,6 +36,7 @@ export interface ArtifactLoansDataGridFlagProps {
   isMultiSelectEnabled?: boolean;
   isOriginationDateVisible?: boolean; // Whether origination date is visible.
   isRequestedDateVisible?: boolean; // Whether requested payment date is visible.
+  isRequestingUserVisible?: boolean; // Whether requesting user is visible.
   isViewNotesEnabled?: boolean;
   isDaysPastDueVisible?: boolean;
   isVendorVisible?: boolean;
@@ -89,6 +90,7 @@ export default function ArtifactLoansDataGrid({
   isMultiSelectEnabled = false,
   isOriginationDateVisible = true,
   isRequestedDateVisible = false,
+  isRequestingUserVisible = true,
   isViewNotesEnabled = false,
   isDaysPastDueVisible = false,
   isVendorVisible = false,
@@ -108,7 +110,7 @@ export default function ArtifactLoansDataGrid({
         fixed: true,
         dataField: "customer_identifier",
         caption: "Customer Identifier",
-        width: ColumnWidths.Identifier,
+        width: ColumnWidths.LongIdentifier,
         cellRender: (params: GridValueFormatterParams) => (
           <LoanDrawerLauncher
             label={params.row.data.customer_identifier}
@@ -121,7 +123,7 @@ export default function ArtifactLoansDataGrid({
         visible: isDisbursementIdentifierVisible,
         dataField: "disbursement_identifier",
         caption: "Disbursement Identifier",
-        width: ColumnWidths.Identifier,
+        width: ColumnWidths.LongIdentifier,
         cellRender: (params: GridValueFormatterParams) => (
           <LoanDrawerLauncher
             label={params.row.data.disbursement_identifier}
@@ -170,6 +172,7 @@ export default function ArtifactLoansDataGrid({
         },
       },
       {
+        visible: isRequestingUserVisible,
         dataField: "requesting_user",
         caption: "Requesting User",
         minWidth: ColumnWidths.MinWidth,
@@ -194,7 +197,7 @@ export default function ArtifactLoansDataGrid({
       },
       {
         visible: isVendorVisible,
-        caption: "Vendor",
+        caption: "Vendor Name",
         dataField: "vendor_name",
         width: ColumnWidths.MinWidth,
         alignment: "right",
@@ -290,6 +293,7 @@ export default function ArtifactLoansDataGrid({
       isMiniTable,
       isOriginationDateVisible,
       isRequestedDateVisible,
+      isRequestingUserVisible,
       isVendorVisible,
       isViewNotesEnabled,
       isDaysPastDueVisible,

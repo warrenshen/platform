@@ -6,6 +6,7 @@ import { PartnerEnum } from "lib/enum";
 import { useState } from "react";
 
 interface Props {
+  isArtifactBankNoteVisible?: boolean;
   isDaysPastDueVisible?: boolean;
   isDebtFacilityStatusVisible?: boolean;
   isDisbursementIdentifierVisible?: boolean;
@@ -21,6 +22,7 @@ interface Props {
 }
 
 export default function BankLoansDataGrid({
+  isArtifactBankNoteVisible = true,
   isDaysPastDueVisible = false,
   isDebtFacilityStatusVisible = false,
   isDisbursementIdentifierVisible = false,
@@ -50,7 +52,7 @@ export default function BankLoansDataGrid({
       )}
       <LoansDataGrid
         isArtifactVisible
-        isArtifactBankNoteVisible
+        isArtifactBankNoteVisible={isArtifactBankNoteVisible}
         isCompanyVisible
         isDebtFacilityStatusVisible={isDebtFacilityStatusVisible}
         isDaysPastDueVisible={isDaysPastDueVisible}

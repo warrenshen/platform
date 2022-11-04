@@ -11,6 +11,7 @@ export const ColumnWidths = {
   DateContract: 220,
   FileAttachment: 600,
   Identifier: 110,
+  LongIdentifier: 220,
   License: 180,
   Open: 90,
   PhoneNumber: 150,

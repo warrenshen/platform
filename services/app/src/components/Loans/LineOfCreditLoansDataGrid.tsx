@@ -12,6 +12,7 @@ function LineOfCreditLoansDataGrid({
   isMultiSelectEnabled,
   isOriginationDateVisible = true,
   isRequestedDateVisible = false,
+  isRequestingUserVisible = false,
   isViewNotesEnabled,
   pager = true,
   loans,
@@ -30,6 +31,7 @@ function LineOfCreditLoansDataGrid({
       isMultiSelectEnabled={isMultiSelectEnabled}
       isOriginationDateVisible={isOriginationDateVisible}
       isRequestedDateVisible={isRequestedDateVisible}
+      isRequestingUserVisible={isRequestingUserVisible}
       isViewNotesEnabled={isViewNotesEnabled}
       loans={loans}
       pager={pager}

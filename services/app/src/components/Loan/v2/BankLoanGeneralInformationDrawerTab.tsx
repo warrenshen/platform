@@ -6,6 +6,7 @@ import TabContainer from "components/Shared/Tabs/TabContainer";
 import Text, { TextVariants } from "components/Shared/Text/Text";
 import LoanDrawerTransactionsDataGrid from "components/Transactions/LoanDrawerTransactionsDataGrid";
 import { useGetTransactionsForLoanQuery } from "generated/graphql";
+import { formatCurrency } from "lib/number";
 
 const BankLoanGeneralInformationDrawerTab = ({ loan }: LoanViewModalProps) => {
   const { data } = useGetTransactionsForLoanQuery({
@@ -25,7 +26,7 @@ const BankLoanGeneralInformationDrawerTab = ({ loan }: LoanViewModalProps) => {
     <TabContainer>
       <Box mb={2}>
         <Text textVariant={TextVariants.SubHeader} bottomMargin={4}>
-          ${loan.amount}
+          {formatCurrency(loan.amount)}
         </Text>
         <Text textVariant={TextVariants.SmallLabel} color={SecondaryTextColor}>
           {`Total ${title} amount`}

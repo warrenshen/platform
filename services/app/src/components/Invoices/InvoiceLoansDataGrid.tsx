@@ -12,6 +12,7 @@ export default function InvoiceLoansDataGrid({
   isMultiSelectEnabled = false,
   isOriginationDateVisible = true,
   isRequestedDateVisible = false,
+  isRequestingUserVisible = true,
   isViewNotesEnabled = false,
   pager = true,
   loans,
@@ -29,6 +30,7 @@ export default function InvoiceLoansDataGrid({
       isMultiSelectEnabled={isMultiSelectEnabled}
       isOriginationDateVisible={isOriginationDateVisible}
       isRequestedDateVisible={isRequestedDateVisible}
+      isRequestingUserVisible={isRequestingUserVisible}
       isViewNotesEnabled={isViewNotesEnabled}
       pager={pager}
       loans={loans}

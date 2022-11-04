@@ -1,10 +1,15 @@
 import { Box } from "@material-ui/core";
 import CardContainer from "components/Shared/Card/CardContainer";
 import CardLine from "components/Shared/Card/CardLine";
-import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
+import FinancingRequestStatusChipNew from "components/Shared/Chip/FinancingRequestStatusChipNew";
+import LoanPaymentStatusChip from "components/Shared/Chip/LoanPaymentStatusChip";
 import Text, { TextVariants } from "components/Shared/Text/Text";
 import { LoanFragment, LoanTypeEnum } from "generated/graphql";
-import { LoanStatusEnum, LoanTypeToLabel } from "lib/enum";
+import {
+  LoanPaymentStatusEnum,
+  LoanStatusEnum,
+  LoanTypeToLabel,
+} from "lib/enum";
 import { createLoanCustomerIdentifier } from "lib/loans";
 import { formatCurrency } from "lib/number";
 
@@ -50,7 +55,15 @@ export default function LoanViewModalCard({ loan }: Props) {
       <>
         {!!loanStatus && (
           <Box mb={"22px"}>
-            <LoanStatusChip loanStatus={loanStatus as LoanStatusEnum} />
+            {isLoan ? (
+              <LoanPaymentStatusChip
+                paymentStatus={loan?.payment_status as LoanPaymentStatusEnum}
+              />
+            ) : (
+              <FinancingRequestStatusChipNew
+                loanStatus={loanStatus as LoanStatusEnum}
+              />
+            )}
           </Box>
         )}
       </>

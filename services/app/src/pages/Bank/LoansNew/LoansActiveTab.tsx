@@ -81,6 +81,7 @@ export default function BankLoansActiveTab() {
       </Box>
       <Box display="flex" flexDirection="column">
         <BankLoansDataGrid
+          isArtifactBankNoteVisible={false}
           isDebtFacilityStatusVisible
           isDisbursementIdentifierVisible
           isMaturityVisible

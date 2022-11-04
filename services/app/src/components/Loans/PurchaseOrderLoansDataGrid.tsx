@@ -13,6 +13,7 @@ export default function PurchaseOrderLoansDataGrid({
   isMultiSelectEnabled = false,
   isOriginationDateVisible = true,
   isRequestedDateVisible = false,
+  isRequestingUserVisible = true,
   isViewNotesEnabled = false,
   isDaysPastDueVisible = false,
   isVendorVisible = true,
@@ -35,6 +36,7 @@ export default function PurchaseOrderLoansDataGrid({
       isMultiSelectEnabled={isMultiSelectEnabled}
       isOriginationDateVisible={isOriginationDateVisible}
       isRequestedDateVisible={isRequestedDateVisible}
+      isRequestingUserVisible={isRequestingUserVisible}
       isViewNotesEnabled={isViewNotesEnabled}
       isVendorVisible={isVendorVisible}
       loans={loans}

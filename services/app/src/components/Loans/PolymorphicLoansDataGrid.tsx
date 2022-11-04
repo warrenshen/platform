@@ -19,6 +19,7 @@ function PolymorphicLoansDataGrid({
   isMultiSelectEnabled,
   isOriginationDateVisible = true,
   isRequestedDateVisible = false,
+  isRequestingUserVisible = true,
   isDaysPastDueVisible = false,
   isFilteringEnabled = false,
   isViewNotesEnabled,
@@ -43,6 +44,7 @@ function PolymorphicLoansDataGrid({
         isMultiSelectEnabled={isMultiSelectEnabled}
         isOriginationDateVisible={isOriginationDateVisible}
         isRequestedDateVisible={isRequestedDateVisible}
+        isRequestingUserVisible={isRequestingUserVisible}
         isViewNotesEnabled={isViewNotesEnabled}
         isDaysPastDueVisible={isDaysPastDueVisible}
         pager={pager}
@@ -62,6 +64,7 @@ function PolymorphicLoansDataGrid({
         isMultiSelectEnabled={isMultiSelectEnabled}
         isOriginationDateVisible={isOriginationDateVisible}
         isRequestedDateVisible={isRequestedDateVisible}
+        isRequestingUserVisible={isRequestingUserVisible}
         isViewNotesEnabled={isViewNotesEnabled}
         pager={pager}
         loans={loans}
@@ -80,6 +83,7 @@ function PolymorphicLoansDataGrid({
         isMultiSelectEnabled={isMultiSelectEnabled}
         isOriginationDateVisible={isOriginationDateVisible}
         isRequestedDateVisible={isRequestedDateVisible}
+        isRequestingUserVisible={isRequestingUserVisible}
         isViewNotesEnabled={isViewNotesEnabled}
         pager={pager}
         loans={loans}
