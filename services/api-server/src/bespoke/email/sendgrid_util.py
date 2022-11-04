@@ -452,6 +452,9 @@ class Client(object):
 	def get_ops_email_addresses(self) -> List[str]:
 		return self._email_cfg['ops_email_addresses']
 
+	def get_support_email_addresses(self) -> List[str]:
+		return [self._email_cfg['support_email_addr']]
+
 	def _remove_to_recipients_if_also_cc_recipients(self, to_recipients: List[str], cc_recipients: List[str]) -> List[str]:
 		new_recipients = []
 		for recipient in to_recipients:

@@ -1100,7 +1100,7 @@ class CreateEditVendorContactsView(MethodView):
 			_, err = sendgrid_client.send(
 				sendgrid_util.TemplateNames.ALERT_VENDOR_CHANGE_REQUEST,
 				template_data, 
-				recipients = sendgrid_client.get_bank_notify_email_addresses()
+				recipients = sendgrid_client.get_support_email_addresses()
 			)
 
 		return make_response(json.dumps({
@@ -1177,7 +1177,7 @@ class CreateChangeVendorContactsView(MethodView):
 		_, err = sendgrid_client.send(
 			sendgrid_util.TemplateNames.ALERT_VENDOR_CHANGE_REQUEST,
 			template_data, 
-			recipients = sendgrid_client.get_bank_notify_email_addresses(),
+			recipients = sendgrid_client.get_support_email_addresses(),
 		)
 
 		return make_response(json.dumps({
