@@ -556,6 +556,7 @@ def reject_loan(
 	session: Session,
 	loan_id: str,
 	reject_related_purchase_order: bool,
+	is_vendor_approval_required: bool,
 	rejection_note: str,
 	user_session: UserSession,
 ) -> Tuple[Dict[str, str], List[str], errors.Error]:
@@ -632,7 +633,6 @@ def reject_loan(
 			return template_data, email_recipients, None
 
 		else:
-			# TODO: https://www.notion.so/bespokefinancial/Properly-Handle-Reject-Financing-Request-Modal-options-26274e40736e4379ae29f2d4bd2fedb3
 			_, err = purchase_orders_util.request_purchase_order_changes(
 				session=session,
 				purchase_order_id=loan.artifact_id,
@@ -640,6 +640,7 @@ def reject_loan(
 				requested_by_user_full_name=user.full_name,
 				requested_changes_note=rejection_note,
 				is_bank_admin=True,
+				is_vendor_approval_required=is_vendor_approval_required,
 			)
 			if err:
 				return None, None, err

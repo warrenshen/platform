@@ -114,7 +114,6 @@ export default function CustomerPurchaseOrdersClosedTabNew({
           </Box>
           <PurchaseOrdersDataGridNew
             isCompanyVisible={false}
-            isStatusVisible={false}
             purchaseOrders={purchaseOrders}
             selectedPurchaseOrderIds={selectedPurchaseOrderIds}
             selectablePurchaseOrderStatuses={ClosedNewPurchaseOrderStatuses}

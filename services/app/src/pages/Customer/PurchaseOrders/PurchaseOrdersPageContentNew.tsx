@@ -10,8 +10,10 @@ import {
 } from "generated/graphql";
 import {
   ActionType,
+  ClosedNewPurchaseOrderStatuses,
   CustomerPurchaseOrdersTabLabelNew,
   CustomerPurchaseOrdersTabLabelsNew,
+  NewPurchaseOrderStatus,
   ProductTypeEnum,
 } from "lib/enum";
 import { floatEq } from "lib/number";
@@ -92,7 +94,9 @@ export default function CustomerPurchaseOrdersPageContentNew({
         ? partition(data.purchase_orders, (purchaseOrder) => {
             return (
               !floatEq(purchaseOrder.amount, purchaseOrder.amount_funded) &&
-              purchaseOrder.closed_at === null
+              !ClosedNewPurchaseOrderStatuses.includes(
+                purchaseOrder.new_purchase_order_status as NewPurchaseOrderStatus
+              )
             );
           })
         : [[], []],

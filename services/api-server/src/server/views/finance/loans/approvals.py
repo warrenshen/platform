@@ -247,6 +247,7 @@ class RejectLoanNewView(MethodView):
 				session=session,
 				loan_id=loan_id,
 				reject_related_purchase_order=reject_related_purchase_order,
+				is_vendor_approval_required=is_vendor_approval_required,
 				rejection_note=rejection_note,
 				user_session=user_session,
 			)

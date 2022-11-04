@@ -1470,6 +1470,7 @@ class RequestPurchaseOrderChangesView(MethodView):
 			'purchase_order_id',
 			'requested_changes_note',
 			'requested_by_user_id',
+			'is_vendor_approval_required',
 			'link_val',
 		]
 		for key in required_keys:
@@ -1479,6 +1480,7 @@ class RequestPurchaseOrderChangesView(MethodView):
 		purchase_order_id = data['purchase_order_id']
 		requested_changes_note = data['requested_changes_note']
 		requested_by_user_id = data['requested_by_user_id']
+		is_vendor_approval_required = data['is_vendor_approval_required']
 		link_val = data['link_val']
 
 		if not purchase_order_id:
@@ -1515,6 +1517,7 @@ class RequestPurchaseOrderChangesView(MethodView):
 				user.full_name,
 				requested_changes_note,
 				is_bank_admin,
+				is_vendor_approval_required
 			)
 			if err:
 				raise err

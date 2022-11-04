@@ -502,6 +502,7 @@ export type RequestPurchaseOrderChangesReq = {
     requested_changes_note: string;
     requested_by_user_id: Maybe<string>;
     link_val: string;
+    is_vendor_approval_required: boolean;
   };
 };
 

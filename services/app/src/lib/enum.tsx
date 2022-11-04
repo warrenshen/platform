@@ -324,8 +324,8 @@ export const NewPurchaseOrderStatusToLabel = {
   [NewPurchaseOrderStatus.PendingApprovalByVendor]:
     "Pending approval by vendor",
   [NewPurchaseOrderStatus.ChangesRequestedByVendor]:
-    "Changes requested by vendor",
-  [NewPurchaseOrderStatus.ChangesRequestedByBespoke]: "Changes requested by BF",
+    "Changes required for approval",
+  [NewPurchaseOrderStatus.ChangesRequestedByBespoke]: "Changes requested",
   // Ready
   [NewPurchaseOrderStatus.ReadyToRequestFinancing]:
     "Ready to request financing",

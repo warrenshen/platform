@@ -1,7 +1,9 @@
 import {
   Box,
+  Checkbox,
   DialogActions,
   DialogContent,
+  FormControlLabel,
   TextField,
   Theme,
   createStyles,
@@ -15,6 +17,7 @@ import Text, { TextVariants } from "components/Shared/Text/Text";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
+import { CustomCheckboxChecked, CustomCheckboxUnchecked } from "icons";
 import { requestPurchaseOrderChangesMutation } from "lib/api/purchaseOrders";
 import { useContext, useState } from "react";
 
@@ -53,6 +56,8 @@ export default function ReviewPurchaseOrderRequestChangesModal({
   const classes = useStyles();
 
   const [requestedChanges, setRequestedChanges] = useState("");
+  const [isVendorApprovalRequired, setIsVendorApprovalRequired] =
+    useState<boolean>(false);
 
   const [
     requestPurchaseOrderChanges,
@@ -66,6 +71,7 @@ export default function ReviewPurchaseOrderRequestChangesModal({
         requested_changes_note: requestedChanges,
         requested_by_user_id: !!user?.id || null,
         link_val: linkVal,
+        is_vendor_approval_required: isVendorApprovalRequired,
       },
     });
     if (response.status !== "OK") {
@@ -87,7 +93,7 @@ export default function ReviewPurchaseOrderRequestChangesModal({
           Please enter in the change(s) you are requesting on the Purchase
           Order. After you are finished, press the "Confirm" button below.
         </Text>
-        <Box display="flex" flexDirection="column">
+        <Box display="flex" flexDirection="column" mb={3}>
           <TextField
             data-cy={"request-change-reason"}
             multiline
@@ -97,6 +103,20 @@ export default function ReviewPurchaseOrderRequestChangesModal({
             onChange={({ target: { value } }) => setRequestedChanges(value)}
           />
         </Box>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={isVendorApprovalRequired}
+              onChange={(event) =>
+                setIsVendorApprovalRequired(event.target.checked)
+              }
+              color="primary"
+              icon={<CustomCheckboxUnchecked />}
+              checkedIcon={<CustomCheckboxChecked />}
+            />
+          }
+          label={"Do changes require vendor approval?"}
+        />
       </DialogContent>
       <DialogActions className={classes.dialogActions}>
         <SecondaryButton

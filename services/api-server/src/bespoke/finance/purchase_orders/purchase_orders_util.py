@@ -971,6 +971,18 @@ def reject_purchase_order(
 
 	purchase_order.rejected_at = date_util.now()
 	purchase_order.rejected_by_user_id = rejected_by_user_id # type: ignore
+	action = "PO rejected"
+
+	loans, err = reject_loans_by_artifact_id(
+		session=session,
+		artifact_id=purchase_order_id,
+		rejected_by_user_id=rejected_by_user_id,
+		rejection_note=rejection_note,
+	)
+	if err:
+		return None, err
+	if loans:
+		action = f"PO rejected, {len(loans)} financing requests rejected"
 
 	if is_bank_admin:
 		purchase_order.all_bank_notes[PurchaseOrderBankNoteEnum.BANK_REJECTION] = rejection_note
@@ -979,7 +991,7 @@ def reject_purchase_order(
 			models.PurchaseOrderHistoryDict(
 				id = str(uuid.uuid4()),
 				date_time = date_util.datetime_to_str(date_util.now()),
-				action = "PO rejected",
+				action = action,
 				new_purchase_order_status = NewPurchaseOrderStatus.REJECTED_BY_BESPOKE,
 				created_by_user_id = rejected_by_user_id,
 				created_by_user_full_name = rejected_by_user_full_name,
@@ -992,7 +1004,7 @@ def reject_purchase_order(
 			models.PurchaseOrderHistoryDict(
 				id = str(uuid.uuid4()),
 				date_time = date_util.datetime_to_str(date_util.now()),
-				action = "PO rejected",
+				action = action,
 				new_purchase_order_status = NewPurchaseOrderStatus.REJECTED_BY_VENDOR,
 				created_by_user_id = rejected_by_user_id,
 				created_by_user_full_name = rejected_by_user_full_name,
@@ -1008,6 +1020,7 @@ def request_purchase_order_changes(
 	requested_by_user_full_name: str,
 	requested_changes_note: str,
 	is_bank_admin: bool,
+	is_vendor_approval_required: bool = False,
 ) -> Tuple[ models.PurchaseOrder, errors.Error ]:
 	purchase_order, err = queries.get_purchase_order_by_id(
 		session,
@@ -1015,15 +1028,29 @@ def request_purchase_order_changes(
 	)
 	if err:
 		return None, err
+	action = "PO changes requested"
 
-	if is_bank_admin:
+	should_delete_loans = (not is_bank_admin or is_vendor_approval_required)
+	loans, err = reject_loans_by_artifact_id(
+		session=session,
+		artifact_id=purchase_order_id,
+		rejected_by_user_id=requested_by_user_id,
+		rejection_note=requested_changes_note,
+		delete_loans=should_delete_loans
+	)
+	if err:
+		return None, err
+	if loans and should_delete_loans:
+		action = f"PO changes requested requiring vendor approval, {len(loans)} financing requests rejected"
+
+	if not is_vendor_approval_required:
 		purchase_order.all_bank_notes[PurchaseOrderBankNoteEnum.REQUESTS_CHANGES] = requested_changes_note
 		purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.CHANGES_REQUESTED_BY_BESPOKE
 		purchase_order.history.append(
 			models.PurchaseOrderHistoryDict(
 				id = str(uuid.uuid4()),
 				date_time = date_util.datetime_to_str(date_util.now()),
-				action = "PO changes requested",
+				action = action,
 				new_purchase_order_status = NewPurchaseOrderStatus.CHANGES_REQUESTED_BY_BESPOKE,
 				created_by_user_id = requested_by_user_id,
 				created_by_user_full_name = requested_by_user_full_name,
@@ -1036,7 +1063,7 @@ def request_purchase_order_changes(
 			models.PurchaseOrderHistoryDict(
 				id = str(uuid.uuid4()),
 				date_time = date_util.datetime_to_str(date_util.now()),
-				action = "PO changes requested",
+				action = action,
 				new_purchase_order_status = NewPurchaseOrderStatus.CHANGES_REQUESTED_BY_VENDOR,
 				created_by_user_id = requested_by_user_id,
 				created_by_user_full_name = requested_by_user_full_name,
@@ -1392,9 +1419,11 @@ def update_purchase_order(
 	if err:
 		return None, err
 
-	if action  == PurchaseOrderActions.SUBMIT:
+	if action == PurchaseOrderActions.SUBMIT:
 		purchase_order.requested_at = date_util.now()
 		purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.PENDING_APPROVAL_BY_VENDOR
+
+		reactivate_loans_by_artifact_id(session=session, artifact_id=purchase_order.id)
 
 		# Run pre-submission validation checks
 		is_vendor_missing_bank_account, err = validate_purchase_order_input_submission_checks(
@@ -1580,3 +1609,58 @@ def send_email_alert_for_purchase_order_update_submission(
 				return None, err
 
 	return True, None
+
+
+def reject_loans_by_artifact_id(
+	session: Session,
+	artifact_id: str,
+	rejected_by_user_id: str,
+	rejection_note: str,
+	delete_loans: bool = True,
+) -> Tuple[List[models.Loan], errors.Error]:
+	loans = cast(
+		List[models.Loan],
+		session.query(models.Loan).filter(
+			models.Loan.artifact_id == artifact_id
+		).filter(
+			models.Loan.funded_at == None
+		).filter(
+			cast(Callable, models.Loan.is_deleted.isnot)(True)
+		).all()
+	)
+
+	# Don't need to send loan rejection emails since the user is already being notified of the PO rejection
+	for loan in loans:
+		loan.status = db_constants.LoanStatusEnum.REJECTED
+		loan.rejection_note = rejection_note
+		loan.rejected_at = date_util.now()
+		loan.rejected_by_user_id = rejected_by_user_id
+		loan.approved_at = None
+		loan.approved_by_user_id = None
+		if delete_loans:
+			loan.is_deleted = True
+
+	return loans, None
+
+
+def reactivate_loans_by_artifact_id(
+	session: Session,
+	artifact_id: str,
+) -> Tuple[List[models.Loan], errors.Error]:
+	loans = cast(
+		List[models.Loan],
+		session.query(models.Loan).filter(
+			models.Loan.artifact_id == artifact_id
+		).filter(
+			models.Loan.funded_at == None
+		).filter(
+			cast(Callable, models.Loan.is_deleted.isnot)(True)
+		).all()
+	)
+
+	for loan in loans:
+		loan.status = db_constants.LoanStatusEnum.APPROVAL_REQUESTED
+		loan.rejected_at = None
+		loan.rejected_by_user_id = None
+
+	return loans, None

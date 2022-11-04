@@ -94,6 +94,7 @@ const ReviewFinancingRequestRejectModal = ({ loanId, handleClose }: Props) => {
               />
             }
             label={"Completely reject related purchase order?"}
+            disabled={isVendorApprovalRequired}
           />
         </Box>
         <Text
@@ -130,6 +131,7 @@ const ReviewFinancingRequestRejectModal = ({ loanId, handleClose }: Props) => {
               />
             }
             label={"Is vendor approval required?"}
+            disabled={rejectRelatedPurchaseOrder}
           />
         </Box>
       </DialogContent>
