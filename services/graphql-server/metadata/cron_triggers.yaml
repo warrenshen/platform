@@ -52,7 +52,7 @@
       value_from_env: ASYNC_SERVER_API_KEY
 - name: async_update_all_customer_balances
   webhook: '{{ASYNC_SERVER_BASE_URL}}/async_jobs/generate_jobs'
-  schedule: 3 * * * 1
+  schedule: '*/2 * * * *'
   include_in_metadata: true
   payload:
     job_name: update_company_balances
@@ -93,25 +93,3 @@
   headers:
     - name: x-api-key
       value_from_env: ASYNC_SERVER_API_KEY
-- name: update_all_customer_balances
-  webhook: '{{ASYNC_SERVER_BASE_URL}}/triggers/update-all-customer-balances'
-  schedule: 3 * * * *
-  include_in_metadata: true
-  payload: {}
-  headers:
-    - name: x-api-key
-      value_from_env: ASYNC_SERVER_API_KEY
-- name: update_dirty_customer_balances
-  webhook: '{{ASYNC_SERVER_BASE_URL}}/triggers/update-dirty-customer-balances'
-  schedule: '* * * * *'
-  include_in_metadata: true
-  payload: {}
-  retry_conf:
-    num_retries: 0
-    timeout_seconds: 6000
-    tolerance_seconds: 21600
-    retry_interval_seconds: 10
-  headers:
-    - name: x-api-key
-      value_from_env: ASYNC_SERVER_API_KEY
-  comment: Update the customer balance for every customer with `needs_balance_recomputed` set
