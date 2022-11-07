@@ -52,7 +52,7 @@
       value_from_env: ASYNC_SERVER_API_KEY
 - name: async_update_all_customer_balances
   webhook: '{{ASYNC_SERVER_BASE_URL}}/async_jobs/generate_jobs'
-  schedule: '*/2 * * * *'
+  schedule: '*/30 * * * *'
   include_in_metadata: true
   payload:
     job_name: update_company_balances
