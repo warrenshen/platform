@@ -10,10 +10,8 @@ from typing import Any, Callable, Dict, Iterable, Tuple, cast, List
 
 from bespoke.date import date_util
 from bespoke.db import models, models_util, queries
-from bespoke.slack import slack_util
 from bespoke.finance.loans import reports_util
 from bespoke.reports import report_generation_util
-from bespoke.finance.reports import loan_balances
 from bespoke.db.db_constants import AsyncJobNameEnum, AsyncJobStatusEnum, LoanTypeEnum, ProductType
 from bespoke.email import sendgrid_util
 from bespoke.finance.reports import loan_balances
@@ -254,6 +252,11 @@ def create_job_summary(
 	async_jobs = cast(
 		List[models.AsyncJob],
 		session.query(models.AsyncJob).filter(
+			or_(
+				models.AsyncJob.status == AsyncJobStatusEnum.COMPLETED,
+				models.AsyncJob.status == AsyncJobStatusEnum.FAILED
+			)
+		).filter(
 			models.AsyncJob.ended_at >= date_util.hours_from_today(-24)
 		).all())
 
