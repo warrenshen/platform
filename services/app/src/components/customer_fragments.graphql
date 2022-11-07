@@ -274,6 +274,10 @@ fragment LoanLimited on loans {
     id
     full_name
   }
+  purchase_order {
+    id
+    ...PurchaseOrderLimited
+  }
 }
 
 # The core fields for when the artifact related to a loan is shown.

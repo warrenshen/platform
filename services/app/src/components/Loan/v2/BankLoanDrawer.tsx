@@ -1,4 +1,5 @@
 import { Tab, Tabs } from "@material-ui/core";
+import BankAccountInformationByLoanDrawerTab from "components/BankAccount/BankAccountInformationByLoanDrawerTab";
 import BankAccountInformationDrawerTab from "components/BankAccount/BankAccountInformationDrawerTab";
 import BankLoanGeneralInformationDrawerTab from "components/Loan/v2/BankLoanGeneralInformationDrawerTab";
 import BankLoanOnlyForBankDrawerTab from "components/Loan/v2/BankLoanOnlyForBankDrawerTab";
@@ -6,6 +7,7 @@ import BankPurchaseOrderGeneralInformationDrawerTab from "components/PurchaseOrd
 import Modal from "components/Shared/Modal/Modal";
 import {
   LoanFragment,
+  LoanTypeEnum,
   Loans,
   PurchaseOrderWithRelationshipsFragment,
   useGetLoanWithRelationshipsQuery,
@@ -50,6 +52,8 @@ const BankLoanDrawer = ({ loanId, isBankUser, handleClose }: Props) => {
 
   const titleType = !!loan?.funded_at;
   const title = titleType ? "Loan" : "Financing Request";
+  const loanType = loan?.loan_type;
+  const isLoanLoC = loanType === LoanTypeEnum.LineOfCredit;
 
   if (!loan) {
     return null;
@@ -80,7 +84,12 @@ const BankLoanDrawer = ({ loanId, isBankUser, handleClose }: Props) => {
           if (!isBankUser && label === BankLoansDrawerTabLabelNew.OnlyForBank) {
             return null;
           }
-
+          if (
+            isLoanLoC &&
+            label === BankLoansDrawerTabLabelNew.PurchaseOrderInformation
+          ) {
+            return null;
+          }
           return (
             <Tab
               // Replace space with underscore and change to lower case
@@ -94,22 +103,36 @@ const BankLoanDrawer = ({ loanId, isBankUser, handleClose }: Props) => {
         })}
       </Tabs>
       <SectionSpace />
-      {selectedTabIndex === 0 ? (
-        <BankLoanGeneralInformationDrawerTab loan={loan} />
-      ) : selectedTabIndex === 1 ? (
-        <BankPurchaseOrderGeneralInformationDrawerTab
-          purchaseOrder={purchaseOrder}
-        />
-      ) : selectedTabIndex === 2 ? (
-        <BankAccountInformationDrawerTab purchaseOrder={purchaseOrder} />
-      ) : (
-        <BankLoanOnlyForBankDrawerTab
-          loan={loan}
-          debtFacilityName={debtFacilityName}
-          loanReportId={loanReportId}
-          isBankUser={isBankUser}
-        />
-      )}
+      {!isLoanLoC &&
+        (selectedTabIndex === 0 ? (
+          <BankLoanGeneralInformationDrawerTab loan={loan} />
+        ) : selectedTabIndex === 1 ? (
+          <BankPurchaseOrderGeneralInformationDrawerTab
+            purchaseOrder={purchaseOrder}
+          />
+        ) : selectedTabIndex === 2 ? (
+          <BankAccountInformationDrawerTab purchaseOrder={purchaseOrder} />
+        ) : (
+          <BankLoanOnlyForBankDrawerTab
+            loan={loan}
+            debtFacilityName={debtFacilityName}
+            loanReportId={loanReportId}
+            isBankUser={isBankUser}
+          />
+        ))}
+      {isLoanLoC &&
+        (selectedTabIndex === 0 ? (
+          <BankLoanGeneralInformationDrawerTab loan={loan} />
+        ) : selectedTabIndex === 1 ? (
+          <BankAccountInformationByLoanDrawerTab loan={loan} />
+        ) : (
+          <BankLoanOnlyForBankDrawerTab
+            loan={loan}
+            debtFacilityName={debtFacilityName}
+            loanReportId={loanReportId}
+            isBankUser={isBankUser}
+          />
+        ))}
     </Modal>
   );
 };

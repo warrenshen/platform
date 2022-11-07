@@ -41,6 +41,9 @@ export default function LoanViewModalCard({ loan }: Props) {
   const customerUserName = !!loan?.requested_by_user?.full_name
     ? loan.requested_by_user.full_name
     : "";
+  const vendorName = !!loan?.purchase_order?.vendor?.name
+    ? loan.purchase_order.vendor.name
+    : "N/A";
 
   return (
     <CardContainer>
@@ -72,6 +75,7 @@ export default function LoanViewModalCard({ loan }: Props) {
         valueText={LoanTypeToLabel[loanType as LoanTypeEnum]}
       />
       <CardLine labelText={"Customer name"} valueText={customerName} />
+      <CardLine labelText={"Vendor name"} valueText={vendorName} />
       <CardLine
         labelText={"Requested payment date"}
         valueText={requestedPaymentDate}
