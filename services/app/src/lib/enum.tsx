@@ -1109,6 +1109,7 @@ export const BankReportTabLabels: BankReportsTabLabelType[] = [
 
 export enum AsyncJobStatusEnum {
   Queued = "queued",
+  Initialized = "initialized",
   InProgress = "in_progress",
   Failed = "failed",
   Completed = "completed",
@@ -1116,6 +1117,7 @@ export enum AsyncJobStatusEnum {
 
 export const AsyncJobStatusToLabel = {
   [AsyncJobStatusEnum.Queued]: "Queued",
+  [AsyncJobStatusEnum.Initialized]: "Initialized",
   [AsyncJobStatusEnum.InProgress]: "In Progress",
   [AsyncJobStatusEnum.Failed]: "Failed",
   [AsyncJobStatusEnum.Completed]: "Completed",
@@ -1123,6 +1125,7 @@ export const AsyncJobStatusToLabel = {
 
 export const AsyncJobStatuses = [
   AsyncJobStatusEnum.Queued,
+  AsyncJobStatusEnum.Initialized,
   AsyncJobStatusEnum.InProgress,
   AsyncJobStatusEnum.Failed,
   AsyncJobStatusEnum.Completed,
