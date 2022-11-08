@@ -2,26 +2,24 @@ import datetime
 import logging
 from datetime import timedelta, timezone
 from typing import Any, Callable, Dict, Tuple, cast, Iterable, List
-from bespoke import errors
 from flask import current_app
 from bespoke import errors
 from decimal import *
-from typing import Any, Callable, Dict, Iterable, Tuple, cast, List
 
 from bespoke.date import date_util
 from bespoke.db import models, models_util, queries
-from bespoke.finance.loans import reports_util
-from bespoke.reports import report_generation_util
 from bespoke.db.db_constants import AsyncJobNameEnum, AsyncJobStatusEnum, LoanTypeEnum, ProductType
+from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
-from bespoke.finance.reports import loan_balances
+from bespoke.finance.loans import reports_util
 from bespoke.finance.payments import autogenerate_repayment_util
+from bespoke.finance.reports import loan_balances
 from bespoke.metrc.common.metrc_common_util import chunker, chunker_dict
+from bespoke.reports import report_generation_util
 from bespoke.slack import slack_util
 from server.config import Config
 from sqlalchemy import or_
 from sqlalchemy.orm.session import Session
-from bespoke.db.models import session_scope
 
 
 @errors.return_error_tuple
@@ -805,6 +803,17 @@ def update_company_balances_job(
 	logging.info("Received request to update all company balances")
 	cfg = cast(Config, current_app.app_config)
 
+	# queries for all the company_balances job that are queued to not replicate work to be done
+	currently_queued_jobs = cast(
+		List[models.AsyncJob],
+		session.query(models.AsyncJob).filter(
+			models.AsyncJob.name == AsyncJobNameEnum.UPDATE_COMPANY_BALANCES
+		).filter(
+			models.AsyncJob.status == AsyncJobStatusEnum.QUEUED
+		).all())
+	currently_queued_payloads = [dict(job.job_payload if job.job_payload else {}) for job in currently_queued_jobs]
+	currently_queued_company_ids = [ payload.get("company_id") for  payload in currently_queued_payloads]
+
 	# mark that all companies need their balance recomputed
 	companies = reports_util.list_all_companies(session)
 	cur_date = date_util.now_as_date(date_util.DEFAULT_TIMEZONE)
@@ -822,14 +831,15 @@ def update_company_balances_job(
 
 	# add each companies recomputing job to the queue
 	for company in companies:
-		payload = {"company_id" :company["id"]}
+		if company["id"] not in currently_queued_company_ids:
+			payload = {"company_id" :company["id"]}
 
-		add_job_to_queue(
-			session=session,
-			job_name=AsyncJobNameEnum.UPDATE_COMPANY_BALANCES,
-			submitted_by_user_id=cfg.BOT_USER_ID,
-			is_high_priority=False,
-			job_payload=payload)
+			add_job_to_queue(
+				session=session,
+				job_name=AsyncJobNameEnum.UPDATE_COMPANY_BALANCES,
+				submitted_by_user_id=cfg.BOT_USER_ID,
+				is_high_priority=False,
+				job_payload=payload)
 
 	# this checks if a job summary already exists for the day, all the others
 	# should be duplicates, but we want to make sure that it runs once a day
