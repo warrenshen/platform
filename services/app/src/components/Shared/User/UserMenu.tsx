@@ -73,9 +73,12 @@ export default function UserMenu({ isLocationsPage }: Props) {
 
   const user = data?.users_by_pk;
   const parentCompany = user?.parent_company;
-  const companies = parentCompany?.companies || [];
-  const company = companies.find((company) => company.id === companyId) || null;
-  const isMultiLocation = companies.length > 1;
+  const customerCompanies = parentCompany?.customer_companies || [];
+  const customerCompany =
+    customerCompanies.find(
+      (customerCompany) => customerCompany.id === companyId
+    ) || null;
+  const isMultiLocation = customerCompanies.length > 1;
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -96,9 +99,9 @@ export default function UserMenu({ isLocationsPage }: Props) {
 
   return (
     <Box display="flex" flexDirection="column">
-      {!isLocationsPage && isMultiLocation && parentCompany && company && (
+      {!isLocationsPage && isMultiLocation && parentCompany && customerCompany && (
         <LocationBanner>
-          <LocationName>{company.name}</LocationName>
+          <LocationName>{customerCompany.name}</LocationName>
           <Button
             onClick={() => navigate(customerRoutes.locations)}
             data-cy={"switch-location-button"}
@@ -130,8 +133,8 @@ export default function UserMenu({ isLocationsPage }: Props) {
             {isRoleBankUser(user?.role)
               ? "Bespoke (Bank)"
               : isMultiLocation
-              ? `${parentCompany?.name} (${companies.length} locations)`
-              : company?.name}
+              ? `${parentCompany?.name} (${customerCompanies.length} locations)`
+              : customerCompany?.name}
           </Typography>
           <Email>{user?.email}</Email>
         </Box>

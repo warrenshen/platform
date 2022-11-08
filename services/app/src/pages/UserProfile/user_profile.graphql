@@ -2,13 +2,6 @@ query GetUserById($id: uuid!) {
   users_by_pk(id: $id) {
     id
     ...User
-    parent_company {
-      id
-      companies {
-        id
-        name
-      }
-    }
     company {
       id
       name
@@ -23,7 +16,10 @@ query GetUserMenuInfo($user_id: uuid!) {
     parent_company {
       id
       name
-      companies {
+      customer_companies: companies(
+        where: { is_customer: { _eq: true } }
+        order_by: { name: asc }
+      ) {
         id
         name
       }

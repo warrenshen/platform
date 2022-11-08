@@ -23,7 +23,7 @@ query GetParentCompanyWithCustomerCompanies(
 ) {
   parent_companies_by_pk(id: $parent_company_id) {
     id
-    companies(
+    customer_companies: companies(
       where: { is_customer: { _eq: true } }
       order_by: { name: asc }
     ) {

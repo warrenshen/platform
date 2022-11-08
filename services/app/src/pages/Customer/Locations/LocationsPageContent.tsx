@@ -41,7 +41,8 @@ export default function CustomerLocationsPageContent({
     console.error({ error });
   }
 
-  const companies = data?.parent_companies_by_pk?.companies || [];
+  const customerCompanies =
+    data?.parent_companies_by_pk?.customer_companies || [];
 
   const [switchLocation, { loading: isSwitchLocationLoading }] =
     useCustomMutation(switchLocationMutation);
@@ -67,30 +68,32 @@ export default function CustomerLocationsPageContent({
   return (
     <PageContent title={"Select Location"}>
       <Box display="flex" flexDirection="column" mt={2}>
-        {companies.map((company, index) => (
-          <Box key={company.id}>
+        {customerCompanies.map((customerCompany, index) => (
+          <Box key={customerCompany.id}>
             <Box display="flex" flexDirection="column">
               <Box display="flex" justifyContent="space-between">
                 <Typography variant={"h5"}>
-                  <strong>{company.name}</strong>
+                  <strong>{customerCompany.name}</strong>
                 </Typography>
                 <Button
                   disabled={isSwitchLocationLoading}
                   color="primary"
                   variant="contained"
                   data-cy={`select-location-button-${index}`}
-                  onClick={() => handleClickSwitchLocation(company.id)}
+                  onClick={() => handleClickSwitchLocation(customerCompany.id)}
                 >
                   Select Location
                 </Button>
               </Box>
               <Box display="flex" mt={4}>
                 <CustomerFinancialSummaryPreview
-                  financialSummary={company?.financial_summaries[0] || null}
+                  financialSummary={
+                    customerCompany?.financial_summaries[0] || null
+                  }
                 />
               </Box>
             </Box>
-            {index < companies.length - 1 && (
+            {index < customerCompanies.length - 1 && (
               <Box mb={6}>
                 <Divider />
               </Box>

@@ -258,7 +258,6 @@ export type AsyncJobs = {
   ended_at?: Maybe<Scalars["timestamptz"]>;
   err_details?: Maybe<Scalars["json"]>;
   id: Scalars["uuid"];
-  initialized_at?: Maybe<Scalars["timestamptz"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
   is_high_priority: Scalars["Boolean"];
   job_payload?: Maybe<Scalars["json"]>;
@@ -331,7 +330,6 @@ export type AsyncJobsBoolExp = {
   ended_at?: Maybe<TimestamptzComparisonExp>;
   err_details?: Maybe<JsonComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
-  initialized_at?: Maybe<TimestamptzComparisonExp>;
   is_deleted?: Maybe<BooleanComparisonExp>;
   is_high_priority?: Maybe<BooleanComparisonExp>;
   job_payload?: Maybe<JsonComparisonExp>;
@@ -364,7 +362,6 @@ export type AsyncJobsInsertInput = {
   ended_at?: Maybe<Scalars["timestamptz"]>;
   err_details?: Maybe<Scalars["json"]>;
   id?: Maybe<Scalars["uuid"]>;
-  initialized_at?: Maybe<Scalars["timestamptz"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
   is_high_priority?: Maybe<Scalars["Boolean"]>;
   job_payload?: Maybe<Scalars["json"]>;
@@ -385,7 +382,6 @@ export type AsyncJobsMaxFields = {
   deleted_at?: Maybe<Scalars["timestamptz"]>;
   ended_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
-  initialized_at?: Maybe<Scalars["timestamptz"]>;
   name?: Maybe<Scalars["String"]>;
   num_retries?: Maybe<Scalars["Int"]>;
   queued_at?: Maybe<Scalars["timestamptz"]>;
@@ -401,7 +397,6 @@ export type AsyncJobsMinFields = {
   deleted_at?: Maybe<Scalars["timestamptz"]>;
   ended_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
-  initialized_at?: Maybe<Scalars["timestamptz"]>;
   name?: Maybe<Scalars["String"]>;
   num_retries?: Maybe<Scalars["Int"]>;
   queued_at?: Maybe<Scalars["timestamptz"]>;
@@ -433,7 +428,6 @@ export type AsyncJobsOrderBy = {
   ended_at?: Maybe<OrderBy>;
   err_details?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
-  initialized_at?: Maybe<OrderBy>;
   is_deleted?: Maybe<OrderBy>;
   is_high_priority?: Maybe<OrderBy>;
   job_payload?: Maybe<OrderBy>;
@@ -466,8 +460,6 @@ export enum AsyncJobsSelectColumn {
   /** column name */
   Id = "id",
   /** column name */
-  InitializedAt = "initialized_at",
-  /** column name */
   IsDeleted = "is_deleted",
   /** column name */
   IsHighPriority = "is_high_priority",
@@ -498,7 +490,6 @@ export type AsyncJobsSetInput = {
   ended_at?: Maybe<Scalars["timestamptz"]>;
   err_details?: Maybe<Scalars["json"]>;
   id?: Maybe<Scalars["uuid"]>;
-  initialized_at?: Maybe<Scalars["timestamptz"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
   is_high_priority?: Maybe<Scalars["Boolean"]>;
   job_payload?: Maybe<Scalars["json"]>;
@@ -544,8 +535,6 @@ export enum AsyncJobsUpdateColumn {
   ErrDetails = "err_details",
   /** column name */
   Id = "id",
-  /** column name */
-  InitializedAt = "initialized_at",
   /** column name */
   IsDeleted = "is_deleted",
   /** column name */
@@ -1535,7 +1524,9 @@ export type BankFinancialSummaries = {
   date: Scalars["date"];
   id: Scalars["uuid"];
   interest_accrued_today?: Maybe<Scalars["numeric"]>;
+  interest_accrued_today_adjustment?: Maybe<Scalars["numeric"]>;
   late_fees_accrued_today?: Maybe<Scalars["numeric"]>;
+  late_fees_accrued_today_adjustment?: Maybe<Scalars["numeric"]>;
   product_type: Scalars["String"];
   total_limit: Scalars["numeric"];
   total_outstanding_fees: Scalars["numeric"];
@@ -1579,7 +1570,9 @@ export type BankFinancialSummariesAvgFields = {
   adjusted_total_limit?: Maybe<Scalars["Float"]>;
   available_limit?: Maybe<Scalars["Float"]>;
   interest_accrued_today?: Maybe<Scalars["Float"]>;
+  interest_accrued_today_adjustment?: Maybe<Scalars["Float"]>;
   late_fees_accrued_today?: Maybe<Scalars["Float"]>;
+  late_fees_accrued_today_adjustment?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
   total_outstanding_interest?: Maybe<Scalars["Float"]>;
@@ -1600,7 +1593,9 @@ export type BankFinancialSummariesBoolExp = {
   date?: Maybe<DateComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   interest_accrued_today?: Maybe<NumericComparisonExp>;
+  interest_accrued_today_adjustment?: Maybe<NumericComparisonExp>;
   late_fees_accrued_today?: Maybe<NumericComparisonExp>;
+  late_fees_accrued_today_adjustment?: Maybe<NumericComparisonExp>;
   product_type?: Maybe<StringComparisonExp>;
   total_limit?: Maybe<NumericComparisonExp>;
   total_outstanding_fees?: Maybe<NumericComparisonExp>;
@@ -1625,7 +1620,9 @@ export type BankFinancialSummariesIncInput = {
   adjusted_total_limit?: Maybe<Scalars["numeric"]>;
   available_limit?: Maybe<Scalars["numeric"]>;
   interest_accrued_today?: Maybe<Scalars["numeric"]>;
+  interest_accrued_today_adjustment?: Maybe<Scalars["numeric"]>;
   late_fees_accrued_today?: Maybe<Scalars["numeric"]>;
+  late_fees_accrued_today_adjustment?: Maybe<Scalars["numeric"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
   total_outstanding_fees?: Maybe<Scalars["numeric"]>;
   total_outstanding_interest?: Maybe<Scalars["numeric"]>;
@@ -1643,7 +1640,9 @@ export type BankFinancialSummariesInsertInput = {
   date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   interest_accrued_today?: Maybe<Scalars["numeric"]>;
+  interest_accrued_today_adjustment?: Maybe<Scalars["numeric"]>;
   late_fees_accrued_today?: Maybe<Scalars["numeric"]>;
+  late_fees_accrued_today_adjustment?: Maybe<Scalars["numeric"]>;
   product_type?: Maybe<Scalars["String"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
   total_outstanding_fees?: Maybe<Scalars["numeric"]>;
@@ -1663,7 +1662,9 @@ export type BankFinancialSummariesMaxFields = {
   date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   interest_accrued_today?: Maybe<Scalars["numeric"]>;
+  interest_accrued_today_adjustment?: Maybe<Scalars["numeric"]>;
   late_fees_accrued_today?: Maybe<Scalars["numeric"]>;
+  late_fees_accrued_today_adjustment?: Maybe<Scalars["numeric"]>;
   product_type?: Maybe<Scalars["String"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
   total_outstanding_fees?: Maybe<Scalars["numeric"]>;
@@ -1683,7 +1684,9 @@ export type BankFinancialSummariesMinFields = {
   date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   interest_accrued_today?: Maybe<Scalars["numeric"]>;
+  interest_accrued_today_adjustment?: Maybe<Scalars["numeric"]>;
   late_fees_accrued_today?: Maybe<Scalars["numeric"]>;
+  late_fees_accrued_today_adjustment?: Maybe<Scalars["numeric"]>;
   product_type?: Maybe<Scalars["String"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
   total_outstanding_fees?: Maybe<Scalars["numeric"]>;
@@ -1718,7 +1721,9 @@ export type BankFinancialSummariesOrderBy = {
   date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   interest_accrued_today?: Maybe<OrderBy>;
+  interest_accrued_today_adjustment?: Maybe<OrderBy>;
   late_fees_accrued_today?: Maybe<OrderBy>;
+  late_fees_accrued_today_adjustment?: Maybe<OrderBy>;
   product_type?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
@@ -1750,7 +1755,11 @@ export enum BankFinancialSummariesSelectColumn {
   /** column name */
   InterestAccruedToday = "interest_accrued_today",
   /** column name */
+  InterestAccruedTodayAdjustment = "interest_accrued_today_adjustment",
+  /** column name */
   LateFeesAccruedToday = "late_fees_accrued_today",
+  /** column name */
+  LateFeesAccruedTodayAdjustment = "late_fees_accrued_today_adjustment",
   /** column name */
   ProductType = "product_type",
   /** column name */
@@ -1779,7 +1788,9 @@ export type BankFinancialSummariesSetInput = {
   date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   interest_accrued_today?: Maybe<Scalars["numeric"]>;
+  interest_accrued_today_adjustment?: Maybe<Scalars["numeric"]>;
   late_fees_accrued_today?: Maybe<Scalars["numeric"]>;
+  late_fees_accrued_today_adjustment?: Maybe<Scalars["numeric"]>;
   product_type?: Maybe<Scalars["String"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
   total_outstanding_fees?: Maybe<Scalars["numeric"]>;
@@ -1796,7 +1807,9 @@ export type BankFinancialSummariesStddevFields = {
   adjusted_total_limit?: Maybe<Scalars["Float"]>;
   available_limit?: Maybe<Scalars["Float"]>;
   interest_accrued_today?: Maybe<Scalars["Float"]>;
+  interest_accrued_today_adjustment?: Maybe<Scalars["Float"]>;
   late_fees_accrued_today?: Maybe<Scalars["Float"]>;
+  late_fees_accrued_today_adjustment?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
   total_outstanding_interest?: Maybe<Scalars["Float"]>;
@@ -1811,7 +1824,9 @@ export type BankFinancialSummariesStddevPopFields = {
   adjusted_total_limit?: Maybe<Scalars["Float"]>;
   available_limit?: Maybe<Scalars["Float"]>;
   interest_accrued_today?: Maybe<Scalars["Float"]>;
+  interest_accrued_today_adjustment?: Maybe<Scalars["Float"]>;
   late_fees_accrued_today?: Maybe<Scalars["Float"]>;
+  late_fees_accrued_today_adjustment?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
   total_outstanding_interest?: Maybe<Scalars["Float"]>;
@@ -1826,7 +1841,9 @@ export type BankFinancialSummariesStddevSampFields = {
   adjusted_total_limit?: Maybe<Scalars["Float"]>;
   available_limit?: Maybe<Scalars["Float"]>;
   interest_accrued_today?: Maybe<Scalars["Float"]>;
+  interest_accrued_today_adjustment?: Maybe<Scalars["Float"]>;
   late_fees_accrued_today?: Maybe<Scalars["Float"]>;
+  late_fees_accrued_today_adjustment?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
   total_outstanding_interest?: Maybe<Scalars["Float"]>;
@@ -1841,7 +1858,9 @@ export type BankFinancialSummariesSumFields = {
   adjusted_total_limit?: Maybe<Scalars["numeric"]>;
   available_limit?: Maybe<Scalars["numeric"]>;
   interest_accrued_today?: Maybe<Scalars["numeric"]>;
+  interest_accrued_today_adjustment?: Maybe<Scalars["numeric"]>;
   late_fees_accrued_today?: Maybe<Scalars["numeric"]>;
+  late_fees_accrued_today_adjustment?: Maybe<Scalars["numeric"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
   total_outstanding_fees?: Maybe<Scalars["numeric"]>;
   total_outstanding_interest?: Maybe<Scalars["numeric"]>;
@@ -1866,7 +1885,11 @@ export enum BankFinancialSummariesUpdateColumn {
   /** column name */
   InterestAccruedToday = "interest_accrued_today",
   /** column name */
+  InterestAccruedTodayAdjustment = "interest_accrued_today_adjustment",
+  /** column name */
   LateFeesAccruedToday = "late_fees_accrued_today",
+  /** column name */
+  LateFeesAccruedTodayAdjustment = "late_fees_accrued_today_adjustment",
   /** column name */
   ProductType = "product_type",
   /** column name */
@@ -1892,7 +1915,9 @@ export type BankFinancialSummariesVarPopFields = {
   adjusted_total_limit?: Maybe<Scalars["Float"]>;
   available_limit?: Maybe<Scalars["Float"]>;
   interest_accrued_today?: Maybe<Scalars["Float"]>;
+  interest_accrued_today_adjustment?: Maybe<Scalars["Float"]>;
   late_fees_accrued_today?: Maybe<Scalars["Float"]>;
+  late_fees_accrued_today_adjustment?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
   total_outstanding_interest?: Maybe<Scalars["Float"]>;
@@ -1907,7 +1932,9 @@ export type BankFinancialSummariesVarSampFields = {
   adjusted_total_limit?: Maybe<Scalars["Float"]>;
   available_limit?: Maybe<Scalars["Float"]>;
   interest_accrued_today?: Maybe<Scalars["Float"]>;
+  interest_accrued_today_adjustment?: Maybe<Scalars["Float"]>;
   late_fees_accrued_today?: Maybe<Scalars["Float"]>;
+  late_fees_accrued_today_adjustment?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
   total_outstanding_interest?: Maybe<Scalars["Float"]>;
@@ -1922,7 +1949,9 @@ export type BankFinancialSummariesVarianceFields = {
   adjusted_total_limit?: Maybe<Scalars["Float"]>;
   available_limit?: Maybe<Scalars["Float"]>;
   interest_accrued_today?: Maybe<Scalars["Float"]>;
+  interest_accrued_today_adjustment?: Maybe<Scalars["Float"]>;
   late_fees_accrued_today?: Maybe<Scalars["Float"]>;
+  late_fees_accrued_today_adjustment?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
   total_outstanding_interest?: Maybe<Scalars["Float"]>;
@@ -1949,10 +1978,12 @@ export type BigintComparisonExp = {
 export type BlazePreapprovals = {
   annual_interest_rate: Scalars["numeric"];
   created_at: Scalars["timestamptz"];
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
   expiration_date: Scalars["date"];
   external_blaze_company_id: Scalars["String"];
   external_blaze_shop_id: Scalars["String"];
   id: Scalars["uuid"];
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   max_credit_limit: Scalars["numeric"];
   updated_at: Scalars["timestamptz"];
 };
@@ -1997,10 +2028,12 @@ export type BlazePreapprovalsBoolExp = {
   _or?: Maybe<Array<BlazePreapprovalsBoolExp>>;
   annual_interest_rate?: Maybe<NumericComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
+  deleted_at?: Maybe<TimestamptzComparisonExp>;
   expiration_date?: Maybe<DateComparisonExp>;
   external_blaze_company_id?: Maybe<StringComparisonExp>;
   external_blaze_shop_id?: Maybe<StringComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
+  is_deleted?: Maybe<BooleanComparisonExp>;
   max_credit_limit?: Maybe<NumericComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
 };
@@ -2023,10 +2056,12 @@ export type BlazePreapprovalsIncInput = {
 export type BlazePreapprovalsInsertInput = {
   annual_interest_rate?: Maybe<Scalars["numeric"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
   expiration_date?: Maybe<Scalars["date"]>;
   external_blaze_company_id?: Maybe<Scalars["String"]>;
   external_blaze_shop_id?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   max_credit_limit?: Maybe<Scalars["numeric"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
@@ -2035,6 +2070,7 @@ export type BlazePreapprovalsInsertInput = {
 export type BlazePreapprovalsMaxFields = {
   annual_interest_rate?: Maybe<Scalars["numeric"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
   expiration_date?: Maybe<Scalars["date"]>;
   external_blaze_company_id?: Maybe<Scalars["String"]>;
   external_blaze_shop_id?: Maybe<Scalars["String"]>;
@@ -2047,6 +2083,7 @@ export type BlazePreapprovalsMaxFields = {
 export type BlazePreapprovalsMinFields = {
   annual_interest_rate?: Maybe<Scalars["numeric"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
   expiration_date?: Maybe<Scalars["date"]>;
   external_blaze_company_id?: Maybe<Scalars["String"]>;
   external_blaze_shop_id?: Maybe<Scalars["String"]>;
@@ -2074,10 +2111,12 @@ export type BlazePreapprovalsOnConflict = {
 export type BlazePreapprovalsOrderBy = {
   annual_interest_rate?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
+  deleted_at?: Maybe<OrderBy>;
   expiration_date?: Maybe<OrderBy>;
   external_blaze_company_id?: Maybe<OrderBy>;
   external_blaze_shop_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  is_deleted?: Maybe<OrderBy>;
   max_credit_limit?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
 };
@@ -2094,6 +2133,8 @@ export enum BlazePreapprovalsSelectColumn {
   /** column name */
   CreatedAt = "created_at",
   /** column name */
+  DeletedAt = "deleted_at",
+  /** column name */
   ExpirationDate = "expiration_date",
   /** column name */
   ExternalBlazeCompanyId = "external_blaze_company_id",
@@ -2101,6 +2142,8 @@ export enum BlazePreapprovalsSelectColumn {
   ExternalBlazeShopId = "external_blaze_shop_id",
   /** column name */
   Id = "id",
+  /** column name */
+  IsDeleted = "is_deleted",
   /** column name */
   MaxCreditLimit = "max_credit_limit",
   /** column name */
@@ -2111,10 +2154,12 @@ export enum BlazePreapprovalsSelectColumn {
 export type BlazePreapprovalsSetInput = {
   annual_interest_rate?: Maybe<Scalars["numeric"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
   expiration_date?: Maybe<Scalars["date"]>;
   external_blaze_company_id?: Maybe<Scalars["String"]>;
   external_blaze_shop_id?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   max_credit_limit?: Maybe<Scalars["numeric"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
@@ -2150,6 +2195,8 @@ export enum BlazePreapprovalsUpdateColumn {
   /** column name */
   CreatedAt = "created_at",
   /** column name */
+  DeletedAt = "deleted_at",
+  /** column name */
   ExpirationDate = "expiration_date",
   /** column name */
   ExternalBlazeCompanyId = "external_blaze_company_id",
@@ -2157,6 +2204,8 @@ export enum BlazePreapprovalsUpdateColumn {
   ExternalBlazeShopId = "external_blaze_shop_id",
   /** column name */
   Id = "id",
+  /** column name */
+  IsDeleted = "is_deleted",
   /** column name */
   MaxCreditLimit = "max_credit_limit",
   /** column name */
@@ -5827,7 +5876,6 @@ export type CompanySettings = {
   id: Scalars["uuid"];
   is_autogenerate_repayments_enabled?: Maybe<Scalars["Boolean"]>;
   is_dummy_account: Scalars["Boolean"];
-  is_loc_late?: Maybe<Scalars["Boolean"]>;
   /** An object relationship */
   metrc_api_key?: Maybe<MetrcApiKeys>;
   metrc_api_key_id?: Maybe<Scalars["uuid"]>;
@@ -5926,7 +5974,6 @@ export type CompanySettingsBoolExp = {
   id?: Maybe<UuidComparisonExp>;
   is_autogenerate_repayments_enabled?: Maybe<BooleanComparisonExp>;
   is_dummy_account?: Maybe<BooleanComparisonExp>;
-  is_loc_late?: Maybe<BooleanComparisonExp>;
   metrc_api_key?: Maybe<MetrcApiKeysBoolExp>;
   metrc_api_key_id?: Maybe<UuidComparisonExp>;
   payor_agreement_docusign_template?: Maybe<StringComparisonExp>;
@@ -6008,7 +6055,6 @@ export type CompanySettingsInsertInput = {
   id?: Maybe<Scalars["uuid"]>;
   is_autogenerate_repayments_enabled?: Maybe<Scalars["Boolean"]>;
   is_dummy_account?: Maybe<Scalars["Boolean"]>;
-  is_loc_late?: Maybe<Scalars["Boolean"]>;
   metrc_api_key?: Maybe<MetrcApiKeysObjRelInsertInput>;
   metrc_api_key_id?: Maybe<Scalars["uuid"]>;
   payor_agreement_docusign_template?: Maybe<Scalars["String"]>;
@@ -6201,7 +6247,6 @@ export type CompanySettingsOrderBy = {
   id?: Maybe<OrderBy>;
   is_autogenerate_repayments_enabled?: Maybe<OrderBy>;
   is_dummy_account?: Maybe<OrderBy>;
-  is_loc_late?: Maybe<OrderBy>;
   metrc_api_key?: Maybe<MetrcApiKeysOrderBy>;
   metrc_api_key_id?: Maybe<OrderBy>;
   payor_agreement_docusign_template?: Maybe<OrderBy>;
@@ -6265,8 +6310,6 @@ export enum CompanySettingsSelectColumn {
   /** column name */
   IsDummyAccount = "is_dummy_account",
   /** column name */
-  IsLocLate = "is_loc_late",
-  /** column name */
   MetrcApiKeyId = "metrc_api_key_id",
   /** column name */
   PayorAgreementDocusignTemplate = "payor_agreement_docusign_template",
@@ -6314,7 +6357,6 @@ export type CompanySettingsSetInput = {
   id?: Maybe<Scalars["uuid"]>;
   is_autogenerate_repayments_enabled?: Maybe<Scalars["Boolean"]>;
   is_dummy_account?: Maybe<Scalars["Boolean"]>;
-  is_loc_late?: Maybe<Scalars["Boolean"]>;
   metrc_api_key_id?: Maybe<Scalars["uuid"]>;
   payor_agreement_docusign_template?: Maybe<Scalars["String"]>;
   revenue_end_date?: Maybe<Scalars["date"]>;
@@ -6362,8 +6404,6 @@ export enum CompanySettingsUpdateColumn {
   IsAutogenerateRepaymentsEnabled = "is_autogenerate_repayments_enabled",
   /** column name */
   IsDummyAccount = "is_dummy_account",
-  /** column name */
-  IsLocLate = "is_loc_late",
   /** column name */
   MetrcApiKeyId = "metrc_api_key_id",
   /** column name */
@@ -30492,7 +30532,7 @@ export type GetParentCompanyWithCustomerCompaniesQueryVariables = Exact<{
 export type GetParentCompanyWithCustomerCompaniesQuery = {
   parent_companies_by_pk?: Maybe<
     Pick<ParentCompanies, "id"> & {
-      companies: Array<
+      customer_companies: Array<
         Pick<Companies, "id" | "name"> & {
           contract?: Maybe<Pick<Contracts, "id"> & ContractFragment>;
           financial_summaries: Array<
@@ -32300,11 +32340,6 @@ export type GetUserByIdQueryVariables = Exact<{
 export type GetUserByIdQuery = {
   users_by_pk?: Maybe<
     Pick<Users, "id"> & {
-      parent_company?: Maybe<
-        Pick<ParentCompanies, "id"> & {
-          companies: Array<Pick<Companies, "id" | "name">>;
-        }
-      >;
       company?: Maybe<Pick<Companies, "id" | "name">>;
     } & UserFragment
   >;
@@ -32319,7 +32354,7 @@ export type GetUserMenuInfoQuery = {
     Pick<Users, "id"> & {
       parent_company?: Maybe<
         Pick<ParentCompanies, "id" | "name"> & {
-          companies: Array<Pick<Companies, "id" | "name">>;
+          customer_companies: Array<Pick<Companies, "id" | "name">>;
         }
       >;
     } & UserFragment
@@ -43668,7 +43703,7 @@ export const GetParentCompanyWithCustomerCompaniesDocument = gql`
   ) {
     parent_companies_by_pk(id: $parent_company_id) {
       id
-      companies(
+      customer_companies: companies(
         where: { is_customer: { _eq: true } }
         order_by: { name: asc }
       ) {
@@ -47671,13 +47706,6 @@ export const GetUserByIdDocument = gql`
     users_by_pk(id: $id) {
       id
       ...User
-      parent_company {
-        id
-        companies {
-          id
-          name
-        }
-      }
       company {
         id
         name
@@ -47743,7 +47771,10 @@ export const GetUserMenuInfoDocument = gql`
       parent_company {
         id
         name
-        companies {
+        customer_companies: companies(
+          where: { is_customer: { _eq: true } }
+          order_by: { name: asc }
+        ) {
           id
           name
         }
