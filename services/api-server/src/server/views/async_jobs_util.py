@@ -162,19 +162,23 @@ def orchestration_handler(
 		if number_of_running_jobs == available_job_number:
 			return [], None
 
-		starting_jobs = cast(
-			List[models.AsyncJob],
-			session.query(models.AsyncJob).filter(
-				models.AsyncJob.status == AsyncJobStatusEnum.QUEUED
-			).filter(
-				cast(Callable, models.AsyncJob.is_deleted.isnot)(True)
-			).order_by(
-				models.AsyncJob.is_high_priority.desc()
-			).order_by(
-				models.AsyncJob.queued_at.asc()
-			).limit(
-				available_job_number - number_of_running_jobs
-			).all())
+		starting_job_limit = available_job_number - number_of_running_jobs
+		starting_jobs = []
+
+		if starting_job_limit >= 1:
+			starting_jobs = cast(
+				List[models.AsyncJob],
+				session.query(models.AsyncJob).filter(
+					models.AsyncJob.status == AsyncJobStatusEnum.QUEUED
+				).filter(
+					cast(Callable, models.AsyncJob.is_deleted.isnot)(True)
+				).order_by(
+					models.AsyncJob.is_high_priority.desc()
+				).order_by(
+					models.AsyncJob.queued_at.asc()
+				).limit(
+					starting_job_limit
+				).all())
 
 		# Cfg and sendgrid_client need to be passed in too the thread function 
 		# or else the app instance is not recognized once a thread is spawned
