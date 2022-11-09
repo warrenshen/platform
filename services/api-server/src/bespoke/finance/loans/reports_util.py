@@ -554,6 +554,51 @@ def list_financial_summaries_that_need_balances_recomputed_by_company(
 
 	return summary_requests
 	
+def remove_financial_summaries_that_no_longer_need_to_be_recomputed(
+	session: Session, 
+	company_id: str,
+	compute_requests: List[ComputeSummaryRequest],
+) -> List[ComputeSummaryRequest]:
+	
+	# grabs the most recent contract
+	contract = session.query(models.Contract).filter(
+		models.Contract.company_id == company_id
+	).order_by(
+		models.Contract.adjusted_end_date.desc()
+	).first()
+
+
+	removed_summaries_report_date = []
+	active_compute_requests = []
+
+	if contract == None:
+		# there are no contracts (potentially a propsective or test company)
+		# all report dates should be removed out of calculation
+		removed_summaries_report_date = [req['report_date'] for req in compute_requests]
+	else:
+
+		terminated_contract_date = contract.adjusted_end_date
+		for compute_request in compute_requests:
+			if compute_request['report_date'] > terminated_contract_date:
+				removed_summaries_report_date.append(compute_request['report_date'])
+			else:
+				active_compute_requests.append(compute_request)
+
+	# switch the financial summaries after the contract ended to needs_recompute = false
+	financial_summaries = session.query(
+		models.FinancialSummary
+	).filter(
+		models.FinancialSummary.company_id == company_id
+	).filter(
+		models.FinancialSummary.date.in_(removed_summaries_report_date)
+	).all()
+
+	for summary in financial_summaries:
+		summary.needs_recompute = False	
+		summary.days_to_compute_back = 0
+
+	return active_compute_requests
+
 def run_customer_balances_for_financial_summaries_that_need_recompute(
 	session: Session,
 	compute_requests: List[ComputeSummaryRequest]
@@ -577,7 +622,7 @@ def run_customer_balances_for_financial_summaries_that_need_recompute(
 			req['update_days_back'] = 0
 		dates_updated.update(get_dates_updated(req['report_date'], req['update_days_back']))
 
-	if len(descriptive_errors) == len(compute_requests):
+	if len(descriptive_errors) == len(compute_requests) and len(compute_requests) != 0:
 		return None, descriptive_errors, errors.Error('No companies balances could be computed successfully. Errors: {}'.format(
 			descriptive_errors))
 

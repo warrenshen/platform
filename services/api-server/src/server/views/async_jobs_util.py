@@ -869,6 +869,7 @@ def update_dirty_company_balances_job(
 	logging.debug("Received request to update dirty company balances")
 	company_id = job_payload["company_id"]
 	today = date_util.now_as_date(date_util.DEFAULT_TIMEZONE)
+
 	compute_requests = reports_util.list_financial_summaries_that_need_balances_recomputed_by_company(
 		session, 
 		company_id,
@@ -876,12 +877,17 @@ def update_dirty_company_balances_job(
 		amount_to_fetch=5)
 	if not compute_requests:
 		return True, None
+	
+	active_compute_requests = reports_util.remove_financial_summaries_that_no_longer_need_to_be_recomputed(
+		session,
+		company_id,
+		compute_requests)
 
-	# TODO: sessionmaker should be eventually removed
 	dates_updated, descriptive_errors, fatal_error = reports_util.run_customer_balances_for_financial_summaries_that_need_recompute(
 		session,
-		compute_requests
+		active_compute_requests
 	)
+
 	if fatal_error:
 		logging.error(f"Got FATAL error while recomputing balances for companies that need it: '{fatal_error}'")
 		return False, errors.Error(str(fatal_error))
