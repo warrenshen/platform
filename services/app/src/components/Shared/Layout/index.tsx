@@ -7,7 +7,7 @@ import { ReactComponent as AdvancesIcon } from "components/Shared/Layout/Icons/A
 import { ReactComponent as ContractsIcon } from "components/Shared/Layout/Icons/Contracts.svg";
 import { ReactComponent as CustomersIcon } from "components/Shared/Layout/Icons/Customers.svg";
 import { ReactComponent as EbbaApplicationsIcon } from "components/Shared/Layout/Icons/EbbaApplications.svg";
-//import { ReactComponent as FinancingRequestsIcon } from "components/Shared/Layout/Icons/FinancingRequests.svg";
+import { ReactComponent as FinancingRequestsIcon } from "components/Shared/Layout/Icons/FinancingRequests.svg";
 import { ReactComponent as InvoicesIcon } from "components/Shared/Layout/Icons/Invoices.svg";
 import { ReactComponent as LoansIcon } from "components/Shared/Layout/Icons/Loans.svg";
 import { ReactComponent as MetrcIcon } from "components/Shared/Layout/Icons/Metrc.svg";
@@ -34,7 +34,6 @@ import {
   useGetPurchaseOrdersChangesRequestedCountForCustomerQuery,
   useGetRepaymentsCountForBankSubscription,
 } from "generated/graphql";
-import { FinancingRequestsSidebarIcon } from "icons";
 import {
   FeatureFlagEnum,
   ProductTypeEnum,
@@ -204,9 +203,7 @@ const getCustomerNavItems = (
     },
     {
       dataCy: "financing-requests",
-      iconNode: FinancingRequestsSidebarIcon as React.FunctionComponent<
-        React.SVGProps<SVGSVGElement>
-      >,
+      iconNode: FinancingRequestsIcon,
       visible: !!productType && productType === ProductTypeEnum.LineOfCredit,
       text: "Financing Requests",
       link: customerRoutes.financingRequests,
@@ -271,9 +268,7 @@ const getBankNavItems = (
     },
     {
       dataCy: "financing-requests",
-      iconNode: FinancingRequestsSidebarIcon as React.FunctionComponent<
-        React.SVGProps<SVGSVGElement>
-      >,
+      iconNode: FinancingRequestsIcon,
       text: "Financing Requests",
       link: bankRoutes.financingRequests,
       // counter: loansCount,
