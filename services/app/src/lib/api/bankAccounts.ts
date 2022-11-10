@@ -1,6 +1,7 @@
 import {
   BankAccountFragment,
   BankAccountsInsertInput,
+  Companies,
 } from "generated/graphql";
 import {
   CustomMutationResponse,
@@ -88,6 +89,35 @@ export async function updateBankAccountMutation(
         return {
           status: "ERROR",
           msg: "Could not update the bank account",
+        };
+      }
+    );
+}
+
+export type UpdateBankAccountForAllVendorPartnershipMutationReq = {
+  variables: {
+    vendor_id: Companies["id"];
+    bank_account_id: BankAccountFragment["id"];
+  };
+};
+
+export async function updateBankAccountForAllVendorPartnershipMutation(
+  req: UpdateBankAccountForAllVendorPartnershipMutationReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(bankAccountsRoutes.updateBankAccountForAllPartnerships, req.variables)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.error(error);
+        return {
+          status: "ERROR",
+          msg: "Could not update the bank account for all partnerships",
         };
       }
     );

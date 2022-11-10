@@ -201,6 +201,8 @@ export const bankAccountsRoutes = {
   deleteBankAccount: "/bank_accounts/delete_bank_account",
   createBankAccount: "/bank_accounts/create_bank_account",
   updateBankAccount: "/bank_accounts/update_bank_account",
+  updateBankAccountForAllPartnerships:
+    "/bank_accounts/update_bank_account_for_all_partnerships",
 };
 
 export const creditsRoutes = {

@@ -179,6 +179,43 @@ class UpdateBankAccountView(MethodView):
             )
         )
 
+class UpdateBankAccountForAllPartnershipsView(MethodView):
+    decorators = [auth_util.login_required]
+
+    @handler_util.catch_bad_json_request
+    def post(self, **kwargs: Any) -> Response:
+        logging.info("Updating bank account for all vendor partnerships")
+        cfg = cast(Config, current_app.app_config)
+
+        form = json.loads(request.data)
+        if not form:
+            return handler_util.make_error_response('No data provided')
+
+        required_keys = ['vendor_id', 'bank_account_id']
+
+        for key in required_keys:
+            if key not in form:
+                return handler_util.make_error_response(f'Missing {key} in response to updating bank account for all partnerships')
+
+        bank_account_id = form['bank_account_id']
+        vendor_id = form['vendor_id']
+
+        with models.session_scope(current_app.session_maker) as session:
+
+            _, err = bank_account_util.update_bank_for_partnerships(
+                session,
+                bank_account_id = bank_account_id,
+                vendor_id = vendor_id,
+            )
+            if err:
+                raise err
+
+        return make_response(
+            json.dumps(
+                {"status": "OK", "resp": "Successfully updated the bank account for all partnerships."}
+            )
+        )
+
 handler.add_url_rule(
     "/delete_bank_account",
     view_func=DeleteBankAccountView.as_view(name="delete_bank_account_view"),
@@ -192,4 +229,9 @@ handler.add_url_rule(
 handler.add_url_rule(
     "/update_bank_account",
     view_func=UpdateBankAccountView.as_view(name="update_bank_account_view"),
+)
+
+handler.add_url_rule(
+    "/update_bank_account_for_all_partnerships",
+    view_func=UpdateBankAccountForAllPartnershipsView.as_view(name="update_bank_account_for_all_partnerships_view"),
 )

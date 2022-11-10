@@ -1,6 +1,7 @@
 import { Box, Typography } from "@material-ui/core";
 import CreateUpdateBankAccountModal from "components/BankAccount/CreateUpdateBankAccountModal";
 import DeleteBankAccountModal from "components/BankAccount/DeleteBankAccountModal";
+import UpdateAllVendorPartnershipModal from "components/BankAccount/UpdateAllVendorPartnershipModal";
 import BankAccountsDataGrid from "components/BankAccounts/BankAccountsDataGrid";
 import CompanySettingsCard from "components/Settings/CompanySettingsCard";
 import EditCustomerSettingsModal from "components/Settings/EditCustomerSettingsModal";
@@ -73,8 +74,8 @@ export default function CustomerSettings({
   if (!settings) {
     return null;
   }
-
-  const isVendorOrActiveCustomer = company.is_vendor || !!contract;
+  const isVendorCompany = company.is_vendor;
+  const isVendorOrActiveCustomer = isVendorCompany || !!contract;
 
   return (
     <Box>
@@ -186,6 +187,29 @@ export default function CustomerSettings({
               />
             </Box>
           </Can>
+          {isBankUser && isVendorCompany && (
+            <Can perform={Action.UseBankAccountForAllPartnerships}>
+              <Box mr={2}>
+                <ModalButton
+                  dataCy={"use-bank-account-for-all-partnerships-button"}
+                  label={"Use For All Vendor Partnerships"}
+                  isDisabled={
+                    selectedBankAccountIds.length !== 1 ||
+                    !isVendorOrActiveCustomer
+                  }
+                  modal={({ handleClose }) => (
+                    <UpdateAllVendorPartnershipModal
+                      bankAccount={selectedBankAccount as BankAccountFragment}
+                      handleClose={() => {
+                        handleDataChange();
+                        handleClose();
+                      }}
+                    />
+                  )}
+                />
+              </Box>
+            </Can>
+          )}
           <Can perform={Action.DeleteBankAccount}>
             <Box mr={2}>
               <ModalButton

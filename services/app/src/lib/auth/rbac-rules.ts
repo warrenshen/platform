@@ -7,6 +7,7 @@ export enum Action {
   AssignBespokeBankAccountForCustomer = "bank-accounts:assign-to-customer",
   AddBankAccount = "bank-accounts:add",
   EditBankAccount = "bank-accounts:edit",
+  UseBankAccountForAllPartnerships = "bank-accounts:use-bank-account-for-all-partnerships",
   DeleteBankAccount = "bank-accounts:delete",
   EditCustomerSettings = "bank-accounts:edit-customer-settings",
 
@@ -219,6 +220,7 @@ const rules: Rules = {
       Action.AssignBespokeBankAccountForCustomer,
       Action.AddBankAccount,
       Action.EditBankAccount,
+      Action.UseBankAccountForAllPartnerships,
       Action.DeleteBankAccount,
       Action.EditCustomerSettings,
 

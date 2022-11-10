@@ -1,7 +1,7 @@
 
-from typing import Collection, Dict, Optional, Tuple, cast, Union, Dict
+from typing import Collection, Dict, Optional, Tuple, cast, Union, Dict, List
 from bespoke.date import date_util
-from bespoke.db import models
+from bespoke.db import models, queries
 from sqlalchemy.orm.session import Session
 
 from bespoke import errors
@@ -234,3 +234,27 @@ def update_bank_account(
 	}
 
 	return template_data, None
+
+def update_bank_for_partnerships(
+	session: Session,
+    bank_account_id: str,
+    vendor_id: str,
+) -> Tuple[bool, errors.Error]:
+	
+	bank_account = cast(
+		List[models.BankAccount],
+		session.query(models.BankAccount).filter(
+			models.BankAccount.id == bank_account_id
+		).all())
+
+	if bank_account == None:
+		return False, errors.Error("Can not find bank account with specified id")
+
+	company_vendor_partnerships, err = queries.get_company_vendor_partnerships_by_vendor_id(session, vendor_id)
+
+	if err:
+		return False, err
+	for partnership in company_vendor_partnerships:
+		partnership.vendor_bank_id = bank_account_id
+	return True, None
+

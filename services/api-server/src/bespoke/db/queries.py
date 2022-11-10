@@ -146,6 +146,26 @@ def get_company_vendor_partnerships(
 
     return company_vendor_partnerships, None
 
+def get_company_vendor_partnerships_by_vendor_id(
+    session: Session,
+    vendor_id: str,
+) -> Tuple[ List[models.CompanyVendorPartnership], errors.Error ]:
+    filters = [
+        models.CompanyVendorPartnership.vendor_id == vendor_id
+    ]
+
+    # fmt: off
+    company_vendor_partnerships = cast(
+        List[models.CompanyVendorPartnership],
+        session.query(models.CompanyVendorPartnership).filter(
+            *filters
+        ).all())
+    # fmt: on
+
+    if not company_vendor_partnerships:
+        return None, errors.Error("No company vendor partnerships found for the provided vendor")
+
+    return company_vendor_partnerships, None
 
 # ###############################
 # Company Settings
