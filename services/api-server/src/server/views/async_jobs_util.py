@@ -1,3 +1,4 @@
+from collections import defaultdict
 import datetime
 import logging
 from datetime import timedelta, timezone
@@ -7,12 +8,14 @@ from bespoke import errors
 from decimal import *
 
 from bespoke.date import date_util
-from bespoke.db import models, models_util, queries
+from bespoke.db import db_constants, models, models_util, queries
 from bespoke.db.db_constants import AsyncJobNameEnum, AsyncJobStatusEnum, LoanTypeEnum, ProductType
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
+from bespoke.finance import number_util
 from bespoke.finance.loans import reports_util
 from bespoke.finance.payments import autogenerate_repayment_util
+from bespoke.finance.purchase_orders import purchase_orders_util
 from bespoke.finance.reports import loan_balances
 from bespoke.metrc.common.metrc_common_util import chunker, chunker_dict
 from bespoke.reports import report_generation_util
@@ -1299,6 +1302,116 @@ def automatic_debit_courtesy_alerts_job(
 
 	return True, None
 
+
+@errors.return_error_tuple
+def generate_reject_purchase_order_past_60_days_job(
+	session: Session
+) -> Tuple[bool, errors.Error]:
+	cfg = cast(Config, current_app.app_config)
+
+	purchase_orders = cast(
+		List[models.PurchaseOrder],
+		session.query(models.PurchaseOrder).filter(
+			cast(Callable, models.PurchaseOrder.is_deleted.isnot)(True)
+		).filter(
+			models.PurchaseOrder.new_purchase_order_status.in_([
+				db_constants.NewPurchaseOrderStatus.PENDING_APPROVAL_BY_VENDOR,
+				db_constants.NewPurchaseOrderStatus.CHANGES_REQUESTED_BY_VENDOR,
+				db_constants.NewPurchaseOrderStatus.CHANGES_REQUESTED_BY_BESPOKE,
+				db_constants.NewPurchaseOrderStatus.READY_TO_REQUEST_FINANCING,
+				db_constants.NewPurchaseOrderStatus.FINANCING_PENDING_APPROVAL,
+				db_constants.NewPurchaseOrderStatus.FINANCING_REQUEST_APPROVED,
+			])
+		).filter(
+			models.PurchaseOrder.order_date < date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE) - timedelta(days=60)
+		).all())
+
+	past_due_purchase_order_ids_by_company_id = defaultdict(list)
+	for purchase_order in purchase_orders:
+		net_terms = purchase_order.net_terms if purchase_order.net_terms else 0
+		if purchase_order.order_date + timedelta(days=net_terms + 60) < date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE):
+			past_due_purchase_order_ids_by_company_id[str(purchase_order.company_id)].append(str(purchase_order.id))
+
+	for company_id, purchase_order_ids in past_due_purchase_order_ids_by_company_id.items():
+		payload = {"company_id" : company_id, "purchase_order_ids" : purchase_order_ids}
+		add_job_to_queue(
+			session=session,
+			job_name=AsyncJobNameEnum.PURCHASE_ORDERS_PAST_DUE,
+			submitted_by_user_id=cfg.BOT_USER_ID,
+			is_high_priority=False,
+			job_payload=payload)
+
+	add_job_summary(session, AsyncJobNameEnum.PURCHASE_ORDERS_PAST_DUE)
+
+	return True, None
+
+
+@errors.return_error_tuple
+def reject_purchase_order_past_60_days(
+	session: Session,
+	cfg: Config,
+	sendgrid_client: sendgrid_util.Client,
+	job_payload: Dict[str, Any],
+) -> Tuple[bool, errors.Error]:
+	company_id = job_payload["company_id"]
+	purchase_order_ids = job_payload["purchase_order_ids"]
+	rejection_note = "Purchase order is over 60 days past due"
+
+	customer_name = ""
+	purchase_orders = []
+
+	for purchase_order_id in purchase_order_ids:
+		purchase_order_for_sendgrid_template = {}
+		purchase_order, err = purchase_orders_util.reject_purchase_order(
+			session=session,
+			purchase_order_id=purchase_order_id,
+			rejected_by_user_id=cfg.BOT_USER_ID,
+			rejected_by_user_full_name="Bespoke Financial",
+			rejection_note=rejection_note,
+			is_bank_admin=True
+		)
+		if err:
+			return False, errors.Error(str(err))
+
+		purchase_order_for_sendgrid_template["order_number"] = purchase_order.order_number
+		purchase_order_for_sendgrid_template["amount"] = number_util.to_dollar_format(float(purchase_order.amount))
+		purchase_order_for_sendgrid_template["requested_date"] = date_util.human_readable_yearmonthday(
+			purchase_order.requested_at if purchase_order.requested_at is not None else date_util.now()
+		)
+		purchase_order_for_sendgrid_template["vendor_name"] = purchase_order.vendor.get_display_name()
+		purchase_orders.append(purchase_order_for_sendgrid_template)
+		customer_name = purchase_order.company.get_display_name()
+
+	customer_users = models_util.get_active_users(
+		company_id,
+		session,
+		filter_contact_only=True
+	)
+
+	if not customer_users:
+		return False, errors.Error('There are no users configured for this customer')
+
+	customer_emails = [user.email for user in customer_users]
+
+	_, err = sendgrid_client.send(
+		template_name = sendgrid_util.TemplateNames.BANK_REJECTED_PURCHASE_ORDER_MULTIPLE,
+		template_data = {
+			'customer_name': customer_name,
+			'purchase_order': purchase_orders,
+			'rejection_note': rejection_note,
+		},
+		recipients = customer_emails + sendgrid_client.get_bank_notify_email_addresses(),
+	)
+
+	if err:
+		return False, errors.Error(str(err))
+
+	session.commit()
+	logging.info(f"Company ID: {company_id} had the following purchase orders rejected due to being past due 60 days: {purchase_order_ids}")
+
+	return True, None
+
+
 ASYNC_JOB_GENERATION_LOOKUP = {
 	AsyncJobNameEnum.LOANS_COMING_DUE: generate_companies_loans_coming_due_job,
 	AsyncJobNameEnum.LOANS_PAST_DUE: generate_companies_loans_past_due_job,
@@ -1306,6 +1419,7 @@ ASYNC_JOB_GENERATION_LOOKUP = {
 	AsyncJobNameEnum.AUTOGENERATE_REPAYMENT_ALERTS: autogenerate_repayment_alerts_customers,
 	AsyncJobNameEnum.UPDATE_COMPANY_BALANCES: update_company_balances_job, 
 	AsyncJobNameEnum.AUTOMATIC_DEBIT_COURTESY_ALERTS: automatic_debit_courtesy_alerts_generate_job, 
+	AsyncJobNameEnum.PURCHASE_ORDERS_PAST_DUE: generate_reject_purchase_order_past_60_days_job,
 }
 
 ASYNC_JOB_ORCHESTRATION_LOOKUP = {
@@ -1317,4 +1431,5 @@ ASYNC_JOB_ORCHESTRATION_LOOKUP = {
 	AsyncJobNameEnum.AUTOMATIC_DEBIT_COURTESY_ALERTS: automatic_debit_courtesy_alerts_job, 
 	AsyncJobNameEnum.NON_LOC_MONTHLY_REPORT_SUMMARY: reports_monthly_loan_summary_Non_LOC,
 	AsyncJobNameEnum.LOC_MONTHLY_REPORT_SUMMARY: reports_monthly_loan_summary_LOC,
+	AsyncJobNameEnum.PURCHASE_ORDERS_PAST_DUE: reject_purchase_order_past_60_days,
 }

@@ -102,3 +102,12 @@
   headers:
     - name: x-api-key
       value_from_env: ASYNC_SERVER_API_KEY
+- name: async_purchase_orders_past_due
+  webhook: '{{ASYNC_SERVER_BASE_URL}}/async_jobs/generate_jobs'
+  schedule: 0 12 * * *
+  include_in_metadata: true
+  payload:
+    job_name: purchase_orders_past_due
+  headers:
+    - name: x-api-key
+      value_from_env: ASYNC_SERVER_API_KEY

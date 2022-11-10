@@ -406,6 +406,7 @@ class AsyncJobNameEnum(object):
 	AUTOMATIC_DEBIT_COURTESY_ALERTS="automatic_debit_courtesy_alerts"
 	NON_LOC_MONTHLY_REPORT_SUMMARY="non_loc_monthly_report_summary"
 	LOC_MONTHLY_REPORT_SUMMARY="loc_monthly_report_summary"
+	PURCHASE_ORDERS_PAST_DUE="purchase_orders_past_due"
 
 AsyncJobNameEnumToLabel = {
 	AsyncJobNameEnum.LOANS_COMING_DUE: 'Loans coming due',
@@ -416,6 +417,7 @@ AsyncJobNameEnumToLabel = {
 	AsyncJobNameEnum.AUTOMATIC_DEBIT_COURTESY_ALERTS: 'Automatic debit courtesy alerts',
 	AsyncJobNameEnum.NON_LOC_MONTHLY_REPORT_SUMMARY: 'Non-LOC monthly report summary',
 	AsyncJobNameEnum.LOC_MONTHLY_REPORT_SUMMARY: 'LOC monthly report summary',	
+	AsyncJobNameEnum.PURCHASE_ORDERS_PAST_DUE: 'Purchase orders past due',
 }
 
 # Vendor Change Requests

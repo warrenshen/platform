@@ -1140,6 +1140,7 @@ export enum AsyncJobNameEnum {
   AutomaticDebitCourtesyAlerts = "automatic_debit_courtesy_alerts",
   NonLOCMonthlyReportSummary = "non_loc_monthly_report_summary",
   LOCMonthlyReportSummary = "loc_monthly_report_summary",
+  PurchaseOrdersPastDue = "purchase_orders_past_due",
 }
 
 export const AsyncJobNameEnumToLabel = {
@@ -1154,6 +1155,7 @@ export const AsyncJobNameEnumToLabel = {
   [AsyncJobNameEnum.NonLOCMonthlyReportSummary]:
     "Non LOC Monthly Report Summary",
   [AsyncJobNameEnum.LOCMonthlyReportSummary]: "LOC Monthly Report Summary",
+  [AsyncJobNameEnum.PurchaseOrdersPastDue]: "Purchase Orders Past Due",
 };
 
 export const AsyncJobNames = [
@@ -1165,6 +1167,7 @@ export const AsyncJobNames = [
   AsyncJobNameEnum.AutomaticDebitCourtesyAlerts,
   AsyncJobNameEnum.NonLOCMonthlyReportSummary,
   AsyncJobNameEnum.LOCMonthlyReportSummary,
+  AsyncJobNameEnum.PurchaseOrdersPastDue,
 ];
 
 export enum VendorChangeRequestsStatusEnum {

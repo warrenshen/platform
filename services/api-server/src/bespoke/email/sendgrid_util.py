@@ -41,6 +41,7 @@ class TemplateNames(object):
 	VENDOR_APPROVED_PURCHASE_ORDER = 'vendor_approved_purchase_order'
 	VENDOR_REJECTED_PURCHASE_ORDER = 'vendor_rejected_purchase_order'
 	BANK_REJECTED_PURCHASE_ORDER = 'bank_rejected_purchase_order'
+	BANK_REJECTED_PURCHASE_ORDER_MULTIPLE = 'bank_rejected_purchase_order_multiple'
 	PURCHASE_ORDER_INCOMPLETE_NOTIFICATION = 'purchase_order_incomplete_notification'
 	BANK_REQUESTS_CHANGES_TO_PURCHASE_ORDER = 'bank_requests_changes_to_purchase_order'
 	VENDOR_REQUESTS_CHANGES_TO_PURCHASE_ORDER = 'vendor_requests_changes_to_purchase_order'
@@ -169,6 +170,10 @@ _TEMPLATE_NAME_TO_SENDGRID_CONFIG: Dict[str, TemplateConfigDict] = {
 	},
 	TemplateNames.BANK_REJECTED_PURCHASE_ORDER: {
 		'id': 'd-6da1a83e7e9648c5a7bff5005da76103',
+		'requires_secure_link': False
+	},
+	TemplateNames.BANK_REJECTED_PURCHASE_ORDER_MULTIPLE: {
+		'id': 'd-498ef811b819498f8fc8d1ec02d90a73',
 		'requires_secure_link': False
 	},
 	TemplateNames.BANK_REQUESTS_CHANGES_TO_PURCHASE_ORDER: {
