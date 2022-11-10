@@ -110,6 +110,7 @@ export default function EbbaApplicationsDataGrid({
           rejected_at:
             ebbaApplication.rejected_at &&
             parseDateStringServer(ebbaApplication.rejected_at),
+          rejection_note: ebbaApplication?.rejection_note,
           submitted_by_name: ebbaApplication.submitted_by_user?.full_name,
         });
       }),
@@ -316,6 +317,13 @@ export default function EbbaApplicationsDataGrid({
         caption: "Borrowing Base Adjustment Note",
         width: ColumnWidths.Date,
         alignment: "right",
+      },
+      {
+        visible: isBankUser,
+        caption: "Rejection Note",
+        dataField: "rejection_note",
+        width: 100,
+        alignment: "left",
       },
       {
         visible: isBankUser,
