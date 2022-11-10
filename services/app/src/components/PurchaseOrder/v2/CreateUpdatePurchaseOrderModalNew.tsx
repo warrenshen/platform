@@ -481,6 +481,8 @@ export default function CreateUpdatePurchaseOrderModalNew({
     return null;
   }
 
+  // TODO: Consult design - do we just want one "Save" button for bank user?
+  // Does it make sense a for a bank user to submit/save as draft on behalf of client
   return (
     <Modal
       dataCy={"create-purchase-order-modal"}
@@ -574,7 +576,13 @@ export default function CreateUpdatePurchaseOrderModalNew({
               {`Warning: you are ${
                 isActionTypeUpdate ? "editing" : "creating"
               } a purchase order on behalf of this
-                customer (only bank admins can do this).`}
+                customer (only bank admins can do this).
+                ${
+                  isActionTypeUpdate
+                    ? "If you update the purchase order's amount, it will be resubmitted to the vendor for approval"
+                    : ""
+                }
+              `}
             </Typography>
           </Alert>
         </Box>

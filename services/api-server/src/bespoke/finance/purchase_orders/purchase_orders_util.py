@@ -1492,10 +1492,14 @@ def update_purchase_order(
 	if err:
 		return None, err
 
+	purchase_order.is_metrc_based = purchase_order_input.is_metrc_based
+
 	if action == PurchaseOrderActions.SUBMIT:
 		purchase_order.requested_at = date_util.now()
-		purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.PENDING_APPROVAL_BY_VENDOR
-		status_notes = f"Sent to vendor on {date_util.human_readable_yearmonthday(date_util.now())}"
+		purchase_order.new_purchase_order_status = purchase_order.new_purchase_order_status if \
+			user_session.is_bank_admin() and not did_amount_change else NewPurchaseOrderStatus.PENDING_APPROVAL_BY_VENDOR
+		status_notes = f"Bank user edited PO on {date_util.human_readable_yearmonthday(date_util.now())}" if \
+			user_session.is_bank_admin() and not did_amount_change else f"Sent to vendor on {date_util.human_readable_yearmonthday(date_util.now())}"
 		if purchase_order.all_customer_notes:
 			purchase_order.all_customer_notes["status_notes"] = status_notes
 		else:
@@ -1503,7 +1507,10 @@ def update_purchase_order(
 				"status_notes": status_notes
 			}
 
-		reactivate_loans_by_artifact_id(session=session, artifact_id=purchase_order.id)
+		reactivate_loans_by_artifact_id(
+			session = session, 
+			artifact_id = purchase_order.id
+		)
 
 		# Run pre-submission validation checks
 		is_vendor_missing_bank_account, err = validate_purchase_order_input_submission_checks(
@@ -1525,14 +1532,15 @@ def update_purchase_order(
 		if err:
 			return None, err
 	else:
-		purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.DRAFT
+		if user_session.is_company_admin():
+			purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.DRAFT
 
 		_, err = update_purchase_order_history(
 			purchase_order,
 			str(submitting_user.id),
 			submitting_user.full_name,
 			"PO saved as draft",
-			NewPurchaseOrderStatus.DRAFT,
+			NewPurchaseOrderStatus.DRAFT if user_session.is_company_admin() else purchase_order.new_purchase_order_status,
 			action_notes = action_notes
 		)
 		if err:

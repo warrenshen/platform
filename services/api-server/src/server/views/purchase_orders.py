@@ -346,19 +346,20 @@ class SubmitPurchaseOrderUpdateView(MethodView):
 			if err:
 				return handler_util.make_error_response(err)
 
-			_, err = purchase_orders_util.send_email_alert_for_purchase_order_update_submission(
-				session,
-				purchase_order,
-				is_new_purchase_order,
-				action,
-				sendgrid_client,
-				config,
-				template_data,
-			)
-			if err:
-				return handler_util.make_error_response(err)
+			did_amount_change = template_data.get('did_amount_change', True)
 
-			#return handler_util.make_error_response(f'forced error')
+			if not (user_session.is_bank_admin() and not did_amount_change):
+				_, err = purchase_orders_util.send_email_alert_for_purchase_order_update_submission(
+					session,
+					purchase_order,
+					is_new_purchase_order,
+					action,
+					sendgrid_client,
+					config,
+					template_data,
+				)
+				if err:
+					return handler_util.make_error_response(err)
 
 			return make_response(json.dumps({
 				'status': 'OK',

@@ -4,6 +4,7 @@ import ReviewPurchaseOrderRequestChangesModal from "components/PurchaseOrder/Rev
 import ArchivePurchaseOrderModalMultiple from "components/PurchaseOrder/v2/ArchivePurchaseOrderModalMultiple";
 import ArchivePurchaseOrderModalNew from "components/PurchaseOrder/v2/ArchivePurchaseOrderModalNew";
 import BankPurchaseOrdersDataGridNew from "components/PurchaseOrder/v2/BankPurchaseOrdersDataGridNew";
+import CreateUpdatePurchaseOrderModalNew from "components/PurchaseOrder/v2/CreateUpdatePurchaseOrderModalNew";
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
 import SecondaryButton from "components/Shared/Button/SecondaryButton";
 import SecondaryWarningButton from "components/Shared/Button/SecondaryWarningButton";
@@ -12,13 +13,16 @@ import {
   CustomerForBankFragment,
   PurchaseOrderFragment,
   PurchaseOrders,
+  useGetMostRecentFinancialSummaryAndContractByCompanyIdQuery,
   useGetPurchaseOrdersByNewStatusSubscription,
 } from "generated/graphql";
 import { useFilterConfirmedPurchaseOrders } from "hooks/useFilterPurchaseOrders";
 import { SearchIcon } from "icons";
 import { Action } from "lib/auth/rbac-rules";
 import {
+  ActionType,
   NewPurchaseOrderStatus,
+  ProductTypeEnum,
   ReadyNewPurchaseOrderStatuses,
 } from "lib/enum";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
@@ -35,6 +39,7 @@ export default function BankPurchaseOrdersReadyForFinancingTab() {
   const [isRequestChangesModalOpen, setIsRequestChangesModalOpen] =
     useState(false);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+  const [isCreateUpdateModalOpen, setIsCreateUpdateModalOpen] = useState(false);
 
   const { data, error } = useGetPurchaseOrdersByNewStatusSubscription({
     variables: {
@@ -84,6 +89,26 @@ export default function BankPurchaseOrdersReadyForFinancingTab() {
     [navigate]
   );
 
+  const {
+    data: mostRecentFinancialSummary,
+    error: mostRecentFinancialSummaryError,
+  } = useGetMostRecentFinancialSummaryAndContractByCompanyIdQuery({
+    skip: !selectedPurchaseOrder || !selectedPurchaseOrder?.company_id,
+    variables: {
+      companyId: selectedPurchaseOrder?.company_id,
+    },
+  });
+
+  if (mostRecentFinancialSummaryError) {
+    console.error({ mostRecentFinancialSummaryError });
+    alert(
+      `Error in query (details in console): ${mostRecentFinancialSummaryError.message}`
+    );
+  }
+
+  const productType =
+    mostRecentFinancialSummary?.financial_summaries?.[0]?.product_type;
+
   return (
     <Box mt={3}>
       {isArchiveModalOpen && (
@@ -125,6 +150,17 @@ export default function BankPurchaseOrdersReadyForFinancingTab() {
           handleRejectSuccess={() => {}}
         />
       )}
+      {!!selectedPurchaseOrder && productType && isCreateUpdateModalOpen && (
+        <CreateUpdatePurchaseOrderModalNew
+          actionType={ActionType.Update}
+          purchaseOrderId={selectedPurchaseOrder.id}
+          companyId={selectedPurchaseOrder.company_id}
+          productType={productType as ProductTypeEnum}
+          handleClose={() => {
+            setIsCreateUpdateModalOpen(false);
+          }}
+        />
+      )}
       <Box
         display="flex"
         justifyContent="space-between"
@@ -141,6 +177,14 @@ export default function BankPurchaseOrdersReadyForFinancingTab() {
               isDisabled={!selectedPurchaseOrder}
               text={"Request Changes"}
               onClick={() => setIsRequestChangesModalOpen(true)}
+            />
+          </Can>
+          <Box mr={2} />
+          <Can perform={Action.EditPurchaseOrders}>
+            <PrimaryButton
+              isDisabled={!selectedPurchaseOrder}
+              text={"Edit PO"}
+              onClick={() => setIsCreateUpdateModalOpen(true)}
             />
           </Can>
           <Box mr={2} />
