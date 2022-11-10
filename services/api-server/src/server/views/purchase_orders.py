@@ -862,6 +862,7 @@ class ApprovePurchaseOrderView(MethodView):
 			purchase_order_requested_date = date_util.human_readable_yearmonthday(
 				purchase_order.requested_at,
 			)
+			purchase_order.all_customer_notes["status_notes"] = f"Approved on {date_util.human_readable_yearmonthday(date_util.now())}"
 
 			customer_users = models_util.get_active_users(
 				purchase_order.company_id, 

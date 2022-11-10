@@ -152,7 +152,8 @@ def approve_loans(
 					session = session,
 					purchase_order_id = purchase_order.id,
 					created_by_user_id = bank_admin_user_id,
-					created_by_user_full_name = user.full_name
+					created_by_user_full_name = user.full_name,
+					action_notes = f"${loan.amount} financing approved",
 				)
 				if err:
 					raise err
@@ -383,6 +384,7 @@ def submit_for_approval(
 			user_full_name = user.full_name,
 			action = "PO financing request created",
 			new_status = NewPurchaseOrderStatus.FINANCING_PENDING_APPROVAL,
+			action_notes = f"${loan.amount} financing requested",
 		)
 
 
@@ -633,16 +635,20 @@ def reject_loan(
 			return template_data, email_recipients, None
 
 		else:
-			_, err = purchase_orders_util.request_purchase_order_changes(
-				session=session,
-				purchase_order_id=loan.artifact_id,
-				requested_by_user_id=str(user.id),
-				requested_by_user_full_name=user.full_name,
-				requested_changes_note=rejection_note,
-				is_bank_admin=True,
-				is_vendor_approval_required=is_vendor_approval_required,
-			)
-			if err:
-				return None, None, err
+			# A record of the loan being deleted is kept in the purchase order history.
+			# Only case we don't want to delete loan is when we soft reject from the purchase order side.
+			loan.is_deleted = True
+			if is_vendor_approval_required:
+				_, err = purchase_orders_util.request_purchase_order_changes(
+					session=session,
+					purchase_order_id=loan.artifact_id,
+					requested_by_user_id=str(user.id),
+					requested_by_user_full_name=user.full_name,
+					requested_changes_note=rejection_note,
+					is_bank_admin=True,
+					is_vendor_approval_required=is_vendor_approval_required,
+				)
+				if err:
+					return None, None, err
 			
 			return template_data, email_recipients, None

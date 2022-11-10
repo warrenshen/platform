@@ -279,6 +279,7 @@ fragment PurchaseOrder on purchase_orders {
 fragment PurchaseOrderNew on purchase_orders {
   id
   bank_note
+  all_bank_notes
   history
   ...PurchaseOrderLimitedNew
 }

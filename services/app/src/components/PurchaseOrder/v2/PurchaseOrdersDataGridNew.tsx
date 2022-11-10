@@ -17,6 +17,7 @@ import {
 import {
   Companies,
   PurchaseOrderFragment,
+  PurchaseOrderNewFragment,
   PurchaseOrders,
   RequestStatusEnum,
 } from "generated/graphql";
@@ -58,6 +59,7 @@ function getRows(purchaseOrders: PurchaseOrderFragment[]) {
         ? parseDateStringServer(purchaseOrder.requested_at, true)
         : null,
       status: purchaseOrder.status,
+      status_notes: purchaseOrder.all_customer_notes?.status_notes,
       vendor_name: getCompanyDisplayName(purchaseOrder.vendor),
     });
   });
@@ -82,7 +84,7 @@ interface Props {
     purchaseOrderId: PurchaseOrders["id"]
   ) => void;
   handleSelectPurchaseOrders?: (
-    purchaseOrders: PurchaseOrderFragment[]
+    purchaseOrders: PurchaseOrderNewFragment[]
   ) => void;
 }
 
@@ -179,6 +181,13 @@ export default function PurchaseOrdersDataGridNew({
           valueExpr: "new_purchase_order_status",
           displayExpr: "label",
         },
+      },
+      {
+        visible: isStatusVisible,
+        dataField: "status_notes",
+        caption: "Status Notes",
+        width: ColumnWidths.StatusChip,
+        alignment: "left",
       },
       {
         visible: isCompanyVisible,
@@ -311,7 +320,7 @@ export default function PurchaseOrdersDataGridNew({
       ({ selectedRowsData }: any) => {
         handleSelectPurchaseOrders &&
           handleSelectPurchaseOrders(
-            selectedRowsData as PurchaseOrderFragment[]
+            selectedRowsData as PurchaseOrderNewFragment[]
           );
       },
     [handleSelectPurchaseOrders]

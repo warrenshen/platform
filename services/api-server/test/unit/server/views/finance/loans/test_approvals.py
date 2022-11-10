@@ -449,7 +449,8 @@ class TestApproveLoans(db_unittest.TestCase):
 			'loan_index': 0,
 			'artifacts': [models.PurchaseOrder( # type: ignore
 				amount=decimal.Decimal(100.0),
-				history=[]
+				history=[],
+				all_customer_notes={}
 			)],
 			'loan_artifact_indices': [0],
 		}

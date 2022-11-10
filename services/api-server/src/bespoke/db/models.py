@@ -811,6 +811,7 @@ PurchaseOrderHistoryDict = TypedDict('PurchaseOrderHistoryDict', {
 	'id': str,
 	'date_time': str,
 	'action': str,
+	'action_notes': str,
 	'new_purchase_order_status': str,
 	'created_by_user_id': str,
 	'created_by_user_full_name': str,

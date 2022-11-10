@@ -851,11 +851,15 @@ def update_purchase_order_status(
 	created_by_user_full_name: str,
 	is_financing_request_delete: bool = False,
 	is_financing_request_partially_funded: bool = False,
+	action_notes: str = None,
 ) -> Tuple[bool, errors.Error]:
 	purchase_order = cast(
 		models.PurchaseOrder,
 		session.query(models.PurchaseOrder).get(purchase_order_id)
 	)
+
+	if action_notes:
+		purchase_order.all_customer_notes["status_notes"] = action_notes
 
 	loans = cast(
 		List[models.Loan],
@@ -889,7 +893,8 @@ def update_purchase_order_status(
 			action = "PO archived",
 			new_purchase_order_status = NewPurchaseOrderStatus.ARCHIVED,
 			created_by_user_id = created_by_user_id,
-			created_by_user_full_name = created_by_user_full_name
+			created_by_user_full_name = created_by_user_full_name,
+			action_notes = action_notes,
 		))
 		return True, None
 	elif LoanStatusEnum.APPROVED in all_loan_statuses and LoanStatusEnum.APPROVAL_REQUESTED not in all_loan_statuses:
@@ -898,7 +903,8 @@ def update_purchase_order_status(
 			action = action if action else "PO financing request approved",
 			new_purchase_order_status = NewPurchaseOrderStatus.FINANCING_REQUEST_APPROVED,
 			created_by_user_id = created_by_user_id,
-			created_by_user_full_name = created_by_user_full_name
+			created_by_user_full_name = created_by_user_full_name,
+			action_notes = action_notes,
 		))
 		return True, None
 	elif LoanStatusEnum.APPROVAL_REQUESTED in all_loan_statuses:
@@ -907,7 +913,8 @@ def update_purchase_order_status(
 			action = action if is_financing_request_delete else "PO financing request created",
 			new_purchase_order_status = NewPurchaseOrderStatus.FINANCING_PENDING_APPROVAL,
 			created_by_user_id = created_by_user_id,
-			created_by_user_full_name = created_by_user_full_name
+			created_by_user_full_name = created_by_user_full_name,
+			action_notes = action_notes
 		))
 		return True, None
 	elif len(all_loan_statuses) == 0 or purchase_order.amount_funded and purchase_order.amount_funded > 0:
@@ -916,7 +923,8 @@ def update_purchase_order_status(
 			action = action,
 			new_purchase_order_status = NewPurchaseOrderStatus.READY_TO_REQUEST_FINANCING,
 			created_by_user_id = created_by_user_id,
-			created_by_user_full_name = created_by_user_full_name
+			created_by_user_full_name = created_by_user_full_name,
+			action_notes = action_notes,
 		))
 		return True, None
 
@@ -948,7 +956,8 @@ def approve_purchase_order(
 			action = "PO approved",
 			new_purchase_order_status = NewPurchaseOrderStatus.READY_TO_REQUEST_FINANCING,
 			created_by_user_id = approved_by_user_id,
-			created_by_user_full_name = approved_by_user_full_name
+			created_by_user_full_name = approved_by_user_full_name,
+			action_notes = None,
 		)
 	)
 
@@ -983,6 +992,8 @@ def reject_purchase_order(
 		return None, err
 	if loans:
 		action = f"PO rejected, {len(loans)} financing requests rejected"
+	
+	purchase_order.all_customer_notes["status_notes"] = rejection_note
 
 	if is_bank_admin:
 		purchase_order.all_bank_notes[PurchaseOrderBankNoteEnum.BANK_REJECTION] = rejection_note
@@ -995,6 +1006,7 @@ def reject_purchase_order(
 				new_purchase_order_status = NewPurchaseOrderStatus.REJECTED_BY_BESPOKE,
 				created_by_user_id = rejected_by_user_id,
 				created_by_user_full_name = rejected_by_user_full_name,
+				action_notes = rejection_note,
 			)
 		)
 	else:
@@ -1008,6 +1020,7 @@ def reject_purchase_order(
 				new_purchase_order_status = NewPurchaseOrderStatus.REJECTED_BY_VENDOR,
 				created_by_user_id = rejected_by_user_id,
 				created_by_user_full_name = rejected_by_user_full_name,
+				action_notes = rejection_note,
 			)
 		)
 
@@ -1042,6 +1055,8 @@ def request_purchase_order_changes(
 		return None, err
 	if loans and should_delete_loans:
 		action = f"PO changes requested requiring vendor approval, {len(loans)} financing requests rejected"
+	
+	purchase_order.all_customer_notes["status_notes"] = requested_changes_note
 
 	if not is_vendor_approval_required:
 		purchase_order.all_bank_notes[PurchaseOrderBankNoteEnum.REQUESTS_CHANGES] = requested_changes_note
@@ -1054,6 +1069,7 @@ def request_purchase_order_changes(
 				new_purchase_order_status = NewPurchaseOrderStatus.CHANGES_REQUESTED_BY_BESPOKE,
 				created_by_user_id = requested_by_user_id,
 				created_by_user_full_name = requested_by_user_full_name,
+				action_notes = requested_changes_note,
 			)
 		)
 	else:
@@ -1067,6 +1083,7 @@ def request_purchase_order_changes(
 				new_purchase_order_status = NewPurchaseOrderStatus.CHANGES_REQUESTED_BY_VENDOR,
 				created_by_user_id = requested_by_user_id,
 				created_by_user_full_name = requested_by_user_full_name,
+				action_notes = requested_changes_note,
 			)
 		)
 
@@ -1078,6 +1095,7 @@ def get_purchase_order_history_event(
 	new_purchase_order_status: str,
 	created_by_user_id: str,
 	created_by_user_full_name: str,
+	action_notes: str = None,
 ) -> models.PurchaseOrderHistoryDict:
 	return models.PurchaseOrderHistoryDict(
 		id = str(uuid.uuid4()),
@@ -1086,6 +1104,7 @@ def get_purchase_order_history_event(
 		new_purchase_order_status = new_purchase_order_status,
 		created_by_user_id = created_by_user_id,
 		created_by_user_full_name = created_by_user_full_name,
+		action_notes = action_notes,
 	)
 
 def validate_purchase_order_input(
@@ -1209,20 +1228,20 @@ def update_purchase_order_files(
 	session: Session,
 	purchase_order_id: str,
 	purchase_order_files: List[PurchaseOrderFileItem]
-) -> Tuple[bool, errors.Error]:
+) -> Tuple[bool, int, int, errors.Error]:
 	existing_purchase_order_files, err = queries.get_purchase_order_files(
 		session,
 		purchase_order_id = purchase_order_id,
 	)
 	if err:
-		return False, err
-	
+		return False, None, None, err
+
 	purchase_order_files_to_delete = []
 	for existing_purchase_order_file in existing_purchase_order_files:
 		is_purchase_order_file_deleted = len(list(filter(
 			lambda purchase_order_file_request: (
-				purchase_order_file_request.purchase_order_id == existing_purchase_order_file.purchase_order_id and
-				purchase_order_file_request.file_id == existing_purchase_order_file.file_id and
+				purchase_order_file_request.purchase_order_id == str(existing_purchase_order_file.purchase_order_id) and
+				purchase_order_file_request.file_id == str(existing_purchase_order_file.file_id) and
 				purchase_order_file_request.file_type == existing_purchase_order_file.file_type
 			),
 			purchase_order_files
@@ -1234,6 +1253,7 @@ def update_purchase_order_files(
 		cast(Callable, session.delete)(purchase_order_file_to_delete)
 
 	purchase_order_file_dicts = []
+	num_files_added = 0
 	for purchase_order_file_request in purchase_order_files:
 		existing_purchase_order_file = cast(
 			models.PurchaseOrderFile,
@@ -1251,29 +1271,30 @@ def update_purchase_order_files(
 			)
 			session.add(new_purchase_order_file)
 			purchase_order_file_dicts.append(new_purchase_order_file.as_dict())
+			num_files_added += 1
 
-	return True, None
+	return True, len(purchase_order_files_to_delete), num_files_added,  None
 
 
 def update_purchase_order_metrc_transfers(
 	session: Session,
 	purchase_order_id: str,
 	purchase_order_metrc_transfers: List[PurchaseOrderMetrcTransferItem],
-) -> Tuple[bool, errors.Error]:
+) -> Tuple[bool, int, int, errors.Error]:
 	# Purchase order Metrc transfers
 	existing_purchase_order_metrc_transfers, err = queries.get_purchase_order_metrc_transfers(
 		session,
 		purchase_order_id,
 	)
 	if err:
-		return None, err
+		return None, None, None, err
 
 	purchase_order_metrc_transfers_to_delete = []
 	for existing_purchase_order_metrc_transfer in existing_purchase_order_metrc_transfers:
 		is_purchase_order_metrc_transfer_deleted = len(list(filter(
 			lambda purchase_order_metrc_transfer_request: (
-				purchase_order_metrc_transfer_request.purchase_order_id == existing_purchase_order_metrc_transfer.purchase_order_id and
-				purchase_order_metrc_transfer_request.metrc_transfer_id == existing_purchase_order_metrc_transfer.metrc_transfer_id
+				purchase_order_metrc_transfer_request.purchase_order_id == str(existing_purchase_order_metrc_transfer.purchase_order_id) and
+				purchase_order_metrc_transfer_request.metrc_transfer_id == str(existing_purchase_order_metrc_transfer.metrc_transfer_id)
 			),
 			purchase_order_metrc_transfers
 		))) <= 0
@@ -1286,6 +1307,7 @@ def update_purchase_order_metrc_transfers(
 	session.flush()
 
 	purchase_order_metrc_transfer_dicts = []
+	num_files_added = 0
 	for purchase_order_metrc_transfer_request in purchase_order_metrc_transfers:
 		existing_purchase_order_metrc_transfer = cast(
 			models.PurchaseOrderMetrcTransfer,
@@ -1302,8 +1324,9 @@ def update_purchase_order_metrc_transfers(
 			)
 			session.add(new_purchase_order_metrc_transfer)
 			purchase_order_metrc_transfer_dicts.append(new_purchase_order_metrc_transfer.as_dict())
+			num_files_added += 1
 
-	return True, None
+	return True, len(purchase_order_metrc_transfers_to_delete), num_files_added, None
 
 def update_purchase_order_history(
 	purchase_order: models.PurchaseOrder,
@@ -1311,6 +1334,7 @@ def update_purchase_order_history(
 	user_full_name: str,
 	action: str,
 	new_status: str,
+	action_notes: str = None,
 ) -> Tuple[ bool, errors.Error ]:
 	if purchase_order.history is None:
 		purchase_order_creation_event = get_purchase_order_history_event(
@@ -1328,11 +1352,37 @@ def update_purchase_order_history(
 			new_purchase_order_status = new_status,
 			created_by_user_id = user_id,
 			created_by_user_full_name = user_full_name,
+			action_notes = action_notes
 		)
 	)
 	
 	return True, None
 
+def get_fields_changed(
+	existing_purchase_order: models.PurchaseOrder,
+	purchase_order_input: models.PurchaseOrder,
+) -> List[str]:
+	fields_changed = []
+	if existing_purchase_order.order_number != purchase_order_input.order_number:
+		fields_changed.append("Order Number")
+	if existing_purchase_order.order_date != purchase_order_input.order_date:
+		fields_changed.append("Order Date")
+	if existing_purchase_order.delivery_date != purchase_order_input.delivery_date:
+		fields_changed.append("Delivery Date")
+	if existing_purchase_order.net_terms != purchase_order_input.net_terms:
+		fields_changed.append("Net Terms")
+	if existing_purchase_order.amount != purchase_order_input.amount:
+		fields_changed.append("Amount")
+	if existing_purchase_order.amount_funded != purchase_order_input.amount_funded:
+		fields_changed.append("Amount Funded")
+	if existing_purchase_order.is_cannabis != purchase_order_input.is_cannabis:
+		fields_changed.append("Is Cannabis")
+	if existing_purchase_order.customer_note != purchase_order_input.customer_note:
+		fields_changed.append("Customer Note")
+	if str(existing_purchase_order.vendor_id) != purchase_order_input.vendor_id:
+		fields_changed.append("Vendor Id")
+	return fields_changed
+	
 def update_purchase_order_fields(
 	existing_purchase_order: models.PurchaseOrder,
 	purchase_order_input: models.PurchaseOrder,
@@ -1368,6 +1418,8 @@ def update_purchase_order(
 	if err:
 		return None, err
 
+	action_notes = ""
+
 	if is_new_purchase_order:
 		did_amount_change = True
 		
@@ -1387,6 +1439,15 @@ def update_purchase_order(
 			float(purchase_order.amount or 0)
 		) or \
 			purchase_order.approved_at is None
+		
+		fields_changed = get_fields_changed(
+			purchase_order,
+			purchase_order_input
+		)
+
+		action_notes = "Edited: " if len(fields_changed) > 0 else ""
+		for field in fields_changed:
+			action_notes += f"{field}, "
 
 		purchase_order = update_purchase_order_fields(
 			purchase_order,
@@ -1394,7 +1455,7 @@ def update_purchase_order(
 		)
 
 	# Purchase order files
-	_, err = update_purchase_order_files(
+	_, num_files_deleted, num_files_added, err = update_purchase_order_files(
 		session,
 		purchase_order.id,
 		purchase_order_files,
@@ -1403,13 +1464,25 @@ def update_purchase_order(
 		return None, err
 
 	# Purchase order metrc transfers
-	_, err = update_purchase_order_metrc_transfers(
+	_, num_metrc_transfers_deleted, num_metrc_transfers_added, err = update_purchase_order_metrc_transfers(
 		session,
 		purchase_order.id,
 		purchase_order_metrc_transfers,
 	)
 	if err:
 		return None, err
+	
+	if not is_new_purchase_order:
+		if num_files_deleted > 0:
+			action_notes += f"Deleted {num_files_deleted} purchase order file(s), "
+		if num_files_added > 0:
+			action_notes += f"Added {num_files_added} purchase order file(s), "
+		if num_metrc_transfers_deleted > 0:
+			action_notes += f"Deleted {num_metrc_transfers_deleted} purchase order metrc transfer(s), "
+		if num_metrc_transfers_added > 0:
+			action_notes += f"Added {num_metrc_transfers_added} purchase order metrc transfer(s), "
+
+	action_notes = action_notes.strip(", ")
 
 	# Update purchase order's history
 	submitting_user, err = queries.get_user_by_id(
@@ -1422,6 +1495,13 @@ def update_purchase_order(
 	if action == PurchaseOrderActions.SUBMIT:
 		purchase_order.requested_at = date_util.now()
 		purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.PENDING_APPROVAL_BY_VENDOR
+		status_notes = f"Sent to vendor on {date_util.human_readable_yearmonthday(date_util.now())}"
+		if purchase_order.all_customer_notes:
+			purchase_order.all_customer_notes["status_notes"] = status_notes
+		else:
+			purchase_order.all_customer_notes = {
+				"status_notes": status_notes
+			}
 
 		reactivate_loans_by_artifact_id(session=session, artifact_id=purchase_order.id)
 
@@ -1440,6 +1520,7 @@ def update_purchase_order(
 			submitting_user.full_name,
 			"Submitted PO to vendor for approval",
 			NewPurchaseOrderStatus.PENDING_APPROVAL_BY_VENDOR,
+			action_notes = action_notes
 		)
 		if err:
 			return None, err
@@ -1452,6 +1533,7 @@ def update_purchase_order(
 			submitting_user.full_name,
 			"PO saved as draft",
 			NewPurchaseOrderStatus.DRAFT,
+			action_notes = action_notes
 		)
 		if err:
 			return None, err
@@ -1579,6 +1661,8 @@ def send_email_alert_for_purchase_order_update_submission(
 				expires_at = date_util.hours_from_today(24 * 7)
 			)
 			
+			# TODO: (https://www.notion.so/bespokefinancial/Display-what-changes-bespoke-is-asking-the-client-to-make-e2ec269df9f346b4b9d17eaff48a1e4b
+			# figure out email template string to use when we re-send (and how to determine if we sent before)
 			_, err = sendgrid_client.send(
 				template_name = sendgrid_util.TemplateNames.VENDOR_TO_APPROVE_PURCHASE_ORDER_NEW,
 				# only send up the needed subset

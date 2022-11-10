@@ -6,11 +6,11 @@ interface Props {
 }
 
 const StatusToColor: { [key in LoanStatusEnum]: string } = {
-  [LoanStatusEnum.Drafted]: "#327e9e",
-  [LoanStatusEnum.ApprovalRequested]: "#cf8937",
+  [LoanStatusEnum.Drafted]: "#939393",
+  [LoanStatusEnum.ApprovalRequested]: "#ffc96b",
   [LoanStatusEnum.Approved]: "#7dcb9d",
   [LoanStatusEnum.Funded]: "#594ca4",
-  rejected: "",
+  [LoanStatusEnum.Rejected]: "#ee95a1",
   past_due: "",
   closed: "",
   closing: "",
@@ -18,11 +18,11 @@ const StatusToColor: { [key in LoanStatusEnum]: string } = {
 };
 
 const LoanStatusToLabel: { [key in LoanStatusEnum]: string } = {
-  [LoanStatusEnum.Drafted]: "Not submitted yet",
-  [LoanStatusEnum.ApprovalRequested]: "Financing pending approval",
-  [LoanStatusEnum.Approved]: "Financing request approved",
+  [LoanStatusEnum.Drafted]: "Draft",
+  [LoanStatusEnum.ApprovalRequested]: "Pending approval",
+  [LoanStatusEnum.Approved]: "Approved",
   [LoanStatusEnum.Funded]: "Financing completed",
-  rejected: "",
+  [LoanStatusEnum.Rejected]: "Changes required for approval",
   past_due: "",
   closed: "",
   closing: "",

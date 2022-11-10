@@ -7407,8 +7407,6 @@ export type CustomerSurveillanceResultsBoolExp = {
 /** unique or primary key constraints on table "customer_surveillance_results" */
 export enum CustomerSurveillanceResultsConstraint {
   /** unique or primary key constraint */
-  CompanyProductQualificationsCompanyIdQualifyingDateKey = "company_product_qualifications_company_id_qualifying_date_key",
-  /** unique or primary key constraint */
   CompanyProductQualificationsPkey = "company_product_qualifications_pkey",
 }
 
@@ -8486,7 +8484,7 @@ export type EbbaApplications = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamp"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   /** An object relationship */
   rejected_by_user?: Maybe<Users>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
@@ -8611,7 +8609,7 @@ export type EbbaApplicationsBoolExp = {
   monthly_accounts_receivable?: Maybe<NumericComparisonExp>;
   monthly_cash?: Maybe<NumericComparisonExp>;
   monthly_inventory?: Maybe<NumericComparisonExp>;
-  rejected_at?: Maybe<TimestampComparisonExp>;
+  rejected_at?: Maybe<TimestamptzComparisonExp>;
   rejected_by_user?: Maybe<UsersBoolExp>;
   rejected_by_user_id?: Maybe<UuidComparisonExp>;
   rejection_note?: Maybe<StringComparisonExp>;
@@ -8660,7 +8658,7 @@ export type EbbaApplicationsInsertInput = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamp"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejected_by_user?: Maybe<UsersObjRelInsertInput>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
@@ -8689,7 +8687,7 @@ export type EbbaApplicationsMaxFields = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamp"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -8741,7 +8739,7 @@ export type EbbaApplicationsMinFields = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamp"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -8906,7 +8904,7 @@ export type EbbaApplicationsSetInput = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamp"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -29959,6 +29957,7 @@ export type GetPurchaseOrderForReviewQuery = {
       | "is_deleted"
       | "status"
       | "created_at"
+      | "all_customer_notes"
     > & {
       purchase_order_files: Array<
         Pick<PurchaseOrderFiles, "purchase_order_id" | "file_id"> &
@@ -31601,7 +31600,7 @@ export type PurchaseOrderFragment = Pick<
 
 export type PurchaseOrderNewFragment = Pick<
   PurchaseOrders,
-  "id" | "bank_note" | "history"
+  "id" | "bank_note" | "all_bank_notes" | "history"
 > &
   PurchaseOrderLimitedNewFragment;
 
@@ -32006,6 +32005,7 @@ export type PurchaseOrderLimitedFragment = Pick<
   | "funded_at"
   | "closed_at"
   | "history"
+  | "all_customer_notes"
 > & {
   company: Pick<Companies, "id"> & CompanyLimitedFragment;
   vendor?: Maybe<Pick<Vendors, "id"> & VendorLimitedFragment>;
@@ -32040,6 +32040,7 @@ export type PurchaseOrderLimitedNewFragment = Pick<
   | "funded_at"
   | "closed_at"
   | "history"
+  | "all_customer_notes"
 > & {
   company: Pick<Companies, "id"> & CompanyLimitedFragment;
   vendor?: Maybe<Pick<Vendors, "id"> & VendorLimitedFragment>;
@@ -33034,6 +33035,7 @@ export const PurchaseOrderLimitedNewFragmentDoc = gql`
       id
       ...VendorLimited
     }
+    all_customer_notes
   }
   ${CompanyLimitedFragmentDoc}
   ${VendorLimitedFragmentDoc}
@@ -33042,6 +33044,7 @@ export const PurchaseOrderNewFragmentDoc = gql`
   fragment PurchaseOrderNew on purchase_orders {
     id
     bank_note
+    all_bank_notes
     history
     ...PurchaseOrderLimitedNew
   }
@@ -33154,6 +33157,7 @@ export const PurchaseOrderLimitedFragmentDoc = gql`
       id
       ...VendorLimited
     }
+    all_customer_notes
   }
   ${CompanyLimitedFragmentDoc}
   ${VendorLimitedFragmentDoc}
@@ -40294,6 +40298,7 @@ export const GetPurchaseOrderForReviewDocument = gql`
       is_deleted
       status
       created_at
+      all_customer_notes
       purchase_order_files {
         purchase_order_id
         file_id

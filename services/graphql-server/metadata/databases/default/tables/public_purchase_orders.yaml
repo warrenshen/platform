@@ -61,6 +61,7 @@ select_permissions:
     permission:
       columns:
         - all_bank_notes
+        - all_customer_notes
         - amount
         - amount_funded
         - approved_at
@@ -96,6 +97,7 @@ select_permissions:
     permission:
       columns:
         - all_bank_notes
+        - all_customer_notes
         - amount
         - amount_funded
         - approved_at

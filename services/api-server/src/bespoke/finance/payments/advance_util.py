@@ -448,7 +448,8 @@ def fund_loans_with_advance(
 							purchase_order_id = purchase_order.id,
 							created_by_user_id = str(bank_admin_user_id),
 							created_by_user_full_name = user.full_name,
-							is_financing_request_partially_funded=True
+							is_financing_request_partially_funded=True,
+							action_notes = f"PO partially funded. {funded_amount} of {purchase_order.amount} funded"
 						)
 
 	return FundLoansRespDict(

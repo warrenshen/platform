@@ -36,6 +36,11 @@ const columns = [
     width: ColumnWidths.Comment,
   },
   {
+    caption: "Action Notes",
+    dataField: "action_notes",
+    width: ColumnWidths.Comment,
+  },
+  {
     caption: "Status After Action",
     dataField: "new_purchase_order_status",
     width: ColumnWidths.StatusChip,

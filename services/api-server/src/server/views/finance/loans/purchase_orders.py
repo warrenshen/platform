@@ -304,7 +304,8 @@ class UpsertPurchaseOrdersLoansView(MethodView):
 					session = session,
 					purchase_order_id = item.artifact.id,
 					created_by_user_id = str(user.id),
-					created_by_user_full_name = user.full_name
+					created_by_user_full_name = user.full_name,
+					action_notes = f"{item.loan.amount} financing requested",
 				)
 
 			if upsert.status == LoanStatusEnum.APPROVAL_REQUESTED:

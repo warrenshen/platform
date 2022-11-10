@@ -83,6 +83,7 @@ query GetPurchaseOrderForReview($id: uuid!) {
     is_deleted
     status
     created_at
+    all_customer_notes
     purchase_order_files {
       purchase_order_id
       file_id

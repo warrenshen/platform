@@ -1,5 +1,5 @@
 import { Box, Card, CardContent, Divider, IconButton } from "@material-ui/core";
-import RequestStatusChipNew from "components/Shared/Chip/FinancingRequestStatusChipNew";
+import PurchaseOrderFinancingRequestStatusChip from "components/Shared/Chip/PurchaseOrderFinancingRequestStatusChip";
 import { LoansInsertInput, Maybe, RequestStatusEnum } from "generated/graphql";
 import { EditIcon, TrashIcon } from "icons/index";
 import { formatDateString } from "lib/date";
@@ -72,7 +72,7 @@ export default function FinancingRequestViewCard({
               alignItems="flex-end"
             >
               <Box height={30} mb={5}>
-                <RequestStatusChipNew loanStatus={status} />
+                <PurchaseOrderFinancingRequestStatusChip loanStatus={status} />
               </Box>
               <Box display="flex" flexDirection="column">
                 <Label style={{ textAlign: "right" }}>Comments</Label>

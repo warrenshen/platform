@@ -136,6 +136,7 @@ fragment PurchaseOrderLimited on purchase_orders {
     id
     ...VendorLimited
   }
+  all_customer_notes
 }
 
 fragment PurchaseOrderLimitedNew on purchase_orders {
@@ -174,6 +175,7 @@ fragment PurchaseOrderLimitedNew on purchase_orders {
     id
     ...VendorLimited
   }
+  all_customer_notes
 }
 
 fragment PurchaseOrderWithRelationships on purchase_orders {
