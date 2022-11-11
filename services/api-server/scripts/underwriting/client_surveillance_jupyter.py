@@ -246,17 +246,15 @@ def calculate_vendor_churn_short(
     vc_month_list,
     vc_month_end,
 ):
-    df_vendor_churn = incoming_transfer_df[
-        incoming_transfer_df["license_number"].isin(license_list)
-    ]
+    df_vendor_churn = incoming_transfer_df
     df_vendor_churn["year_month"] = pd.to_datetime(
         df_vendor_churn["created_date"]
     ).dt.strftime("%Y-%m")
     vc = (
         df_vendor_churn[
-            ["year_month", "shipper_facility_name", "shipper_wholesale_price"]
+            ["year_month", "shipper_parent_name", "shipper_wholesale_price"]
         ]
-        .groupby(["year_month", "shipper_facility_name"])
+        .groupby(["year_month", "shipper_parent_name"])
         .sum()
         .reset_index()
     )
@@ -264,7 +262,7 @@ def calculate_vendor_churn_short(
 
     vc_full = (
         (
-            vc.groupby("shipper_facility_name").apply(
+            vc.groupby("shipper_parent_name").apply(
                 lambda df: df.merge(
                     pd.Series(
                         None,
@@ -284,7 +282,7 @@ def calculate_vendor_churn_short(
                         ),
                     }
                 )
-                .drop(["__place_holder", "shipper_facility_name"], axis=1)
+                .drop(["__place_holder", "shipper_parent_name"], axis=1)
             )
         )
         .reset_index()
@@ -296,13 +294,13 @@ def calculate_vendor_churn_short(
     vc_full.loc[indices, "shipper_wholesale_price"] = 0
 
     # rolling_4m_sum
-    rolling_4m_sum = vc_full.groupby("shipper_facility_name").apply(
+    rolling_4m_sum = vc_full.groupby("shipper_parent_name").apply(
         lambda df: df.set_index("year_month").sort_index().rolling(4).sum()
     )
     rolling_4m_sum.columns = ["rolling_4m_total_price"]
 
     # facility_monthly_running_total
-    facility_monthly_running_total = vc_full.groupby("shipper_facility_name").apply(
+    facility_monthly_running_total = vc_full.groupby("shipper_parent_name").apply(
         lambda df: df.set_index("year_month")
         .sort_index()["shipper_wholesale_price"]
         .rolling(window=12)
@@ -356,7 +354,7 @@ def calculate_vendor_churn_short(
     vc_matrix = pd.pivot_table(
         vc_data,
         values="shipper_wholesale_price",
-        index="shipper_facility_name",
+        index="shipper_parent_name",
         columns="year_month",
         fill_value=0,
     ).reset_index()
