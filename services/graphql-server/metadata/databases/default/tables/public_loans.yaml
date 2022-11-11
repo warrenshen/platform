@@ -175,6 +175,7 @@ select_permissions:
         - id
         - identifier
         - is_deleted
+        - loan_report_id
         - loan_type
         - maturity_date
         - notes
@@ -208,6 +209,7 @@ select_permissions:
         - id
         - identifier
         - is_deleted
+        - loan_report_id
         - loan_type
         - maturity_date
         - notes
