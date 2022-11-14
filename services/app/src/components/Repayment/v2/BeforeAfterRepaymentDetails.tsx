@@ -7,12 +7,13 @@ import styled from "styled-components";
 
 const Container = styled.div`
   display: flex;
-  justify-content: space-between;
+  width: 100%;
 `;
 
 const ColumnContainer = styled.div`
   display: flex;
   flex-direction: column;
+  margin-right: 200px;
 `;
 
 interface Props {

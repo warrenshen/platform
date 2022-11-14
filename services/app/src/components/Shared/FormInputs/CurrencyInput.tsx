@@ -13,6 +13,7 @@ interface Props {
   label: string;
   error?: string;
   value: number | null;
+  defaultValue?: number | null;
   handleChange?: (value: number | null) => void;
   onBlur?: () => void;
 }
@@ -29,6 +30,7 @@ export default function CurrencyInput({
   label,
   error,
   value,
+  defaultValue,
   handleChange,
   onBlur,
 }: Props) {
@@ -49,6 +51,7 @@ export default function CurrencyInput({
         error={!!error}
         helperText={error || ""}
         value={value}
+        defaultValue={defaultValue}
         onChange={(event: any, value: number) =>
           handleChange && handleChange(event.target.value !== "" ? value : null)
         }

@@ -21,11 +21,11 @@ const PaymentDetailsRow = ({
       <VerticalValueAndLabel value={repaymentMethod} label="Repayment method" />
       <VerticalValueAndLabel
         value={formatCurrency(repaymentAmount)}
-        label="Repayment method"
+        label="Amount from repayment method"
       />
       <VerticalValueAndLabel
         value={formatCurrency(amountFromHoldingAccount)}
-        label="Repayment method"
+        label="Amount from holding account"
       />
     </Box>
   );

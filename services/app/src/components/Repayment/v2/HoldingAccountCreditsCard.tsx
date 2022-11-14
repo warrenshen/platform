@@ -6,9 +6,9 @@ import {
 } from "@material-ui/core";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import Text, { TextVariants } from "components/Shared/Text/Text";
+import { PaymentsInsertInput } from "generated/graphql";
 import { CustomCheckboxChecked, CustomCheckboxUnchecked } from "icons";
 import { formatCurrency } from "lib/number";
-import { useState } from "react";
 import styled from "styled-components";
 
 const CardContainer = styled.div`
@@ -20,15 +20,31 @@ const CardContainer = styled.div`
 
 interface Props {
   accountCredits: number;
-  setHoldingAccountCredits: (value: any) => void;
+  payment: PaymentsInsertInput;
+  setPayment: (payment: PaymentsInsertInput) => void;
+  isHoldingAccountCreditsChecked: boolean;
+  setIsHoldingAccountCreditsChecked: (value: boolean) => void;
 }
 
 const HoldingAccountCreditsCard = ({
   accountCredits,
-  setHoldingAccountCredits,
+  payment,
+  setPayment,
+  isHoldingAccountCreditsChecked,
+  setIsHoldingAccountCreditsChecked,
 }: Props) => {
-  const [isHoldingAccountCreditsChecked, setIsHoldingAccountCreditsChecked] =
-    useState(false);
+  const error =
+    (payment.items_covered?.requested_from_holding_account || 0) >
+    accountCredits
+      ? `You cannot use more credits than you have: ${formatCurrency(
+          accountCredits
+        )}`
+      : payment.requested_amount <
+          payment.items_covered?.requested_from_holding_account || 0
+      ? `You cannot request to use more credits from holding account than the amount you are paying: ${formatCurrency(
+          payment.requested_amount
+        )}`
+      : undefined;
 
   return (
     <CardContainer>
@@ -63,8 +79,17 @@ const HoldingAccountCreditsCard = ({
             label={`Holding account credits (max. ${formatCurrency(
               accountCredits
             )})`}
-            value={accountCredits}
-            handleChange={setHoldingAccountCredits}
+            value={payment.items_covered?.requested_from_holding_account}
+            handleChange={(value) =>
+              setPayment({
+                ...payment,
+                items_covered: {
+                  ...payment.items_covered,
+                  requested_from_holding_account: value,
+                },
+              })
+            }
+            error={error}
           />
         </FormControl>
       )}

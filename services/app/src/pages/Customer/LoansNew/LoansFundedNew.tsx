@@ -1,6 +1,7 @@
 import { Box } from "@material-ui/core";
 import PolymorphicLoansDataGrid from "components/Loans/PolymorphicLoansDataGrid";
 import CreateRepaymentModal from "components/Repayment/CreateRepaymentModal";
+// import CreateRepaymentModalNew from "components/Repayment/v2/CreateRepaymentModalNew";
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
 import Can from "components/Shared/Can";
 import Text, { TextVariants } from "components/Shared/Text/Text";
@@ -67,6 +68,16 @@ const LoansFundedNew = ({
   return (
     <StyledContainer>
       {isRepaymentModalOpen && (
+        // <CreateRepaymentModalNew
+        //   companyId={companyId}
+        //   productType={productType}
+        //   initiallySelectedLoanIds={selectedLoanIds}
+        //   handleClose={() => {
+        //     handleDataChange();
+        //     setIsRepaymentModalOpen(false);
+        //     setSelectedLoanIds([]);
+        //   }}
+        // />
         <CreateRepaymentModal
           companyId={companyId}
           productType={productType}
