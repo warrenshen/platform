@@ -166,13 +166,6 @@ const getCustomerNavItems = (
       text: "Loans",
       link: customerRoutes.loans,
     },
-    // {
-    //   dataCy: "loans-new",
-    //   visible: !!productType,
-    //   iconNode: LoansIcon,
-    //   text: "Loans New",
-    //   link: customerRoutes.loansNew,
-    // },
     {
       dataCy: "repayments",
       iconNode: RepaymentsIcon,
@@ -279,14 +272,6 @@ const getBankNavItems = (
       iconNode: LoansIcon,
       text: "Loans",
       link: bankRoutes.loans,
-      counter: loansCount,
-      isBankMenu: true,
-    },
-    {
-      dataCy: "loans-new",
-      iconNode: LoansIcon,
-      text: "Loans-new",
-      link: bankRoutes.loansNew,
       counter: loansCount,
       isBankMenu: true,
     },

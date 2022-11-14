@@ -155,8 +155,6 @@ const getCustomerPaths = (
   isBankUser: boolean,
   purchaseOrdersChangesRequestedCount: number
 ) => {
-  const environment = process.env.REACT_APP_BESPOKE_ENVIRONMENT;
-
   return [
     {
       visible: !!company?.is_customer,
@@ -194,9 +192,8 @@ const getCustomerPaths = (
         },
         {
           visible:
-            isBankUser &&
             !!productType &&
-            [ProductTypeEnum.LineOfCredit].includes(productType), // TODO: Remove this when we want to rollout to the users
+            [ProductTypeEnum.LineOfCredit].includes(productType),
           dataCy: "customer-financing-requests",
           label: "Financing Requests",
           path: bankRoutes.company.financingRequests,
@@ -205,12 +202,6 @@ const getCustomerPaths = (
           dataCy: "customer-loans",
           label: "Loans",
           path: bankRoutes.company.loans,
-        },
-        {
-          visible: isBankUser && environment !== "production", // TODO: Remove this when we want to rollout to the users
-          dataCy: "customer-loans-new",
-          label: "Loans New",
-          path: bankRoutes.company.loansNew,
         },
         {
           dataCy: "customer-repayments",

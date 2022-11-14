@@ -38,7 +38,6 @@ import BankCompanyCustomerFinancialCertificationsPage from "pages/Bank/Company/C
 import BankCompanyCustomerFinancingRequestsPage from "pages/Bank/Company/Customer/FinancingRequests";
 import BankCompanyCustomerInvoicesPage from "pages/Bank/Company/Customer/Invoices";
 import BankCompanyCustomerLoansPage from "pages/Bank/Company/Customer/Loans";
-import BankCompanyCustomerLoansOldPage from "pages/Bank/Company/Customer/LoansOld";
 import BankCompanyCustomerMetrcPage from "pages/Bank/Company/Customer/Metrc";
 import BankCompanyCustomerOverviewPage from "pages/Bank/Company/Customer/Overview";
 import BankCompanyCustomerPayorsPage from "pages/Bank/Company/Customer/Payors";
@@ -53,7 +52,6 @@ import BankCustomersPage from "pages/Bank/Customers";
 import BankDebtFacilityPage from "pages/Bank/DebtFacility";
 import BankFinancingRequestsPage from "pages/Bank/FinancingRequests";
 import BankInvoicesPage from "pages/Bank/Invoices";
-import BankLoansPage from "pages/Bank/Loans";
 import BankLoansPageNew from "pages/Bank/LoansNew";
 import BankMetrcPage from "pages/Bank/Metrc";
 import BankOverviewPage from "pages/Bank/Overview";
@@ -70,7 +68,6 @@ import CustomerContractPage from "pages/Customer/Contract";
 import CustomerFinancialCertificationsPage from "pages/Customer/FinancialCertifications";
 import CustomerFinancingRequestsPage from "pages/Customer/FinancingRequests";
 import CustomerInvoicesPages from "pages/Customer/Invoices";
-import CustomerLoansPage from "pages/Customer/Loans";
 import CustomerLoansPageNew from "pages/Customer/LoansNew";
 import CustomerLocationsPage from "pages/Customer/Locations";
 import CustomerOverviewPage from "pages/Customer/Overview";
@@ -85,8 +82,6 @@ import { useContext } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 export default function App() {
-  const environment = process.env.REACT_APP_BESPOKE_ENVIRONMENT;
-
   const {
     user: { role },
   } = useContext(CurrentUserContext);
@@ -270,25 +265,10 @@ export default function App() {
                 UserRolesEnum.CompanyReadOnly,
               ]}
             >
-              <CustomerLoansPage />
+              <CustomerLoansPageNew />
             </PrivateRoute>
           }
         />
-        {environment !== "production" && (
-          <Route
-            path={customerRoutes.loansNew}
-            element={
-              <PrivateRoute
-                requiredRoles={[
-                  UserRolesEnum.CompanyAdmin,
-                  UserRolesEnum.CompanyReadOnly,
-                ]}
-              >
-                <CustomerLoansPageNew />
-              </PrivateRoute>
-            }
-          />
-        )}
 
         <Route
           path={customerRoutes.locations}
@@ -431,19 +411,6 @@ export default function App() {
                 UserRolesEnum.BankReadOnly,
               ]}
             >
-              <BankLoansPage />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path={bankRoutes.loansNew}
-          element={
-            <PrivateRoute
-              requiredRoles={[
-                UserRolesEnum.BankAdmin,
-                UserRolesEnum.BankReadOnly,
-              ]}
-            >
               <BankLoansPageNew />
             </PrivateRoute>
           }
@@ -568,19 +535,6 @@ export default function App() {
         />
         <Route
           path={"companies/:companyId/loans"}
-          element={
-            <PrivateRoute
-              requiredRoles={[
-                UserRolesEnum.BankAdmin,
-                UserRolesEnum.BankReadOnly,
-              ]}
-            >
-              <BankCompanyCustomerLoansOldPage />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path={"companies/:companyId/loans-new"}
           element={
             <PrivateRoute
               requiredRoles={[
