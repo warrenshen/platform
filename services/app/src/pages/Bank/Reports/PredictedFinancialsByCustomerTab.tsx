@@ -185,6 +185,9 @@ export default function BankReportsFinancialsByCustomerTab() {
     []
   );
 
+  const [isPredictionProcessRunning, setIsPredictionProcessRunning] =
+    useState<boolean>(false);
+
   const { data: customersData, error: customersError } =
     useGetActiveCustomersForDropdownQuery({
       fetchPolicy: "network-only",
@@ -252,33 +255,62 @@ export default function BankReportsFinancialsByCustomerTab() {
     { loading: isRunCustomerLoanPredictionsLoading },
   ] = useCustomMutation(runCustomerLoanPredictionsMutation);
 
-  const fetchLoanPredictions = async function (predictionDate: string) {
-    const response = await runCustomerLoanPredictions({
-      variables: {
-        company_id: companyId,
-        prediction_date: predictionDate,
-      },
+  const fetchLoanPredictions = function (predictionDate: string) {
+    const tomorrowObject = new Date();
+    tomorrowObject.setDate(tomorrowObject.getDate() + 1);
+    const tomorrow = dateAsDateStringServer(tomorrowObject);
+
+    const dateRange = !!predictionDate
+      ? getDatesInRange(tomorrow, predictionDate)
+      : [];
+    setIsPredictionProcessRunning(true);
+
+    const getData = async (dateRange: Date[]) => {
+      return Promise.all(
+        dateRange.map(async (futureDate) => {
+          const response = await runCustomerLoanPredictions({
+            variables: {
+              company_id: companyId,
+              prediction_date: dateAsDateStringServer(futureDate),
+            },
+          });
+
+          if (response.status !== "OK") {
+            snackbar.showError(`Error: ${response.msg}`);
+          } else if (response.errors && response.errors.length > 0) {
+            snackbar.showWarning(`Error: ${response.errors}`);
+          } else {
+            const datePrediction = response.data?.loan_prediction_by_date;
+            if (!datePrediction) {
+              console.error("Developer error!");
+            }
+
+            return datePrediction;
+          }
+
+          return null;
+        })
+      );
+    };
+
+    getData(dateRange).then((results) => {
+      setLoanPredictions(
+        results
+          .map((res) => res[0])
+          .sort((a, b) => {
+            return a.date > b.date ? -1 : 1;
+          })
+      );
+      setIsPredictionProcessRunning(false);
     });
-
-    if (response.status !== "OK") {
-      snackbar.showError(`Error: ${response.msg}`);
-    } else if (response.errors && response.errors.length > 0) {
-      snackbar.showWarning(`Error: ${response.errors}`);
-    } else {
-      const loanPredictionsByDate = response.data?.loan_prediction_by_date;
-      if (!loanPredictionsByDate) {
-        console.error("Developer error!");
-      }
-
-      setLoanPredictions(loanPredictionsByDate);
-    }
   };
 
   const isPredictionDataGridReady =
     financialSummariesByCompanyId.length > 0 &&
     !!predictionDate &&
     !isRunCustomerLoanPredictionsLoading &&
-    !!loanPredictions;
+    !!loanPredictions &&
+    !isPredictionProcessRunning;
 
   return (
     <Box display="flex" flexDirection="column">
@@ -305,6 +337,11 @@ export default function BankReportsFinancialsByCustomerTab() {
             />
           </FormControl>
         </Box>
+        {isPredictionProcessRunning && (
+          <Box display="flex" flexDirection="column">
+            The financial prediction process is running. Please be patient.
+          </Box>
+        )}
         {!!companyId && (
           <Box display="flex" flexDirection="column">
             <Box display="flex" flexDirection="column">

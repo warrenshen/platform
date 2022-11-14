@@ -152,9 +152,7 @@ class RunLoanPredictionsView(MethodView):
 					'Missing key {} from run loan predictions request'.format(key))
 
 		company_id = form['company_id']
-		prediction_end_date = date_util.load_date_str(form['prediction_date'])
-		# The days + 1 here is because the financial summaries query will already have results for today
-		prediction_start_date = date_util.now_as_date() + datetime.timedelta(days = 1)
+		prediction_date = date_util.load_date_str(form['prediction_date'])
 
 		with models.session_scope(current_app.session_maker) as session:
 			company, err = queries.get_company_by_id(
@@ -164,10 +162,10 @@ class RunLoanPredictionsView(MethodView):
 			if err:
 				raise err
 
-			customer_balance = loan_balances.CustomerBalance(company.as_dict(), session_maker)
+			customer_balance = loan_balances.CustomerBalance(company.as_dict(), session)
 			day_to_customer_update_dict, err = customer_balance.update(
-				start_date_for_storing_updates = prediction_start_date,
-				today = prediction_end_date,
+				start_date_for_storing_updates = prediction_date,
+				today = prediction_date,
 				include_debug_info = True,
 				is_past_date_default_val = False,
 			)

@@ -157,6 +157,8 @@ def orchestration_handler(
 					models.AsyncJob.status == AsyncJobStatusEnum.IN_PROGRESS,
 					models.AsyncJob.status == AsyncJobStatusEnum.INITIALIZED,
 				)
+			).filter(
+				cast(Callable, models.AsyncJob.is_deleted.isnot)(True)
 			).order_by(
 				models.AsyncJob.queued_at.desc()
 			).all())
