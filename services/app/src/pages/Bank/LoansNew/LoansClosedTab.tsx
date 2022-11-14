@@ -32,7 +32,7 @@ export default function BankLoansClosedTab() {
       <Text textVariant={TextVariants.ParagraphLead}>Closed</Text>
       <Box display="flex" flexDirection="column">
         <BankLoansDataGrid
-          isArtifactBankNoteVisible={false}
+          isArtifactBankNoteVisible
           isDebtFacilityStatusVisible
           isDisbursementIdentifierVisible
           isMaturityVisible

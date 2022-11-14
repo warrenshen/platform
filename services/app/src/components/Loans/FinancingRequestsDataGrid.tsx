@@ -1,5 +1,6 @@
 import { Box, Button, Typography } from "@material-ui/core";
 import { GridValueFormatterParams } from "@material-ui/data-grid";
+import CustomerSurveillanceStatusChip from "components/CustomerSurveillance/CustomerSurveillanceStatusChip";
 import InvoiceDrawer from "components/Invoices/InvoiceDrawer";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
 import BankPurchaseOrderDrawer from "components/PurchaseOrder/v2/BankPurchaseOrderDrawer";
@@ -14,6 +15,7 @@ import {
 import {
   Companies,
   Invoices,
+  LoanArtifactFragment,
   LoanFragment,
   LoanLimitedFragment,
   Loans,
@@ -21,7 +23,11 @@ import {
 } from "generated/graphql";
 import { CommentIcon } from "icons";
 import { parseDateStringServer } from "lib/date";
-import { LoanStatusEnum } from "lib/enum";
+import {
+  LoanStatusEnum,
+  SurveillanceStatusEnum,
+  SurveillanceStatusToLabel,
+} from "lib/enum";
 import {
   createLoanCustomerIdentifier,
   createLoanDisbursementIdentifier,
@@ -29,7 +35,7 @@ import {
   getLoanVendorName,
 } from "lib/loans";
 import { CurrencyPrecision } from "lib/number";
-import { ColumnWidths, formatRowModel } from "lib/tables";
+import { ColumnWidths, formatRowModel, truncateString } from "lib/tables";
 import { useContext, useMemo, useState } from "react";
 
 interface Props {
@@ -41,6 +47,7 @@ interface Props {
   isCompanyNameVisible?: boolean;
   isDisbursementIdentifierVisible?: boolean;
   isMultiSelectEnabled?: boolean;
+  isSurveillanceStatusVisible?: boolean;
   isVendorVisible?: boolean;
   showComments?: boolean;
   pager?: boolean;
@@ -51,15 +58,36 @@ interface Props {
   handleSelectFinancingRequests?: (loans: LoanFragment[]) => void;
 }
 
+function getSurveillanceResult(financingRequest: any) {
+  /*
+    This function and it's `any` annotation is a temporary measure to allow
+    the loan's action required tab to display the surveillance status before
+    we have a chance to refactor the types passed into the LoansDataGrid - which
+    will be a much more expansive change
+  */
+  return !!financingRequest?.company?.most_recent_surveillance_result?.[0]
+    ?.surveillance_status
+    ? financingRequest.company.most_recent_surveillance_result[0]
+        .surveillance_status
+    : null;
+}
+
 function getRows(financingRequests: LoanLimitedFragment[]) {
   return financingRequests.map((financingRequest) => {
     return formatRowModel({
       ...financingRequest,
       artifact_name: getLoanArtifactName(financingRequest),
+      artifact_bank_note: financingRequest.purchase_order
+        ? truncateString(
+            (financingRequest as LoanArtifactFragment).purchase_order
+              ?.bank_note || ""
+          )
+        : "N/A",
       customer_identifier: createLoanCustomerIdentifier(financingRequest),
       customer_name: financingRequest.company?.name,
       disbursement_identifier:
         createLoanDisbursementIdentifier(financingRequest),
+      most_recent_surveillance_status: getSurveillanceResult(financingRequest),
       requested_payment_date: parseDateStringServer(
         financingRequest.requested_payment_date
       ),
@@ -77,6 +105,7 @@ const FinancialRequestsDataGrid = ({
   isCompanyNameVisible = false,
   isDisbursementIdentifierVisible = false,
   isMultiSelectEnabled = false,
+  isSurveillanceStatusVisible = false,
   isVendorVisible = false,
   showComments = true,
   pager = false,
@@ -94,6 +123,7 @@ const FinancialRequestsDataGrid = ({
     useState<Invoices["id"]>(null);
 
   const rows = getRows(financingRequests);
+
   const columns = useMemo(
     () => [
       {
@@ -142,6 +172,33 @@ const FinancialRequestsDataGrid = ({
         width: ColumnWidths.StatusChip,
         cellRender: ({ value }: { value: string }) => (
           <FinancingRequestStatusChipNew loanStatus={value as LoanStatusEnum} />
+        ),
+      },
+      {
+        visible: isSurveillanceStatusVisible,
+        dataField: "most_recent_surveillance_status",
+        caption: "Surveillance Status",
+        width: ColumnWidths.ProductType,
+        lookup: {
+          dataSource: {
+            store: {
+              type: "array",
+              data: Object.values(SurveillanceStatusEnum).map(
+                (surveillanceStatus) => ({
+                  surveillance_status: surveillanceStatus,
+                  label: SurveillanceStatusToLabel[surveillanceStatus],
+                })
+              ),
+              key: "surveillance_status",
+            },
+          },
+          valueExpr: "surveillance_status",
+          displayExpr: "label",
+        },
+        cellRender: (params: GridValueFormatterParams) => (
+          <CustomerSurveillanceStatusChip
+            surveillanceStatus={params.row.data.most_recent_surveillance_status}
+          />
         ),
       },
       {
@@ -240,6 +297,7 @@ const FinancialRequestsDataGrid = ({
       isArtifactBankNoteVisible,
       isCompanyNameVisible,
       isDisbursementIdentifierVisible,
+      isSurveillanceStatusVisible,
       isVendorVisible,
       showComments,
       handleClickCustomer,

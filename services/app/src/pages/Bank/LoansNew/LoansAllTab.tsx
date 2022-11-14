@@ -32,7 +32,7 @@ export default function BankLoansAllTab() {
       <Text textVariant={TextVariants.ParagraphLead}>All</Text>
       <Box display="flex" flexDirection="column">
         <BankLoansDataGrid
-          isArtifactBankNoteVisible={false}
+          isArtifactBankNoteVisible
           isDebtFacilityStatusVisible
           isDisbursementIdentifierVisible
           isMaturityVisible

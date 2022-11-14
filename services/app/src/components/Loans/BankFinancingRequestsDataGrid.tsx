@@ -43,6 +43,7 @@ export default function BankFinancingRequestsDataGrid({
         isArtifactVisible
         isArtifactBankNoteVisible
         isCompanyNameVisible
+        isSurveillanceStatusVisible
         isVendorVisible
         pager
         showComments={false}
