@@ -1,13 +1,11 @@
 import concurrent
 import datetime
 import logging
-import os
 import time
 import traceback
 from concurrent.futures import ThreadPoolExecutor
 from typing import Callable, Dict, List, Optional, Tuple, cast
 
-import requests
 from bespoke import errors
 from bespoke.config.config_util import MetrcAuthProvider, MetrcWorkerConfig
 from bespoke.date import date_util
@@ -18,7 +16,7 @@ from bespoke.metrc import (
 	transfers_util, sales_util, 
 	packages_util, plants_util, plant_batches_util, harvests_util
 )
-from bespoke.metrc.common import metrc_common_util, metrc_summary_util
+from bespoke.metrc.common import metrc_common_util, metrc_download_summary_util
 from bespoke.metrc.common.metrc_error_util import (
 	BESPOKE_INTERNAL_ERROR_STATUS_CODE
 )
@@ -27,144 +25,22 @@ from bespoke.metrc.common.metrc_common_util import (
 	MetrcErrorDetailsDict
 )
 from bespoke.security import security_util
-from dotenv import load_dotenv
 from mypy_extensions import TypedDict
-from requests.auth import HTTPBasicAuth
-from sqlalchemy.orm.session import Session
 
 DownloadDataRespDict = TypedDict('DownloadDataRespDict', {
 	'success': bool,
-	'all_errs': List[errors.Error]
+	'nonblocking_download_errors': List[errors.Error],
 })
 
-ViewApiKeyRespDict = TypedDict('ViewApiKeyRespDict', {
-	'api_key': str,
-	'us_state': str,
-	'use_saved_licenses_only': bool
+DownloadDataForMetrcApiKeyForDateRespDict = TypedDict('DownloadDataForMetrcApiKeyForDateRespDict', {
+	'success': bool,
+	'nonblocking_download_errors': List[errors.Error],
 })
 
-@errors.return_error_tuple
-def delete_api_key(
-	metrc_api_key_id: str,
-	session: Session
-) -> Tuple[bool, errors.Error]:
-
-	metrc_api_key = cast(
-		models.MetrcApiKey,
-		session.query(models.MetrcApiKey).filter(
-			models.MetrcApiKey.id == metrc_api_key_id
-		).first())
-	if not metrc_api_key:
-		raise errors.Error('Metrc API Key to delete does not exist in the database')
-	
-	if metrc_api_key.is_deleted:
-		raise errors.Error('The key is already deleted')
-
-	metrc_api_key.is_deleted = True
-
-	return True, None
-
-@errors.return_error_tuple
-def upsert_api_key(
-	company_id: str,
-	metrc_api_key_id: str,
-	api_key: str,
-	security_cfg: security_util.ConfigDict,
-	us_state: str,
-	use_saved_licenses_only: bool,
-	session: Session
-) -> Tuple[str, errors.Error]:
-	"""
-	use_saved_licenses_only
-	- If True, only download Metrc data for licenses that are connected to company in the database.
-	- This is intended to be used in situations where multiple companies share the same Metrc API key,
-	- for example when each company relates to one location.
-	"""
-	company = cast(
-		models.Company,
-		session.query(models.Company).filter(
-			models.Company.id == company_id
-		).first())
-
-	if not company:
-		raise errors.Error('No company found with company ID provided')
-
-	if not us_state:
-		raise errors.Error('US state must be specified to create or update a metrc API key')
-
-	hashed_key = security_util.encode_secret_string(
-		security_cfg, api_key, serializer_type=security_util.SerializerType.SERIALIZER
-	)
-	existing_metrc_api_key = cast(
-		models.MetrcApiKey,
-		session.query(models.MetrcApiKey).filter(
-			models.MetrcApiKey.hashed_key == hashed_key
-		).first())
-
-	# NOTE: if NOT use_saved_licenses_only, prevent duplicate Metrc API keys,
-	# even in the case where previous key is soft-deleted.
-	if existing_metrc_api_key and str(existing_metrc_api_key.id) != metrc_api_key_id and not use_saved_licenses_only:
-		raise errors.Error(f'Cannot store a duplicate metrc API key that is already registered to company_id="{existing_metrc_api_key.company_id}"')
-
-	if metrc_api_key_id:
-		# The "edit" case
-		metrc_api_key = cast(
-			models.MetrcApiKey,
-			session.query(models.MetrcApiKey).filter(
-				models.MetrcApiKey.id == metrc_api_key_id
-			).first())
-		if not metrc_api_key:
-			raise errors.Error('Previously existing Metrc API Key does not exist in the database')
-
-		metrc_api_key.hashed_key = hashed_key
-		metrc_api_key.encrypted_api_key = security_util.encode_secret_string(
-			security_cfg, api_key
-		)
-		metrc_api_key.us_state = us_state
-		metrc_api_key.use_saved_licenses_only = use_saved_licenses_only
-
-		return str(metrc_api_key.id), None
-	else:
-		# The "add" case
-		metrc_api_key = models.MetrcApiKey()
-		metrc_api_key.company_id = company.id
-		metrc_api_key.hashed_key = hashed_key
-		metrc_api_key.encrypted_api_key = security_util.encode_secret_string(security_cfg, api_key)
-		metrc_api_key.us_state = us_state
-		metrc_api_key.use_saved_licenses_only = use_saved_licenses_only
-		session.add(metrc_api_key)
-		session.flush()
-		return str(metrc_api_key.id), None
-
-@errors.return_error_tuple
-def view_api_key(
-	metrc_api_key_id: str,
-	security_cfg: security_util.ConfigDict,
-	session: Session
-) -> Tuple[ViewApiKeyRespDict, errors.Error]:
-	metrc_api_key = cast(
-		models.MetrcApiKey,
-		session.query(models.MetrcApiKey).filter(
-			models.MetrcApiKey.id == metrc_api_key_id
-		).first())
-
-	if not metrc_api_key:
-		raise errors.Error('No metrc api key found, so we could not present the underlying key')
-
-	if metrc_api_key.is_deleted:
-		raise errors.Error('Metrc api key is deleted, so we could not present the underlying key')
-
-	api_key = security_util.decode_secret_string(
-		security_cfg, metrc_api_key.encrypted_api_key
-	)
-
-	return ViewApiKeyRespDict(
-		api_key=api_key,
-		us_state=metrc_api_key.us_state,
-		use_saved_licenses_only=metrc_api_key.use_saved_licenses_only
-	), None
-
-### Download logic
+DownloadDataForMetrcApiKeyInDateRangeRespDict = TypedDict('DownloadDataForMetrcApiKeyInDateRangeRespDict', {
+	'success': bool,
+	'nonblocking_download_errors': List[errors.Error],
+})
 
 def get_companies_with_metrc_keys(session_maker: Callable) -> List[str]:
 	company_ids_set = set([])
@@ -186,7 +62,6 @@ def _get_metrc_company_info(
 	security_cfg: security_util.ConfigDict,
 	facilities_fetcher: metrc_common_util.FacilitiesFetcherInterface,
 	company_id: str,
-	apis_to_use: metrc_common_util.ApisToUseDict,
 ) -> Tuple[CompanyInfo, errors.Error]:
 	with session_scope(session_maker) as session:
 		company = cast(
@@ -289,7 +164,6 @@ def _get_metrc_company_info(
 				company_state_info = CompanyStateInfoDict(
 					licenses=license_auths,
 					metrc_api_key_id=str(cur_metrc_api_key.id),
-					apis_to_use=apis_to_use,
 					facilities_payload=metrc_common_util.FacilitiesPayloadDict(
 						facilities=facilities_arr 
 					)
@@ -305,15 +179,15 @@ def _get_metrc_company_info(
 		), None
 
 def _download_data_for_license(
+	session_maker: Callable,
 	ctx: metrc_common_util.DownloadContext,
-	session_maker: Callable) -> Tuple[Dict, errors.Error]:
+) -> Tuple[Dict, errors.Error]:
 	cur_date = ctx.cur_date
 	license = ctx.license
+	license_number = license['license_number']
 	company_name = ctx.company_details['name']
 
-	logging.info('Running download metrc data for company "{}" for last modified date {} with license {}'.format(
-		company_name, cur_date, license['license_number']
-	))
+	logging.info(f'Downloading Metrc data for license {license_number} for last modified date {cur_date}')
 	cur_date_str = ctx.get_cur_date_str()
 
 	def _catch_exception(e: Exception, path: str) -> None:
@@ -329,21 +203,21 @@ def _download_data_for_license(
 		logging.error('EXCEPTION downloading {} for company {} on {}'.format(path, company_name, cur_date))
 		logging.error(traceback.format_exc())
 
-	if ctx.apis_to_use.get('packages', False):
+	if ctx.get_adjusted_apis_to_use().get('packages', False):
 		try:
 			package_models = packages_util.download_packages(ctx, session_maker)
 			packages_util.write_packages(package_models, session_maker)
 		except Exception as e:
 			_catch_exception(e, '/packages')
 
-	if ctx.apis_to_use.get('harvests', False):
+	if ctx.get_adjusted_apis_to_use().get('harvests', False):
 		try:
 			harvest_models = harvests_util.download_harvests(ctx, session_maker)
 			harvests_util.write_harvests(harvest_models, session_maker)
 		except Exception as e:
 			_catch_exception(e, '/harvests')
 
-	if ctx.apis_to_use.get('plant_batches', False):
+	if ctx.get_adjusted_apis_to_use().get('plant_batches', False):
 		try:
 			plant_batches_models = plant_batches_util.download_plant_batches(ctx, session_maker)
 			plant_batches_util.write_plant_batches(plant_batches_models, session_maker)
@@ -352,7 +226,7 @@ def _download_data_for_license(
 
 	# NOTE: plants have references to plant batches and harvests, so this
 	# must come after fetching plant_batches and harvests
-	if ctx.apis_to_use.get('plants', False):
+	if ctx.get_adjusted_apis_to_use().get('plants', False):
 		try:
 			plants_models = plants_util.download_plants(ctx, session_maker)
 			plants_util.write_plants(plants_models, session_maker)
@@ -361,7 +235,7 @@ def _download_data_for_license(
 
 	# NOTE: Sales data has references to packages, so this method
 	# should run after download_packages
-	if ctx.apis_to_use.get('sales_receipts', False):
+	if ctx.get_adjusted_apis_to_use().get('sales_receipts', False):
 		try:
 			sales_receipts_models = sales_util.download_sales_info(ctx, session_maker)
 			sales_util.write_sales_info(sales_receipts_models, ctx, session_maker)
@@ -381,7 +255,7 @@ def _download_data_for_license(
 		_catch_exception(e, '/transfers')
 
 	if err:
-		logging.error(f'Error thrown for company {ctx.company_details["name"]} for date {cur_date} and license {license["license_number"]}!')
+		logging.error(f'Error thrown for license {license_number} for last modified date {cur_date}!')
 		logging.error(f'Error: {err}')
 
 	return {
@@ -399,19 +273,33 @@ def _download_data_for_license(
 	}, None
 
 def _download_and_summarize_data_for_license(
-	ctx: metrc_common_util.DownloadContext, 
 	session_maker: Callable,
+	ctx: metrc_common_util.DownloadContext,
 	metrc_api_key_id: str,
-) -> Tuple[Dict, errors.Error]:
-	
+	license_permissions_dict: Optional[metrc_common_util.LicensePermissionsDict] = None,
+) -> Tuple[Optional[Dict], errors.Error]:
+	cur_date = ctx.cur_date
+
+	if license_permissions_dict:
+		with session_scope(session_maker) as session:
+			is_previously_successful = metrc_download_summary_util.is_metrc_download_summary_previously_successful(
+				session=session,
+				license_number=ctx.license['license_number'],
+				date=cur_date,
+				new_license_permissions_dict=license_permissions_dict,
+			)
+			if is_previously_successful:
+				return None, None
+
 	api_status_dict = None
 	err = None
-	cur_date = ctx.cur_date
 
 	try:
 		before = time.time()
 		api_status_dict, err = _download_data_for_license(
-			ctx, session_maker)
+			session_maker=session_maker,
+			ctx=ctx,
+		)
 		after = time.time()
 		logging.info('Took {:.2f} seconds to download data for day {} license {}'.format(
 			after - before, cur_date, ctx.license['license_number']))
@@ -423,13 +311,13 @@ def _download_and_summarize_data_for_license(
 		err = errors.Error('{}'.format(e))
 
 	with session_scope(session_maker) as session:
-		metrc_summary_util.write_download_summary(
-			retry_errors=ctx.get_retry_errors(),
+		metrc_download_summary_util.write_metrc_download_summary(
+			session=session,
+			license_number=ctx.license['license_number'],
 			cur_date=cur_date,
+			retry_errors=ctx.get_retry_errors(),
 			company_id=ctx.company_details['company_id'],
 			metrc_api_key_id=metrc_api_key_id,
-			license_number=ctx.license['license_number'],
-			session=session
 		)
 
 	return api_status_dict, err
@@ -442,7 +330,7 @@ def _download_data(
 	sendgrid_client: sendgrid_util.Client,
 	security_cfg: security_util.ConfigDict,
 	cur_date: datetime.date,
-	apis_to_use: metrc_common_util.ApisToUseDict,
+	apis_to_use: Optional[metrc_common_util.ApisToUseDict],
 ) -> Tuple[DownloadDataRespDict, errors.Error]:
 	company_info, err = _get_metrc_company_info(
 		session_maker=session_maker,
@@ -450,12 +338,11 @@ def _download_data(
 		security_cfg=security_cfg,
 		facilities_fetcher=metrc_common_util.FacilitiesFetcher(),
 		company_id=company_id,
-		apis_to_use=apis_to_use,
 	)
 	if err:
 		return DownloadDataRespDict(
 			success=False,
-			all_errs=[]
+			nonblocking_download_errors=[],
 		), err
 
 	errs = []
@@ -477,14 +364,22 @@ def _download_data(
 				future_to_ctx = {}
 				for license in state_info['licenses']:
 					ctx = metrc_common_util.DownloadContext(
-						sendgrid_client, worker_cfg, cur_date, company_details, 
-						state_info['apis_to_use'], license, debug=False
+						sendgrid_client,
+						worker_cfg,
+						cur_date,
+						company_details,
+						apis_to_use,
+						license,
+						debug=False,
 					)
 
 					future_to_ctx[
 						executor.submit(
-							_download_and_summarize_data_for_license, 
-							ctx, session_maker, state_info['metrc_api_key_id'])
+							_download_and_summarize_data_for_license,
+							session_maker=session_maker,
+							ctx=ctx,
+							metrc_api_key_id=state_info['metrc_api_key_id'],
+						)
 					] = ctx
 
 				for future in concurrent.futures.as_completed(future_to_ctx):
@@ -514,12 +409,13 @@ def _download_data(
 
 	if errs:
 		return DownloadDataRespDict(
-			success=False, 
-			all_errs=errs
+			success=False,
+			nonblocking_download_errors=errs,
 		), errors.Error('{}'.format(errs))
 
 	return DownloadDataRespDict(
-		success=True, all_errs=errs
+		success=True,
+		nonblocking_download_errors=errs,
 	), None
 
 @errors.return_error_tuple
@@ -533,9 +429,6 @@ def download_data_for_one_customer(
 	cur_date: datetime.date,
 	apis_to_use: Optional[metrc_common_util.ApisToUseDict],
 ) -> Tuple[DownloadDataRespDict, errors.Error]:
-	if apis_to_use is None:
-		apis_to_use = metrc_common_util.get_default_apis_to_use()
-
 	return _download_data(
 		company_id=company_id,
 		auth_provider=auth_provider,
@@ -544,36 +437,161 @@ def download_data_for_one_customer(
 		security_cfg=security_cfg,
 		cur_date=cur_date,
 		apis_to_use=apis_to_use,
-		session_maker=session_maker
+		session_maker=session_maker,
 	)
 
-### End download logic
+def _download_data_for_metrc_api_key_for_date(
+	session_maker: Callable,
+	worker_cfg: MetrcWorkerConfig,
+	apis_to_use: Optional[metrc_common_util.ApisToUseDict],
+	metrc_api_key_data_fetcher: metrc_common_util.MetrcApiKeyDataFetcher,
+	date: datetime.date,
+) -> Tuple[DownloadDataForMetrcApiKeyForDateRespDict, errors.Error]:
+	all_nonblocking_download_errors: List[errors.Error] = []
 
-def main() -> None:
-	load_dotenv(os.path.join(os.environ.get('SERVER_ROOT_DIR'), '.env'))
+	logging.info(f'Downloading data for date {date}...')
+	metrc_api_key_permissions = metrc_api_key_data_fetcher.get_metrc_api_key_permissions()
+	with ThreadPoolExecutor(max_workers=worker_cfg.num_parallel_licenses) as executor:
+		future_to_ctx = {}
+		for license_permissions_payload in metrc_api_key_permissions:
+			license_number = license_permissions_payload['license_number']
+			logging.info(f'Downloading data for date {date} and license {license_number}...')
+			company_details = metrc_common_util.CompanyDetailsDict(
+				company_id=metrc_api_key_data_fetcher.metrc_api_key_dict['company_id'],
+				name='',
+			)
+			ctx = metrc_common_util.DownloadContext(
+				sendgrid_client=None,
+				worker_cfg=worker_cfg,
+				cur_date=date,
+				company_details=company_details,
+				apis_to_use=apis_to_use,
+				license_auth=metrc_common_util.LicenseAuthDict(
+					license_id='',
+					license_number=license_number,
+					us_state=metrc_api_key_data_fetcher.metrc_api_key_dict['us_state'],
+					vendor_key=metrc_api_key_data_fetcher.auth_dict['vendor_key'],
+					user_key=metrc_api_key_data_fetcher.auth_dict['user_key'],
+				),
+				debug=False,
+			)
 
-	user_key = os.environ.get('METRC_USER_KEY')
-	vendor_key_CA = os.environ.get('METRC_VENDOR_KEY_CA')
+			future_to_ctx[
+				executor.submit(
+					_download_and_summarize_data_for_license,
+					session_maker=session_maker,
+					ctx=ctx,
+					metrc_api_key_id=metrc_api_key_data_fetcher.metrc_api_key_dict['id'],
+					license_permissions_dict=cast(
+						metrc_common_util.LicensePermissionsDict,
+						license_permissions_payload,
+					),
+				)
+			] = ctx
 
-	if not user_key or not vendor_key_CA:
-		raise Exception('METRC_USER_KEY or METRC_VENDOR_KEY_CA not set')
+			for future in concurrent.futures.as_completed(future_to_ctx):
+				ctx = future_to_ctx[future]
+				api_status_dict, err = future.result()
+				# if err:
+				# 	errs.append(err)
 
-	auth_dict = {'vendor_key': vendor_key_CA, 'user_key': user_key}
+	return DownloadDataRespDict(
+		success=True,
+		nonblocking_download_errors=all_nonblocking_download_errors,
+	), None
 
-	#url = 'https://sandbox-api-ca.metrc.com/facilities/v1'
-	base_url = 'https://api-ca.metrc.com'
-	url = f'{base_url}/facilities/v1'
-	#url = f'{base_url}/packages/v1/active?licenseNumber=123-ABC&lastModifiedStart=2018-01-17T06:30:00Z&lastModifiedEnd=2018-01-17T17:30:00Z'
-	#url = 'https://api-ca.metrc.com/packages/v1/active?licenseNumber=C11-0000995-LIC&lastModifiedStart=2020-04-10&lastModifiedEnd=2020-04-20'
-	#url = f'{base_url}/harvests/v1/waste/types'
+# Download data for key for date range
+# 1. Check the licenses key has access to
+# 2. Check the permissions the key has access to for each license
+# 3. Save the results from 1 and 2
+# 4. For each license and each date in date range
+#   a. If download was previously done for license and date with greater than
+#      or equal to permissions vs current permissions, skip download
+#   b. Otherwise, run download for license and date
+@errors.return_error_tuple
+def download_data_for_metrc_api_key_in_date_range(
+	session_maker: Callable,
+	worker_cfg: MetrcWorkerConfig,
+	security_cfg: security_util.ConfigDict,
+	apis_to_use: Optional[metrc_common_util.ApisToUseDict],
+	metrc_api_key_dict: models.MetrcApiKeyDict,
+	start_date: datetime.date,
+	end_date: datetime.date,
+) -> Tuple[DownloadDataForMetrcApiKeyInDateRangeRespDict, errors.Error]:
+	metrc_api_key_data_fetcher = metrc_common_util.MetrcApiKeyDataFetcher(
+		metrc_api_key_dict=metrc_api_key_dict,
+		security_cfg=security_cfg,
+	)
 
-	# json = json_data
-	resp = requests.get(url, auth=HTTPBasicAuth(vendor_key_CA, user_key))
-	if resp.status_code != 200:
-		print('!ERROR')
-		print(resp.content)
-	else:
-		print(resp.content)
+	metrc_api_key_permissions = metrc_api_key_data_fetcher.get_metrc_api_key_permissions()
 
-if __name__ == '__main__':
-	main()
+	with session_scope(session_maker) as session:
+		metrc_api_key = cast(
+			models.MetrcApiKey,
+			session.query(models.MetrcApiKey).filter(
+				models.MetrcApiKey.id == metrc_api_key_dict['id']
+		).first())
+
+		# Mark this Metrc API key as functioning.
+		if not metrc_api_key:
+			return DownloadDataForMetrcApiKeyInDateRangeRespDict(
+				success=False,
+				nonblocking_download_errors=[],
+			), errors.Error('Metrc API key does not exist')
+
+		if metrc_api_key_data_fetcher.facilities_json:
+			metrc_api_key.is_functioning = True
+			metrc_api_key.last_used_at = date_util.now()
+			metrc_api_key.facilities_payload = cast(Dict, metrc_api_key_data_fetcher.facilities_json)
+			metrc_api_key.permissions_payload = metrc_api_key_permissions
+		else:
+			metrc_api_key.is_functioning = False
+			metrc_api_key.facilities_payload = None
+			metrc_api_key.permissions_payload = None
+
+			# Short circuit return since the Metrc API key is not working.
+			return DownloadDataForMetrcApiKeyInDateRangeRespDict(
+				success=True,
+				nonblocking_download_errors=[errors.Error('Metc API key is not valid')],
+			), None
+
+	all_nonblocking_download_errors = []
+
+	cur_date = start_date
+	while cur_date <= end_date:
+		current_date_response, err = _download_data_for_metrc_api_key_for_date(
+			session_maker=session_maker,
+			worker_cfg=worker_cfg,
+			apis_to_use=apis_to_use,
+			metrc_api_key_data_fetcher=metrc_api_key_data_fetcher,
+			date=cur_date,
+		)
+
+		if not current_date_response['success']:
+			return DownloadDataForMetrcApiKeyInDateRangeRespDict(
+				success=False,
+				nonblocking_download_errors=all_nonblocking_download_errors,
+			), errors.Error('{}'.format(err))
+		else:
+			nonblocking_download_errors = current_date_response['nonblocking_download_errors']
+
+		cur_date = cur_date + datetime.timedelta(days=1)
+
+	return DownloadDataForMetrcApiKeyInDateRangeRespDict(
+		success=True,
+		nonblocking_download_errors=all_nonblocking_download_errors,
+	), None
+
+@errors.return_error_tuple
+def check_permissions_for_metrc_api_key(
+	security_cfg: security_util.ConfigDict,
+	metrc_api_key_dict: models.MetrcApiKeyDict,
+) -> Tuple[bool, errors.Error]:
+	metrc_api_key_data_fetcher = metrc_common_util.MetrcApiKeyDataFetcher(
+		metrc_api_key_dict=metrc_api_key_dict,
+		security_cfg=security_cfg,
+	)
+
+	metrc_api_key_permissions = metrc_api_key_data_fetcher.get_metrc_api_key_permissions()
+
+	return True, None

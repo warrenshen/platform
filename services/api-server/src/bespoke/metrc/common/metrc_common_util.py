@@ -9,16 +9,18 @@ from dateutil import parser
 from itertools import islice
 from mypy_extensions import TypedDict
 from requests.auth import HTTPBasicAuth
-from typing import Dict, Iterable, List, Tuple, cast
+from typing import Any, Dict, Iterable, Optional, List, Tuple, cast
 
 from bespoke.config import config_util
 from bespoke.config.config_util import MetrcWorkerConfig
 from bespoke import errors
 from bespoke.date import date_util
+from bespoke.db import models
+from bespoke.email import sendgrid_util
 from bespoke.metrc.common.metrc_error_util import (
 	AUTHORIZATION_ERROR_CODES, ErrorCatcher, MetrcRetryError, MetrcErrorDetailsDict
 )
-from bespoke.email import sendgrid_util
+from bespoke.security import security_util
 
 UNKNOWN_STATUS_CODE = -1
 
@@ -34,6 +36,18 @@ LicenseAuthDict = TypedDict('LicenseAuthDict', {
 	'vendor_key': str,
 	'user_key': str
 })
+
+LicensePermissionsDict = TypedDict('LicensePermissionsDict', {
+	'license_number': str,
+	'is_harvests_enabled': bool,
+	'is_plant_batches_enabled': bool,
+	'is_plants_enabled': bool,
+	'is_packages_enabled': bool,
+	'is_sales_receipts_enabled': bool,
+	'is_transfers_enabled': bool,
+})
+
+MetrcApiKeyPermissions = List[LicensePermissionsDict]
 
 RequestStatusesDict = TypedDict('RequestStatusesDict', {
 	'receipts_api': int,
@@ -89,7 +103,6 @@ CompanyDetailsDict = TypedDict('CompanyDetailsDict', {
 
 CompanyStateInfoDict = TypedDict('CompanyStateInfoDict', {
 	'metrc_api_key_id': str,
-	'apis_to_use': ApisToUseDict,
 	'licenses': List[LicenseAuthDict],
 	'facilities_payload': FacilitiesPayloadDict
 })
@@ -161,12 +174,13 @@ class DownloadContext(object):
 		Context object to contain information when we fetch from various parts of Metrc
 	"""
 
-	def __init__(self, 
+	def __init__(
+		self,
 		sendgrid_client: sendgrid_util.Client,
 		worker_cfg: MetrcWorkerConfig, 
 		cur_date: datetime.date, 
 		company_details: CompanyDetailsDict, 
-		apis_to_use: ApisToUseDict,
+		apis_to_use: Optional[ApisToUseDict],
 		license_auth: LicenseAuthDict,
 		debug: bool
 	) -> None:
@@ -206,6 +220,17 @@ class DownloadContext(object):
 
 	def get_retry_errors(self) -> List[MetrcRetryError]:
 		return self.error_catcher.get_retry_errors()
+
+	def get_initialized_apis_to_use(self) -> Optional[ApisToUseDict]:
+		return self.apis_to_use
+
+	def get_adjusted_apis_to_use(self) -> ApisToUseDict:
+		initialized_apis_to_use = self.get_initialized_apis_to_use()
+		if initialized_apis_to_use == None:
+		# If whitelist of APIs to use is NOT provided, use the default whitelist.
+			return get_default_apis_to_use()
+		else:
+			return initialized_apis_to_use
 
 def _get_base_url(us_state: str) -> str:
 	abbr = us_state.lower()
@@ -436,3 +461,191 @@ def update_if_all_are_unsuccessful(request_status: RequestStatusesDict, key: str
 	if d[key] != 200:
 		# Only update the request status if we haven't seen a 200 yet
 		d[key] = e.details.get('status_code')
+
+class MetrcApiKeyDataFetcherInterface(object):
+	"""Interface, to make it easier for the test to fake out this function"""
+
+	def get_facilities(self) -> List[FacilityInfoDict]:
+		return []
+
+	def get_metrc_api_key_permissions(self) -> MetrcApiKeyPermissions:
+		return []
+
+class MetrcApiKeyDataFetcher(MetrcApiKeyDataFetcherInterface):
+	def __init__(
+		self,
+		metrc_api_key_dict: models.MetrcApiKeyDict,
+		security_cfg: security_util.ConfigDict,
+	) -> None:
+		us_state = metrc_api_key_dict['us_state']
+		if not us_state:
+			raise errors.Error('Metrc key {} is missing the us_state. It must be specified explicitly to download data from Metrc'.format(
+				str(metrc_api_key_dict['id'])))
+
+		auth_provider = config_util.get_metrc_auth_provider()
+		vendor_key, err = auth_provider.get_vendor_key_by_state(us_state)
+		if err:
+			raise Exception('What')
+
+		api_key = security_util.decode_secret_string(
+			cfg=security_cfg,
+			encoded_string=metrc_api_key_dict['encrypted_api_key'],
+		)
+
+		self.auth_dict = AuthDict(
+			vendor_key=vendor_key,
+			user_key=api_key,
+		)
+
+		abbr = us_state.lower()
+		self.base_url = f'https://api-{abbr}.metrc.com'
+		self.auth = HTTPBasicAuth(
+			self.auth_dict['vendor_key'],
+			self.auth_dict['user_key'],
+		)
+
+		self.metrc_api_key_dict = metrc_api_key_dict
+
+		# Cached results.
+		self.facilities_json = None
+		self.metrc_api_key_permissions: Optional[MetrcApiKeyPermissions] = None
+
+	def get_request_params(self, license_number: str) -> str:
+		today = datetime.datetime.today()
+		params = [
+			f'licenseNumber={license_number}',
+			f'lastModifiedStart={(today - timedelta(days = 1)).isoformat()}',
+			f'lastModifiedEnd={today.isoformat()}',
+		]
+		return '?' + '&'.join(params)
+		
+	def get_facilities(self) -> List[FacilityInfoDict]:
+		if self.facilities_json:
+			# Cached result.
+			return self.facilities_json
+
+		url = self.base_url + '/facilities/v1'
+		resp = requests.get(url, auth=self.auth)
+		if not resp.ok:
+			raise Exception(f'Code: {resp.status_code}; Reason: {resp.reason}; Response: {str(resp.content)}')
+		facilities_json = json.loads(resp.content)
+
+		self.facilities_json = facilities_json
+		return facilities_json
+
+	def _get_harvests(self, license_number: str) -> Any:
+		url = self.base_url + '/harvests/v1/active'
+		url += self.get_request_params(license_number)
+		resp = requests.get(url, auth=self.auth)
+		if not resp.ok:
+			raise Exception(f'License: {license_number}; Code: {resp.status_code}; Reason: {resp.reason}; Response: {str(resp.content)}')
+		return json.loads(resp.content)
+
+	
+	def _get_packages(self, license_number: str) -> Any:
+		url = self.base_url + '/packages/v1/active'
+		url += self.get_request_params(license_number)
+		resp = requests.get(url, auth=self.auth)
+		if not resp.ok:
+			raise Exception(f'License: {license_number}; Code: {resp.status_code}; Reason: {resp.reason}; Response: {str(resp.content)}')
+		return json.loads(resp.content)
+
+	
+	def _get_plant_batches(self, license_number: str) -> Any:
+		url = self.base_url + '/plantbatches/v1/active'
+		url += self.get_request_params(license_number)
+		resp = requests.get(url, auth=self.auth)
+		if not resp.ok:
+			raise Exception(f'License: {license_number}; Code: {resp.status_code}; Reason: {resp.reason}; Response: {str(resp.content)}')
+		return json.loads(resp.content)
+
+	def _get_plants(self, license_number: str) -> Any:
+		url = self.base_url + '/plants/v1/vegetative'
+		url += self.get_request_params(license_number)
+		resp = requests.get(url, auth=self.auth)
+		if not resp.ok:
+			raise Exception(f'License: {license_number}; Code: {resp.status_code}; Reason: {resp.reason}; Response: {str(resp.content)}')
+		return json.loads(resp.content)
+
+	def _get_sales_receipts(self, license_number: str) -> Any:
+		url = self.base_url + '/sales/v1/receipts/active'
+		url += self.get_request_params(license_number)
+		resp = requests.get(url, auth=self.auth)
+		if not resp.ok:
+			raise Exception(f'License: {license_number}; Code: {resp.status_code}; Reason: {resp.reason}; Response: {str(resp.content)}')
+		return json.loads(resp.content)
+
+	def _get_transfers(self, license_number: str) -> Any:
+		url = self.base_url + '/transfers/v1/incoming'
+		url += self.get_request_params(license_number)
+		resp = requests.get(url, auth=self.auth)
+		if not resp.ok:
+			raise Exception(f'License: {license_number}; Code: {resp.status_code}; Reason: {resp.reason}; Response: {str(resp.content)}')
+		return json.loads(resp.content)
+
+	def _check_license_permissions(self, license_number: str) -> LicensePermissionsDict:
+		is_plant_batches_enabled = True
+		try:
+			plant_batches_json = self._get_plant_batches(license_number)
+		except Exception as e:
+			is_plant_batches_enabled = False
+			
+		is_plants_enabled = True
+		try:
+			plants_json = self._get_plants(license_number)
+		except Exception as e:
+			is_plants_enabled = False
+			
+		is_harvests_enabled = True
+		try:
+			harvests_json = self._get_harvests(license_number)
+		except Exception as e:
+			is_harvests_enabled = False
+			
+		is_packages_enabled = True
+		try:
+			packages_json = self._get_packages(license_number)
+		except Exception as e:
+			is_packages_enabled = False
+		
+		is_sales_receipts_enabled = True
+		try:
+			sales_receipts_json = self._get_sales_receipts(license_number)
+		except Exception as e:
+			is_sales_receipts_enabled = False
+			
+		is_transfers_enabled = True
+		try:
+			transfers_json = self._get_transfers(license_number)
+		except Exception as e:
+			is_transfers_enabled = False
+		
+		return {
+			'license_number': license_number,
+			'is_harvests_enabled': is_harvests_enabled,
+			'is_plant_batches_enabled': is_plant_batches_enabled,
+			'is_plants_enabled': is_plants_enabled,
+			'is_packages_enabled': is_packages_enabled,
+			'is_sales_receipts_enabled': is_sales_receipts_enabled,
+			'is_transfers_enabled': is_transfers_enabled,
+		}
+
+	def get_metrc_api_key_permissions(self) -> MetrcApiKeyPermissions:
+		if self.metrc_api_key_permissions:
+			# Cached result.
+			return self.metrc_api_key_permissions
+
+		logging.info(f'Checking Metrc API key permissions...')
+		facilities_json = self.get_facilities()
+		license_numbers = list(map(lambda facility_json: facility_json['License']['Number'], facilities_json))
+		logging.info(f'Metrc API key has access to {len(license_numbers)} licenses')
+
+		metrc_api_key_permissions = []
+		for license_number in license_numbers:
+			logging.info(f'Checking license permissions for license {license_number}...')
+			license_permissions = self._check_license_permissions(license_number)
+			metrc_api_key_permissions.append(license_permissions)
+		logging.info(f'Finished checking Metrc API key permissions')
+
+		self.metrc_api_key_permissions = metrc_api_key_permissions
+		return self.metrc_api_key_permissions

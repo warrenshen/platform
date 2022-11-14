@@ -13,7 +13,7 @@ from bespoke.db.db_constants import (CompanyDebtFacilityStatus, CompanySurveilla
 	CompanyType, TwoFactorMessageMethod, UserRoles, PartnershipRequestType)
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util
-from bespoke.metrc import metrc_util
+from bespoke.metrc import metrc_api_keys_util
 from server.config import Config
 from mypy_extensions import TypedDict
 from sqlalchemy.sql import or_, and_
@@ -1036,7 +1036,7 @@ def create_partnership_new(
 
 		if company.is_cannabis and len(metrc_api_key) > 0 and metrc_api_key.lower() != 'n/a' and metrc_api_key.lower() != 'na':
 			cfg = cast(Config, current_app.app_config)
-			_, err = metrc_util.upsert_api_key(
+			_, err = metrc_api_keys_util.upsert_api_key(
 				company_id=company_id,
 				api_key=metrc_api_key,
 				metrc_api_key_id=None,

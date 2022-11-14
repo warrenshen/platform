@@ -20,6 +20,7 @@ select_permissions:
         - is_deleted
         - is_functioning
         - last_used_at
+        - permissions_payload
         - status_codes_payload
         - updated_at
         - us_state
@@ -35,6 +36,7 @@ select_permissions:
         - is_deleted
         - is_functioning
         - last_used_at
+        - permissions_payload
         - status_codes_payload
         - updated_at
         - us_state

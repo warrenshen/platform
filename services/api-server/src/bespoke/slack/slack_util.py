@@ -73,9 +73,9 @@ def send_job_summary(
 			headers = headers,
 		)
 	if response.status_code != 200:
-	    return response.status_code, errors.Error(
-	        'Request to slack returned an error %s, the response is:\n%s'
-	        % (response.status_code, response.text))
+		return response.status_code, errors.Error(
+			'Request to slack returned an error %s, the response is:\n%s'
+			% (response.status_code, response.text))
 
 	return response.status_code, None
 
@@ -149,9 +149,9 @@ def send_job_slack_message(
 	)
 
 	if response.status_code != 200:
-	    return response.status_code, errors.Error(
-	        'Request to slack returned an error %s, the response is:\n%s'
-	        % (response.status_code, response.text))
+		return response.status_code, errors.Error(
+			'Request to slack returned an error %s, the response is:\n%s'
+			% (response.status_code, response.text))
 
 	return response.status_code, None
 

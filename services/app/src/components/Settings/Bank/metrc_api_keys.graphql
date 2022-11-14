@@ -13,7 +13,7 @@ query GetMetrcApiKeysByCompanyId($companyId: uuid!) {
     }
   ) {
     id
-    ...MetrcApiKey
+    ...MetrcApiKeyLimited
   }
 }
 
@@ -62,7 +62,7 @@ query GetMetrcMetadataByCompanyId($company_id: uuid!) {
       }
     ) {
       id
-      ...MetrcApiKey
+      ...MetrcApiKeyLimited
     }
   }
 }

@@ -21,10 +21,12 @@ class MetrcWorkerConfig(object):
 		For providing configuration on how to execute and parallelize
 		Metrc downloads
 	"""
-	def __init__(self, 
+	def __init__(
+		self, 
 		num_parallel_licenses: int,
 		num_parallel_sales_transactions: int,
-		force_fetch_missing_sales_transactions: bool) -> None:
+		force_fetch_missing_sales_transactions: bool,
+	) -> None:
 		self.num_parallel_licenses = num_parallel_licenses
 		self.num_parallel_sales_transactions = num_parallel_sales_transactions
 		self.force_fetch_missing_sales_transactions = force_fetch_missing_sales_transactions

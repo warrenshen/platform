@@ -23,7 +23,7 @@ from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from bespoke.finance.loans import reports_util
 from bespoke.metrc import metrc_util
-from bespoke.metrc.common import metrc_summary_util
+from bespoke.metrc.common import metrc_download_summary_util
 from server.config import Config
 from server.views.common import auth_util, handler_util
 from server.views import shared_triggers
@@ -161,7 +161,7 @@ class RerunFailedMetrcDownloadsView(MethodView):
 		before = time.time()
 
 		with session_scope(current_app.session_maker) as session:
-			retry_infos, err = metrc_summary_util.fetch_metrc_daily_summaries_to_rerun(
+			retry_infos, err = metrc_download_summary_util.fetch_metrc_daily_summaries_to_rerun(
 				session,
 				num_to_fetch=2
 			)

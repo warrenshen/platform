@@ -258,6 +258,7 @@ export type AsyncJobs = {
   ended_at?: Maybe<Scalars["timestamptz"]>;
   err_details?: Maybe<Scalars["json"]>;
   id: Scalars["uuid"];
+  initialized_at?: Maybe<Scalars["timestamptz"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
   is_high_priority: Scalars["Boolean"];
   job_payload?: Maybe<Scalars["json"]>;
@@ -330,6 +331,7 @@ export type AsyncJobsBoolExp = {
   ended_at?: Maybe<TimestamptzComparisonExp>;
   err_details?: Maybe<JsonComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
+  initialized_at?: Maybe<TimestamptzComparisonExp>;
   is_deleted?: Maybe<BooleanComparisonExp>;
   is_high_priority?: Maybe<BooleanComparisonExp>;
   job_payload?: Maybe<JsonComparisonExp>;
@@ -362,6 +364,7 @@ export type AsyncJobsInsertInput = {
   ended_at?: Maybe<Scalars["timestamptz"]>;
   err_details?: Maybe<Scalars["json"]>;
   id?: Maybe<Scalars["uuid"]>;
+  initialized_at?: Maybe<Scalars["timestamptz"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
   is_high_priority?: Maybe<Scalars["Boolean"]>;
   job_payload?: Maybe<Scalars["json"]>;
@@ -382,6 +385,7 @@ export type AsyncJobsMaxFields = {
   deleted_at?: Maybe<Scalars["timestamptz"]>;
   ended_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
+  initialized_at?: Maybe<Scalars["timestamptz"]>;
   name?: Maybe<Scalars["String"]>;
   num_retries?: Maybe<Scalars["Int"]>;
   queued_at?: Maybe<Scalars["timestamptz"]>;
@@ -397,6 +401,7 @@ export type AsyncJobsMinFields = {
   deleted_at?: Maybe<Scalars["timestamptz"]>;
   ended_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
+  initialized_at?: Maybe<Scalars["timestamptz"]>;
   name?: Maybe<Scalars["String"]>;
   num_retries?: Maybe<Scalars["Int"]>;
   queued_at?: Maybe<Scalars["timestamptz"]>;
@@ -428,6 +433,7 @@ export type AsyncJobsOrderBy = {
   ended_at?: Maybe<OrderBy>;
   err_details?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  initialized_at?: Maybe<OrderBy>;
   is_deleted?: Maybe<OrderBy>;
   is_high_priority?: Maybe<OrderBy>;
   job_payload?: Maybe<OrderBy>;
@@ -460,6 +466,8 @@ export enum AsyncJobsSelectColumn {
   /** column name */
   Id = "id",
   /** column name */
+  InitializedAt = "initialized_at",
+  /** column name */
   IsDeleted = "is_deleted",
   /** column name */
   IsHighPriority = "is_high_priority",
@@ -490,6 +498,7 @@ export type AsyncJobsSetInput = {
   ended_at?: Maybe<Scalars["timestamptz"]>;
   err_details?: Maybe<Scalars["json"]>;
   id?: Maybe<Scalars["uuid"]>;
+  initialized_at?: Maybe<Scalars["timestamptz"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
   is_high_priority?: Maybe<Scalars["Boolean"]>;
   job_payload?: Maybe<Scalars["json"]>;
@@ -535,6 +544,8 @@ export enum AsyncJobsUpdateColumn {
   ErrDetails = "err_details",
   /** column name */
   Id = "id",
+  /** column name */
+  InitializedAt = "initialized_at",
   /** column name */
   IsDeleted = "is_deleted",
   /** column name */
@@ -13058,6 +13069,7 @@ export type MetrcApiKeys = {
   metrc_download_summaries: Array<MetrcDownloadSummaries>;
   /** An aggregate relationship */
   metrc_download_summaries_aggregate: MetrcDownloadSummariesAggregate;
+  permissions_payload?: Maybe<Scalars["json"]>;
   status_codes_payload?: Maybe<Scalars["json"]>;
   updated_at: Scalars["timestamptz"];
   us_state?: Maybe<Scalars["String"]>;
@@ -13085,6 +13097,11 @@ export type MetrcApiKeysMetrcDownloadSummariesAggregateArgs = {
   offset?: Maybe<Scalars["Int"]>;
   order_by?: Maybe<Array<MetrcDownloadSummariesOrderBy>>;
   where?: Maybe<MetrcDownloadSummariesBoolExp>;
+};
+
+/** List of API keys we use to connect to Metrc */
+export type MetrcApiKeysPermissionsPayloadArgs = {
+  path?: Maybe<Scalars["String"]>;
 };
 
 /** List of API keys we use to connect to Metrc */
@@ -13140,6 +13157,7 @@ export type MetrcApiKeysBoolExp = {
   is_functioning?: Maybe<BooleanComparisonExp>;
   last_used_at?: Maybe<TimestamptzComparisonExp>;
   metrc_download_summaries?: Maybe<MetrcDownloadSummariesBoolExp>;
+  permissions_payload?: Maybe<JsonComparisonExp>;
   status_codes_payload?: Maybe<JsonComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
   us_state?: Maybe<StringComparisonExp>;
@@ -13164,6 +13182,7 @@ export type MetrcApiKeysInsertInput = {
   is_functioning?: Maybe<Scalars["Boolean"]>;
   last_used_at?: Maybe<Scalars["timestamptz"]>;
   metrc_download_summaries?: Maybe<MetrcDownloadSummariesArrRelInsertInput>;
+  permissions_payload?: Maybe<Scalars["json"]>;
   status_codes_payload?: Maybe<Scalars["json"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   us_state?: Maybe<Scalars["String"]>;
@@ -13252,6 +13271,7 @@ export type MetrcApiKeysOrderBy = {
   is_functioning?: Maybe<OrderBy>;
   last_used_at?: Maybe<OrderBy>;
   metrc_download_summaries_aggregate?: Maybe<MetrcDownloadSummariesAggregateOrderBy>;
+  permissions_payload?: Maybe<OrderBy>;
   status_codes_payload?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   us_state?: Maybe<OrderBy>;
@@ -13284,6 +13304,8 @@ export enum MetrcApiKeysSelectColumn {
   /** column name */
   LastUsedAt = "last_used_at",
   /** column name */
+  PermissionsPayload = "permissions_payload",
+  /** column name */
   StatusCodesPayload = "status_codes_payload",
   /** column name */
   UpdatedAt = "updated_at",
@@ -13304,6 +13326,7 @@ export type MetrcApiKeysSetInput = {
   is_deleted?: Maybe<Scalars["Boolean"]>;
   is_functioning?: Maybe<Scalars["Boolean"]>;
   last_used_at?: Maybe<Scalars["timestamptz"]>;
+  permissions_payload?: Maybe<Scalars["json"]>;
   status_codes_payload?: Maybe<Scalars["json"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   us_state?: Maybe<Scalars["String"]>;
@@ -13330,6 +13353,8 @@ export enum MetrcApiKeysUpdateColumn {
   IsFunctioning = "is_functioning",
   /** column name */
   LastUsedAt = "last_used_at",
+  /** column name */
+  PermissionsPayload = "permissions_payload",
   /** column name */
   StatusCodesPayload = "status_codes_payload",
   /** column name */
@@ -30300,7 +30325,7 @@ export type GetMetrcApiKeysByCompanyIdQueryVariables = Exact<{
 }>;
 
 export type GetMetrcApiKeysByCompanyIdQuery = {
-  metrc_api_keys: Array<Pick<MetrcApiKeys, "id"> & MetrcApiKeyFragment>;
+  metrc_api_keys: Array<Pick<MetrcApiKeys, "id"> & MetrcApiKeyLimitedFragment>;
 };
 
 export type GetMetrcMetadataByCompanyIdQueryVariables = Exact<{
@@ -30318,7 +30343,9 @@ export type GetMetrcMetadataByCompanyIdQuery = {
           company_facility?: Maybe<Pick<CompanyFacilities, "id" | "name">>;
         } & CompanyLicenseFragment
       >;
-      metrc_api_keys: Array<Pick<MetrcApiKeys, "id"> & MetrcApiKeyFragment>;
+      metrc_api_keys: Array<
+        Pick<MetrcApiKeys, "id"> & MetrcApiKeyLimitedFragment
+      >;
     }
   >;
 };
@@ -31142,6 +31169,14 @@ export type GetMetrcDownloadSummaryQuery = {
   >;
 };
 
+export type GetMetrcApiKeyQueryVariables = Exact<{
+  id: Scalars["uuid"];
+}>;
+
+export type GetMetrcApiKeyQuery = {
+  metrc_api_keys_by_pk?: Maybe<Pick<MetrcApiKeys, "id"> & MetrcApiKeyFragment>;
+};
+
 export type GetVendorPartnershipQueryVariables = Exact<{
   id: Scalars["uuid"];
 }>;
@@ -31568,16 +31603,23 @@ export type CompanyForDebtFacilityFragment = Pick<
   >;
 };
 
-export type MetrcApiKeyFragment = Pick<
+export type MetrcApiKeyLimitedFragment = Pick<
   MetrcApiKeys,
   | "id"
   | "created_at"
+  | "updated_at"
   | "last_used_at"
   | "is_functioning"
   | "status_codes_payload"
   | "us_state"
   | "use_saved_licenses_only"
 >;
+
+export type MetrcApiKeyFragment = Pick<
+  MetrcApiKeys,
+  "id" | "facilities_payload" | "permissions_payload"
+> &
+  MetrcApiKeyLimitedFragment;
 
 export type VendorFragment = Pick<
   Vendors,
@@ -32955,16 +32997,26 @@ export const BankAccountFragmentDoc = gql`
   }
   ${BankAccountLimitedFragmentDoc}
 `;
-export const MetrcApiKeyFragmentDoc = gql`
-  fragment MetrcApiKey on metrc_api_keys {
+export const MetrcApiKeyLimitedFragmentDoc = gql`
+  fragment MetrcApiKeyLimited on metrc_api_keys {
     id
     created_at
+    updated_at
     last_used_at
     is_functioning
     status_codes_payload
     us_state
     use_saved_licenses_only
   }
+`;
+export const MetrcApiKeyFragmentDoc = gql`
+  fragment MetrcApiKey on metrc_api_keys {
+    id
+    ...MetrcApiKeyLimited
+    facilities_payload
+    permissions_payload
+  }
+  ${MetrcApiKeyLimitedFragmentDoc}
 `;
 export const VendorLimitedFragmentDoc = gql`
   fragment VendorLimited on vendors {
@@ -42245,10 +42297,10 @@ export const GetMetrcApiKeysByCompanyIdDocument = gql`
       }
     ) {
       id
-      ...MetrcApiKey
+      ...MetrcApiKeyLimited
     }
   }
-  ${MetrcApiKeyFragmentDoc}
+  ${MetrcApiKeyLimitedFragmentDoc}
 `;
 
 /**
@@ -42347,13 +42399,13 @@ export const GetMetrcMetadataByCompanyIdDocument = gql`
         }
       ) {
         id
-        ...MetrcApiKey
+        ...MetrcApiKeyLimited
       }
     }
   }
   ${CompanyFacilityFragmentDoc}
   ${CompanyLicenseFragmentDoc}
-  ${MetrcApiKeyFragmentDoc}
+  ${MetrcApiKeyLimitedFragmentDoc}
 `;
 
 /**
@@ -45317,6 +45369,66 @@ export type GetMetrcDownloadSummaryLazyQueryHookResult = ReturnType<
 export type GetMetrcDownloadSummaryQueryResult = Apollo.QueryResult<
   GetMetrcDownloadSummaryQuery,
   GetMetrcDownloadSummaryQueryVariables
+>;
+export const GetMetrcApiKeyDocument = gql`
+  query GetMetrcApiKey($id: uuid!) {
+    metrc_api_keys_by_pk(id: $id) {
+      id
+      ...MetrcApiKey
+    }
+  }
+  ${MetrcApiKeyFragmentDoc}
+`;
+
+/**
+ * __useGetMetrcApiKeyQuery__
+ *
+ * To run a query within a React component, call `useGetMetrcApiKeyQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMetrcApiKeyQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetMetrcApiKeyQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetMetrcApiKeyQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetMetrcApiKeyQuery,
+    GetMetrcApiKeyQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetMetrcApiKeyQuery, GetMetrcApiKeyQueryVariables>(
+    GetMetrcApiKeyDocument,
+    options
+  );
+}
+export function useGetMetrcApiKeyLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetMetrcApiKeyQuery,
+    GetMetrcApiKeyQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetMetrcApiKeyQuery, GetMetrcApiKeyQueryVariables>(
+    GetMetrcApiKeyDocument,
+    options
+  );
+}
+export type GetMetrcApiKeyQueryHookResult = ReturnType<
+  typeof useGetMetrcApiKeyQuery
+>;
+export type GetMetrcApiKeyLazyQueryHookResult = ReturnType<
+  typeof useGetMetrcApiKeyLazyQuery
+>;
+export type GetMetrcApiKeyQueryResult = Apollo.QueryResult<
+  GetMetrcApiKeyQuery,
+  GetMetrcApiKeyQueryVariables
 >;
 export const GetVendorPartnershipDocument = gql`
   query GetVendorPartnership($id: uuid!) {

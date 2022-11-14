@@ -521,7 +521,9 @@ def float_or_null(val: Optional[decimal.Decimal]) -> float:
 
 MetrcApiKeyDict = TypedDict('MetrcApiKeyDict', {
 	'id': str,
-	'us_state': str
+	'us_state': Optional[str],
+	'encrypted_api_key': str,
+	'company_id': str,
 })
 
 class MetrcApiKey(Base):
@@ -531,13 +533,15 @@ class MetrcApiKey(Base):
 	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	encrypted_api_key = Column(String)
 	hashed_key = Column(String) # The one we can use for duplicate metrc key detection
-	is_functioning = Column(Boolean) # Whether key is functioning, where functioning means the /facilities endpoint is working.
-	last_used_at = Column(DateTime) # Timestamp of when key was last functioning.
+	is_functioning = Column(Boolean) # Whether API key is functioning, where functioning means the /facilities endpoint is working.
+	last_used_at = Column(DateTime) # Timestamp of when API key was last functioning.
 	is_deleted = Column(Boolean, default=False)
 	us_state = Column(String)
-	facilities_payload = Column(JSON)
-	status_codes_payload = Column(JSON)
 	use_saved_licenses_only = Column(Boolean)
+
+	facilities_payload = Column(JSON) # The raw JSON response from the Metrc API /facilities/v1 endpoint.
+	permissions_payload = Column(JSON) # List of permissions information as of the most recent time API key was tested.
+	status_codes_payload = Column(JSON) # Dictionary of license => status codes of downloads from Metrc API endpoints.
 
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
@@ -545,7 +549,9 @@ class MetrcApiKey(Base):
 	def as_dict(self) -> MetrcApiKeyDict:
 		return MetrcApiKeyDict(
 			id=str(self.id),
-			us_state=self.us_state if self.us_state else None
+			us_state=self.us_state if self.us_state else None,
+			encrypted_api_key=self.encrypted_api_key,
+			company_id=str(self.company_id),
 		)
 
 class MetrcAnalysisSummary(Base):
@@ -569,10 +575,11 @@ class MetrcDownloadSummary(Base):
 
 	# Per day summary of jobs
 	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
-	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
-	metrc_api_key_id = cast(GUID, Column(GUID, ForeignKey('metrc_api_keys.id')))
 	license_number = Column(String)
 	date = Column(Date)
+
+	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
+	metrc_api_key_id = cast(GUID, Column(GUID, ForeignKey('metrc_api_keys.id')))
 
 	status = Column(String) # Enum: db_constants.MetrcDownloadSummaryStatus.
 	harvests_status = Column(String)

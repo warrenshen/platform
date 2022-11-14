@@ -26,7 +26,8 @@ from typing import cast
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../")))
 
-from server.config import get_config, get_email_client_config
+from dotenv import load_dotenv
+from server.config import get_config, get_email_client_config, is_development_env
 
 from bespoke.config.config_util import MetrcWorkerConfig
 from bespoke.date import date_util
@@ -56,15 +57,18 @@ def main(
 	num_parallel_licenses: int,
 	num_parallel_sales_transactions: int,
 ) -> None:
+	logging.basicConfig(level=logging.INFO)
+
+	if is_development_env(os.environ.get('FLASK_ENV')):
+		load_dotenv(os.path.join(os.environ.get('SERVER_ROOT_DIR'), '.env'))
+
+	config = get_config()
+	config.SERVER_TYPE = "batch-scripts"
+
 	for env_var in REQUIRED_ENV_VARS:
 		if not os.environ.get(env_var):
 			print(f'You must set "{env_var}" in the environment to use this script')
 			exit(1)
-
-	logging.basicConfig(level=logging.INFO)
-
-	config = get_config()
-	config.SERVER_TYPE = "batch-scripts"
 
 	# For batch job, set SQL statement timeout to 10 seconds.
 	engine = models.create_engine(statement_timeout=10000)
@@ -92,7 +96,7 @@ def main(
 	# Default end date to today if end date not specified.
 	parsed_end_date = date_util.load_date_str(end_date_str) if end_date_str else date_util.now_as_date()
 
-	apis_to_use=metrc_common_util.ApisToUseDict(
+	apis_to_use = metrc_common_util.ApisToUseDict(
 		sales_receipts=not is_sales_disabled,
 		sales_transactions=not is_sales_disabled,
 		incoming_transfers=not is_transfers_disabled,
@@ -116,6 +120,11 @@ def main(
 	print(f'APIs to fetch data from: {apis_to_use}')
 	print('')
 	print('LOGS...')
+
+	# Set apis_to_use to None if it's equal to the default.
+	# This allows this script to simulate a Metrc download with the default whitelist of APIs.
+	if apis_to_use == metrc_common_util.get_default_apis_to_use():
+		apis_to_use = None
 
 	cur_date = parsed_start_date
 	while cur_date <= parsed_end_date:

@@ -245,14 +245,22 @@ fragment CompanyForDebtFacility on companies {
   }
 }
 
-fragment MetrcApiKey on metrc_api_keys {
+fragment MetrcApiKeyLimited on metrc_api_keys {
   id
   created_at
+  updated_at
   last_used_at
   is_functioning
   status_codes_payload
   us_state
   use_saved_licenses_only
+}
+
+fragment MetrcApiKey on metrc_api_keys {
+  id
+  ...MetrcApiKeyLimited
+  facilities_payload
+  permissions_payload
 }
 
 ## Purchase Order Financing

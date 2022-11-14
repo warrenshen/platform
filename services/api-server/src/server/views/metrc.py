@@ -8,7 +8,7 @@ from bespoke.async_util.pipeline_constants import PipelineName, PipelineState
 from bespoke.db import models
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
-from bespoke.metrc import metrc_util
+from bespoke.metrc import metrc_api_keys_util, metrc_util
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from server.config import Config
@@ -40,7 +40,7 @@ class UpsertApiKeyView(MethodView):
 					'Missing key {} in request'.format(key))
 
 		with session_scope(current_app.session_maker) as session:
-			_, err = metrc_util.upsert_api_key(
+			_, err = metrc_api_keys_util.upsert_api_key(
 				company_id=form['company_id'],
 				metrc_api_key_id=form['metrc_api_key_id'],
 				api_key=form['api_key'],
@@ -77,7 +77,7 @@ class DeleteApiKeyView(MethodView):
 					'Missing key {} in request'.format(key))
 
 		with session_scope(current_app.session_maker) as session:
-			_, err = metrc_util.delete_api_key(
+			_, err = metrc_api_keys_util.delete_api_key(
 				metrc_api_key_id=form['metrc_api_key_id'],
 				session=session
 			)
@@ -110,7 +110,7 @@ class ViewApiKeyView(MethodView):
 
 		with session_scope(current_app.session_maker) as session:
 
-			view_api_key_resp, err = metrc_util.view_api_key(
+			view_api_key_resp, err = metrc_api_keys_util.view_api_key(
 				metrc_api_key_id=form['metrc_api_key_id'],
 				security_cfg=cfg.get_security_config(),
 				session=session
@@ -161,7 +161,7 @@ class DownloadMetrcDataForCompanyView(MethodView):
 
 			return make_response(json.dumps({
 				'status': 'OK',
-				'errors': ['{}'.format(err) for err in resp['all_errs']]
+				'errors': ['{}'.format(err) for err in resp['nonblocking_download_errors']]
 			}))
 		else:
 			logging.info(f"Submitting request to sync metrc data for 1 customer [async]")

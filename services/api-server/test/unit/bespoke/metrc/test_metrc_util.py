@@ -4,42 +4,15 @@ from typing import Any, Dict, List, Tuple, cast
 from bespoke import errors
 
 from bespoke.config.config_util import MetrcAuthProvider
-from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.models import session_scope
-from bespoke.metrc import metrc_util
+from bespoke.metrc import metrc_api_keys_util, metrc_util
 from bespoke.metrc.common import metrc_common_util
 from bespoke.metrc.common.metrc_common_util import (
 	AuthDict, CompanyInfo, FacilityInfoDict, FacilityLicenseDict
 )
 from bespoke.security import security_util
-
-from bespoke_test.contract import contract_test_helper
-from bespoke_test.contract.contract_test_helper import ContractInputDict
 from bespoke_test.db import db_unittest, test_helper
-
-def _get_contract(company_id: str, product_type: str, us_state: str) -> models.Contract:
-	return models.Contract(
-		company_id=company_id,
-		product_type=product_type,
-		product_config=contract_test_helper.create_contract_config(
-			product_type=product_type,
-			input_dict=ContractInputDict(
-				interest_rate=0.03,
-				maximum_principal_amount=120000.01,
-				max_days_until_repayment=0, # unused
-				late_fee_structure=json.dumps({
-					'1-14': 0.25,
-					'15-29': 0.50,
-					'30+': 1.0
-					},
-				),
-				us_state=us_state
-			)
-		),
-		start_date=date_util.load_date_str('1/1/2020'),
-		adjusted_end_date=date_util.load_date_str('12/1/2020')
-	)
 
 class FakeFacilitiesFetcher(metrc_common_util.FacilitiesFetcherInterface):
 
@@ -54,143 +27,6 @@ class FakeFacilitiesFetcher(metrc_common_util.FacilitiesFetcherInterface):
 			return None, self._state_to_errs[us_state]
 
 		return self._state_to_facilities[us_state], None
-
-class TestDeleteKey(db_unittest.TestCase):
-
-	def setUp(self) -> None:
-		self.security_cfg = security_util.ConfigDict(
-			URL_SECRET_KEY='url-secret-key1234',
-			URL_SALT='url-salt1234',
-			BESPOKE_DOMAIN='https://app.bespokefinancial.com'
-		)
-
-	def test_delete_last_remaining_key(self) -> None:
-		self.reset()
-		session_maker = self.session_maker
-		seed = test_helper.BasicSeed.create(self.session_maker, self)
-		seed.initialize()
-
-		company_id = seed.get_company_id('company_admin', index=0)
-
-		with session_scope(self.session_maker) as session:
-			metrc_api_key_id, err = metrc_util.upsert_api_key(
-				company_id=company_id, 
-				metrc_api_key_id=None,
-				api_key='the-api-key', 
-				security_cfg=self.security_cfg,
-				us_state='CA',
-				use_saved_licenses_only=False,
-				session=session
-			)
-			self.assertIsNone(err)
-
-		with session_scope(self.session_maker) as session:
-			view_resp, err = metrc_util.view_api_key(
-				metrc_api_key_id,
-				security_cfg=self.security_cfg,
-				session=session
-			)
-			self.assertIsNone(err)
-			self.assertEqual('the-api-key', view_resp['api_key'])
-			self.assertEqual('CA', view_resp['us_state'])
-
-		with session_scope(self.session_maker) as session:
-			success, err = metrc_util.delete_api_key(
-				metrc_api_key_id,
-				session=session
-			)
-			self.assertTrue(success)
-			self.assertIsNone(err)
-
-		with session_scope(self.session_maker) as session:
-			view_resp, err = metrc_util.view_api_key(
-				metrc_api_key_id,
-				security_cfg=self.security_cfg,
-				session=session
-			)
-			self.assertIsNotNone(err)
-
-class TestUpsertApiKey(db_unittest.TestCase):
-
-	def setUp(self) -> None:
-		self.security_cfg = security_util.ConfigDict(
-			URL_SECRET_KEY='url-secret-key1234',
-			URL_SALT='url-salt1234',
-			BESPOKE_DOMAIN='https://app.bespokefinancial.com'
-		)
-
-	def test_upsert_first_key(self) -> None:
-		self.reset()
-		session_maker = self.session_maker
-		seed = test_helper.BasicSeed.create(self.session_maker, self)
-		seed.initialize()
-
-		company_id = seed.get_company_id('company_admin', index=0)
-
-		with session_scope(self.session_maker) as session:
-			metrc_api_key_id, err = metrc_util.upsert_api_key(
-				company_id=company_id,
-				metrc_api_key_id=None,
-				api_key='the-api-key',
-				security_cfg=self.security_cfg,
-				us_state='CA',
-				use_saved_licenses_only=False,
-				session=session
-			)
-			self.assertIsNone(err)
-
-		with session_scope(self.session_maker) as session:
-			view_resp, err = metrc_util.view_api_key(
-				metrc_api_key_id,
-				security_cfg=self.security_cfg,
-				session=session
-			)
-			self.assertIsNone(err)
-			self.assertEqual('the-api-key', view_resp['api_key'])
-			self.assertEqual('CA', view_resp['us_state'])
-
-	def test_allowed_two_keys_from_same_state(self) -> None:
-		self.reset()
-		session_maker = self.session_maker
-		seed = test_helper.BasicSeed.create(self.session_maker, self)
-		seed.initialize()
-
-		company_id = seed.get_company_id('company_admin', index=0)
-		
-		with session_scope(self.session_maker) as session:
-			metrc_api_key_id, err = metrc_util.upsert_api_key(
-				company_id=company_id,
-				metrc_api_key_id=None,
-				api_key='the-api-key',
-				security_cfg=self.security_cfg,
-				us_state='CA',
-				use_saved_licenses_only=False,
-				session=session
-			)
-			self.assertIsNone(err)
-
-			metrc_api_key_id, err = metrc_util.upsert_api_key(
-				company_id=company_id,
-				metrc_api_key_id=None,
-				api_key='the-api-key2',
-				security_cfg=self.security_cfg,
-				us_state='CA',
-				use_saved_licenses_only=False,
-				session=session
-			)
-			self.assertIsNone(err)
-
-			metrc_api_key_id, err = metrc_util.upsert_api_key(
-				company_id=company_id,
-				metrc_api_key_id=None,
-				api_key='the-api-key2',
-				security_cfg=self.security_cfg,
-				us_state='CA', # disallowed beacuse its a duplicate
-				use_saved_licenses_only=False,
-				session=session
-			)
-			self.assertIsNotNone(err)
-
 class TestGetCompanyInfo(db_unittest.TestCase):
 
 	def setUp(self) -> None:
@@ -240,7 +76,7 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 		company_id = seed.get_company_id('company_admin', index=0)
 
 		with session_scope(self.session_maker) as session:
-			metrc_api_key_id, err = metrc_util.upsert_api_key(
+			metrc_api_key_id, err = metrc_api_keys_util.upsert_api_key(
 				company_id=company_id,
 				metrc_api_key_id=None,
 				api_key='the-api-key',
@@ -259,7 +95,6 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 				'CA': facilities
 			}, state_to_errs={}),
 			company_id=company_id,
-			apis_to_use=None,
 		)
 		self.assertIsNone(err)
 		self._assert_company_info({
@@ -298,7 +133,7 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 		company_id = seed.get_company_id('company_admin', index=0)
 
 		with session_scope(self.session_maker) as session:
-			metrc_api_key_id, err = metrc_util.upsert_api_key(
+			metrc_api_key_id, err = metrc_api_keys_util.upsert_api_key(
 				company_id=company_id,
 				metrc_api_key_id=None,
 				api_key='the-api-key',
@@ -331,7 +166,6 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 				'CA': facilities
 			}, state_to_errs={}),
 			company_id=company_id,
-			apis_to_use=None,
 		)
 		self.assertIsNone(err)
 		self._assert_company_info({
@@ -396,7 +230,7 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 		company_id = seed.get_company_id('company_admin', index=0)
 
 		with session_scope(self.session_maker) as session:
-			metrc_api_key_id2, err = metrc_util.upsert_api_key(
+			metrc_api_key_id2, err = metrc_api_keys_util.upsert_api_key(
 				company_id=company_id,
 				metrc_api_key_id=None,
 				api_key='the-api-key2',
@@ -409,7 +243,7 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 
 			# Because of the way upsert works, it sets the default metrc_key
 			# for now, so this has to come second
-			metrc_api_key_id, err = metrc_util.upsert_api_key(
+			metrc_api_key_id, err = metrc_api_keys_util.upsert_api_key(
 				company_id=company_id,
 				metrc_api_key_id=None,
 				api_key='the-api-key',
@@ -420,7 +254,7 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 			)
 			self.assertIsNone(err)
 
-			metrc_api_key_id3, err = metrc_util.upsert_api_key(
+			metrc_api_key_id3, err = metrc_api_keys_util.upsert_api_key(
 				company_id=company_id,
 				metrc_api_key_id=None,
 				api_key='the-api-key3',
@@ -457,7 +291,6 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 				'FL': errors.Error('No succesful facilities found for FL')
 			}),
 			company_id=company_id,
-			apis_to_use=None,
 		)
 		self.assertIsNone(err)
 		self._assert_company_info({

@@ -1,12 +1,14 @@
 import { Box } from "@material-ui/core";
 import { GridValueFormatterParams } from "@material-ui/data-grid";
 import { Alert } from "@material-ui/lab";
+import MetrcApiKeyDrawer from "components/Metrc/MetrcApiKeyDrawer";
 import MetrcApiKeyInfo from "components/Metrc/MetrcApiKeyInfo";
 import DeleteMetrcKeyModal from "components/Settings/Bank/DeleteMetrcKeyModal";
 import UpsertMetrcKeyModal from "components/Settings/Bank/UpsertMetrcKeyModal";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import DatetimeDataGridCell from "components/Shared/DataGrid/DatetimeDataGridCell";
 import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
+import ClickableDataGridCell from "components/Shared/DataGrid/v2/ClickableDataGridCell";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import {
   Companies,
@@ -38,6 +40,7 @@ export default function MetrcApiKeysList({ companyId }: Props) {
     },
   });
 
+  const [openedMetrcApiKeyId, setOpenedMetrcApiKeyId] = useState(null);
   const [selectedMetrcKeyIds, setSelectedMetrcKeyIds] = useState<
     MetrcApiKeys["id"]
   >([]);
@@ -47,9 +50,18 @@ export default function MetrcApiKeysList({ companyId }: Props) {
   const columns = useMemo(
     () => [
       {
-        dataField: "number",
-        caption: "Key #",
+        fixed: true,
+        caption: "ID",
         alignment: "left",
+        minWidth: ColumnWidths.MinWidth,
+        cellRender: (params: GridValueFormatterParams) => (
+          <ClickableDataGridCell
+            onClick={() => {
+              setOpenedMetrcApiKeyId(params.row.data.id);
+            }}
+            label={params.row.data.id}
+          />
+        ),
       },
       {
         dataField: "us_state",
@@ -130,6 +142,12 @@ export default function MetrcApiKeysList({ companyId }: Props) {
         <Box mt={1}>
           <Alert severity="warning">Metrc API key(s) NOT set up yet</Alert>
         </Box>
+      )}
+      {!!openedMetrcApiKeyId && (
+        <MetrcApiKeyDrawer
+          metrcApiKeyId={openedMetrcApiKeyId}
+          handleClose={() => setOpenedMetrcApiKeyId(null)}
+        />
       )}
       <Box mt={2}>
         <Box display="flex" flexDirection="row-reverse">

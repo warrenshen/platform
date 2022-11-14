@@ -100,3 +100,10 @@ query GetMetrcDownloadSummary($id: uuid!) {
     ...MetrcDownloadSummary
   }
 }
+
+query GetMetrcApiKey($id: uuid!) {
+  metrc_api_keys_by_pk(id: $id) {
+    id
+    ...MetrcApiKey
+  }
+}

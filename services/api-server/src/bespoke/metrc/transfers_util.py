@@ -521,19 +521,16 @@ def populate_transfers_table(
 
 	## Setup
 	company_details = ctx.company_details
-	cur_date = ctx.cur_date
 	request_status = ctx.request_status
 	rest = ctx.rest
-	license = ctx.license
 
 	cur_date_str = ctx.get_cur_date_str()
-	apis_to_use = ctx.apis_to_use
 
 	## Fetch transfers
 
 	# Incoming
 	incoming_transfers_arr = []
-	if apis_to_use['incoming_transfers']:
+	if ctx.get_adjusted_apis_to_use()['incoming_transfers']:
 		try:
 			resp = rest.get('/transfers/v1/incoming', time_range=[cur_date_str])
 			incoming_transfers_arr = json.loads(resp.content)
@@ -563,7 +560,7 @@ def populate_transfers_table(
 
 	# Outgoing
 	outgoing_transfers_arr = []
-	if apis_to_use['outgoing_transfers']:
+	if ctx.get_adjusted_apis_to_use()['outgoing_transfers']:
 		try:
 			resp = rest.get('/transfers/v1/outgoing', time_range=[cur_date_str])
 			outgoing_transfers_arr = json.loads(resp.content)
@@ -591,7 +588,7 @@ def populate_transfers_table(
 
 	# Rejected
 	rejected_transfers_arr = []
-	if apis_to_use['rejected_transfers']:
+	if ctx.get_adjusted_apis_to_use()['rejected_transfers']:
 		try:
 			resp = rest.get('/transfers/v1/rejected', time_range=[cur_date_str])
 			rejected_transfers_arr = json.loads(resp.content)
