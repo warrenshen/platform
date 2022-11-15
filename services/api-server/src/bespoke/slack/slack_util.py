@@ -28,7 +28,8 @@ def send_job_summary(
 		AsyncJobNameEnum.AUTOGENERATE_REPAYMENTS: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
 		AsyncJobNameEnum.LOANS_PAST_DUE: ["Monday", "Thursday"],
 		AsyncJobNameEnum.LOANS_COMING_DUE: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-		AsyncJobNameEnum.UPDATE_COMPANY_BALANCES: ["Monday"]
+		AsyncJobNameEnum.UPDATE_COMPANY_BALANCES: ["Monday"],
+		AsyncJobNameEnum.PURCHASE_ORDERS_PAST_DUE: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 	}
 	
 	response_blocks = []
