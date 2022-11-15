@@ -6,8 +6,8 @@ import BankLoanOnlyForBankDrawerTab from "components/Loan/v2/BankLoanOnlyForBank
 import BankPurchaseOrderGeneralInformationDrawerTab from "components/PurchaseOrder/v2/BankPurchaseOrderGeneralInformationDrawerTab";
 import Modal from "components/Shared/Modal/Modal";
 import {
-  LoanFragment,
   LoanTypeEnum,
+  LoanWithRelationshipsFragment,
   Loans,
   PurchaseOrderWithRelationshipsFragment,
   useGetLoanWithRelationshipsQuery,
@@ -22,7 +22,7 @@ import { useState } from "react";
 import styled from "styled-components";
 
 export interface LoanViewModalProps {
-  loan: LoanFragment;
+  loan: LoanWithRelationshipsFragment;
 }
 
 const SectionSpace = styled.div`

@@ -1535,9 +1535,7 @@ export type BankFinancialSummaries = {
   date: Scalars["date"];
   id: Scalars["uuid"];
   interest_accrued_today?: Maybe<Scalars["numeric"]>;
-  interest_accrued_today_adjustment?: Maybe<Scalars["numeric"]>;
   late_fees_accrued_today?: Maybe<Scalars["numeric"]>;
-  late_fees_accrued_today_adjustment?: Maybe<Scalars["numeric"]>;
   product_type: Scalars["String"];
   total_limit: Scalars["numeric"];
   total_outstanding_fees: Scalars["numeric"];
@@ -1581,9 +1579,7 @@ export type BankFinancialSummariesAvgFields = {
   adjusted_total_limit?: Maybe<Scalars["Float"]>;
   available_limit?: Maybe<Scalars["Float"]>;
   interest_accrued_today?: Maybe<Scalars["Float"]>;
-  interest_accrued_today_adjustment?: Maybe<Scalars["Float"]>;
   late_fees_accrued_today?: Maybe<Scalars["Float"]>;
-  late_fees_accrued_today_adjustment?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
   total_outstanding_interest?: Maybe<Scalars["Float"]>;
@@ -1604,9 +1600,7 @@ export type BankFinancialSummariesBoolExp = {
   date?: Maybe<DateComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   interest_accrued_today?: Maybe<NumericComparisonExp>;
-  interest_accrued_today_adjustment?: Maybe<NumericComparisonExp>;
   late_fees_accrued_today?: Maybe<NumericComparisonExp>;
-  late_fees_accrued_today_adjustment?: Maybe<NumericComparisonExp>;
   product_type?: Maybe<StringComparisonExp>;
   total_limit?: Maybe<NumericComparisonExp>;
   total_outstanding_fees?: Maybe<NumericComparisonExp>;
@@ -1631,9 +1625,7 @@ export type BankFinancialSummariesIncInput = {
   adjusted_total_limit?: Maybe<Scalars["numeric"]>;
   available_limit?: Maybe<Scalars["numeric"]>;
   interest_accrued_today?: Maybe<Scalars["numeric"]>;
-  interest_accrued_today_adjustment?: Maybe<Scalars["numeric"]>;
   late_fees_accrued_today?: Maybe<Scalars["numeric"]>;
-  late_fees_accrued_today_adjustment?: Maybe<Scalars["numeric"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
   total_outstanding_fees?: Maybe<Scalars["numeric"]>;
   total_outstanding_interest?: Maybe<Scalars["numeric"]>;
@@ -1651,9 +1643,7 @@ export type BankFinancialSummariesInsertInput = {
   date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   interest_accrued_today?: Maybe<Scalars["numeric"]>;
-  interest_accrued_today_adjustment?: Maybe<Scalars["numeric"]>;
   late_fees_accrued_today?: Maybe<Scalars["numeric"]>;
-  late_fees_accrued_today_adjustment?: Maybe<Scalars["numeric"]>;
   product_type?: Maybe<Scalars["String"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
   total_outstanding_fees?: Maybe<Scalars["numeric"]>;
@@ -1673,9 +1663,7 @@ export type BankFinancialSummariesMaxFields = {
   date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   interest_accrued_today?: Maybe<Scalars["numeric"]>;
-  interest_accrued_today_adjustment?: Maybe<Scalars["numeric"]>;
   late_fees_accrued_today?: Maybe<Scalars["numeric"]>;
-  late_fees_accrued_today_adjustment?: Maybe<Scalars["numeric"]>;
   product_type?: Maybe<Scalars["String"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
   total_outstanding_fees?: Maybe<Scalars["numeric"]>;
@@ -1695,9 +1683,7 @@ export type BankFinancialSummariesMinFields = {
   date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   interest_accrued_today?: Maybe<Scalars["numeric"]>;
-  interest_accrued_today_adjustment?: Maybe<Scalars["numeric"]>;
   late_fees_accrued_today?: Maybe<Scalars["numeric"]>;
-  late_fees_accrued_today_adjustment?: Maybe<Scalars["numeric"]>;
   product_type?: Maybe<Scalars["String"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
   total_outstanding_fees?: Maybe<Scalars["numeric"]>;
@@ -1732,9 +1718,7 @@ export type BankFinancialSummariesOrderBy = {
   date?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   interest_accrued_today?: Maybe<OrderBy>;
-  interest_accrued_today_adjustment?: Maybe<OrderBy>;
   late_fees_accrued_today?: Maybe<OrderBy>;
-  late_fees_accrued_today_adjustment?: Maybe<OrderBy>;
   product_type?: Maybe<OrderBy>;
   total_limit?: Maybe<OrderBy>;
   total_outstanding_fees?: Maybe<OrderBy>;
@@ -1766,11 +1750,7 @@ export enum BankFinancialSummariesSelectColumn {
   /** column name */
   InterestAccruedToday = "interest_accrued_today",
   /** column name */
-  InterestAccruedTodayAdjustment = "interest_accrued_today_adjustment",
-  /** column name */
   LateFeesAccruedToday = "late_fees_accrued_today",
-  /** column name */
-  LateFeesAccruedTodayAdjustment = "late_fees_accrued_today_adjustment",
   /** column name */
   ProductType = "product_type",
   /** column name */
@@ -1799,9 +1779,7 @@ export type BankFinancialSummariesSetInput = {
   date?: Maybe<Scalars["date"]>;
   id?: Maybe<Scalars["uuid"]>;
   interest_accrued_today?: Maybe<Scalars["numeric"]>;
-  interest_accrued_today_adjustment?: Maybe<Scalars["numeric"]>;
   late_fees_accrued_today?: Maybe<Scalars["numeric"]>;
-  late_fees_accrued_today_adjustment?: Maybe<Scalars["numeric"]>;
   product_type?: Maybe<Scalars["String"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
   total_outstanding_fees?: Maybe<Scalars["numeric"]>;
@@ -1818,9 +1796,7 @@ export type BankFinancialSummariesStddevFields = {
   adjusted_total_limit?: Maybe<Scalars["Float"]>;
   available_limit?: Maybe<Scalars["Float"]>;
   interest_accrued_today?: Maybe<Scalars["Float"]>;
-  interest_accrued_today_adjustment?: Maybe<Scalars["Float"]>;
   late_fees_accrued_today?: Maybe<Scalars["Float"]>;
-  late_fees_accrued_today_adjustment?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
   total_outstanding_interest?: Maybe<Scalars["Float"]>;
@@ -1835,9 +1811,7 @@ export type BankFinancialSummariesStddevPopFields = {
   adjusted_total_limit?: Maybe<Scalars["Float"]>;
   available_limit?: Maybe<Scalars["Float"]>;
   interest_accrued_today?: Maybe<Scalars["Float"]>;
-  interest_accrued_today_adjustment?: Maybe<Scalars["Float"]>;
   late_fees_accrued_today?: Maybe<Scalars["Float"]>;
-  late_fees_accrued_today_adjustment?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
   total_outstanding_interest?: Maybe<Scalars["Float"]>;
@@ -1852,9 +1826,7 @@ export type BankFinancialSummariesStddevSampFields = {
   adjusted_total_limit?: Maybe<Scalars["Float"]>;
   available_limit?: Maybe<Scalars["Float"]>;
   interest_accrued_today?: Maybe<Scalars["Float"]>;
-  interest_accrued_today_adjustment?: Maybe<Scalars["Float"]>;
   late_fees_accrued_today?: Maybe<Scalars["Float"]>;
-  late_fees_accrued_today_adjustment?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
   total_outstanding_interest?: Maybe<Scalars["Float"]>;
@@ -1869,9 +1841,7 @@ export type BankFinancialSummariesSumFields = {
   adjusted_total_limit?: Maybe<Scalars["numeric"]>;
   available_limit?: Maybe<Scalars["numeric"]>;
   interest_accrued_today?: Maybe<Scalars["numeric"]>;
-  interest_accrued_today_adjustment?: Maybe<Scalars["numeric"]>;
   late_fees_accrued_today?: Maybe<Scalars["numeric"]>;
-  late_fees_accrued_today_adjustment?: Maybe<Scalars["numeric"]>;
   total_limit?: Maybe<Scalars["numeric"]>;
   total_outstanding_fees?: Maybe<Scalars["numeric"]>;
   total_outstanding_interest?: Maybe<Scalars["numeric"]>;
@@ -1896,11 +1866,7 @@ export enum BankFinancialSummariesUpdateColumn {
   /** column name */
   InterestAccruedToday = "interest_accrued_today",
   /** column name */
-  InterestAccruedTodayAdjustment = "interest_accrued_today_adjustment",
-  /** column name */
   LateFeesAccruedToday = "late_fees_accrued_today",
-  /** column name */
-  LateFeesAccruedTodayAdjustment = "late_fees_accrued_today_adjustment",
   /** column name */
   ProductType = "product_type",
   /** column name */
@@ -1926,9 +1892,7 @@ export type BankFinancialSummariesVarPopFields = {
   adjusted_total_limit?: Maybe<Scalars["Float"]>;
   available_limit?: Maybe<Scalars["Float"]>;
   interest_accrued_today?: Maybe<Scalars["Float"]>;
-  interest_accrued_today_adjustment?: Maybe<Scalars["Float"]>;
   late_fees_accrued_today?: Maybe<Scalars["Float"]>;
-  late_fees_accrued_today_adjustment?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
   total_outstanding_interest?: Maybe<Scalars["Float"]>;
@@ -1943,9 +1907,7 @@ export type BankFinancialSummariesVarSampFields = {
   adjusted_total_limit?: Maybe<Scalars["Float"]>;
   available_limit?: Maybe<Scalars["Float"]>;
   interest_accrued_today?: Maybe<Scalars["Float"]>;
-  interest_accrued_today_adjustment?: Maybe<Scalars["Float"]>;
   late_fees_accrued_today?: Maybe<Scalars["Float"]>;
-  late_fees_accrued_today_adjustment?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
   total_outstanding_interest?: Maybe<Scalars["Float"]>;
@@ -1960,9 +1922,7 @@ export type BankFinancialSummariesVarianceFields = {
   adjusted_total_limit?: Maybe<Scalars["Float"]>;
   available_limit?: Maybe<Scalars["Float"]>;
   interest_accrued_today?: Maybe<Scalars["Float"]>;
-  interest_accrued_today_adjustment?: Maybe<Scalars["Float"]>;
   late_fees_accrued_today?: Maybe<Scalars["Float"]>;
-  late_fees_accrued_today_adjustment?: Maybe<Scalars["Float"]>;
   total_limit?: Maybe<Scalars["Float"]>;
   total_outstanding_fees?: Maybe<Scalars["Float"]>;
   total_outstanding_interest?: Maybe<Scalars["Float"]>;
@@ -1989,12 +1949,10 @@ export type BigintComparisonExp = {
 export type BlazePreapprovals = {
   annual_interest_rate: Scalars["numeric"];
   created_at: Scalars["timestamptz"];
-  deleted_at?: Maybe<Scalars["timestamptz"]>;
   expiration_date: Scalars["date"];
   external_blaze_company_id: Scalars["String"];
   external_blaze_shop_id: Scalars["String"];
   id: Scalars["uuid"];
-  is_deleted?: Maybe<Scalars["Boolean"]>;
   max_credit_limit: Scalars["numeric"];
   updated_at: Scalars["timestamptz"];
 };
@@ -2039,12 +1997,10 @@ export type BlazePreapprovalsBoolExp = {
   _or?: Maybe<Array<BlazePreapprovalsBoolExp>>;
   annual_interest_rate?: Maybe<NumericComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
-  deleted_at?: Maybe<TimestamptzComparisonExp>;
   expiration_date?: Maybe<DateComparisonExp>;
   external_blaze_company_id?: Maybe<StringComparisonExp>;
   external_blaze_shop_id?: Maybe<StringComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
-  is_deleted?: Maybe<BooleanComparisonExp>;
   max_credit_limit?: Maybe<NumericComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
 };
@@ -2067,12 +2023,10 @@ export type BlazePreapprovalsIncInput = {
 export type BlazePreapprovalsInsertInput = {
   annual_interest_rate?: Maybe<Scalars["numeric"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
-  deleted_at?: Maybe<Scalars["timestamptz"]>;
   expiration_date?: Maybe<Scalars["date"]>;
   external_blaze_company_id?: Maybe<Scalars["String"]>;
   external_blaze_shop_id?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
-  is_deleted?: Maybe<Scalars["Boolean"]>;
   max_credit_limit?: Maybe<Scalars["numeric"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
@@ -2081,7 +2035,6 @@ export type BlazePreapprovalsInsertInput = {
 export type BlazePreapprovalsMaxFields = {
   annual_interest_rate?: Maybe<Scalars["numeric"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
-  deleted_at?: Maybe<Scalars["timestamptz"]>;
   expiration_date?: Maybe<Scalars["date"]>;
   external_blaze_company_id?: Maybe<Scalars["String"]>;
   external_blaze_shop_id?: Maybe<Scalars["String"]>;
@@ -2094,7 +2047,6 @@ export type BlazePreapprovalsMaxFields = {
 export type BlazePreapprovalsMinFields = {
   annual_interest_rate?: Maybe<Scalars["numeric"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
-  deleted_at?: Maybe<Scalars["timestamptz"]>;
   expiration_date?: Maybe<Scalars["date"]>;
   external_blaze_company_id?: Maybe<Scalars["String"]>;
   external_blaze_shop_id?: Maybe<Scalars["String"]>;
@@ -2122,12 +2074,10 @@ export type BlazePreapprovalsOnConflict = {
 export type BlazePreapprovalsOrderBy = {
   annual_interest_rate?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
-  deleted_at?: Maybe<OrderBy>;
   expiration_date?: Maybe<OrderBy>;
   external_blaze_company_id?: Maybe<OrderBy>;
   external_blaze_shop_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
-  is_deleted?: Maybe<OrderBy>;
   max_credit_limit?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
 };
@@ -2144,8 +2094,6 @@ export enum BlazePreapprovalsSelectColumn {
   /** column name */
   CreatedAt = "created_at",
   /** column name */
-  DeletedAt = "deleted_at",
-  /** column name */
   ExpirationDate = "expiration_date",
   /** column name */
   ExternalBlazeCompanyId = "external_blaze_company_id",
@@ -2153,8 +2101,6 @@ export enum BlazePreapprovalsSelectColumn {
   ExternalBlazeShopId = "external_blaze_shop_id",
   /** column name */
   Id = "id",
-  /** column name */
-  IsDeleted = "is_deleted",
   /** column name */
   MaxCreditLimit = "max_credit_limit",
   /** column name */
@@ -2165,12 +2111,10 @@ export enum BlazePreapprovalsSelectColumn {
 export type BlazePreapprovalsSetInput = {
   annual_interest_rate?: Maybe<Scalars["numeric"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
-  deleted_at?: Maybe<Scalars["timestamptz"]>;
   expiration_date?: Maybe<Scalars["date"]>;
   external_blaze_company_id?: Maybe<Scalars["String"]>;
   external_blaze_shop_id?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
-  is_deleted?: Maybe<Scalars["Boolean"]>;
   max_credit_limit?: Maybe<Scalars["numeric"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
@@ -2206,8 +2150,6 @@ export enum BlazePreapprovalsUpdateColumn {
   /** column name */
   CreatedAt = "created_at",
   /** column name */
-  DeletedAt = "deleted_at",
-  /** column name */
   ExpirationDate = "expiration_date",
   /** column name */
   ExternalBlazeCompanyId = "external_blaze_company_id",
@@ -2215,8 +2157,6 @@ export enum BlazePreapprovalsUpdateColumn {
   ExternalBlazeShopId = "external_blaze_shop_id",
   /** column name */
   Id = "id",
-  /** column name */
-  IsDeleted = "is_deleted",
   /** column name */
   MaxCreditLimit = "max_credit_limit",
   /** column name */
@@ -8495,7 +8435,7 @@ export type EbbaApplications = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["timestamp"]>;
   /** An object relationship */
   rejected_by_user?: Maybe<Users>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
@@ -8620,7 +8560,7 @@ export type EbbaApplicationsBoolExp = {
   monthly_accounts_receivable?: Maybe<NumericComparisonExp>;
   monthly_cash?: Maybe<NumericComparisonExp>;
   monthly_inventory?: Maybe<NumericComparisonExp>;
-  rejected_at?: Maybe<TimestamptzComparisonExp>;
+  rejected_at?: Maybe<TimestampComparisonExp>;
   rejected_by_user?: Maybe<UsersBoolExp>;
   rejected_by_user_id?: Maybe<UuidComparisonExp>;
   rejection_note?: Maybe<StringComparisonExp>;
@@ -8669,7 +8609,7 @@ export type EbbaApplicationsInsertInput = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["timestamp"]>;
   rejected_by_user?: Maybe<UsersObjRelInsertInput>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
@@ -8698,7 +8638,7 @@ export type EbbaApplicationsMaxFields = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["timestamp"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -8750,7 +8690,7 @@ export type EbbaApplicationsMinFields = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["timestamp"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -8915,7 +8855,7 @@ export type EbbaApplicationsSetInput = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["timestamp"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -22253,6 +22193,7 @@ export type PurchaseOrders = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   /** An object relationship */
@@ -22457,6 +22398,7 @@ export type PurchaseOrdersBoolExp = {
   all_customer_notes?: Maybe<JsonComparisonExp>;
   amount?: Maybe<NumericComparisonExp>;
   amount_funded?: Maybe<NumericComparisonExp>;
+  amount_updated_at?: Maybe<TimestamptzComparisonExp>;
   approved_at?: Maybe<TimestamptzComparisonExp>;
   approved_by_user_id?: Maybe<UuidComparisonExp>;
   approving_user_id?: Maybe<UsersBoolExp>;
@@ -22530,6 +22472,7 @@ export type PurchaseOrdersInsertInput = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   approving_user_id?: Maybe<UsersObjRelInsertInput>;
@@ -22578,6 +22521,7 @@ export type PurchaseOrdersMaxFields = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -22612,6 +22556,7 @@ export type PurchaseOrdersMaxOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
+  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   bank_incomplete_note?: Maybe<OrderBy>;
@@ -22646,6 +22591,7 @@ export type PurchaseOrdersMinFields = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -22680,6 +22626,7 @@ export type PurchaseOrdersMinOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
+  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   bank_incomplete_note?: Maybe<OrderBy>;
@@ -22737,6 +22684,7 @@ export type PurchaseOrdersOrderBy = {
   all_customer_notes?: Maybe<OrderBy>;
   amount?: Maybe<OrderBy>;
   amount_funded?: Maybe<OrderBy>;
+  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   approving_user_id?: Maybe<UsersOrderBy>;
@@ -22794,6 +22742,8 @@ export enum PurchaseOrdersSelectColumn {
   Amount = "amount",
   /** column name */
   AmountFunded = "amount_funded",
+  /** column name */
+  AmountUpdatedAt = "amount_updated_at",
   /** column name */
   ApprovedAt = "approved_at",
   /** column name */
@@ -22859,6 +22809,7 @@ export type PurchaseOrdersSetInput = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -22969,6 +22920,8 @@ export enum PurchaseOrdersUpdateColumn {
   Amount = "amount",
   /** column name */
   AmountFunded = "amount_funded",
+  /** column name */
+  AmountUpdatedAt = "amount_updated_at",
   /** column name */
   ApprovedAt = "approved_at",
   /** column name */
@@ -29579,17 +29532,7 @@ export type GetLoanWithRelationshipsQueryVariables = Exact<{
 }>;
 
 export type GetLoanWithRelationshipsQuery = {
-  loans_by_pk?: Maybe<
-    Pick<Loans, "id"> & {
-      purchase_order?: Maybe<
-        Pick<PurchaseOrders, "id"> & PurchaseOrderWithRelationshipsFragment
-      >;
-      company: Pick<Companies, "id"> & CompanyLimitedFragment;
-      loan_report?: Maybe<
-        { debt_facility?: Maybe<DebtFacilityFragment> } & LoanReportFragment
-      >;
-    } & LoanFragment
-  >;
+  loans_by_pk?: Maybe<Pick<Loans, "id"> & LoanWithRelationshipsFragment>;
 };
 
 export type GetLoansForBankSubscriptionVariables = Exact<{
@@ -30900,6 +30843,17 @@ export type LineOfCreditFragment = Pick<
 > & {
   recipient_vendor?: Maybe<Pick<Companies, "id"> & CompanyLimitedFragment>;
 };
+
+export type LoanWithRelationshipsFragment = Pick<Loans, "id"> & {
+  purchase_order?: Maybe<
+    Pick<PurchaseOrders, "id"> & PurchaseOrderWithRelationshipsFragment
+  >;
+  line_of_credit?: Maybe<Pick<LineOfCredits, "id"> & LineOfCreditFragment>;
+  company: Pick<Companies, "id"> & CompanyLimitedFragment;
+  loan_report?: Maybe<
+    { debt_facility?: Maybe<DebtFacilityFragment> } & LoanReportFragment
+  >;
+} & LoanFragment;
 
 export type FinancialSummaryFragment = Pick<
   FinancialSummaries,
@@ -32535,6 +32489,298 @@ export const EbbaApplicationFileFragmentDoc = gql`
   }
   ${FileFragmentDoc}
 `;
+export const VendorLimitedFragmentDoc = gql`
+  fragment VendorLimited on vendors {
+    id
+    name
+    dba_name
+    licenses(
+      where: {
+        _or: [
+          { is_deleted: { _is_null: true } }
+          { is_deleted: { _eq: false } }
+        ]
+      }
+    ) {
+      ...CompanyLicenseLimited
+    }
+  }
+  ${CompanyLicenseLimitedFragmentDoc}
+`;
+export const PurchaseOrderLimitedFragmentDoc = gql`
+  fragment PurchaseOrderLimited on purchase_orders {
+    id
+    company_id
+    vendor_id
+    order_number
+    order_date
+    delivery_date
+    net_terms
+    amount
+    amount_funded
+    is_cannabis
+    is_metrc_based
+    status
+    new_purchase_order_status
+    rejection_note
+    bank_rejection_note
+    bank_incomplete_note
+    incompleted_at
+    rejected_at
+    customer_note
+    created_at
+    requested_at
+    rejected_by_user_id
+    approved_at
+    approved_by_user_id
+    funded_at
+    closed_at
+    history
+    company {
+      id
+      ...CompanyLimited
+    }
+    vendor {
+      id
+      ...VendorLimited
+    }
+    all_customer_notes
+  }
+  ${CompanyLimitedFragmentDoc}
+  ${VendorLimitedFragmentDoc}
+`;
+export const LoanLimitedFragmentDoc = gql`
+  fragment LoanLimited on loans {
+    id
+    company_id
+    loan_type
+    artifact_id
+    identifier
+    disbursement_identifier
+    status
+    rejection_note
+    payment_status
+    amount
+    requested_payment_date
+    origination_date
+    maturity_date
+    adjusted_maturity_date
+    outstanding_principal_balance
+    outstanding_interest
+    outstanding_fees
+    requested_at
+    approved_at
+    rejected_at
+    funded_at
+    closed_at
+    customer_notes
+    company {
+      id
+      identifier
+      ...CompanyLimited
+    }
+    requested_by_user {
+      id
+      full_name
+    }
+    purchase_order {
+      id
+      ...PurchaseOrderLimited
+    }
+  }
+  ${CompanyLimitedFragmentDoc}
+  ${PurchaseOrderLimitedFragmentDoc}
+`;
+export const LoanFragmentDoc = gql`
+  fragment Loan on loans {
+    id
+    loan_report_id
+    notes
+    ...LoanLimited
+  }
+  ${LoanLimitedFragmentDoc}
+`;
+export const PurchaseOrderFileFragmentDoc = gql`
+  fragment PurchaseOrderFile on purchase_order_files {
+    purchase_order_id
+    file_id
+    file_type
+    file {
+      id
+      ...File
+    }
+  }
+  ${FileFragmentDoc}
+`;
+export const MetrcTransferLimitedFragmentDoc = gql`
+  fragment MetrcTransferLimited on metrc_transfers {
+    id
+    us_state
+    transfer_id
+    manifest_number
+    created_date
+    shipper_facility_license_number
+    shipper_facility_name
+    lab_results_status
+    last_modified_at
+  }
+`;
+export const MetrcTransferFragmentDoc = gql`
+  fragment MetrcTransfer on metrc_transfers {
+    id
+    transfer_payload
+    ...MetrcTransferLimited
+  }
+  ${MetrcTransferLimitedFragmentDoc}
+`;
+export const PurchaseOrderMetrcTransferWithRelationshipsFragmentDoc = gql`
+  fragment PurchaseOrderMetrcTransferWithRelationships on purchase_order_metrc_transfers {
+    id
+    purchase_order_id
+    metrc_transfer_id
+    metrc_transfer {
+      id
+      ...MetrcTransfer
+    }
+  }
+  ${MetrcTransferFragmentDoc}
+`;
+export const PurchaseOrderWithRelationshipsFragmentDoc = gql`
+  fragment PurchaseOrderWithRelationships on purchase_orders {
+    id
+    ...PurchaseOrderLimited
+    bank_note @include(if: $is_bank_user)
+    company {
+      id
+      ...CompanyLimited
+    }
+    vendor {
+      id
+      ...VendorLimited
+    }
+    loans(
+      where: {
+        _and: [
+          { loan_type: { _eq: purchase_order } }
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+        ]
+      }
+    ) {
+      id
+      ...LoanLimited
+    }
+    purchase_order_files {
+      ...PurchaseOrderFile
+    }
+    purchase_order_metrc_transfers {
+      id
+      ...PurchaseOrderMetrcTransferWithRelationships
+    }
+  }
+  ${PurchaseOrderLimitedFragmentDoc}
+  ${CompanyLimitedFragmentDoc}
+  ${VendorLimitedFragmentDoc}
+  ${LoanLimitedFragmentDoc}
+  ${PurchaseOrderFileFragmentDoc}
+  ${PurchaseOrderMetrcTransferWithRelationshipsFragmentDoc}
+`;
+export const LineOfCreditFragmentDoc = gql`
+  fragment LineOfCredit on line_of_credits {
+    id
+    company_id
+    recipient_vendor_id
+    is_credit_for_vendor
+    customer_note
+    recipient_vendor {
+      id
+      ...CompanyLimited
+    }
+  }
+  ${CompanyLimitedFragmentDoc}
+`;
+export const LoanReportFragmentDoc = gql`
+  fragment LoanReport on loan_reports {
+    id
+    repayment_date
+    total_principal_paid
+    total_interest_paid
+    total_fees_paid
+    financing_period
+    financing_day_limit
+    debt_facility_status
+    debt_facility_id
+    debt_facility_added_date
+    debt_facility_waiver_date
+    debt_facility_waiver_expiration_date
+  }
+`;
+export const DebtFacilityCapacityLimitedFragmentDoc = gql`
+  fragment DebtFacilityCapacityLimited on debt_facility_capacities {
+    id
+    amount
+    capacity_type
+    changed_at
+    changed_by
+    debt_facility_id
+  }
+`;
+export const DebtFacilityFragmentDoc = gql`
+  fragment DebtFacility on debt_facilities {
+    id
+    name
+    product_types
+    maximum_capacities: debt_facility_capacities(
+      order_by: [{ changed_at: desc }]
+      where: { capacity_type: { _eq: "maximum" } }
+    ) {
+      id
+      ...DebtFacilityCapacityLimited
+    }
+    drawn_capacities: debt_facility_capacities(
+      order_by: [{ changed_at: desc }]
+      where: { capacity_type: { _eq: "drawn" } }
+    ) {
+      id
+      ...DebtFacilityCapacityLimited
+    }
+  }
+  ${DebtFacilityCapacityLimitedFragmentDoc}
+`;
+export const LoanWithRelationshipsFragmentDoc = gql`
+  fragment LoanWithRelationships on loans {
+    id
+    ...Loan
+    purchase_order {
+      id
+      ...PurchaseOrderWithRelationships
+    }
+    line_of_credit {
+      id
+      ...LineOfCredit
+    }
+    company {
+      id
+      ...CompanyLimited
+    }
+    loan_report {
+      ...LoanReport
+      debt_facility {
+        ...DebtFacility
+      }
+    }
+  }
+  ${LoanFragmentDoc}
+  ${PurchaseOrderWithRelationshipsFragmentDoc}
+  ${LineOfCreditFragmentDoc}
+  ${CompanyLimitedFragmentDoc}
+  ${LoanReportFragmentDoc}
+  ${DebtFacilityFragmentDoc}
+`;
 export const FinancialSummaryFragmentDoc = gql`
   fragment FinancialSummary on financial_summaries {
     id
@@ -33018,24 +33264,6 @@ export const MetrcApiKeyFragmentDoc = gql`
   }
   ${MetrcApiKeyLimitedFragmentDoc}
 `;
-export const VendorLimitedFragmentDoc = gql`
-  fragment VendorLimited on vendors {
-    id
-    name
-    dba_name
-    licenses(
-      where: {
-        _or: [
-          { is_deleted: { _is_null: true } }
-          { is_deleted: { _eq: false } }
-        ]
-      }
-    ) {
-      ...CompanyLicenseLimited
-    }
-  }
-  ${CompanyLicenseLimitedFragmentDoc}
-`;
 export const VendorFragmentDoc = gql`
   fragment Vendor on vendors {
     id
@@ -33157,62 +33385,6 @@ export const InvoiceFragmentDoc = gql`
     ...InvoiceLimited
   }
   ${InvoiceLimitedFragmentDoc}
-`;
-export const LineOfCreditFragmentDoc = gql`
-  fragment LineOfCredit on line_of_credits {
-    id
-    company_id
-    recipient_vendor_id
-    is_credit_for_vendor
-    customer_note
-    recipient_vendor {
-      id
-      ...CompanyLimited
-    }
-  }
-  ${CompanyLimitedFragmentDoc}
-`;
-export const PurchaseOrderLimitedFragmentDoc = gql`
-  fragment PurchaseOrderLimited on purchase_orders {
-    id
-    company_id
-    vendor_id
-    order_number
-    order_date
-    delivery_date
-    net_terms
-    amount
-    amount_funded
-    is_cannabis
-    is_metrc_based
-    status
-    new_purchase_order_status
-    rejection_note
-    bank_rejection_note
-    bank_incomplete_note
-    incompleted_at
-    rejected_at
-    customer_note
-    created_at
-    requested_at
-    rejected_by_user_id
-    approved_at
-    approved_by_user_id
-    funded_at
-    closed_at
-    history
-    company {
-      id
-      ...CompanyLimited
-    }
-    vendor {
-      id
-      ...VendorLimited
-    }
-    all_customer_notes
-  }
-  ${CompanyLimitedFragmentDoc}
-  ${VendorLimitedFragmentDoc}
 `;
 export const PurchaseOrderFragmentDoc = gql`
   fragment PurchaseOrder on purchase_orders {
@@ -33373,57 +33545,6 @@ export const PayorPartnershipFragmentDoc = gql`
     ...PayorPartnershipLimited
   }
   ${PayorPartnershipLimitedFragmentDoc}
-`;
-export const LoanLimitedFragmentDoc = gql`
-  fragment LoanLimited on loans {
-    id
-    company_id
-    loan_type
-    artifact_id
-    identifier
-    disbursement_identifier
-    status
-    rejection_note
-    payment_status
-    amount
-    requested_payment_date
-    origination_date
-    maturity_date
-    adjusted_maturity_date
-    outstanding_principal_balance
-    outstanding_interest
-    outstanding_fees
-    requested_at
-    approved_at
-    rejected_at
-    funded_at
-    closed_at
-    customer_notes
-    company {
-      id
-      identifier
-      ...CompanyLimited
-    }
-    requested_by_user {
-      id
-      full_name
-    }
-    purchase_order {
-      id
-      ...PurchaseOrderLimited
-    }
-  }
-  ${CompanyLimitedFragmentDoc}
-  ${PurchaseOrderLimitedFragmentDoc}
-`;
-export const LoanFragmentDoc = gql`
-  fragment Loan on loans {
-    id
-    loan_report_id
-    notes
-    ...LoanLimited
-  }
-  ${LoanLimitedFragmentDoc}
 `;
 export const TransactionWithLoanFragmentDoc = gql`
   fragment TransactionWithLoan on transactions {
@@ -33662,54 +33783,6 @@ export const LoanForDebtFacilityFragmentDoc = gql`
   }
   ${CompanyForDebtFacilityFragmentDoc}
 `;
-export const LoanReportFragmentDoc = gql`
-  fragment LoanReport on loan_reports {
-    id
-    repayment_date
-    total_principal_paid
-    total_interest_paid
-    total_fees_paid
-    financing_period
-    financing_day_limit
-    debt_facility_status
-    debt_facility_id
-    debt_facility_added_date
-    debt_facility_waiver_date
-    debt_facility_waiver_expiration_date
-  }
-`;
-export const DebtFacilityCapacityLimitedFragmentDoc = gql`
-  fragment DebtFacilityCapacityLimited on debt_facility_capacities {
-    id
-    amount
-    capacity_type
-    changed_at
-    changed_by
-    debt_facility_id
-  }
-`;
-export const DebtFacilityFragmentDoc = gql`
-  fragment DebtFacility on debt_facilities {
-    id
-    name
-    product_types
-    maximum_capacities: debt_facility_capacities(
-      order_by: [{ changed_at: desc }]
-      where: { capacity_type: { _eq: "maximum" } }
-    ) {
-      id
-      ...DebtFacilityCapacityLimited
-    }
-    drawn_capacities: debt_facility_capacities(
-      order_by: [{ changed_at: desc }]
-      where: { capacity_type: { _eq: "drawn" } }
-    ) {
-      id
-      ...DebtFacilityCapacityLimited
-    }
-  }
-  ${DebtFacilityCapacityLimitedFragmentDoc}
-`;
 export const PurchaseOrderForDebtFacilityFragmentDoc = gql`
   fragment PurchaseOrderForDebtFacility on purchase_orders {
     id
@@ -33854,95 +33927,6 @@ export const CompanyLicenseLimitedAnonymousFragmentDoc = gql`
     legal_name
     us_state
   }
-`;
-export const PurchaseOrderFileFragmentDoc = gql`
-  fragment PurchaseOrderFile on purchase_order_files {
-    purchase_order_id
-    file_id
-    file_type
-    file {
-      id
-      ...File
-    }
-  }
-  ${FileFragmentDoc}
-`;
-export const MetrcTransferLimitedFragmentDoc = gql`
-  fragment MetrcTransferLimited on metrc_transfers {
-    id
-    us_state
-    transfer_id
-    manifest_number
-    created_date
-    shipper_facility_license_number
-    shipper_facility_name
-    lab_results_status
-    last_modified_at
-  }
-`;
-export const MetrcTransferFragmentDoc = gql`
-  fragment MetrcTransfer on metrc_transfers {
-    id
-    transfer_payload
-    ...MetrcTransferLimited
-  }
-  ${MetrcTransferLimitedFragmentDoc}
-`;
-export const PurchaseOrderMetrcTransferWithRelationshipsFragmentDoc = gql`
-  fragment PurchaseOrderMetrcTransferWithRelationships on purchase_order_metrc_transfers {
-    id
-    purchase_order_id
-    metrc_transfer_id
-    metrc_transfer {
-      id
-      ...MetrcTransfer
-    }
-  }
-  ${MetrcTransferFragmentDoc}
-`;
-export const PurchaseOrderWithRelationshipsFragmentDoc = gql`
-  fragment PurchaseOrderWithRelationships on purchase_orders {
-    id
-    ...PurchaseOrderLimited
-    bank_note @include(if: $is_bank_user)
-    company {
-      id
-      ...CompanyLimited
-    }
-    vendor {
-      id
-      ...VendorLimited
-    }
-    loans(
-      where: {
-        _and: [
-          { loan_type: { _eq: purchase_order } }
-          {
-            _or: [
-              { is_deleted: { _is_null: true } }
-              { is_deleted: { _eq: false } }
-            ]
-          }
-        ]
-      }
-    ) {
-      id
-      ...LoanLimited
-    }
-    purchase_order_files {
-      ...PurchaseOrderFile
-    }
-    purchase_order_metrc_transfers {
-      id
-      ...PurchaseOrderMetrcTransferWithRelationships
-    }
-  }
-  ${PurchaseOrderLimitedFragmentDoc}
-  ${CompanyLimitedFragmentDoc}
-  ${VendorLimitedFragmentDoc}
-  ${LoanLimitedFragmentDoc}
-  ${PurchaseOrderFileFragmentDoc}
-  ${PurchaseOrderMetrcTransferWithRelationshipsFragmentDoc}
 `;
 export const GetAdvancesDocument = gql`
   subscription GetAdvances {
@@ -38428,28 +38412,10 @@ export const GetLoanWithRelationshipsDocument = gql`
   query GetLoanWithRelationships($id: uuid!, $is_bank_user: Boolean!) {
     loans_by_pk(id: $id) {
       id
-      ...Loan
-      purchase_order {
-        id
-        ...PurchaseOrderWithRelationships
-      }
-      company {
-        id
-        ...CompanyLimited
-      }
-      loan_report {
-        ...LoanReport
-        debt_facility {
-          ...DebtFacility
-        }
-      }
+      ...LoanWithRelationships
     }
   }
-  ${LoanFragmentDoc}
-  ${PurchaseOrderWithRelationshipsFragmentDoc}
-  ${CompanyLimitedFragmentDoc}
-  ${LoanReportFragmentDoc}
-  ${DebtFacilityFragmentDoc}
+  ${LoanWithRelationshipsFragmentDoc}
 `;
 
 /**

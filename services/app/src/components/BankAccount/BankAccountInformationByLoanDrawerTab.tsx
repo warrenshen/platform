@@ -21,7 +21,11 @@ const BankAccountInformationDrawerTab = ({ loan }: LoanViewModalProps) => {
     skip: !loan,
     variables: {
       customerId: loan?.company_id,
-      vendorId: loan?.company_id,
+      vendorId: !!loan?.purchase_order?.vendor?.id
+        ? !!loan.purchase_order.vendor.id
+        : !!loan?.line_of_credit?.recipient_vendor?.id
+        ? loan.line_of_credit.recipient_vendor.id
+        : loan?.company_id,
     },
   });
 
@@ -42,8 +46,13 @@ const BankAccountInformationDrawerTab = ({ loan }: LoanViewModalProps) => {
     return null;
   }
 
-  const customerBankAccount = data.companies_by_pk.settings
-    .advances_bank_account as BankAccountFragment;
+  const customerBankAccount =
+    !loan?.purchase_order?.vendor?.id &&
+    !loan?.line_of_credit?.recipient_vendor?.id
+      ? (data.companies_by_pk.settings
+          .advances_bank_account as BankAccountFragment)
+      : (data.companies_by_pk.company_vendor_partnerships[0]
+          .vendor_bank_account as BankAccountFragment);
 
   return (
     <TabContainer>

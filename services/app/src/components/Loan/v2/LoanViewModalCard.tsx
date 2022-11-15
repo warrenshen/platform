@@ -4,7 +4,7 @@ import CardLine from "components/Shared/Card/CardLine";
 import FinancingRequestStatusChipNew from "components/Shared/Chip/FinancingRequestStatusChipNew";
 import LoanPaymentStatusChip from "components/Shared/Chip/LoanPaymentStatusChip";
 import Text, { TextVariants } from "components/Shared/Text/Text";
-import { LoanFragment, LoanTypeEnum } from "generated/graphql";
+import { LoanTypeEnum, LoanWithRelationshipsFragment } from "generated/graphql";
 import {
   LoanPaymentStatusEnum,
   LoanStatusEnum,
@@ -14,7 +14,7 @@ import { createLoanCustomerIdentifier } from "lib/loans";
 import { formatCurrency } from "lib/number";
 
 interface Props {
-  loan: LoanFragment;
+  loan: LoanWithRelationshipsFragment;
 }
 
 export default function LoanViewModalCard({ loan }: Props) {
@@ -43,6 +43,8 @@ export default function LoanViewModalCard({ loan }: Props) {
     : "";
   const vendorName = !!loan?.purchase_order?.vendor?.name
     ? loan.purchase_order.vendor.name
+    : !!loan?.line_of_credit?.recipient_vendor?.name
+    ? loan.line_of_credit.recipient_vendor.name
     : "N/A";
 
   return (

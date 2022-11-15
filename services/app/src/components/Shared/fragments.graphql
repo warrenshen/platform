@@ -182,6 +182,29 @@ fragment LineOfCredit on line_of_credits {
   }
 }
 
+fragment LoanWithRelationships on loans {
+  id
+  ...Loan
+  purchase_order {
+    id
+    ...PurchaseOrderWithRelationships
+  }
+  line_of_credit {
+    id
+    ...LineOfCredit
+  }
+  company {
+    id
+    ...CompanyLimited
+  }
+  loan_report {
+    ...LoanReport
+    debt_facility {
+      ...DebtFacility
+    }
+  }
+}
+
 fragment FinancialSummary on financial_summaries {
   id
   company_id
