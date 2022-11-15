@@ -187,6 +187,8 @@ export default function BankReportsFinancialsByCustomerTab() {
 
   const [isPredictionProcessRunning, setIsPredictionProcessRunning] =
     useState<boolean>(false);
+  const [predictionIteration, setPredictionIteration] = useState<number>(0);
+  const [predictionMax, setPredictionMax] = useState<number>(0);
 
   const { data: customersData, error: customersError } =
     useGetActiveCustomersForDropdownQuery({
@@ -263,11 +265,14 @@ export default function BankReportsFinancialsByCustomerTab() {
     const dateRange = !!predictionDate
       ? getDatesInRange(tomorrow, predictionDate)
       : [];
-    setIsPredictionProcessRunning(true);
 
-    const getData = async (dateRange: Date[]) => {
-      return Promise.all(
-        dateRange.map(async (futureDate) => {
+    const getPredictions = async () => {
+      setIsPredictionProcessRunning(true);
+      let predictions: DailyLoanPrediction[] = [];
+      const getData = async (dateRange: Date[]) => {
+        setPredictionMax(dateRange.length);
+        for (const [i, futureDate] of dateRange.entries()) {
+          setPredictionIteration(i + 1);
           const response = await runCustomerLoanPredictions({
             variables: {
               company_id: companyId,
@@ -285,24 +290,24 @@ export default function BankReportsFinancialsByCustomerTab() {
               console.error("Developer error!");
             }
 
-            return datePrediction;
+            // Since we're running days individually, we have to unwrap the array
+            predictions.push(datePrediction[0]);
           }
+        }
 
-          return null;
+        setPredictionIteration(0);
+        setPredictionMax(0);
+      };
+
+      await getData(dateRange);
+      setLoanPredictions(
+        predictions.sort((a, b) => {
+          return a.date > b.date ? -1 : 1;
         })
       );
-    };
-
-    getData(dateRange).then((results) => {
-      setLoanPredictions(
-        results
-          .map((res) => res[0])
-          .sort((a, b) => {
-            return a.date > b.date ? -1 : 1;
-          })
-      );
       setIsPredictionProcessRunning(false);
-    });
+    };
+    getPredictions();
   };
 
   const isPredictionDataGridReady =
@@ -339,7 +344,8 @@ export default function BankReportsFinancialsByCustomerTab() {
         </Box>
         {isPredictionProcessRunning && (
           <Box display="flex" flexDirection="column">
-            The financial prediction process is running. Please be patient.
+            The financial prediction process is running, currently on day{" "}
+            {predictionIteration} of {predictionMax}.
           </Box>
         )}
         {!!companyId && (
