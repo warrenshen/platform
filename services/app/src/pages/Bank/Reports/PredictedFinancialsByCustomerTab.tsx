@@ -269,30 +269,48 @@ export default function BankReportsFinancialsByCustomerTab() {
     const getPredictions = async () => {
       setIsPredictionProcessRunning(true);
       let predictions: DailyLoanPrediction[] = [];
+      const maxAttempts = 5;
       const getData = async (dateRange: Date[]) => {
         setPredictionMax(dateRange.length);
         for (const [i, futureDate] of dateRange.entries()) {
-          setPredictionIteration(i + 1);
-          const response = await runCustomerLoanPredictions({
-            variables: {
-              company_id: companyId,
-              prediction_date: dateAsDateStringServer(futureDate),
-            },
-          });
+          /*
+            For large customers, the loan balances calculation
+            will sometimes timeout on one day but not the next.
+            To address this behavior, we try for each day up to
+            5 times.
+          */
+          for (let j = 1; j <= maxAttempts; j++) {
+            const response = await runCustomerLoanPredictions({
+              variables: {
+                company_id: companyId,
+                prediction_date: dateAsDateStringServer(futureDate),
+              },
+            });
 
-          if (response.status !== "OK") {
-            snackbar.showError(`Error: ${response.msg}`);
-          } else if (response.errors && response.errors.length > 0) {
-            snackbar.showWarning(`Error: ${response.errors}`);
-          } else {
-            const datePrediction = response.data?.loan_prediction_by_date;
-            if (!datePrediction) {
-              console.error("Developer error!");
+            if (response.status === "OK") {
+              const datePrediction = response.data?.loan_prediction_by_date;
+              if (!datePrediction) {
+                console.error("Developer error!");
+              }
+
+              // Since we're running days individually, we have to unwrap the array
+              predictions.push(datePrediction[0]);
+              break;
+            } else if (j === maxAttempts) {
+              if (response.errors && response.errors.length > 0) {
+                snackbar.showWarning(`Error: ${response.errors}`);
+              } else {
+                snackbar.showError(`Error: ${response.msg}`);
+              }
+            } else {
+              /*
+                Making it explicit that we only display error message
+                if the very last attempt fails
+              */
+              continue;
             }
-
-            // Since we're running days individually, we have to unwrap the array
-            predictions.push(datePrediction[0]);
           }
+          setPredictionIteration(i + 1);
         }
 
         setPredictionIteration(0);
@@ -344,7 +362,7 @@ export default function BankReportsFinancialsByCustomerTab() {
         </Box>
         {isPredictionProcessRunning && (
           <Box display="flex" flexDirection="column">
-            The financial prediction process is running, currently on day{" "}
+            The financial prediction process is running, currently finished day{" "}
             {predictionIteration} of {predictionMax}.
           </Box>
         )}
