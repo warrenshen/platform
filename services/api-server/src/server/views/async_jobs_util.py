@@ -1313,7 +1313,11 @@ def generate_reject_purchase_order_past_60_days_job(
 
 	purchase_orders = cast(
 		List[models.PurchaseOrder],
-		session.query(models.PurchaseOrder).filter(
+		session.query(models.PurchaseOrder).join(# type: ignore
+			models.Company, models.PurchaseOrder.company_id == models.Company.id
+		).join(
+			models.Contract, models.Company.contract_id == models.Contract.id
+		).filter(
 			cast(Callable, models.PurchaseOrder.is_deleted.isnot)(True)
 		).filter(
 			models.PurchaseOrder.new_purchase_order_status.in_([
@@ -1326,6 +1330,14 @@ def generate_reject_purchase_order_past_60_days_job(
 			])
 		).filter(
 			models.PurchaseOrder.order_date < date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE) - timedelta(days=60)
+		).filter(
+			models.Company.contract_id != None
+		).filter(
+			models.Contract.product_type.in_([
+				db_constants.ProductType.DISPENSARY_FINANCING,
+				db_constants.ProductType.INVENTORY_FINANCING,
+				db_constants.ProductType.PURCHASE_MONEY_FINANCING,
+			])
 		).all())
 
 	past_due_purchase_order_ids_by_company_id = defaultdict(list)
