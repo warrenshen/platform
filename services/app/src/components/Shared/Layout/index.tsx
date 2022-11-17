@@ -264,7 +264,7 @@ const getBankNavItems = (
       iconNode: FinancingRequestsIcon,
       text: "Financing Requests",
       link: bankRoutes.financingRequests,
-      // counter: loansCount,
+      counter: loansCount,
       isBankMenu: true,
     },
     {
@@ -272,7 +272,6 @@ const getBankNavItems = (
       iconNode: LoansIcon,
       text: "Loans",
       link: bankRoutes.loans,
-      counter: loansCount,
       isBankMenu: true,
     },
     {

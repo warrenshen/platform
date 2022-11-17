@@ -24,7 +24,9 @@ import {
 import { CommentIcon } from "icons";
 import { parseDateStringServer } from "lib/date";
 import {
+  AllLoanStatuses,
   LoanStatusEnum,
+  LoanStatusToLabel,
   SurveillanceStatusEnum,
   SurveillanceStatusToLabel,
 } from "lib/enum";
@@ -46,6 +48,7 @@ interface Props {
   isArtifactVisible?: boolean;
   isCompanyNameVisible?: boolean;
   isDisbursementIdentifierVisible?: boolean;
+  isFilteringEnabled?: boolean;
   isMultiSelectEnabled?: boolean;
   isSurveillanceStatusVisible?: boolean;
   isVendorVisible?: boolean;
@@ -104,6 +107,7 @@ const FinancialRequestsDataGrid = ({
   isArtifactBankNoteVisible = false,
   isCompanyNameVisible = false,
   isDisbursementIdentifierVisible = false,
+  isFilteringEnabled = false,
   isMultiSelectEnabled = false,
   isSurveillanceStatusVisible = false,
   isVendorVisible = false,
@@ -173,6 +177,20 @@ const FinancialRequestsDataGrid = ({
         cellRender: ({ value }: { value: string }) => (
           <FinancingRequestStatusChipNew loanStatus={value as LoanStatusEnum} />
         ),
+        lookup: {
+          dataSource: {
+            store: {
+              type: "array",
+              data: AllLoanStatuses.map((d) => ({
+                status: d,
+                label: LoanStatusToLabel[d],
+              })),
+              key: "status",
+            },
+          },
+          valueExpr: "status",
+          displayExpr: "label",
+        },
       },
       {
         visible: isSurveillanceStatusVisible,
@@ -313,6 +331,11 @@ const FinancialRequestsDataGrid = ({
     [handleSelectFinancingRequests]
   );
 
+  const filtering = useMemo(
+    () => ({ enable: isFilteringEnabled }),
+    [isFilteringEnabled]
+  );
+
   return (
     <Box className="financing-requests-data-grid">
       {!!selectedPurchaseOrderId && (
@@ -331,6 +354,7 @@ const FinancialRequestsDataGrid = ({
       <ControlledDataGrid
         dataSource={rows}
         columns={columns}
+        filtering={filtering}
         select={isMultiSelectEnabled}
         selectedRowKeys={selectedFinancingRequestIds}
         onSelectionChanged={handleSelectionChanged}
