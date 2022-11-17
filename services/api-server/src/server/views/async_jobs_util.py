@@ -968,10 +968,11 @@ def reports_monthly_loan_summary_Non_LOC_generate(
 			submitted_by_user_id=user_id,
 			is_high_priority=False,
 			job_payload=payload)
-
+		
+	add_job_summary(session, AsyncJobNameEnum.NON_LOC_MONTHLY_REPORT_SUMMARY)
+	
 	return True, None
 
-# TODO: sessionmaker should be eventually removed
 @errors.return_error_tuple
 def reports_monthly_loan_summary_Non_LOC(
 	session: Session,
@@ -1146,9 +1147,11 @@ def reports_monthly_loan_summary_LOC_generate(
 			submitted_by_user_id=user_id,
 			is_high_priority=False,
 			job_payload=payload)
+
+	add_job_summary(session, AsyncJobNameEnum.LOC_MONTHLY_REPORT_SUMMARY)
+
 	return True, None
 
-# TODO: sessionmaker should be eventually removed
 @errors.return_error_tuple
 def reports_monthly_loan_summary_LOC(
 	session: Session,
@@ -1264,7 +1267,6 @@ def automatic_debit_courtesy_alerts_generate_job(
 
 	return True, None
 
-# TODO: sessionmaker should be eventually removed
 @errors.return_error_tuple
 def automatic_debit_courtesy_alerts_job(
 	session: Session,

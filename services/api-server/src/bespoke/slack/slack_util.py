@@ -18,7 +18,7 @@ def send_job_summary(
 	# update company balances is skipped because it runs frequently
 	# Monthly report summary is skipped because it is tracked in the UI
 	# automatic debit courtesty alerts wasn't running before but was still converted in case
-	skipped_jobs = [
+	adhoc_jobs = [
 		AsyncJobNameEnum.NON_LOC_MONTHLY_REPORT_SUMMARY, 
 		AsyncJobNameEnum.LOC_MONTHLY_REPORT_SUMMARY,
 		AsyncJobNameEnum.AUTOMATIC_DEBIT_COURTESY_ALERTS]
@@ -36,15 +36,18 @@ def send_job_summary(
 	today_info = {
 			"type": "section",
 			"text": {
-				"type": "plain_text",
-				"text": f"Report for {date_util.date_to_db_str(date_util.now_as_date())}"
+				"type": "mrkdwn",
+				"text": f"*Report for {date_util.date_to_db_str(date_util.now_as_date())}*"
 			}
 		}
 	response_blocks.append(today_info)
 	successfully_generated_job_names = [summary.name for summary in async_job_summaries]
+	adhoc_jobs_ran_today = []
 	for enum, label in AsyncJobNameEnumToLabel.items():
 		# skip over the adhoc jobs
-		if enum in skipped_jobs:
+		if enum in adhoc_jobs:
+			if enum in successfully_generated_job_names:
+				adhoc_jobs_ran_today.append((enum, label))
 			continue
 
 		all_async_jobs_for_enum = [job for job in async_jobs if job.name == enum]
@@ -63,6 +66,23 @@ def send_job_summary(
 				# this job was supposed to generate today but didn't
 				new_block = create_generation_failure_block(label)
 		response_blocks.append(new_block)
+
+	adhoc_jobs_text = {
+			"type": "section",
+			"text": {
+				"type": "plain_text",
+				"text": f"Adhoc jobs run today"
+			}
+		}
+
+	if len(adhoc_jobs_ran_today) != 0:
+		response_blocks.append(get_divider_bar_block())
+		response_blocks.append(adhoc_jobs_text)
+		for enum, label in adhoc_jobs_ran_today:
+			all_async_jobs_for_enum = [job for job in async_jobs if job.name == enum]
+			new_block = create_status_block(label, all_async_jobs_for_enum)
+
+			response_blocks.append(new_block)
 
 	response_blocks.append(get_divider_bar_block())
 	payload = {"blocks" : response_blocks}
