@@ -35,6 +35,7 @@ describe("Request financing", () => {
             company_id: results.companyId,
             vendor_id: vendorResults.companyId,
             status: "approved",
+            new_purchase_order_status: "ready_to_request_financing",
             approved_at: approvedAt,
             requested_at: requestedAt,
             approved_by_user_id: userResults.userId,

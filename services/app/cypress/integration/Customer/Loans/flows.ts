@@ -110,20 +110,21 @@ export const requestFinancing = ({
   cy.clock(now, ["Date"]);
 
   // Go to Customer > Purchase Orders
-  cy.dataCy("sidebar-item-purchase-orders").click();
+  cy.dataCy("sidebar-item-purchase-orders-new").click();
   cy.url().should("include", "purchase-orders");
 
   cy.persistentClick(
     "[data-cy='ready-to-request-purchase-order-data-grid'] tr[aria-rowindex='1'] td[aria-colindex='1'] .dx-select-checkbox"
   );
 
-  cy.dataCy("request-purchase-order-financing-button").click();
+  cy.dataCy("request-financing-button").click();
 
-  cy.dataCy("artifact-loan-request-payment-date").type(
+  cy.dataCy("requested-payment-date-date-picker").type(
     requestedPaymentDateString
   );
+  cy.dataCy("financing-request-amount-input").type(440.0);
 
-  cy.dataCy("create-update-artifact-loan-modal-primary-button").click();
+  cy.dataCy("create-financing-requests-modal-primary-button").click();
   cy.get(expectedMuiStatus).should("exist");
 };
 

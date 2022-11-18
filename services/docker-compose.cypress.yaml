@@ -51,6 +51,7 @@ services:
       - ./api-server/src:/app/src/
     environment:
       DATABASE_URL: postgres://postgres:postgrespassword@bespoke-postgres-cypress:5432/postgres
+      OPS_EMAIL_ADDRESSES: do-not-reply-development@bespokefinancial.com
   bespoke-app-cypress:
     build:
       context: ./app

@@ -78,6 +78,7 @@ export default function CreateUpdateBankAccountModal({
 
         can_wire: false,
         is_wire_intermediary: false,
+        is_bank_international: false,
         intermediary_bank_name: "",
         intermediary_bank_address: "",
         intermediary_account_name: "",

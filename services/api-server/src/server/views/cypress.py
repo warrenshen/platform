@@ -82,7 +82,6 @@ class AddBankAccountView(MethodView):
 
 		for key in required_keys:
 			if key not in form:
-
 				return handler_util.make_error_response(f'Missing {key} in response to creating a customer for a Cypress test')
 
 		account_number = get_field_or_default(form, 'account_number', '123456')

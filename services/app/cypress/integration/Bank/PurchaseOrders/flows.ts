@@ -47,3 +47,20 @@ export const bankAdminCreatePurchaseOrderFlowNew = (
   cy.dataCy("create-purchase-order-modal-primary-button").click();
   cy.get(".MuiAlert-standardSuccess").should("exist");
 };
+
+export const approvePurchaseOrderAsBankAdmin = () => {
+  cy.loginBankAdmin();
+
+  // Approve purchase order
+  cy.visit("/purchase-orders");
+
+  // Open the Not Ready for Financing tab
+  cy.dataCy("not-ready-for-financing-tab").click();
+
+  cy.persistentClick(
+    "[data-cy='incomplete-purchase-orders-data-grid-container'] table tr[aria-rowindex='1'] td[aria-colindex='1'] .dx-select-checkbox"
+  );
+
+  cy.dataCy("approve-as-vendor-button").click();
+  cy.dataCy("vendor-approve-po-modal-confirm-button").click();
+};

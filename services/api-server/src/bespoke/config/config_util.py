@@ -5,7 +5,7 @@ from typing import Tuple, Dict
 from bespoke import errors
 
 BESPOKE_NO_REPLY_EMAIL_ADDRESS = 'do-not-reply@bespokefinancial.com'
-BESPOKE_OPS_EMAIL_ADDRESS = 'bespoke-ops@sweatequity.vc'
+BESPOKE_OPS_EMAIL_ADDRESS = 'do-not-reply-development@bespokefinancial.com' 
 
 def is_test_env(flask_env: str) -> bool:
 	return flask_env == 'test'

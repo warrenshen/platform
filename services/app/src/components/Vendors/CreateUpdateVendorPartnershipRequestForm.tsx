@@ -167,7 +167,6 @@ export default function CreateUpdateVendorPartnershipRequestForm({
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
         <USStateDropdown
-          isMetrcOnly
           value={vendorInput?.usState || ""}
           setValue={(value) =>
             setVendorInput({ ...vendorInput, usState: value })

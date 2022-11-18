@@ -1,3 +1,4 @@
+import { getTestSetupDates } from "./../../Customer/Loans/flows";
 import {
   approvePurchaseOrderAsBankAdmin,
   customerCreatesPurchaseOrderFlow,
@@ -5,6 +6,7 @@ import {
 
 describe("Create purchase order", () => {
   before(() => {
+    const { orderDate, requestedAt, approvedAt } = getTestSetupDates();
     cy.resetDatabase();
     cy.addCompany({
       is_customer: true,
@@ -15,6 +17,10 @@ describe("Create purchase order", () => {
       });
       cy.addFinancialSummary({
         company_id: results.companyId,
+        available_limit: 100000,
+        adjusted_total_limit: 100000,
+        total_limit: 100000,
+        product_type: "purchase_money_financing",
       });
       cy.addBankAccount({
         company_id: results.companyId,
@@ -35,35 +41,37 @@ describe("Create purchase order", () => {
             email: "vendor@bespokefinancial.com",
             parent_company_id: vendorResults.parentCompanyId,
             role: "company_contact_only",
+          }).then((userResults) => {
+            cy.addPurchaseOrder({
+              company_id: results.companyId,
+              vendor_id: vendorResults.companyId,
+              status: "approved",
+              new_purchase_order_status: "pending_approval_by_vendor",
+              approved_at: approvedAt,
+              requested_at: requestedAt,
+              approved_by_user_id: userResults.userId,
+              order_date: orderDate,
+              amount: 10000,
+              order_number: "007-10000",
+              is_cannabis: true,
+              is_metrc_based: false,
+              net_terms: 30,
+            });
           });
           cy.addBankAccount({
             company_id: vendorResults.companyId,
             bank_name: "Vendor Bank",
-          }).then((vendorBankResults) => {
+          }).then((vendorBankAccountId) => {
             cy.addCompanyVendorPartnership({
               company_id: results.companyId,
-              vendor_bank_id: vendorBankResults.bankAccountId,
+              vendor_bank_id: vendorBankAccountId,
               vendor_id: vendorResults.companyId,
             });
-            cy.loginCustomerAdminNew(
-              companyUserResults.userEmail,
-              companyUserResults.userPassword
-            );
           });
         });
       });
     });
   });
-
-  it(
-    "Purchase money financing customer user can create non-Metrc purchase order",
-    {
-      retries: 5,
-    },
-    () => {
-      customerCreatesPurchaseOrderFlow("C-0001");
-    }
-  );
 
   it(
     "Bank admin can approve a purchase order",

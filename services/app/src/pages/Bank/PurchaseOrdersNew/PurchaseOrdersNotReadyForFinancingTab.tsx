@@ -145,6 +145,7 @@ export default function BankPurchaseOrdersReadyForFinancingTab() {
       >
         <Can perform={Action.ApprovePurchaseOrders}>
           <PrimaryButton
+            dataCy={"approve-as-vendor-button"}
             isDisabled={
               !selectedPurchaseOrder ||
               selectedPurchaseOrder.new_purchase_order_status ===
@@ -158,6 +159,7 @@ export default function BankPurchaseOrdersReadyForFinancingTab() {
         </Can>
         <Can perform={Action.ApprovePurchaseOrders}>
           <PrimaryButton
+            dataCy={"request-changes-button"}
             isDisabled={
               !selectedPurchaseOrder ||
               selectedPurchaseOrder.new_purchase_order_status ===
@@ -171,6 +173,7 @@ export default function BankPurchaseOrdersReadyForFinancingTab() {
         </Can>
         <Can perform={Action.DeletePurchaseOrders}>
           <SecondaryWarningButton
+            dataCy={"reject-completely-button"}
             isDisabled={!selectedPurchaseOrder}
             text={"Reject completely"}
             onClick={() => setIsRejectModalOpen(true)}
@@ -178,6 +181,7 @@ export default function BankPurchaseOrdersReadyForFinancingTab() {
         </Can>
         <Can perform={Action.ArchivePurchaseOrders}>
           <SecondaryButton
+            dataCy={"archive-button"}
             isDisabled={selectedPurchaseOrderIds.length === 0}
             text={"Archive"}
             onClick={() => {

@@ -153,7 +153,7 @@ export default function AuthenticateViaTwoFactorPage({
 
   const authenticateTitle =
     messageMethod === "phone"
-      ? "Authentiate via phone (2FA)"
+      ? "Authenticate via phone (2FA)"
       : "Authenticate via email (2FA)";
 
   const msgToUser =

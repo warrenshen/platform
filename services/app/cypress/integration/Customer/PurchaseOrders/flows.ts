@@ -197,7 +197,7 @@ export const customerCreatesPurchaseOrderFlow = (
   modalButtonDataCy: string
 ) => {
   // Go to Customer > Borrowing Base
-  cy.dataCy("sidebar-item-purchase-orders").click();
+  cy.dataCy("sidebar-item-purchase-orders-new").click();
   cy.url().should("include", "purchase-orders");
 
   // Create purchase order
@@ -309,15 +309,15 @@ export const approvePurchaseOrderAsBankAdmin = () => {
   // Approve purchase order
   cy.visit("/purchase-orders");
 
-  // Open the Not Confirmed Pos tab
-  cy.dataCy("not-confirmed-pos").click();
+  // Open the Not Ready for Financing tab
+  cy.dataCy("not-ready-for-financing-tab").click();
 
   cy.persistentClick(
-    "[data-cy='not-approved-purchase-orders-data-grid'] table tr[aria-rowindex='1'] td[aria-colindex='1'] .dx-select-checkbox"
+    "[data-cy='incomplete-purchase-orders-data-grid-container'] table tr[aria-rowindex='1'] td[aria-colindex='1'] .dx-select-checkbox"
   );
 
-  cy.dataCy("approve-po-button").click();
-  cy.dataCy("approve-po-confirm-button").click();
+  cy.dataCy("approve-as-vendor-button").click();
+  cy.dataCy("vendor-approve-po-modal-confirm-button").click();
 };
 
 export const approvePurchaseOrderAsVendor = (vendorEmail: string) => {
@@ -332,7 +332,6 @@ export const approvePurchaseOrderAsVendor = (vendorEmail: string) => {
   cy.dataCy("vendor-approve-button").click();
 
   cy.dataCy("vendor-approve-po-modal-confirm-button").click();
-  cy.get(".MuiAlert-standardSuccess").should("exist");
 
   // The expectation of this function is that two
   // purchase orders have been set up, so this part of
@@ -342,7 +341,6 @@ export const approvePurchaseOrderAsVendor = (vendorEmail: string) => {
   cy.dataCy("vendor-approve-button").click();
 
   cy.dataCy("vendor-approve-po-modal-confirm-button").click();
-  cy.get(".MuiAlert-standardSuccess").should("exist");
 };
 
 export const rejectPurchaseOrderAsVendor = (vendorEmail: string) => {
@@ -358,7 +356,6 @@ export const rejectPurchaseOrderAsVendor = (vendorEmail: string) => {
 
   cy.dataCy("rejection-reason").type("Cypress Rejection");
   cy.dataCy("vendor-reject-po-modal-confirm-button").click();
-  cy.get(".MuiAlert-standardSuccess").should("exist");
 
   // The expectation of this function is that two
   // purchase orders have been set up, so this part of
@@ -369,7 +366,6 @@ export const rejectPurchaseOrderAsVendor = (vendorEmail: string) => {
 
   cy.dataCy("rejection-reason").type("Second rejection");
   cy.dataCy("vendor-reject-po-modal-confirm-button").click();
-  cy.get(".MuiAlert-standardSuccess").should("exist");
 };
 
 export const requestChangesPurchaseOrderAsVendor = (vendorEmail: string) => {
@@ -385,7 +381,6 @@ export const requestChangesPurchaseOrderAsVendor = (vendorEmail: string) => {
 
   cy.dataCy("request-change-reason").type("Change this, please!");
   cy.dataCy("vendor-request-changes-po-modal-confirm-button").click();
-  cy.get(".MuiAlert-standardSuccess").should("exist");
 
   // The expectation of this function is that two
   // purchase orders have been set up, so this part of
@@ -396,54 +391,4 @@ export const requestChangesPurchaseOrderAsVendor = (vendorEmail: string) => {
 
   cy.dataCy("request-change-reason").type("Change this, as well.");
   cy.dataCy("vendor-request-changes-po-modal-confirm-button").click();
-  cy.get(".MuiAlert-standardSuccess").should("exist");
-};
-
-export const createFinancingRequestSingle = () => {
-  // Go to Purchase Orders New Tab
-  cy.dataCy("sidebar-item-purchase-orders-new").click();
-  cy.url().should("include", "purchase-orders");
-
-  // Click checkboxes next to purchase orders
-  // We do not encourage cy.wait usage, but something about having 2 data grids
-  // on the same tab causes a weird hiccup and waiting a second consistently resolves the issue
-  cy.wait(1000).persistentClick(
-    ".MuiBox-root[data-cy='ready-to-request-financing-purchase-order-data-grid'] .dx-header-row .dx-select-checkbox"
-  );
-
-  // Open ManagePurchaseOrderFinancingModalMultiple
-  cy.dataCy("request-financing-button").click();
-
-  // Fill in date
-  const { paymentDate } = getFuturePaymentDate();
-  cy.dataCy("requested-payment-date-date-picker").type(paymentDate);
-  cy.dataCy("financing-request-amount-input").type(10000.0);
-
-  // Submit and check for success snackbar
-  cy.dataCy("create-financing-requests-modal-primary-button").click();
-  cy.get(".MuiAlert-standardSuccess").should("exist");
-};
-
-export const createFinancingRequestMultiple = () => {
-  // Go to Purchase Orders New Tab
-  cy.dataCy("sidebar-item-purchase-orders-new").click();
-  cy.url().should("include", "purchase-orders");
-
-  // Click checkboxes next to purchase orders
-  // We do not encourage cy.wait usage, but something about having 2 data grids
-  // on the same tab causes a weird hiccup and waiting a second consistently resolves the issue
-  cy.wait(1000).persistentClick(
-    ".MuiBox-root[data-cy='ready-to-request-financing-purchase-order-data-grid'] .dx-header-row .dx-select-checkbox"
-  );
-
-  // Open ManagePurchaseOrderFinancingModalMultiple
-  cy.dataCy("request-financing-button").click();
-
-  // Fill in date
-  const { paymentDate } = getFuturePaymentDate();
-  cy.dataCy("requested-payment-date-date-picker").type(paymentDate);
-
-  // Submit and check for success snackbar
-  cy.dataCy("create-multiple-financing-requests-modal-primary-button").click();
-  //cy.get(".MuiAlert-standardSuccess").should("exist");
 };

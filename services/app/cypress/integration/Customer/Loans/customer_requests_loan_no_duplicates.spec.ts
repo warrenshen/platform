@@ -10,13 +10,13 @@ describe("Request financing", () => {
     }).then((results) => {
       cy.addContract({
         company_id: results.companyId,
-        product_type: "line_of_credit",
+        product_type: "inventory_financing",
       });
       cy.addFinancialSummary({
         adjusted_total_limit: 10000,
         available_limit: 10000,
         company_id: results.companyId,
-        product_type: "line_of_credit",
+        product_type: "inventory_financing",
         total_limit: 10000,
       });
 
@@ -35,6 +35,7 @@ describe("Request financing", () => {
             company_id: results.companyId,
             vendor_id: vendorResults.companyId,
             status: "approved",
+            new_purchase_order_status: "ready_to_request_financing",
             approved_at: approvedAt,
             requested_at: requestedAt,
             approved_by_user_id: userResults.userId,
@@ -66,17 +67,12 @@ describe("Request financing", () => {
         weekday: 3,
         isHappyPath: true,
       });
-      requestFinancing({
-        expectedMuiStatus: ".MuiAlert-standardSuccess",
-        weekday: 3,
-        isHappyPath: true,
-      });
 
       // Go to Customer > Loans
       cy.dataCy("sidebar-item-loans").click();
       cy.url().should("include", "loans");
 
-      cy.dataCy("not-funded-loans-datagrid")
+      cy.dataCy("funded-loans-data-grid-container")
         .find(".dx-select-checkbox")
         .should("have.length", 1);
     }
