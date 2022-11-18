@@ -9,10 +9,10 @@ from decimal import *
 
 from bespoke.date import date_util
 from bespoke.db import db_constants, models, models_util, queries
-from bespoke.db.db_constants import AsyncJobNameEnum, AsyncJobStatusEnum, LoanTypeEnum, ProductType
+from bespoke.db.db_constants import AsyncJobNameEnum, AsyncJobStatusEnum, ClientSurveillanceCategoryEnum, CustomerRoles, LoanTypeEnum, ProductType
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
-from bespoke.finance import number_util
+from bespoke.finance import number_util, contract_util
 from bespoke.finance.loans import reports_util
 from bespoke.finance.payments import autogenerate_repayment_util
 from bespoke.finance.purchase_orders import purchase_orders_util
@@ -23,7 +23,6 @@ from bespoke.slack import slack_util
 from server.config import Config
 from sqlalchemy import or_
 from sqlalchemy.orm.session import Session
-
 
 @errors.return_error_tuple
 def generate_jobs(
@@ -337,7 +336,7 @@ def generate_companies_loans_coming_due_job(
 			
 			# Normally, we would check for the length of companies here
 			# However, we set up `get_all_customers` to filter for active customers
-			# Once nice thing about that function is that it returns an error before
+			# One nice thing about that function is that it returns an error before
 			# filtering if no customers are found. This error based exit
 			# plays nicely with our offset approach used here
 			if not has_more_customers:
@@ -391,7 +390,7 @@ def generate_companies_loans_past_due_job(
 			
 			# Normally, we would check for the length of companies here
 			# However, we set up `get_all_customers` to filter for active customers
-			# Once nice thing about that function is that it returns an error before
+			# One nice thing about that function is that it returns an error before
 			# filtering if no customers are found. This error based exit
 			# plays nicely with our offset approach used here
 			if not has_more_customers:
@@ -1427,6 +1426,240 @@ def reject_purchase_order_past_60_days(
 
 	return True, None
 
+# not a cron job/manual generation
+@errors.return_error_tuple
+def generate_manual_financial_reports_coming_due_alerts(
+	session: Session,
+	is_test_run: bool = False,
+	test_email: str = "",
+	companies: List[str] = []
+) -> Tuple[bool, errors.Error]:
+	cfg = cast(Config, current_app.app_config)
+	if len(companies) == 0 or companies is None:
+		return generate_financial_reports_coming_due_alerts(session)
+
+	for company_id in companies:
+		# cron generated runs are never test runs
+		payload = {
+			"company_id" : str(company_id), 
+			"is_test_run" : is_test_run,
+			"test_email" : test_email
+			}
+		add_job_to_queue(
+			session=session,
+			job_name=AsyncJobNameEnum.FINANCIAL_REPORTS_COMING_DUE_ALERTS,
+			submitted_by_user_id=cfg.BOT_USER_ID,
+			is_high_priority=True,
+			job_payload=payload
+		)
+
+	add_job_summary(session, AsyncJobNameEnum.FINANCIAL_REPORTS_COMING_DUE_ALERTS)
+
+	return True, None
+
+@errors.return_error_tuple
+def generate_financial_reports_coming_due_alerts(
+	session: Session,
+) -> Tuple[bool, errors.Error]:
+	cfg = cast(Config, current_app.app_config)
+	current_page = 0
+	BATCH_SIZE = 50
+	is_done = False
+
+	while not is_done:
+
+		try:
+			batched_companies, has_more_customers, err = queries.get_all_customers(
+				session,
+				is_active = True,
+				offset = current_page * BATCH_SIZE,
+				batch_size = BATCH_SIZE,
+			)
+			
+			# Normally, we would check for the length of companies here
+			# However, we set up `get_all_customers` to filter for active customers
+			# One nice thing about that function is that it returns an error before
+			# filtering if no customers are found. This error based exit
+			# plays nicely with our offset approach used here
+			if not has_more_customers:
+				is_done = True
+				continue
+
+			for company in batched_companies:
+				company_id = str(company.id)
+				# cron generated runs are never test runs
+				payload = {
+					"company_id" : str(company_id), 
+					"is_test_run" : False,
+					"test_email" : "",
+					}
+				add_job_to_queue(
+					session=session,
+					job_name=AsyncJobNameEnum.FINANCIAL_REPORTS_COMING_DUE_ALERTS,
+					submitted_by_user_id=cfg.BOT_USER_ID,
+					is_high_priority=True,
+					job_payload=payload
+				)
+
+		except Exception as e:
+			return False, errors.Error(str(e))
+
+		current_page += 1
+	add_job_summary(session, AsyncJobNameEnum.FINANCIAL_REPORTS_COMING_DUE_ALERTS)
+
+	return True, None
+
+
+@errors.return_error_tuple
+def financial_reports_coming_due_alerts(
+	session: Session,
+	cfg: Config,
+	sendgrid_client: sendgrid_util.Client,
+	job_payload: Dict[str, Any],
+) -> Tuple[bool, errors.Error]:
+	company_id = job_payload["company_id"]
+	is_test_run = job_payload["is_test_run"]
+	test_email = job_payload["test_email"]
+	# LOC needs borrowing base + financial summaries
+	contract, err = contract_util.get_active_contract_by_company_id(session, company_id)
+	if err:
+		return False, err
+	contract_product_type = contract.get_product_type()[0]
+	if contract_product_type == None:
+		return False, errors.Error("Company has no active contract")
+
+	company_settings, err = queries.get_company_settings_by_company_id(session, company_id)
+
+	if err:
+		return False, err
+
+	get_last_month_due_date = date_util.get_previous_month_last_date(date_util.now_as_date())
+
+	financial_report, err = queries.get_most_recent_ebba_applications_by_company_id(
+			session,
+			company_id,
+			ClientSurveillanceCategoryEnum.FINANCIAL_REPORT,
+			include_submitted = True,
+			include_rejected = True
+		)
+
+	if err:
+		return False, err
+
+	missing_financial_report_months = []
+	missing_financial_report_months_as_string = ""
+
+	if financial_report != None:
+		financial_report_last_date = date_util.get_last_day_of_month_date(str(financial_report.application_date))
+
+		while financial_report_last_date < get_last_month_due_date:
+			next_month = str(date_util.add_days(financial_report_last_date, 1))
+			financial_report_last_date = date_util.get_last_day_of_month_date(next_month)
+			missing_financial_report_months.append(financial_report_last_date)
+
+		missing_financial_report_months_as_string = ", ".join([str(x) for x in missing_financial_report_months])
+
+	else:
+		missing_financial_report_months_as_string = "as of contract start"
+
+	dispensary_financing_with_no_metrc_key = True if contract_product_type == ProductType.DISPENSARY_FINANCING and company_settings.metrc_api_key_id == None else False
+
+	missing_information = ""
+	if (len(missing_financial_report_months) > 0 or len(missing_financial_report_months_as_string) > 0) and not dispensary_financing_with_no_metrc_key:
+		missing_information += f"<u><b>Submit Financial Reports</b></u><br>" \
+			+ f"{'Balance Sheet as of:':30}{missing_financial_report_months_as_string}<br>" \
+			+ f"{'Monthly Income Statement as of:':30} {missing_financial_report_months_as_string}<br>" \
+			+ f"{'A/R Aging Summary Report as of:':30} {missing_financial_report_months_as_string}<br>" \
+			+ f"{'A/P Aging Summary Report as of:':30} {missing_financial_report_months_as_string}<br>"
+	
+	if dispensary_financing_with_no_metrc_key:
+			missing_information += f"<u><b>Submit Financial Reports</b></u><br>" \
+			+ f"{'POS Data as of:':30} {missing_financial_report_months_as_string}<br>" \
+			+ f"{'Inventory Report as of:':30} {missing_financial_report_months_as_string}<br>"
+		
+	if contract_product_type == ProductType.LINE_OF_CREDIT:
+		borrowing_base, err = queries.get_most_recent_ebba_applications_by_company_id(
+			session,
+			company_id,
+			ClientSurveillanceCategoryEnum.BORROWING_BASE,
+			include_submitted = True,
+			include_rejected = True
+		)
+
+		if err:
+			return False, err
+
+		missing_borrowing_base_months_as_string = ""
+		
+		if borrowing_base != None:
+			missing_borrowing_base_months = []
+			borrowing_base_last_date = date_util.get_last_day_of_month_date(str(borrowing_base.application_date))
+			while borrowing_base_last_date < get_last_month_due_date:
+				next_month = str(date_util.add_days(borrowing_base_last_date, 1))
+				borrowing_base_last_date = date_util.get_last_day_of_month_date(next_month)
+				missing_borrowing_base_months.append(borrowing_base_last_date)
+
+			missing_borrowing_base_months_as_string = ", ".join([str(x) for x in missing_borrowing_base_months])
+		else:
+			missing_borrowing_base_months_as_string = "as of contract start"
+
+		if len(missing_borrowing_base_months) > 0 or len(missing_borrowing_base_months_as_string) > 0:
+			missing_information += f"<u><b>Create a Borrowing Base with supporting documents</b></u><br>" \
+				+ f"{'A/R Aging Summary Report':30}: {missing_borrowing_base_months_as_string}<br>" \
+				+ f"{'Inventory Valuation Report:':30} {missing_borrowing_base_months_as_string}<br>" \
+				+ f"{'Bank Statements:':30} {missing_borrowing_base_months_as_string}<br>"
+
+	customer_users = queries.get_active_users_by_role(
+		session,
+		company_id,
+		CustomerRoles.FINANCIALS,
+		filter_contact_only=True
+	)
+
+	if len(customer_users) == 0:
+		customer_users = models_util.get_active_users(
+		company_id,
+		session,
+		filter_contact_only=True
+	)
+
+	if not customer_users:
+		return False, errors.Error('There are no users configured for this customer')
+
+	customer_emails = [user.email for user in customer_users]
+
+	# the 15th is the due date to turn in the previous months financial statements
+	due_date = date_util.human_readable_yearmonthday_from_date(date_util.get_day_of_month_date(str(date_util.now_as_date()), 15))
+	company, err = queries.get_company_by_id(session, company_id)
+
+	if err:
+		return False, err
+	if is_test_run:
+		recipients = [test_email]
+	else: 
+		recipients = customer_emails + sendgrid_client.get_bank_notify_email_addresses()
+
+	if len(missing_information) > 0:
+		if not (contract_product_type == ProductType.DISPENSARY_FINANCING and company_settings.metrc_api_key_id == None):
+			missing_information += f"<b>**Please note: if adjustments were made to any prior month's financial statements after they were provided to Bespoke, include these in the upload.</b><br>" 
+		_, err = sendgrid_client.send(
+			template_name = sendgrid_util.TemplateNames.ALERT_FOR_EXPIRED_BORROWING_BASE_CERTIFICATION,
+			template_data = {
+				'company_name': company.name,
+				'missing_information' : missing_information,
+				'due_date': due_date,
+				'support_email': '<a href="mailto:support@bespokefinancial.com">support@bespokefinancial.com</a>',
+			},
+			recipients = recipients,
+		)
+
+	if err:
+		return False, errors.Error(str(err))
+
+	session.commit()
+	logging.info(f"Company ID: {company_id} finished sending emails for missing financial reports.")
+
+	return True, None
 
 ASYNC_JOB_GENERATION_LOOKUP = {
 	AsyncJobNameEnum.LOANS_COMING_DUE: generate_companies_loans_coming_due_job,
@@ -1436,6 +1669,7 @@ ASYNC_JOB_GENERATION_LOOKUP = {
 	AsyncJobNameEnum.UPDATE_COMPANY_BALANCES: update_company_balances_job, 
 	AsyncJobNameEnum.AUTOMATIC_DEBIT_COURTESY_ALERTS: automatic_debit_courtesy_alerts_generate_job, 
 	AsyncJobNameEnum.PURCHASE_ORDERS_PAST_DUE: generate_reject_purchase_order_past_60_days_job,
+	AsyncJobNameEnum.FINANCIAL_REPORTS_COMING_DUE_ALERTS: generate_financial_reports_coming_due_alerts
 }
 
 ASYNC_JOB_ORCHESTRATION_LOOKUP = {
@@ -1448,4 +1682,5 @@ ASYNC_JOB_ORCHESTRATION_LOOKUP = {
 	AsyncJobNameEnum.NON_LOC_MONTHLY_REPORT_SUMMARY: reports_monthly_loan_summary_Non_LOC,
 	AsyncJobNameEnum.LOC_MONTHLY_REPORT_SUMMARY: reports_monthly_loan_summary_LOC,
 	AsyncJobNameEnum.PURCHASE_ORDERS_PAST_DUE: reject_purchase_order_past_60_days,
+	AsyncJobNameEnum.FINANCIAL_REPORTS_COMING_DUE_ALERTS: financial_reports_coming_due_alerts
 }

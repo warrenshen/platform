@@ -1,6 +1,7 @@
 import { Box, Checkbox, FormControlLabel, TextField } from "@material-ui/core";
 import CreateCustomerModal from "components/Customer/CreateCustomerModal";
 import CustomersDataGrid from "components/Customer/CustomersDataGrid";
+import RunFinancialStatementsAlertModal from "components/EbbaApplication/RunFinancialStatementsAlertModal";
 import CreateBulkMinimumMonthlyFeeModal from "components/Fee/CreateMinimumInterestFeesModal";
 import CreateMonthEndPaymentsModal from "components/Fee/CreateMonthEndPaymentsModal";
 import RunCustomerBalancesModal from "components/Loans/RunCustomerBalancesModal";
@@ -87,6 +88,25 @@ export default function BankCustomersPage() {
         title={"Customers"}
         bankActions={
           <>
+            <Can perform={Action.RunFinancialAlert}>
+              <Box mr={2}>
+                <ModalButton
+                  label={"Run Financial Statements Alert"}
+                  color={"default"}
+                  variant={"outlined"}
+                  modal={({ handleClose }) => (
+                    <RunFinancialStatementsAlertModal
+                      handleClose={() => {
+                        isActiveSelected
+                          ? refetchAllData()
+                          : refetchActiveData();
+                        handleClose();
+                      }}
+                    />
+                  )}
+                />
+              </Box>
+            </Can>
             <Can perform={Action.KickoffMonthlySummaryEmails}>
               <Box mr={2}>
                 <ModalButton

@@ -113,6 +113,9 @@ export enum Action {
   DeleteAsyncJob = "async_jobs:delete_job",
   RetryAsyncJob = "async_jobs:retry_job",
   ChangeAsyncJobPriority = "async_jobs:change_job_priority",
+
+  // Email Alerts
+  RunFinancialAlert = "email_alerts:send_financial_alert",
 }
 
 export interface ActionData {
@@ -263,6 +266,8 @@ const rules: Rules = {
       Action.DeleteAsyncJob,
       Action.RetryAsyncJob,
       Action.ChangeAsyncJobPriority,
+
+      Action.RunFinancialAlert,
     ],
     dynamic: [],
   },

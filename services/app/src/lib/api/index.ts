@@ -247,6 +247,10 @@ export const asyncJobRoutes = {
   retryAsyncJob: "async_jobs/retry-job",
 };
 
+export const emailAlertRoutes = {
+  sendFinancialStatementAlert: "async_jobs/generate_financial_statement_alert",
+};
+
 const api = axios.create({
   baseURL: process.env.REACT_APP_BESPOKE_API_ENDPOINT,
 });

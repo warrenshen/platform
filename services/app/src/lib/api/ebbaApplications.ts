@@ -1,4 +1,5 @@
 import {
+  CustomersWithMetadataFragment,
   EbbaApplicationFilesInsertInput,
   EbbaApplications,
 } from "generated/graphql";
@@ -6,6 +7,7 @@ import {
   CustomMutationResponse,
   authenticatedApi,
   ebbaApplicationsRoutes,
+  emailAlertRoutes,
 } from "lib/api";
 
 export type SubmitEbbaApplicationReq = {
@@ -207,6 +209,36 @@ export async function updateBorrowingBaseBankNoteMutation(
         return {
           status: "ERROR",
           msg: "Could not edit repayment bank note for the loan",
+        };
+      }
+    );
+}
+
+export type SendFinancialStatementAlertReq = {
+  variables: {
+    isTest: boolean;
+    email: String;
+    companies: CustomersWithMetadataFragment["id"][];
+  };
+};
+
+export async function sendFinancialStatementAlert(
+  req: SendFinancialStatementAlertReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(emailAlertRoutes.sendFinancialStatementAlert, req)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.error(error);
+        return {
+          status: "ERROR",
+          msg: "Could not send off financial statement alert emails",
         };
       }
     );

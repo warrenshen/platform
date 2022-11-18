@@ -21,7 +21,8 @@ def send_job_summary(
 	adhoc_jobs = [
 		AsyncJobNameEnum.NON_LOC_MONTHLY_REPORT_SUMMARY, 
 		AsyncJobNameEnum.LOC_MONTHLY_REPORT_SUMMARY,
-		AsyncJobNameEnum.AUTOMATIC_DEBIT_COURTESY_ALERTS]
+		AsyncJobNameEnum.AUTOMATIC_DEBIT_COURTESY_ALERTS,
+		AsyncJobNameEnum.FINANCIAL_REPORTS_COMING_DUE_ALERTS]
 	
 	days_run = {
 		AsyncJobNameEnum.AUTOGENERATE_REPAYMENT_ALERTS: ["Wednesday"],

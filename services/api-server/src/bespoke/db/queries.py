@@ -1,11 +1,12 @@
 import datetime
 import logging
+import json
 from typing import Callable, cast, List, Optional, Tuple
 
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models
-from bespoke.db.db_constants import ClientSurveillanceCategoryEnum, LoanTypeEnum, PaymentType, RequestStatusEnum
+from bespoke.db.db_constants import ClientSurveillanceCategoryEnum, CustomerRoles, LoanTypeEnum, PaymentType, RequestStatusEnum
 
 from sqlalchemy import or_, and_
 from sqlalchemy.orm.session import Session
@@ -114,6 +115,27 @@ def get_company_settings_by_id(
 
     if not company_settings:
         return None, errors.Error("No company settings with the specified id exists in the system")
+
+    return company_settings, None
+
+def get_company_settings_by_company_id(
+    session: Session,
+    company_settings_id: str,
+) -> Tuple[ models.CompanySettings, errors.Error ]:
+    # fmt: off
+    filters = [
+        models.CompanySettings.company_id == company_settings_id
+    ]
+
+    company_settings = cast(
+        models.CompanySettings,
+        session.query(models.CompanySettings).filter(
+            *filters
+        ).first())
+    # fmt: on
+
+    if not company_settings:
+        return None, errors.Error("No company settings with the specified company id exists in the system")
 
     return company_settings, None
 
@@ -249,6 +271,41 @@ def get_approved_financial_reports_by_company_id(
     # as that is not an error state
 
     return financial_reports, None
+
+def get_most_recent_ebba_applications_by_company_id(
+    session: Session,
+    company_id: str,
+    report_type: str,
+    include_submitted: bool = False,
+    include_rejected: bool = False,
+) -> Tuple[ models.EbbaApplication, errors.Error ]:
+    filters = [
+        models.EbbaApplication.company_id == company_id,
+        models.EbbaApplication.category == report_type
+    ]
+
+    request_status = [RequestStatusEnum.APPROVED]
+    if include_submitted:
+        request_status.append(RequestStatusEnum.APPROVAL_REQUESTED)
+
+    if include_rejected:
+        request_status.append(RequestStatusEnum.REJECTED)
+
+    filters.append(models.EbbaApplication.status.in_(request_status))
+
+    # fmt: off
+    financial_report = cast(
+        models.EbbaApplication,
+        session.query(models.EbbaApplication).filter(
+            *filters
+        ).order_by(
+            models.EbbaApplication.application_date.desc()
+        ).first())
+    # fmt: on
+
+    # no need to check for if financial_reports is none
+    # as that is not an error state
+    return financial_report, None
 
 # ###############################
 # Financial Summaries
@@ -665,6 +722,45 @@ def get_user_by_id(
 
     return user, None
 
+def get_active_users_by_role(
+    session: Session, 
+    company_id: str, 
+    customer_role: str,
+    filter_contact_only: bool = False
+) -> List[models.User]:
+    company = cast(
+        models.Company,
+        session.query(models.Company).filter_by(
+            id=company_id
+        ).first())
+
+    users = cast(
+        List[models.User],
+        session.query(models.User).filter_by(
+            parent_company_id=company.parent_company_id
+        ).filter(
+            cast(Callable, models.User.is_deleted.isnot)(True)
+        ).filter(
+            or_( # If filter_contact_only set to False, treat this filter as passthrough
+                and_(
+                    filter_contact_only == True,
+                    models.User.role != "company_contact_only"
+                ),
+                filter_contact_only == False
+            )
+        ).all())
+    active_users_by_role = []
+    for user in users:
+        if user.company_role_new is None:
+            company_roles = {}
+        else:
+            company_roles = json.loads(json.dumps(user.company_role_new))
+        customer_roles = company_roles.get('customer_roles') if 'customer_roles' in company_roles else []
+        if customer_role in customer_roles:
+            active_users_by_role.append(user)
+
+    return active_users_by_role
+
 # ###############################
 # Monthly Summary Calculations
 # ###############################
@@ -690,3 +786,30 @@ def get_monthly_summary_calculation_by_company_id_and_date(
         return msc, errors.Error("No monthly summary calculation with specified company id and date")
 
     return msc, None
+
+# ###############################
+# Contracts
+# ###############################
+def get_most_recent_contract_by_company_id(
+    session: Session,
+    company_id: str,
+) -> Tuple[ models.Contract, errors.Error]:
+    filters = [
+        models.Contract.company_id == company_id,
+    ]
+
+    # fmt: off
+    contract = cast(
+        models.Contract,
+        session.query( models.Contract ).filter(
+            models.Contract.company_id == company_id,
+        ).order_by(
+            models.Contract.start_date.desc(),
+        ).first(),
+    )
+    # fmt: on
+
+    if not contract:
+        return contract, errors.Error("No contract with specified company id")
+
+    return contract, None

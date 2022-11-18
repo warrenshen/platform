@@ -247,6 +247,36 @@ class ReportsMonthlyLoanSummaryLOCView(MethodView):
 			'status': 'OK'
 		}), 200)
 
+class GenerateFinancialStatementAlertView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+	
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		logging.info("Received async job for financial statement alert")
+		user_session = auth_util.UserSession.from_session()
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+		
+		variables = form.get("variables", None)
+		is_test = variables.get("isTest", False) if variables else False
+		test_email = variables.get("email", None) if variables else None
+		companies = variables.get("companies", None) if variables else None
+
+		with session_scope(current_app.session_maker) as session:
+			_, err = async_jobs_util.generate_manual_financial_reports_coming_due_alerts(
+				session=session,
+				is_test_run=is_test,
+				test_email=test_email,
+				companies=companies,
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK'
+		}), 200)
+
 class DailyJobSummaryView(MethodView):
 	decorators = [auth_util.requires_async_header_or_bank_admin]
 	
@@ -296,4 +326,8 @@ handler.add_url_rule(
 handler.add_url_rule(
 	"/generate_monthly_loans_summary_loc",
 	view_func=ReportsMonthlyLoanSummaryLOCView.as_view(name='generate_monthly_loans_summary_loc'))
+
+handler.add_url_rule(
+	"/generate_financial_statement_alert",
+	view_func=GenerateFinancialStatementAlertView.as_view(name='generate_financial_statement_alert'))
 

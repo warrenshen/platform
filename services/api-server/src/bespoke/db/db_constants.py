@@ -407,6 +407,7 @@ class AsyncJobNameEnum(object):
 	NON_LOC_MONTHLY_REPORT_SUMMARY="non_loc_monthly_report_summary"
 	LOC_MONTHLY_REPORT_SUMMARY="loc_monthly_report_summary"
 	PURCHASE_ORDERS_PAST_DUE="purchase_orders_past_due"
+	FINANCIAL_REPORTS_COMING_DUE_ALERTS="financial_reports_coming_due_alerts"
 
 AsyncJobNameEnumToLabel = {
 	AsyncJobNameEnum.LOANS_COMING_DUE: 'Loans coming due',
@@ -418,6 +419,7 @@ AsyncJobNameEnumToLabel = {
 	AsyncJobNameEnum.NON_LOC_MONTHLY_REPORT_SUMMARY: 'Non-LOC monthly report summary',
 	AsyncJobNameEnum.LOC_MONTHLY_REPORT_SUMMARY: 'LOC monthly report summary',	
 	AsyncJobNameEnum.PURCHASE_ORDERS_PAST_DUE: 'Purchase orders past due',
+	AsyncJobNameEnum.FINANCIAL_REPORTS_COMING_DUE_ALERTS: 'Financial reports coming due alerts'
 }
 
 # Vendor Change Requests
