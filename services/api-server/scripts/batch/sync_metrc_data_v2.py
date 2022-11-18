@@ -18,6 +18,8 @@ import argparse
 import logging
 import os
 import sys
+
+from datetime import timedelta
 from os import path
 from typing import cast
 
@@ -26,13 +28,13 @@ sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../")))
 
 from dotenv import load_dotenv
-from server.config import get_config, get_email_client_config, is_development_env
+from server.config import get_config, is_development_env
 
 from bespoke.config.config_util import MetrcWorkerConfig
 from bespoke.date import date_util
 from bespoke.db import models
-from bespoke.email import sendgrid_util
-from bespoke.metrc import metrc_util
+from bespoke.db.models import session_scope
+from bespoke.metrc import metrc_download_util
 from bespoke.metrc.common import metrc_common_util
 
 REQUIRED_ENV_VARS = [
@@ -73,16 +75,9 @@ def main(
 	engine = models.create_engine(statement_timeout=10000)
 	session_maker = models.new_sessionmaker(engine)
 
-	email_client_config = get_email_client_config(config)
-	sendgrid_client = sendgrid_util.Client(
-		email_client_config,
-		session_maker,
-		config.get_security_config(),
-	)
-
 	company_id = None
 
-	with models.session_scope(session_maker) as session:
+	with session_scope(session_maker) as session:
 		company = cast(
 			models.Company,
 			session.query(models.Company).filter(
@@ -91,9 +86,10 @@ def main(
 
 		company_id = str(company.id)
 
-	metrc_api_key_dict = None
+	metrc_api_key_id = None
+	license_numbers = []
 
-	with models.session_scope(session_maker) as session:
+	with session_scope(session_maker) as session:
 		metrc_api_key = cast(
 			models.Company,
 			session.query(models.MetrcApiKey).filter(
@@ -103,14 +99,23 @@ def main(
 			).first())
 
 		if not metrc_api_key:
-			print(f'Given company does not have an API key set up')
+			print(f'Given company does not have a Metrc API key set up yet')
 			exit(1)
 
-		metrc_api_key_dict = metrc_api_key.as_dict()
+		if not metrc_api_key.permissions_refreshed_at:
+			print(f'Given Metrc API key does not have permissions refreshed yet')
+			exit(1)
+
+		if not metrc_api_key.is_functioning:
+			print(f'Given Metrc API key is not functioning')
+			exit(1)
+
+		metrc_api_key_id = str(metrc_api_key.id)
+		license_numbers = [license_permissions['license_number'] for license_permissions in metrc_api_key.permissions_payload]
 
 	parsed_start_date = date_util.load_date_str(start_date_str)
 	# Default end date to today if end date not specified.
-	parsed_end_date = date_util.load_date_str(end_date_str) if end_date_str else date_util.now_as_date()
+	parsed_end_date = date_util.load_date_str(end_date_str) if end_date_str else (date_util.now_as_date() - timedelta(days=1))
 
 	apis_to_use = metrc_common_util.ApisToUseDict(
 		sales_receipts=not is_sales_disabled,
@@ -142,19 +147,22 @@ def main(
 	if apis_to_use == metrc_common_util.get_default_apis_to_use():
 		apis_to_use = None
 
-	resp, fatal_err = metrc_util.download_data_for_metrc_api_key_in_date_range(
-		session_maker=session_maker,
-		worker_cfg=MetrcWorkerConfig(
-			force_fetch_missing_sales_transactions=force_fetch_missing_sales_transactions,
-			num_parallel_licenses=num_parallel_licenses,
-			num_parallel_sales_transactions=num_parallel_sales_transactions,
-		),
-		security_cfg=config.get_security_config(),
-		apis_to_use=apis_to_use,
-		metrc_api_key_dict=metrc_api_key_dict,
-		start_date=parsed_start_date,
-		end_date=parsed_end_date,
-	)
+	for license_number in license_numbers:
+		with session_scope(session_maker) as session:
+			resp, fatal_err = metrc_download_util.download_data_for_metrc_api_key_license_in_date_range(
+				session=session,
+				worker_cfg=MetrcWorkerConfig(
+					force_fetch_missing_sales_transactions=force_fetch_missing_sales_transactions,
+					num_parallel_licenses=num_parallel_licenses,
+					num_parallel_sales_transactions=num_parallel_sales_transactions,
+				),
+				security_cfg=config.get_security_config(),
+				apis_to_use=apis_to_use,
+				metrc_api_key_id=metrc_api_key_id,
+				license_number=license_number,
+				start_date=parsed_start_date,
+				end_date=parsed_end_date,
+			)
 
 	if fatal_err:
 		print('')

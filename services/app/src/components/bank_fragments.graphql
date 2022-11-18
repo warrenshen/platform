@@ -249,6 +249,7 @@ fragment MetrcApiKeyLimited on metrc_api_keys {
   id
   created_at
   updated_at
+  permissions_refreshed_at
   last_used_at
   is_functioning
   status_codes_payload

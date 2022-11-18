@@ -531,12 +531,17 @@ class MetrcApiKey(Base):
 
 	id = Column(GUID, default=GUID_DEFAULT, primary_key=True)
 	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
+	us_state = Column(String, nullable=False)
+	is_deleted = Column(Boolean, default=False)
+
 	encrypted_api_key = Column(String)
 	hashed_key = Column(String) # The one we can use for duplicate metrc key detection
-	is_functioning = Column(Boolean) # Whether API key is functioning, where functioning means the /facilities endpoint is working.
-	last_used_at = Column(DateTime) # Timestamp of when API key was last functioning.
-	is_deleted = Column(Boolean, default=False)
-	us_state = Column(String)
+	# Whether the /facilities endpoint is working. If True, facilities_payload will have useful content.
+	is_functioning = Column(Boolean)
+	# Timestamp of when permissions were last refreshed (when permissions_payload was updated).
+	permissions_refreshed_at = Column(DateTime)
+	# Timestamp of when API key was last functioning (when status_codes_payload was updated).
+	last_used_at = Column(DateTime)
 	use_saved_licenses_only = Column(Boolean)
 
 	facilities_payload = Column(JSON) # The raw JSON response from the Metrc API /facilities/v1 endpoint.

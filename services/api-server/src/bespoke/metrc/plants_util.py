@@ -177,7 +177,8 @@ def download_plants(ctx: metrc_common_util.DownloadContext, session_maker: Calla
 
 def _write_plants_chunk(
 	plants: List[PlantObj],
-	session: Session) -> None:
+	session: Session,
+) -> None:
 	if not plants:
 		return
 
@@ -221,3 +222,97 @@ def write_plants(plants_models: List[PlantObj], session_maker: Callable, BATCH_S
 			_write_plants_chunk(chunk, session)
 		batch_index += 1
 
+def download_plants_with_session(
+	session: Session,
+	ctx: metrc_common_util.DownloadContext,
+) -> List[PlantObj]:
+	vegetative_plants: List[Dict] = []
+	flowering_plants: List[Dict] = []
+	inactive_plants: List[Dict] = []
+	onhold_plants: List[Dict] = []
+
+	company_details = ctx.company_details
+	cur_date_str = ctx.get_cur_date_str()
+	request_status = ctx.request_status
+	rest = ctx.rest
+
+	try:
+		resp = rest.get('/plants/v1/vegetative', time_range=[cur_date_str])
+		vegetative_plants = json.loads(resp.content)
+		request_status['plants_api'] = 200
+	except errors.Error as e:
+		metrc_common_util.update_if_all_are_unsuccessful(request_status, 'plants_api', e)
+
+	try:
+		resp = rest.get('/plants/v1/flowering', time_range=[cur_date_str])
+		flowering_plants = json.loads(resp.content)
+		request_status['plants_api'] = 200
+	except errors.Error as e:
+		metrc_common_util.update_if_all_are_unsuccessful(request_status, 'plants_api', e)
+
+	try:
+		resp = rest.get('/plants/v1/inactive', time_range=[cur_date_str])
+		inactive_plants = json.loads(resp.content)
+		request_status['plants_api'] = 200
+	except errors.Error as e:
+		metrc_common_util.update_if_all_are_unsuccessful(request_status, 'plants_api', e)
+
+	try:
+		resp = rest.get('/plants/v1/onhold', time_range=[cur_date_str])
+		onhold_plants = json.loads(resp.content)
+		request_status['plants_api'] = 200
+	except errors.Error as e:
+		metrc_common_util.update_if_all_are_unsuccessful(request_status, 'plants_api', e)
+
+	license_number = ctx.license['license_number']
+
+	vegetative_plant_models = Plants(vegetative_plants, 'vegetative').filter_new_only(
+		ctx, session).get_models(ctx=ctx)
+
+	flowering_plant_models = Plants(flowering_plants, 'flowering').filter_new_only(
+		ctx, session).get_models(ctx=ctx)
+
+	inactive_plant_models = Plants(inactive_plants, 'inactive').filter_new_only(
+		ctx, session).get_models(ctx=ctx)
+
+	onhold_plant_models = Plants(onhold_plants, 'onhold').filter_new_only(
+			ctx, session).get_models(ctx=ctx)
+
+	if vegetative_plants:
+		logging.info('Downloaded {} vegetative plants for {} on {}'.format(
+			len(vegetative_plants), company_details['name'], ctx.cur_date))
+
+	if flowering_plants:
+		logging.info('Downloaded {} flowering plants for {} on {}'.format(
+			len(flowering_plants), company_details['name'], ctx.cur_date))
+
+	if inactive_plants:
+		logging.info('Downloaded {} inactive plants for {} on {}'.format(
+			len(inactive_plants), company_details['name'], ctx.cur_date))
+
+	if onhold_plants:
+		logging.info('Downloaded {} onhold plants for {} on {}'.format(
+			len(onhold_plants), company_details['name'], ctx.cur_date))
+
+	plant_models = vegetative_plant_models + flowering_plant_models + inactive_plant_models + onhold_plant_models
+	
+	if not plant_models:
+		logging.info('No new plants to write for {} on {}'.format(
+			company_details['name'], ctx.cur_date
+		))
+
+	return plant_models
+
+def write_plants_with_session(
+	session: Session,
+	plants_models: List[PlantObj],
+	batch_size: int = 50,
+) -> None:
+	batch_index = 1
+
+	batches_count = len(plants_models) // batch_size + 1
+	for chunk in chunker(plants_models, batch_size):
+		logging.info(f'Writing plants - batch {batch_index} of {batches_count}...')
+		_write_plants_chunk(chunk, session)
+		session.commit()
+		batch_index += 1

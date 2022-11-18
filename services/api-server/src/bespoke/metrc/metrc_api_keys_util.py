@@ -1,4 +1,4 @@
-from typing import Tuple, cast
+from typing import Callable, cast, Tuple
 
 from bespoke import errors
 from bespoke.db import models
@@ -67,7 +67,7 @@ def upsert_api_key(
 	existing_metrc_api_key = cast(
 		models.MetrcApiKey,
 		session.query(models.MetrcApiKey).filter(
-			models.MetrcApiKey.is_deleted == False
+			cast(Callable, models.MetrcApiKey.is_deleted.isnot)(True)
 		).filter(
 			models.MetrcApiKey.hashed_key == hashed_key
 		).first())

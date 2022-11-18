@@ -6,7 +6,7 @@ from typing import Callable, cast, List, Optional, Tuple
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models
-from bespoke.db.db_constants import ClientSurveillanceCategoryEnum, CustomerRoles, LoanTypeEnum, PaymentType, RequestStatusEnum
+from bespoke.db.db_constants import ClientSurveillanceCategoryEnum, LoanTypeEnum, PaymentType, RequestStatusEnum
 
 from sqlalchemy import or_, and_
 from sqlalchemy.orm.session import Session
@@ -786,6 +786,25 @@ def get_monthly_summary_calculation_by_company_id_and_date(
         return msc, errors.Error("No monthly summary calculation with specified company id and date")
 
     return msc, None
+
+def get_metrc_api_key_by_id(
+    session: Session,
+    metrc_api_key_id: str,
+) -> Tuple[models.MetrcApiKey, errors.Error]:
+    filters = [
+        models.MetrcApiKey.id == metrc_api_key_id,
+    ]
+
+    metrc_api_key = cast(
+        models.MetrcApiKey,
+        session.query(models.MetrcApiKey).filter(
+            *filters
+        ).first())
+
+    if not metrc_api_key:
+        return metrc_api_key, errors.Error(f"Could not find Metrc API key with the provided id of {metrc_api_key_id}")
+
+    return metrc_api_key, None
 
 # ###############################
 # Contracts

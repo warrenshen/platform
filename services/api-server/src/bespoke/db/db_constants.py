@@ -398,28 +398,32 @@ AsyncJobStatusEnumToLabel = {
 }
 
 class AsyncJobNameEnum(object):
-	LOANS_COMING_DUE = "loans_coming_due"
-	LOANS_PAST_DUE = "loans_past_due"
 	AUTOGENERATE_REPAYMENTS = "autogenerate_repayments"
 	AUTOGENERATE_REPAYMENT_ALERTS = "autogenerate_repayment_alerts"
-	UPDATE_COMPANY_BALANCES="update_company_balances"
-	AUTOMATIC_DEBIT_COURTESY_ALERTS="automatic_debit_courtesy_alerts"
-	NON_LOC_MONTHLY_REPORT_SUMMARY="non_loc_monthly_report_summary"
-	LOC_MONTHLY_REPORT_SUMMARY="loc_monthly_report_summary"
-	PURCHASE_ORDERS_PAST_DUE="purchase_orders_past_due"
+	AUTOMATIC_DEBIT_COURTESY_ALERTS = "automatic_debit_courtesy_alerts"
+	DOWNLOAD_DATA_FOR_METRC_API_KEY_LICENSE = "download_data_for_metrc_api_key_license"
 	FINANCIAL_REPORTS_COMING_DUE_ALERTS="financial_reports_coming_due_alerts"
+	LOC_MONTHLY_REPORT_SUMMARY = "loc_monthly_report_summary"
+	LOANS_COMING_DUE = "loans_coming_due"
+	LOANS_PAST_DUE = "loans_past_due"
+	NON_LOC_MONTHLY_REPORT_SUMMARY = "non_loc_monthly_report_summary"
+	PURCHASE_ORDERS_PAST_DUE = "purchase_orders_past_due"
+	REFRESH_METRC_API_KEY_PERMISSIONS = "refresh_metrc_api_key_permissions"
+	UPDATE_COMPANY_BALANCES = "update_company_balances"
 
 AsyncJobNameEnumToLabel = {
-	AsyncJobNameEnum.LOANS_COMING_DUE: 'Loans coming due',
-	AsyncJobNameEnum.LOANS_PAST_DUE: 'Loans past due',
 	AsyncJobNameEnum.AUTOGENERATE_REPAYMENTS: 'Autogenerate repayments',
 	AsyncJobNameEnum.AUTOGENERATE_REPAYMENT_ALERTS: 'Autogenerate repayment alerts',
-	AsyncJobNameEnum.UPDATE_COMPANY_BALANCES: 'Update company balances',
 	AsyncJobNameEnum.AUTOMATIC_DEBIT_COURTESY_ALERTS: 'Automatic debit courtesy alerts',
+	AsyncJobNameEnum.DOWNLOAD_DATA_FOR_METRC_API_KEY_LICENSE: 'Download data for Metrc API key license',
+	AsyncJobNameEnum.FINANCIAL_REPORTS_COMING_DUE_ALERTS: 'Financial reports coming due alerts',
+	AsyncJobNameEnum.LOANS_COMING_DUE: 'Loans coming due',
+	AsyncJobNameEnum.LOANS_PAST_DUE: 'Loans past due',
+	AsyncJobNameEnum.LOC_MONTHLY_REPORT_SUMMARY: 'LOC monthly report summary',
 	AsyncJobNameEnum.NON_LOC_MONTHLY_REPORT_SUMMARY: 'Non-LOC monthly report summary',
-	AsyncJobNameEnum.LOC_MONTHLY_REPORT_SUMMARY: 'LOC monthly report summary',	
 	AsyncJobNameEnum.PURCHASE_ORDERS_PAST_DUE: 'Purchase orders past due',
-	AsyncJobNameEnum.FINANCIAL_REPORTS_COMING_DUE_ALERTS: 'Financial reports coming due alerts'
+	AsyncJobNameEnum.REFRESH_METRC_API_KEY_PERMISSIONS: 'Refresh Metrc API key permissions',
+	AsyncJobNameEnum.UPDATE_COMPANY_BALANCES: 'Update company balances',
 }
 
 # Vendor Change Requests

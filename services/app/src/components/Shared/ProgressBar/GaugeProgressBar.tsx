@@ -1,5 +1,4 @@
-import { Typography, useTheme } from "@material-ui/core";
-import CircularProgress from "@material-ui/core/CircularProgress";
+import { CircularProgress, Typography, useTheme } from "@material-ui/core";
 import { makeStyles, withStyles } from "@material-ui/core/styles";
 import styled from "styled-components";
 

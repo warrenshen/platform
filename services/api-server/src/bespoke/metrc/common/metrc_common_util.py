@@ -476,6 +476,7 @@ class MetrcApiKeyDataFetcher(MetrcApiKeyDataFetcherInterface):
 		self,
 		metrc_api_key_dict: models.MetrcApiKeyDict,
 		security_cfg: security_util.ConfigDict,
+		target_license_number: Optional[str] = None,
 	) -> None:
 		us_state = metrc_api_key_dict['us_state']
 		if not us_state:
@@ -505,10 +506,25 @@ class MetrcApiKeyDataFetcher(MetrcApiKeyDataFetcherInterface):
 		)
 
 		self.metrc_api_key_dict = metrc_api_key_dict
+		self.target_license_number = target_license_number
 
 		# Cached results.
 		self.facilities_json = None
 		self.metrc_api_key_permissions: Optional[MetrcApiKeyPermissions] = None
+
+	def get_target_license_number(self) -> Optional[str]:
+		return self.target_license_number
+
+	def get_metrc_api_key_id(self) -> Optional[str]:
+		return self.metrc_api_key_dict['id']
+
+	def get_target_license_permissions_dict(self) -> Optional[LicensePermissionsDict]:
+		if not self.metrc_api_key_permissions:
+			self.get_metrc_api_key_permissions()
+
+		# Target license's permissions will always be the 0th element of the
+		# array given how the method self.get_metrc_api_key_permissions works.
+		return self.metrc_api_key_permissions[0]
 
 	def get_request_params(self, license_number: str) -> str:
 		today = datetime.datetime.today()
@@ -635,16 +651,28 @@ class MetrcApiKeyDataFetcher(MetrcApiKeyDataFetcherInterface):
 			# Cached result.
 			return self.metrc_api_key_permissions
 
-		logging.info(f'Checking Metrc API key permissions...')
+		if self.target_license_number:
+			logging.info(f'Checking Metrc API key permissions for target license {self.target_license_number}...')
+		else:
+			logging.info(f'Checking Metrc API key permissions...')
+
 		facilities_json = self.get_facilities()
 		license_numbers = list(map(lambda facility_json: facility_json['License']['Number'], facilities_json))
-		logging.info(f'Metrc API key has access to {len(license_numbers)} licenses')
+
+		if self.target_license_number:
+			logging.info(f'Metrc API key has access to target license {self.target_license_number}')
+		else:
+			logging.info(f'Metrc API key has access to {len(license_numbers)} licenses')
 
 		metrc_api_key_permissions = []
 		for license_number in license_numbers:
+			if self.target_license_number and license_number != self.target_license_number:
+				continue
+
 			logging.info(f'Checking license permissions for license {license_number}...')
 			license_permissions = self._check_license_permissions(license_number)
 			metrc_api_key_permissions.append(license_permissions)
+
 		logging.info(f'Finished checking Metrc API key permissions')
 
 		self.metrc_api_key_permissions = metrc_api_key_permissions

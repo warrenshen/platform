@@ -16,6 +16,39 @@ from server.views.common import auth_util, handler_util
 
 handler = Blueprint('metrc', __name__)
 
+class RefreshMetrcApiKeyPermissions(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		cfg = cast(Config, current_app.app_config)
+		user_session = auth_util.UserSession.from_session()
+
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'metrc_api_key_id',
+		]
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(
+					'Missing key {} in request'.format(key))
+
+		with session_scope(current_app.session_maker) as session:
+			_, err = metrc_util.refresh_metrc_api_key_permissions(
+				session=session,
+				security_cfg=cfg.get_security_config(),
+				metrc_api_key_id=form['metrc_api_key_id'],
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK'
+		}), 200)
+
 class UpsertApiKeyView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
@@ -217,6 +250,9 @@ class DownloadMetrcDataAllCompaniesView(MethodView):
 			pipeline_id = str(pipeline.id)
 
 		return make_response(json.dumps({'status': 'OK', 'pipeline_id': pipeline_id}))
+
+handler.add_url_rule(
+	'/refresh_metrc_api_key_permissions', view_func=RefreshMetrcApiKeyPermissions.as_view(name='refresh_metrc_api_key_permissions_view'))
 
 handler.add_url_rule(
 	'/upsert_api_key', view_func=UpsertApiKeyView.as_view(name='upsert_api_key_view'))

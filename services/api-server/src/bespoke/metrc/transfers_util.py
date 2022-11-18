@@ -709,15 +709,15 @@ def populate_transfers_table(
 			licenses_util.populate_delivery_details(company_deliveries_chunk, session)
 			deliveries_chunk = [company_delivery_obj.metrc_delivery for company_delivery_obj in company_deliveries_chunk]
 			_write_deliveries(
-				deliveries_chunk, 
+				deliveries_chunk,
 				delivery_id_to_transfer_row_id=delivery_id_to_transfer_row_id,
-				delivery_id_to_delivery_row_id=delivery_id_to_delivery_row_id, 
+				delivery_id_to_delivery_row_id=delivery_id_to_delivery_row_id,
 				session=session
 			)
 			_write_company_deliveries(
 				company_deliveries_chunk,
 				delivery_id_to_transfer_row_id=delivery_id_to_transfer_row_id,
-				delivery_id_to_delivery_row_id=delivery_id_to_delivery_row_id, 
+				delivery_id_to_delivery_row_id=delivery_id_to_delivery_row_id,
 				session=session
 			)			
 
@@ -743,5 +743,232 @@ def populate_transfers_table(
 				transfer_package_objs_chunk,
 				session=session
 			)
+
+	return True, None
+
+@errors.return_error_tuple
+def populate_transfers_table_with_session(
+	session: Session,
+	ctx: metrc_common_util.DownloadContext,
+) -> Tuple[bool, errors.Error]:
+
+	## Setup
+	company_details = ctx.company_details
+	request_status = ctx.request_status
+	rest = ctx.rest
+
+	cur_date_str = ctx.get_cur_date_str()
+
+	## Fetch transfers
+
+	# Incoming
+	incoming_transfers_arr = []
+	if ctx.get_adjusted_apis_to_use()['incoming_transfers']:
+		try:
+			resp = rest.get('/transfers/v1/incoming', time_range=[cur_date_str])
+			incoming_transfers_arr = json.loads(resp.content)
+			request_status['transfers_api'] = 200
+		except errors.Error as e:
+			request_status['transfers_api'] = e.details.get('status_code')
+			return False, e
+
+	incoming_transfers = Transfers.build(incoming_transfers_arr).filter_new_only(
+		ctx, session
+	)
+
+	incoming_metrc_transfer_objs = incoming_transfers.get_transfer_objs(
+		rest=rest,
+		ctx=ctx,
+		transfer_type=db_constants.TransferType.INCOMING
+	)
+
+	# Look up company ids for vendors that might match, and use those
+	# licenses to determine what kind of transfer this is
+	licenses_util.populate_vendor_details(
+		_get_company_delivery_objs(incoming_metrc_transfer_objs),
+		session=session
+	)
+
+	# Outgoing
+	outgoing_transfers_arr = []
+	if ctx.get_adjusted_apis_to_use()['outgoing_transfers']:
+		try:
+			resp = rest.get('/transfers/v1/outgoing', time_range=[cur_date_str])
+			outgoing_transfers_arr = json.loads(resp.content)
+			request_status['transfers_api'] = 200
+		except errors.Error as e:
+			request_status['transfers_api'] = e.details.get('status_code')
+			return False, e
+
+	outgoing_transfers = Transfers.build(outgoing_transfers_arr).filter_new_only(
+		ctx, session
+	)
+
+	outgoing_metrc_transfer_objs = outgoing_transfers.get_transfer_objs(
+		rest=rest,
+		ctx=ctx,
+		transfer_type=db_constants.TransferType.OUTGOING,
+	)
+
+	licenses_util.populate_vendor_details(
+		_get_company_delivery_objs(outgoing_metrc_transfer_objs),
+		session=session
+	)
+
+	# Rejected
+	rejected_transfers_arr = []
+	if ctx.get_adjusted_apis_to_use()['rejected_transfers']:
+		try:
+			resp = rest.get('/transfers/v1/rejected', time_range=[cur_date_str])
+			rejected_transfers_arr = json.loads(resp.content)
+			request_status['transfers_api'] = 200
+		except errors.Error as e:
+			request_status['transfers_api'] = e.details.get('status_code')
+			return False, e		
+
+	rejected_transfers = Transfers.build(rejected_transfers_arr).filter_new_only(
+		ctx, session
+	)
+
+	rejected_metrc_transfer_objs = rejected_transfers.get_transfer_objs(
+		rest=rest,
+		ctx=ctx,
+		transfer_type=db_constants.TransferType.REJECTED,
+	)
+
+	licenses_util.populate_vendor_details(
+		_get_company_delivery_objs(rejected_metrc_transfer_objs),
+		session=session
+	)
+
+	# Fetch delivery details for all the transfers
+
+	metrc_transfer_objs = incoming_metrc_transfer_objs + outgoing_metrc_transfer_objs + \
+												rejected_metrc_transfer_objs
+
+	if not metrc_transfer_objs:
+		logging.info('No new transfers to write for {} on {}'.format(
+			company_details['name'], ctx.cur_date
+		))
+
+	## Fetch packages and lab results
+	all_metrc_transfer_package_objs: List[TransferPackageObj] = []
+	# So we can map a package back to its parent transfer's delivery ID
+	package_id_to_delivery_id = {}
+
+	for metrc_transfer_obj in metrc_transfer_objs:
+		metrc_transfer = metrc_transfer_obj.metrc_transfer
+		lab_result_statuses_for_transfer = []
+
+		for delivery in metrc_transfer_obj.deliveries:
+			delivery_id = delivery.metrc_delivery.delivery_id
+			logging.info(f'Downloading packages for {db_constants.TransferType.OUTGOING if db_constants.TransferType.OUTGOING in delivery.transfer_type else db_constants.TransferType.INCOMING} metrc transfer {metrc_transfer.transfer_id}, manifest number {metrc_transfer.manifest_number}, delivery ID {delivery_id}')
+
+			packages_api_failed = False
+			try:
+				resp = rest.get(f'/transfers/v1/delivery/{delivery_id}/packages')
+				t_packages_json = json.loads(resp.content)
+				request_status['transfer_packages_api'] = 200
+			except errors.Error as e:
+				metrc_common_util.update_if_all_are_unsuccessful(request_status, 'transfer_packages_api', e)
+				packages_api_failed = True
+
+			if packages_api_failed:
+				metrc_transfer_obj.has_error = True
+				continue
+
+			try:
+				resp = rest.get(f'/transfers/v1/delivery/{delivery_id}/packages/wholesale')
+				t_packages_wholesale_json = json.loads(resp.content)
+				request_status['transfer_packages_wholesale_api'] = 200
+			except errors.Error as e:
+				t_packages_wholesale_json = [] # If fetch fails, we set to empty array and continue.
+				logging.error(f'Could not fetch packages wholesale for company {company_details["name"]} for transfer with delivery id {delivery_id}. {e}')
+				metrc_common_util.update_if_all_are_unsuccessful(request_status, 'transfer_packages_wholesale_api', e)
+
+			packages = TransferPackages(
+				metrc_transfer.last_modified_at, delivery_id, t_packages_json, t_packages_wholesale_json)
+			lab_testing_states = packages.get_lab_testing_states()
+
+			lab_tests = []
+			for lab_testing_state in lab_testing_states:
+				lab_tests.append(LabTest(lab_testing_state))
+
+			metrc_packages, delivery_lab_results_status = packages.get_package_models(
+				lab_tests=lab_tests,
+				transfer_type=delivery.transfer_type,
+				created_date=metrc_transfer.created_date,
+				ctx=ctx
+			)
+
+			#delivery_obj.lab_results_status = delivery_lab_results_status
+			lab_result_statuses_for_transfer.append(delivery_lab_results_status)
+
+			for metrc_package in metrc_packages:
+				package_id_to_delivery_id[metrc_package.package_id] = delivery_id
+				all_metrc_transfer_package_objs.append(
+					TransferPackageObj(
+						company_id=company_details['company_id'],
+						transfer_type=delivery.transfer_type,
+						transfer_package=metrc_package
+					))
+
+		metrc_transfer.lab_results_status = get_final_lab_status(lab_result_statuses_for_transfer)
+
+	## Write the transfers
+
+	# Find previous transfers, update those that previously existed, add rows
+	# that do not exist.
+	TRANSFERS_BATCH_SIZE = 10
+	delivery_id_to_transfer_row_id: Dict = {}
+	all_company_deliveries: List[CompanyDeliveryObj] = []
+
+	for transfers_chunk in chunker(metrc_transfer_objs, TRANSFERS_BATCH_SIZE):
+		_write_transfers(transfers_chunk, delivery_id_to_transfer_row_id, all_company_deliveries, session)
+		session.commit()
+
+	## Write deliveries
+	DELIVERIES_BATCH_SIZE = 5
+	delivery_id_to_delivery_row_id: Dict = {}
+
+	for company_deliveries_chunk in cast(Iterable[List[CompanyDeliveryObj]], chunker(all_company_deliveries, DELIVERIES_BATCH_SIZE)):
+		licenses_util.populate_delivery_details(company_deliveries_chunk, session)
+		deliveries_chunk = [company_delivery_obj.metrc_delivery for company_delivery_obj in company_deliveries_chunk]
+		_write_deliveries(
+			deliveries_chunk, 
+			delivery_id_to_transfer_row_id=delivery_id_to_transfer_row_id,
+			delivery_id_to_delivery_row_id=delivery_id_to_delivery_row_id, 
+			session=session
+		)
+		_write_company_deliveries(
+			company_deliveries_chunk,
+			delivery_id_to_transfer_row_id=delivery_id_to_transfer_row_id,
+			delivery_id_to_delivery_row_id=delivery_id_to_delivery_row_id, 
+			session=session
+		)
+		session.commit()
+
+	## Write packages
+
+	# Find previous packages, update those that previously existed, add rows
+	# that do not exist.
+
+	# Without the following batching logic, we run into SQL timeout errors due to how much
+	# data is in the metrc_packages table, namely the metrc_packages.package_payload column.
+	TRANSFER_PACKAGES_BATCH_SIZE = 10
+
+	for transfer_package_objs_chunk in cast(Iterable[List[TransferPackageObj]], chunker(all_metrc_transfer_package_objs, TRANSFER_PACKAGES_BATCH_SIZE)):
+		_write_transfer_packages(
+			[transfer_package_obj.transfer_package for transfer_package_obj in transfer_package_objs_chunk],
+			package_id_to_delivery_id=package_id_to_delivery_id,
+			delivery_id_to_transfer_row_id=delivery_id_to_transfer_row_id,
+			delivery_id_to_delivery_row_id=delivery_id_to_delivery_row_id,
+			session=session
+		)
+		package_common_util.update_packages_from_transfer_packages(
+			transfer_package_objs_chunk,
+			session=session
+		)
+		session.commit()
 
 	return True, None

@@ -107,8 +107,6 @@ class Packages(object):
 
 		return package_objs
 
-
-
 def download_packages(ctx: metrc_common_util.DownloadContext, session_maker: Callable) -> List[PackageObject]:
 	# NOTE: Sometimes there are a lot of inactive packages to pull for a single day
 	# and this makes it look like the sync is stuck / hanging - could be good to
@@ -179,11 +177,11 @@ def download_packages(ctx: metrc_common_util.DownloadContext, session_maker: Cal
 
 	return package_models
 
-def write_packages(packages_models: List[PackageObject], session_maker: Callable, BATCH_SIZE: int = 50) -> None:
+def write_packages(package_models: List[PackageObject], session_maker: Callable, BATCH_SIZE: int = 50) -> None:
 	batch_index = 1
 
-	batches_count = len(packages_models) // BATCH_SIZE + 1
-	for package_models_chunk in chunker(packages_models, BATCH_SIZE):
+	batches_count = len(package_models) // BATCH_SIZE + 1
+	for package_models_chunk in chunker(package_models, BATCH_SIZE):
 		logging.info(f'Writing packages batch {batch_index} of {batches_count}...')
 		with session_scope(session_maker) as session:
 			packages_chunk = [package.metrc_package for package in package_models_chunk]
@@ -193,3 +191,88 @@ def write_packages(packages_models: List[PackageObject], session_maker: Callable
 			)
 		batch_index += 1
 
+def download_packages_with_session(
+	session: Session,
+	ctx: metrc_common_util.DownloadContext,
+) -> List[PackageObject]:
+	# NOTE: Sometimes there are a lot of inactive packages to pull for a single day
+	# and this makes it look like the sync is stuck / hanging - could be good to
+	# change this logic to use smaller (intraday) time ranges to prevent this.
+	active_packages: List[Dict] = []
+	inactive_packages: List[Dict] = []
+	onhold_packages: List[Dict] = []
+
+	company_details = ctx.company_details
+	cur_date_str = ctx.get_cur_date_str()
+	request_status = ctx.request_status
+	rest = ctx.rest
+
+	try:
+		resp = rest.get('/packages/v1/active', time_range=[cur_date_str])
+		active_packages = json.loads(resp.content)
+		request_status['packages_api'] = 200
+	except errors.Error as e:
+		logging.error(e)
+		metrc_common_util.update_if_all_are_unsuccessful(request_status, 'packages_api', e)
+
+	try:
+		resp = rest.get('/packages/v1/inactive', time_range=[cur_date_str])
+		inactive_packages = json.loads(resp.content)
+		request_status['packages_api'] = 200
+	except errors.Error as e:
+		metrc_common_util.update_if_all_are_unsuccessful(request_status, 'packages_api', e)
+
+	try:
+		resp = rest.get('/packages/v1/onhold', time_range=[cur_date_str])
+		onhold_packages = json.loads(resp.content)
+		request_status['packages_api'] = 200
+	except errors.Error as e:
+		metrc_common_util.update_if_all_are_unsuccessful(request_status, 'packages_api', e)
+
+	active_package_models = Packages(
+		active_packages, PackageType.ACTIVE).filter_new_only(ctx, session).get_models(ctx=ctx)
+	
+	inactive_package_models = Packages(
+		inactive_packages, PackageType.INACTIVE).filter_new_only(ctx, session).get_models(ctx=ctx)
+	
+	onhold_package_models = Packages(
+		onhold_packages, PackageType.ONHOLD).filter_new_only(ctx, session).get_models(ctx=ctx)
+
+	if active_packages:
+		logging.info('Downloaded {} active packages for {} on {}'.format(
+			len(active_package_models), company_details['name'], ctx.cur_date))
+
+	if inactive_packages:
+		logging.info('Downloaded {} inactive packages for {} on {}'.format(
+			len(inactive_package_models), company_details['name'], ctx.cur_date))
+
+	if onhold_packages:
+		logging.info('Downloaded {} on hold packages for {} on {}'.format(
+			len(onhold_package_models), company_details['name'], ctx.cur_date))
+
+	package_models = active_package_models + inactive_package_models + onhold_package_models
+	
+	if not package_models:
+		logging.info('No new packages to write for {} on {}'.format(
+			company_details['name'], ctx.cur_date
+		))
+
+	return package_models
+
+def write_packages_with_session(
+	session: Session,
+	package_models: List[PackageObject],
+	batch_size: int = 50,
+) -> None:
+	batch_index = 1
+
+	batches_count = len(package_models) // batch_size + 1
+	for package_models_chunk in chunker(package_models, batch_size):
+		logging.info(f'Writing packages batch {batch_index} of {batches_count}...')
+		packages_chunk = [package.metrc_package for package in package_models_chunk]
+		package_common_util.update_packages(
+			packages_chunk,
+			session=session,
+		)
+		session.commit()
+		batch_index += 1

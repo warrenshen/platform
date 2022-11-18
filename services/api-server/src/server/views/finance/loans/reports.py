@@ -3,6 +3,7 @@ import json
 from typing import Any, cast, Dict, List
 
 from bespoke import errors
+from bespoke.async_jobs import async_jobs_util
 from bespoke.date import date_util
 from bespoke.db import models, queries
 from bespoke.db.db_constants import AsyncJobNameEnum
@@ -12,7 +13,6 @@ from bespoke.finance.reports import loan_balances
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from server.config import Config
-from server.views import async_jobs_util
 from server.views.common import auth_util, handler_util
 
 handler = Blueprint('finance_loans_reports', __name__)

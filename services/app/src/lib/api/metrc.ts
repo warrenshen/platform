@@ -170,7 +170,7 @@ export async function getTransfersMutation(
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error("error", error);
         return {
           status: "ERROR",
           msg: "Could not get transfers",
@@ -192,10 +192,30 @@ export async function upsertApiKeyMutation(req: {
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error("error", error);
         return {
           status: "ERROR",
           msg: "Could not add api key",
+        };
+      }
+    );
+}
+
+export async function refreshMetrcApiKeyPermissionsMutation(req: {
+  variables: {
+    metrc_api_key_id: string;
+  };
+}): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(metrcRoutes.refreshMetrcApiKeyPermissions, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.error("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not refresh Metrc API key permissions",
         };
       }
     );
@@ -213,7 +233,7 @@ export async function deleteApiKeyMutation(req: {
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error("error", error);
         return {
           status: "ERROR",
           msg: "Could not delete api key",
@@ -233,7 +253,7 @@ export async function viewApiKey(req: {
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error("error", error);
         return {
           status: "ERROR",
           msg: "Could not view api key",
@@ -251,7 +271,7 @@ export async function downloadMetrcDataAllCompanies(req: {
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error("error", error);
         return {
           status: "ERROR",
           msg: "Could not sync metrc data per customer",
@@ -274,7 +294,7 @@ export async function downloadMetrcDataForCompany(req: {
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error("error", error);
         return {
           status: "ERROR",
           msg: "Could not sync metrc data per customer",

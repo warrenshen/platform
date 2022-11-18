@@ -4,10 +4,10 @@ from typing import Any, cast
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 
+from bespoke.async_jobs import async_jobs_util
 from bespoke.db.models import session_scope
 from server.config import Config
 from server.views.common import auth_util, handler_util
-from server.views import async_jobs_util
 
 handler = Blueprint('async_jobs', __name__)
 

@@ -1132,46 +1132,54 @@ export const AsyncJobStatuses = [
 ];
 
 export enum AsyncJobNameEnum {
-  LoansComingDue = "loans_coming_due",
-  LoansPastDue = "loans_past_due",
   AutogenerateRepayments = "autogenerate_repayments",
   AutogenerateRepaymentAlerts = "autogenerate_repayment_alerts",
-  UpdateCompanyBalances = "update_company_balances",
   AutomaticDebitCourtesyAlerts = "automatic_debit_courtesy_alerts",
-  NonLOCMonthlyReportSummary = "non_loc_monthly_report_summary",
-  LOCMonthlyReportSummary = "loc_monthly_report_summary",
-  PurchaseOrdersPastDue = "purchase_orders_past_due",
+  DownloadDataForMetrcApiKeyLicense = "download_data_for_metrc_api_key_license",
   FinancialReportsComingDueAlerts = "financial_reports_coming_due_alerts",
+  LoansComingDue = "loans_coming_due",
+  LoansPastDue = "loans_past_due",
+  LOCMonthlyReportSummary = "loc_monthly_report_summary",
+  NonLOCMonthlyReportSummary = "non_loc_monthly_report_summary",
+  PurchaseOrdersPastDue = "purchase_orders_past_due",
+  RefreshMetrcApiKeyPermissions = "refresh_metrc_api_key_permissions",
+  UpdateCompanyBalances = "update_company_balances",
 }
 
 export const AsyncJobNameEnumToLabel = {
-  [AsyncJobNameEnum.LoansComingDue]: "Loans Coming Due",
-  [AsyncJobNameEnum.LoansPastDue]: "Loans Past Due",
   [AsyncJobNameEnum.AutogenerateRepayments]: "Autogenerate repayments",
   [AsyncJobNameEnum.AutogenerateRepaymentAlerts]:
     "Autogenerate repayment alerts",
-  [AsyncJobNameEnum.UpdateCompanyBalances]: "Update Company Balances",
   [AsyncJobNameEnum.AutomaticDebitCourtesyAlerts]:
     "Automatic Debit Courtesy Alerts",
-  [AsyncJobNameEnum.NonLOCMonthlyReportSummary]:
-    "Non LOC Monthly Report Summary",
-  [AsyncJobNameEnum.LOCMonthlyReportSummary]: "LOC Monthly Report Summary",
-  [AsyncJobNameEnum.PurchaseOrdersPastDue]: "Purchase Orders Past Due",
+  [AsyncJobNameEnum.DownloadDataForMetrcApiKeyLicense]:
+    "Download data for Metrc API Key license",
   [AsyncJobNameEnum.FinancialReportsComingDueAlerts]:
     "Financial Reports Coming Due Alerts",
+  [AsyncJobNameEnum.LoansComingDue]: "Loans Coming Due",
+  [AsyncJobNameEnum.LoansPastDue]: "Loans Past Due",
+  [AsyncJobNameEnum.LOCMonthlyReportSummary]: "LOC Monthly Report Summary",
+  [AsyncJobNameEnum.NonLOCMonthlyReportSummary]:
+    "Non LOC Monthly Report Summary",
+  [AsyncJobNameEnum.PurchaseOrdersPastDue]: "Purchase Orders Past Due",
+  [AsyncJobNameEnum.RefreshMetrcApiKeyPermissions]:
+    "Refresh Metrc API Key Permissions",
+  [AsyncJobNameEnum.UpdateCompanyBalances]: "Update Company Balances",
 };
 
 export const AsyncJobNames = [
-  AsyncJobNameEnum.LoansComingDue,
-  AsyncJobNameEnum.LoansPastDue,
   AsyncJobNameEnum.AutogenerateRepayments,
   AsyncJobNameEnum.AutogenerateRepaymentAlerts,
-  AsyncJobNameEnum.UpdateCompanyBalances,
   AsyncJobNameEnum.AutomaticDebitCourtesyAlerts,
-  AsyncJobNameEnum.NonLOCMonthlyReportSummary,
-  AsyncJobNameEnum.LOCMonthlyReportSummary,
-  AsyncJobNameEnum.PurchaseOrdersPastDue,
+  AsyncJobNameEnum.DownloadDataForMetrcApiKeyLicense,
   AsyncJobNameEnum.FinancialReportsComingDueAlerts,
+  AsyncJobNameEnum.LoansComingDue,
+  AsyncJobNameEnum.LoansPastDue,
+  AsyncJobNameEnum.LOCMonthlyReportSummary,
+  AsyncJobNameEnum.NonLOCMonthlyReportSummary,
+  AsyncJobNameEnum.PurchaseOrdersPastDue,
+  AsyncJobNameEnum.RefreshMetrcApiKeyPermissions,
+  AsyncJobNameEnum.UpdateCompanyBalances,
 ];
 
 export enum VendorChangeRequestsStatusEnum {

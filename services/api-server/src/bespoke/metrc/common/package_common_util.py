@@ -120,7 +120,8 @@ def get_prev_metrc_packages(
 
 def update_packages(
 	packages: List[models.MetrcPackage],
-	session: Session) -> None:
+	session: Session,
+) -> None:
 	package_ids = [package.package_id for package in packages] 
 
 	us_state = packages[0].us_state
@@ -150,7 +151,6 @@ def update_packages(
 			# In some rare cases, a new package may show up twice in the same day.
 			# The following line prevents an attempt to insert a duplicate.
 			package_id_to_prev_package[metrc_package_key] = metrc_package
-			session.flush()
 
 def update_packages_from_sales_transactions(
 	sales_transactions: List[models.MetrcSalesTransaction],

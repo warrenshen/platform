@@ -216,12 +216,13 @@ export const twoFactorRoutes = {
 };
 
 export const metrcRoutes = {
-  getTransfers: "/metrc/get_transfers",
-  upsertApiKey: "/metrc/upsert_api_key",
-  deleteApiKey: "/metrc/delete_api_key",
-  viewApiKey: "/metrc/view_api_key",
   downloadMetrcDataForCompany: "/metrc/download_metrc_data_for_company",
   downloadMetrcDataAllCompanies: "/metrc/download_metrc_data_all_companies",
+  deleteApiKey: "/metrc/delete_api_key",
+  getTransfers: "/metrc/get_transfers",
+  refreshMetrcApiKeyPermissions: "/metrc/refresh_metrc_api_key_permissions",
+  upsertApiKey: "/metrc/upsert_api_key",
+  viewApiKey: "/metrc/view_api_key",
 };
 
 export const reportsRoutes = {

@@ -1,10 +1,11 @@
 import { Box } from "@material-ui/core";
 import { GridValueFormatterParams } from "@material-ui/data-grid";
 import { Alert } from "@material-ui/lab";
+import DeleteMetrcKeyModal from "components/Metrc/DeleteMetrcKeyModal";
 import MetrcApiKeyDrawer from "components/Metrc/MetrcApiKeyDrawer";
 import MetrcApiKeyInfo from "components/Metrc/MetrcApiKeyInfo";
-import DeleteMetrcKeyModal from "components/Settings/Bank/DeleteMetrcKeyModal";
-import UpsertMetrcKeyModal from "components/Settings/Bank/UpsertMetrcKeyModal";
+import RefreshMetrcKeyPermissionsModal from "components/Metrc/RefreshMetrcKeyPermissionsModal";
+import UpsertMetrcKeyModal from "components/Metrc/UpsertMetrcKeyModal";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import DatetimeDataGridCell from "components/Shared/DataGrid/DatetimeDataGridCell";
 import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
@@ -16,6 +17,7 @@ import {
   MetrcApiKeys,
   useGetMetrcApiKeysByCompanyIdQuery,
 } from "generated/graphql";
+import { formatDatetimeString } from "lib/date";
 import { ColumnWidths, formatRowModel } from "lib/tables";
 import { useMemo, useState } from "react";
 
@@ -29,6 +31,16 @@ function getRows(metrcApiKeys: MetrcApiKeyFragment[]) {
       ...metrcApiKey,
       number: index + 1,
       is_functioning: !!metrcApiKey.is_functioning,
+      permissions_refreshed_at: formatDatetimeString(
+        metrcApiKey.permissions_refreshed_at,
+        true,
+        "Never"
+      ),
+      last_used_at: formatDatetimeString(
+        metrcApiKey.last_used_at,
+        true,
+        "Never"
+      ),
     })
   );
 }
@@ -72,26 +84,20 @@ export default function MetrcApiKeysList({ companyId }: Props) {
         ),
       },
       {
-        dataField: "use_saved_licenses_only",
-        caption: "Sync Linked Licenses Only?",
-        width: ColumnWidths.Checkbox,
-      },
-      {
         dataField: "is_functioning",
-        caption: "Functioning?",
+        caption: "Is Working?",
         alignment: "center",
         width: ColumnWidths.Checkbox,
       },
       {
+        dataField: "permissions_refreshed_at",
+        caption: "Last Refreshed At",
+        width: ColumnWidths.Datetime,
+      },
+      {
         dataField: "last_used_at",
-        caption: "Last Functioning At",
-        minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: GridValueFormatterParams) => (
-          <DatetimeDataGridCell
-            isTimeVisible
-            datetimeString={params.row.data.last_used_at}
-          />
-        ),
+        caption: "Last Used At",
+        width: ColumnWidths.Datetime,
       },
       {
         dataField: "created_at",
@@ -175,6 +181,21 @@ export default function MetrcApiKeysList({ companyId }: Props) {
                 <UpsertMetrcKeyModal
                   companyId={companyId}
                   metrcApiKey={selectedMetrcApiKey}
+                  handleClose={() => {
+                    handleClose();
+                    refetch();
+                  }}
+                />
+              )}
+            />
+          </Box>
+          <Box mr={2}>
+            <ModalButton
+              isDisabled={selectedMetrcKeyIds.length !== 1}
+              label={"Refresh API Key"}
+              modal={({ handleClose }) => (
+                <RefreshMetrcKeyPermissionsModal
+                  metrcApiKeyId={selectedMetrcApiKey?.id}
                   handleClose={() => {
                     handleClose();
                     refetch();

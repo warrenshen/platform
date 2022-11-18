@@ -182,3 +182,65 @@ def write_plant_batches(plant_batches_models: List[PlantBatchObj], session_maker
 			_write_plant_batches_chunk(chunk, session)
 		batch_index += 1
 
+def download_plant_batches_with_session(
+	session: Session,
+	ctx: metrc_common_util.DownloadContext,
+) -> List[PlantBatchObj]:
+	active_batches: List[Dict] = []
+	inactive_batches: List[Dict] = []
+
+	company_details = ctx.company_details
+	cur_date_str = ctx.get_cur_date_str()
+	request_status = ctx.request_status
+	rest = ctx.rest
+
+	try:
+		resp = rest.get('/plantbatches/v1/active', time_range=[cur_date_str])
+		active_batches = json.loads(resp.content)
+		request_status['plant_batches_api'] = 200
+	except errors.Error as e:
+		metrc_common_util.update_if_all_are_unsuccessful(request_status, 'plant_batches_api', e)
+
+	try:
+		resp = rest.get('/plantbatches/v1/inactive', time_range=[cur_date_str])
+		inactive_batches = json.loads(resp.content)
+		request_status['plant_batches_api'] = 200
+	except errors.Error as e:
+		metrc_common_util.update_if_all_are_unsuccessful(request_status, 'plant_batches_api', e)
+
+	inactive_plant_batch_models = PlantBatches(inactive_batches, 'inactive').filter_new_only(
+		ctx, session).get_models(ctx=ctx)
+
+	active_plant_batch_models = PlantBatches(active_batches, 'active').filter_new_only(
+		ctx, session).get_models(ctx=ctx)
+
+	if inactive_batches:
+		logging.info('Downloaded {} inactive batches for {} on {}'.format(
+			len(inactive_batches), company_details['name'], ctx.cur_date))
+
+	if active_batches:
+		logging.info('Downloaded {} inactive batches for {} on {}'.format(
+			len(active_batches), company_details['name'], ctx.cur_date))
+
+	batch_models = inactive_plant_batch_models + active_plant_batch_models
+
+	if not batch_models:
+		logging.info('No new plant batches to write for {} on {}'.format(
+			company_details['name'], ctx.cur_date
+		))
+
+	return batch_models
+
+def write_plant_batches_with_session(
+	session: Session,
+	plant_batches_models: List[PlantBatchObj],
+	batch_size: int = 50,
+) -> None:
+	batch_index = 1
+
+	batches_count = len(plant_batches_models) // batch_size + 1
+	for chunk in chunker(plant_batches_models, batch_size):
+		logging.info(f'Writing plant batches - batch {batch_index} of {batches_count}...')
+		_write_plant_batches_chunk(chunk, session)
+		session.commit()
+		batch_index += 1

@@ -7,9 +7,10 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Callable, Dict, List, Optional, Tuple, cast
 
 from bespoke import errors
+from bespoke.async_jobs import async_jobs_util
 from bespoke.config.config_util import MetrcAuthProvider, MetrcWorkerConfig
 from bespoke.date import date_util
-from bespoke.db import models
+from bespoke.db import models, queries
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from bespoke.metrc import (
@@ -26,6 +27,7 @@ from bespoke.metrc.common.metrc_common_util import (
 )
 from bespoke.security import security_util
 from mypy_extensions import TypedDict
+from sqlalchemy.orm.session import Session
 
 DownloadDataRespDict = TypedDict('DownloadDataRespDict', {
 	'success': bool,
@@ -440,158 +442,46 @@ def download_data_for_one_customer(
 		session_maker=session_maker,
 	)
 
-def _download_data_for_metrc_api_key_for_date(
-	session_maker: Callable,
-	worker_cfg: MetrcWorkerConfig,
-	apis_to_use: Optional[metrc_common_util.ApisToUseDict],
-	metrc_api_key_data_fetcher: metrc_common_util.MetrcApiKeyDataFetcher,
-	date: datetime.date,
-) -> Tuple[DownloadDataForMetrcApiKeyForDateRespDict, errors.Error]:
-	all_nonblocking_download_errors: List[errors.Error] = []
-
-	logging.info(f'Downloading data for date {date}...')
-	metrc_api_key_permissions = metrc_api_key_data_fetcher.get_metrc_api_key_permissions()
-	with ThreadPoolExecutor(max_workers=worker_cfg.num_parallel_licenses) as executor:
-		future_to_ctx = {}
-		for license_permissions_payload in metrc_api_key_permissions:
-			license_number = license_permissions_payload['license_number']
-			logging.info(f'Downloading data for date {date} and license {license_number}...')
-			company_details = metrc_common_util.CompanyDetailsDict(
-				company_id=metrc_api_key_data_fetcher.metrc_api_key_dict['company_id'],
-				name='',
-			)
-			ctx = metrc_common_util.DownloadContext(
-				sendgrid_client=None,
-				worker_cfg=worker_cfg,
-				cur_date=date,
-				company_details=company_details,
-				apis_to_use=apis_to_use,
-				license_auth=metrc_common_util.LicenseAuthDict(
-					license_id='',
-					license_number=license_number,
-					us_state=metrc_api_key_data_fetcher.metrc_api_key_dict['us_state'],
-					vendor_key=metrc_api_key_data_fetcher.auth_dict['vendor_key'],
-					user_key=metrc_api_key_data_fetcher.auth_dict['user_key'],
-				),
-				debug=False,
-			)
-
-			future_to_ctx[
-				executor.submit(
-					_download_and_summarize_data_for_license,
-					session_maker=session_maker,
-					ctx=ctx,
-					metrc_api_key_id=metrc_api_key_data_fetcher.metrc_api_key_dict['id'],
-					license_permissions_dict=cast(
-						metrc_common_util.LicensePermissionsDict,
-						license_permissions_payload,
-					),
-				)
-			] = ctx
-
-			for future in concurrent.futures.as_completed(future_to_ctx):
-				ctx = future_to_ctx[future]
-				api_status_dict, err = future.result()
-				# if err:
-				# 	errs.append(err)
-
-	return DownloadDataRespDict(
-		success=True,
-		nonblocking_download_errors=all_nonblocking_download_errors,
-	), None
-
-# Download data for key for date range
-# 1. Check the licenses key has access to
-# 2. Check the permissions the key has access to for each license
-# 3. Save the results from 1 and 2
-# 4. For each license and each date in date range
-#   a. If download was previously done for license and date with greater than
-#      or equal to permissions vs current permissions, skip download
-#   b. Otherwise, run download for license and date
 @errors.return_error_tuple
-def download_data_for_metrc_api_key_in_date_range(
-	session_maker: Callable,
-	worker_cfg: MetrcWorkerConfig,
+def refresh_metrc_api_key_permissions(
+	session: Session,
 	security_cfg: security_util.ConfigDict,
-	apis_to_use: Optional[metrc_common_util.ApisToUseDict],
-	metrc_api_key_dict: models.MetrcApiKeyDict,
-	start_date: datetime.date,
-	end_date: datetime.date,
-) -> Tuple[DownloadDataForMetrcApiKeyInDateRangeRespDict, errors.Error]:
-	metrc_api_key_data_fetcher = metrc_common_util.MetrcApiKeyDataFetcher(
-		metrc_api_key_dict=metrc_api_key_dict,
-		security_cfg=security_cfg,
-	)
-
-	metrc_api_key_permissions = metrc_api_key_data_fetcher.get_metrc_api_key_permissions()
-
-	with session_scope(session_maker) as session:
-		metrc_api_key = cast(
-			models.MetrcApiKey,
-			session.query(models.MetrcApiKey).filter(
-				models.MetrcApiKey.id == metrc_api_key_dict['id']
-		).first())
-
-		# Mark this Metrc API key as functioning.
-		if not metrc_api_key:
-			return DownloadDataForMetrcApiKeyInDateRangeRespDict(
-				success=False,
-				nonblocking_download_errors=[],
-			), errors.Error('Metrc API key does not exist')
-
-		if metrc_api_key_data_fetcher.facilities_json:
-			metrc_api_key.is_functioning = True
-			metrc_api_key.last_used_at = date_util.now()
-			metrc_api_key.facilities_payload = cast(Dict, metrc_api_key_data_fetcher.facilities_json)
-			metrc_api_key.permissions_payload = metrc_api_key_permissions
-		else:
-			metrc_api_key.is_functioning = False
-			metrc_api_key.facilities_payload = None
-			metrc_api_key.permissions_payload = None
-
-			# Short circuit return since the Metrc API key is not working.
-			return DownloadDataForMetrcApiKeyInDateRangeRespDict(
-				success=True,
-				nonblocking_download_errors=[errors.Error('Metc API key is not valid')],
-			), None
-
-	all_nonblocking_download_errors = []
-
-	cur_date = start_date
-	while cur_date <= end_date:
-		current_date_response, err = _download_data_for_metrc_api_key_for_date(
-			session_maker=session_maker,
-			worker_cfg=worker_cfg,
-			apis_to_use=apis_to_use,
-			metrc_api_key_data_fetcher=metrc_api_key_data_fetcher,
-			date=cur_date,
-		)
-
-		if not current_date_response['success']:
-			return DownloadDataForMetrcApiKeyInDateRangeRespDict(
-				success=False,
-				nonblocking_download_errors=all_nonblocking_download_errors,
-			), errors.Error('{}'.format(err))
-		else:
-			nonblocking_download_errors = current_date_response['nonblocking_download_errors']
-
-		cur_date = cur_date + datetime.timedelta(days=1)
-
-	return DownloadDataForMetrcApiKeyInDateRangeRespDict(
-		success=True,
-		nonblocking_download_errors=all_nonblocking_download_errors,
-	), None
-
-@errors.return_error_tuple
-def check_permissions_for_metrc_api_key(
-	security_cfg: security_util.ConfigDict,
-	metrc_api_key_dict: models.MetrcApiKeyDict,
+	metrc_api_key_id: str,
 ) -> Tuple[bool, errors.Error]:
+	metrc_api_key, err = queries.get_metrc_api_key_by_id(
+		session=session,
+		metrc_api_key_id=metrc_api_key_id,
+	)
+
+	if err:
+		return False, errors.Error('Metrc API key does not exist')
+
+	metrc_api_key_dict = metrc_api_key.as_dict()
+
 	metrc_api_key_data_fetcher = metrc_common_util.MetrcApiKeyDataFetcher(
 		metrc_api_key_dict=metrc_api_key_dict,
 		security_cfg=security_cfg,
 	)
 
 	metrc_api_key_permissions = metrc_api_key_data_fetcher.get_metrc_api_key_permissions()
+
+	if not metrc_api_key_data_fetcher.facilities_json:
+		metrc_api_key.is_functioning = False
+		metrc_api_key.permissions_refreshed_at = date_util.now()
+		metrc_api_key.permissions_payload = None
+		return True, None
+
+	metrc_api_key.is_functioning = True
+	metrc_api_key.permissions_refreshed_at = date_util.now()
+	metrc_api_key.permissions_payload = metrc_api_key_permissions
+
+	success, err = async_jobs_util.generate_download_data_for_metrc_api_key_license_jobs(
+		session=session,
+		metrc_api_key_id=metrc_api_key_dict['id'],
+		metrc_api_key_permissions=metrc_api_key_permissions,
+	)
+
+	if err:
+		return False, err
 
 	return True, None

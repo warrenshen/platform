@@ -7358,6 +7358,8 @@ export type CustomerSurveillanceResultsBoolExp = {
 /** unique or primary key constraints on table "customer_surveillance_results" */
 export enum CustomerSurveillanceResultsConstraint {
   /** unique or primary key constraint */
+  CompanyProductQualificationsCompanyIdQualifyingDateKey = "company_product_qualifications_company_id_qualifying_date_key",
+  /** unique or primary key constraint */
   CompanyProductQualificationsPkey = "company_product_qualifications_pkey",
 }
 
@@ -13010,6 +13012,7 @@ export type MetrcApiKeys = {
   /** An aggregate relationship */
   metrc_download_summaries_aggregate: MetrcDownloadSummariesAggregate;
   permissions_payload?: Maybe<Scalars["json"]>;
+  permissions_refreshed_at?: Maybe<Scalars["timestamptz"]>;
   status_codes_payload?: Maybe<Scalars["json"]>;
   updated_at: Scalars["timestamptz"];
   us_state?: Maybe<Scalars["String"]>;
@@ -13098,6 +13101,7 @@ export type MetrcApiKeysBoolExp = {
   last_used_at?: Maybe<TimestamptzComparisonExp>;
   metrc_download_summaries?: Maybe<MetrcDownloadSummariesBoolExp>;
   permissions_payload?: Maybe<JsonComparisonExp>;
+  permissions_refreshed_at?: Maybe<TimestamptzComparisonExp>;
   status_codes_payload?: Maybe<JsonComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
   us_state?: Maybe<StringComparisonExp>;
@@ -13123,6 +13127,7 @@ export type MetrcApiKeysInsertInput = {
   last_used_at?: Maybe<Scalars["timestamptz"]>;
   metrc_download_summaries?: Maybe<MetrcDownloadSummariesArrRelInsertInput>;
   permissions_payload?: Maybe<Scalars["json"]>;
+  permissions_refreshed_at?: Maybe<Scalars["timestamptz"]>;
   status_codes_payload?: Maybe<Scalars["json"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   us_state?: Maybe<Scalars["String"]>;
@@ -13137,6 +13142,7 @@ export type MetrcApiKeysMaxFields = {
   hashed_key?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
   last_used_at?: Maybe<Scalars["timestamptz"]>;
+  permissions_refreshed_at?: Maybe<Scalars["timestamptz"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   us_state?: Maybe<Scalars["String"]>;
 };
@@ -13149,6 +13155,7 @@ export type MetrcApiKeysMaxOrderBy = {
   hashed_key?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   last_used_at?: Maybe<OrderBy>;
+  permissions_refreshed_at?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   us_state?: Maybe<OrderBy>;
 };
@@ -13161,6 +13168,7 @@ export type MetrcApiKeysMinFields = {
   hashed_key?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
   last_used_at?: Maybe<Scalars["timestamptz"]>;
+  permissions_refreshed_at?: Maybe<Scalars["timestamptz"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   us_state?: Maybe<Scalars["String"]>;
 };
@@ -13173,6 +13181,7 @@ export type MetrcApiKeysMinOrderBy = {
   hashed_key?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   last_used_at?: Maybe<OrderBy>;
+  permissions_refreshed_at?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   us_state?: Maybe<OrderBy>;
 };
@@ -13212,6 +13221,7 @@ export type MetrcApiKeysOrderBy = {
   last_used_at?: Maybe<OrderBy>;
   metrc_download_summaries_aggregate?: Maybe<MetrcDownloadSummariesAggregateOrderBy>;
   permissions_payload?: Maybe<OrderBy>;
+  permissions_refreshed_at?: Maybe<OrderBy>;
   status_codes_payload?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   us_state?: Maybe<OrderBy>;
@@ -13246,6 +13256,8 @@ export enum MetrcApiKeysSelectColumn {
   /** column name */
   PermissionsPayload = "permissions_payload",
   /** column name */
+  PermissionsRefreshedAt = "permissions_refreshed_at",
+  /** column name */
   StatusCodesPayload = "status_codes_payload",
   /** column name */
   UpdatedAt = "updated_at",
@@ -13267,6 +13279,7 @@ export type MetrcApiKeysSetInput = {
   is_functioning?: Maybe<Scalars["Boolean"]>;
   last_used_at?: Maybe<Scalars["timestamptz"]>;
   permissions_payload?: Maybe<Scalars["json"]>;
+  permissions_refreshed_at?: Maybe<Scalars["timestamptz"]>;
   status_codes_payload?: Maybe<Scalars["json"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   us_state?: Maybe<Scalars["String"]>;
@@ -13295,6 +13308,8 @@ export enum MetrcApiKeysUpdateColumn {
   LastUsedAt = "last_used_at",
   /** column name */
   PermissionsPayload = "permissions_payload",
+  /** column name */
+  PermissionsRefreshedAt = "permissions_refreshed_at",
   /** column name */
   StatusCodesPayload = "status_codes_payload",
   /** column name */
@@ -31562,6 +31577,7 @@ export type MetrcApiKeyLimitedFragment = Pick<
   | "id"
   | "created_at"
   | "updated_at"
+  | "permissions_refreshed_at"
   | "last_used_at"
   | "is_functioning"
   | "status_codes_payload"
@@ -33248,6 +33264,7 @@ export const MetrcApiKeyLimitedFragmentDoc = gql`
     id
     created_at
     updated_at
+    permissions_refreshed_at
     last_used_at
     is_functioning
     status_codes_payload

@@ -156,7 +156,8 @@ def download_harvests(ctx: metrc_common_util.DownloadContext, session_maker: Cal
 
 def _write_harvests_chunk(
 	harvests: List[HarvestObj],
-	session: Session) -> None:
+	session: Session,
+) -> None:
 
 	key_to_harvest = {}
 	harvest_ids = [harvest.metrc_harvest.harvest_id for harvest in harvests]
@@ -197,3 +198,79 @@ def write_harvests(harvests_models: List[HarvestObj], session_maker: Callable, B
 			_write_harvests_chunk(chunk, session)
 		batch_index += 1
 
+def download_harvests_with_session(
+	session: Session,
+	ctx: metrc_common_util.DownloadContext,
+) -> List[HarvestObj]:
+	active_harvests: List[Dict] = []
+	inactive_harvests: List[Dict] = []
+	onhold_harvests: List[Dict] = []
+
+	company_details = ctx.company_details
+	cur_date_str = ctx.get_cur_date_str()
+	request_status = ctx.request_status
+	rest = ctx.rest
+
+	try:
+		resp = rest.get('/harvests/v1/inactive', time_range=[cur_date_str])
+		inactive_harvests = json.loads(resp.content)
+		request_status['receipts_api'] = 200
+	except errors.Error as e:
+		request_status['receipts_api'] = e.details.get('status_code')
+
+	try:
+		resp = rest.get('/harvests/v1/active', time_range=[cur_date_str])
+		active_harvests = json.loads(resp.content)
+		request_status['receipts_api'] = 200
+	except errors.Error as e:
+		request_status['receipts_api'] = e.details.get('status_code')
+
+	try:
+		resp = rest.get('/harvests/v1/onhold', time_range=[cur_date_str])
+		onhold_harvests = json.loads(resp.content)
+		request_status['receipts_api'] = 200
+	except errors.Error as e:
+		request_status['receipts_api'] = e.details.get('status_code')
+
+	active_harvests_models = Harvests(active_harvests, 'active').filter_new_only(
+		ctx, session).get_models(ctx=ctx)
+
+	inactive_harvests_models = Harvests(inactive_harvests, 'inactive').filter_new_only(
+		ctx, session).get_models(ctx=ctx)
+
+	onhold_harvests_models = Harvests(onhold_harvests, 'onhold').filter_new_only(
+		ctx, session).get_models(ctx=ctx)
+
+	if active_harvests:
+		logging.info('Downloaded {} active harvests for {} on {}'.format(
+			len(active_harvests), company_details['name'], ctx.cur_date))
+
+	if inactive_harvests:
+		logging.info('Downloaded {} inactive harvests for {} on {}'.format(
+			len(inactive_harvests), company_details['name'], ctx.cur_date))
+
+	if onhold_harvests:
+		logging.info('Downloaded {} onhold harvests for {} on {}'.format(
+			len(onhold_harvests), company_details['name'], ctx.cur_date))
+
+	harvest_models = active_harvests_models + inactive_harvests_models + onhold_harvests_models
+	if not harvest_models:
+		logging.info('No new harvests to write for {} on {}'.format(
+			company_details['name'], ctx.cur_date
+		))
+
+	return harvest_models
+
+def write_harvests_with_session(
+	session: Session,
+	harvest_models: List[HarvestObj],
+	batch_size: int = 50,
+) -> None:
+	batch_index = 1
+
+	batches_count = len(harvest_models) // batch_size + 1
+	for chunk in chunker(harvest_models, batch_size):
+		logging.info(f'Writing harvests - batch {batch_index} of {batches_count}...')
+		_write_harvests_chunk(chunk, session)
+		session.commit()
+		batch_index += 1
