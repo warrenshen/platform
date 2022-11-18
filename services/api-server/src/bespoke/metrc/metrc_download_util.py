@@ -25,6 +25,7 @@ from sqlalchemy.orm.session import Session
 
 DownloadDataRespDict = TypedDict('DownloadDataRespDict', {
 	'success': bool,
+	'is_previously_successful': bool,
 	'nonblocking_download_errors': List[errors.Error],
 })
 
@@ -173,12 +174,11 @@ def _download_data_for_metrc_api_key_license_for_date(
 		debug=False,
 	)
 
-	logging.info(f'Downloading data for license number {license_number} and date {date}...')
-
 	today = date_util.now_as_date()
 	if date >= today:
 		return DownloadDataRespDict(
 			success=False,
+			is_previously_successful=False, # It is not possible for a previous download to be successful.
 			nonblocking_download_errors=all_nonblocking_download_errors
 		), errors.Error('Date is today or in the future, which is invalid')
 
@@ -190,11 +190,14 @@ def _download_data_for_metrc_api_key_license_for_date(
 		new_license_permissions_dict=license_permissions_dict,
 	)
 	if is_previously_successful:
-		logging.info(f'Download for license number {license_number} and date {date} was previously successful')
+		logging.info(f'Download data for license number {license_number} and date {date} was previously successful')
 		return DownloadDataRespDict(
 			success=True,
+			is_previously_successful=True,
 			nonblocking_download_errors=all_nonblocking_download_errors,
 		), None
+
+	logging.info(f'Downloading data for license number {license_number} and date {date}...')
 
 	api_status_dict = None
 	err = None
@@ -226,6 +229,7 @@ def _download_data_for_metrc_api_key_license_for_date(
 
 	return DownloadDataRespDict(
 		success=True,
+		is_previously_successful=False,
 		nonblocking_download_errors=all_nonblocking_download_errors,
 	), None
 

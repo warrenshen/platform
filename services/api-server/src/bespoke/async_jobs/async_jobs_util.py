@@ -1361,7 +1361,7 @@ def run_download_data_for_metrc_api_key_license_job(
 	license_number = job_payload["license_number"]
 
 	end_date = date_util.now_as_date() - datetime.timedelta(days=1) # End date is yesterday.
-	start_date = end_date - datetime.timedelta(days=7)
+	start_date = end_date - datetime.timedelta(days=cfg.DOWNLOAD_METRC_DATA_DAYS)
 
 	response, err = metrc_download_util.download_data_for_metrc_api_key_license_in_date_range(
 		session=session,

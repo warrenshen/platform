@@ -114,6 +114,10 @@ class Config(object):
 		)
 		self.ASYNC_JOB_SLACK_URL = os.environ.get('ASYNC_JOB_SLACK_URL')
 
+		# Metrc
+		# Number of historical days of data to download Metrc data for, relative to today.
+		self.DOWNLOAD_METRC_DATA_DAYS = int(os.environ.get('DOWNLOAD_METRC_DATA_DAYS')) if os.environ.get('DOWNLOAD_METRC_DATA_DAYS') else 7
+
 	def get_security_config(self) -> security_util.ConfigDict:
 		return security_util.ConfigDict(
 			URL_SECRET_KEY=self.URL_SECRET_KEY,
