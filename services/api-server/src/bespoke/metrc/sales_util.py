@@ -398,7 +398,7 @@ def _write_inactive_sales_info(
 		sales_receipt_models = get_sales_receipt_models(
 			receipt_type='inactive',
 			start_i=i,
-			cur_sales_receipts=sales_dicts_chunk, 
+			cur_sales_receipts=sales_dicts_chunk,
 			ctx=ctx,
 		)
 
@@ -427,7 +427,7 @@ def _write_active_sales_info(
 		sales_receipt_models = get_sales_receipt_models(
 			receipt_type='active',
 			start_i=i,
-			cur_sales_receipts=sales_dicts_chunk, 
+			cur_sales_receipts=sales_dicts_chunk,
 			ctx=ctx,
 		)
 

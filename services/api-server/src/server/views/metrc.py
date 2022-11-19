@@ -39,7 +39,7 @@ class RefreshMetrcApiKeyPermissions(MethodView):
 		with session_scope(current_app.session_maker) as session:
 			_, err = metrc_util.refresh_metrc_api_key_permissions(
 				session=session,
-				security_cfg=cfg.get_security_config(),
+				config=cfg,
 				metrc_api_key_id=form['metrc_api_key_id'],
 			)
 			if err:

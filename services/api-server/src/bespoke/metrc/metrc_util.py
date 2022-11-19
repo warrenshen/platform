@@ -27,6 +27,7 @@ from bespoke.metrc.common.metrc_common_util import (
 )
 from bespoke.security import security_util
 from mypy_extensions import TypedDict
+from server.config import Config
 from sqlalchemy.orm.session import Session
 
 DownloadDataRespDict = TypedDict('DownloadDataRespDict', {
@@ -445,7 +446,7 @@ def download_data_for_one_customer(
 @errors.return_error_tuple
 def refresh_metrc_api_key_permissions(
 	session: Session,
-	security_cfg: security_util.ConfigDict,
+	config: Config,
 	metrc_api_key_id: str,
 ) -> Tuple[bool, errors.Error]:
 	metrc_api_key, err = queries.get_metrc_api_key_by_id(
@@ -457,6 +458,7 @@ def refresh_metrc_api_key_permissions(
 		return False, errors.Error('Metrc API key does not exist')
 
 	metrc_api_key_dict = metrc_api_key.as_dict()
+	security_cfg = config.get_security_config()
 
 	metrc_api_key_data_fetcher = metrc_common_util.MetrcApiKeyDataFetcher(
 		metrc_api_key_dict=metrc_api_key_dict,
@@ -475,8 +477,9 @@ def refresh_metrc_api_key_permissions(
 	metrc_api_key.permissions_refreshed_at = date_util.now()
 	metrc_api_key.permissions_payload = metrc_api_key_permissions
 
-	success, err = async_jobs_util.generate_download_data_for_metrc_api_key_license_jobs(
+	success, err = async_jobs_util.generate_download_data_for_metrc_api_key_license_jobs_by_metrc_api_key_permissions(
 		session=session,
+		cfg=config,
 		metrc_api_key_id=metrc_api_key_dict['id'],
 		metrc_api_key_permissions=metrc_api_key_permissions,
 	)

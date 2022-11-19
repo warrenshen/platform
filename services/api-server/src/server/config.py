@@ -116,7 +116,7 @@ class Config(object):
 
 		# Metrc
 		# Number of historical days of data to download Metrc data for, relative to today.
-		self.DOWNLOAD_METRC_DATA_DAYS = int(os.environ.get('DOWNLOAD_METRC_DATA_DAYS')) if os.environ.get('DOWNLOAD_METRC_DATA_DAYS') else 7
+		self.DOWNLOAD_METRC_DATA_DAYS = int(os.environ.get('DOWNLOAD_METRC_DATA_DAYS')) if os.environ.get('DOWNLOAD_METRC_DATA_DAYS') else 14
 
 	def get_security_config(self) -> security_util.ConfigDict:
 		return security_util.ConfigDict(

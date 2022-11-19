@@ -1309,13 +1309,12 @@ def automatic_debit_courtesy_alerts_job(
 
 # This method is NOT invoked by a daily cron job.
 @errors.return_error_tuple
-def generate_download_data_for_metrc_api_key_license_jobs(
+def generate_download_data_for_metrc_api_key_license_jobs_by_metrc_api_key_permissions(
 	session: Session,
+	cfg: Config,
 	metrc_api_key_id: str,
 	metrc_api_key_permissions: metrc_common_util.MetrcApiKeyPermissions,
 ) -> Tuple[bool, errors.Error]:
-	cfg = cast(Config, current_app.app_config)
-
 	# Query for currently active jobs to prevent doing duplicate work.
 	currently_active_jobs = cast(
 		List[models.AsyncJob],
@@ -1350,6 +1349,28 @@ def generate_download_data_for_metrc_api_key_license_jobs(
 
 	return True, None
 
+# This method is NOT invoked by a daily cron job.
+@errors.return_error_tuple
+def generate_download_data_for_metrc_api_key_license_job_by_license_number(
+	session: Session,
+	cfg: Config,
+	metrc_api_key_id: str,
+	license_number: str,
+) -> Tuple[bool, errors.Error]:
+	job_payload = {
+		"metrc_api_key_id": metrc_api_key_id,
+		"license_number": license_number,
+	}
+	add_job_to_queue(
+		session=session,
+		job_name=AsyncJobNameEnum.DOWNLOAD_DATA_FOR_METRC_API_KEY_LICENSE,
+		submitted_by_user_id=cfg.BOT_USER_ID,
+		is_high_priority=False,
+		job_payload=job_payload,
+	)
+
+	return True, None
+
 @errors.return_error_tuple
 def run_download_data_for_metrc_api_key_license_job(
 	session: Session,
@@ -1365,13 +1386,13 @@ def run_download_data_for_metrc_api_key_license_job(
 
 	response, err = metrc_download_util.download_data_for_metrc_api_key_license_in_date_range(
 		session=session,
-		worker_cfg=cfg.get_metrc_worker_config(),
-		security_cfg=cfg.get_security_config(),
+		config=cfg,
 		apis_to_use=None,
 		metrc_api_key_id=metrc_api_key_id,
 		license_number=license_number,
 		start_date=start_date,
 		end_date=end_date,
+		is_async_job=True,
 	)
 
 	if err:
@@ -1422,7 +1443,7 @@ def run_refresh_metrc_api_key_permissions_job(
 
 	success, err = metrc_util.refresh_metrc_api_key_permissions(
 		session=session,
-		security_cfg=cfg.get_security_config(),
+		config=cfg,
 		metrc_api_key_id=metrc_api_key_id,
 	)
 	if err:

@@ -151,17 +151,13 @@ def main(
 		with session_scope(session_maker) as session:
 			resp, fatal_err = metrc_download_util.download_data_for_metrc_api_key_license_in_date_range(
 				session=session,
-				worker_cfg=MetrcWorkerConfig(
-					force_fetch_missing_sales_transactions=force_fetch_missing_sales_transactions,
-					num_parallel_licenses=num_parallel_licenses,
-					num_parallel_sales_transactions=num_parallel_sales_transactions,
-				),
-				security_cfg=config.get_security_config(),
+				config=config,
 				apis_to_use=apis_to_use,
 				metrc_api_key_id=metrc_api_key_id,
 				license_number=license_number,
 				start_date=parsed_start_date,
 				end_date=parsed_end_date,
+				is_async_job=False,
 			)
 
 	if fatal_err:

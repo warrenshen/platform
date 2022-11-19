@@ -5,6 +5,7 @@ import traceback
 from typing import Dict, List, Optional, Tuple, cast
 
 from bespoke import errors
+from bespoke.async_jobs import async_jobs_util
 from bespoke.config.config_util import MetrcWorkerConfig
 from bespoke.date import date_util
 from bespoke.db import queries
@@ -19,18 +20,13 @@ from bespoke.metrc.common.metrc_error_util import (
 from bespoke.metrc.common.metrc_common_util import (
 	MetrcErrorDetailsDict
 )
-from bespoke.security import security_util
 from mypy_extensions import TypedDict
+from server.config import Config
 from sqlalchemy.orm.session import Session
-
-DownloadDataRespDict = TypedDict('DownloadDataRespDict', {
-	'success': bool,
-	'is_previously_successful': bool,
-	'nonblocking_download_errors': List[errors.Error],
-})
 
 DownloadDataForMetrcApiKeyForDateRespDict = TypedDict('DownloadDataForMetrcApiKeyForDateRespDict', {
 	'success': bool,
+	'is_previously_successful': bool,
 	'nonblocking_download_errors': List[errors.Error],
 })
 
@@ -176,7 +172,7 @@ def _download_data_for_metrc_api_key_license_for_date(
 
 	today = date_util.now_as_date()
 	if date >= today:
-		return DownloadDataRespDict(
+		return DownloadDataForMetrcApiKeyForDateRespDict(
 			success=False,
 			is_previously_successful=False, # It is not possible for a previous download to be successful.
 			nonblocking_download_errors=all_nonblocking_download_errors
@@ -191,7 +187,7 @@ def _download_data_for_metrc_api_key_license_for_date(
 	)
 	if is_previously_successful:
 		logging.info(f'Download data for license number {license_number} and date {date} was previously successful')
-		return DownloadDataRespDict(
+		return DownloadDataForMetrcApiKeyForDateRespDict(
 			success=True,
 			is_previously_successful=True,
 			nonblocking_download_errors=all_nonblocking_download_errors,
@@ -227,7 +223,7 @@ def _download_data_for_metrc_api_key_license_for_date(
 		metrc_api_key_id=metrc_api_key_data_fetcher.get_metrc_api_key_id(),
 	)
 
-	return DownloadDataRespDict(
+	return DownloadDataForMetrcApiKeyForDateRespDict(
 		success=True,
 		is_previously_successful=False,
 		nonblocking_download_errors=all_nonblocking_download_errors,
@@ -244,13 +240,13 @@ def _download_data_for_metrc_api_key_license_for_date(
 @errors.return_error_tuple
 def download_data_for_metrc_api_key_license_in_date_range(
 	session: Session,
-	worker_cfg: MetrcWorkerConfig,
-	security_cfg: security_util.ConfigDict,
+	config: Config,
 	apis_to_use: Optional[metrc_common_util.ApisToUseDict],
 	metrc_api_key_id: str,
 	license_number: str,
 	start_date: datetime.date,
 	end_date: datetime.date,
+	is_async_job: bool = False,
 ) -> Tuple[DownloadDataForMetrcApiKeyInDateRangeRespDict, errors.Error]:
 	metrc_api_key, err = queries.get_metrc_api_key_by_id(
 		session=session,
@@ -263,6 +259,8 @@ def download_data_for_metrc_api_key_license_in_date_range(
 		), err
 
 	metrc_api_key_dict = metrc_api_key.as_dict()
+	worker_cfg = config.get_metrc_worker_config()
+	security_cfg = config.get_security_config()
 
 	metrc_api_key_data_fetcher = metrc_common_util.MetrcApiKeyDataFetcher(
 		metrc_api_key_dict=metrc_api_key_dict,
@@ -289,6 +287,7 @@ def download_data_for_metrc_api_key_license_in_date_range(
 		), None
 
 	all_nonblocking_download_errors: List[errors.Error] = []
+	not_previously_successful_count = 0
 
 	cur_date = start_date
 	while cur_date <= end_date:
@@ -306,9 +305,30 @@ def download_data_for_metrc_api_key_license_in_date_range(
 				nonblocking_download_errors=all_nonblocking_download_errors,
 			), errors.Error('{}'.format(err))
 		else:
+			is_previously_successful = current_date_response['is_previously_successful']
+			if not is_previously_successful:
+				not_previously_successful_count += 1
 			nonblocking_download_errors = current_date_response['nonblocking_download_errors']
 
 		cur_date = cur_date + datetime.timedelta(days=1)
+
+		if is_async_job:
+			# We limit the number of days actual data is downloaded to seven days
+			# and schedule another async job to pick up where this job left off.
+			# This is because async jobs have a duration limit.
+			if not_previously_successful_count >= 7:
+				success, err = async_jobs_util.generate_download_data_for_metrc_api_key_license_job_by_license_number(
+					session=session,
+					cfg=config,
+					metrc_api_key_id=metrc_api_key_dict['id'],
+					license_number=license_number,
+				)
+				if err:
+					return DownloadDataForMetrcApiKeyInDateRangeRespDict(
+						success=False,
+						nonblocking_download_errors=all_nonblocking_download_errors,
+					), err
+				break
 
 	return DownloadDataForMetrcApiKeyInDateRangeRespDict(
 		success=True,
