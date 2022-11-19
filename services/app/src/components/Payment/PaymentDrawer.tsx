@@ -57,6 +57,7 @@ export default function PaymentDrawer({
     variables: {
       id: paymentId,
       today: todayAsDateStringServer(),
+      is_bank_user: isBankUser,
     },
   });
 

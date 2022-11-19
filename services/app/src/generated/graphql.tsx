@@ -30134,6 +30134,7 @@ export type GetPaymentForBankQuery = {
 export type GetPaymentForSettlementQueryVariables = Exact<{
   id: Scalars["uuid"];
   today: Scalars["date"];
+  is_bank_user?: Maybe<Scalars["Boolean"]>;
 }>;
 
 export type GetPaymentForSettlementQuery = {
@@ -30150,11 +30151,11 @@ export type GetPaymentForSettlementQuery = {
       >;
       invoice?: Maybe<
         Pick<Invoices, "id"> & {
-          payor?: Maybe<Pick<Payors, "id"> & PayorFragment>;
+          payor?: Maybe<Pick<Payors, "id"> & PayorCombinedFragment>;
         }
       >;
       settled_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
-    } & PaymentFragment
+    } & PaymentCombinedFragment
   >;
 };
 
@@ -31689,6 +31690,15 @@ export type PayorFragment = Pick<
 > &
   PayorLimitedFragment;
 
+export type PayorBankOnlyFragment = Pick<
+  Payors,
+  "id" | "address" | "country" | "state" | "city" | "zip_code" | "phone_number"
+>;
+
+export type PayorCombinedFragment = Pick<Payors, "id"> &
+  PayorBankOnlyFragment &
+  PayorLimitedFragment;
+
 export type PartnershipRequestFragment = Pick<
   CompanyPartnershipRequests,
   | "id"
@@ -31734,6 +31744,15 @@ export type PaymentFragment = Pick<
   Payments,
   "id" | "bank_note" | "created_at"
 > &
+  PaymentLimitedFragment;
+
+export type PaymentBankOnlyFragment = Pick<
+  Payments,
+  "id" | "bank_note" | "created_at"
+>;
+
+export type PaymentCombinedFragment = Pick<Payments, "id"> &
+  PaymentBankOnlyFragment &
   PaymentLimitedFragment;
 
 export type TransactionFragment = Pick<
@@ -33469,6 +33488,26 @@ export const PayorFragmentDoc = gql`
   }
   ${PayorLimitedFragmentDoc}
 `;
+export const PayorBankOnlyFragmentDoc = gql`
+  fragment PayorBankOnly on payors {
+    id
+    address
+    country
+    state
+    city
+    zip_code
+    phone_number
+  }
+`;
+export const PayorCombinedFragmentDoc = gql`
+  fragment PayorCombined on payors {
+    id
+    ...PayorBankOnly @include(if: $is_bank_user)
+    ...PayorLimited
+  }
+  ${PayorBankOnlyFragmentDoc}
+  ${PayorLimitedFragmentDoc}
+`;
 export const PartnershipRequestFragmentDoc = gql`
   fragment PartnershipRequest on company_partnership_requests {
     id
@@ -33563,39 +33602,11 @@ export const PayorPartnershipFragmentDoc = gql`
   }
   ${PayorPartnershipLimitedFragmentDoc}
 `;
-export const TransactionWithLoanFragmentDoc = gql`
-  fragment TransactionWithLoan on transactions {
+export const PaymentBankOnlyFragmentDoc = gql`
+  fragment PaymentBankOnly on payments {
     id
+    bank_note
     created_at
-    loan_id
-    payment_id
-    type
-    subtype
-    amount
-    effective_date
-    to_principal
-    to_interest
-    to_fees
-    loan {
-      id
-      ...Loan
-    }
-  }
-  ${LoanFragmentDoc}
-`;
-export const TransactionFragmentDoc = gql`
-  fragment Transaction on transactions {
-    id
-    created_at
-    loan_id
-    payment_id
-    type
-    subtype
-    amount
-    effective_date
-    to_principal
-    to_interest
-    to_fees
   }
 `;
 export const PaymentLimitedFragmentDoc = gql`
@@ -33637,6 +33648,50 @@ export const PaymentLimitedFragmentDoc = gql`
       id
       full_name
     }
+  }
+`;
+export const PaymentCombinedFragmentDoc = gql`
+  fragment PaymentCombined on payments {
+    id
+    ...PaymentBankOnly @include(if: $is_bank_user)
+    ...PaymentLimited
+  }
+  ${PaymentBankOnlyFragmentDoc}
+  ${PaymentLimitedFragmentDoc}
+`;
+export const TransactionWithLoanFragmentDoc = gql`
+  fragment TransactionWithLoan on transactions {
+    id
+    created_at
+    loan_id
+    payment_id
+    type
+    subtype
+    amount
+    effective_date
+    to_principal
+    to_interest
+    to_fees
+    loan {
+      id
+      ...Loan
+    }
+  }
+  ${LoanFragmentDoc}
+`;
+export const TransactionFragmentDoc = gql`
+  fragment Transaction on transactions {
+    id
+    created_at
+    loan_id
+    payment_id
+    type
+    subtype
+    amount
+    effective_date
+    to_principal
+    to_interest
+    to_fees
   }
 `;
 export const PaymentFragmentDoc = gql`
@@ -41608,10 +41663,14 @@ export type GetPaymentForBankQueryResult = Apollo.QueryResult<
   GetPaymentForBankQueryVariables
 >;
 export const GetPaymentForSettlementDocument = gql`
-  query GetPaymentForSettlement($id: uuid!, $today: date!) {
+  query GetPaymentForSettlement(
+    $id: uuid!
+    $today: date!
+    $is_bank_user: Boolean = true
+  ) {
     payments_by_pk(id: $id) {
       id
-      ...Payment
+      ...PaymentCombined
       company {
         id
         name
@@ -41632,7 +41691,7 @@ export const GetPaymentForSettlementDocument = gql`
         id
         payor {
           id
-          ...Payor
+          ...PayorCombined
         }
       }
       settled_by_user {
@@ -41641,11 +41700,11 @@ export const GetPaymentForSettlementDocument = gql`
       }
     }
   }
-  ${PaymentFragmentDoc}
+  ${PaymentCombinedFragmentDoc}
   ${ContractFragmentDoc}
   ${FinancialSummaryFragmentDoc}
   ${BankAccountFragmentDoc}
-  ${PayorFragmentDoc}
+  ${PayorCombinedFragmentDoc}
 `;
 
 /**
@@ -41662,6 +41721,7 @@ export const GetPaymentForSettlementDocument = gql`
  *   variables: {
  *      id: // value for 'id'
  *      today: // value for 'today'
+ *      is_bank_user: // value for 'is_bank_user'
  *   },
  * });
  */

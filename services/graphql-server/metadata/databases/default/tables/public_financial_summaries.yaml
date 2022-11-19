@@ -13,6 +13,7 @@ select_permissions:
         - adjusted_total_limit
         - available_limit
         - company_id
+        - created_at
         - daily_interest_rate
         - date
         - day_volume_threshold_met
@@ -47,6 +48,7 @@ select_permissions:
         - adjusted_total_limit
         - available_limit
         - company_id
+        - created_at
         - daily_interest_rate
         - date
         - day_volume_threshold_met
@@ -81,6 +83,7 @@ select_permissions:
         - adjusted_total_limit
         - available_limit
         - company_id
+        - created_at
         - daily_interest_rate
         - date
         - day_volume_threshold_met
@@ -122,6 +125,7 @@ select_permissions:
         - adjusted_total_limit
         - available_limit
         - company_id
+        - created_at
         - daily_interest_rate
         - date
         - day_volume_threshold_met

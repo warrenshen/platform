@@ -2,10 +2,14 @@ import { Box } from "@material-ui/core";
 import { GridValueFormatterParams } from "@material-ui/data-grid";
 import InvoiceDrawerLauncher from "components/Invoices/InvoiceDrawerLauncher";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
-import PaymentDrawerLauncher from "components/Payment/PaymentDrawerLauncher";
+import PaymentDrawer from "components/Payment/PaymentDrawer";
 import PurchaseOrderDrawerLauncher from "components/PurchaseOrder/PurchaseOrderDrawerLauncher";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
 import {
   Companies,
   GetRepaymentsForCompanyQuery,
@@ -26,7 +30,7 @@ import {
 import { CurrencyPrecision } from "lib/number";
 import { ColumnWidths, formatRowModel } from "lib/tables";
 import { flatten, sumBy } from "lodash";
-import { useMemo } from "react";
+import { useContext, useMemo, useState } from "react";
 
 function getRows(
   isLineOfCredit: boolean,
@@ -209,10 +213,18 @@ export default function CustomerRepaymentTransactionsDataGrid({
   handleSelectPayments,
   handleClickPaymentBankNote,
 }: Props) {
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
+  const isBankUser = isRoleBankUser(role);
+
+  const [selectedRepaymentId, setSelectedRepaymentId] = useState();
+
   const rows = useMemo(
     () => getRows(isLineOfCredit, payments),
     [isLineOfCredit, payments]
   );
+
   const columns = useMemo(
     () => [
       {
@@ -221,13 +233,15 @@ export default function CustomerRepaymentTransactionsDataGrid({
         caption: "Repayment #",
         minWidth: ColumnWidths.MinWidth,
         cellRender: (params: GridValueFormatterParams) => (
-          <PaymentDrawerLauncher
-            paymentId={params.row.data.payment.id}
+          <ClickableDataGridCell
             label={
               isCompanyVisible
                 ? `${params.row.data.company_identifier}-R${params.row.data.payment.settlement_identifier}`
                 : `R${params.row.data.payment.settlement_identifier}`
             }
+            onClick={() => {
+              setSelectedRepaymentId(params.row.data.repayment_id);
+            }}
           />
         ),
       },
@@ -421,15 +435,24 @@ export default function CustomerRepaymentTransactionsDataGrid({
   );
 
   return (
-    <ControlledDataGrid
-      filtering={filtering}
-      pager
-      select={isMultiSelectEnabled}
-      isExcelExport={isExcelExport}
-      dataSource={rows}
-      columns={columns}
-      selectedRowKeys={selectedPaymentIds}
-      onSelectionChanged={handleSelectionChanged}
-    />
+    <>
+      {!!selectedRepaymentId && (
+        <PaymentDrawer
+          paymentId={selectedRepaymentId}
+          handleClose={() => setSelectedRepaymentId(undefined)}
+          showBankInfo={isBankUser}
+        />
+      )}
+      <ControlledDataGrid
+        filtering={filtering}
+        pager
+        select={isMultiSelectEnabled}
+        isExcelExport={isExcelExport}
+        dataSource={rows}
+        columns={columns}
+        selectedRowKeys={selectedPaymentIds}
+        onSelectionChanged={handleSelectionChanged}
+      />
+    </>
   );
 }

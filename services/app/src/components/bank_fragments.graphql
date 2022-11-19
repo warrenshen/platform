@@ -389,6 +389,22 @@ fragment Payor on payors {
   ...PayorLimited
 }
 
+fragment PayorBankOnly on payors {
+  id
+  address
+  country
+  state
+  city
+  zip_code
+  phone_number
+}
+
+fragment PayorCombined on payors {
+  id
+  ...PayorBankOnly @include(if: $is_bank_user)
+  ...PayorLimited
+}
+
 fragment PartnershipRequest on company_partnership_requests {
   id
   requesting_company_id
@@ -447,6 +463,18 @@ fragment Payment on payments {
   id
   bank_note
   created_at
+  ...PaymentLimited
+}
+
+fragment PaymentBankOnly on payments {
+  id
+  bank_note
+  created_at
+}
+
+fragment PaymentCombined on payments {
+  id
+  ...PaymentBankOnly  @include(if: $is_bank_user)
   ...PaymentLimited
 }
 

@@ -28,10 +28,10 @@ query GetPaymentForBank($id: uuid!) {
   }
 }
 
-query GetPaymentForSettlement($id: uuid!, $today: date!) {
+query GetPaymentForSettlement($id: uuid!, $today: date!, $is_bank_user: Boolean = true) {
   payments_by_pk(id: $id) {
     id
-    ...Payment
+    ...PaymentCombined
     company {
       id
       name
@@ -52,7 +52,7 @@ query GetPaymentForSettlement($id: uuid!, $today: date!) {
       id
       payor {
         id
-        ...Payor
+        ...PayorCombined
       }
     }
     settled_by_user {
