@@ -461,7 +461,7 @@ export default function CreateUpdatePurchaseOrderModalNew({
     !purchaseOrder.order_date ||
     !isDueDateValid ||
     !purchaseOrder.amount ||
-    !purchaseOrderFiles;
+    purchaseOrderFiles.length <= 0;
   const isPrimaryActionDisabledManual =
     !selectableVendors?.find((vendor) => vendor.id === purchaseOrder.vendor_id)
       ?.company_vendor_partnerships[0].approved_at ||
@@ -469,7 +469,7 @@ export default function CreateUpdatePurchaseOrderModalNew({
     !isDueDateValid ||
     purchaseOrder.net_terms == null ||
     !purchaseOrder.amount ||
-    !purchaseOrderFiles ||
+    purchaseOrderFiles.length <= 0 ||
     (!!purchaseOrder.is_cannabis && purchaseOrderCannabisFiles.length <= 0);
   const isPrimaryActionDisabled = isActionTypeUpdate
     ? isSecondaryActionDisabled
