@@ -72,7 +72,7 @@ export default function BankLoansActiveTab() {
         alignItems="center"
         mb={2}
       >
-        <Text textVariant={TextVariants.ParagraphLead}>All</Text>
+        <Text textVariant={TextVariants.ParagraphLead}>{maturingIn}</Text>
         <LoansMaturingInDropdown
           dataCy="loans-maturing-in-dropdown"
           value={maturingIn}

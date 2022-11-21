@@ -1,7 +1,7 @@
 import { Box } from "@material-ui/core";
 import BankLoansDataGrid from "components/Loans/BankLoansDataGrid";
 import Text, { TextVariants } from "components/Shared/Text/Text";
-import { useGetFundedLoansForBankSubscription } from "generated/graphql";
+import { useGetFundedLoansForBankIncludingClosedSubscription } from "generated/graphql";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
@@ -18,7 +18,7 @@ const Container = styled.div`
 export default function BankLoansAllTab() {
   const navigate = useNavigate();
 
-  const { data, error } = useGetFundedLoansForBankSubscription();
+  const { data, error } = useGetFundedLoansForBankIncludingClosedSubscription();
 
   if (error) {
     console.error({ error });
