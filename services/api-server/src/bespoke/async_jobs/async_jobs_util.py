@@ -169,10 +169,37 @@ def orchestration_handler(
 			return [], None
 
 		starting_job_limit = available_job_number - number_of_running_jobs
-		starting_jobs = []
+		queued_jobs_to_be_run = []
+		
+		capped_jobs:List[AsyncJobNameEnum] = [] # TODO (grace) metrc jobs should be added here
+		capped_jobs_currently_running = list(filter(lambda job: job.name in capped_jobs, currently_running_jobs))
+		maximum_number_of_capped_jobs = cfg.ASYNC_MAX_NUM_CAPPED_JOB
+		num_capped_jobs_available_to_run = maximum_number_of_capped_jobs - len(capped_jobs_currently_running)
+		capped_job_limit = num_capped_jobs_available_to_run if starting_job_limit > num_capped_jobs_available_to_run else starting_job_limit
+		# checks and runs the capped jobs and adds them first to upcoming running jobs
+		if capped_job_limit >= 1:
+			starting_capped_jobs = cast(
+				List[models.AsyncJob],
+				session.query(models.AsyncJob).filter(
+					models.AsyncJob.status == AsyncJobStatusEnum.QUEUED
+				).filter(
+					models.AsyncJob.name.in_(capped_jobs)
+				).filter(
+					cast(Callable, models.AsyncJob.is_deleted.isnot)(True)
+				).order_by(
+					models.AsyncJob.is_high_priority.desc()
+				).order_by(
+					models.AsyncJob.queued_at.asc()
+				).limit(
+					capped_job_limit
+				).all())
+			if len(starting_capped_jobs) > 0:
+				queued_jobs_to_be_run = starting_capped_jobs
+				starting_job_limit -= len(starting_capped_jobs)
 
+		# any left over jobs space is alotted to regular jobs
 		if starting_job_limit >= 1:
-			starting_jobs = cast(
+			queued_jobs = cast(
 				List[models.AsyncJob],
 				session.query(models.AsyncJob).filter(
 					models.AsyncJob.status == AsyncJobStatusEnum.QUEUED
@@ -185,10 +212,12 @@ def orchestration_handler(
 				).limit(
 					starting_job_limit
 				).all())
+			for job in queued_jobs:
+				queued_jobs_to_be_run.append(job)
 
 		# Cfg and sendgrid_client need to be passed in too the thread function 
 		# or else the app instance is not recognized once a thread is spawned
-		for job in starting_jobs:
+		for job in queued_jobs_to_be_run:
 			job.status = AsyncJobStatusEnum.INITIALIZED
 			job.initialized_at = date_util.now()
 			job.updated_at = date_util.now()
@@ -209,7 +238,7 @@ def orchestration_handler(
 				job.num_retries += 1
 				job.err_details = {"Error" : "Async job timed out."}
 
-		return [job.id for job in starting_jobs], None
+		return [job.id for job in queued_jobs_to_be_run], None
 
 	return [], None
 

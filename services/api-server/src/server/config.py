@@ -113,6 +113,7 @@ class Config(object):
 			thread_name_prefix="async-jobs"
 		)
 		self.ASYNC_JOB_SLACK_URL = os.environ.get('ASYNC_JOB_SLACK_URL')
+		self.ASYNC_MAX_NUM_CAPPED_JOB = int(os.environ.get('ASYNC_MAX_NUM_CAPPED_JOB')) if os.environ.get('ASYNC_MAX_NUM_CAPPED_JOB') is not None else 2
 
 		# Metrc
 		# Number of historical days of data to download Metrc data for, relative to today.
