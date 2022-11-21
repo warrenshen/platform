@@ -5827,6 +5827,7 @@ export type CompanySettings = {
   id: Scalars["uuid"];
   is_autogenerate_repayments_enabled?: Maybe<Scalars["Boolean"]>;
   is_dummy_account: Scalars["Boolean"];
+  is_loc_late?: Maybe<Scalars["Boolean"]>;
   /** An object relationship */
   metrc_api_key?: Maybe<MetrcApiKeys>;
   metrc_api_key_id?: Maybe<Scalars["uuid"]>;
@@ -5925,6 +5926,7 @@ export type CompanySettingsBoolExp = {
   id?: Maybe<UuidComparisonExp>;
   is_autogenerate_repayments_enabled?: Maybe<BooleanComparisonExp>;
   is_dummy_account?: Maybe<BooleanComparisonExp>;
+  is_loc_late?: Maybe<BooleanComparisonExp>;
   metrc_api_key?: Maybe<MetrcApiKeysBoolExp>;
   metrc_api_key_id?: Maybe<UuidComparisonExp>;
   payor_agreement_docusign_template?: Maybe<StringComparisonExp>;
@@ -6006,6 +6008,7 @@ export type CompanySettingsInsertInput = {
   id?: Maybe<Scalars["uuid"]>;
   is_autogenerate_repayments_enabled?: Maybe<Scalars["Boolean"]>;
   is_dummy_account?: Maybe<Scalars["Boolean"]>;
+  is_loc_late?: Maybe<Scalars["Boolean"]>;
   metrc_api_key?: Maybe<MetrcApiKeysObjRelInsertInput>;
   metrc_api_key_id?: Maybe<Scalars["uuid"]>;
   payor_agreement_docusign_template?: Maybe<Scalars["String"]>;
@@ -6198,6 +6201,7 @@ export type CompanySettingsOrderBy = {
   id?: Maybe<OrderBy>;
   is_autogenerate_repayments_enabled?: Maybe<OrderBy>;
   is_dummy_account?: Maybe<OrderBy>;
+  is_loc_late?: Maybe<OrderBy>;
   metrc_api_key?: Maybe<MetrcApiKeysOrderBy>;
   metrc_api_key_id?: Maybe<OrderBy>;
   payor_agreement_docusign_template?: Maybe<OrderBy>;
@@ -6261,6 +6265,8 @@ export enum CompanySettingsSelectColumn {
   /** column name */
   IsDummyAccount = "is_dummy_account",
   /** column name */
+  IsLocLate = "is_loc_late",
+  /** column name */
   MetrcApiKeyId = "metrc_api_key_id",
   /** column name */
   PayorAgreementDocusignTemplate = "payor_agreement_docusign_template",
@@ -6308,6 +6314,7 @@ export type CompanySettingsSetInput = {
   id?: Maybe<Scalars["uuid"]>;
   is_autogenerate_repayments_enabled?: Maybe<Scalars["Boolean"]>;
   is_dummy_account?: Maybe<Scalars["Boolean"]>;
+  is_loc_late?: Maybe<Scalars["Boolean"]>;
   metrc_api_key_id?: Maybe<Scalars["uuid"]>;
   payor_agreement_docusign_template?: Maybe<Scalars["String"]>;
   revenue_end_date?: Maybe<Scalars["date"]>;
@@ -6355,6 +6362,8 @@ export enum CompanySettingsUpdateColumn {
   IsAutogenerateRepaymentsEnabled = "is_autogenerate_repayments_enabled",
   /** column name */
   IsDummyAccount = "is_dummy_account",
+  /** column name */
+  IsLocLate = "is_loc_late",
   /** column name */
   MetrcApiKeyId = "metrc_api_key_id",
   /** column name */
@@ -30325,11 +30334,11 @@ export type GetOpenAsyncJobsSubscription = {
   async_jobs: Array<Pick<AsyncJobs, "id"> & AsyncJobFragment>;
 };
 
-export type GetCompletedAsyncJobsSubscriptionVariables = Exact<{
+export type GetCompletedAsyncJobsQueryVariables = Exact<{
   [key: string]: never;
 }>;
 
-export type GetCompletedAsyncJobsSubscription = {
+export type GetCompletedAsyncJobsQuery = {
   async_jobs: Array<Pick<AsyncJobs, "id"> & AsyncJobFragment>;
 };
 
@@ -42692,7 +42701,7 @@ export type GetOpenAsyncJobsSubscriptionHookResult = ReturnType<
 export type GetOpenAsyncJobsSubscriptionResult =
   Apollo.SubscriptionResult<GetOpenAsyncJobsSubscription>;
 export const GetCompletedAsyncJobsDocument = gql`
-  subscription GetCompletedAsyncJobs {
+  query GetCompletedAsyncJobs {
     async_jobs(
       order_by: [{ ended_at: desc }]
       where: {
@@ -42702,6 +42711,7 @@ export const GetCompletedAsyncJobsDocument = gql`
         ]
         status: { _eq: "completed" }
       }
+      limit: 500
     ) {
       id
       ...AsyncJob
@@ -42711,37 +42721,54 @@ export const GetCompletedAsyncJobsDocument = gql`
 `;
 
 /**
- * __useGetCompletedAsyncJobsSubscription__
+ * __useGetCompletedAsyncJobsQuery__
  *
- * To run a query within a React component, call `useGetCompletedAsyncJobsSubscription` and pass it any options that fit your needs.
- * When your component renders, `useGetCompletedAsyncJobsSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetCompletedAsyncJobsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCompletedAsyncJobsQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
- * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetCompletedAsyncJobsSubscription({
+ * const { data, loading, error } = useGetCompletedAsyncJobsQuery({
  *   variables: {
  *   },
  * });
  */
-export function useGetCompletedAsyncJobsSubscription(
-  baseOptions?: Apollo.SubscriptionHookOptions<
-    GetCompletedAsyncJobsSubscription,
-    GetCompletedAsyncJobsSubscriptionVariables
+export function useGetCompletedAsyncJobsQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetCompletedAsyncJobsQuery,
+    GetCompletedAsyncJobsQueryVariables
   >
 ) {
   const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useSubscription<
-    GetCompletedAsyncJobsSubscription,
-    GetCompletedAsyncJobsSubscriptionVariables
+  return Apollo.useQuery<
+    GetCompletedAsyncJobsQuery,
+    GetCompletedAsyncJobsQueryVariables
   >(GetCompletedAsyncJobsDocument, options);
 }
-export type GetCompletedAsyncJobsSubscriptionHookResult = ReturnType<
-  typeof useGetCompletedAsyncJobsSubscription
+export function useGetCompletedAsyncJobsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetCompletedAsyncJobsQuery,
+    GetCompletedAsyncJobsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetCompletedAsyncJobsQuery,
+    GetCompletedAsyncJobsQueryVariables
+  >(GetCompletedAsyncJobsDocument, options);
+}
+export type GetCompletedAsyncJobsQueryHookResult = ReturnType<
+  typeof useGetCompletedAsyncJobsQuery
 >;
-export type GetCompletedAsyncJobsSubscriptionResult =
-  Apollo.SubscriptionResult<GetCompletedAsyncJobsSubscription>;
+export type GetCompletedAsyncJobsLazyQueryHookResult = ReturnType<
+  typeof useGetCompletedAsyncJobsLazyQuery
+>;
+export type GetCompletedAsyncJobsQueryResult = Apollo.QueryResult<
+  GetCompletedAsyncJobsQuery,
+  GetCompletedAsyncJobsQueryVariables
+>;
 export const GetAsyncJobByIdDocument = gql`
   query GetAsyncJobById($id: uuid!) {
     async_jobs_by_pk(id: $id) {

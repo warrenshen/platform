@@ -178,6 +178,24 @@ class OrchestrationHandlerView(MethodView):
 			'status': 'OK'
 		}), 200)
 
+class OrphanHandlerView(MethodView):
+	decorators = [auth_util.requires_async_header_or_bank_admin]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		logging.info("Received request to remove orphaned initialized jobs")
+		cfg = cast(Config, current_app.app_config)
+
+		in_progress_job_ids, err = async_jobs_util.remove_orphaned_initialized_jobs(
+			session_maker = current_app.session_maker,
+		)
+		if err:
+			raise err
+
+		return make_response(json.dumps({
+			'status': 'OK'
+		}), 200)
+
 class ReportsMonthlyLoanSummaryNonLOCView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
@@ -300,6 +318,10 @@ handler.add_url_rule(
 	view_func=OrchestrationHandlerView.as_view(name='orchestration_handler_view'))
 
 handler.add_url_rule(
+	"/orphan-handler",
+	view_func=OrphanHandlerView.as_view(name='orphan_handler_view'))
+
+handler.add_url_rule(
 	'/delete-job',
 	view_func=DeleteJobView.as_view(name='delete_job_view'))
 
@@ -330,4 +352,3 @@ handler.add_url_rule(
 handler.add_url_rule(
 	"/generate_financial_statement_alert",
 	view_func=GenerateFinancialStatementAlertView.as_view(name='generate_financial_statement_alert'))
-

@@ -7,7 +7,7 @@ import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import {
   AsyncJobs,
-  useGetCompletedAsyncJobsSubscription,
+  useGetCompletedAsyncJobsQuery,
   useGetOpenAsyncJobsSubscription,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
@@ -125,7 +125,7 @@ function OpenAsyncJobsTab() {
 }
 
 function CompletedAsyncJobsTab() {
-  const { data } = useGetCompletedAsyncJobsSubscription({});
+  const { data } = useGetCompletedAsyncJobsQuery({});
 
   const asyncJobs = data?.async_jobs || [];
 

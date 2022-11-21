@@ -213,6 +213,38 @@ def orchestration_handler(
 
 	return [], None
 
+
+@errors.return_error_tuple
+def remove_orphaned_initialized_jobs(
+	session_maker: Callable,
+) -> Tuple[bool, errors.Error]:
+
+	with session_scope(session_maker) as session:
+		initialized_jobs = cast(
+			List[models.AsyncJob],
+			session.query(models.AsyncJob).filter(
+				models.AsyncJob.status == AsyncJobStatusEnum.INITIALIZED,
+			).filter(
+				cast(Callable, models.AsyncJob.is_deleted.isnot)(True)
+			).order_by(
+				models.AsyncJob.queued_at.desc()
+			).all())
+
+		if len(initialized_jobs) == 0:
+			return True, None
+
+
+		# only requeue jobs if they're not company balances
+		for job in initialized_jobs:
+			if job.name == AsyncJobNameEnum.UPDATE_COMPANY_BALANCES:
+				job.status = AsyncJobStatusEnum.COMPLETED
+			else:
+				job.status = AsyncJobStatusEnum.QUEUED
+				job.queued_at = date_util.now()
+			job.updated_at = date_util.now()
+
+	return True, None
+
 def execute_job(
 	session_maker: Callable,
 	cfg: Config,
