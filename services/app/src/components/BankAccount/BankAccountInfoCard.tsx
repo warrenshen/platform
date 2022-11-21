@@ -54,210 +54,230 @@ export default function BankAccountInfoCard({
   const [isObfuscateEnabled, setIsObfuscateEnabled] = useState(true);
 
   return (
-    <Card>
-      <CardContent>
-        <Box display="flex" pb={0.5}>
-          <Box className={classes.label}>Bank Name</Box>
-          <Box>{bankAccount.bank_name}</Box>
+    <>
+      {!bankAccount && (
+        <Box display="flex">
+          No bank account information available for this payment.
         </Box>
-        <Box display="flex" pb={0.5}>
-          <Box className={classes.label}>Account Name</Box>
-          <Box>{bankAccount.account_title}</Box>
-        </Box>
-        <Box display="flex" pb={0.5}>
-          <Box className={classes.label}>Account Type</Box>
-          <Box>{bankAccount.account_type}</Box>
-        </Box>
-        <Box display="flex" pb={0.5}>
-          <Box className={classes.label}>Account Number</Box>
-          <Box>
-            {isObfuscateEnabled
-              ? obfuscateBankNumbers(bankAccount.account_number)
-              : bankAccount.account_number}
-          </Box>
-        </Box>
-        <Box display="flex" alignItems="center" pt={0.5} pb={1}>
-          <CheckCircle
-            color={
-              (bankAccount as BankAccountFragment).can_ach
-                ? "primary"
-                : "disabled"
-            }
-          />
-          <Box pl={1}>{"ACH?"}</Box>
-        </Box>
-        {!!(bankAccount as BankAccountFragment).can_ach && (
-          <Box display="flex" flexDirection="column" pl={2}>
+      )}
+      {!!bankAccount && (
+        <Card>
+          <CardContent>
             <Box display="flex" pb={0.5}>
-              <Box className={classes.label}>ACH Routing Number</Box>
+              <Box className={classes.label}>Bank Name</Box>
+              <Box>{bankAccount.bank_name}</Box>
+            </Box>
+            <Box display="flex" pb={0.5}>
+              <Box className={classes.label}>Account Name</Box>
+              <Box>{bankAccount.account_title}</Box>
+            </Box>
+            <Box display="flex" pb={0.5}>
+              <Box className={classes.label}>Account Type</Box>
+              <Box>{bankAccount.account_type}</Box>
+            </Box>
+            <Box display="flex" pb={0.5}>
+              <Box className={classes.label}>Account Number</Box>
               <Box>
-                {isObfuscateEnabled && !!bankAccount?.routing_number
-                  ? obfuscateBankNumbers(bankAccount.routing_number)
-                  : bankAccount.routing_number}
+                {isObfuscateEnabled
+                  ? obfuscateBankNumbers(bankAccount.account_number)
+                  : bankAccount.account_number}
               </Box>
             </Box>
-            <Box display="flex" pb={0.5}>
-              <Box className={classes.label}>ACH Default Memo</Box>
-              <Box>{(bankAccount as BankAccountFragment).ach_default_memo}</Box>
-            </Box>
-          </Box>
-        )}
-        <Box display="flex" alignItems="center" pt={0.5} pb={1}>
-          <CheckCircle
-            color={
-              (bankAccount as BankAccountFragment).can_wire
-                ? "primary"
-                : "disabled"
-            }
-          />
-          <Box pl={1}>{"Wire?"}</Box>
-        </Box>
-        {!!(bankAccount as BankAccountFragment).can_wire && (
-          <Box display="flex" flexDirection="column" pl={2}>
             <Box display="flex" alignItems="center" pt={0.5} pb={1}>
               <CheckCircle
                 color={
-                  (bankAccount as BankAccountFragment).is_wire_intermediary
+                  (bankAccount as BankAccountFragment).can_ach
                     ? "primary"
                     : "disabled"
                 }
               />
-              <Box pl={1}>{"Is intermediary bank?"}</Box>
+              <Box pl={1}>{"ACH?"}</Box>
             </Box>
-            {!!(bankAccount as BankAccountFragment).is_wire_intermediary && (
+            {!!(bankAccount as BankAccountFragment).can_ach && (
               <Box display="flex" flexDirection="column" pl={2}>
                 <Box display="flex" pb={0.5}>
-                  <Box className={classes.label}>Intermediary Bank Name</Box>
+                  <Box className={classes.label}>ACH Routing Number</Box>
                   <Box>
-                    {
-                      (bankAccount as BankAccountFragment)
-                        .intermediary_bank_name
-                    }
+                    {isObfuscateEnabled && !!bankAccount?.routing_number
+                      ? obfuscateBankNumbers(bankAccount.routing_number)
+                      : bankAccount.routing_number}
                   </Box>
                 </Box>
                 <Box display="flex" pb={0.5}>
-                  <Box className={classes.label}>Intermediary Bank Address</Box>
+                  <Box className={classes.label}>ACH Default Memo</Box>
                   <Box>
-                    {
-                      (bankAccount as BankAccountFragment)
-                        .intermediary_bank_address
-                    }
+                    {(bankAccount as BankAccountFragment).ach_default_memo}
                   </Box>
                 </Box>
-                <Box display="flex" pb={0.5}>
-                  <Box className={classes.label}>Intermediary Account Name</Box>
-                  <Box>
-                    {
-                      (bankAccount as BankAccountFragment)
-                        .intermediary_account_name
+              </Box>
+            )}
+            <Box display="flex" alignItems="center" pt={0.5} pb={1}>
+              <CheckCircle
+                color={
+                  (bankAccount as BankAccountFragment).can_wire
+                    ? "primary"
+                    : "disabled"
+                }
+              />
+              <Box pl={1}>{"Wire?"}</Box>
+            </Box>
+            {!!(bankAccount as BankAccountFragment).can_wire && (
+              <Box display="flex" flexDirection="column" pl={2}>
+                <Box display="flex" alignItems="center" pt={0.5} pb={1}>
+                  <CheckCircle
+                    color={
+                      (bankAccount as BankAccountFragment).is_wire_intermediary
+                        ? "primary"
+                        : "disabled"
                     }
-                  </Box>
+                  />
+                  <Box pl={1}>{"Is intermediary bank?"}</Box>
                 </Box>
-                <Box display="flex" pb={0.5}>
-                  <Box className={classes.label}>
-                    Intermediary Account Number
+                {!!(bankAccount as BankAccountFragment)
+                  .is_wire_intermediary && (
+                  <Box display="flex" flexDirection="column" pl={2}>
+                    <Box display="flex" pb={0.5}>
+                      <Box className={classes.label}>
+                        Intermediary Bank Name
+                      </Box>
+                      <Box>
+                        {
+                          (bankAccount as BankAccountFragment)
+                            .intermediary_bank_name
+                        }
+                      </Box>
+                    </Box>
+                    <Box display="flex" pb={0.5}>
+                      <Box className={classes.label}>
+                        Intermediary Bank Address
+                      </Box>
+                      <Box>
+                        {
+                          (bankAccount as BankAccountFragment)
+                            .intermediary_bank_address
+                        }
+                      </Box>
+                    </Box>
+                    <Box display="flex" pb={0.5}>
+                      <Box className={classes.label}>
+                        Intermediary Account Name
+                      </Box>
+                      <Box>
+                        {
+                          (bankAccount as BankAccountFragment)
+                            .intermediary_account_name
+                        }
+                      </Box>
+                    </Box>
+                    <Box display="flex" pb={0.5}>
+                      <Box className={classes.label}>
+                        Intermediary Account Number
+                      </Box>
+                      <Box>
+                        {isObfuscateEnabled
+                          ? obfuscateBankNumbers(
+                              bankAccount.intermediary_account_number || ""
+                            )
+                          : bankAccount.intermediary_account_number}
+                      </Box>
+                    </Box>
                   </Box>
+                )}
+                <Box display="flex" pb={0.5}>
+                  <Box className={classes.label}>Wire Routing Number</Box>
                   <Box>
                     {isObfuscateEnabled
                       ? obfuscateBankNumbers(
-                          bankAccount.intermediary_account_number || ""
+                          bankAccount.wire_routing_number || ""
                         )
-                      : bankAccount.intermediary_account_number}
+                      : bankAccount.wire_routing_number}
+                  </Box>
+                </Box>
+                <Box display="flex" pb={0.5}>
+                  <Box className={classes.label}>Recipient Address</Box>
+                  <Box>
+                    {(bankAccount as BankAccountFragment).recipient_address}
+                  </Box>
+                </Box>
+                <Box display="flex" pb={0.5}>
+                  <Box className={classes.label}>Recipient Address 2</Box>
+                  <Box>
+                    {(bankAccount as BankAccountFragment).recipient_address_2}
+                  </Box>
+                </Box>
+                <Box display="flex" pb={0.5}>
+                  <Box className={classes.label}>Wire Default Memo</Box>
+                  <Box>
+                    {(bankAccount as BankAccountFragment).wire_default_memo}
                   </Box>
                 </Box>
               </Box>
             )}
-            <Box display="flex" pb={0.5}>
-              <Box className={classes.label}>Wire Routing Number</Box>
-              <Box>
-                {isObfuscateEnabled
-                  ? obfuscateBankNumbers(bankAccount.wire_routing_number || "")
-                  : bankAccount.wire_routing_number}
+            {isCannabisCompliantVisible && (
+              <Box display="flex" alignItems="center" pt={0.5} pb={1}>
+                <CheckCircle
+                  color={
+                    (bankAccount as BankAccountFragment).is_cannabis_compliant
+                      ? "primary"
+                      : "disabled"
+                  }
+                />
+                <Box pl={1}>{"Is cannabis compliant?"}</Box>
               </Box>
-            </Box>
-            <Box display="flex" pb={0.5}>
-              <Box className={classes.label}>Recipient Address</Box>
-              <Box>
-                {(bankAccount as BankAccountFragment).recipient_address}
-              </Box>
-            </Box>
-            <Box display="flex" pb={0.5}>
-              <Box className={classes.label}>Recipient Address 2</Box>
-              <Box>
-                {(bankAccount as BankAccountFragment).recipient_address_2}
-              </Box>
-            </Box>
-            <Box display="flex" pb={0.5}>
-              <Box className={classes.label}>Wire Default Memo</Box>
-              <Box>
-                {(bankAccount as BankAccountFragment).wire_default_memo}
-              </Box>
-            </Box>
-          </Box>
-        )}
-        {isCannabisCompliantVisible && (
-          <Box display="flex" alignItems="center" pt={0.5} pb={1}>
-            <CheckCircle
-              color={
-                (bankAccount as BankAccountFragment).is_cannabis_compliant
-                  ? "primary"
-                  : "disabled"
-              }
-            />
-            <Box pl={1}>{"Is cannabis compliant?"}</Box>
-          </Box>
-        )}
-        {isVerificationVisible && (
-          <Box display="flex" alignItems="center" pt={0.5} pb={1}>
-            <CheckCircle
-              color={
-                (bankAccount as BankAccountFragment).verified_at &&
-                (bankAccount as BankAccountFragment).verified_date
-                  ? "primary"
-                  : "disabled"
-              }
-            />
-            <Box pl={1}>
-              {(bankAccount as BankAccountFragment).verified_at &&
-              (bankAccount as BankAccountFragment).verified_date
-                ? `Verified on ${formatDateString(
-                    (bankAccount as BankAccountFragment).verified_date
-                  )}`
-                : "Not yet verified"}
-            </Box>
-          </Box>
-        )}
-        <Box display="flex" pt={0.5}>
-          <Button
-            color="default"
-            size="small"
-            variant="outlined"
-            onClick={() => setIsObfuscateEnabled(!isObfuscateEnabled)}
-          >
-            {isObfuscateEnabled ? "Reveal Numbers" : "Hide Numbers"}
-          </Button>
-        </Box>
-      </CardContent>
-      {isEditAllowed && (
-        <CardActions>
-          <ModalButton
-            label={"Edit"}
-            color="default"
-            size="small"
-            variant="outlined"
-            modal={({ handleClose }) => (
-              <CreateUpdateBankAccountModal
-                companyId={bankAccount.company_id}
-                existingBankAccount={bankAccount as BankAccountFragment}
-                handleClose={() => {
-                  !!handleDataChange && handleDataChange();
-                  handleClose();
-                }}
-              />
             )}
-          />
-        </CardActions>
+            {isVerificationVisible && (
+              <Box display="flex" alignItems="center" pt={0.5} pb={1}>
+                <CheckCircle
+                  color={
+                    (bankAccount as BankAccountFragment).verified_at &&
+                    (bankAccount as BankAccountFragment).verified_date
+                      ? "primary"
+                      : "disabled"
+                  }
+                />
+                <Box pl={1}>
+                  {(bankAccount as BankAccountFragment).verified_at &&
+                  (bankAccount as BankAccountFragment).verified_date
+                    ? `Verified on ${formatDateString(
+                        (bankAccount as BankAccountFragment).verified_date
+                      )}`
+                    : "Not yet verified"}
+                </Box>
+              </Box>
+            )}
+            <Box display="flex" pt={0.5}>
+              <Button
+                color="default"
+                size="small"
+                variant="outlined"
+                onClick={() => setIsObfuscateEnabled(!isObfuscateEnabled)}
+              >
+                {isObfuscateEnabled ? "Reveal Numbers" : "Hide Numbers"}
+              </Button>
+            </Box>
+          </CardContent>
+          {isEditAllowed && (
+            <CardActions>
+              <ModalButton
+                label={"Edit"}
+                color="default"
+                size="small"
+                variant="outlined"
+                modal={({ handleClose }) => (
+                  <CreateUpdateBankAccountModal
+                    companyId={bankAccount.company_id}
+                    existingBankAccount={bankAccount as BankAccountFragment}
+                    handleClose={() => {
+                      !!handleDataChange && handleDataChange();
+                      handleClose();
+                    }}
+                  />
+                )}
+              />
+            </CardActions>
+          )}
+        </Card>
       )}
-    </Card>
+    </>
   );
 }
