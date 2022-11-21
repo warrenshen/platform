@@ -537,6 +537,8 @@ export const getProductTypeFromOpenLoanForDebtFacilityFragment = (
   return !!loan?.company?.most_recent_financial_summary?.[0]?.product_type
     ? (loan.company.most_recent_financial_summary[0]
         .product_type as ProductTypeEnum)
+    : !!loan?.company?.most_recent_contract?.[0]?.product_type
+    ? (loan.company.most_recent_contract[0].product_type as ProductTypeEnum)
     : ProductTypeEnum.None;
 };
 

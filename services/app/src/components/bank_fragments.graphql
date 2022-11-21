@@ -243,6 +243,19 @@ fragment CompanyForDebtFacility on companies {
     id
     product_type
   }
+  most_recent_contract: contracts (
+    where: { 
+      _or: [
+        { is_deleted: { _is_null: true } }
+        { is_deleted: { _eq: false } }
+      ]
+    }
+    order_by: { end_date: desc }
+    limit: 1
+  ) {
+    id
+    ...Contract
+  }
 }
 
 fragment MetrcApiKeyLimited on metrc_api_keys {

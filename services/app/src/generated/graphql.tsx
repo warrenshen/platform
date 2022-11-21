@@ -7358,8 +7358,6 @@ export type CustomerSurveillanceResultsBoolExp = {
 /** unique or primary key constraints on table "customer_surveillance_results" */
 export enum CustomerSurveillanceResultsConstraint {
   /** unique or primary key constraint */
-  CompanyProductQualificationsCompanyIdQualifyingDateKey = "company_product_qualifications_company_id_qualifying_date_key",
-  /** unique or primary key constraint */
   CompanyProductQualificationsPkey = "company_product_qualifications_pkey",
 }
 
@@ -29714,6 +29712,46 @@ export type GetLimitedLoansByLoanIdsQuery = {
   >;
 };
 
+export type GetMetrcApiKeysByCompanyIdQueryVariables = Exact<{
+  companyId: Scalars["uuid"];
+}>;
+
+export type GetMetrcApiKeysByCompanyIdQuery = {
+  metrc_api_keys: Array<Pick<MetrcApiKeys, "id"> & MetrcApiKeyLimitedFragment>;
+};
+
+export type GetMetrcMetadataByCompanyIdQueryVariables = Exact<{
+  company_id: Scalars["uuid"];
+}>;
+
+export type GetMetrcMetadataByCompanyIdQuery = {
+  companies_by_pk?: Maybe<
+    Pick<Companies, "id"> & {
+      company_facilities: Array<
+        Pick<CompanyFacilities, "id"> & CompanyFacilityFragment
+      >;
+      licenses: Array<
+        Pick<CompanyLicenses, "id"> & {
+          company_facility?: Maybe<Pick<CompanyFacilities, "id" | "name">>;
+        } & CompanyLicenseFragment
+      >;
+      metrc_api_keys: Array<
+        Pick<MetrcApiKeys, "id"> & MetrcApiKeyLimitedFragment
+      >;
+    }
+  >;
+};
+
+export type GetMetrcDownloadSummariesByMetrcApiKeyIdQueryVariables = Exact<{
+  metrcApiKeyId: Scalars["uuid"];
+}>;
+
+export type GetMetrcDownloadSummariesByMetrcApiKeyIdQuery = {
+  metrc_download_summaries: Array<
+    Pick<MetrcDownloadSummaries, "id"> & MetrcDownloadSummaryLimitedFragment
+  >;
+};
+
 export type GetBankPayorPartnershipQueryVariables = Exact<{
   id: Scalars["uuid"];
 }>;
@@ -30276,46 +30314,6 @@ export type LastMonthlySummaryReportLiveRunQuery = {
       SyncPipelines,
       "id" | "name" | "internal_state" | "params" | "created_at"
     >
-  >;
-};
-
-export type GetMetrcApiKeysByCompanyIdQueryVariables = Exact<{
-  companyId: Scalars["uuid"];
-}>;
-
-export type GetMetrcApiKeysByCompanyIdQuery = {
-  metrc_api_keys: Array<Pick<MetrcApiKeys, "id"> & MetrcApiKeyLimitedFragment>;
-};
-
-export type GetMetrcMetadataByCompanyIdQueryVariables = Exact<{
-  company_id: Scalars["uuid"];
-}>;
-
-export type GetMetrcMetadataByCompanyIdQuery = {
-  companies_by_pk?: Maybe<
-    Pick<Companies, "id"> & {
-      company_facilities: Array<
-        Pick<CompanyFacilities, "id"> & CompanyFacilityFragment
-      >;
-      licenses: Array<
-        Pick<CompanyLicenses, "id"> & {
-          company_facility?: Maybe<Pick<CompanyFacilities, "id" | "name">>;
-        } & CompanyLicenseFragment
-      >;
-      metrc_api_keys: Array<
-        Pick<MetrcApiKeys, "id"> & MetrcApiKeyLimitedFragment
-      >;
-    }
-  >;
-};
-
-export type GetMetrcDownloadSummariesByMetrcApiKeyIdQueryVariables = Exact<{
-  metrcApiKeyId: Scalars["uuid"];
-}>;
-
-export type GetMetrcDownloadSummariesByMetrcApiKeyIdQuery = {
-  metrc_download_summaries: Array<
-    Pick<MetrcDownloadSummaries, "id"> & MetrcDownloadSummaryLimitedFragment
   >;
 };
 
@@ -31571,6 +31569,7 @@ export type CompanyForDebtFacilityFragment = Pick<
   most_recent_financial_summary: Array<
     Pick<FinancialSummaries, "id" | "product_type">
   >;
+  most_recent_contract: Array<Pick<Contracts, "id"> & ContractFragment>;
 };
 
 export type MetrcApiKeyLimitedFragment = Pick<
@@ -33817,6 +33816,19 @@ export const CompanyForDebtFacilityFragmentDoc = gql`
     ) {
       id
       product_type
+    }
+    most_recent_contract: contracts(
+      where: {
+        _or: [
+          { is_deleted: { _is_null: true } }
+          { is_deleted: { _eq: false } }
+        ]
+      }
+      order_by: { end_date: desc }
+      limit: 1
+    ) {
+      id
+      ...Contract
     }
   }
   ${ContractFragmentDoc}
@@ -39457,6 +39469,245 @@ export type GetLimitedLoansByLoanIdsQueryResult = Apollo.QueryResult<
   GetLimitedLoansByLoanIdsQuery,
   GetLimitedLoansByLoanIdsQueryVariables
 >;
+export const GetMetrcApiKeysByCompanyIdDocument = gql`
+  query GetMetrcApiKeysByCompanyId($companyId: uuid!) {
+    metrc_api_keys(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { company_id: { _eq: $companyId } }
+        ]
+      }
+    ) {
+      id
+      ...MetrcApiKeyLimited
+    }
+  }
+  ${MetrcApiKeyLimitedFragmentDoc}
+`;
+
+/**
+ * __useGetMetrcApiKeysByCompanyIdQuery__
+ *
+ * To run a query within a React component, call `useGetMetrcApiKeysByCompanyIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMetrcApiKeysByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetMetrcApiKeysByCompanyIdQuery({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *   },
+ * });
+ */
+export function useGetMetrcApiKeysByCompanyIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetMetrcApiKeysByCompanyIdQuery,
+    GetMetrcApiKeysByCompanyIdQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetMetrcApiKeysByCompanyIdQuery,
+    GetMetrcApiKeysByCompanyIdQueryVariables
+  >(GetMetrcApiKeysByCompanyIdDocument, options);
+}
+export function useGetMetrcApiKeysByCompanyIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetMetrcApiKeysByCompanyIdQuery,
+    GetMetrcApiKeysByCompanyIdQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetMetrcApiKeysByCompanyIdQuery,
+    GetMetrcApiKeysByCompanyIdQueryVariables
+  >(GetMetrcApiKeysByCompanyIdDocument, options);
+}
+export type GetMetrcApiKeysByCompanyIdQueryHookResult = ReturnType<
+  typeof useGetMetrcApiKeysByCompanyIdQuery
+>;
+export type GetMetrcApiKeysByCompanyIdLazyQueryHookResult = ReturnType<
+  typeof useGetMetrcApiKeysByCompanyIdLazyQuery
+>;
+export type GetMetrcApiKeysByCompanyIdQueryResult = Apollo.QueryResult<
+  GetMetrcApiKeysByCompanyIdQuery,
+  GetMetrcApiKeysByCompanyIdQueryVariables
+>;
+export const GetMetrcMetadataByCompanyIdDocument = gql`
+  query GetMetrcMetadataByCompanyId($company_id: uuid!) {
+    companies_by_pk(id: $company_id) {
+      id
+      company_facilities(
+        where: {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        order_by: { name: asc }
+      ) {
+        id
+        ...CompanyFacility
+      }
+      licenses(
+        where: {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        order_by: { license_number: asc }
+      ) {
+        id
+        company_facility {
+          id
+          name
+        }
+        ...CompanyLicense
+      }
+      metrc_api_keys(
+        where: {
+          _and: [
+            {
+              _or: [
+                { is_deleted: { _is_null: true } }
+                { is_deleted: { _eq: false } }
+              ]
+            }
+            { company_id: { _eq: $company_id } }
+          ]
+        }
+      ) {
+        id
+        ...MetrcApiKeyLimited
+      }
+    }
+  }
+  ${CompanyFacilityFragmentDoc}
+  ${CompanyLicenseFragmentDoc}
+  ${MetrcApiKeyLimitedFragmentDoc}
+`;
+
+/**
+ * __useGetMetrcMetadataByCompanyIdQuery__
+ *
+ * To run a query within a React component, call `useGetMetrcMetadataByCompanyIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMetrcMetadataByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetMetrcMetadataByCompanyIdQuery({
+ *   variables: {
+ *      company_id: // value for 'company_id'
+ *   },
+ * });
+ */
+export function useGetMetrcMetadataByCompanyIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetMetrcMetadataByCompanyIdQuery,
+    GetMetrcMetadataByCompanyIdQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetMetrcMetadataByCompanyIdQuery,
+    GetMetrcMetadataByCompanyIdQueryVariables
+  >(GetMetrcMetadataByCompanyIdDocument, options);
+}
+export function useGetMetrcMetadataByCompanyIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetMetrcMetadataByCompanyIdQuery,
+    GetMetrcMetadataByCompanyIdQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetMetrcMetadataByCompanyIdQuery,
+    GetMetrcMetadataByCompanyIdQueryVariables
+  >(GetMetrcMetadataByCompanyIdDocument, options);
+}
+export type GetMetrcMetadataByCompanyIdQueryHookResult = ReturnType<
+  typeof useGetMetrcMetadataByCompanyIdQuery
+>;
+export type GetMetrcMetadataByCompanyIdLazyQueryHookResult = ReturnType<
+  typeof useGetMetrcMetadataByCompanyIdLazyQuery
+>;
+export type GetMetrcMetadataByCompanyIdQueryResult = Apollo.QueryResult<
+  GetMetrcMetadataByCompanyIdQuery,
+  GetMetrcMetadataByCompanyIdQueryVariables
+>;
+export const GetMetrcDownloadSummariesByMetrcApiKeyIdDocument = gql`
+  query GetMetrcDownloadSummariesByMetrcApiKeyId($metrcApiKeyId: uuid!) {
+    metrc_download_summaries(
+      where: { metrc_api_key_id: { _eq: $metrcApiKeyId } }
+      order_by: { date: desc }
+    ) {
+      id
+      ...MetrcDownloadSummaryLimited
+    }
+  }
+  ${MetrcDownloadSummaryLimitedFragmentDoc}
+`;
+
+/**
+ * __useGetMetrcDownloadSummariesByMetrcApiKeyIdQuery__
+ *
+ * To run a query within a React component, call `useGetMetrcDownloadSummariesByMetrcApiKeyIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMetrcDownloadSummariesByMetrcApiKeyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetMetrcDownloadSummariesByMetrcApiKeyIdQuery({
+ *   variables: {
+ *      metrcApiKeyId: // value for 'metrcApiKeyId'
+ *   },
+ * });
+ */
+export function useGetMetrcDownloadSummariesByMetrcApiKeyIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetMetrcDownloadSummariesByMetrcApiKeyIdQuery,
+    GetMetrcDownloadSummariesByMetrcApiKeyIdQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetMetrcDownloadSummariesByMetrcApiKeyIdQuery,
+    GetMetrcDownloadSummariesByMetrcApiKeyIdQueryVariables
+  >(GetMetrcDownloadSummariesByMetrcApiKeyIdDocument, options);
+}
+export function useGetMetrcDownloadSummariesByMetrcApiKeyIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetMetrcDownloadSummariesByMetrcApiKeyIdQuery,
+    GetMetrcDownloadSummariesByMetrcApiKeyIdQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetMetrcDownloadSummariesByMetrcApiKeyIdQuery,
+    GetMetrcDownloadSummariesByMetrcApiKeyIdQueryVariables
+  >(GetMetrcDownloadSummariesByMetrcApiKeyIdDocument, options);
+}
+export type GetMetrcDownloadSummariesByMetrcApiKeyIdQueryHookResult =
+  ReturnType<typeof useGetMetrcDownloadSummariesByMetrcApiKeyIdQuery>;
+export type GetMetrcDownloadSummariesByMetrcApiKeyIdLazyQueryHookResult =
+  ReturnType<typeof useGetMetrcDownloadSummariesByMetrcApiKeyIdLazyQuery>;
+export type GetMetrcDownloadSummariesByMetrcApiKeyIdQueryResult =
+  Apollo.QueryResult<
+    GetMetrcDownloadSummariesByMetrcApiKeyIdQuery,
+    GetMetrcDownloadSummariesByMetrcApiKeyIdQueryVariables
+  >;
 export const GetBankPayorPartnershipDocument = gql`
   query GetBankPayorPartnership($id: uuid!) {
     company_payor_partnerships_by_pk(id: $id) {
@@ -42324,245 +42575,6 @@ export type LastMonthlySummaryReportLiveRunQueryResult = Apollo.QueryResult<
   LastMonthlySummaryReportLiveRunQuery,
   LastMonthlySummaryReportLiveRunQueryVariables
 >;
-export const GetMetrcApiKeysByCompanyIdDocument = gql`
-  query GetMetrcApiKeysByCompanyId($companyId: uuid!) {
-    metrc_api_keys(
-      where: {
-        _and: [
-          {
-            _or: [
-              { is_deleted: { _is_null: true } }
-              { is_deleted: { _eq: false } }
-            ]
-          }
-          { company_id: { _eq: $companyId } }
-        ]
-      }
-    ) {
-      id
-      ...MetrcApiKeyLimited
-    }
-  }
-  ${MetrcApiKeyLimitedFragmentDoc}
-`;
-
-/**
- * __useGetMetrcApiKeysByCompanyIdQuery__
- *
- * To run a query within a React component, call `useGetMetrcApiKeysByCompanyIdQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetMetrcApiKeysByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetMetrcApiKeysByCompanyIdQuery({
- *   variables: {
- *      companyId: // value for 'companyId'
- *   },
- * });
- */
-export function useGetMetrcApiKeysByCompanyIdQuery(
-  baseOptions: Apollo.QueryHookOptions<
-    GetMetrcApiKeysByCompanyIdQuery,
-    GetMetrcApiKeysByCompanyIdQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<
-    GetMetrcApiKeysByCompanyIdQuery,
-    GetMetrcApiKeysByCompanyIdQueryVariables
-  >(GetMetrcApiKeysByCompanyIdDocument, options);
-}
-export function useGetMetrcApiKeysByCompanyIdLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetMetrcApiKeysByCompanyIdQuery,
-    GetMetrcApiKeysByCompanyIdQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<
-    GetMetrcApiKeysByCompanyIdQuery,
-    GetMetrcApiKeysByCompanyIdQueryVariables
-  >(GetMetrcApiKeysByCompanyIdDocument, options);
-}
-export type GetMetrcApiKeysByCompanyIdQueryHookResult = ReturnType<
-  typeof useGetMetrcApiKeysByCompanyIdQuery
->;
-export type GetMetrcApiKeysByCompanyIdLazyQueryHookResult = ReturnType<
-  typeof useGetMetrcApiKeysByCompanyIdLazyQuery
->;
-export type GetMetrcApiKeysByCompanyIdQueryResult = Apollo.QueryResult<
-  GetMetrcApiKeysByCompanyIdQuery,
-  GetMetrcApiKeysByCompanyIdQueryVariables
->;
-export const GetMetrcMetadataByCompanyIdDocument = gql`
-  query GetMetrcMetadataByCompanyId($company_id: uuid!) {
-    companies_by_pk(id: $company_id) {
-      id
-      company_facilities(
-        where: {
-          _or: [
-            { is_deleted: { _is_null: true } }
-            { is_deleted: { _eq: false } }
-          ]
-        }
-        order_by: { name: asc }
-      ) {
-        id
-        ...CompanyFacility
-      }
-      licenses(
-        where: {
-          _or: [
-            { is_deleted: { _is_null: true } }
-            { is_deleted: { _eq: false } }
-          ]
-        }
-        order_by: { license_number: asc }
-      ) {
-        id
-        company_facility {
-          id
-          name
-        }
-        ...CompanyLicense
-      }
-      metrc_api_keys(
-        where: {
-          _and: [
-            {
-              _or: [
-                { is_deleted: { _is_null: true } }
-                { is_deleted: { _eq: false } }
-              ]
-            }
-            { company_id: { _eq: $company_id } }
-          ]
-        }
-      ) {
-        id
-        ...MetrcApiKeyLimited
-      }
-    }
-  }
-  ${CompanyFacilityFragmentDoc}
-  ${CompanyLicenseFragmentDoc}
-  ${MetrcApiKeyLimitedFragmentDoc}
-`;
-
-/**
- * __useGetMetrcMetadataByCompanyIdQuery__
- *
- * To run a query within a React component, call `useGetMetrcMetadataByCompanyIdQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetMetrcMetadataByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetMetrcMetadataByCompanyIdQuery({
- *   variables: {
- *      company_id: // value for 'company_id'
- *   },
- * });
- */
-export function useGetMetrcMetadataByCompanyIdQuery(
-  baseOptions: Apollo.QueryHookOptions<
-    GetMetrcMetadataByCompanyIdQuery,
-    GetMetrcMetadataByCompanyIdQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<
-    GetMetrcMetadataByCompanyIdQuery,
-    GetMetrcMetadataByCompanyIdQueryVariables
-  >(GetMetrcMetadataByCompanyIdDocument, options);
-}
-export function useGetMetrcMetadataByCompanyIdLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetMetrcMetadataByCompanyIdQuery,
-    GetMetrcMetadataByCompanyIdQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<
-    GetMetrcMetadataByCompanyIdQuery,
-    GetMetrcMetadataByCompanyIdQueryVariables
-  >(GetMetrcMetadataByCompanyIdDocument, options);
-}
-export type GetMetrcMetadataByCompanyIdQueryHookResult = ReturnType<
-  typeof useGetMetrcMetadataByCompanyIdQuery
->;
-export type GetMetrcMetadataByCompanyIdLazyQueryHookResult = ReturnType<
-  typeof useGetMetrcMetadataByCompanyIdLazyQuery
->;
-export type GetMetrcMetadataByCompanyIdQueryResult = Apollo.QueryResult<
-  GetMetrcMetadataByCompanyIdQuery,
-  GetMetrcMetadataByCompanyIdQueryVariables
->;
-export const GetMetrcDownloadSummariesByMetrcApiKeyIdDocument = gql`
-  query GetMetrcDownloadSummariesByMetrcApiKeyId($metrcApiKeyId: uuid!) {
-    metrc_download_summaries(
-      where: { metrc_api_key_id: { _eq: $metrcApiKeyId } }
-      order_by: { date: desc }
-    ) {
-      id
-      ...MetrcDownloadSummaryLimited
-    }
-  }
-  ${MetrcDownloadSummaryLimitedFragmentDoc}
-`;
-
-/**
- * __useGetMetrcDownloadSummariesByMetrcApiKeyIdQuery__
- *
- * To run a query within a React component, call `useGetMetrcDownloadSummariesByMetrcApiKeyIdQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetMetrcDownloadSummariesByMetrcApiKeyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetMetrcDownloadSummariesByMetrcApiKeyIdQuery({
- *   variables: {
- *      metrcApiKeyId: // value for 'metrcApiKeyId'
- *   },
- * });
- */
-export function useGetMetrcDownloadSummariesByMetrcApiKeyIdQuery(
-  baseOptions: Apollo.QueryHookOptions<
-    GetMetrcDownloadSummariesByMetrcApiKeyIdQuery,
-    GetMetrcDownloadSummariesByMetrcApiKeyIdQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<
-    GetMetrcDownloadSummariesByMetrcApiKeyIdQuery,
-    GetMetrcDownloadSummariesByMetrcApiKeyIdQueryVariables
-  >(GetMetrcDownloadSummariesByMetrcApiKeyIdDocument, options);
-}
-export function useGetMetrcDownloadSummariesByMetrcApiKeyIdLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    GetMetrcDownloadSummariesByMetrcApiKeyIdQuery,
-    GetMetrcDownloadSummariesByMetrcApiKeyIdQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<
-    GetMetrcDownloadSummariesByMetrcApiKeyIdQuery,
-    GetMetrcDownloadSummariesByMetrcApiKeyIdQueryVariables
-  >(GetMetrcDownloadSummariesByMetrcApiKeyIdDocument, options);
-}
-export type GetMetrcDownloadSummariesByMetrcApiKeyIdQueryHookResult =
-  ReturnType<typeof useGetMetrcDownloadSummariesByMetrcApiKeyIdQuery>;
-export type GetMetrcDownloadSummariesByMetrcApiKeyIdLazyQueryHookResult =
-  ReturnType<typeof useGetMetrcDownloadSummariesByMetrcApiKeyIdLazyQuery>;
-export type GetMetrcDownloadSummariesByMetrcApiKeyIdQueryResult =
-  Apollo.QueryResult<
-    GetMetrcDownloadSummariesByMetrcApiKeyIdQuery,
-    GetMetrcDownloadSummariesByMetrcApiKeyIdQueryVariables
-  >;
 export const GetOpenAsyncJobsDocument = gql`
   subscription GetOpenAsyncJobs {
     async_jobs(
