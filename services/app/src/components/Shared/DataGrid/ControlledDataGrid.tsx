@@ -42,6 +42,8 @@ interface DataGridProps {
   allowedPageSizes?: number[];
   select?: boolean;
   selectedRowKeys?: any[]; // can be controlled
+  editing?: Record<any, any>;
+  onSaved?: (e: any) => void;
   onSelectionChanged?: (params: {}) => void; // callback
   onPageChanged?: (page: number) => void; // callback
   onSortingChanged?: (index: number, order: "asc" | "desc") => void; // callback
@@ -66,6 +68,8 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
       select,
       sortBy,
       selectedRowKeys,
+      editing = {},
+      onSaved,
       onSelectionChanged,
       onPageChanged,
       onSortingChanged,
@@ -166,6 +170,8 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
         onSelectionChanged={onSelectionChanged}
         onExporting={onExporting}
         onOptionChanged={onOptionChanged}
+        editing={editing}
+        onSaved={onSaved}
       >
         <ColumnFixing enabled={true} />
         <Export enabled={isExcelExport} />

@@ -1741,6 +1741,38 @@ class VendorChangeRequests(Base):
 	deleted_at = Column(DateTime, nullable=True)
 
 
+class BespokeCatalogBrand(Base):
+	__tablename__ = 'bespoke_catalog_brands'
+
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+
+	brand_name = Column(String, nullable=False)
+	us_state = Column(String, nullable=True)
+	is_deleted = Column(Boolean, nullable=False, default=False)
+	website_url = Column(String, nullable=True)
+
+	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	deleted_at = Column(DateTime, nullable=True)
+
+
+class BespokeCatalogSku(Base):
+	__tablename__ = 'bespoke_catalog_skus'
+
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+
+	bespoke_catalog_brand_id = cast(GUID, Column(GUID, ForeignKey('bespoke_catalog_brands.id'), nullable=False))
+
+	sku = Column(String, nullable=False)
+	is_deleted = Column(Boolean, nullable=False, default=False)
+	link = Column(String, nullable=True)
+	picture = Column(String, nullable=True)
+
+	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	deleted_at = Column(DateTime, nullable=True)
+
+
 class RetryingQuery(_Query):
 	__retry_count__ = 4
 

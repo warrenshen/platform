@@ -1932,6 +1932,436 @@ export type BankFinancialSummariesVarianceFields = {
   total_principal_in_requested_state?: Maybe<Scalars["Float"]>;
 };
 
+/** columns and relationships of "bespoke_catalog_brands" */
+export type BespokeCatalogBrands = {
+  /** An array relationship */
+  bespoke_catalog_skus: Array<BespokeCatalogSkus>;
+  /** An aggregate relationship */
+  bespoke_catalog_skus_aggregate: BespokeCatalogSkusAggregate;
+  brand_name: Scalars["String"];
+  created_at: Scalars["timestamptz"];
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  id: Scalars["uuid"];
+  is_deleted: Scalars["Boolean"];
+  updated_at: Scalars["timestamptz"];
+  us_state?: Maybe<Scalars["String"]>;
+  website_url?: Maybe<Scalars["String"]>;
+};
+
+/** columns and relationships of "bespoke_catalog_brands" */
+export type BespokeCatalogBrandsBespokeCatalogSkusArgs = {
+  distinct_on?: Maybe<Array<BespokeCatalogSkusSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<BespokeCatalogSkusOrderBy>>;
+  where?: Maybe<BespokeCatalogSkusBoolExp>;
+};
+
+/** columns and relationships of "bespoke_catalog_brands" */
+export type BespokeCatalogBrandsBespokeCatalogSkusAggregateArgs = {
+  distinct_on?: Maybe<Array<BespokeCatalogSkusSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<BespokeCatalogSkusOrderBy>>;
+  where?: Maybe<BespokeCatalogSkusBoolExp>;
+};
+
+/** aggregated selection of "bespoke_catalog_brands" */
+export type BespokeCatalogBrandsAggregate = {
+  aggregate?: Maybe<BespokeCatalogBrandsAggregateFields>;
+  nodes: Array<BespokeCatalogBrands>;
+};
+
+/** aggregate fields of "bespoke_catalog_brands" */
+export type BespokeCatalogBrandsAggregateFields = {
+  count: Scalars["Int"];
+  max?: Maybe<BespokeCatalogBrandsMaxFields>;
+  min?: Maybe<BespokeCatalogBrandsMinFields>;
+};
+
+/** aggregate fields of "bespoke_catalog_brands" */
+export type BespokeCatalogBrandsAggregateFieldsCountArgs = {
+  columns?: Maybe<Array<BespokeCatalogBrandsSelectColumn>>;
+  distinct?: Maybe<Scalars["Boolean"]>;
+};
+
+/** Boolean expression to filter rows from the table "bespoke_catalog_brands". All fields are combined with a logical 'AND'. */
+export type BespokeCatalogBrandsBoolExp = {
+  _and?: Maybe<Array<BespokeCatalogBrandsBoolExp>>;
+  _not?: Maybe<BespokeCatalogBrandsBoolExp>;
+  _or?: Maybe<Array<BespokeCatalogBrandsBoolExp>>;
+  bespoke_catalog_skus?: Maybe<BespokeCatalogSkusBoolExp>;
+  brand_name?: Maybe<StringComparisonExp>;
+  created_at?: Maybe<TimestamptzComparisonExp>;
+  deleted_at?: Maybe<TimestamptzComparisonExp>;
+  id?: Maybe<UuidComparisonExp>;
+  is_deleted?: Maybe<BooleanComparisonExp>;
+  updated_at?: Maybe<TimestamptzComparisonExp>;
+  us_state?: Maybe<StringComparisonExp>;
+  website_url?: Maybe<StringComparisonExp>;
+};
+
+/** unique or primary key constraints on table "bespoke_catalog_brands" */
+export enum BespokeCatalogBrandsConstraint {
+  /** unique or primary key constraint */
+  BespokeCatalogBrandsBrandNameKey = "bespoke_catalog_brands_brand_name_key",
+  /** unique or primary key constraint */
+  BespokeCatalogBrandsPkey = "bespoke_catalog_brands_pkey",
+}
+
+/** input type for inserting data into table "bespoke_catalog_brands" */
+export type BespokeCatalogBrandsInsertInput = {
+  bespoke_catalog_skus?: Maybe<BespokeCatalogSkusArrRelInsertInput>;
+  brand_name?: Maybe<Scalars["String"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+  us_state?: Maybe<Scalars["String"]>;
+  website_url?: Maybe<Scalars["String"]>;
+};
+
+/** aggregate max on columns */
+export type BespokeCatalogBrandsMaxFields = {
+  brand_name?: Maybe<Scalars["String"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+  us_state?: Maybe<Scalars["String"]>;
+  website_url?: Maybe<Scalars["String"]>;
+};
+
+/** aggregate min on columns */
+export type BespokeCatalogBrandsMinFields = {
+  brand_name?: Maybe<Scalars["String"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+  us_state?: Maybe<Scalars["String"]>;
+  website_url?: Maybe<Scalars["String"]>;
+};
+
+/** response of any mutation on the table "bespoke_catalog_brands" */
+export type BespokeCatalogBrandsMutationResponse = {
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars["Int"];
+  /** data from the rows affected by the mutation */
+  returning: Array<BespokeCatalogBrands>;
+};
+
+/** input type for inserting object relation for remote table "bespoke_catalog_brands" */
+export type BespokeCatalogBrandsObjRelInsertInput = {
+  data: BespokeCatalogBrandsInsertInput;
+  /** upsert condition */
+  on_conflict?: Maybe<BespokeCatalogBrandsOnConflict>;
+};
+
+/** on_conflict condition type for table "bespoke_catalog_brands" */
+export type BespokeCatalogBrandsOnConflict = {
+  constraint: BespokeCatalogBrandsConstraint;
+  update_columns?: Array<BespokeCatalogBrandsUpdateColumn>;
+  where?: Maybe<BespokeCatalogBrandsBoolExp>;
+};
+
+/** Ordering options when selecting data from "bespoke_catalog_brands". */
+export type BespokeCatalogBrandsOrderBy = {
+  bespoke_catalog_skus_aggregate?: Maybe<BespokeCatalogSkusAggregateOrderBy>;
+  brand_name?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
+  deleted_at?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  is_deleted?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
+  us_state?: Maybe<OrderBy>;
+  website_url?: Maybe<OrderBy>;
+};
+
+/** primary key columns input for table: bespoke_catalog_brands */
+export type BespokeCatalogBrandsPkColumnsInput = {
+  id: Scalars["uuid"];
+};
+
+/** select columns of table "bespoke_catalog_brands" */
+export enum BespokeCatalogBrandsSelectColumn {
+  /** column name */
+  BrandName = "brand_name",
+  /** column name */
+  CreatedAt = "created_at",
+  /** column name */
+  DeletedAt = "deleted_at",
+  /** column name */
+  Id = "id",
+  /** column name */
+  IsDeleted = "is_deleted",
+  /** column name */
+  UpdatedAt = "updated_at",
+  /** column name */
+  UsState = "us_state",
+  /** column name */
+  WebsiteUrl = "website_url",
+}
+
+/** input type for updating data in table "bespoke_catalog_brands" */
+export type BespokeCatalogBrandsSetInput = {
+  brand_name?: Maybe<Scalars["String"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+  us_state?: Maybe<Scalars["String"]>;
+  website_url?: Maybe<Scalars["String"]>;
+};
+
+/** update columns of table "bespoke_catalog_brands" */
+export enum BespokeCatalogBrandsUpdateColumn {
+  /** column name */
+  BrandName = "brand_name",
+  /** column name */
+  CreatedAt = "created_at",
+  /** column name */
+  DeletedAt = "deleted_at",
+  /** column name */
+  Id = "id",
+  /** column name */
+  IsDeleted = "is_deleted",
+  /** column name */
+  UpdatedAt = "updated_at",
+  /** column name */
+  UsState = "us_state",
+  /** column name */
+  WebsiteUrl = "website_url",
+}
+
+/** columns and relationships of "bespoke_catalog_skus" */
+export type BespokeCatalogSkus = {
+  /** An object relationship */
+  bespoke_catalog_brand: BespokeCatalogBrands;
+  bespoke_catalog_brand_id: Scalars["uuid"];
+  created_at: Scalars["timestamptz"];
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  id: Scalars["uuid"];
+  is_deleted: Scalars["Boolean"];
+  link?: Maybe<Scalars["String"]>;
+  picture?: Maybe<Scalars["String"]>;
+  sku: Scalars["String"];
+  updated_at: Scalars["timestamptz"];
+};
+
+/** aggregated selection of "bespoke_catalog_skus" */
+export type BespokeCatalogSkusAggregate = {
+  aggregate?: Maybe<BespokeCatalogSkusAggregateFields>;
+  nodes: Array<BespokeCatalogSkus>;
+};
+
+/** aggregate fields of "bespoke_catalog_skus" */
+export type BespokeCatalogSkusAggregateFields = {
+  count: Scalars["Int"];
+  max?: Maybe<BespokeCatalogSkusMaxFields>;
+  min?: Maybe<BespokeCatalogSkusMinFields>;
+};
+
+/** aggregate fields of "bespoke_catalog_skus" */
+export type BespokeCatalogSkusAggregateFieldsCountArgs = {
+  columns?: Maybe<Array<BespokeCatalogSkusSelectColumn>>;
+  distinct?: Maybe<Scalars["Boolean"]>;
+};
+
+/** order by aggregate values of table "bespoke_catalog_skus" */
+export type BespokeCatalogSkusAggregateOrderBy = {
+  count?: Maybe<OrderBy>;
+  max?: Maybe<BespokeCatalogSkusMaxOrderBy>;
+  min?: Maybe<BespokeCatalogSkusMinOrderBy>;
+};
+
+/** input type for inserting array relation for remote table "bespoke_catalog_skus" */
+export type BespokeCatalogSkusArrRelInsertInput = {
+  data: Array<BespokeCatalogSkusInsertInput>;
+  /** upsert condition */
+  on_conflict?: Maybe<BespokeCatalogSkusOnConflict>;
+};
+
+/** Boolean expression to filter rows from the table "bespoke_catalog_skus". All fields are combined with a logical 'AND'. */
+export type BespokeCatalogSkusBoolExp = {
+  _and?: Maybe<Array<BespokeCatalogSkusBoolExp>>;
+  _not?: Maybe<BespokeCatalogSkusBoolExp>;
+  _or?: Maybe<Array<BespokeCatalogSkusBoolExp>>;
+  bespoke_catalog_brand?: Maybe<BespokeCatalogBrandsBoolExp>;
+  bespoke_catalog_brand_id?: Maybe<UuidComparisonExp>;
+  created_at?: Maybe<TimestamptzComparisonExp>;
+  deleted_at?: Maybe<TimestamptzComparisonExp>;
+  id?: Maybe<UuidComparisonExp>;
+  is_deleted?: Maybe<BooleanComparisonExp>;
+  link?: Maybe<StringComparisonExp>;
+  picture?: Maybe<StringComparisonExp>;
+  sku?: Maybe<StringComparisonExp>;
+  updated_at?: Maybe<TimestamptzComparisonExp>;
+};
+
+/** unique or primary key constraints on table "bespoke_catalog_skus" */
+export enum BespokeCatalogSkusConstraint {
+  /** unique or primary key constraint */
+  BespokeCatalogSkusPkey = "bespoke_catalog_skus_pkey",
+  /** unique or primary key constraint */
+  BespokeCatalogSkusSkuKey = "bespoke_catalog_skus_sku_key",
+}
+
+/** input type for inserting data into table "bespoke_catalog_skus" */
+export type BespokeCatalogSkusInsertInput = {
+  bespoke_catalog_brand?: Maybe<BespokeCatalogBrandsObjRelInsertInput>;
+  bespoke_catalog_brand_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
+  link?: Maybe<Scalars["String"]>;
+  picture?: Maybe<Scalars["String"]>;
+  sku?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** aggregate max on columns */
+export type BespokeCatalogSkusMaxFields = {
+  bespoke_catalog_brand_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  link?: Maybe<Scalars["String"]>;
+  picture?: Maybe<Scalars["String"]>;
+  sku?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** order by max() on columns of table "bespoke_catalog_skus" */
+export type BespokeCatalogSkusMaxOrderBy = {
+  bespoke_catalog_brand_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
+  deleted_at?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  link?: Maybe<OrderBy>;
+  picture?: Maybe<OrderBy>;
+  sku?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
+};
+
+/** aggregate min on columns */
+export type BespokeCatalogSkusMinFields = {
+  bespoke_catalog_brand_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  link?: Maybe<Scalars["String"]>;
+  picture?: Maybe<Scalars["String"]>;
+  sku?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** order by min() on columns of table "bespoke_catalog_skus" */
+export type BespokeCatalogSkusMinOrderBy = {
+  bespoke_catalog_brand_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
+  deleted_at?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  link?: Maybe<OrderBy>;
+  picture?: Maybe<OrderBy>;
+  sku?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
+};
+
+/** response of any mutation on the table "bespoke_catalog_skus" */
+export type BespokeCatalogSkusMutationResponse = {
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars["Int"];
+  /** data from the rows affected by the mutation */
+  returning: Array<BespokeCatalogSkus>;
+};
+
+/** on_conflict condition type for table "bespoke_catalog_skus" */
+export type BespokeCatalogSkusOnConflict = {
+  constraint: BespokeCatalogSkusConstraint;
+  update_columns?: Array<BespokeCatalogSkusUpdateColumn>;
+  where?: Maybe<BespokeCatalogSkusBoolExp>;
+};
+
+/** Ordering options when selecting data from "bespoke_catalog_skus". */
+export type BespokeCatalogSkusOrderBy = {
+  bespoke_catalog_brand?: Maybe<BespokeCatalogBrandsOrderBy>;
+  bespoke_catalog_brand_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
+  deleted_at?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  is_deleted?: Maybe<OrderBy>;
+  link?: Maybe<OrderBy>;
+  picture?: Maybe<OrderBy>;
+  sku?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
+};
+
+/** primary key columns input for table: bespoke_catalog_skus */
+export type BespokeCatalogSkusPkColumnsInput = {
+  id: Scalars["uuid"];
+};
+
+/** select columns of table "bespoke_catalog_skus" */
+export enum BespokeCatalogSkusSelectColumn {
+  /** column name */
+  BespokeCatalogBrandId = "bespoke_catalog_brand_id",
+  /** column name */
+  CreatedAt = "created_at",
+  /** column name */
+  DeletedAt = "deleted_at",
+  /** column name */
+  Id = "id",
+  /** column name */
+  IsDeleted = "is_deleted",
+  /** column name */
+  Link = "link",
+  /** column name */
+  Picture = "picture",
+  /** column name */
+  Sku = "sku",
+  /** column name */
+  UpdatedAt = "updated_at",
+}
+
+/** input type for updating data in table "bespoke_catalog_skus" */
+export type BespokeCatalogSkusSetInput = {
+  bespoke_catalog_brand_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
+  link?: Maybe<Scalars["String"]>;
+  picture?: Maybe<Scalars["String"]>;
+  sku?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** update columns of table "bespoke_catalog_skus" */
+export enum BespokeCatalogSkusUpdateColumn {
+  /** column name */
+  BespokeCatalogBrandId = "bespoke_catalog_brand_id",
+  /** column name */
+  CreatedAt = "created_at",
+  /** column name */
+  DeletedAt = "deleted_at",
+  /** column name */
+  Id = "id",
+  /** column name */
+  IsDeleted = "is_deleted",
+  /** column name */
+  Link = "link",
+  /** column name */
+  Picture = "picture",
+  /** column name */
+  Sku = "sku",
+  /** column name */
+  UpdatedAt = "updated_at",
+}
+
 /** Boolean expression to compare columns of type "bigint". All fields are combined with logical 'AND'. */
 export type BigintComparisonExp = {
   _eq?: Maybe<Scalars["bigint"]>;
@@ -15954,6 +16384,178 @@ export type MetrcSalesTransactionsVarianceOrderBy = {
   total_price?: Maybe<OrderBy>;
 };
 
+/** columns and relationships of "metrc_to_bespoke_catalog_skus" */
+export type MetrcToBespokeCatalogSkus = {
+  bespoke_catalog_sku_id: Scalars["uuid"];
+  created_at: Scalars["timestamptz"];
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  id: Scalars["uuid"];
+  product_category_name: Scalars["String"];
+  product_name: Scalars["String"];
+  sku_confidence: Scalars["String"];
+  updated_at: Scalars["timestamptz"];
+};
+
+/** aggregated selection of "metrc_to_bespoke_catalog_skus" */
+export type MetrcToBespokeCatalogSkusAggregate = {
+  aggregate?: Maybe<MetrcToBespokeCatalogSkusAggregateFields>;
+  nodes: Array<MetrcToBespokeCatalogSkus>;
+};
+
+/** aggregate fields of "metrc_to_bespoke_catalog_skus" */
+export type MetrcToBespokeCatalogSkusAggregateFields = {
+  count: Scalars["Int"];
+  max?: Maybe<MetrcToBespokeCatalogSkusMaxFields>;
+  min?: Maybe<MetrcToBespokeCatalogSkusMinFields>;
+};
+
+/** aggregate fields of "metrc_to_bespoke_catalog_skus" */
+export type MetrcToBespokeCatalogSkusAggregateFieldsCountArgs = {
+  columns?: Maybe<Array<MetrcToBespokeCatalogSkusSelectColumn>>;
+  distinct?: Maybe<Scalars["Boolean"]>;
+};
+
+/** Boolean expression to filter rows from the table "metrc_to_bespoke_catalog_skus". All fields are combined with a logical 'AND'. */
+export type MetrcToBespokeCatalogSkusBoolExp = {
+  _and?: Maybe<Array<MetrcToBespokeCatalogSkusBoolExp>>;
+  _not?: Maybe<MetrcToBespokeCatalogSkusBoolExp>;
+  _or?: Maybe<Array<MetrcToBespokeCatalogSkusBoolExp>>;
+  bespoke_catalog_sku_id?: Maybe<UuidComparisonExp>;
+  created_at?: Maybe<TimestamptzComparisonExp>;
+  deleted_at?: Maybe<TimestamptzComparisonExp>;
+  id?: Maybe<UuidComparisonExp>;
+  product_category_name?: Maybe<StringComparisonExp>;
+  product_name?: Maybe<StringComparisonExp>;
+  sku_confidence?: Maybe<StringComparisonExp>;
+  updated_at?: Maybe<TimestamptzComparisonExp>;
+};
+
+/** unique or primary key constraints on table "metrc_to_bespoke_catalog_skus" */
+export enum MetrcToBespokeCatalogSkusConstraint {
+  /** unique or primary key constraint */
+  MetrcToBespokeCatalogSkusPkey = "metrc_to_bespoke_catalog_skus_pkey",
+}
+
+/** input type for inserting data into table "metrc_to_bespoke_catalog_skus" */
+export type MetrcToBespokeCatalogSkusInsertInput = {
+  bespoke_catalog_sku_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  product_category_name?: Maybe<Scalars["String"]>;
+  product_name?: Maybe<Scalars["String"]>;
+  sku_confidence?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** aggregate max on columns */
+export type MetrcToBespokeCatalogSkusMaxFields = {
+  bespoke_catalog_sku_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  product_category_name?: Maybe<Scalars["String"]>;
+  product_name?: Maybe<Scalars["String"]>;
+  sku_confidence?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** aggregate min on columns */
+export type MetrcToBespokeCatalogSkusMinFields = {
+  bespoke_catalog_sku_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  product_category_name?: Maybe<Scalars["String"]>;
+  product_name?: Maybe<Scalars["String"]>;
+  sku_confidence?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** response of any mutation on the table "metrc_to_bespoke_catalog_skus" */
+export type MetrcToBespokeCatalogSkusMutationResponse = {
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars["Int"];
+  /** data from the rows affected by the mutation */
+  returning: Array<MetrcToBespokeCatalogSkus>;
+};
+
+/** on_conflict condition type for table "metrc_to_bespoke_catalog_skus" */
+export type MetrcToBespokeCatalogSkusOnConflict = {
+  constraint: MetrcToBespokeCatalogSkusConstraint;
+  update_columns?: Array<MetrcToBespokeCatalogSkusUpdateColumn>;
+  where?: Maybe<MetrcToBespokeCatalogSkusBoolExp>;
+};
+
+/** Ordering options when selecting data from "metrc_to_bespoke_catalog_skus". */
+export type MetrcToBespokeCatalogSkusOrderBy = {
+  bespoke_catalog_sku_id?: Maybe<OrderBy>;
+  created_at?: Maybe<OrderBy>;
+  deleted_at?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  product_category_name?: Maybe<OrderBy>;
+  product_name?: Maybe<OrderBy>;
+  sku_confidence?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
+};
+
+/** primary key columns input for table: metrc_to_bespoke_catalog_skus */
+export type MetrcToBespokeCatalogSkusPkColumnsInput = {
+  id: Scalars["uuid"];
+};
+
+/** select columns of table "metrc_to_bespoke_catalog_skus" */
+export enum MetrcToBespokeCatalogSkusSelectColumn {
+  /** column name */
+  BespokeCatalogSkuId = "bespoke_catalog_sku_id",
+  /** column name */
+  CreatedAt = "created_at",
+  /** column name */
+  DeletedAt = "deleted_at",
+  /** column name */
+  Id = "id",
+  /** column name */
+  ProductCategoryName = "product_category_name",
+  /** column name */
+  ProductName = "product_name",
+  /** column name */
+  SkuConfidence = "sku_confidence",
+  /** column name */
+  UpdatedAt = "updated_at",
+}
+
+/** input type for updating data in table "metrc_to_bespoke_catalog_skus" */
+export type MetrcToBespokeCatalogSkusSetInput = {
+  bespoke_catalog_sku_id?: Maybe<Scalars["uuid"]>;
+  created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
+  product_category_name?: Maybe<Scalars["String"]>;
+  product_name?: Maybe<Scalars["String"]>;
+  sku_confidence?: Maybe<Scalars["String"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** update columns of table "metrc_to_bespoke_catalog_skus" */
+export enum MetrcToBespokeCatalogSkusUpdateColumn {
+  /** column name */
+  BespokeCatalogSkuId = "bespoke_catalog_sku_id",
+  /** column name */
+  CreatedAt = "created_at",
+  /** column name */
+  DeletedAt = "deleted_at",
+  /** column name */
+  Id = "id",
+  /** column name */
+  ProductCategoryName = "product_category_name",
+  /** column name */
+  ProductName = "product_name",
+  /** column name */
+  SkuConfidence = "sku_confidence",
+  /** column name */
+  UpdatedAt = "updated_at",
+}
+
 /** columns and relationships of "metrc_transfer_packages" */
 export type MetrcTransferPackages = {
   company_id?: Maybe<Scalars["uuid"]>;
@@ -17200,6 +17802,14 @@ export type MutationRoot = {
   delete_bank_financial_summaries?: Maybe<BankFinancialSummariesMutationResponse>;
   /** delete single row from the table: "bank_financial_summaries" */
   delete_bank_financial_summaries_by_pk?: Maybe<BankFinancialSummaries>;
+  /** delete data from the table: "bespoke_catalog_brands" */
+  delete_bespoke_catalog_brands?: Maybe<BespokeCatalogBrandsMutationResponse>;
+  /** delete single row from the table: "bespoke_catalog_brands" */
+  delete_bespoke_catalog_brands_by_pk?: Maybe<BespokeCatalogBrands>;
+  /** delete data from the table: "bespoke_catalog_skus" */
+  delete_bespoke_catalog_skus?: Maybe<BespokeCatalogSkusMutationResponse>;
+  /** delete single row from the table: "bespoke_catalog_skus" */
+  delete_bespoke_catalog_skus_by_pk?: Maybe<BespokeCatalogSkus>;
   /** delete data from the table: "blaze_preapprovals" */
   delete_blaze_preapprovals?: Maybe<BlazePreapprovalsMutationResponse>;
   /** delete single row from the table: "blaze_preapprovals" */
@@ -17368,6 +17978,10 @@ export type MutationRoot = {
   delete_metrc_sales_transactions?: Maybe<MetrcSalesTransactionsMutationResponse>;
   /** delete single row from the table: "metrc_sales_transactions" */
   delete_metrc_sales_transactions_by_pk?: Maybe<MetrcSalesTransactions>;
+  /** delete data from the table: "metrc_to_bespoke_catalog_skus" */
+  delete_metrc_to_bespoke_catalog_skus?: Maybe<MetrcToBespokeCatalogSkusMutationResponse>;
+  /** delete single row from the table: "metrc_to_bespoke_catalog_skus" */
+  delete_metrc_to_bespoke_catalog_skus_by_pk?: Maybe<MetrcToBespokeCatalogSkus>;
   /** delete data from the table: "metrc_transfer_packages" */
   delete_metrc_transfer_packages?: Maybe<MetrcTransferPackagesMutationResponse>;
   /** delete single row from the table: "metrc_transfer_packages" */
@@ -17464,6 +18078,14 @@ export type MutationRoot = {
   insert_bank_financial_summaries?: Maybe<BankFinancialSummariesMutationResponse>;
   /** insert a single row into the table: "bank_financial_summaries" */
   insert_bank_financial_summaries_one?: Maybe<BankFinancialSummaries>;
+  /** insert data into the table: "bespoke_catalog_brands" */
+  insert_bespoke_catalog_brands?: Maybe<BespokeCatalogBrandsMutationResponse>;
+  /** insert a single row into the table: "bespoke_catalog_brands" */
+  insert_bespoke_catalog_brands_one?: Maybe<BespokeCatalogBrands>;
+  /** insert data into the table: "bespoke_catalog_skus" */
+  insert_bespoke_catalog_skus?: Maybe<BespokeCatalogSkusMutationResponse>;
+  /** insert a single row into the table: "bespoke_catalog_skus" */
+  insert_bespoke_catalog_skus_one?: Maybe<BespokeCatalogSkus>;
   /** insert data into the table: "blaze_preapprovals" */
   insert_blaze_preapprovals?: Maybe<BlazePreapprovalsMutationResponse>;
   /** insert a single row into the table: "blaze_preapprovals" */
@@ -17632,6 +18254,10 @@ export type MutationRoot = {
   insert_metrc_sales_transactions?: Maybe<MetrcSalesTransactionsMutationResponse>;
   /** insert a single row into the table: "metrc_sales_transactions" */
   insert_metrc_sales_transactions_one?: Maybe<MetrcSalesTransactions>;
+  /** insert data into the table: "metrc_to_bespoke_catalog_skus" */
+  insert_metrc_to_bespoke_catalog_skus?: Maybe<MetrcToBespokeCatalogSkusMutationResponse>;
+  /** insert a single row into the table: "metrc_to_bespoke_catalog_skus" */
+  insert_metrc_to_bespoke_catalog_skus_one?: Maybe<MetrcToBespokeCatalogSkus>;
   /** insert data into the table: "metrc_transfer_packages" */
   insert_metrc_transfer_packages?: Maybe<MetrcTransferPackagesMutationResponse>;
   /** insert a single row into the table: "metrc_transfer_packages" */
@@ -17732,6 +18358,14 @@ export type MutationRoot = {
   update_bank_financial_summaries?: Maybe<BankFinancialSummariesMutationResponse>;
   /** update single row of the table: "bank_financial_summaries" */
   update_bank_financial_summaries_by_pk?: Maybe<BankFinancialSummaries>;
+  /** update data of the table: "bespoke_catalog_brands" */
+  update_bespoke_catalog_brands?: Maybe<BespokeCatalogBrandsMutationResponse>;
+  /** update single row of the table: "bespoke_catalog_brands" */
+  update_bespoke_catalog_brands_by_pk?: Maybe<BespokeCatalogBrands>;
+  /** update data of the table: "bespoke_catalog_skus" */
+  update_bespoke_catalog_skus?: Maybe<BespokeCatalogSkusMutationResponse>;
+  /** update single row of the table: "bespoke_catalog_skus" */
+  update_bespoke_catalog_skus_by_pk?: Maybe<BespokeCatalogSkus>;
   /** update data of the table: "blaze_preapprovals" */
   update_blaze_preapprovals?: Maybe<BlazePreapprovalsMutationResponse>;
   /** update single row of the table: "blaze_preapprovals" */
@@ -17900,6 +18534,10 @@ export type MutationRoot = {
   update_metrc_sales_transactions?: Maybe<MetrcSalesTransactionsMutationResponse>;
   /** update single row of the table: "metrc_sales_transactions" */
   update_metrc_sales_transactions_by_pk?: Maybe<MetrcSalesTransactions>;
+  /** update data of the table: "metrc_to_bespoke_catalog_skus" */
+  update_metrc_to_bespoke_catalog_skus?: Maybe<MetrcToBespokeCatalogSkusMutationResponse>;
+  /** update single row of the table: "metrc_to_bespoke_catalog_skus" */
+  update_metrc_to_bespoke_catalog_skus_by_pk?: Maybe<MetrcToBespokeCatalogSkus>;
   /** update data of the table: "metrc_transfer_packages" */
   update_metrc_transfer_packages?: Maybe<MetrcTransferPackagesMutationResponse>;
   /** update single row of the table: "metrc_transfer_packages" */
@@ -18031,6 +18669,26 @@ export type MutationRootDeleteBankFinancialSummariesArgs = {
 
 /** mutation root */
 export type MutationRootDeleteBankFinancialSummariesByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** mutation root */
+export type MutationRootDeleteBespokeCatalogBrandsArgs = {
+  where: BespokeCatalogBrandsBoolExp;
+};
+
+/** mutation root */
+export type MutationRootDeleteBespokeCatalogBrandsByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** mutation root */
+export type MutationRootDeleteBespokeCatalogSkusArgs = {
+  where: BespokeCatalogSkusBoolExp;
+};
+
+/** mutation root */
+export type MutationRootDeleteBespokeCatalogSkusByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -18457,6 +19115,16 @@ export type MutationRootDeleteMetrcSalesTransactionsByPkArgs = {
 };
 
 /** mutation root */
+export type MutationRootDeleteMetrcToBespokeCatalogSkusArgs = {
+  where: MetrcToBespokeCatalogSkusBoolExp;
+};
+
+/** mutation root */
+export type MutationRootDeleteMetrcToBespokeCatalogSkusByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+/** mutation root */
 export type MutationRootDeleteMetrcTransferPackagesArgs = {
   where: MetrcTransferPackagesBoolExp;
 };
@@ -18707,6 +19375,30 @@ export type MutationRootInsertBankFinancialSummariesArgs = {
 export type MutationRootInsertBankFinancialSummariesOneArgs = {
   object: BankFinancialSummariesInsertInput;
   on_conflict?: Maybe<BankFinancialSummariesOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertBespokeCatalogBrandsArgs = {
+  objects: Array<BespokeCatalogBrandsInsertInput>;
+  on_conflict?: Maybe<BespokeCatalogBrandsOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertBespokeCatalogBrandsOneArgs = {
+  object: BespokeCatalogBrandsInsertInput;
+  on_conflict?: Maybe<BespokeCatalogBrandsOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertBespokeCatalogSkusArgs = {
+  objects: Array<BespokeCatalogSkusInsertInput>;
+  on_conflict?: Maybe<BespokeCatalogSkusOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertBespokeCatalogSkusOneArgs = {
+  object: BespokeCatalogSkusInsertInput;
+  on_conflict?: Maybe<BespokeCatalogSkusOnConflict>;
 };
 
 /** mutation root */
@@ -19214,6 +19906,18 @@ export type MutationRootInsertMetrcSalesTransactionsOneArgs = {
 };
 
 /** mutation root */
+export type MutationRootInsertMetrcToBespokeCatalogSkusArgs = {
+  objects: Array<MetrcToBespokeCatalogSkusInsertInput>;
+  on_conflict?: Maybe<MetrcToBespokeCatalogSkusOnConflict>;
+};
+
+/** mutation root */
+export type MutationRootInsertMetrcToBespokeCatalogSkusOneArgs = {
+  object: MetrcToBespokeCatalogSkusInsertInput;
+  on_conflict?: Maybe<MetrcToBespokeCatalogSkusOnConflict>;
+};
+
+/** mutation root */
 export type MutationRootInsertMetrcTransferPackagesArgs = {
   objects: Array<MetrcTransferPackagesInsertInput>;
   on_conflict?: Maybe<MetrcTransferPackagesOnConflict>;
@@ -19521,6 +20225,30 @@ export type MutationRootUpdateBankFinancialSummariesByPkArgs = {
   _inc?: Maybe<BankFinancialSummariesIncInput>;
   _set?: Maybe<BankFinancialSummariesSetInput>;
   pk_columns: BankFinancialSummariesPkColumnsInput;
+};
+
+/** mutation root */
+export type MutationRootUpdateBespokeCatalogBrandsArgs = {
+  _set?: Maybe<BespokeCatalogBrandsSetInput>;
+  where: BespokeCatalogBrandsBoolExp;
+};
+
+/** mutation root */
+export type MutationRootUpdateBespokeCatalogBrandsByPkArgs = {
+  _set?: Maybe<BespokeCatalogBrandsSetInput>;
+  pk_columns: BespokeCatalogBrandsPkColumnsInput;
+};
+
+/** mutation root */
+export type MutationRootUpdateBespokeCatalogSkusArgs = {
+  _set?: Maybe<BespokeCatalogSkusSetInput>;
+  where: BespokeCatalogSkusBoolExp;
+};
+
+/** mutation root */
+export type MutationRootUpdateBespokeCatalogSkusByPkArgs = {
+  _set?: Maybe<BespokeCatalogSkusSetInput>;
+  pk_columns: BespokeCatalogSkusPkColumnsInput;
 };
 
 /** mutation root */
@@ -20095,6 +20823,18 @@ export type MutationRootUpdateMetrcSalesTransactionsByPkArgs = {
   _inc?: Maybe<MetrcSalesTransactionsIncInput>;
   _set?: Maybe<MetrcSalesTransactionsSetInput>;
   pk_columns: MetrcSalesTransactionsPkColumnsInput;
+};
+
+/** mutation root */
+export type MutationRootUpdateMetrcToBespokeCatalogSkusArgs = {
+  _set?: Maybe<MetrcToBespokeCatalogSkusSetInput>;
+  where: MetrcToBespokeCatalogSkusBoolExp;
+};
+
+/** mutation root */
+export type MutationRootUpdateMetrcToBespokeCatalogSkusByPkArgs = {
+  _set?: Maybe<MetrcToBespokeCatalogSkusSetInput>;
+  pk_columns: MetrcToBespokeCatalogSkusPkColumnsInput;
 };
 
 /** mutation root */
@@ -23074,6 +23814,18 @@ export type QueryRoot = {
   bank_financial_summaries_aggregate: BankFinancialSummariesAggregate;
   /** fetch data from the table: "bank_financial_summaries" using primary key columns */
   bank_financial_summaries_by_pk?: Maybe<BankFinancialSummaries>;
+  /** fetch data from the table: "bespoke_catalog_brands" */
+  bespoke_catalog_brands: Array<BespokeCatalogBrands>;
+  /** fetch aggregated fields from the table: "bespoke_catalog_brands" */
+  bespoke_catalog_brands_aggregate: BespokeCatalogBrandsAggregate;
+  /** fetch data from the table: "bespoke_catalog_brands" using primary key columns */
+  bespoke_catalog_brands_by_pk?: Maybe<BespokeCatalogBrands>;
+  /** An array relationship */
+  bespoke_catalog_skus: Array<BespokeCatalogSkus>;
+  /** An aggregate relationship */
+  bespoke_catalog_skus_aggregate: BespokeCatalogSkusAggregate;
+  /** fetch data from the table: "bespoke_catalog_skus" using primary key columns */
+  bespoke_catalog_skus_by_pk?: Maybe<BespokeCatalogSkus>;
   /** fetch data from the table: "blaze_preapprovals" */
   blaze_preapprovals: Array<BlazePreapprovals>;
   /** fetch aggregated fields from the table: "blaze_preapprovals" */
@@ -23326,6 +24078,12 @@ export type QueryRoot = {
   metrc_sales_transactions_aggregate: MetrcSalesTransactionsAggregate;
   /** fetch data from the table: "metrc_sales_transactions" using primary key columns */
   metrc_sales_transactions_by_pk?: Maybe<MetrcSalesTransactions>;
+  /** fetch data from the table: "metrc_to_bespoke_catalog_skus" */
+  metrc_to_bespoke_catalog_skus: Array<MetrcToBespokeCatalogSkus>;
+  /** fetch aggregated fields from the table: "metrc_to_bespoke_catalog_skus" */
+  metrc_to_bespoke_catalog_skus_aggregate: MetrcToBespokeCatalogSkusAggregate;
+  /** fetch data from the table: "metrc_to_bespoke_catalog_skus" using primary key columns */
+  metrc_to_bespoke_catalog_skus_by_pk?: Maybe<MetrcToBespokeCatalogSkus>;
   /** An array relationship */
   metrc_transfer_packages: Array<MetrcTransferPackages>;
   /** An aggregate relationship */
@@ -23555,6 +24313,46 @@ export type QueryRootBankFinancialSummariesAggregateArgs = {
 };
 
 export type QueryRootBankFinancialSummariesByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+export type QueryRootBespokeCatalogBrandsArgs = {
+  distinct_on?: Maybe<Array<BespokeCatalogBrandsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<BespokeCatalogBrandsOrderBy>>;
+  where?: Maybe<BespokeCatalogBrandsBoolExp>;
+};
+
+export type QueryRootBespokeCatalogBrandsAggregateArgs = {
+  distinct_on?: Maybe<Array<BespokeCatalogBrandsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<BespokeCatalogBrandsOrderBy>>;
+  where?: Maybe<BespokeCatalogBrandsBoolExp>;
+};
+
+export type QueryRootBespokeCatalogBrandsByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+export type QueryRootBespokeCatalogSkusArgs = {
+  distinct_on?: Maybe<Array<BespokeCatalogSkusSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<BespokeCatalogSkusOrderBy>>;
+  where?: Maybe<BespokeCatalogSkusBoolExp>;
+};
+
+export type QueryRootBespokeCatalogSkusAggregateArgs = {
+  distinct_on?: Maybe<Array<BespokeCatalogSkusSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<BespokeCatalogSkusOrderBy>>;
+  where?: Maybe<BespokeCatalogSkusBoolExp>;
+};
+
+export type QueryRootBespokeCatalogSkusByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -24400,6 +25198,26 @@ export type QueryRootMetrcSalesTransactionsByPkArgs = {
   id: Scalars["uuid"];
 };
 
+export type QueryRootMetrcToBespokeCatalogSkusArgs = {
+  distinct_on?: Maybe<Array<MetrcToBespokeCatalogSkusSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<MetrcToBespokeCatalogSkusOrderBy>>;
+  where?: Maybe<MetrcToBespokeCatalogSkusBoolExp>;
+};
+
+export type QueryRootMetrcToBespokeCatalogSkusAggregateArgs = {
+  distinct_on?: Maybe<Array<MetrcToBespokeCatalogSkusSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<MetrcToBespokeCatalogSkusOrderBy>>;
+  where?: Maybe<MetrcToBespokeCatalogSkusBoolExp>;
+};
+
+export type QueryRootMetrcToBespokeCatalogSkusByPkArgs = {
+  id: Scalars["uuid"];
+};
+
 export type QueryRootMetrcTransferPackagesArgs = {
   distinct_on?: Maybe<Array<MetrcTransferPackagesSelectColumn>>;
   limit?: Maybe<Scalars["Int"]>;
@@ -25066,6 +25884,18 @@ export type SubscriptionRoot = {
   bank_financial_summaries_aggregate: BankFinancialSummariesAggregate;
   /** fetch data from the table: "bank_financial_summaries" using primary key columns */
   bank_financial_summaries_by_pk?: Maybe<BankFinancialSummaries>;
+  /** fetch data from the table: "bespoke_catalog_brands" */
+  bespoke_catalog_brands: Array<BespokeCatalogBrands>;
+  /** fetch aggregated fields from the table: "bespoke_catalog_brands" */
+  bespoke_catalog_brands_aggregate: BespokeCatalogBrandsAggregate;
+  /** fetch data from the table: "bespoke_catalog_brands" using primary key columns */
+  bespoke_catalog_brands_by_pk?: Maybe<BespokeCatalogBrands>;
+  /** An array relationship */
+  bespoke_catalog_skus: Array<BespokeCatalogSkus>;
+  /** An aggregate relationship */
+  bespoke_catalog_skus_aggregate: BespokeCatalogSkusAggregate;
+  /** fetch data from the table: "bespoke_catalog_skus" using primary key columns */
+  bespoke_catalog_skus_by_pk?: Maybe<BespokeCatalogSkus>;
   /** fetch data from the table: "blaze_preapprovals" */
   blaze_preapprovals: Array<BlazePreapprovals>;
   /** fetch aggregated fields from the table: "blaze_preapprovals" */
@@ -25318,6 +26148,12 @@ export type SubscriptionRoot = {
   metrc_sales_transactions_aggregate: MetrcSalesTransactionsAggregate;
   /** fetch data from the table: "metrc_sales_transactions" using primary key columns */
   metrc_sales_transactions_by_pk?: Maybe<MetrcSalesTransactions>;
+  /** fetch data from the table: "metrc_to_bespoke_catalog_skus" */
+  metrc_to_bespoke_catalog_skus: Array<MetrcToBespokeCatalogSkus>;
+  /** fetch aggregated fields from the table: "metrc_to_bespoke_catalog_skus" */
+  metrc_to_bespoke_catalog_skus_aggregate: MetrcToBespokeCatalogSkusAggregate;
+  /** fetch data from the table: "metrc_to_bespoke_catalog_skus" using primary key columns */
+  metrc_to_bespoke_catalog_skus_by_pk?: Maybe<MetrcToBespokeCatalogSkus>;
   /** An array relationship */
   metrc_transfer_packages: Array<MetrcTransferPackages>;
   /** An aggregate relationship */
@@ -25547,6 +26383,46 @@ export type SubscriptionRootBankFinancialSummariesAggregateArgs = {
 };
 
 export type SubscriptionRootBankFinancialSummariesByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+export type SubscriptionRootBespokeCatalogBrandsArgs = {
+  distinct_on?: Maybe<Array<BespokeCatalogBrandsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<BespokeCatalogBrandsOrderBy>>;
+  where?: Maybe<BespokeCatalogBrandsBoolExp>;
+};
+
+export type SubscriptionRootBespokeCatalogBrandsAggregateArgs = {
+  distinct_on?: Maybe<Array<BespokeCatalogBrandsSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<BespokeCatalogBrandsOrderBy>>;
+  where?: Maybe<BespokeCatalogBrandsBoolExp>;
+};
+
+export type SubscriptionRootBespokeCatalogBrandsByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+export type SubscriptionRootBespokeCatalogSkusArgs = {
+  distinct_on?: Maybe<Array<BespokeCatalogSkusSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<BespokeCatalogSkusOrderBy>>;
+  where?: Maybe<BespokeCatalogSkusBoolExp>;
+};
+
+export type SubscriptionRootBespokeCatalogSkusAggregateArgs = {
+  distinct_on?: Maybe<Array<BespokeCatalogSkusSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<BespokeCatalogSkusOrderBy>>;
+  where?: Maybe<BespokeCatalogSkusBoolExp>;
+};
+
+export type SubscriptionRootBespokeCatalogSkusByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -26389,6 +27265,26 @@ export type SubscriptionRootMetrcSalesTransactionsAggregateArgs = {
 };
 
 export type SubscriptionRootMetrcSalesTransactionsByPkArgs = {
+  id: Scalars["uuid"];
+};
+
+export type SubscriptionRootMetrcToBespokeCatalogSkusArgs = {
+  distinct_on?: Maybe<Array<MetrcToBespokeCatalogSkusSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<MetrcToBespokeCatalogSkusOrderBy>>;
+  where?: Maybe<MetrcToBespokeCatalogSkusBoolExp>;
+};
+
+export type SubscriptionRootMetrcToBespokeCatalogSkusAggregateArgs = {
+  distinct_on?: Maybe<Array<MetrcToBespokeCatalogSkusSelectColumn>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<MetrcToBespokeCatalogSkusOrderBy>>;
+  where?: Maybe<MetrcToBespokeCatalogSkusBoolExp>;
+};
+
+export type SubscriptionRootMetrcToBespokeCatalogSkusByPkArgs = {
   id: Scalars["uuid"];
 };
 
@@ -29866,6 +30762,26 @@ export type ListPayorPartnershipsByCompanyIdQuery = {
   >;
 };
 
+export type GetBespokeCatalogSkusSubscriptionVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetBespokeCatalogSkusSubscription = {
+  bespoke_catalog_skus: Array<
+    Pick<BespokeCatalogSkus, "id"> & BespokeCatalogSkuFragment
+  >;
+};
+
+export type GetBespokeCatalogBrandsSubscriptionVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type GetBespokeCatalogBrandsSubscription = {
+  bespoke_catalog_brands: Array<
+    Pick<BespokeCatalogBrands, "id"> & BespokeCatalogBrandFragment
+  >;
+};
+
 export type GetCompanyDeliveryQueryVariables = Exact<{
   id: Scalars["uuid"];
   company_id: Scalars["uuid"];
@@ -31955,6 +32871,16 @@ export type MonthlySummaryCalculationFragment = Pick<
   "id" | "report_month"
 >;
 
+export type BespokeCatalogSkuFragment = Pick<
+  BespokeCatalogSkus,
+  "id" | "sku"
+> & { bespoke_catalog_brand: Pick<BespokeCatalogBrands, "id" | "brand_name"> };
+
+export type BespokeCatalogBrandFragment = Pick<
+  BespokeCatalogBrands,
+  "id" | "brand_name" | "us_state"
+>;
+
 export type CompanySettingsLimitedFragment = Pick<
   CompanySettings,
   | "id"
@@ -34011,6 +34937,23 @@ export const RecentMonthlyCalculationsFragmentDoc = gql`
     }
   }
   ${MonthlySummaryCalculationFragmentDoc}
+`;
+export const BespokeCatalogSkuFragmentDoc = gql`
+  fragment BespokeCatalogSku on bespoke_catalog_skus {
+    id
+    sku
+    bespoke_catalog_brand {
+      id
+      brand_name
+    }
+  }
+`;
+export const BespokeCatalogBrandFragmentDoc = gql`
+  fragment BespokeCatalogBrand on bespoke_catalog_brands {
+    id
+    brand_name
+    us_state
+  }
 `;
 export const CompanyLicenseLimitedAnonymousFragmentDoc = gql`
   fragment CompanyLicenseLimitedAnonymous on company_licenses {
@@ -40271,6 +41214,90 @@ export type ListPayorPartnershipsByCompanyIdQueryResult = Apollo.QueryResult<
   ListPayorPartnershipsByCompanyIdQuery,
   ListPayorPartnershipsByCompanyIdQueryVariables
 >;
+export const GetBespokeCatalogSkusDocument = gql`
+  subscription GetBespokeCatalogSkus {
+    bespoke_catalog_skus(where: { is_deleted: { _eq: false } }) {
+      id
+      ...BespokeCatalogSku
+    }
+  }
+  ${BespokeCatalogSkuFragmentDoc}
+`;
+
+/**
+ * __useGetBespokeCatalogSkusSubscription__
+ *
+ * To run a query within a React component, call `useGetBespokeCatalogSkusSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetBespokeCatalogSkusSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetBespokeCatalogSkusSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetBespokeCatalogSkusSubscription(
+  baseOptions?: Apollo.SubscriptionHookOptions<
+    GetBespokeCatalogSkusSubscription,
+    GetBespokeCatalogSkusSubscriptionVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useSubscription<
+    GetBespokeCatalogSkusSubscription,
+    GetBespokeCatalogSkusSubscriptionVariables
+  >(GetBespokeCatalogSkusDocument, options);
+}
+export type GetBespokeCatalogSkusSubscriptionHookResult = ReturnType<
+  typeof useGetBespokeCatalogSkusSubscription
+>;
+export type GetBespokeCatalogSkusSubscriptionResult =
+  Apollo.SubscriptionResult<GetBespokeCatalogSkusSubscription>;
+export const GetBespokeCatalogBrandsDocument = gql`
+  subscription GetBespokeCatalogBrands {
+    bespoke_catalog_brands(where: { is_deleted: { _eq: false } }) {
+      id
+      ...BespokeCatalogBrand
+    }
+  }
+  ${BespokeCatalogBrandFragmentDoc}
+`;
+
+/**
+ * __useGetBespokeCatalogBrandsSubscription__
+ *
+ * To run a query within a React component, call `useGetBespokeCatalogBrandsSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useGetBespokeCatalogBrandsSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetBespokeCatalogBrandsSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetBespokeCatalogBrandsSubscription(
+  baseOptions?: Apollo.SubscriptionHookOptions<
+    GetBespokeCatalogBrandsSubscription,
+    GetBespokeCatalogBrandsSubscriptionVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useSubscription<
+    GetBespokeCatalogBrandsSubscription,
+    GetBespokeCatalogBrandsSubscriptionVariables
+  >(GetBespokeCatalogBrandsDocument, options);
+}
+export type GetBespokeCatalogBrandsSubscriptionHookResult = ReturnType<
+  typeof useGetBespokeCatalogBrandsSubscription
+>;
+export type GetBespokeCatalogBrandsSubscriptionResult =
+  Apollo.SubscriptionResult<GetBespokeCatalogBrandsSubscription>;
 export const GetCompanyDeliveryDocument = gql`
   query GetCompanyDelivery($id: uuid!, $company_id: uuid!) {
     company_deliveries_by_pk(id: $id) {

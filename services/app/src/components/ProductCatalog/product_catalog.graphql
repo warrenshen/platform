@@ -1,0 +1,13 @@
+subscription GetBespokeCatalogSkus {
+  bespoke_catalog_skus(where: { is_deleted: { _eq: false }}) {
+    id
+	...BespokeCatalogSku
+  }
+}
+
+subscription GetBespokeCatalogBrands {
+  bespoke_catalog_brands(where: { is_deleted: { _eq: false }}) {
+	id
+	...BespokeCatalogBrand
+  }
+}

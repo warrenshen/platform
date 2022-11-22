@@ -57,6 +57,7 @@ import BankMetrcPage from "pages/Bank/Metrc";
 import BankOverviewPage from "pages/Bank/Overview";
 import BankPartnershipsPage from "pages/Bank/Partnerships";
 import BankPayorsPage from "pages/Bank/Payors";
+import BankProductCatalogPage from "pages/Bank/ProductCatalog";
 import BankPurchaseOrdersPageNew from "pages/Bank/PurchaseOrdersNew";
 import BankRepaymentsPage from "pages/Bank/Repayments";
 import BankReportsPage from "pages/Bank/Reports";
@@ -833,6 +834,19 @@ export default function App() {
               ]}
             >
               <BankSettingsPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={bankRoutes.productCatalog}
+          element={
+            <PrivateRoute
+              requiredRoles={[
+                UserRolesEnum.BankAdmin,
+                UserRolesEnum.BankReadOnly,
+              ]}
+            >
+              <BankProductCatalogPage />
             </PrivateRoute>
           }
         />

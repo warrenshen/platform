@@ -30,6 +30,7 @@ from server.views import (
 	metrc,
 	notify,
 	partnerships,
+	product_catalog,
     purchase_orders,
 	two_factor,
 	users,
@@ -87,6 +88,7 @@ app.register_blueprint(licenses.handler, url_prefix='/licenses')
 app.register_blueprint(two_factor.handler, url_prefix='/two_factor')
 app.register_blueprint(users.handler, url_prefix='/users')
 app.register_blueprint(async_jobs.handler, url_prefix='/async_jobs')
+app.register_blueprint(product_catalog.handler, url_prefix='/product_catalog')
 
 # Third-party APIs
 app.register_blueprint(inventory.handler, url_prefix='/inventory')

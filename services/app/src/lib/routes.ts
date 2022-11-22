@@ -105,6 +105,7 @@ export const bankRoutes = {
   metrc: {
     transfer: "/transfer",
   },
+  productCatalog: "/product-catalog",
   reports: "/reports",
   settings: "/settings",
   vendors: "/vendors",

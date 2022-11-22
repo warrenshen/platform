@@ -1,0 +1,56 @@
+table:
+  schema: public
+  name: bespoke_catalog_brands
+array_relationships:
+  - name: bespoke_catalog_skus
+    using:
+      foreign_key_constraint_on:
+        column: bespoke_catalog_brand_id
+        table:
+          schema: public
+          name: bespoke_catalog_skus
+insert_permissions:
+  - role: bank_admin
+    permission:
+      check: {}
+      columns:
+        - brand_name
+        - id
+        - is_deleted
+        - us_state
+        - website_url
+        - created_at
+        - updated_at
+        - deleted_at
+      backend_only: false
+select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+        - is_deleted
+        - brand_name
+        - us_state
+        - website_url
+        - id
+        - created_at
+        - updated_at
+        - deleted_at
+      filter: {}
+update_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+        - is_deleted
+        - brand_name
+        - us_state
+        - website_url
+        - id
+        - created_at
+        - updated_at
+        - deleted_at
+      filter: {}
+      check: null
+delete_permissions:
+  - role: bank_admin
+    permission:
+      filter: {}

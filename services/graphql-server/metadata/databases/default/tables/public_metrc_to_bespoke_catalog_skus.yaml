@@ -1,0 +1,3 @@
+table:
+  schema: public
+  name: metrc_to_bespoke_catalog_skus

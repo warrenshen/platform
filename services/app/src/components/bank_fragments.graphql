@@ -729,3 +729,18 @@ fragment MonthlySummaryCalculation on monthly_summary_calculations {
   id 
   report_month
 }
+
+fragment BespokeCatalogSku on bespoke_catalog_skus {
+  id
+  sku
+  bespoke_catalog_brand {
+    id
+    brand_name
+  }
+}
+
+fragment BespokeCatalogBrand on bespoke_catalog_brands {
+  id
+  brand_name
+  us_state
+}
