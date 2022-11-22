@@ -104,8 +104,8 @@
   include_in_metadata: true
   payload: {}
   headers:
-    - value: ASYNC_SERVER_API_KEY
-      name: x-api-key
+    - name: x-api-key
+      value_from_env: ASYNC_SERVER_API_KEY
 - name: rerun_failed_metrc_downloads
   webhook: '{{ASYNC_SERVER_BASE_URL}}/triggers/rerun-failed-metrc-downloads'
   schedule: '*/5 * * * *'
