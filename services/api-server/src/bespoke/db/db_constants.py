@@ -409,6 +409,7 @@ class AsyncJobNameEnum(object):
 	NON_LOC_MONTHLY_REPORT_SUMMARY = "non_loc_monthly_report_summary"
 	PURCHASE_ORDERS_PAST_DUE = "purchase_orders_past_due"
 	REFRESH_METRC_API_KEY_PERMISSIONS = "refresh_metrc_api_key_permissions"
+	DAILY_COMPANY_BALANCES_RUN = "daily_company_balances_run"
 	UPDATE_COMPANY_BALANCES = "update_company_balances"
 
 AsyncJobNameEnumToLabel = {
@@ -423,6 +424,7 @@ AsyncJobNameEnumToLabel = {
 	AsyncJobNameEnum.NON_LOC_MONTHLY_REPORT_SUMMARY: 'Non-LOC monthly report summary',
 	AsyncJobNameEnum.PURCHASE_ORDERS_PAST_DUE: 'Purchase orders past due',
 	AsyncJobNameEnum.REFRESH_METRC_API_KEY_PERMISSIONS: 'Refresh Metrc API key permissions',
+	AsyncJobNameEnum.DAILY_COMPANY_BALANCES_RUN: 'Daily Company Balances Run',
 	AsyncJobNameEnum.UPDATE_COMPANY_BALANCES: 'Update company balances',
 }
 

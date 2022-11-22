@@ -117,15 +117,15 @@ class RunCustomerBalancesView(MethodView):
 						create_if_missing=True, 
 						days_to_compute_back=days_to_compute_back)
 
-			with session_scope(current_app.session_maker) as session:
-				for company_id in company_ids:
-					payload = {"company_id": str(company_id)}
-					_, err = async_jobs_util.add_job_to_queue(
-						session=session,
-						job_name=AsyncJobNameEnum.UPDATE_COMPANY_BALANCES,
-						submitted_by_user_id=cfg.BOT_USER_ID,
-						is_high_priority=True,
-						job_payload=payload)
+			# with session_scope(current_app.session_maker) as session:
+			# 	for company_id in company_ids:
+			# 		payload = {"company_id": str(company_id)}
+			# 		_, err = async_jobs_util.add_job_to_queue(
+			# 			session=session,
+			# 			job_name=AsyncJobNameEnum.UPDATE_COMPANY_BALANCES,
+			# 			submitted_by_user_id=cfg.BOT_USER_ID,
+			# 			is_high_priority=True,
+			# 			job_payload=payload)
 
 			return make_response({
 				'status': 'OK',

@@ -1143,6 +1143,7 @@ export enum AsyncJobNameEnum {
   NonLOCMonthlyReportSummary = "non_loc_monthly_report_summary",
   PurchaseOrdersPastDue = "purchase_orders_past_due",
   RefreshMetrcApiKeyPermissions = "refresh_metrc_api_key_permissions",
+  DailyCompanyBalancesRun = "daily_company_balances_run",
   UpdateCompanyBalances = "update_company_balances",
 }
 
@@ -1164,6 +1165,7 @@ export const AsyncJobNameEnumToLabel = {
   [AsyncJobNameEnum.PurchaseOrdersPastDue]: "Purchase Orders Past Due",
   [AsyncJobNameEnum.RefreshMetrcApiKeyPermissions]:
     "Refresh Metrc API Key Permissions",
+  [AsyncJobNameEnum.DailyCompanyBalancesRun]: "Daily Company Balances Run",
   [AsyncJobNameEnum.UpdateCompanyBalances]: "Update Company Balances",
 };
 

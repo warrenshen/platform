@@ -867,6 +867,38 @@ def autogenerate_repayment_alerts(
 
 	return True, None
 
+def generate_daily_company_balances_run(
+	session: Session,
+) -> Tuple[bool, errors.Error]:
+	logging.info("Received request to run the daily company balances run")
+	cfg = cast(Config, current_app.app_config)
+
+	# mark that all companies need their balance recomputed
+	companies = reports_util.list_all_companies(session)
+	cur_date = date_util.now_as_date(date_util.DEFAULT_TIMEZONE)
+	company_ids = [company['id'] for company in companies]
+	reports_util._set_needs_balance_recomputed(
+		session,
+		company_ids, 
+		cur_date, 
+		create_if_missing=True,
+		# days_to_compute_back=0, 
+		days_to_compute_back=reports_util.DAYS_TO_COMPUTE_BACK, 
+	)
+
+	for company in companies:
+		payload = {"company_id" :company["id"]}
+
+		add_job_to_queue(
+			session = session,
+			job_name = AsyncJobNameEnum.DAILY_COMPANY_BALANCES_RUN,
+			submitted_by_user_id = cfg.BOT_USER_ID,
+			is_high_priority = False,
+			job_payload = payload
+		)
+
+	return True, None
+
 @errors.return_error_tuple
 def update_company_balances_job(
 	session: Session
@@ -885,32 +917,29 @@ def update_company_balances_job(
 	currently_queued_payloads = [dict(job.job_payload if job.job_payload else {}) for job in currently_queued_jobs]
 	currently_queued_company_ids = [ payload.get("company_id") for  payload in currently_queued_payloads]
 
-	# mark that all companies need their balance recomputed
+	# Grab all companies and check if each one is dirty, if so generate job to update
 	companies = reports_util.list_all_companies(session)
 	cur_date = date_util.now_as_date(date_util.DEFAULT_TIMEZONE)
-	company_ids = [company['id'] for company in companies]
-	reports_util._set_needs_balance_recomputed(
-		session,
-		company_ids, 
-		cur_date, 
-		create_if_missing=True,
-		# days_to_compute_back=0, 
-		days_to_compute_back=reports_util.DAYS_TO_COMPUTE_BACK, 
-		)
-
-	logging.info("Submitted that all customers need their company balances updated")
 
 	# add each companies recomputing job to the queue
 	for company in companies:
 		if company["id"] not in currently_queued_company_ids:
-			payload = {"company_id" :company["id"]}
+			summary_requests = reports_util.list_financial_summaries_that_need_balances_recomputed_by_company(
+				session,
+				company["id"],
+				date_util.now_as_date(),
+				amount_to_fetch = 1
+			)
 
-			add_job_to_queue(
-				session=session,
-				job_name=AsyncJobNameEnum.UPDATE_COMPANY_BALANCES,
-				submitted_by_user_id=cfg.BOT_USER_ID,
-				is_high_priority=False,
-				job_payload=payload)
+			if len(summary_requests) > 0:
+				payload = {"company_id" :company["id"]}
+
+				add_job_to_queue(
+					session=session,
+					job_name=AsyncJobNameEnum.UPDATE_COMPANY_BALANCES,
+					submitted_by_user_id=cfg.BOT_USER_ID,
+					is_high_priority=False,
+					job_payload=payload)
 
 	# this checks if a job summary already exists for the day, all the others
 	# should be duplicates, but we want to make sure that it runs once a day
@@ -922,6 +951,7 @@ def update_company_balances_job(
 
 	if first_job_summary == None:
 		add_job_summary(session, AsyncJobNameEnum.UPDATE_COMPANY_BALANCES)
+
 	return True, None
 
 @errors.return_error_tuple
@@ -1876,6 +1906,7 @@ ASYNC_JOB_GENERATION_LOOKUP = {
 	AsyncJobNameEnum.LOANS_PAST_DUE: generate_companies_loans_past_due_job,
 	AsyncJobNameEnum.PURCHASE_ORDERS_PAST_DUE: generate_reject_purchase_order_past_60_days_job,
 	AsyncJobNameEnum.REFRESH_METRC_API_KEY_PERMISSIONS: generate_refresh_metrc_api_key_permissions_jobs,
+	AsyncJobNameEnum.DAILY_COMPANY_BALANCES_RUN: generate_daily_company_balances_run,
 	AsyncJobNameEnum.UPDATE_COMPANY_BALANCES: update_company_balances_job,
 }
 
@@ -1891,5 +1922,6 @@ ASYNC_JOB_ORCHESTRATION_LOOKUP = {
 	AsyncJobNameEnum.NON_LOC_MONTHLY_REPORT_SUMMARY: reports_monthly_loan_summary_Non_LOC,
 	AsyncJobNameEnum.PURCHASE_ORDERS_PAST_DUE: reject_purchase_order_past_60_days,
 	AsyncJobNameEnum.REFRESH_METRC_API_KEY_PERMISSIONS: run_refresh_metrc_api_key_permissions_job,
+	AsyncJobNameEnum.DAILY_COMPANY_BALANCES_RUN: update_dirty_company_balances_job,
 	AsyncJobNameEnum.UPDATE_COMPANY_BALANCES: update_dirty_company_balances_job,
 }

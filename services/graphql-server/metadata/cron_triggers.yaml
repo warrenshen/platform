@@ -77,6 +77,15 @@
   headers:
     - name: x-api-key
       value_from_env: ASYNC_SERVER_API_KEY
+- name: daily_company_balances_run
+  webhook: '{{ASYNC_SERVER_BASE_URL}}/async_jobs/generate_jobs'
+  schedule: 5 0 * * *
+  include_in_metadata: true
+  payload:
+    job_name: daily_company_balances_run
+  headers:
+    - name: x-api-key
+      value_from_env: ASYNC_SERVER_API_KEY
 - name: download_all_metrc_data
   webhook: '{{ASYNC_SERVER_BASE_URL}}/triggers/download-metrc-data'
   schedule: 15 3,15 * * *

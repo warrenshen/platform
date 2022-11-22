@@ -155,7 +155,6 @@ class GenerateJobsView(MethodView):
 			'status': 'OK'
 		}), 200)
 
-
 class OrchestrationHandlerView(MethodView):
 	decorators = [auth_util.requires_async_header_or_bank_admin]
 
