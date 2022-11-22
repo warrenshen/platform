@@ -66,6 +66,9 @@ export default function AsyncJobsDataGrid({
         run_time: !!asyncJob?.ended_at
           ? getTimeInbetweenDates(asyncJob.ended_at, asyncJob.started_at)
           : null,
+        init_time: !!asyncJob?.initialized_at
+          ? parseDateStringServer(asyncJob.initialized_at)
+          : null,
         start_time: !!asyncJob?.started_at
           ? parseDateStringServer(asyncJob.started_at)
           : null,
@@ -99,7 +102,7 @@ export default function AsyncJobsDataGrid({
       {
         caption: "Name",
         dataField: "name",
-        minWidth: ColumnWidths.MinWidth,
+        width: ColumnWidths.AsyncJobName,
         lookup: {
           dataSource: {
             store: {
@@ -149,6 +152,12 @@ export default function AsyncJobsDataGrid({
         caption: "High Priority",
         dataField: "high_priority",
         minWidth: ColumnWidths.MinWidth,
+      },
+      {
+        caption: "Init Time",
+        dataField: "init_time",
+        format: "longDateLongTime",
+        minWidth: ColumnWidths.Datetime,
       },
       {
         caption: "Start Time",

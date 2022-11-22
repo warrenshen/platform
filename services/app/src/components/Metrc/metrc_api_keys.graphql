@@ -76,3 +76,13 @@ query GetMetrcDownloadSummariesByMetrcApiKeyId($metrcApiKeyId: uuid!) {
     ...MetrcDownloadSummaryLimited
   }
 }
+
+query GetMetrcDownloadSummariesByLicenseNumber($license_number: String!) {
+  metrc_download_summaries(
+    where: { license_number: { _eq: $license_number } }
+    order_by: { date: desc }
+  ) {
+    id
+    ...MetrcDownloadSummaryLimited
+  }
+}

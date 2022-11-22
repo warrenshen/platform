@@ -2,6 +2,7 @@ import { mapValues } from "lodash";
 
 export const ColumnWidths = {
   // Fixed width columns.
+  AsyncJobName: 300,
   Checkbox: 120,
   Comment: 250,
   Count: 140,

@@ -3,7 +3,6 @@ import { GridValueFormatterParams } from "@material-ui/data-grid";
 import { Alert } from "@material-ui/lab";
 import DeleteMetrcKeyModal from "components/Metrc/DeleteMetrcKeyModal";
 import MetrcApiKeyDrawer from "components/Metrc/MetrcApiKeyDrawer";
-import MetrcApiKeyInfo from "components/Metrc/MetrcApiKeyInfo";
 import RefreshMetrcKeyPermissionsModal from "components/Metrc/RefreshMetrcKeyPermissionsModal";
 import UpsertMetrcKeyModal from "components/Metrc/UpsertMetrcKeyModal";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
@@ -140,47 +139,31 @@ export default function MetrcApiKeysList({ companyId }: Props) {
 
   return (
     <Box>
-      {metrcApiKeys.length > 0 ? (
-        <Box mt={1}>
-          <Alert severity="info">Metrc API key(s) set up</Alert>
-        </Box>
-      ) : (
-        <Box mt={1}>
-          <Alert severity="warning">Metrc API key(s) NOT set up yet</Alert>
-        </Box>
-      )}
       {!!openedMetrcApiKeyId && (
         <MetrcApiKeyDrawer
           metrcApiKeyId={openedMetrcApiKeyId}
           handleClose={() => setOpenedMetrcApiKeyId(null)}
         />
       )}
+      {metrcApiKeys.length > 0 ? (
+        <Box mt={1}>
+          <Alert severity="info">Metrc API key(s) set up</Alert>
+        </Box>
+      ) : (
+        <Box mt={1}>
+          <Alert severity="warning">No Metrc API key(s) set up yet</Alert>
+        </Box>
+      )}
       <Box mt={2}>
         <Box display="flex" flexDirection="row-reverse">
           <Box>
             <ModalButton
               isDisabled={selectedMetrcKeyIds.length >= 1}
-              label={"Add API Key"}
+              label={"Create API Key"}
               modal={({ handleClose }) => (
                 <UpsertMetrcKeyModal
                   companyId={companyId}
                   metrcApiKey={null}
-                  handleClose={() => {
-                    handleClose();
-                    refetch();
-                  }}
-                />
-              )}
-            />
-          </Box>
-          <Box mr={2}>
-            <ModalButton
-              isDisabled={selectedMetrcKeyIds.length !== 1}
-              label={"Edit API Key"}
-              modal={({ handleClose }) => (
-                <UpsertMetrcKeyModal
-                  companyId={companyId}
-                  metrcApiKey={selectedMetrcApiKey}
                   handleClose={() => {
                     handleClose();
                     refetch();
@@ -235,15 +218,6 @@ export default function MetrcApiKeysList({ companyId }: Props) {
           selectedRowKeys={selectedMetrcKeyIds}
           onSelectionChanged={handleSelectionChanged}
         />
-      </Box>
-      <Box display="flex" flexDirection="column" mt={4}>
-        {metrcApiKeys.map((metrcApiKey, index) => (
-          <MetrcApiKeyInfo
-            key={metrcApiKey.id}
-            number={index + 1}
-            metrcApiKey={metrcApiKey}
-          />
-        ))}
       </Box>
     </Box>
   );

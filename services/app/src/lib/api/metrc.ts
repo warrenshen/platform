@@ -153,6 +153,18 @@ export type TransferPackage = {
   is_testing_sample: string;
 };
 
+type MetrcApiKeyLicensePermissions = {
+  license_number: string;
+  is_harvests_enabled: boolean;
+  is_plant_batches_enabled: boolean;
+  is_plants_enabled: boolean;
+  is_packages_enabled: boolean;
+  is_sales_receipts_enabled: boolean;
+  is_transfers_enabled: boolean;
+};
+
+export type MetrcApiKeyPermissions = MetrcApiKeyLicensePermissions[];
+
 type GetTransfersReq = {
   variables: {
     license_id: string;

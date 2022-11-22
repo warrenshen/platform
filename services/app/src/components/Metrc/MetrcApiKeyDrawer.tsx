@@ -1,8 +1,10 @@
 import { Box, Typography } from "@material-ui/core";
+import LicenseMetrcDownloadSummariesGrid from "components/Metrc/LicenseMetrcDownloadSummariesGrid";
 import Modal from "components/Shared/Modal/Modal";
 import ModalDataPoint from "components/Shared/Modal/ModalDataPoint";
 import RawJsonToggle from "components/Shared/RawJsonToggle";
 import { MetrcApiKeys, useGetMetrcApiKeyQuery } from "generated/graphql";
+import { MetrcApiKeyPermissions } from "lib/api/metrc";
 
 interface Props {
   metrcApiKeyId: MetrcApiKeys["id"];
@@ -25,6 +27,10 @@ export default function MetrcApiKeyModal({
   if (!metrcApiKey) {
     return null;
   }
+
+  const licenseNumbers = (
+    (metrcApiKey.permissions_payload || []) as MetrcApiKeyPermissions
+  ).map((licensePermissions) => licensePermissions["license_number"]);
 
   return (
     <Modal
@@ -51,6 +57,13 @@ export default function MetrcApiKeyModal({
           Permissions Payload JSON
         </Typography>
         <RawJsonToggle rawJson={metrcApiKey.permissions_payload} />
+      </Box>
+      <Box display="flex" flexDirection="column">
+        {licenseNumbers.map((licenseNumber) => (
+          <Box key={licenseNumber} mt={2}>
+            <LicenseMetrcDownloadSummariesGrid licenseNumber={licenseNumber} />
+          </Box>
+        ))}
       </Box>
     </Modal>
   );

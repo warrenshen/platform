@@ -1147,13 +1147,13 @@ export enum AsyncJobNameEnum {
 }
 
 export const AsyncJobNameEnumToLabel = {
-  [AsyncJobNameEnum.AutogenerateRepayments]: "Autogenerate repayments",
+  [AsyncJobNameEnum.AutogenerateRepayments]: "Autogenerate Repayments",
   [AsyncJobNameEnum.AutogenerateRepaymentAlerts]:
-    "Autogenerate repayment alerts",
+    "Autogenerate Repayment Alerts",
   [AsyncJobNameEnum.AutomaticDebitCourtesyAlerts]:
     "Automatic Debit Courtesy Alerts",
   [AsyncJobNameEnum.DownloadDataForMetrcApiKeyLicense]:
-    "Download data for Metrc API Key license",
+    "Download Data for Metrc API Key License",
   [AsyncJobNameEnum.FinancialReportsComingDueAlerts]:
     "Financial Reports Coming Due Alerts",
   [AsyncJobNameEnum.LoansComingDue]: "Loans Coming Due",
