@@ -32,7 +32,7 @@ function getRows(payments: GetAdvancesByMethodAndPaymentDateQuery["payments"]) {
         : recipientBankAccount?.account_title,
       recipient_address: recipientBankAccount?.recipient_address,
       recipient_address_2: recipientBankAccount?.recipient_address_2,
-      wire_memo: payment.bank_note,
+      wire_memo: `${payment.company.identifier}-${payment.settlement_identifier}`,
     });
   });
 }
