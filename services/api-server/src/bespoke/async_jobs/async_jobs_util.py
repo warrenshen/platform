@@ -171,7 +171,7 @@ def orchestration_handler(
 		starting_job_limit = available_job_number - number_of_running_jobs
 		queued_jobs_to_be_run = []
 		
-		capped_jobs:List[AsyncJobNameEnum] = [] # TODO (grace) metrc jobs should be added here
+		capped_jobs = [AsyncJobNameEnum.DOWNLOAD_DATA_FOR_METRC_API_KEY_LICENSE]
 		capped_jobs_currently_running = list(filter(lambda job: job.name in capped_jobs, currently_running_jobs))
 		maximum_number_of_capped_jobs = cfg.ASYNC_MAX_NUM_CAPPED_JOB
 		num_capped_jobs_available_to_run = maximum_number_of_capped_jobs - len(capped_jobs_currently_running)
