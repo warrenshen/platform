@@ -1181,6 +1181,7 @@ export const AsyncJobNames = [
   AsyncJobNameEnum.NonLOCMonthlyReportSummary,
   AsyncJobNameEnum.PurchaseOrdersPastDue,
   AsyncJobNameEnum.RefreshMetrcApiKeyPermissions,
+  AsyncJobNameEnum.DailyCompanyBalancesRun,
   AsyncJobNameEnum.UpdateCompanyBalances,
 ];
 
