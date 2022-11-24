@@ -219,11 +219,9 @@ class DownloadMetrcDataView(MethodView):
 
 		data = json.loads(request.data)
 
-		TIME_WINDOW_IN_DAYS = 2
-		todays_date = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
-
-		start_date = todays_date - timedelta(days=TIME_WINDOW_IN_DAYS)
-		end_date = todays_date
+		TIME_WINDOW_IN_DAYS = 1
+		end_date = date_util.now_as_date() - datetime.timedelta(days=1) # End date is yesterday.
+		start_date = end_date - timedelta(days=TIME_WINDOW_IN_DAYS)
 
 		before = time.time()		
 		company_ids = metrc_util.get_companies_with_metrc_keys(current_app.session_maker)

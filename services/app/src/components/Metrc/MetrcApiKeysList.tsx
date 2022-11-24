@@ -77,7 +77,7 @@ export default function MetrcApiKeysList({ companyId }: Props) {
       {
         dataField: "us_state",
         caption: "US State",
-        minWidth: ColumnWidths.MinWidth,
+        width: ColumnWidths.UsState,
         cellRender: (params: GridValueFormatterParams) => (
           <TextDataGridCell label={params.row.data.us_state} />
         ),
