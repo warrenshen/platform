@@ -448,6 +448,7 @@ def refresh_metrc_api_key_permissions(
 	session: Session,
 	config: Config,
 	metrc_api_key_id: str,
+	submitted_by_user_id: str,
 ) -> Tuple[bool, errors.Error]:
 	metrc_api_key, err = queries.get_metrc_api_key_by_id(
 		session=session,
@@ -480,6 +481,7 @@ def refresh_metrc_api_key_permissions(
 	success, err = async_jobs_util.generate_download_data_for_metrc_api_key_license_jobs_by_metrc_api_key_permissions(
 		session=session,
 		cfg=config,
+		submitted_by_user_id=submitted_by_user_id,
 		metrc_api_key_id=metrc_api_key_dict['id'],
 		metrc_api_key_permissions=metrc_api_key_permissions,
 	)

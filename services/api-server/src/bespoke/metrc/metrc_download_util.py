@@ -313,10 +313,10 @@ def download_data_for_metrc_api_key_license_in_date_range(
 		cur_date = cur_date + datetime.timedelta(days=1)
 
 		if is_async_job:
-			# We limit the number of days actual data is downloaded to seven days
+			# We limit the number of days actual data is downloaded to ten days
 			# and schedule another async job to pick up where this job left off.
 			# This is because async jobs have a duration limit.
-			if not_previously_successful_count >= 7:
+			if not_previously_successful_count >= 10:
 				success, err = async_jobs_util.generate_download_data_for_metrc_api_key_license_job_by_license_number(
 					session=session,
 					cfg=config,

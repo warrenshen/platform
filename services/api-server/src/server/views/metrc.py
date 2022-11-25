@@ -41,6 +41,7 @@ class RefreshMetrcApiKeyPermissions(MethodView):
 				session=session,
 				config=cfg,
 				metrc_api_key_id=form['metrc_api_key_id'],
+				submitted_by_user_id=user_session.get_user_id(),
 			)
 			if err:
 				raise err

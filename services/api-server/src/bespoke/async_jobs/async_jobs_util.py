@@ -1403,6 +1403,7 @@ def automatic_debit_courtesy_alerts_job(
 def generate_download_data_for_metrc_api_key_license_jobs_by_metrc_api_key_permissions(
 	session: Session,
 	cfg: Config,
+	submitted_by_user_id: str,
 	metrc_api_key_id: str,
 	metrc_api_key_permissions: metrc_common_util.MetrcApiKeyPermissions,
 ) -> Tuple[bool, errors.Error]:
@@ -1410,6 +1411,8 @@ def generate_download_data_for_metrc_api_key_license_jobs_by_metrc_api_key_permi
 	currently_active_jobs = cast(
 		List[models.AsyncJob],
 		session.query(models.AsyncJob).filter(
+			cast(Callable, models.MetrcApiKey.is_deleted.isnot)(True)
+		).filter(
 			models.AsyncJob.name == AsyncJobNameEnum.DOWNLOAD_DATA_FOR_METRC_API_KEY_LICENSE
 		).filter(
 			models.AsyncJob.status.in_([
@@ -1433,7 +1436,7 @@ def generate_download_data_for_metrc_api_key_license_jobs_by_metrc_api_key_permi
 			add_job_to_queue(
 				session=session,
 				job_name=AsyncJobNameEnum.DOWNLOAD_DATA_FOR_METRC_API_KEY_LICENSE,
-				submitted_by_user_id=cfg.BOT_USER_ID,
+				submitted_by_user_id=submitted_by_user_id,
 				is_high_priority=False,
 				job_payload=job_payload,
 			)
@@ -1536,6 +1539,7 @@ def run_refresh_metrc_api_key_permissions_job(
 		session=session,
 		config=cfg,
 		metrc_api_key_id=metrc_api_key_id,
+		submitted_by_user_id=cfg.BOT_USER_ID,
 	)
 	if err:
 		return False, err
