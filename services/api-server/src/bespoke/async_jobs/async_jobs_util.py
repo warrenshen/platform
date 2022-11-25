@@ -226,6 +226,11 @@ def orchestration_handler(
 
 		# jobs that have run for over an hour are put into failure state
 		for job in currently_running_jobs:
+			if job.initialized_at is not None and job.initialized_at < date_util.hours_from_today(-1):
+				job.status = AsyncJobStatusEnum.QUEUED
+				job.initialized_at = None
+				job.err_details = {"Error" : f"Async job was initialized but did not run and was requeued."}
+
 			if job.started_at is not None and job.started_at < date_util.hours_from_today(-1):
 				if job.num_retries >= cfg.ASYNC_MAX_FAILED_ATTMEPTS:
 					job.status = AsyncJobStatusEnum.FAILED
