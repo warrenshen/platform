@@ -64,7 +64,7 @@ export default function MetrcApiKeysList({ companyId }: Props) {
         fixed: true,
         caption: "ID",
         alignment: "left",
-        minWidth: ColumnWidths.MinWidth,
+        width: ColumnWidths.Type,
         cellRender: (params: GridValueFormatterParams) => (
           <ClickableDataGridCell
             onClick={() => {
@@ -137,6 +137,13 @@ export default function MetrcApiKeysList({ companyId }: Props) {
     [metrcApiKeys, selectedMetrcKeyIds]
   );
 
+  const isMetrcApiKeyWorking =
+    metrcApiKeys.length > 0 && metrcApiKeys[0].is_functioning;
+  const isMetrcApiKeyNew =
+    !isMetrcApiKeyWorking &&
+    metrcApiKeys.length > 0 &&
+    !metrcApiKeys[0].permissions_refreshed_at;
+
   return (
     <Box>
       {!!openedMetrcApiKeyId && (
@@ -145,15 +152,30 @@ export default function MetrcApiKeysList({ companyId }: Props) {
           handleClose={() => setOpenedMetrcApiKeyId(null)}
         />
       )}
-      {metrcApiKeys.length > 0 ? (
-        <Box mt={1}>
-          <Alert severity="info">Metrc API key(s) set up</Alert>
-        </Box>
-      ) : (
-        <Box mt={1}>
-          <Alert severity="warning">No Metrc API key(s) set up yet</Alert>
-        </Box>
-      )}
+      <Box mt={2}>
+        {isMetrcApiKeyWorking ? (
+          <Alert severity="success">
+            <strong>
+              Metrc API key is working! Open up the Metrc API key to view more
+              information.
+            </strong>
+          </Alert>
+        ) : isMetrcApiKeyNew ? (
+          <Alert severity="warning">
+            <strong>
+              Metrc API key is new. Please refresh the Metrc API key to
+              determine whether it works.
+            </strong>
+          </Alert>
+        ) : (
+          <Alert severity="error">
+            <strong>
+              Metrc API key is not working or does not exist. Please set up a
+              new Metrc API key.
+            </strong>
+          </Alert>
+        )}
+      </Box>
       <Box mt={2}>
         <Box display="flex" flexDirection="row-reverse">
           <Box>

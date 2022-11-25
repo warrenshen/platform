@@ -542,7 +542,10 @@ class MetrcApiKeyDataFetcher(MetrcApiKeyDataFetcherInterface):
 
 		url = self.base_url + '/facilities/v1'
 		resp = requests.get(url, auth=self.auth)
-		if not resp.ok:
+		if resp.status_code == 401:
+			# Unauthorized.
+			return None
+		elif not resp.ok:
 			raise Exception(f'Code: {resp.status_code}; Reason: {resp.reason}; Response: {str(resp.content)}')
 		facilities_json = json.loads(resp.content)
 
@@ -657,6 +660,9 @@ class MetrcApiKeyDataFetcher(MetrcApiKeyDataFetcherInterface):
 			logging.info(f'Checking Metrc API key permissions...')
 
 		facilities_json = self.get_facilities()
+		if not facilities_json:
+			return None
+
 		license_numbers = list(map(lambda facility_json: facility_json['License']['Number'], facilities_json))
 
 		if self.target_license_number:

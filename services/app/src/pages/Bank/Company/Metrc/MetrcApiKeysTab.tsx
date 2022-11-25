@@ -215,18 +215,9 @@ export default function CompanyMetrcApiKeysTab({ companyId }: Props) {
   const company = data?.companies_by_pk;
   const companyFacilities = company?.company_facilities || [];
   const companyLicenses = company?.licenses || [];
-  // const metrcApiKeys = company?.metrc_api_keys || [];
 
   return (
     <Box mt={3}>
-      <Box display="flex" flexDirection="column" mt={4}>
-        <Typography variant="h6">
-          <strong>Download Metrc Data</strong>
-        </Typography>
-        <Box display="flex">
-          <SyncMetrcData companyId={companyId} />
-        </Box>
-      </Box>
       <Box display="flex" flexDirection="column" mt={4}>
         <Typography variant="h6">
           <strong>Facilities</strong>
@@ -252,6 +243,14 @@ export default function CompanyMetrcApiKeysTab({ companyId }: Props) {
           <strong>Metrc API Keys</strong>
         </Typography>
         <MetrcApiKeysList companyId={companyId} />
+      </Box>
+      <Box display="flex" flexDirection="column" mt={4}>
+        <Typography variant="h6">
+          <strong>Download Metrc Data</strong>
+        </Typography>
+        <Box display="flex">
+          <SyncMetrcData companyId={companyId} />
+        </Box>
       </Box>
     </Box>
   );
