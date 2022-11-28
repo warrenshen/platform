@@ -878,9 +878,17 @@ def generate_daily_company_balances_run(
 	logging.info("Received request to run the daily company balances run")
 	cfg = cast(Config, current_app.app_config)
 
+	# generate all bank_financial_summaries for the day first if
+	# they don't already exists, otherwise, multiple threads try
+	# to create the bank_financial_summary and it goes poorly
+	cur_date = date_util.now_as_date()
+	reports_util.compute_and_update_bank_financial_summaries(
+		session,
+		cur_date,
+	)
+
 	# mark that all companies need their balance recomputed
 	companies = reports_util.list_all_companies(session)
-	cur_date = date_util.now_as_date(date_util.DEFAULT_TIMEZONE)
 	company_ids = [company['id'] for company in companies]
 	reports_util._set_needs_balance_recomputed(
 		session,
@@ -917,7 +925,9 @@ def update_company_balances_job(
 	currently_queued_jobs = cast(
 		List[models.AsyncJob],
 		session.query(models.AsyncJob).filter(
-			models.AsyncJob.name == AsyncJobNameEnum.UPDATE_COMPANY_BALANCES
+			models.AsyncJob.name.in_([
+				AsyncJobNameEnum.UPDATE_COMPANY_BALANCES,
+			])
 		).filter(
 			models.AsyncJob.status == AsyncJobStatusEnum.QUEUED
 		).all())
@@ -946,7 +956,8 @@ def update_company_balances_job(
 					job_name=AsyncJobNameEnum.UPDATE_COMPANY_BALANCES,
 					submitted_by_user_id=cfg.BOT_USER_ID,
 					is_high_priority=False,
-					job_payload=payload)
+					job_payload=payload
+				)
 
 	# this checks if a job summary already exists for the day, all the others
 	# should be duplicates, but we want to make sure that it runs once a day
@@ -978,18 +989,20 @@ def update_dirty_company_balances_job(
 		session, 
 		company_id,
 		today, 
-		amount_to_fetch=5)
+		amount_to_fetch=5,
+	)
 	if not compute_requests:
 		return True, None
 	
 	active_compute_requests = reports_util.remove_financial_summaries_that_no_longer_need_to_be_recomputed(
 		session,
 		company_id,
-		compute_requests)
+		compute_requests,
+	)
 
 	dates_updated, descriptive_errors, fatal_error = reports_util.run_customer_balances_for_financial_summaries_that_need_recompute(
 		session,
-		active_compute_requests
+		active_compute_requests,
 	)
 
 	if fatal_error:
@@ -999,7 +1012,8 @@ def update_dirty_company_balances_job(
 	for cur_date in dates_updated:
 		fatal_error = reports_util.compute_and_update_bank_financial_summaries(
 			session, 
-			cur_date)
+			cur_date,
+		)
 		if fatal_error:
 			return False, errors.Error('FAILED to update bank financial summary on {}'.format(fatal_error))
 
