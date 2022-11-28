@@ -529,15 +529,13 @@ def populate_transfers_table(
 	## Fetch transfers
 
 	# Incoming
-	incoming_transfers_arr = []
-	if ctx.get_adjusted_apis_to_use()['incoming_transfers']:
-		try:
-			resp = rest.get('/transfers/v1/incoming', time_range=[cur_date_str])
-			incoming_transfers_arr = json.loads(resp.content)
-			request_status['transfers_api'] = 200
-		except errors.Error as e:
-			request_status['transfers_api'] = e.details.get('status_code')
-			return False, e
+	try:
+		resp = rest.get('/transfers/v1/incoming', time_range=[cur_date_str])
+		incoming_transfers_arr = json.loads(resp.content)
+		request_status['transfers_api'] = 200
+	except errors.Error as e:
+		request_status['transfers_api'] = e.details.get('status_code')
+		return False, e
 
 	with session_scope(session_maker) as session:
 		incoming_transfers = Transfers.build(incoming_transfers_arr).filter_new_only(
@@ -559,15 +557,13 @@ def populate_transfers_table(
 		)
 
 	# Outgoing
-	outgoing_transfers_arr = []
-	if ctx.get_adjusted_apis_to_use()['outgoing_transfers']:
-		try:
-			resp = rest.get('/transfers/v1/outgoing', time_range=[cur_date_str])
-			outgoing_transfers_arr = json.loads(resp.content)
-			request_status['transfers_api'] = 200
-		except errors.Error as e:
-			request_status['transfers_api'] = e.details.get('status_code')
-			return False, e
+	try:
+		resp = rest.get('/transfers/v1/outgoing', time_range=[cur_date_str])
+		outgoing_transfers_arr = json.loads(resp.content)
+		request_status['transfers_api'] = 200
+	except errors.Error as e:
+		request_status['transfers_api'] = e.details.get('status_code')
+		return False, e
 
 	with session_scope(session_maker) as session:
 		outgoing_transfers = Transfers.build(outgoing_transfers_arr).filter_new_only(
@@ -587,15 +583,13 @@ def populate_transfers_table(
 		)
 
 	# Rejected
-	rejected_transfers_arr = []
-	if ctx.get_adjusted_apis_to_use()['rejected_transfers']:
-		try:
-			resp = rest.get('/transfers/v1/rejected', time_range=[cur_date_str])
-			rejected_transfers_arr = json.loads(resp.content)
-			request_status['transfers_api'] = 200
-		except errors.Error as e:
-			request_status['transfers_api'] = e.details.get('status_code')
-			return False, e		
+	try:
+		resp = rest.get('/transfers/v1/rejected', time_range=[cur_date_str])
+		rejected_transfers_arr = json.loads(resp.content)
+		request_status['transfers_api'] = 200
+	except errors.Error as e:
+		request_status['transfers_api'] = e.details.get('status_code')
+		return False, e
 
 	with session_scope(session_maker) as session:
 		rejected_transfers = Transfers.build(rejected_transfers_arr).filter_new_only(
@@ -762,15 +756,13 @@ def populate_transfers_table_with_session(
 	## Fetch transfers
 
 	# Incoming
-	incoming_transfers_arr = []
-	if ctx.get_adjusted_apis_to_use()['incoming_transfers']:
-		try:
-			resp = rest.get('/transfers/v1/incoming', time_range=[cur_date_str])
-			incoming_transfers_arr = json.loads(resp.content)
-			request_status['transfers_api'] = 200
-		except errors.Error as e:
-			request_status['transfers_api'] = e.details.get('status_code')
-			return False, e
+	try:
+		resp = rest.get('/transfers/v1/incoming', time_range=[cur_date_str])
+		incoming_transfers_arr = json.loads(resp.content)
+		request_status['transfers_api'] = 200
+	except errors.Error as e:
+		request_status['transfers_api'] = e.details.get('status_code')
+		return False, e
 
 	incoming_transfers = Transfers.build(incoming_transfers_arr).filter_new_only(
 		ctx, session
@@ -790,15 +782,13 @@ def populate_transfers_table_with_session(
 	)
 
 	# Outgoing
-	outgoing_transfers_arr = []
-	if ctx.get_adjusted_apis_to_use()['outgoing_transfers']:
-		try:
-			resp = rest.get('/transfers/v1/outgoing', time_range=[cur_date_str])
-			outgoing_transfers_arr = json.loads(resp.content)
-			request_status['transfers_api'] = 200
-		except errors.Error as e:
-			request_status['transfers_api'] = e.details.get('status_code')
-			return False, e
+	try:
+		resp = rest.get('/transfers/v1/outgoing', time_range=[cur_date_str])
+		outgoing_transfers_arr = json.loads(resp.content)
+		request_status['transfers_api'] = 200
+	except errors.Error as e:
+		request_status['transfers_api'] = e.details.get('status_code')
+		return False, e
 
 	outgoing_transfers = Transfers.build(outgoing_transfers_arr).filter_new_only(
 		ctx, session
@@ -816,15 +806,13 @@ def populate_transfers_table_with_session(
 	)
 
 	# Rejected
-	rejected_transfers_arr = []
-	if ctx.get_adjusted_apis_to_use()['rejected_transfers']:
-		try:
-			resp = rest.get('/transfers/v1/rejected', time_range=[cur_date_str])
-			rejected_transfers_arr = json.loads(resp.content)
-			request_status['transfers_api'] = 200
-		except errors.Error as e:
-			request_status['transfers_api'] = e.details.get('status_code')
-			return False, e		
+	try:
+		resp = rest.get('/transfers/v1/rejected', time_range=[cur_date_str])
+		rejected_transfers_arr = json.loads(resp.content)
+		request_status['transfers_api'] = 200
+	except errors.Error as e:
+		request_status['transfers_api'] = e.details.get('status_code')
+		return False, e
 
 	rejected_transfers = Transfers.build(rejected_transfers_arr).filter_new_only(
 		ctx, session

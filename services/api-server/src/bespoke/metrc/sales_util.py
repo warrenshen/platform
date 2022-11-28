@@ -91,16 +91,13 @@ def _download_sales_receipt(
 	if i % LOG_EVERY == 0:
 		logging.info('Downloading transactions for sales receipt #{} for company {} on day {}'.format(i, company_id, ctx.cur_date))
 
-	if ctx.get_adjusted_apis_to_use()['sales_transactions']:
-		resp = ctx.rest.get('/sales/v1/receipts/{}'.format(receipt.receipt_id))
-		receipt_resp = json.loads(resp.content)
-		transactions = SalesTransactions(receipt_resp['Transactions'], receipt_type).get_sales_transactions_models(
-			ctx=ctx,
-			receipt_id=receipt.receipt_id
-		)
-		ctx.request_status['sales_transactions_api'] = 200
-	else:
-		transactions = []
+	resp = ctx.rest.get('/sales/v1/receipts/{}'.format(receipt.receipt_id))
+	receipt_resp = json.loads(resp.content)
+	transactions = SalesTransactions(receipt_resp['Transactions'], receipt_type).get_sales_transactions_models(
+		ctx=ctx,
+		receipt_id=receipt.receipt_id
+	)
+	ctx.request_status['sales_transactions_api'] = 200
 
 	return SalesReceiptObj(
 		receipt=receipt,

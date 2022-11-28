@@ -93,20 +93,26 @@ def main(
 		company_id = str(company.id)
 
 	parsed_start_date = date_util.load_date_str(start_date_str)
-	# Default end date to today if end date not specified.
-	parsed_end_date = date_util.load_date_str(end_date_str) if end_date_str else date_util.now_as_date()
+
+	yesterday_date = date_util.now_as_date() - timedelta(days=1)
+	if parsed_start_date > yesterday_date:
+		print(f'Given start date is too recent, the earliest acceptable start date is yesterday')
+		exit(1)
+
+	# Default end date to yesterday if end date not specified.
+	parsed_end_date = date_util.load_date_str(end_date_str) if end_date_str else yesterday_date
+	if parsed_end_date > yesterday_date:
+		print(f'Given end date is too recent, the earliest acceptable end date is yesterday')
+		exit(1)
 
 	apis_to_use = metrc_common_util.ApisToUseDict(
-		sales_receipts=not is_sales_disabled,
-		sales_transactions=not is_sales_disabled,
-		incoming_transfers=not is_transfers_disabled,
-		outgoing_transfers=not is_transfers_disabled,
-		rejected_transfers=False,
-		packages=not is_packages_disabled,
-		lab_tests=not is_lab_tests_disabled,
+		# lab_tests=not is_lab_tests_disabled,
 		harvests=not is_plants_disabled,
-		plants=not is_plants_disabled,
+		packages=not is_packages_disabled,
 		plant_batches=not is_plants_disabled,
+		plants=not is_plants_disabled,
+		sales_receipts=not is_sales_disabled,
+		transfers=not is_transfers_disabled,
 	)
 
 	print('')

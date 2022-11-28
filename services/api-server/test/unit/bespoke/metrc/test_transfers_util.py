@@ -108,6 +108,23 @@ def _get_company2_downloads(seed: test_helper.BasicSeed, index: int) -> metrc_co
 				]
 			},
 			RequestKey(
+				url='/transfers/v1/rejected',
+				time_range=('01/01/2020',)
+			): {
+				'resps': [
+					{
+						'status': 'OK',
+						'json': [
+						]
+					},
+					{
+						'status': 'OK',
+						'json': [
+						]
+					}
+				]
+			},
+			RequestKey(
 				url='/transfers/v1/in-t1/deliveries',
 				time_range=None
 			): {
@@ -356,6 +373,23 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 									'ShipmentTransactionType': 'ship-tx-type-out-t1',
 									'LastModified': parser.parse('02/03/2020 08:00').isoformat()
 								}
+							]
+						}
+					]
+				},
+				RequestKey(
+					url='/transfers/v1/rejected',
+					time_range=('01/01/2020',)
+				): {
+					'resps': [
+						{
+							'status': 'OK',
+							'json': [
+							]
+						},
+						{
+							'status': 'OK',
+							'json': [
 							]
 						}
 					]

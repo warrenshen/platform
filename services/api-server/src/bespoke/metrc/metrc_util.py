@@ -245,24 +245,24 @@ def _download_data_for_license(
 		except Exception as e:
 			_catch_exception(e, '/sales')
 
-	# NOTE: transfer must come after download_packages, because transfers
-	# may update the state of packages
-	# Download transfers data for the particular day and key
-	err = None
-	try:
-		success, err = transfers_util.populate_transfers_table(
-			ctx=ctx,
-			session_maker=session_maker
-		)
-	except Exception as e:
-		_catch_exception(e, '/transfers')
+	if ctx.get_adjusted_apis_to_use().get('transfers', False):
+		# NOTE: transfer must come after download_packages, because transfers
+		# may update the state of packages
+		# Download transfers data for the particular day and key
+		err = None
+		try:
+			success, err = transfers_util.populate_transfers_table(
+				ctx=ctx,
+				session_maker=session_maker
+			)
+		except Exception as e:
+			_catch_exception(e, '/transfers')
 
-	if err:
-		logging.error(f'Error thrown for license {license_number} for last modified date {cur_date}!')
-		logging.error(f'Error: {err}')
+		if err:
+			logging.error(f'Error thrown for license {license_number} for last modified date {cur_date}!')
+			logging.error(f'Error: {err}')
 
 	return {
-		'api_key_has_err': err is not None, # Record whether there was an error with the Metrc API for this license
 		'transfers_api': ctx.request_status['transfers_api'],
 		'transfer_packages_api': ctx.request_status['transfer_packages_api'],
 		'transfer_packages_wholesale_api': ctx.request_status['transfer_packages_wholesale_api'],

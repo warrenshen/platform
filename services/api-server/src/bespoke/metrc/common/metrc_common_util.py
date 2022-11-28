@@ -40,9 +40,9 @@ LicenseAuthDict = TypedDict('LicenseAuthDict', {
 LicensePermissionsDict = TypedDict('LicensePermissionsDict', {
 	'license_number': str,
 	'is_harvests_enabled': bool,
+	'is_packages_enabled': bool,
 	'is_plant_batches_enabled': bool,
 	'is_plants_enabled': bool,
-	'is_packages_enabled': bool,
 	'is_sales_receipts_enabled': bool,
 	'is_transfers_enabled': bool,
 })
@@ -72,16 +72,12 @@ RequestStatusKeys = Literal[
 """
 
 ApisToUseDict = TypedDict('ApisToUseDict', {
-	'sales_receipts': bool,
-	'sales_transactions': bool,
-	'incoming_transfers': bool,
-	'outgoing_transfers': bool,
-	'rejected_transfers': bool,
-	'lab_tests': bool,
-	'packages': bool,
 	'harvests': bool,
+	'packages': bool,
+	'plant_batches': bool,
 	'plants': bool,
-	'plant_batches': bool
+	'sales_receipts': bool,
+	'transfers': bool,
 })
 
 FacilityLicenseDict = TypedDict('FacilityLicenseDict', {
@@ -254,16 +250,12 @@ def get_default_apis_to_use() -> ApisToUseDict:
 	"""
 
 	return ApisToUseDict(
-		sales_receipts=True,
-		sales_transactions=True,
-		incoming_transfers=True,
-		outgoing_transfers=True,
-		rejected_transfers=False,
-		packages=True,
-		lab_tests=True,
 		harvests=True,
-		plants=True,
+		packages=True,
 		plant_batches=True,
+		plants=True,
+		sales_receipts=True,
+		transfers=True,
 	)
 
 class FacilitiesFetcherInterface(object):

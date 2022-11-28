@@ -38,6 +38,7 @@ DownloadDataForMetrcApiKeyInDateRangeRespDict = TypedDict('DownloadDataForMetrcA
 def _download_data_for_ctx(
 	session: Session,
 	ctx: metrc_common_util.DownloadContext,
+	license_permissions_dict: metrc_common_util.LicensePermissionsDict,
 ) -> Tuple[Dict, errors.Error]:
 	cur_date = ctx.cur_date
 	license = ctx.license
@@ -60,21 +61,21 @@ def _download_data_for_ctx(
 		logging.error('EXCEPTION downloading {} for company {} on {}'.format(path, company_name, cur_date))
 		logging.error(traceback.format_exc())
 
-	if ctx.get_adjusted_apis_to_use().get('packages', False):
+	if license_permissions_dict['is_packages_enabled'] and ctx.get_adjusted_apis_to_use().get('packages', False):
 		try:
 			package_models = packages_util.download_packages_with_session(session=session, ctx=ctx)
 			packages_util.write_packages_with_session(session=session, package_models=package_models)
 		except Exception as e:
 			_catch_exception(e, '/packages')
 
-	if ctx.get_adjusted_apis_to_use().get('harvests', False):
+	if license_permissions_dict['is_harvests_enabled'] and ctx.get_adjusted_apis_to_use().get('harvests', False):
 		try:
 			harvest_models = harvests_util.download_harvests_with_session(session=session, ctx=ctx)
 			harvests_util.write_harvests_with_session(session=session, harvest_models=harvest_models)
 		except Exception as e:
 			_catch_exception(e, '/harvests')
 
-	if ctx.get_adjusted_apis_to_use().get('plant_batches', False):
+	if license_permissions_dict['is_plant_batches_enabled'] and ctx.get_adjusted_apis_to_use().get('plant_batches', False):
 		try:
 			plant_batches_models = plant_batches_util.download_plant_batches_with_session(session=session, ctx=ctx)
 			plant_batches_util.write_plant_batches_with_session(
@@ -86,7 +87,7 @@ def _download_data_for_ctx(
 
 	# NOTE: plants have references to plant batches and harvests, so this
 	# must come after fetching plant_batches and harvests
-	if ctx.get_adjusted_apis_to_use().get('plants', False):
+	if license_permissions_dict['is_plants_enabled'] and ctx.get_adjusted_apis_to_use().get('plants', False):
 		try:
 			plants_models = plants_util.download_plants_with_session(session=session, ctx=ctx)
 			plants_util.write_plants_with_session(session=session, plants_models=plants_models)
@@ -95,7 +96,7 @@ def _download_data_for_ctx(
 
 	# NOTE: Sales data has references to packages, so this method
 	# should run after download_packages
-	if ctx.get_adjusted_apis_to_use().get('sales_receipts', False):
+	if license_permissions_dict['is_sales_receipts_enabled'] and ctx.get_adjusted_apis_to_use().get('sales_receipts', False):
 		try:
 			sales_receipts_tuple = sales_util.download_sales_info_with_session(
                 session=session,
@@ -109,24 +110,24 @@ def _download_data_for_ctx(
 		except Exception as e:
 			_catch_exception(e, '/sales')
 
-	# NOTE: transfer must come after download_packages, because transfers
-	# may update the state of packages
-	# Download transfers data for the particular day and key
-	err = None
-	try:
-		success, err = transfers_util.populate_transfers_table_with_session(
-            session=session,
-			ctx=ctx,
-		)
-	except Exception as e:
-		_catch_exception(e, '/transfers')
+	if license_permissions_dict['is_transfers_enabled'] and ctx.get_adjusted_apis_to_use().get('transfers', False):
+		# NOTE: transfer must come after download_packages, because transfers
+		# may update the state of packages
+		# Download transfers data for the particular day and key
+		err = None
+		try:
+			success, err = transfers_util.populate_transfers_table_with_session(
+				session=session,
+				ctx=ctx,
+			)
+		except Exception as e:
+			_catch_exception(e, '/transfers')
 
-	if err:
-		logging.error(f'Error thrown for license {license_number} for last modified date {cur_date}!')
-		logging.error(f'Error: {err}')
+		if err:
+			logging.error(f'Error thrown for license {license_number} for last modified date {cur_date}!')
+			logging.error(f'Error: {err}')
 
 	return {
-		'api_key_has_err': err is not None, # Record whether there was an error with the Metrc API for this license
 		'transfers_api': ctx.request_status['transfers_api'],
 		'transfer_packages_api': ctx.request_status['transfer_packages_api'],
 		'transfer_packages_wholesale_api': ctx.request_status['transfer_packages_wholesale_api'],
@@ -203,6 +204,7 @@ def _download_data_for_metrc_api_key_license_for_date(
 		api_status_dict, err = _download_data_for_ctx(
 			session=session,
 			ctx=ctx,
+			license_permissions_dict=license_permissions_dict,
 		)
 		after = time.time()
 		logging.info('Took {:.2f} seconds to download data for day {} license {}'.format(
