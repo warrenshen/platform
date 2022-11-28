@@ -97,6 +97,7 @@ export default function ReviewPurchaseOrderPage() {
 
   if (error) {
     console.error({ error });
+    refetch();
   }
 
   const purchaseOrder = data?.purchase_orders_by_pk;

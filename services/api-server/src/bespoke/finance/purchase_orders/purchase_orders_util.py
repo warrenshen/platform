@@ -637,7 +637,7 @@ def submit_purchase_order_for_approval(
 	)
 	two_factor_payload = sendgrid_util.TwoFactorPayloadDict(
 		form_info=form_info,
-		expires_at=date_util.hours_from_today(24 * 7)
+		expires_at=date_util.hours_from_today(24 * 14)
 	)
 
 	# Send the email to the vendor for them to approve or reject this purchase order
@@ -803,7 +803,7 @@ def submit_purchase_order_for_approval_new(
 	)
 	two_factor_payload = sendgrid_util.TwoFactorPayloadDict(
 		form_info=form_info,
-		expires_at=date_util.hours_from_today(24 * 7)
+		expires_at=date_util.hours_from_today(24 * 14)
 	)
 
 	# Send the email to the vendor for them to approve or reject this purchase order
@@ -1666,7 +1666,7 @@ def send_email_alert_for_purchase_order_update_submission(
 			)
 			two_factor_payload = sendgrid_util.TwoFactorPayloadDict(
 				form_info = form_info,
-				expires_at = date_util.hours_from_today(24 * 7)
+				expires_at = date_util.hours_from_today(24 * 14)
 			)
 			
 			# TODO: (https://www.notion.so/bespokefinancial/Display-what-changes-bespoke-is-asking-the-client-to-make-e2ec269df9f346b4b9d17eaff48a1e4b

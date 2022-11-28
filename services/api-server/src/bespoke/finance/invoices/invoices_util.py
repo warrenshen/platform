@@ -390,7 +390,7 @@ def handle_invoice_approval_request(
 
 	payload = sendgrid_util.TwoFactorPayloadDict(
 		form_info=info,
-		expires_at=date_util.hours_from_today(24 * 7)
+		expires_at=date_util.hours_from_today(24 * 14)
 	)
 
 	try:
@@ -451,7 +451,7 @@ def send_one_notification_for_payment(
 
 	payload = sendgrid_util.TwoFactorPayloadDict(
 		form_info=info,
-		expires_at=date_util.hours_from_today(24 * 7)
+		expires_at=date_util.hours_from_today(24 * 14)
 	)
 
 	template_data = {
