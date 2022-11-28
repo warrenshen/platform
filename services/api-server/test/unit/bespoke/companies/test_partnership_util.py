@@ -24,7 +24,7 @@ class TestGetPartnerContacts(db_unittest.TestCase):
 			payor = session.query(models.Company).get(payor_id)
 			payor.is_payor = True
 
-		_, err = create_user_util.create_bank_or_customer_user(
+		payor_user_id, err = create_user_util.create_bank_or_customer_user(
 			req=CreateBankOrCustomerUserInputDict(
 				company_id=payor_id,
 				user=UserInsertInputDict(
@@ -48,6 +48,14 @@ class TestGetPartnerContacts(db_unittest.TestCase):
 			session.flush()
 
 			company_payor_partnership_id = company_payor_partnership.id
+
+		with session_scope(self.session_maker) as session:
+			company_payor_contact = models.CompanyPayorContact(  # type: ignore
+				partnership_id = company_payor_partnership_id,
+				payor_user_id = payor_user_id,
+			)
+			session.add(company_payor_contact)
+			session.flush()
 
 		with session_scope(self.session_maker) as session:
 			partner_contacts, err = partnership_util.get_partner_contacts(
@@ -79,7 +87,7 @@ class TestGetPartnerContacts(db_unittest.TestCase):
 			vendor = session.query(models.Company).get(vendor_id)
 			vendor.is_vendor = True
 
-		_, err = create_user_util.create_bank_or_customer_user(
+		vendor_user_id, err = create_user_util.create_bank_or_customer_user(
 			req=CreateBankOrCustomerUserInputDict(
 				company_id=vendor_id,
 				user=UserInsertInputDict(
@@ -103,6 +111,14 @@ class TestGetPartnerContacts(db_unittest.TestCase):
 			session.flush()
 
 			company_vendor_partnership_id = company_vendor_partnership.id
+
+		with session_scope(self.session_maker) as session:
+			company_vendor_contact = models.CompanyVendorContact(  # type: ignore
+				partnership_id = company_vendor_partnership_id,
+				vendor_user_id = vendor_user_id,
+			)
+			session.add(company_vendor_contact)
+			session.flush()
 
 		with session_scope(self.session_maker) as session:
 			partner_contacts, err = partnership_util.get_partner_contacts(

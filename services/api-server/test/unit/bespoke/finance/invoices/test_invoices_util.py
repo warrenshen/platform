@@ -186,6 +186,8 @@ class PrepareDatabase:
 		self.invoice_files: List[models.InvoiceFile] = []
 		self.partnerships: List[models.CompanyPayorPartnership] = []
 		self.users: List[models.User] = []
+		self.parent_companies: List[models.ParentCompany] = []
+		self.company_payor_contacts: List[models.CompanyPayorContact] = []
 
 	@staticmethod
 	def mint_guid() -> str:
@@ -266,14 +268,30 @@ class PrepareDatabase:
 		self.users.append(u)
 		return self
 
+	def add_parent_company(self,
+		fn: Callable[['PrepareDatabase'], models.ParentCompany]
+	) -> 'PrepareDatabase':
+		p = fn(self)
+		self.parent_companies.append(p)
+		return self
+
+	def add_company_payor_contact(self,
+		fn: Callable[['PrepareDatabase'], models.CompanyPayorContact]
+	) -> 'PrepareDatabase':
+		c = fn(self)
+		self.company_payor_contacts.append(c)
+		return self
+
 	def __call__(self, session: Session) -> None:
 		[session.add(settings) for settings in self.company_settings] # type: ignore
 		[session.add(customer) for customer in self.customers] # type: ignore
+		[session.add(parent_company) for parent_company in self.parent_companies] # type: ignore
 		[session.add(payor) for payor in self.payors] # type: ignore
 		[session.add(partnership) for partnership in self.partnerships] # type: ignore
 		[session.add(invoice) for invoice in self.invoices] # type: ignore
 		[session.add(invoice_file) for invoice_file in self.invoice_files] # type: ignore
 		[session.add(user) for user in self.users] # type: ignore
+		[session.add(company_payor_contact) for company_payor_contact in self.company_payor_contacts] # type: ignore
 		session.commit()
 
 class DumbSendgridClient(sendgrid_util.Client):
@@ -614,12 +632,21 @@ class TestSubmitInvoicesForPayment(db_unittest.TestCase):
 				str(err))
 
 	def test_success(self) -> None:
+		user_id = str(uuid.uuid4())
 		p = PrepareDatabase() \
+			.add_parent_company(lambda p: models.ParentCompany(
+				name = 'Big Green Parent',
+			)) \
 			.add_customer(lambda p: models.Company(
-				name='Big Green Bongs'
+				name='Big Green Bongs',
+				parent_company_id = p.parent_companies[0].id,
+			)) \
+			.add_parent_company(lambda p: models.ParentCompany(
+				name = 'We Buy Weed Parent',
 			)) \
 			.add_payor(lambda p: models.Company(
-				name='We Buy Weed'
+				name='We Buy Weed',
+				parent_company_id = p.parent_companies[1].id,
 			)) \
 			.link_customers_and_payors(approved=True) \
 			.add_invoice(lambda p: models.Invoice( # type: ignore
@@ -639,14 +666,20 @@ class TestSubmitInvoicesForPayment(db_unittest.TestCase):
 				invoice_id=p.invoices[0].id,
 				file_type=db_constants.InvoiceFileTypeEnum.Invoice
 			)) \
-			.add_user(lambda p: models.User(
+			.add_user(lambda p: models.User( # type: ignore
+				id = user_id,
 				company_id=p.payors[0].id,
+				parent_company_id = p.parent_companies[1].id,
 				email='peter@webuyweed.com',
 				password='xxxx',
 				role='peter the payor',
 				first_name='Peter',
 				last_name='Payor',
 				login_method='simple'
+			)) \
+			.add_company_payor_contact(lambda p: models.CompanyPayorContact( # type: ignore
+				partnership_id = p.partnerships[0].id,
+				payor_user_id = user_id,
 			))
 
 		invoice_id = None
