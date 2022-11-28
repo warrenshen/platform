@@ -902,6 +902,8 @@ def generate_daily_company_balances_run(
 			job_payload = payload
 		)
 
+	add_job_summary(session, AsyncJobNameEnum.DAILY_COMPANY_BALANCES_RUN)
+
 	return True, None
 
 @errors.return_error_tuple

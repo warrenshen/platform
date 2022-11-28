@@ -22,15 +22,19 @@ def send_job_summary(
 		AsyncJobNameEnum.NON_LOC_MONTHLY_REPORT_SUMMARY, 
 		AsyncJobNameEnum.LOC_MONTHLY_REPORT_SUMMARY,
 		AsyncJobNameEnum.AUTOMATIC_DEBIT_COURTESY_ALERTS,
-		AsyncJobNameEnum.FINANCIAL_REPORTS_COMING_DUE_ALERTS]
+		AsyncJobNameEnum.FINANCIAL_REPORTS_COMING_DUE_ALERTS,
+		AsyncJobNameEnum.DOWNLOAD_DATA_FOR_METRC_API_KEY_LICENSE,
+		AsyncJobNameEnum.REFRESH_METRC_API_KEY_PERMISSIONS,
+		AsyncJobNameEnum.UPDATE_COMPANY_BALANCES,
+		]
 	
 	days_run = {
 		AsyncJobNameEnum.AUTOGENERATE_REPAYMENT_ALERTS: ["Wednesday"],
 		AsyncJobNameEnum.AUTOGENERATE_REPAYMENTS: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
 		AsyncJobNameEnum.LOANS_PAST_DUE: ["Monday", "Thursday"],
 		AsyncJobNameEnum.LOANS_COMING_DUE: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-		AsyncJobNameEnum.UPDATE_COMPANY_BALANCES: ["Monday"],
-		AsyncJobNameEnum.PURCHASE_ORDERS_PAST_DUE: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+		AsyncJobNameEnum.PURCHASE_ORDERS_PAST_DUE: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+		AsyncJobNameEnum.DAILY_COMPANY_BALANCES_RUN: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 	}
 	
 	response_blocks = []
@@ -115,10 +119,9 @@ def create_status_block(
 	num_failed_jobs = len([job for job in async_jobs if job.status == AsyncJobStatusEnum.FAILED])
 
 	emoji = "white_check_mark" if num_failed_jobs == 0 else "rotating_light"
-	job_succeded_text = f"{num_success_jobs} / {total_jobs} tasks succeeded" if total_jobs != 0 else ""
-	job_failed_text = f"{num_failed_jobs} / {total_jobs} tasks failed" if total_jobs != 0 else ""
-
-	job_detail_text = f"({job_succeded_text}, {job_failed_text})" if total_jobs != 0 else ""
+	job_succeded_text = f"{num_success_jobs} / {total_jobs} tasks succeeded"
+	job_failed_text = f"{num_failed_jobs} / {total_jobs} tasks failed"
+	job_detail_text = f"({job_succeded_text}, {job_failed_text})"
 	return {
 			"type": "section",
 			"text": {
