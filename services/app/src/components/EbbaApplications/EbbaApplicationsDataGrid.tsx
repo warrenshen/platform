@@ -1,4 +1,4 @@
-import { Box, Button } from "@material-ui/core";
+import { Box, Button, Tooltip } from "@material-ui/core";
 import { GridValueFormatterParams } from "@material-ui/data-grid";
 import CommentIcon from "@material-ui/icons/Comment";
 import EbbaApplicationDrawer from "components/EbbaApplication/EbbaApplicationDrawer";
@@ -27,6 +27,14 @@ import { CurrencyPrecision, formatCurrency } from "lib/number";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { ColumnWidths, formatRowModel } from "lib/tables";
 import { useContext, useMemo, useState } from "react";
+import styled from "styled-components";
+
+const EllipsisOverflowTextCell = styled.span`
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
 
 interface Props {
   isApprovedAtVisible?: boolean;
@@ -322,8 +330,18 @@ export default function EbbaApplicationsDataGrid({
         visible: isBankUser,
         caption: "Rejection Note",
         dataField: "rejection_note",
-        width: 100,
+        width: ColumnWidths.Comment,
         alignment: "left",
+        cellRender: (params: GridValueFormatterParams) =>
+          params.row.data?.rejection_note && (
+            <Tooltip arrow interactive title={params.row.data?.rejection_note}>
+              <Box display="flex">
+                <EllipsisOverflowTextCell>
+                  {params.row.data?.rejection_note}
+                </EllipsisOverflowTextCell>
+              </Box>
+            </Tooltip>
+          ),
       },
       {
         visible: isBankUser,
