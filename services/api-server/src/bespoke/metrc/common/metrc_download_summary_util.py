@@ -15,17 +15,21 @@ RerunDailyJobInfoDict = TypedDict('RerunDailyJobInfoDict', {
 	'company_id': str
 })
 
-def _create_metrc_download_summary_instance(retry_errors: List[MetrcRetryError]) -> models.MetrcDownloadSummary:
+def _create_metrc_download_summary_instance(
+	license_permissions_dict: metrc_common_util.LicensePermissionsDict,
+	retry_errors: List[MetrcRetryError],
+) -> models.MetrcDownloadSummary:
 	"""
-		Get a summary based on all the errors seen for the day
+	Create a MetrcDownloadSummary based on the known license permissions and a list of download errors.
 	"""
+	# Initialize fields based on whether we have permissions to the appropriate type of data or not.
 	summary = models.MetrcDownloadSummary(
-		harvests_status=MetrcDownloadStatus.SUCCESS,
-		packages_status=MetrcDownloadStatus.SUCCESS,
-		plant_batches_status=MetrcDownloadStatus.SUCCESS,
-		plants_status=MetrcDownloadStatus.SUCCESS,
-		sales_status=MetrcDownloadStatus.SUCCESS,
-		transfers_status=MetrcDownloadStatus.SUCCESS,
+		harvests_status=MetrcDownloadStatus.SUCCESS if license_permissions_dict['is_harvests_enabled'] else MetrcDownloadStatus.NO_ACCESS,
+		packages_status=MetrcDownloadStatus.SUCCESS if license_permissions_dict['is_packages_enabled'] else MetrcDownloadStatus.NO_ACCESS,
+		plant_batches_status=MetrcDownloadStatus.SUCCESS if license_permissions_dict['is_plant_batches_enabled'] else MetrcDownloadStatus.NO_ACCESS,
+		plants_status=MetrcDownloadStatus.SUCCESS if license_permissions_dict['is_plants_enabled'] else MetrcDownloadStatus.NO_ACCESS,
+		sales_status=MetrcDownloadStatus.SUCCESS if license_permissions_dict['is_sales_receipts_enabled'] else MetrcDownloadStatus.NO_ACCESS,
+		transfers_status=MetrcDownloadStatus.SUCCESS if license_permissions_dict['is_transfers_enabled'] else MetrcDownloadStatus.NO_ACCESS,
 		status=MetrcDownloadSummaryStatus.COMPLETED,
 		num_retries=0,
 		retry_payload={},
@@ -172,11 +176,15 @@ def write_metrc_download_summary(
 	session: Session,
 	license_number: str,
 	cur_date: datetime.date,
+	license_permissions_dict: metrc_common_util.LicensePermissionsDict,
 	retry_errors: List[MetrcRetryError],
 	company_id: str,
 	metrc_api_key_id: str,
 ) -> None:
-	new_metrc_download_summary = _create_metrc_download_summary_instance(retry_errors)
+	new_metrc_download_summary = _create_metrc_download_summary_instance(
+		license_permissions_dict=license_permissions_dict,
+		retry_errors=retry_errors,
+	)
 	new_metrc_download_summary.license_number = license_number
 	new_metrc_download_summary.date = cur_date
 	new_metrc_download_summary.company_id = cast(Any, company_id)

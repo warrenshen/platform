@@ -279,20 +279,8 @@ def _download_and_summarize_data_for_license(
 	session_maker: Callable,
 	ctx: metrc_common_util.DownloadContext,
 	metrc_api_key_id: str,
-	license_permissions_dict: Optional[metrc_common_util.LicensePermissionsDict] = None,
 ) -> Tuple[Optional[Dict], errors.Error]:
 	cur_date = ctx.cur_date
-
-	if license_permissions_dict:
-		with session_scope(session_maker) as session:
-			is_previously_successful = metrc_download_summary_util.is_metrc_download_summary_previously_successful(
-				session=session,
-				license_number=ctx.license['license_number'],
-				date=cur_date,
-				new_license_permissions_dict=license_permissions_dict,
-			)
-			if is_previously_successful:
-				return None, None
 
 	api_status_dict = None
 	err = None
@@ -318,6 +306,18 @@ def _download_and_summarize_data_for_license(
 			session=session,
 			license_number=ctx.license['license_number'],
 			cur_date=cur_date,
+			# Note: we provide a license permissions dict with everything enabled.
+			# This is because in the deprecated way of doing things, the download logic will
+			# test every single endpoint, regardless of whether we have access to it or not.
+			license_permissions_dict=metrc_common_util.LicensePermissionsDict(
+				license_number=ctx.license['license_number'],
+				is_harvests_enabled=True,
+				is_packages_enabled=True,
+				is_plant_batches_enabled=True,
+				is_plants_enabled=True,
+				is_sales_receipts_enabled=True,
+				is_transfers_enabled=True,
+			),
 			retry_errors=ctx.get_retry_errors(),
 			company_id=ctx.company_details['company_id'],
 			metrc_api_key_id=metrc_api_key_id,

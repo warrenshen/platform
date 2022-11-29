@@ -220,6 +220,7 @@ def _download_data_for_metrc_api_key_license_for_date(
 		session=session,
 		license_number=license_number,
 		cur_date=date,
+		license_permissions_dict=license_permissions_dict,
 		retry_errors=ctx.get_retry_errors(),
 		company_id=ctx.company_details['company_id'],
 		metrc_api_key_id=metrc_api_key_data_fetcher.get_metrc_api_key_id(),

@@ -19,10 +19,6 @@ from bespoke.security import security_util
 
 from bespoke_test.db import db_unittest, test_helper
 
-def _update(orig: Dict, new_info: Dict) -> Dict:
-	orig.update(new_info)
-	return orig
-
 class TestMetrcDownloadSummary(unittest.TestCase):
 
 	def _get_default_expected_summary(self) -> Dict:
@@ -35,7 +31,12 @@ class TestMetrcDownloadSummary(unittest.TestCase):
 			'transfers_status': MetrcDownloadStatus.SUCCESS
 		}
 
-	def _run_test(self, test: Dict, expected: Dict) -> None:
+	def _run_test(
+		self,
+		license_permissions_dict: metrc_common_util.LicensePermissionsDict,
+		test: Dict,
+		expected: Dict,
+	) -> None:
 		cur_date_str = metrc_common_util._get_date_str(
 			date_util.load_date_str('10/01/2020'))
 
@@ -51,7 +52,10 @@ class TestMetrcDownloadSummary(unittest.TestCase):
 				)
 			)
 
-		summary = metrc_download_summary_util._create_metrc_download_summary_instance(error_catcher.get_retry_errors())
+		summary = metrc_download_summary_util._create_metrc_download_summary_instance(
+			license_permissions_dict=license_permissions_dict,
+			retry_errors=error_catcher.get_retry_errors(),
+		)
 		self.assertEqual(summary.status, expected['status'])
 		self.assertEqual(summary.harvests_status, expected['harvests_status'])
 		self.assertEqual(summary.packages_status, expected['packages_status'])
@@ -64,102 +68,155 @@ class TestMetrcDownloadSummary(unittest.TestCase):
 		else:
 			self.assertEqual(0, len(list(cast(Dict, summary.err_details).keys())))
 
-	def test_success(self) -> None:
-		# We skip over Access Denied when summarizing the final status 
-		self._run_test(test={
-			'errors': [
-			]
-		}, expected=_update(self._get_default_expected_summary(), {
-			'status': MetrcDownloadSummaryStatus.COMPLETED,
-		}))
+	def test_success_full_permissions(self) -> None:
+		self._run_test(
+			license_permissions_dict=metrc_common_util.LicensePermissionsDict(
+				license_number='LIC',
+				is_harvests_enabled=True,
+				is_packages_enabled=True,
+				is_plant_batches_enabled=True,
+				is_plants_enabled=True,
+				is_sales_receipts_enabled=True,
+				is_transfers_enabled=True,
+			),
+			test={
+				'errors': [
+				],
+			},
+			expected={
+				'status': MetrcDownloadSummaryStatus.COMPLETED,
+				'harvests_status': MetrcDownloadStatus.SUCCESS,
+				'packages_status': MetrcDownloadStatus.SUCCESS,
+				'plant_batches_status': MetrcDownloadStatus.SUCCESS,
+				'plants_status': MetrcDownloadStatus.SUCCESS,
+				'sales_status': MetrcDownloadStatus.SUCCESS,
+				'transfers_status': MetrcDownloadStatus.SUCCESS,
+			},
+		)
 
-	def test_success_but_packages_access_denied_not_total_failure(self) -> None:
-		# We skip over Access Denied when summarizing the final status 
-		self._run_test(test={
-			'errors': [
-				{
-					'path': '/packages/inactive',
-					'reason': 'Access Denied',
-					'status_code': 401
-				}
-			]
-		}, expected=_update(self._get_default_expected_summary(), {
-			'status': MetrcDownloadSummaryStatus.COMPLETED,
-			'packages_status': MetrcDownloadStatus.NO_ACCESS
-		}))
+	def test_success_only_retailer_permissions(self) -> None:
+		self._run_test(
+			license_permissions_dict=metrc_common_util.LicensePermissionsDict(
+				license_number='LIC',
+				is_harvests_enabled=False,
+				is_packages_enabled=True,
+				is_plant_batches_enabled=False,
+				is_plants_enabled=False,
+				is_sales_receipts_enabled=True,
+				is_transfers_enabled=True,
+			),
+			test={
+				'errors': [
+				],
+			},
+			expected={
+				'status': MetrcDownloadSummaryStatus.COMPLETED,
+				'harvests_status': MetrcDownloadStatus.NO_ACCESS,
+				'packages_status': MetrcDownloadStatus.SUCCESS,
+				'plant_batches_status': MetrcDownloadStatus.NO_ACCESS,
+				'plants_status': MetrcDownloadStatus.NO_ACCESS,
+				'sales_status': MetrcDownloadStatus.SUCCESS,
+				'transfers_status': MetrcDownloadStatus.SUCCESS,
+			},
+		)
 
-	def test_packages_failure_metrc_error_needs_retry(self) -> None:
-		# We skip over Access Denied when summarizing the final status 
-		self._run_test(test={
-			'errors': [
-				{
-					'path': '/packages/inactive',
-					'reason': 'Internal Server Error',
-					'status_code': 500
-				}
-			]
-		}, expected=_update(self._get_default_expected_summary(), {
-			'status': MetrcDownloadSummaryStatus.NEEDS_RETRY,
-			'packages_status': MetrcDownloadStatus.METRC_SERVER_ERROR
-		}))
+	def test_failure_only_retailer_permissions_packages_metrc_server_error_needs_retry(self) -> None:
+		self._run_test(
+			license_permissions_dict=metrc_common_util.LicensePermissionsDict(
+				license_number='LIC',
+				is_harvests_enabled=False,
+				is_packages_enabled=True,
+				is_plant_batches_enabled=False,
+				is_plants_enabled=False,
+				is_sales_receipts_enabled=True,
+				is_transfers_enabled=True,
+			),
+			test={
+				'errors': [
+					{
+						'path': '/packages/inactive',
+						'reason': 'Internal Server Error',
+						'status_code': 500,
+					},
+				],
+			},
+			expected={
+				'status': MetrcDownloadSummaryStatus.NEEDS_RETRY,
+				'harvests_status': MetrcDownloadStatus.NO_ACCESS,
+				'packages_status': MetrcDownloadStatus.METRC_SERVER_ERROR,
+				'plant_batches_status': MetrcDownloadStatus.NO_ACCESS,
+				'plants_status': MetrcDownloadStatus.NO_ACCESS,
+				'sales_status': MetrcDownloadStatus.SUCCESS,
+				'transfers_status': MetrcDownloadStatus.SUCCESS,
+			},
+		)
 
-	def test_packages_failure_bespoke_error_needs_retry(self) -> None:
-		# We skip over Access Denied when summarizing the final status 
-		self._run_test(test={
-			'errors': [
-				{
-					'path': '/packages/inactive',
-					'reason': 'Exception in code we wrote',
-					'status_code': BESPOKE_INTERNAL_ERROR_STATUS_CODE
-				}
-			]
-		}, expected=_update(self._get_default_expected_summary(), {
-			'status': MetrcDownloadSummaryStatus.NEEDS_RETRY,
-			'packages_status': MetrcDownloadStatus.BESPOKE_SERVER_ERROR
-		}))
+	def test_failure_only_retailer_packages_bespoke_server_error_needs_retry(self) -> None:
+		self._run_test(
+			license_permissions_dict=metrc_common_util.LicensePermissionsDict(
+				license_number='LIC',
+				is_harvests_enabled=False,
+				is_packages_enabled=True,
+				is_plant_batches_enabled=False,
+				is_plants_enabled=False,
+				is_sales_receipts_enabled=True,
+				is_transfers_enabled=True,
+			),
+			test={
+				'errors': [
+					{
+						'path': '/packages/inactive',
+						'reason': 'Exception in code we wrote',
+						'status_code': BESPOKE_INTERNAL_ERROR_STATUS_CODE,
+					},
+				],
+			},
+			expected={
+				'status': MetrcDownloadSummaryStatus.NEEDS_RETRY,
+				'harvests_status': MetrcDownloadStatus.NO_ACCESS,
+				'packages_status': MetrcDownloadStatus.BESPOKE_SERVER_ERROR,
+				'plant_batches_status': MetrcDownloadStatus.NO_ACCESS,
+				'plants_status': MetrcDownloadStatus.NO_ACCESS,
+				'sales_status': MetrcDownloadStatus.SUCCESS,
+				'transfers_status': MetrcDownloadStatus.SUCCESS,
+			},
+		)
 
-	def test_packages_failure_no_access_needs_retry(self) -> None:
-		# We skip over Access Denied when summarizing the final status 
-		self._run_test(test={
-			'errors': [
-				{
-					# Access Denied gets pinned, regardless of what happens later
-					'path': '/packages/active',
-					'reason': 'Access Denied',
-					'status_code': 401
-				},
-				{
-					'path': '/packages/inactive',
-					'reason': 'Exception in code we wrote',
-					'status_code': BESPOKE_INTERNAL_ERROR_STATUS_CODE
-				},
-			]
-		}, expected=_update(self._get_default_expected_summary(), {
-			'status': MetrcDownloadSummaryStatus.NEEDS_RETRY,
-			'packages_status': MetrcDownloadStatus.NO_ACCESS
-		}))
-
-	def test_packages_failure_skip_access_denied_needs_retry(self) -> None:
-		# We skip over Access Denied when summarizing the final status 
-		self._run_test(test={
-			'errors': [
-				{
-					# Access Denied gets pinned, regardless of what happens later
-					'path': '/packages/active',
-					'reason': 'Internal Server Error',
-					'status_code': 500
-				},
-				{
-					'path': '/packages/inactive',
-					'reason': 'Exception in code we wrote',
-					'status_code': BESPOKE_INTERNAL_ERROR_STATUS_CODE
-				},
-			]
-		}, expected=_update(self._get_default_expected_summary(), {
-			'status': MetrcDownloadSummaryStatus.NEEDS_RETRY,
-			'packages_status': MetrcDownloadStatus.METRC_SERVER_ERROR
-		}))
-
+	def test_failure_only_retailer_multiple_errors_needs_retry(self) -> None:
+		self._run_test(
+			license_permissions_dict=metrc_common_util.LicensePermissionsDict(
+				license_number='LIC',
+				is_harvests_enabled=False,
+				is_packages_enabled=True,
+				is_plant_batches_enabled=False,
+				is_plants_enabled=False,
+				is_sales_receipts_enabled=True,
+				is_transfers_enabled=True,
+			),
+			test={
+				'errors': [
+					{
+						'path': '/packages/inactive',
+						'reason': 'Exception in code we wrote',
+						'status_code': BESPOKE_INTERNAL_ERROR_STATUS_CODE,
+					},
+					{
+						'path': '/transfers/v1/incoming',
+						'reason': 'Internal Server Error',
+						'status_code': 500,
+					},
+				],
+			},
+			expected={
+				'status': MetrcDownloadSummaryStatus.NEEDS_RETRY,
+				'harvests_status': MetrcDownloadStatus.NO_ACCESS,
+				'packages_status': MetrcDownloadStatus.BESPOKE_SERVER_ERROR,
+				'plant_batches_status': MetrcDownloadStatus.NO_ACCESS,
+				'plants_status': MetrcDownloadStatus.NO_ACCESS,
+				'sales_status': MetrcDownloadStatus.SUCCESS,
+				'transfers_status': MetrcDownloadStatus.METRC_SERVER_ERROR,
+			},
+		)
 
 class TestWriteMetrcDownloadSummaryAndNeedsRerun(db_unittest.TestCase):
 
@@ -207,6 +264,15 @@ class TestWriteMetrcDownloadSummaryAndNeedsRerun(db_unittest.TestCase):
 				session=session,
 				license_number=test['license_number'],
 				cur_date=cur_date,
+				license_permissions_dict=metrc_common_util.LicensePermissionsDict(
+					license_number='LIC',
+					is_harvests_enabled=False,
+					is_packages_enabled=True,
+					is_plant_batches_enabled=False,
+					is_plants_enabled=False,
+					is_sales_receipts_enabled=True,
+					is_transfers_enabled=True,
+				),
 				retry_errors=error_catcher.get_retry_errors(),
 				company_id=test['company_id'],
 				metrc_api_key_id=test['metrc_api_key_id'],
