@@ -1,4 +1,5 @@
 import { Box, Typography } from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
 import CompanyFacilitiesDataGrid from "components/CompanyFacilities/CompanyFacilitiesDataGrid";
 import CreateUpdateCompanyFacilityModal from "components/CompanyFacilities/CreateUpdateCompanyFacilityModal";
 import DeleteCompanyFacilityModal from "components/CompanyFacilities/DeleteCompanyFacilityModal";
@@ -220,18 +221,16 @@ export default function CompanyMetrcApiKeysTab({ companyId }: Props) {
     <Box mt={3}>
       <Box display="flex" flexDirection="column" mt={4}>
         <Typography variant="h6">
-          <strong>Facilities</strong>
-        </Typography>
-        <CompanyFacilitiesSection
-          companyId={companyId}
-          companyFacilities={companyFacilities}
-          refetch={refetch}
-        />
-      </Box>
-      <Box display="flex" flexDirection="column" mt={4}>
-        <Typography variant="h6">
           <strong>Licenses</strong>
         </Typography>
+        <Box mb={2}>
+          <Alert severity="info">
+            <strong>
+              Please verify that all known licenses appear below. If a known
+              license does NOT appear below, please assign (add / create) it.
+            </strong>
+          </Alert>
+        </Box>
         <CompanyLicensesSection
           companyId={companyId}
           companyLicenses={companyLicenses}
@@ -246,7 +245,17 @@ export default function CompanyMetrcApiKeysTab({ companyId }: Props) {
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
         <Typography variant="h6">
-          <strong>Download Metrc Data</strong>
+          <strong>Facilities</strong>
+        </Typography>
+        <CompanyFacilitiesSection
+          companyId={companyId}
+          companyFacilities={companyFacilities}
+          refetch={refetch}
+        />
+      </Box>
+      <Box display="flex" flexDirection="column" mt={4}>
+        <Typography variant="h6">
+          <strong>[Deprecated] Download Metrc Data</strong>
         </Typography>
         <Box display="flex">
           <SyncMetrcData companyId={companyId} />

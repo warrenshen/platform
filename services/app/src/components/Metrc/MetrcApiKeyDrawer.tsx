@@ -1,10 +1,12 @@
 import { Box, Typography } from "@material-ui/core";
 import LicenseMetrcDownloadSummariesGrid from "components/Metrc/LicenseMetrcDownloadSummariesGrid";
+import MetrcApiKeyPermissionsDataGrid from "components/Metrc/MetrcApiKeyPermissionsDataGrid";
 import Modal from "components/Shared/Modal/Modal";
 import ModalDataPoint from "components/Shared/Modal/ModalDataPoint";
 import RawJsonToggle from "components/Shared/RawJsonToggle";
 import { MetrcApiKeys, useGetMetrcApiKeyQuery } from "generated/graphql";
-import { MetrcApiKeyPermissions } from "lib/api/metrc";
+import { MetrcApiKeyPermissions, viewApiKey } from "lib/api/metrc";
+import { useEffect, useState } from "react";
 
 interface Props {
   metrcApiKeyId: MetrcApiKeys["id"];
@@ -15,6 +17,8 @@ export default function MetrcApiKeyModal({
   metrcApiKeyId,
   handleClose,
 }: Props) {
+  const [apiKeyValue, setApiKeyValue] = useState("");
+
   const { data } = useGetMetrcApiKeyQuery({
     fetchPolicy: "network-only",
     variables: {
@@ -23,6 +27,26 @@ export default function MetrcApiKeyModal({
   });
 
   const metrcApiKey = data?.metrc_api_keys_by_pk;
+
+  useEffect(() => {
+    async function viewKey() {
+      if (!metrcApiKey) {
+        return;
+      }
+      const resp = await viewApiKey({
+        variables: {
+          metrc_api_key_id: metrcApiKey.id,
+        },
+      });
+      if (resp.status === "OK") {
+        setApiKeyValue(resp.data?.api_key || "Invalid");
+      }
+    }
+
+    if (metrcApiKey) {
+      viewKey();
+    }
+  }, [metrcApiKey]);
 
   if (!metrcApiKey) {
     return null;
@@ -39,7 +63,16 @@ export default function MetrcApiKeyModal({
       contentWidth={1000}
       handleClose={handleClose}
     >
-      <ModalDataPoint subtitle={"ID"} text={metrcApiKey.id} />
+      <ModalDataPoint subtitle={"Platform ID"} text={metrcApiKey.id} />
+      <ModalDataPoint subtitle={"Key Value (from Metrc)"} text={apiKeyValue} />
+      <Box display="flex" flexDirection="column" mt={2}>
+        <Typography variant="subtitle2" color="textSecondary">
+          Permissions
+        </Typography>
+        <MetrcApiKeyPermissionsDataGrid
+          metrcApiKeyPermissions={metrcApiKey.permissions_payload}
+        />
+      </Box>
       <Box display="flex" flexDirection="column" mt={2}>
         <Typography variant="subtitle2" color="textSecondary">
           Status Codes Payload JSON
