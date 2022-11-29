@@ -1,13 +1,29 @@
 subscription GetBespokeCatalogSkus {
-  bespoke_catalog_skus(where: { is_deleted: { _eq: false }}) {
+  bespoke_catalog_skus(
+    where: { is_deleted: { _eq: false }}
+    order_by: { created_at: desc }
+  ) {
     id
 	...BespokeCatalogSku
   }
 }
 
 subscription GetBespokeCatalogBrands {
-  bespoke_catalog_brands(where: { is_deleted: { _eq: false }}) {
+  bespoke_catalog_brands(
+    where: { is_deleted: { _eq: false }}
+    order_by: { created_at: desc }
+  ) {
 	id
 	...BespokeCatalogBrand
+  }
+}
+
+subscription GetMetrcToBespokeCatalogSkus {
+  metrc_to_bespoke_catalog_skus(
+    where: { is_deleted: { _eq: false }}
+    order_by: { created_at: desc }
+  ) {
+  id
+  ...MetrcToBespokeCatalogSku
   }
 }

@@ -249,13 +249,18 @@ export const asyncJobRoutes = {
 };
 
 export const productCatalogRoutes = {
-  viewMetrcData: "product_catalog/view_metrc_data",
   createUpdateBespokeCatalogBrand:
     "product_catalog/create_update_bespoke_catalog_brand",
   createUpdateBespokeCatalogSku:
     "product_catalog/create_update_bespoke_catalog_sku",
+  createUpdateMetrcToBespokeCatalogSku:
+    "product_catalog/create_update_metrc_to_bespoke_catalog_sku",
   deleteBespokeCatalogBrand: "product_catalog/delete_bespoke_catalog_brand",
   deleteBespokeCatalogSku: "product_catalog/delete_bespoke_catalog_sku",
+  deleteMetrcToBespokeCatalogSku:
+    "product_catalog/delete_metrc_to_bespoke_catalog_sku",
+  getSalesTransactions: "product_catalog/sales_transactions",
+  getIncomingTransferPackages: "product_catalog/incoming_transfer_packages",
 };
 
 export const emailAlertRoutes = {

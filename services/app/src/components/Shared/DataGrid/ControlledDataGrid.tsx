@@ -41,9 +41,11 @@ interface DataGridProps {
   pagerSizeSelector?: boolean;
   allowedPageSizes?: number[];
   select?: boolean;
+  singleSelect?: boolean;
   selectedRowKeys?: any[]; // can be controlled
   editing?: Record<any, any>;
   onSaved?: (e: any) => void;
+  onInitNewRow?: (e: any) => void;
   onSelectionChanged?: (params: {}) => void; // callback
   onPageChanged?: (page: number) => void; // callback
   onSortingChanged?: (index: number, order: "asc" | "desc") => void; // callback
@@ -66,10 +68,12 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
       pagerSizeSelector = true,
       filtering,
       select,
+      singleSelect,
       sortBy,
       selectedRowKeys,
       editing = {},
       onSaved,
+      onInitNewRow,
       onSelectionChanged,
       onPageChanged,
       onSortingChanged,
@@ -172,6 +176,7 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
         onOptionChanged={onOptionChanged}
         editing={editing}
         onSaved={onSaved}
+        onInitNewRow={onInitNewRow}
       >
         <ColumnFixing enabled={true} />
         <Export enabled={isExcelExport} />
@@ -246,6 +251,7 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
             showCheckBoxesMode={"always"}
           />
         )}
+        {singleSelect && <Selection mode="single" />}
       </DataGrid>
     );
   }

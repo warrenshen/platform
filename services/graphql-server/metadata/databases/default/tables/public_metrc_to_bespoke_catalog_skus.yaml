@@ -1,3 +1,21 @@
 table:
   schema: public
   name: metrc_to_bespoke_catalog_skus
+object_relationships:
+  - name: bespoke_catalog_sku
+    using:
+      foreign_key_constraint_on: bespoke_catalog_sku_id
+select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+        - is_deleted
+        - product_category_name
+        - product_name
+        - sku_confidence
+        - created_at
+        - deleted_at
+        - updated_at
+        - bespoke_catalog_sku_id
+        - id
+      filter: {}

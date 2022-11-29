@@ -1773,6 +1773,23 @@ class BespokeCatalogSku(Base):
 	deleted_at = Column(DateTime, nullable=True)
 
 
+class MetrcToBespokeCatalogSku(Base):
+	__tablename__ = 'metrc_to_bespoke_catalog_skus'
+
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+
+	bespoke_catalog_sku_id = cast(GUID, Column(GUID, ForeignKey('bespoke_catalog_skus.id'), nullable=False))
+
+	product_name = Column(String, nullable=False)
+	product_category_name = Column(String, nullable=False)
+	sku_confidence = Column(String, nullable=False)
+	is_deleted = Column(Boolean, nullable=False, default=False)
+
+	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	deleted_at = Column(DateTime, nullable=True)
+
+
 class RetryingQuery(_Query):
 	__retry_count__ = 4
 

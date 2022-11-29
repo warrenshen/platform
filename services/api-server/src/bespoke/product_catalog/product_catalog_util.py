@@ -12,8 +12,8 @@ def create_update_bespoke_catalog_brand(
 ) -> Tuple[str, errors.Error]:
 	brand = cast(
 		models.BespokeCatalogBrand,
-		session.query(models.BespokeCatalogBrand).filter_by(
-			id=id
+		session.query(models.BespokeCatalogBrand).filter(
+			models.BespokeCatalogBrand.id == id
 		).first())
 
 	if not brand:
@@ -37,8 +37,8 @@ def create_update_bespoke_catalog_sku(
 ) -> Tuple[str, errors.Error]:
 	sku_model = cast(
 		models.BespokeCatalogSku,
-		session.query(models.BespokeCatalogSku).filter_by(
-			id=id
+		session.query(models.BespokeCatalogSku).filter(
+			models.BespokeCatalogSku.id == id
 		).first())
 
 	if not sku_model:
@@ -60,8 +60,8 @@ def delete_bespoke_catalog_brand(
 ) -> Tuple[bool, errors.Error]:
 	brand = cast(
 		models.BespokeCatalogBrand,
-		session.query(models.BespokeCatalogBrand).filter_by(
-			id=id
+		session.query(models.BespokeCatalogBrand).filter(
+			models.BespokeCatalogBrand.id == id
 		).first())
 
 	if brand: 
@@ -75,12 +75,60 @@ def delete_bespoke_catalog_sku(
 ) -> Tuple[bool, errors.Error]:
 	sku = cast(
 		models.BespokeCatalogSku,
-		session.query(models.BespokeCatalogSku).filter_by(
-			id=id
+		session.query(models.BespokeCatalogSku).filter(
+			models.BespokeCatalogSku.id == id
 		).first()
 	)
 
 	if sku:
 		sku.is_deleted = True
+
+	return True, None
+
+def create_update_metrc_to_sku(
+	session: Session,
+	id: str,
+	bespoke_catalog_sku_id: str,
+	product_name: str,
+	product_category_name: str,
+	sku_confidence: str,
+	brand_confidence: str,
+) -> Tuple[str, errors.Error]:
+	metrc_to_sku = cast(
+		models.MetrcToBespokeCatalogSku,
+		session.query(models.MetrcToBespokeCatalogSku).filter(
+			models.MetrcToBespokeCatalogSku.id == id
+		).first())
+
+	if not metrc_to_sku:
+		metrc_to_sku = models.MetrcToBespokeCatalogSku(# type: ignore
+			# id = id,
+			bespoke_catalog_sku_id = bespoke_catalog_sku_id,
+			product_name = product_name,
+			product_category_name = product_category_name,
+			sku_confidence = sku_confidence.lower(),
+		)
+		session.add(metrc_to_sku)
+	else:
+		metrc_to_sku.bespoke_catalog_sku_id = bespoke_catalog_sku_id # type: ignore
+		metrc_to_sku.product_name = product_name
+		metrc_to_sku.product_category_name = product_category_name
+		metrc_to_sku.sku_confidence = sku_confidence.lower()
+	
+	return str(metrc_to_sku.id), None
+
+def delete_metrc_to_bespoke_catalog_sku(
+	session: Session,
+	id: str,
+) -> Tuple[bool, errors.Error]:
+	metrc_to_sku = cast(
+		models.MetrcToBespokeCatalogSku,
+		session.query(models.MetrcToBespokeCatalogSku).filter(
+			models.MetrcToBespokeCatalogSku.id == id
+		).first()
+	)
+
+	if metrc_to_sku:
+		metrc_to_sku.is_deleted = True
 
 	return True, None

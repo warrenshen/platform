@@ -341,6 +341,17 @@ fragment MetrcPackage on metrc_packages {
   package_payload
 }
 
+fragment MetrcSalesTransaction on metrc_sales_transactions {
+  id
+  product_name
+  product_category_name
+  us_state
+  is_deleted
+  quantity_sold
+  total_price
+  unit_of_measure
+}
+
 fragment PurchaseOrderMetrcTransfer on purchase_order_metrc_transfers {
   id
   purchase_order_id

@@ -11,7 +11,7 @@ import { useMemo } from "react";
 const columns = [
   {
     dataField: "brand_name",
-    caption: "Brand",
+    caption: "Bespoke Brand",
     minWidth: ColumnWidths.MinWidth,
   },
   {
@@ -21,7 +21,7 @@ const columns = [
   },
   {
     dataField: "id",
-    caption: "Brand ID",
+    caption: "Bespoke Brand ID",
     minWidth: ColumnWidths.MinWidth,
   },
 ];
@@ -83,6 +83,7 @@ const BespokeCatalogBrandsDataGrid = ({
       dataSource={rows}
       isExcelExport={false}
       filtering={filtering}
+      pager
       editing={{ allowUpdating: true, allowDeleting: true, allowAdding: true }}
       onSaved={(e) => handleSave(e.changes?.[0])}
     />

@@ -1,9 +1,8 @@
-import { GridValueFormatterParams } from "@material-ui/data-grid";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
-import MetrcPackageDrawerLauncher from "components/Transfers/v2/MetrcPackageDrawerLauncher";
-import { MetrcTransferPackageFragment } from "generated/graphql";
-import { MetrcPackagePayload } from "lib/api/metrc";
-import { CurrencyPrecision } from "lib/number";
+import {
+  MetrcTransferPackageFragment,
+  MetrcTransferPackages,
+} from "generated/graphql";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
@@ -11,45 +10,38 @@ interface Props {
   isExcelExport?: boolean;
   isViewActionAvailable?: boolean;
   metrcTransferPackages: MetrcTransferPackageFragment[];
+  selectedTransferPackageIds: MetrcTransferPackages["id"][];
+  onSelectionChanged: (selectedRowIds: any) => void;
 }
 
 // TODO: columns still TBD, set up file for https://www.notion.so/bespokefinancial/Set-up-api-server-to-query-Google-BQ-3c2d68dbb7444f8187522bb13e00b0b2
 const MetrcTransferPackagesDataGrid = ({
   isExcelExport = true,
   metrcTransferPackages,
+  selectedTransferPackageIds,
+  onSelectionChanged,
 }: Props) => {
   const rows = useMemo(
     () =>
       metrcTransferPackages.map((metrcTransferPackage) => {
-        // const packagePayload =
-        //   metrcTransferPackage.package_payload as MetrcPackagePayload;
         return {
           ...metrcTransferPackage,
-          //   manifest_number: metrcTransferPackage.metrc_transfer?.manifest_number,
-          //   item_category: packagePayload["ItemCategory"],
-          //   item_strain_name: packagePayload["ItemStrainName"],
-          //   item_state: packagePayload["ItemState"],
-          //   shipment_package_state: packagePayload["ShipmentPackageState"],
-          //   shipped_quantity: `${packagePayload["ShippedQuantity"]} (${packagePayload["ShippedUnitOfMeasureName"]})`,
-          //   received_quantity: `${packagePayload["ReceivedQuantity"]} (${packagePayload["ReceivedUnitOfMeasureName"]})`,
-          //   receiver_wholesale_price: packagePayload["ReceiverWholesalePrice"],
-          //   item_unit_quantity: packagePayload["ItemUnitQuantity"],
-          //   item_unit_weight: packagePayload["ItemUnitWeight"],
         };
       }),
     [metrcTransferPackages]
   );
 
+  // TODO: Discuss with Spencer which additional columns if any will be most helpful
   const columns = useMemo(
     () => [
       {
         dataField: "product_name",
-        caption: "Product Name",
+        caption: "Metrc Product Name",
         minWidth: ColumnWidths.MinWidth,
       },
       {
         dataField: "product_category_name",
-        caption: "Product Category Name",
+        caption: "Metrc Product Category",
         minWidth: ColumnWidths.MinWidth,
       },
       //   {
@@ -126,7 +118,9 @@ const MetrcTransferPackagesDataGrid = ({
       columns={columns}
       select
       pager
-      pageSize={100}
+      pageSize={10}
+      selectedRowKeys={selectedTransferPackageIds}
+      onSelectionChanged={onSelectionChanged}
     />
   );
 };

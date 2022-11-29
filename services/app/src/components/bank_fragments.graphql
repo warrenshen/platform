@@ -745,3 +745,18 @@ fragment BespokeCatalogBrand on bespoke_catalog_brands {
   brand_name
   us_state
 }
+
+fragment MetrcToBespokeCatalogSku on metrc_to_bespoke_catalog_skus {
+  id
+  product_name
+  product_category_name
+  sku_confidence
+  bespoke_catalog_sku {
+    id
+    sku
+    bespoke_catalog_brand {
+      id
+      brand_name
+    }
+  }
+}

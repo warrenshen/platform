@@ -293,6 +293,34 @@ export const BankVendorsTabLabels = [
   BankVendorsTabLabel.Approved,
 ];
 
+export enum ProductCatalogTabLabel {
+  SalesTransactions = "Sales Transactions",
+  IncomingTransferPackages = "Incoming Transfer Packages",
+  RecentlyAdded = "Recently Added",
+  SkusAndBrands = "SKUs & Brands",
+}
+
+export const ProductCatalogTabLabels = [
+  ProductCatalogTabLabel.SalesTransactions,
+  ProductCatalogTabLabel.IncomingTransferPackages,
+  ProductCatalogTabLabel.RecentlyAdded,
+  ProductCatalogTabLabel.SkusAndBrands,
+];
+
+export enum MetrcToBespokeCatalogSkuConfidenceLabel {
+  High = "High",
+  Medium = "Medium",
+  Low = "Low",
+  Invalid = "Invalid",
+}
+
+export const MetrcToBespokeCatalogSkuConfidenceLabels = [
+  MetrcToBespokeCatalogSkuConfidenceLabel.High,
+  MetrcToBespokeCatalogSkuConfidenceLabel.Medium,
+  MetrcToBespokeCatalogSkuConfidenceLabel.Low,
+  MetrcToBespokeCatalogSkuConfidenceLabel.Invalid,
+];
+
 export enum NewPurchaseOrderStatus {
   // Not Ready
   Draft = "draft",
