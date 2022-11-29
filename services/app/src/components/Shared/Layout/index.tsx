@@ -323,8 +323,8 @@ const getBankNavItems = (
     {
       dataCy: "customers",
       iconNode: CustomersIcon,
-      text: "Customers",
-      link: bankRoutes.customers,
+      text: "Companies",
+      link: bankRoutes.companiesNew,
       isBankMenu: true,
     },
     {

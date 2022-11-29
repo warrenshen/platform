@@ -271,6 +271,16 @@ export const BankEbbaTabLabels = [
   BankEbbaTabLabel.AllCertifications,
 ];
 
+export enum CompaniesTabLabel {
+  Customers = "Customers",
+  Companies = "Companies",
+}
+
+export const CompaniesTabLabels = [
+  CompaniesTabLabel.Customers,
+  CompaniesTabLabel.Companies,
+];
+
 export enum BankVendorsTabLabel {
   NotApproved = "Not Approved Vendors",
   Approved = "Approved Vendors",
