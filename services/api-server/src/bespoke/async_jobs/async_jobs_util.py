@@ -1432,7 +1432,7 @@ def generate_download_data_for_metrc_api_key_license_jobs_by_metrc_api_key_permi
 	currently_active_jobs = cast(
 		List[models.AsyncJob],
 		session.query(models.AsyncJob).filter(
-			cast(Callable, models.MetrcApiKey.is_deleted.isnot)(True)
+			cast(Callable, models.AsyncJob.is_deleted.isnot)(True)
 		).filter(
 			models.AsyncJob.name == AsyncJobNameEnum.DOWNLOAD_DATA_FOR_METRC_API_KEY_LICENSE
 		).filter(
