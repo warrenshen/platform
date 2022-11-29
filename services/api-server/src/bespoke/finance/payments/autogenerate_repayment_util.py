@@ -6,7 +6,7 @@ from typing import Any, Callable, Dict, List, Set, Tuple, cast
 from bespoke import errors
 from bespoke.date import date_util
 from bespoke.db import models, model_types, queries
-from bespoke.db.db_constants import FeatureFlagEnum, PaymentType, PaymentMethodEnum, PaymentOption
+from bespoke.db.db_constants import FeatureFlagEnum, PaymentType, PaymentMethodEnum, PaymentOption, ProductType
 from bespoke.db.model_types import PaymentItemsCoveredDict
 from bespoke.finance import number_util
 from bespoke.finance.loans.loan_calculator import (LoanUpdateDict)
@@ -14,6 +14,11 @@ from bespoke.finance.payments import repayment_util
 from bespoke.finance.payments.payment_util import RepaymentOption
 from bespoke.finance.reports import loan_balances
 from sqlalchemy.orm.session import Session
+
+product_types_with_autogenerate: List[str] = [
+	ProductType.DISPENSARY_FINANCING,
+	ProductType.INVENTORY_FINANCING,
+]
 
 def get_opt_in_customers(
 	session: Session,

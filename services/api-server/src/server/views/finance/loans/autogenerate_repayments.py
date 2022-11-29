@@ -5,10 +5,10 @@ from typing import Any, Dict, List, cast
 
 from bespoke.date import date_util
 from bespoke.db import models, models_util, queries
-from bespoke.db.db_constants import ProductType
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from bespoke.finance.payments import autogenerate_repayment_util
+from bespoke.finance.payments.autogenerate_repayment_util import product_types_with_autogenerate
 from bespoke.finance.reports import loan_balances
 from bespoke.metrc.common.metrc_common_util import chunker
 from flask import Blueprint, Response, current_app, make_response
@@ -20,11 +20,6 @@ handler = Blueprint('autogenerate_repayments', __name__)
 
 class AutogenerateRepaymentView(MethodView):
 	decorators = [auth_util.requires_async_magic_header]
-
-	product_types_with_autogenerate: List[str] = [
-		ProductType.DISPENSARY_FINANCING,
-		ProductType.INVENTORY_FINANCING,
-	]
 
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
@@ -80,7 +75,7 @@ class AutogenerateRepaymentView(MethodView):
 				customer_lookup, filtered_customer_ids, company_settings_lookup, err = autogenerate_repayment_util.get_opt_in_customers(
 					session, 
 					customers_chunk,
-					self.product_types_with_autogenerate,
+					product_types_with_autogenerate,
 					today_date,
 				)
 				if err:
@@ -181,11 +176,6 @@ class AutogenerateRepaymentView(MethodView):
 class AutogenerateRepaymentWeeklyAlertView(MethodView):
 	decorators = [auth_util.requires_async_magic_header]
 
-	product_types_with_autogenerate: List[str] = [
-		ProductType.DISPENSARY_FINANCING,
-		ProductType.INVENTORY_FINANCING,
-	]
-
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
 		"""
@@ -242,7 +232,7 @@ class AutogenerateRepaymentWeeklyAlertView(MethodView):
 				customer_lookup, filtered_customer_ids, company_settings_lookup, err = autogenerate_repayment_util.get_opt_in_customers(
 					session, 
 					customers_chunk,
-					self.product_types_with_autogenerate,
+					product_types_with_autogenerate,
 					today_date,
 				)
 				if err:

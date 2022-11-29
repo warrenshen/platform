@@ -15,6 +15,7 @@ from bespoke.email import sendgrid_util
 from bespoke.finance import number_util, contract_util
 from bespoke.finance.loans import reports_util
 from bespoke.finance.payments import autogenerate_repayment_util
+from bespoke.finance.payments.autogenerate_repayment_util import product_types_with_autogenerate
 from bespoke.finance.purchase_orders import purchase_orders_util
 from bespoke.finance.reports import loan_balances
 from bespoke.metrc import metrc_download_util, metrc_util
@@ -515,10 +516,6 @@ def autogenerate_repayment_customers(
 	cfg = cast(Config, current_app.app_config)
 	customers, has_more_customers, err = queries.get_all_customers(session)
 
-	product_types_with_autogenerate: List[str] = [
-		ProductType.DISPENSARY_FINANCING,
-		ProductType.INVENTORY_FINANCING,
-	]
 	today_date: datetime.date = date_util.now_as_date()
 
 	customer_lookup, filtered_customer_ids, company_settings_lookup, err = autogenerate_repayment_util.get_opt_in_customers(
@@ -580,10 +577,6 @@ def autogenerate_repayments(
 
 	logging.info(f"Autogenerating repayments for {company_id} that opted in")
 	bot_user_id = cfg.BOT_USER_ID
-
-	product_types_with_autogenerate: List[str] = [
-		ProductType.DISPENSARY_FINANCING
-	]
 
 	if sendgrid_client is None:
 		return False, errors.Error("Cannot find sendgrid client")
@@ -704,10 +697,6 @@ def autogenerate_repayment_alerts_customers(
 	cfg = cast(Config, current_app.app_config)
 	customers, has_more_customers, err = queries.get_all_customers(session)
 
-	product_types_with_autogenerate: List[str] = [
-		ProductType.DISPENSARY_FINANCING
-	]
-
 	# Get the weekly range for days the cron job will run during the next week
 	today_date: datetime.date = date_util.now_as_date()
 
@@ -763,10 +752,6 @@ def autogenerate_repayment_alerts(
 	company_id = job_payload["company_id"]
 	logging.info(f"Autogenerating repayment alerts for customer {company_id} that opted in")
 	bot_user_id = cfg.BOT_USER_ID
-
-	product_types_with_autogenerate: List[str] = [
-		ProductType.DISPENSARY_FINANCING
-	]
 
 	if sendgrid_client is None:
 		return False, errors.Error("Cannot find sendgrid client")
