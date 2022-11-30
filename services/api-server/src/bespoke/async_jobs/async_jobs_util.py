@@ -206,6 +206,8 @@ def orchestration_handler(
 					models.AsyncJob.status == AsyncJobStatusEnum.QUEUED
 				).filter(
 					cast(Callable, models.AsyncJob.is_deleted.isnot)(True)
+				).filter(
+					models.AsyncJob.name.notin_(capped_jobs)
 				).order_by(
 					models.AsyncJob.is_high_priority.desc()
 				).order_by(
@@ -247,7 +249,6 @@ def orchestration_handler(
 		return [job.id for job in queued_jobs_to_be_run], None
 
 	return [], None
-
 
 @errors.return_error_tuple
 def remove_orphaned_initialized_jobs(
@@ -348,7 +349,8 @@ def create_job_summary(
 		session.query(models.AsyncJobSummary).filter(
 			or_(
 				models.AsyncJobSummary.name == AsyncJobNameEnum.LOANS_COMING_DUE,
-				models.AsyncJobSummary.name == AsyncJobNameEnum.LOANS_PAST_DUE
+				models.AsyncJobSummary.name == AsyncJobNameEnum.LOANS_PAST_DUE,
+				models.AsyncJobSummary.name == AsyncJobNameEnum.DAILY_COMPANY_BALANCES_RUN
 			)
 		).filter(
 			models.AsyncJobSummary.date == date_util.date_to_db_str(date_util.hours_from_today(-24))
