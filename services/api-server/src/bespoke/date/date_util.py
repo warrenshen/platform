@@ -12,6 +12,7 @@ from dateutil import parser, relativedelta
 
 us_holidays = holidays.UnitedStates()
 DEFAULT_TIMEZONE = 'US/Pacific'
+UTC_TIMEZONE = 'Etc/UTC'
 
 def human_readable_yearmonthday(dt: datetime.datetime) -> str:
 	return dt.strftime('%m/%d/%Y')

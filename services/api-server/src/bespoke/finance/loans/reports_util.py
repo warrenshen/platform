@@ -133,12 +133,6 @@ def set_needs_balance_recomputed(
 			return False, errors.Error('Failed to find all financial summaries associated with company_ids {} on {}'.format(company_ids, cur_date))
 
 	for financial_summary in financial_summaries:
-	# 		 or_(
-	# 			models.FinancialSummary.needs_recompute == False,
-	# 			and_(
-	# 				models.FinancialSummary.needs_recompute == True,
-	# 				models.FinancialSummary.days_to_compute_back < days_to_compute_back
-	# 			),
 		if (
 			not financial_summary.needs_recompute or
 			(financial_summary.needs_recompute and financial_summary.days_to_compute_back < days_to_compute_back)

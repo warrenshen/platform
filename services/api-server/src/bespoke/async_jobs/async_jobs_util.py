@@ -868,7 +868,7 @@ def generate_daily_company_balances_run(
 	# generate all bank_financial_summaries for the day first if
 	# they don't already exists, otherwise, multiple threads try
 	# to create the bank_financial_summary and it goes poorly
-	cur_date = date_util.now_as_date()
+	cur_date = date_util.now_as_date(date_util.UTC_TIMEZONE)
 	reports_util.compute_and_update_bank_financial_summaries(
 		session,
 		cur_date,
@@ -882,7 +882,6 @@ def generate_daily_company_balances_run(
 		company_ids, 
 		cur_date, 
 		create_if_missing=True,
-		# days_to_compute_back=0, 
 		days_to_compute_back=reports_util.DAYS_TO_COMPUTE_BACK, 
 	)
 
