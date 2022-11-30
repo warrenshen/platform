@@ -1,6 +1,6 @@
-import { Button } from "@material-ui/core";
+import { Box, Button } from "@material-ui/core";
 import * as Sentry from "@sentry/react";
-import ConfirmModal from "components/Shared/Confirmations/ConfirmModal";
+import ConfirmModal from "components/Shared/Confirmations/VendorConfirmModal";
 import { useGetVendorPartnershipForBankQuery } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -21,7 +21,8 @@ interface Props {
 export default function ApproveVendor(props: Props) {
   const snackbar = useSnackbar();
 
-  const [open, setOpen] = useState(false);
+  const [isNoEmailModalOpen, setIsNoEmailModalOpen] = useState(false);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [errMsg, setErrMsg] = useState("");
 
   const [approvePartnership, { loading: isApprovePartnershipLoading }] =
@@ -81,7 +82,8 @@ export default function ApproveVendor(props: Props) {
     let isValid = areVendorDetailsValid();
 
     if (!isValid) {
-      setOpen(false);
+      setIsEmailModalOpen(false);
+      setIsNoEmailModalOpen(false);
       return;
     }
 
@@ -101,44 +103,74 @@ export default function ApproveVendor(props: Props) {
 
     refetch();
 
-    const resp = await props.notifier.sendVendorApproved({
-      vendor_id: props.vendorId,
-      company_id: props.customerId,
-    });
+    if (isEmailModalOpen) {
+      const resp = await props.notifier.sendVendorApproved({
+        vendor_id: props.vendorId,
+        company_id: props.customerId,
+      });
 
-    if (resp.status !== "OK") {
-      setErrMsg(
-        "Could not send notify vendor approved, notify customer email. Error: " +
-          resp.msg
-      );
-      return;
+      if (resp.status !== "OK") {
+        setErrMsg(
+          "Could not send notify vendor approved, notify customer email. Error: " +
+            resp.msg
+        );
+        return;
+      } else {
+        snackbar.showSuccess("Vendor approved.");
+        setIsEmailModalOpen(false);
+        setIsNoEmailModalOpen(false);
+      }
     } else {
-      snackbar.showSuccess("Vendor approved.");
-      setOpen(false);
+      setIsEmailModalOpen(false);
+      setIsNoEmailModalOpen(false);
     }
   };
 
   return (
     <>
-      {open && (
+      {isEmailModalOpen && (
+        <ConfirmModal
+          isEmailWarningShown
+          title={`Would you like to approve vendor ${props.vendorName} for customer ${customerName}?`}
+          errorMessage={errMsg}
+          handleConfirm={handleClickSubmit}
+          handleClose={() => setIsEmailModalOpen(false)}
+        />
+      )}
+      {isNoEmailModalOpen && (
         <ConfirmModal
           title={`Would you like to approve vendor ${props.vendorName} for customer ${customerName}?`}
           errorMessage={errMsg}
           handleConfirm={handleClickSubmit}
-          handleClose={() => setOpen(false)}
+          handleClose={() => setIsNoEmailModalOpen(false)}
         />
       )}
-      <Button
-        disabled={isApprovePartnershipLoading}
-        size="small"
-        variant="contained"
-        color="primary"
-        onClick={() => {
-          setOpen(true);
-        }}
-      >
-        Approve vendor partnership
-      </Button>
+      <Box mb={1}>
+        <Button
+          disabled={isApprovePartnershipLoading}
+          size="small"
+          variant="contained"
+          color="primary"
+          onClick={() => {
+            setIsEmailModalOpen(true);
+          }}
+        >
+          Approve Vendor Partnership With Email Notification To Vendor
+        </Button>
+      </Box>
+      <Box>
+        <Button
+          disabled={isApprovePartnershipLoading}
+          size="small"
+          variant="contained"
+          color="primary"
+          onClick={() => {
+            setIsNoEmailModalOpen(true);
+          }}
+        >
+          Approve Vendor Partnership Without Email Notification
+        </Button>
+      </Box>
     </>
   );
 }
