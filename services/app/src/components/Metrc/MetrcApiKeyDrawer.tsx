@@ -52,9 +52,11 @@ export default function MetrcApiKeyModal({
     return null;
   }
 
-  const licenseNumbers = (
-    (metrcApiKey.permissions_payload || []) as MetrcApiKeyPermissions
-  ).map((licensePermissions) => licensePermissions["license_number"]);
+  const metrcApiKeyPermissions = (metrcApiKey.permissions_payload ||
+    []) as MetrcApiKeyPermissions;
+  const licenseNumbers = metrcApiKeyPermissions.map(
+    (licensePermissions) => licensePermissions["license_number"]
+  );
 
   return (
     <Modal
@@ -65,12 +67,16 @@ export default function MetrcApiKeyModal({
     >
       <ModalDataPoint subtitle={"Platform ID"} text={metrcApiKey.id} />
       <ModalDataPoint subtitle={"Key Value (from Metrc)"} text={apiKeyValue} />
+      <ModalDataPoint
+        subtitle={"Is Working?"}
+        text={!!metrcApiKey.is_functioning ? "Yes" : "No"}
+      />
       <Box display="flex" flexDirection="column" mt={2}>
         <Typography variant="subtitle2" color="textSecondary">
           Permissions
         </Typography>
         <MetrcApiKeyPermissionsDataGrid
-          metrcApiKeyPermissions={metrcApiKey.permissions_payload}
+          metrcApiKeyPermissions={metrcApiKeyPermissions}
         />
       </Box>
       <Box display="flex" flexDirection="column" mt={2}>
