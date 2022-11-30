@@ -38,6 +38,9 @@
   include_in_metadata: true
   payload:
     job_name: refresh_metrc_api_key_permissions
+  headers:
+    - name: x-api-key
+      value_from_env: ASYNC_SERVER_API_KEY
 - name: async_send_loans_coming_due_reports
   webhook: '{{ASYNC_SERVER_BASE_URL}}/async_jobs/generate_jobs'
   schedule: 0 0 * * *
