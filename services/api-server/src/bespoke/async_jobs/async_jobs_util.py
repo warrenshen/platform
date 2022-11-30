@@ -6,6 +6,7 @@ from typing import Any, Callable, Dict, cast, Iterable, List, Tuple
 from flask import current_app
 from bespoke import errors
 from decimal import *
+import json
 
 from bespoke.date import date_util
 from bespoke.db import db_constants, models, models_util, queries
@@ -232,7 +233,7 @@ def orchestration_handler(
 			if job.initialized_at is not None and job.initialized_at < date_util.hours_from_today(-1):
 				job.status = AsyncJobStatusEnum.QUEUED
 				job.initialized_at = None
-				job.err_details = {"Error" : f"Async job was initialized but did not run and was requeued."}
+				job.err_details = json.dumps({"Error" : f"Async job was initialized but did not run and was requeued."}) # type: ignore
 
 			if job.started_at is not None and job.started_at < date_util.hours_from_today(-1):
 				if job.num_retries >= cfg.ASYNC_MAX_FAILED_ATTMEPTS:
@@ -244,7 +245,7 @@ def orchestration_handler(
 					
 				job.ended_at = date_util.now()
 				job.num_retries += 1
-				job.err_details = {"Error" : "Async job timed out."}
+				job.err_details = json.dumps({"Error" : "Async job timed out."}) # type: ignore
 
 		return [job.id for job in queued_jobs_to_be_run], None
 
@@ -259,7 +260,10 @@ def remove_orphaned_initialized_jobs(
 		initialized_jobs = cast(
 			List[models.AsyncJob],
 			session.query(models.AsyncJob).filter(
-				models.AsyncJob.status == AsyncJobStatusEnum.INITIALIZED,
+				models.AsyncJob.status.in_([
+					AsyncJobStatusEnum.INITIALIZED, 
+					AsyncJobStatusEnum.IN_PROGRESS
+				])
 			).filter(
 				cast(Callable, models.AsyncJob.is_deleted.isnot)(True)
 			).order_by(
