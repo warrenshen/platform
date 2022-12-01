@@ -327,7 +327,7 @@ def populate_vendor_details(
 def populate_delivery_details(
 	company_delivery_objs: List[CompanyDeliveryObj],  
 	session: Session
-	) -> None:
+) -> None:
 	# Recipient licenses lookup
 	recipient_license_numbers = []
 	for company_delivery_obj in company_delivery_objs:
@@ -368,7 +368,7 @@ def _get_company_delivery_objs(
 	matching_transfers: List[models.MetrcTransfer], 
 	matching_deliveries: List[models.MetrcDelivery],
 	matching_company_deliveries: List[models.CompanyDelivery]
-	) -> List[CompanyDeliveryObj]:
+) -> List[CompanyDeliveryObj]:
 	
 	transfer_row_id_to_transfer: Dict[str, models.MetrcTransfer] = {}
 	for metrc_transfer in matching_transfers:

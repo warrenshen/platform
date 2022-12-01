@@ -151,9 +151,29 @@ def _download_data_for_metrc_api_key_license_for_date(
 
 	license_number = metrc_api_key_data_fetcher.get_target_license_number()
 	license_permissions_dict = metrc_api_key_data_fetcher.get_target_license_permissions_dict()
+
+	company_id = metrc_api_key_data_fetcher.metrc_api_key_dict['company_id'] # Default is the company ID of the Metrc API key.
+	company_name = 'Unknown (Please Configure License)'
+
+	company_license, err = queries.get_company_license_by_license_number(
+		session=session,
+		license_number=license_number,
+	)
+	if company_license:
+		company, err = queries.get_company_by_id(
+			session=session,
+			company_id=str(company_license.company_id),
+		)
+		if company:
+			company_id = str(company.id)
+			company_name = company.name
+
+	# Note: company ID and company name may not be equal to the company that the
+	# Metrc API key is associated with (metrc_api_keys.company_id). This is intentional,
+	# as a Metrc API key may have access to a license that belongs to a different company.
 	company_details = metrc_common_util.CompanyDetailsDict(
-		company_id=metrc_api_key_data_fetcher.metrc_api_key_dict['company_id'],
-		name='',
+		company_id=company_id,
+		name=company_name,
 	)
 	ctx = metrc_common_util.DownloadContext(
 		sendgrid_client=None,
@@ -162,7 +182,6 @@ def _download_data_for_metrc_api_key_license_for_date(
 		company_details=company_details,
 		apis_to_use=apis_to_use,
 		license_auth=metrc_common_util.LicenseAuthDict(
-			license_id='',
 			license_number=license_number,
 			us_state=metrc_api_key_data_fetcher.metrc_api_key_dict['us_state'],
 			vendor_key=metrc_api_key_data_fetcher.auth_dict['vendor_key'],

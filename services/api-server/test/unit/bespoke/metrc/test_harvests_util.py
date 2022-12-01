@@ -25,14 +25,12 @@ class TestPopulateHarvestsTable(db_unittest.TestCase):
 		seed.initialize()
 
 		company_id = seed.get_company_id('company_admin', index=0)
-		license_id = str(uuid.uuid4())
 
 		ctx = metrc_test_helper.create_download_context(
 			cur_date='1/1/2020',
 			company_id=company_id,
 			name='Company 1',
 			license_auth=LicenseAuthDict(
-				license_id=license_id,
 				license_number='abcd',
 				us_state='CA',
 				vendor_key='vkey',

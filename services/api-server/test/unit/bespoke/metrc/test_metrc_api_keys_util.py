@@ -125,14 +125,3 @@ class TestUpsertApiKey(db_unittest.TestCase):
 				session=session
 			)
 			self.assertIsNone(err)
-
-			metrc_api_key_id, err = metrc_api_keys_util.upsert_api_key(
-				company_id=company_id,
-				metrc_api_key_id=None,
-				api_key='the-api-key2',
-				security_cfg=self.security_cfg,
-				us_state='CA', # disallowed beacuse its a duplicate
-				use_saved_licenses_only=False,
-				session=session
-			)
-			self.assertIsNotNone(err)

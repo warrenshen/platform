@@ -59,15 +59,11 @@ class TransferPackages(object):
 	def get_package_models(
 			self, lab_tests: List[LabTest], transfer_type: str, created_date: datetime.date,
 			ctx: metrc_common_util.DownloadContext) -> Tuple[List[models.MetrcTransferPackage], str]:
-		company_id = ctx.company_details['company_id']
-		license_id = ctx.license['license_id']
-		license_number = ctx.license['license_number']
 		us_state = ctx.license['us_state']
 
 		# Return list of MetrcTransferPackage models and lab results status
 		# of the Transfer that all these packages belong to.
 		metrc_packages = []
-		transfer_lab_results_status = UNKNOWN_LAB_STATUS
 
 		package_id_to_package_wholesale = {}
 		for package_wholesale in self._packages_wholesale:
@@ -170,7 +166,6 @@ class Transfers(object):
 	def get_transfer_objs(self, rest: metrc_common_util.REST, ctx: metrc_common_util.DownloadContext, transfer_type: str) -> List[MetrcTransferObj]:
 		metrc_transfer_objs = []
 		company_id = ctx.company_details['company_id']
-		license_id = ctx.license['license_id']
 		license_number = ctx.license['license_number']
 		us_state = ctx.license['us_state']
 
@@ -214,7 +209,6 @@ class Transfers(object):
 					transfer_type=transfer_type,
 				)
 				company_delivery.company_id = cast(Any, company_id)
-
 				company_deliveries.append(CompanyDeliveryObj(
 					company_delivery=company_delivery,
 					metrc_delivery=d,

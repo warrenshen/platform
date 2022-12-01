@@ -832,3 +832,23 @@ def get_most_recent_contract_by_company_id(
         return contract, errors.Error("No contract with specified company id")
 
     return contract, None
+
+
+def get_company_license_by_license_number(
+    session: Session,
+    license_number: str,
+) -> Tuple[models.CompanyLicense, errors.Error]:
+    filters = [
+        models.CompanyLicense.license_number == license_number,
+    ]
+
+    company_license = cast(
+        models.CompanyLicense,
+        session.query(models.CompanyLicense).filter(
+            *filters
+        ).first())
+
+    if not company_license:
+        return company_license, errors.Error(f"Could not find company license with the provided license number of {license_number}")
+
+    return company_license, None

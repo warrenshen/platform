@@ -64,18 +64,6 @@ def upsert_api_key(
 	hashed_key = security_util.encode_secret_string(
 		security_cfg, api_key, serializer_type=security_util.SerializerType.SERIALIZER
 	)
-	existing_metrc_api_key = cast(
-		models.MetrcApiKey,
-		session.query(models.MetrcApiKey).filter(
-			cast(Callable, models.MetrcApiKey.is_deleted.isnot)(True)
-		).filter(
-			models.MetrcApiKey.hashed_key == hashed_key
-		).first())
-
-	# NOTE: if NOT use_saved_licenses_only, prevent duplicate Metrc API keys,
-	# even in the case where previous key is soft-deleted.
-	if existing_metrc_api_key and str(existing_metrc_api_key.id) != metrc_api_key_id and not use_saved_licenses_only:
-		raise errors.Error(f'Cannot store a duplicate metrc API key that is already registered to company_id="{existing_metrc_api_key.company_id}"')
 
 	if metrc_api_key_id:
 		# The "edit" case

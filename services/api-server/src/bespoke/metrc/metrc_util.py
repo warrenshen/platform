@@ -157,7 +157,6 @@ def _get_metrc_company_info(
 						logging.warn(f'Company "{company_name}" has license "{license_number}" in Metrc which is not stored in our Postgres DB')
 
 					license_auths.append(LicenseAuthDict(
-						license_id=license_id,
 						license_number=license_number,
 						us_state=us_state,
 						vendor_key=vendor_key,
@@ -349,10 +348,6 @@ def _download_data(
 		), err
 
 	errs = []
-	company_details = metrc_common_util.CompanyDetailsDict(
-		company_id=company_info.company_id,
-		name=company_info.name
-	)
 
 	for us_state in company_info.get_us_states():
 		# Each state may have multiple Metrc API keys.
@@ -366,13 +361,38 @@ def _download_data(
 			with ThreadPoolExecutor(max_workers=worker_cfg.num_parallel_licenses) as executor:
 				future_to_ctx = {}
 				for license in state_info['licenses']:
+					company_id = company_info.company_id # Default is the company ID of the Metrc API key.
+					company_name = company_info.name
+
+					with session_scope(session_maker) as session:
+						company_license, err = queries.get_company_license_by_license_number(
+							session=session,
+							license_number=license['license_number'],
+						)
+						if company_license:
+							company, err = queries.get_company_by_id(
+								session=session,
+								company_id=str(company_license.company_id),
+							)
+							if company:
+								company_id = str(company.id)
+								company_name = company.name
+
+					# Note: company ID and company name may not be equal to the company that the
+					# Metrc API key is associated with (metrc_api_keys.company_id). This is intentional,
+					# as a Metrc API key may have access to a license that belongs to a different company.
+					company_details = metrc_common_util.CompanyDetailsDict(
+						company_id=company_id,
+						name=company_name,
+					)
+
 					ctx = metrc_common_util.DownloadContext(
-						sendgrid_client,
-						worker_cfg,
-						cur_date,
-						company_details,
-						apis_to_use,
-						license,
+						sendgrid_client=sendgrid_client,
+						worker_cfg=worker_cfg,
+						cur_date=cur_date,
+						company_details=company_details,
+						apis_to_use=apis_to_use,
+						license_auth=license,
 						debug=False,
 					)
 

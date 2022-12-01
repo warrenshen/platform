@@ -36,14 +36,12 @@ def _add_license(company_id: str, session: Session, license_number: str) -> str:
 def _get_company2_downloads(seed: test_helper.BasicSeed, index: int) -> metrc_common_util.DownloadContext:
 
 	company_id2 = seed.get_company_id('company_admin', index=index)
-	license_id2 = str(uuid.uuid4())
 
 	ctx = metrc_test_helper.create_download_context(
 		cur_date='1/1/2020',
 		company_id=company_id2,
 		name='Company 2',
 		license_auth=LicenseAuthDict(
-			license_id=license_id2,
 			license_number='efgh',
 			us_state='OR',
 			vendor_key='vkey',
@@ -284,7 +282,6 @@ class TestPopulateTransfersTable(db_unittest.TestCase):
 			company_id=company_id,
 			name='Company 1',
 			license_auth=LicenseAuthDict(
-				license_id=license_id,
 				license_number='abcd',
 				us_state='OR',
 				vendor_key='vkey',

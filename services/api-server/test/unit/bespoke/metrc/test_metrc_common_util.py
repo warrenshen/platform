@@ -174,14 +174,12 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 						{
 							'licenses': [
 								{
-									'license_id': license_id1,
 									'license_number': 'abcd',
 									'us_state': 'CA',
 									'user_key': 'the-api-key',
 									'vendor_key': 'ca-vendorkey'
 								},
 								{
-									'license_id': None,
 									'license_number': 'ijkl',
 									'us_state': 'CA',
 									'user_key': 'the-api-key',
@@ -297,14 +295,12 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 					{
 						'licenses': [
 							{
-								'license_id': license_id1,
 								'license_number': 'abcd',
 								'us_state': 'CA',
 								'user_key': 'the-api-key',
 								'vendor_key': 'ca-vendorkey'
 							},
 							{
-								'license_id': None,
 								'license_number': 'efgh',
 								'us_state': 'CA',
 								'user_key': 'the-api-key',
@@ -324,7 +320,6 @@ class TestGetCompanyInfo(db_unittest.TestCase):
 					{
 						'licenses': [			
 							{
-								'license_id': license_id2,
 								'license_number': 'ijkl',
 								'us_state': 'OR',
 								'user_key': 'the-api-key2',

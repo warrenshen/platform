@@ -30,7 +30,6 @@ AuthDict = TypedDict('AuthDict', {
 })
 
 LicenseAuthDict = TypedDict('LicenseAuthDict', {
-	'license_id': str,
 	'license_number': str,
 	'us_state': str,
 	'vendor_key': str,
