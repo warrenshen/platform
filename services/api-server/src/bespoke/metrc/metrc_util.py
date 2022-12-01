@@ -369,7 +369,7 @@ def _download_data(
 							session=session,
 							license_number=license['license_number'],
 						)
-						if company_license:
+						if company_license and company_license.company_id:
 							company, err = queries.get_company_by_id(
 								session=session,
 								company_id=str(company_license.company_id),
