@@ -1509,6 +1509,10 @@ def run_download_data_for_metrc_api_key_license_job(
 def generate_refresh_metrc_api_key_permissions_jobs(
 	session: Session,
 ) -> Tuple[bool, errors.Error]:
+	"""
+	Generate a job to refresh permissions for any Metrc API key which has not had permissions refreshed yet today.
+	If a Metrc API key has already had permission refreshed today, do not generate a job.
+	"""
 	cfg = cast(Config, current_app.app_config)
 	today = date_util.now_as_date(timezone=date_util.DEFAULT_TIMEZONE)
 
@@ -1519,7 +1523,10 @@ def generate_refresh_metrc_api_key_permissions_jobs(
 		).filter(
 			cast(Callable, models.MetrcApiKey.is_functioning.isnot)(False)
 		).filter(
-			models.MetrcApiKey.permissions_refreshed_at < today
+			or_(
+				models.MetrcApiKey.permissions_refreshed_at == None,
+				models.MetrcApiKey.permissions_refreshed_at < today,
+			)
 		).all())
 
 	for candidate_metrc_api_key in candidate_metrc_api_keys:
