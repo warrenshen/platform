@@ -116,11 +116,14 @@ export default function ApproveVendor(props: Props) {
         );
         return;
       } else {
-        snackbar.showSuccess("Vendor approved.");
+        snackbar.showSuccess(
+          "Vendor partnership approved and email notification sent to vendor."
+        );
         setIsEmailModalOpen(false);
         setIsNoEmailModalOpen(false);
       }
     } else {
+      snackbar.showSuccess("Vendor partnership approved.");
       setIsEmailModalOpen(false);
       setIsNoEmailModalOpen(false);
     }
