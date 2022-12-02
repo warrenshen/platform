@@ -1,0 +1,27 @@
+table:
+  schema: public
+  name: bespoke_catalog_sku_groups
+object_relationships:
+  - name: bespoke_catalog_brand
+    using:
+      foreign_key_constraint_on: bespoke_catalog_brand_id
+array_relationships:
+  - name: bespoke_catalog_skus
+    using:
+      foreign_key_constraint_on:
+        column: bespoke_catalog_sku_group_id
+        table:
+          schema: public
+          name: bespoke_catalog_skus
+select_permissions:
+  - role: bank_admin
+    permission:
+      columns:
+        - bespoke_catalog_brand_id
+        - created_at
+        - deleted_at
+        - id
+        - is_deleted
+        - sku_group_name
+        - updated_at
+      filter: {}

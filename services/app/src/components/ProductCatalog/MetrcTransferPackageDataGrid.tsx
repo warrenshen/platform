@@ -14,7 +14,6 @@ interface Props {
   onSelectionChanged: (selectedRowIds: any) => void;
 }
 
-// TODO: columns still TBD, set up file for https://www.notion.so/bespokefinancial/Set-up-api-server-to-query-Google-BQ-3c2d68dbb7444f8187522bb13e00b0b2
 const MetrcTransferPackagesDataGrid = ({
   isExcelExport = true,
   metrcTransferPackages,

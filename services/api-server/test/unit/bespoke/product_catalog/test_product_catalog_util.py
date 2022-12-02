@@ -75,34 +75,3 @@ class TestCreateUpdateBespokeCatalogBrandView(db_unittest.TestCase):
 			self.assertEqual(str(brand.id), brand_id)
 			self.assertEqual(brand.brand_name, new_brand_name)
 			self.assertEqual(brand.us_state, new_state)
-
-
-class TestCreateUpdateBespokeCatalogSkuView(db_unittest.TestCase):
-	def test_create_sku_with_existing_brand(self) -> None:
-		with session_scope(self.session_maker) as session:
-			existing_brand_id = setup_brand(
-				session=session,
-				brand_name='Gucci',
-				us_state='NY',
-			)
-
-			new_sku_id = str(uuid.uuid4())
-			sku = 'flip flops'
-			sku_id, err = product_catalog_util.create_update_bespoke_catalog_sku(
-				session=session,
-				id=new_sku_id,
-				sku=sku,
-				brand_id=existing_brand_id,
-			)
-
-			sku_model = cast(
-				models.BespokeCatalogSku,
-				session.query(models.BespokeCatalogSku).filter_by(
-					id=sku_id
-				).first()
-			)
-
-			self.assertEqual(err, None)
-			self.assertEqual(str(sku_model.id), new_sku_id)
-			self.assertEqual(sku_model.sku, sku)
-			self.assertEqual(sku_model.bespoke_catalog_brand_id, existing_brand_id)

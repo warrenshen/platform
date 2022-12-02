@@ -1,10 +1,5 @@
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import { MetrcToBespokeCatalogSkuFragment } from "generated/graphql";
-import useCustomMutation from "hooks/useCustomMutation";
-import {
-  createUpdateMetrcToBespokeCatalogSkuMutation,
-  deleteMetrcToBespokeCatalogSkuMutation,
-} from "lib/api/productCatalog";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
@@ -40,45 +35,19 @@ const MetrcToBespokeCatalogSkusDataGrid = ({
   metrcToBespokeCatalogSkus,
   isFilteringEnabled = true,
 }: Props) => {
-  const [createUpdateMetrcToBespokeCatalogSku] = useCustomMutation(
-    createUpdateMetrcToBespokeCatalogSkuMutation
-  );
-
-  const [deleteMetrcToBespokeCatalogSku] = useCustomMutation(
-    deleteMetrcToBespokeCatalogSkuMutation
-  );
-
   const filtering = useMemo(
     () => ({ enable: isFilteringEnabled }),
     [isFilteringEnabled]
   );
 
-  const handleSave = async ({ data, key, type }: any) => {
-    if (type === "remove") {
-      deleteMetrcToBespokeCatalogSku({
-        variables: {
-          id: key,
-        },
-      });
-    } else {
-      createUpdateMetrcToBespokeCatalogSku({
-        variables: {
-          ...data,
-          bespoke_catalog_sku_id: data.bespoke_catalog_sku.id,
-          brand_confidence: null,
-        },
-      });
-    }
-  };
-
   return (
     <ControlledDataGrid
       columns={columns}
       dataSource={metrcToBespokeCatalogSkus}
-      isExcelExport={false}
+      isExcelExport
       filtering={filtering}
-      editing={{ allowUpdating: true, allowDeleting: true, allowAdding: true }}
-      onSaved={(e) => handleSave(e.changes?.[0])}
+      pager
+      pageSize={10}
     />
   );
 };

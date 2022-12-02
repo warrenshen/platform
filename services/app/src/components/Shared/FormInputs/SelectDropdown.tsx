@@ -34,7 +34,11 @@ export default function SelectDropdown({
       >
         {options.map((item: string, index: number) => {
           return (
-            <MenuItem data-cy={`${dataCy}-item-${index}`} value={item}>
+            <MenuItem
+              data-cy={`${dataCy}-item-${index}`}
+              value={item}
+              key={index}
+            >
               {optionDisplayMapper ? optionDisplayMapper[item] : item}
             </MenuItem>
           );

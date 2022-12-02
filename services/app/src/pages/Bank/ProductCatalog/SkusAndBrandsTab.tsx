@@ -3,9 +3,10 @@ import BespokeCatalogBrandsDataGrid from "components/ProductCatalog/BespokeCatal
 import BespokeCatalogSkusDataGrid from "components/ProductCatalog/BespokeCatalogSkusDataGrid";
 import Text, { TextVariants } from "components/Shared/Text/Text";
 import {
-  BespokeCatalogBrandFragment,
-  BespokeCatalogSkuFragment,
+  useGetBespokeCatalogBrandsSubscription,
+  useGetBespokeCatalogSkusSubscription,
 } from "generated/graphql";
+import { useMemo } from "react";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -16,20 +17,20 @@ const Container = styled.div`
   margin-top: 36px;
 `;
 
-interface Props {
-  skus: BespokeCatalogSkuFragment[];
-  brands: BespokeCatalogBrandFragment[];
-}
+const SkusAndBrands = () => {
+  const { data: dataSkus } = useGetBespokeCatalogSkusSubscription();
+  const { data: dataBrands } = useGetBespokeCatalogBrandsSubscription();
+  const skus = useMemo(() => dataSkus?.bespoke_catalog_skus || [], [dataSkus]);
+  const brands = useMemo(
+    () => dataBrands?.bespoke_catalog_brands || [],
+    [dataBrands]
+  );
 
-const SkusAndBrands = ({ skus, brands }: Props) => {
   return (
     <Container>
       <Text textVariant={TextVariants.ParagraphLead}>SKUs</Text>
       <Box display="flex" className="product-catalog-data-grids">
-        <BespokeCatalogSkusDataGrid
-          bespokeCatalogSkus={skus}
-          bespokeCatalogBrands={brands}
-        />
+        <BespokeCatalogSkusDataGrid bespokeCatalogSkus={skus} />
       </Box>
       <Box mt={3}>
         <Text textVariant={TextVariants.ParagraphLead}>Brands</Text>

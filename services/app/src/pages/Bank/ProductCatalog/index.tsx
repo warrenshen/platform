@@ -1,12 +1,8 @@
 import { Tab, Tabs } from "@material-ui/core";
 import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
-import {
-  useGetBespokeCatalogBrandsSubscription,
-  useGetBespokeCatalogSkusSubscription,
-} from "generated/graphql";
 import { ProductCatalogTabLabels } from "lib/enum";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import styled from "styled-components";
 
 import IncomingTransferPackagesTab from "./IncomingTransferPackagesTab";
@@ -23,14 +19,6 @@ const Container = styled.div`
 
 const BankProductCatalogPage = () => {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
-  const { data: dataSkus } = useGetBespokeCatalogSkusSubscription();
-  const { data: dataBrands } = useGetBespokeCatalogBrandsSubscription();
-
-  const skus = useMemo(() => dataSkus?.bespoke_catalog_skus || [], [dataSkus]);
-  const brands = useMemo(
-    () => dataBrands?.bespoke_catalog_brands || [],
-    [dataBrands]
-  );
 
   return (
     <Page appBarTitle={"Product Catalog"}>
@@ -49,13 +37,13 @@ const BankProductCatalogPage = () => {
             ))}
           </Tabs>
           {selectedTabIndex === 0 ? (
-            <SalesTransactionsTab skus={skus} brands={brands} />
+            <SalesTransactionsTab />
           ) : selectedTabIndex === 1 ? (
-            <IncomingTransferPackagesTab skus={skus} brands={brands} />
+            <IncomingTransferPackagesTab />
           ) : selectedTabIndex === 2 ? (
             <RecentlyAddedTab />
           ) : (
-            <SkusAndBrandsTab skus={skus} brands={brands} />
+            <SkusAndBrandsTab />
           )}
         </Container>
       </PageContent>

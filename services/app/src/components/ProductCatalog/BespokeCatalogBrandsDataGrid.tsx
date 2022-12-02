@@ -81,7 +81,7 @@ const BespokeCatalogBrandsDataGrid = ({
     <ControlledDataGrid
       columns={columns}
       dataSource={rows}
-      isExcelExport={false}
+      isExcelExport
       filtering={filtering}
       pager
       editing={{ allowUpdating: true, allowDeleting: true, allowAdding: true }}

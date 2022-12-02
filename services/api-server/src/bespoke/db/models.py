@@ -1755,13 +1755,26 @@ class BespokeCatalogBrand(Base):
 	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	deleted_at = Column(DateTime, nullable=True)
 
+class BespokeCatalogSkuGroup(Base):
+	__tablename__ = 'bespoke_catalog_sku_groups'
+
+	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+
+	bespoke_catalog_brand_id = cast(GUID, Column(GUID, ForeignKey('bespoke_catalog_brands.id'), nullable=False))
+
+	sku_group_name = Column(String, nullable=False)
+	is_deleted = Column(Boolean, nullable=False, default=False)
+
+	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	deleted_at = Column(DateTime, nullable=True)
 
 class BespokeCatalogSku(Base):
 	__tablename__ = 'bespoke_catalog_skus'
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
 
-	bespoke_catalog_brand_id = cast(GUID, Column(GUID, ForeignKey('bespoke_catalog_brands.id'), nullable=False))
+	bespoke_catalog_sku_group_id = cast(GUID, Column(GUID, ForeignKey('bespoke_catalog_sku_groups.id'), nullable=False))
 
 	sku = Column(String, nullable=False)
 	is_deleted = Column(Boolean, nullable=False, default=False)
@@ -1778,7 +1791,7 @@ class MetrcToBespokeCatalogSku(Base):
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
 
-	bespoke_catalog_sku_id = cast(GUID, Column(GUID, ForeignKey('bespoke_catalog_skus.id'), nullable=False))
+	bespoke_catalog_sku_id = cast(GUID, Column(GUID, ForeignKey('bespoke_catalog_skus.id'), nullable=True))
 
 	product_name = Column(String, nullable=False)
 	product_category_name = Column(String, nullable=False)

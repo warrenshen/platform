@@ -2,9 +2,9 @@ table:
   schema: public
   name: bespoke_catalog_skus
 object_relationships:
-  - name: bespoke_catalog_brand
+  - name: bespoke_catalog_sku_group
     using:
-      foreign_key_constraint_on: bespoke_catalog_brand_id
+      foreign_key_constraint_on: bespoke_catalog_sku_group_id
 array_relationships:
   - name: metrc_to_bespoke_catalog_skus
     using:
@@ -17,13 +17,13 @@ select_permissions:
   - role: bank_admin
     permission:
       columns:
+        - bespoke_catalog_sku_group_id
+        - created_at
+        - deleted_at
         - id
-        - sku
-        - bespoke_catalog_brand_id
         - is_deleted
         - link
         - picture
-        - created_at
+        - sku
         - updated_at
-        - deleted_at
       filter: {}

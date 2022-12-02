@@ -5,6 +5,7 @@
 - "!include public_bank_accounts.yaml"
 - "!include public_bank_financial_summaries.yaml"
 - "!include public_bespoke_catalog_brands.yaml"
+- "!include public_bespoke_catalog_sku_groups.yaml"
 - "!include public_bespoke_catalog_skus.yaml"
 - "!include public_blaze_preapprovals.yaml"
 - "!include public_blaze_shop_entries.yaml"

@@ -1,6 +1,7 @@
 import {
   BespokeCatalogBrands,
   BespokeCatalogSkus,
+  BespokeCatalogSkusInsertInput,
   MetrcToBespokeCatalogSkus,
 } from "generated/graphql";
 import {
@@ -144,6 +145,7 @@ export async function deleteBespokeCatalogSkuMutation(
 export type CreateUpdateMetrcToBespokeCatalogSkuReq = {
   variables: {
     bespoke_catalog_sku_id: BespokeCatalogSkus["id"];
+    bespoke_catalog_sku: BespokeCatalogSkusInsertInput;
     product_name: string;
     product_category_name: string;
     sku_confidence: string;

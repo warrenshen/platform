@@ -29,11 +29,36 @@ def create_update_bespoke_catalog_brand(
 	
 	return str(brand.id), None
 
+def create_update_bespoke_catalog_sku_group(
+	session: Session,
+	id: str,
+	sku_group_name: str,
+	brand_id: str,
+) -> Tuple[str, errors.Error]:
+	sku_group = cast(
+		models.BespokeCatalogSkuGroup,
+		session.query(models.BespokeCatalogSkuGroup).filter(
+			models.BespokeCatalogSkuGroup.id == id
+		).first())
+
+	if not sku_group:
+		sku_group = models.BespokeCatalogSkuGroup(# type: ignore
+			id = id,
+			sku_group_name = sku_group_name,
+			bespoke_catalog_brand_id = brand_id,
+		)
+		session.add(sku_group)
+	else:
+		sku_group.sku_group_name = sku_group_name
+		sku_group.bespoke_catalog_brand_id = brand_id # type: ignore
+	
+	return str(sku_group.id), None
+
 def create_update_bespoke_catalog_sku(
 	session: Session,
 	id: str,
 	sku: str,
-	brand_id: str,
+	sku_group_id: str,
 ) -> Tuple[str, errors.Error]:
 	sku_model = cast(
 		models.BespokeCatalogSku,
@@ -45,12 +70,12 @@ def create_update_bespoke_catalog_sku(
 		sku_model = models.BespokeCatalogSku(# type: ignore
 			id = id,
 			sku = sku,
-			bespoke_catalog_brand_id = brand_id,
+			bespoke_catalog_sku_group_id = sku_group_id,
 		)
 		session.add(sku_model)
 	else:
 		sku_model.sku = sku
-		sku_model.bespoke_catalog_brand_id = brand_id # type: ignore
+		sku_model.bespoke_catalog_sku_group_id = sku_group_id # type: ignore
 	
 	return str(sku_model.id), None
 
@@ -92,7 +117,6 @@ def create_update_metrc_to_sku(
 	product_name: str,
 	product_category_name: str,
 	sku_confidence: str,
-	brand_confidence: str,
 ) -> Tuple[str, errors.Error]:
 	metrc_to_sku = cast(
 		models.MetrcToBespokeCatalogSku,

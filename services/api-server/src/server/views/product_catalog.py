@@ -1,21 +1,20 @@
 import json
 import uuid
-from typing import Any, cast, Set, List
+from typing import Any, cast, List
 
 from bespoke import errors
 from bespoke.db import models
 from bespoke.db.models import session_scope
-from bespoke.finance import number_util
-from bespoke.helpers import bigquery_helper
 from bespoke.product_catalog import product_catalog_util
 from flask import Blueprint, Response, make_response, request, current_app
 from flask.views import MethodView
-from server.config import Config
 from server.views.common import auth_util, handler_util
 from bespoke.helpers.bigquery_helper import BigQueryHelper
 
 
 handler = Blueprint('bespoke_catalog', __name__)
+
+SKU_CONFIDENCE_INVALID = "Invalid"
 
 SALES_TRANSACTIONS_BY_PRODUCT_NAME_QUERY = """
 SELECT
@@ -44,7 +43,7 @@ RIGHT JOIN
 	ON metrc_to_bespoke_sku.product_name = sales_transactions_grouped.product_name
 WHERE metrc_to_bespoke_sku.product_name IS NULL
 ORDER BY sales_transactions_grouped.product_name_count DESC
-LIMIT 1000;
+LIMIT 100;
 """
 
 INCOMING_TRANSFER_PACKAGE_BY_PRODUCT_NAME_QUERY = """
@@ -79,7 +78,7 @@ RIGHT JOIN
 WHERE metrc_to_bespoke_sku.product_name IS NULL
 ORDER BY
 	transfer_packages_grouped.product_name_count DESC
-LIMIT 1000;
+LIMIT 100;
 """
 
 class SalesTransactions(MethodView):
@@ -223,8 +222,7 @@ class CreateUpdateBespokeCatalogSkuView(MethodView):
 		required_keys = [
 			'id',
 			'sku',
-			'brand_id',
-			'brand_name',
+			'sku_group_id',
 		]
 		for key in required_keys:
 			if key not in data:
@@ -232,25 +230,14 @@ class CreateUpdateBespokeCatalogSkuView(MethodView):
 
 		id = data["id"]
 		sku = data["sku"]
-		brand_id = data["brand_id"]
-		brand_name = data["brand_name"]
+		sku_group_id = data["sku_group_id"]
 
 		with session_scope(current_app.session_maker) as session:
-			if not brand_id:
-				brand_id, err = product_catalog_util.create_update_bespoke_catalog_brand(
-					session=session,
-					id=str(uuid.uuid4()),
-					brand_name=brand_name,
-					us_state=None
-				)
-				if err:
-					raise err
-			
 			sku_id, err = product_catalog_util.create_update_bespoke_catalog_sku(
 				session=session,
 				id=id,
 				sku=sku,
-				brand_id=brand_id,
+				sku_group_id=sku_group_id,
 			)
 			if err:
 				raise err
@@ -301,10 +288,10 @@ class CreateUpdateMetrcToBespokeCatalogSkuView(MethodView):
 		required_keys = [
 			'id',
 			'bespoke_catalog_sku_id',
+			'bespoke_catalog_sku',
 			'product_name',
 			'product_category_name',
 			'sku_confidence',
-			'brand_confidence',
 		]
 		for key in required_keys:
 			if key not in data:
@@ -315,9 +302,51 @@ class CreateUpdateMetrcToBespokeCatalogSkuView(MethodView):
 		product_name = data["product_name"]
 		product_category_name = data["product_category_name"]
 		sku_confidence = data["sku_confidence"]
-		brand_confidence = data["brand_confidence"]
+		bespoke_catalog_sku = data["bespoke_catalog_sku"]
+		sku = bespoke_catalog_sku["sku"]
+		bespoke_catalog_sku_group_id = bespoke_catalog_sku["bespoke_catalog_sku_group_id"]
+		bespoke_catalog_sku_group = bespoke_catalog_sku["bespoke_catalog_sku_group"]
+		sku_group_name = bespoke_catalog_sku_group["sku_group_name"]
+		bespoke_catalog_brand_id = bespoke_catalog_sku_group["bespoke_catalog_brand_id"]
+		bespoke_catalog_brand = bespoke_catalog_sku_group["bespoke_catalog_brand"]
+		brand_name = bespoke_catalog_brand["brand_name"]
+		us_state = bespoke_catalog_brand["us_state"]
 
 		with session_scope(current_app.session_maker) as session:
+			if sku_confidence != SKU_CONFIDENCE_INVALID:
+				if not bespoke_catalog_sku_id and \
+					not bespoke_catalog_sku_group_id and \
+					not bespoke_catalog_brand_id:
+					bespoke_catalog_brand_id, err = product_catalog_util.create_update_bespoke_catalog_brand(
+						session=session,
+						id=str(uuid.uuid4()),
+						brand_name=brand_name,
+						us_state=us_state
+					)
+					if err:
+						raise err
+				
+				if not bespoke_catalog_sku_id and \
+					not bespoke_catalog_sku_group_id:
+					bespoke_catalog_sku_group_id, err = product_catalog_util.create_update_bespoke_catalog_sku_group(
+						session=session,
+						id=str(uuid.uuid4()),
+						sku_group_name=sku_group_name,
+						brand_id=bespoke_catalog_brand_id
+					)
+					if err:
+						raise err
+					
+				if not bespoke_catalog_sku_id:
+					bespoke_catalog_sku_id, err = product_catalog_util.create_update_bespoke_catalog_sku(
+						session=session,
+						id=str(uuid.uuid4()),
+						sku=sku,
+						sku_group_id=bespoke_catalog_sku_group_id,
+					)
+					if err:
+						raise err
+
 			metrc_to_sku_id, err = product_catalog_util.create_update_metrc_to_sku(
 				session=session,
 				id=id,
@@ -325,7 +354,6 @@ class CreateUpdateMetrcToBespokeCatalogSkuView(MethodView):
 				product_name=product_name,
 				product_category_name=product_category_name,
 				sku_confidence=sku_confidence,
-				brand_confidence=brand_confidence,
 			)
 			if err:
 				raise err

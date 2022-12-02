@@ -8,6 +8,16 @@ subscription GetBespokeCatalogSkus {
   }
 }
 
+subscription GetBespokeCatalogSkuGroups {
+  bespoke_catalog_sku_groups(
+    where: { is_deleted: { _eq: false }}
+    order_by: { created_at: desc }
+  ) {
+    id
+	...BespokeCatalogSkuGroup
+  }
+}
+
 subscription GetBespokeCatalogBrands {
   bespoke_catalog_brands(
     where: { is_deleted: { _eq: false }}
@@ -25,5 +35,53 @@ subscription GetMetrcToBespokeCatalogSkus {
   ) {
   id
   ...MetrcToBespokeCatalogSku
+  }
+}
+
+query GetBespokeCatalogSkusBySkuName($search_prefix: String!) {
+  bespoke_catalog_skus(
+    where: { 
+      _and: [
+        { is_deleted: { _eq: false } }
+        { sku: { _ilike: $search_prefix } }
+      ]
+    }
+    order_by: { created_at: desc }
+    limit: 10
+  ) {
+    id
+    ...BespokeCatalogSku
+  }
+}
+
+query GetBespokeCatalogSkuGroupsBySkuGroupName($search_prefix: String!) {
+  bespoke_catalog_sku_groups(
+    where: { 
+      _and: [
+        { is_deleted: { _eq: false } }
+        { sku_group_name: { _ilike: $search_prefix } }
+      ]
+    }
+    order_by: { created_at: desc }
+    limit: 10
+  ) {
+    id
+    ...BespokeCatalogSkuGroup
+  }
+}
+
+query GetBespokeCatalogBrandsByBrandName($search_prefix: String!) {
+  bespoke_catalog_brands(
+    where: { 
+      _and: [
+        { is_deleted: { _eq: false } }
+        { brand_name: { _ilike: $search_prefix } }
+      ]
+    }
+    order_by: { created_at: desc }
+    limit: 10
+  ) {
+    id
+    ...BespokeCatalogBrand
   }
 }

@@ -731,19 +731,28 @@ fragment MonthlySummaryCalculation on monthly_summary_calculations {
   report_month
 }
 
-fragment BespokeCatalogSku on bespoke_catalog_skus {
-  id
-  sku
-  bespoke_catalog_brand {
-    id
-    brand_name
-  }
-}
-
 fragment BespokeCatalogBrand on bespoke_catalog_brands {
   id
   brand_name
   us_state
+}
+
+fragment BespokeCatalogSkuGroup on bespoke_catalog_sku_groups {
+  id
+  sku_group_name
+  bespoke_catalog_brand {
+    id
+    ...BespokeCatalogBrand
+  }
+}
+
+fragment BespokeCatalogSku on bespoke_catalog_skus {
+  id
+  sku
+  bespoke_catalog_sku_group {
+    id
+    ...BespokeCatalogSkuGroup
+  }
 }
 
 fragment MetrcToBespokeCatalogSku on metrc_to_bespoke_catalog_skus {
@@ -753,10 +762,6 @@ fragment MetrcToBespokeCatalogSku on metrc_to_bespoke_catalog_skus {
   sku_confidence
   bespoke_catalog_sku {
     id
-    sku
-    bespoke_catalog_brand {
-      id
-      brand_name
-    }
+    ...BespokeCatalogSku
   }
 }
