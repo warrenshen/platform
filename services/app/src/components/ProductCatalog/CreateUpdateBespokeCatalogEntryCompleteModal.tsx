@@ -62,11 +62,17 @@ const CreateUpdateBespokeCatalogEntryCompleteModal = ({
   const snackbar = useSnackbar();
 
   const [loadBespokeCatalogSkus, { data: bespokeCatalogSkuData }] =
-    useGetBespokeCatalogSkusBySkuNameLazyQuery();
+    useGetBespokeCatalogSkusBySkuNameLazyQuery({
+      fetchPolicy: "network-only",
+    });
   const [loadBespokeCatalogSkuGroups, { data: bespokeCatalogSkuGroupData }] =
-    useGetBespokeCatalogSkuGroupsBySkuGroupNameLazyQuery();
+    useGetBespokeCatalogSkuGroupsBySkuGroupNameLazyQuery({
+      fetchPolicy: "network-only",
+    });
   const [loadBespokeCatalogBrands, { data: bespokeCatalogBrandData }] =
-    useGetBespokeCatalogBrandsByBrandNameLazyQuery();
+    useGetBespokeCatalogBrandsByBrandNameLazyQuery({
+      fetchPolicy: "network-only",
+    });
 
   const debouncedLoadBespokeCatalogSkus = debounce(
     loadBespokeCatalogSkus,
@@ -417,7 +423,7 @@ const CreateUpdateBespokeCatalogEntryCompleteModal = ({
                   <FormControl fullWidth>
                     <TextField
                       value={bespokeCatalogSkuGroup.sku_group_name}
-                      label={"Sku Group Product Name"}
+                      label={"Sku Group Name"}
                       onChange={({ target: { value } }) => {
                         setBespokeCatalogSkuGroup({
                           ...bespokeCatalogSku,
