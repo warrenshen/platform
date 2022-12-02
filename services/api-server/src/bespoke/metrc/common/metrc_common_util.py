@@ -471,13 +471,12 @@ class MetrcApiKeyDataFetcher(MetrcApiKeyDataFetcherInterface):
 	) -> None:
 		us_state = metrc_api_key_dict['us_state']
 		if not us_state:
-			raise errors.Error('Metrc key {} is missing the us_state. It must be specified explicitly to download data from Metrc'.format(
-				str(metrc_api_key_dict['id'])))
+			raise errors.Error(f'Metrc API key {metrc_api_key_dict["id"]} is missing US state')
 
 		auth_provider = config_util.get_metrc_auth_provider()
 		vendor_key, err = auth_provider.get_vendor_key_by_state(us_state)
 		if err:
-			raise Exception('What')
+			raise errors.Error(f'Could not get Metrc vendor key for US state {us_state} for Metrc API key {metrc_api_key_dict["id"]}')
 
 		api_key = security_util.decode_secret_string(
 			cfg=security_cfg,
