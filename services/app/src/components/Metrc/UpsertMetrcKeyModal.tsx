@@ -1,12 +1,10 @@
 import {
   Box,
   Button,
-  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  FormControlLabel,
   TextField,
   Theme,
   Typography,
@@ -18,7 +16,7 @@ import { Companies, MetrcApiKeyFragment } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { upsertApiKeyMutation, viewApiKey } from "lib/api/metrc";
-import { ChangeEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -108,7 +106,7 @@ export default function UpsertMetrcKeyModal({
       classes={{ paper: classes.dialog }}
     >
       <DialogTitle>
-        {hasKey ? "Edit Metrc API Key" : "Add Metrc API Key"}
+        {hasKey ? "Edit Metrc API Key" : "Create Metrc API Key"}
       </DialogTitle>
       <DialogContent>
         <Box display="flex" flexDirection="column">
@@ -122,26 +120,6 @@ export default function UpsertMetrcKeyModal({
         </Box>
         <Box display="flex" flexDirection="column" mt={2}>
           <USStateDropdown isMetrcOnly value={usState} setValue={setUsState} />
-        </Box>
-        <Box display="flex" flexDirection="column" mt={2}>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={useSavedLicensesOnly}
-                onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                  setUseSavedLicensesOnly(event.target.checked)
-                }
-                color="primary"
-              />
-            }
-            label={"Use Saved Licenses Only?"}
-          />
-          <Typography variant="body2" color="textSecondary">
-            If checked, system will ONLY pull data for the licenses associated
-            with this company - even if this Metrc API key grants permission to
-            access additional licenses. This is intended to be used in the case
-            two companies share the same Metrc API key.
-          </Typography>
         </Box>
         <Box display="flex" flexDirection="column" mt={2}>
           {!!errorMessage && (

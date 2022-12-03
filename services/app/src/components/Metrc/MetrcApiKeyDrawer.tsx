@@ -68,6 +68,10 @@ export default function MetrcApiKeyModal({
       <ModalDataPoint subtitle={"Platform ID"} text={metrcApiKey.id} />
       <ModalDataPoint subtitle={"Key Value (from Metrc)"} text={apiKeyValue} />
       <ModalDataPoint
+        subtitle={"US State"}
+        text={metrcApiKey.us_state || "Unknown"}
+      />
+      <ModalDataPoint
         subtitle={"Is Working?"}
         text={!!metrcApiKey.is_functioning ? "Yes" : "No"}
       />
