@@ -1,24 +1,28 @@
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
-import { MetrcApiKeyPermissions } from "lib/api/metrc";
+import { EnhancedMetrcApiKeyPermissions } from "lib/api/metrc";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
-function getRows(metrcApiKeyPermissions: MetrcApiKeyPermissions) {
-  return metrcApiKeyPermissions.map((metrcApiKeyLicensePermissions) => ({
-    ...metrcApiKeyLicensePermissions,
-    id: metrcApiKeyLicensePermissions["license_number"],
-    status: "TBD",
-  }));
+function getRows(
+  enhancedMetrcApiKeyPermissions: EnhancedMetrcApiKeyPermissions
+) {
+  return enhancedMetrcApiKeyPermissions.map(
+    (enhancedMetrcApiKeyLicensePermissions) => ({
+      ...enhancedMetrcApiKeyLicensePermissions,
+      id: enhancedMetrcApiKeyLicensePermissions["license_number"],
+      status: "TBD",
+    })
+  );
 }
 
 interface Props {
-  metrcApiKeyPermissions: MetrcApiKeyPermissions;
+  enhancedMetrcApiKeyPermissions: EnhancedMetrcApiKeyPermissions;
 }
 
 export default function MetrcApiKeyPermissionsDataGrid({
-  metrcApiKeyPermissions,
+  enhancedMetrcApiKeyPermissions,
 }: Props) {
-  const rows = getRows(metrcApiKeyPermissions);
+  const rows = getRows(enhancedMetrcApiKeyPermissions);
   const columns = useMemo(
     () => [
       {
@@ -27,10 +31,30 @@ export default function MetrcApiKeyPermissionsDataGrid({
         minWidth: ColumnWidths.MinWidth,
       },
       {
-        dataField: "status",
-        caption: "Status",
-        minWidth: ColumnWidths.MinWidth,
+        dataField: "us_state",
+        caption: "US State",
+        width: ColumnWidths.UsState,
       },
+      {
+        dataField: "license_category",
+        caption: "License Category",
+        width: ColumnWidths.Identifier,
+      },
+      {
+        dataField: "license_description",
+        caption: "License Description",
+        width: ColumnWidths.Identifier,
+      },
+      {
+        dataField: "license_status",
+        caption: "License Status",
+        width: ColumnWidths.Identifier,
+      },
+      // {
+      //   dataField: "status",
+      //   caption: "Status",
+      //   minWidth: ColumnWidths.MinWidth,
+      // },
       {
         dataField: "is_packages_enabled",
         caption: "Packages?",

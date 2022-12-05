@@ -1,4 +1,7 @@
-import { GetIncomingFromVendorCompanyDeliveriesByCompanyIdQuery } from "generated/graphql";
+import {
+  CompanyLicenses,
+  GetIncomingFromVendorCompanyDeliveriesByCompanyIdQuery,
+} from "generated/graphql";
 import { CustomMutationResponse, authenticatedApi, metrcRoutes } from "lib/api";
 
 // {
@@ -163,6 +166,18 @@ type MetrcApiKeyLicensePermissions = {
   is_transfers_enabled: boolean;
 };
 
+// MetrcApiKeyLicensePermissions enhanced with information about the
+// corresponding cannabis license from the CompanyLicenses table.
+type EnhancedMetrcApiKeyLicensePermissions = MetrcApiKeyLicensePermissions & {
+  us_state?: CompanyLicenses["us_state"];
+  legal_name?: CompanyLicenses["legal_name"];
+  license_category?: CompanyLicenses["license_category"];
+  license_description?: CompanyLicenses["license_description"];
+  license_status?: CompanyLicenses["license_status"];
+};
+
+export type EnhancedMetrcApiKeyPermissions =
+  EnhancedMetrcApiKeyLicensePermissions[];
 export type MetrcApiKeyPermissions = MetrcApiKeyLicensePermissions[];
 
 type GetTransfersReq = {

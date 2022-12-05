@@ -84,7 +84,6 @@ def import_preapprovals(
 
 # Normal (not line of credit) loans.
 def load_into_db_from_excel(session: Session, is_test_run: bool, path: str) -> None:
-	print(f'Beginning import...')
 
 	workbook, err = excel_reader.ExcelWorkbook.load_xlsx(path)
 	if err:

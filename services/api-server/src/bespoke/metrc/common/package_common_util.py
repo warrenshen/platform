@@ -219,5 +219,6 @@ def update_packages_from_transfer_packages(
 				p=prev_metrc_package
 			)
 		else:
-			logging.warn('We observed a transfer package #{} which is not registered in our DB as a regular package'.format(
-										metrc_transfer_package.package_id))
+			# Transfer package (metrc_transfer_package) does not have a corresponding
+			# package (metrc_package) in the database. This is a valid scenario.
+			continue

@@ -2586,10 +2586,12 @@ export type BigintComparisonExp = {
 export type BlazePreapprovals = {
   annual_interest_rate: Scalars["numeric"];
   created_at: Scalars["timestamptz"];
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
   expiration_date: Scalars["date"];
   external_blaze_company_id: Scalars["String"];
   external_blaze_shop_id: Scalars["String"];
   id: Scalars["uuid"];
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   max_credit_limit: Scalars["numeric"];
   updated_at: Scalars["timestamptz"];
 };
@@ -2634,10 +2636,12 @@ export type BlazePreapprovalsBoolExp = {
   _or?: Maybe<Array<BlazePreapprovalsBoolExp>>;
   annual_interest_rate?: Maybe<NumericComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
+  deleted_at?: Maybe<TimestamptzComparisonExp>;
   expiration_date?: Maybe<DateComparisonExp>;
   external_blaze_company_id?: Maybe<StringComparisonExp>;
   external_blaze_shop_id?: Maybe<StringComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
+  is_deleted?: Maybe<BooleanComparisonExp>;
   max_credit_limit?: Maybe<NumericComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
 };
@@ -2660,10 +2664,12 @@ export type BlazePreapprovalsIncInput = {
 export type BlazePreapprovalsInsertInput = {
   annual_interest_rate?: Maybe<Scalars["numeric"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
   expiration_date?: Maybe<Scalars["date"]>;
   external_blaze_company_id?: Maybe<Scalars["String"]>;
   external_blaze_shop_id?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   max_credit_limit?: Maybe<Scalars["numeric"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
@@ -2672,6 +2678,7 @@ export type BlazePreapprovalsInsertInput = {
 export type BlazePreapprovalsMaxFields = {
   annual_interest_rate?: Maybe<Scalars["numeric"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
   expiration_date?: Maybe<Scalars["date"]>;
   external_blaze_company_id?: Maybe<Scalars["String"]>;
   external_blaze_shop_id?: Maybe<Scalars["String"]>;
@@ -2684,6 +2691,7 @@ export type BlazePreapprovalsMaxFields = {
 export type BlazePreapprovalsMinFields = {
   annual_interest_rate?: Maybe<Scalars["numeric"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
   expiration_date?: Maybe<Scalars["date"]>;
   external_blaze_company_id?: Maybe<Scalars["String"]>;
   external_blaze_shop_id?: Maybe<Scalars["String"]>;
@@ -2711,10 +2719,12 @@ export type BlazePreapprovalsOnConflict = {
 export type BlazePreapprovalsOrderBy = {
   annual_interest_rate?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
+  deleted_at?: Maybe<OrderBy>;
   expiration_date?: Maybe<OrderBy>;
   external_blaze_company_id?: Maybe<OrderBy>;
   external_blaze_shop_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  is_deleted?: Maybe<OrderBy>;
   max_credit_limit?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
 };
@@ -2731,6 +2741,8 @@ export enum BlazePreapprovalsSelectColumn {
   /** column name */
   CreatedAt = "created_at",
   /** column name */
+  DeletedAt = "deleted_at",
+  /** column name */
   ExpirationDate = "expiration_date",
   /** column name */
   ExternalBlazeCompanyId = "external_blaze_company_id",
@@ -2738,6 +2750,8 @@ export enum BlazePreapprovalsSelectColumn {
   ExternalBlazeShopId = "external_blaze_shop_id",
   /** column name */
   Id = "id",
+  /** column name */
+  IsDeleted = "is_deleted",
   /** column name */
   MaxCreditLimit = "max_credit_limit",
   /** column name */
@@ -2748,10 +2762,12 @@ export enum BlazePreapprovalsSelectColumn {
 export type BlazePreapprovalsSetInput = {
   annual_interest_rate?: Maybe<Scalars["numeric"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
   expiration_date?: Maybe<Scalars["date"]>;
   external_blaze_company_id?: Maybe<Scalars["String"]>;
   external_blaze_shop_id?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   max_credit_limit?: Maybe<Scalars["numeric"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
@@ -2787,6 +2803,8 @@ export enum BlazePreapprovalsUpdateColumn {
   /** column name */
   CreatedAt = "created_at",
   /** column name */
+  DeletedAt = "deleted_at",
+  /** column name */
   ExpirationDate = "expiration_date",
   /** column name */
   ExternalBlazeCompanyId = "external_blaze_company_id",
@@ -2794,6 +2812,8 @@ export enum BlazePreapprovalsUpdateColumn {
   ExternalBlazeShopId = "external_blaze_shop_id",
   /** column name */
   Id = "id",
+  /** column name */
+  IsDeleted = "is_deleted",
   /** column name */
   MaxCreditLimit = "max_credit_limit",
   /** column name */
@@ -8008,6 +8028,8 @@ export type CustomerSurveillanceResultsBoolExp = {
 /** unique or primary key constraints on table "customer_surveillance_results" */
 export enum CustomerSurveillanceResultsConstraint {
   /** unique or primary key constraint */
+  CompanyProductQualificationsCompanyIdQualifyingDateKey = "company_product_qualifications_company_id_qualifying_date_key",
+  /** unique or primary key constraint */
   CompanyProductQualificationsPkey = "company_product_qualifications_pkey",
 }
 
@@ -9085,7 +9107,7 @@ export type EbbaApplications = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["timestamp"]>;
   /** An object relationship */
   rejected_by_user?: Maybe<Users>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
@@ -9210,7 +9232,7 @@ export type EbbaApplicationsBoolExp = {
   monthly_accounts_receivable?: Maybe<NumericComparisonExp>;
   monthly_cash?: Maybe<NumericComparisonExp>;
   monthly_inventory?: Maybe<NumericComparisonExp>;
-  rejected_at?: Maybe<TimestamptzComparisonExp>;
+  rejected_at?: Maybe<TimestampComparisonExp>;
   rejected_by_user?: Maybe<UsersBoolExp>;
   rejected_by_user_id?: Maybe<UuidComparisonExp>;
   rejection_note?: Maybe<StringComparisonExp>;
@@ -9259,7 +9281,7 @@ export type EbbaApplicationsInsertInput = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["timestamp"]>;
   rejected_by_user?: Maybe<UsersObjRelInsertInput>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
@@ -9288,7 +9310,7 @@ export type EbbaApplicationsMaxFields = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["timestamp"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -9340,7 +9362,7 @@ export type EbbaApplicationsMinFields = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["timestamp"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -9505,7 +9527,7 @@ export type EbbaApplicationsSetInput = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["timestamp"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -16663,7 +16685,9 @@ export type MetrcToBespokeCatalogSkusBoolExp = {
 /** unique or primary key constraints on table "metrc_to_bespoke_catalog_skus" */
 export enum MetrcToBespokeCatalogSkusConstraint {
   /** unique or primary key constraint */
-  MetrcToBespokeCatalogSkusPkey1 = "metrc_to_bespoke_catalog_skus_pkey1",
+  MetrcToBespokeCatalogSkusPkey = "metrc_to_bespoke_catalog_skus_pkey",
+  /** unique or primary key constraint */
+  MetrcToBespokeCatalogSkusProductCategoryNameProductNam = "metrc_to_bespoke_catalog_skus_product_category_name_product_nam",
 }
 
 /** input type for inserting data into table "metrc_to_bespoke_catalog_skus" */
@@ -30171,6 +30195,14 @@ export type GetCompanyLicensesByLicenseNumberQuery = {
   >;
 };
 
+export type GetCompanyLicensesByLicenseNumbersQueryVariables = Exact<{
+  license_numbers: Array<Scalars["String"]> | Scalars["String"];
+}>;
+
+export type GetCompanyLicensesByLicenseNumbersQuery = {
+  company_licenses: Array<Pick<CompanyLicenses, "id"> & CompanyLicenseFragment>;
+};
+
 export type GetAllCompanyLicensesQueryVariables = Exact<{
   license_number: Scalars["String"];
 }>;
@@ -36355,6 +36387,78 @@ export type GetCompanyLicensesByLicenseNumberLazyQueryHookResult = ReturnType<
 export type GetCompanyLicensesByLicenseNumberQueryResult = Apollo.QueryResult<
   GetCompanyLicensesByLicenseNumberQuery,
   GetCompanyLicensesByLicenseNumberQueryVariables
+>;
+export const GetCompanyLicensesByLicenseNumbersDocument = gql`
+  query GetCompanyLicensesByLicenseNumbers($license_numbers: [String!]!) {
+    company_licenses(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { license_number: { _in: $license_numbers } }
+        ]
+      }
+    ) {
+      id
+      ...CompanyLicense
+    }
+  }
+  ${CompanyLicenseFragmentDoc}
+`;
+
+/**
+ * __useGetCompanyLicensesByLicenseNumbersQuery__
+ *
+ * To run a query within a React component, call `useGetCompanyLicensesByLicenseNumbersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCompanyLicensesByLicenseNumbersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCompanyLicensesByLicenseNumbersQuery({
+ *   variables: {
+ *      license_numbers: // value for 'license_numbers'
+ *   },
+ * });
+ */
+export function useGetCompanyLicensesByLicenseNumbersQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetCompanyLicensesByLicenseNumbersQuery,
+    GetCompanyLicensesByLicenseNumbersQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetCompanyLicensesByLicenseNumbersQuery,
+    GetCompanyLicensesByLicenseNumbersQueryVariables
+  >(GetCompanyLicensesByLicenseNumbersDocument, options);
+}
+export function useGetCompanyLicensesByLicenseNumbersLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetCompanyLicensesByLicenseNumbersQuery,
+    GetCompanyLicensesByLicenseNumbersQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetCompanyLicensesByLicenseNumbersQuery,
+    GetCompanyLicensesByLicenseNumbersQueryVariables
+  >(GetCompanyLicensesByLicenseNumbersDocument, options);
+}
+export type GetCompanyLicensesByLicenseNumbersQueryHookResult = ReturnType<
+  typeof useGetCompanyLicensesByLicenseNumbersQuery
+>;
+export type GetCompanyLicensesByLicenseNumbersLazyQueryHookResult = ReturnType<
+  typeof useGetCompanyLicensesByLicenseNumbersLazyQuery
+>;
+export type GetCompanyLicensesByLicenseNumbersQueryResult = Apollo.QueryResult<
+  GetCompanyLicensesByLicenseNumbersQuery,
+  GetCompanyLicensesByLicenseNumbersQueryVariables
 >;
 export const GetAllCompanyLicensesDocument = gql`
   query GetAllCompanyLicenses($license_number: String!) {

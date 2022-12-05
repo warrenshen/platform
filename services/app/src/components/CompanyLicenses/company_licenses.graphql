@@ -43,6 +43,25 @@ query GetCompanyLicensesByLicenseNumber($license_number: String!) {
   }
 }
 
+query GetCompanyLicensesByLicenseNumbers($license_numbers: [String!]!) {
+  company_licenses(
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { license_number: { _in: $license_numbers } }
+      ]
+    }
+  ) {
+    id
+    ...CompanyLicense
+  }
+}
+
 query GetAllCompanyLicenses($license_number: String!) {
   company_licenses(
     where: {

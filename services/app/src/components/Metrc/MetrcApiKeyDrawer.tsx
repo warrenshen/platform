@@ -1,6 +1,6 @@
 import { Box, Typography } from "@material-ui/core";
 import LicenseMetrcDownloadSummariesGrid from "components/Metrc/LicenseMetrcDownloadSummariesGrid";
-import MetrcApiKeyPermissionsDataGrid from "components/Metrc/MetrcApiKeyPermissionsDataGrid";
+import MetrcApiKeyPermissionsInfo from "components/Metrc/MetrcApiKeyPermissionsInfo";
 import Modal from "components/Shared/Modal/Modal";
 import ModalDataPoint from "components/Shared/Modal/ModalDataPoint";
 import RawJsonToggle from "components/Shared/RawJsonToggle";
@@ -79,7 +79,7 @@ export default function MetrcApiKeyModal({
         <Typography variant="subtitle2" color="textSecondary">
           Permissions
         </Typography>
-        <MetrcApiKeyPermissionsDataGrid
+        <MetrcApiKeyPermissionsInfo
           metrcApiKeyPermissions={metrcApiKeyPermissions}
         />
       </Box>
