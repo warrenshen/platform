@@ -110,7 +110,6 @@ const CreateUpdateBespokeCatalogEntryCompleteModal = ({
   const defaultBespokeCatalogBrand: BespokeCatalogBrandsInsertInput = {
     id: null,
     brand_name: "",
-    us_state: "",
   };
 
   const [bespokeCatalogEntry, setBespokeCatalogEntry] =
@@ -184,7 +183,12 @@ const CreateUpdateBespokeCatalogEntryCompleteModal = ({
       MetrcToBespokeCatalogSkuConfidenceLabel.Invalid;
 
   return (
-    <ModalDialog title="Create Bespoke Catalog Entry" handleClose={handleClose}>
+    <ModalDialog
+      title="Create Bespoke Catalog Entry"
+      width="680px"
+      maxWidth="md"
+      handleClose={handleClose}
+    >
       <DialogContent>
         <Text textVariant={TextVariants.ParagraphLead}>
           Bespoke Catalog Entry
@@ -227,157 +231,78 @@ const CreateUpdateBespokeCatalogEntryCompleteModal = ({
             }
           />
         </Box>
-        {!isAddNewSkuChecked && !bespokeCatalogEntry.bespoke_catalog_sku_id && (
-          <Text textVariant={TextVariants.ParagraphLead}>
-            Two options to add a SKU to this catalog entry
-          </Text>
-        )}
-        {!isAddNewSkuChecked && (
-          <Box mb={2}>
-            <Text
-              textVariant={TextVariants.Paragraph}
-              color={SecondaryTextColor}
-            >
-              Option 1: Search for an existing SKU
-            </Text>
-            <AutocompleteSelectDropdown
-              label="Bespoke Catalog Sku"
-              getOptionLabel={(option) => {
-                if (!!option.sku) {
-                  return option.sku;
-                } else if (typeof option === "string") {
-                  return option;
-                } else {
-                  return "";
-                }
-              }}
-              selectableOptions={
-                bespokeCatalogSkuData?.bespoke_catalog_skus || []
-              }
-              debouncedLoadOptions={debouncedLoadBespokeCatalogSkus}
-              onChange={(_, value) => {
-                if (!value) {
-                  setBespokeCatalogEntry({
-                    ...bespokeCatalogEntry,
-                    bespoke_catalog_sku_id: null,
-                  });
-                  return;
-                }
-                if (!!value.id) {
-                  setBespokeCatalogEntry({
-                    ...bespokeCatalogEntry,
-                    bespoke_catalog_sku_id: value.id,
-                  });
-                }
-              }}
-            />
-          </Box>
-        )}
-        {!isAddNewSkuChecked && !bespokeCatalogEntry.bespoke_catalog_sku_id && (
-          <Text
-            textVariant={TextVariants.Paragraph}
-            color={SecondaryTextColor}
-            isBold
-            bottomMargin={8}
-          >
-            OR
-          </Text>
-        )}
-        {!bespokeCatalogEntry.bespoke_catalog_sku_id && (
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={isAddNewSkuChecked}
-                onChange={(event) => {
-                  setIsAddNewSkuChecked(event.target.checked);
-                  if (event.target.checked) {
-                    setBespokeCatalogSku({
-                      ...bespokeCatalogSku,
-                      sku: productName,
-                    });
-                  } else {
-                    setBespokeCatalogSku({
-                      ...bespokeCatalogSku,
-                      sku: "",
-                    });
-                  }
-                }}
-                color="primary"
-                icon={<CustomCheckboxUnchecked />}
-                checkedIcon={<CustomCheckboxChecked />}
-              />
-            }
-            label={"Option 2: Submit a new SKU that does not exist"}
-            style={{ color: SecondaryTextColor }}
-          />
-        )}
-        {/* Add new SKU form section */}
-        {isAddNewSkuChecked && (
+        {bespokeCatalogEntry.sku_confidence !==
+          MetrcToBespokeCatalogSkuConfidenceLabel.Invalid && (
           <>
-            <CardDivider />
-            <Box mb={2}>
-              <FormControl fullWidth>
-                <TextField
-                  value={bespokeCatalogSku.sku}
-                  label={"Sku Name"}
-                  onChange={({ target: { value } }) => {
-                    setBespokeCatalogSku({
-                      ...bespokeCatalogSku,
-                      sku: value,
-                    });
-                  }}
-                />
-              </FormControl>
-            </Box>
-            {!isAddNewSkuGroupChecked &&
-              !bespokeCatalogSku.bespoke_catalog_sku_group_id && (
+            {!isAddNewSkuChecked &&
+              !bespokeCatalogEntry.bespoke_catalog_sku_id && (
                 <Text textVariant={TextVariants.Paragraph}>
-                  Two options to add a SKU group to this SKU
+                  Two options to add a SKU to this catalog entry
                 </Text>
               )}
-            {!isAddNewSkuGroupChecked && (
+            {!isAddNewSkuChecked && (
               <Box mb={2}>
                 <Text
-                  textVariant={TextVariants.Label}
+                  textVariant={TextVariants.Paragraph}
                   color={SecondaryTextColor}
                 >
-                  Option 1: Search for an existing SKU Group
+                  Option 1: Search for an existing SKU
                 </Text>
                 <AutocompleteSelectDropdown
-                  label="Bespoke Catalog SKU Group"
+                  label="Bespoke Catalog Sku"
                   getOptionLabel={(option) => {
-                    if (!!option.sku_group_name) {
-                      return option.sku_group_name;
+                    if (!!option.sku) {
+                      return option.sku;
                     } else if (typeof option === "string") {
                       return option;
                     } else {
                       return "";
                     }
                   }}
+                  renderOption={(option) => {
+                    return (
+                      <Box>
+                        <Text
+                          textVariant={TextVariants.Paragraph}
+                          bottomMargin={0}
+                        >
+                          {option.sku}
+                        </Text>
+                        <Box display="flex">
+                          <Text
+                            textVariant={TextVariants.SmallLabel}
+                            color={SecondaryTextColor}
+                          >
+                            {`${option.bespoke_catalog_sku_group.sku_group_name} | ${option.bespoke_catalog_sku_group.bespoke_catalog_brand.brand_name}`}
+                          </Text>
+                        </Box>
+                      </Box>
+                    );
+                  }}
                   selectableOptions={
-                    bespokeCatalogSkuGroupData?.bespoke_catalog_sku_groups || []
+                    bespokeCatalogSkuData?.bespoke_catalog_skus || []
                   }
-                  debouncedLoadOptions={debouncedLoadBespokeCatalogSkuGroups}
+                  debouncedLoadOptions={debouncedLoadBespokeCatalogSkus}
                   onChange={(_, value) => {
                     if (!value) {
-                      setBespokeCatalogSku({
-                        ...bespokeCatalogSku,
-                        bespoke_catalog_sku_group_id: null,
+                      setBespokeCatalogEntry({
+                        ...bespokeCatalogEntry,
+                        bespoke_catalog_sku_id: null,
                       });
                       return;
                     }
                     if (!!value.id) {
-                      setBespokeCatalogSku({
-                        ...bespokeCatalogSku,
-                        bespoke_catalog_sku_group_id: value.id,
+                      setBespokeCatalogEntry({
+                        ...bespokeCatalogEntry,
+                        bespoke_catalog_sku_id: value.id,
                       });
                     }
                   }}
                 />
               </Box>
             )}
-            {!isAddNewSkuGroupChecked &&
-              !bespokeCatalogSku.bespoke_catalog_sku_group_id && (
+            {!isAddNewSkuChecked &&
+              !bespokeCatalogEntry.bespoke_catalog_sku_id && (
                 <Text
                   textVariant={TextVariants.Paragraph}
                   color={SecondaryTextColor}
@@ -387,22 +312,22 @@ const CreateUpdateBespokeCatalogEntryCompleteModal = ({
                   OR
                 </Text>
               )}
-            {!bespokeCatalogSku.bespoke_catalog_sku_group_id && (
+            {!bespokeCatalogEntry.bespoke_catalog_sku_id && (
               <FormControlLabel
                 control={
                   <Checkbox
-                    checked={isAddNewSkuGroupChecked}
+                    checked={isAddNewSkuChecked}
                     onChange={(event) => {
-                      setIsAddNewSkuGroupChecked(event.target.checked);
+                      setIsAddNewSkuChecked(event.target.checked);
                       if (event.target.checked) {
-                        setBespokeCatalogSkuGroup({
-                          ...bespokeCatalogSkuGroup,
-                          sku_group_name: productName,
+                        setBespokeCatalogSku({
+                          ...bespokeCatalogSku,
+                          sku: productName,
                         });
                       } else {
-                        setBespokeCatalogSkuGroup({
-                          ...bespokeCatalogSkuGroup,
-                          sku_group_name: "",
+                        setBespokeCatalogSku({
+                          ...bespokeCatalogSku,
+                          sku: "",
                         });
                       }
                     }}
@@ -411,69 +336,92 @@ const CreateUpdateBespokeCatalogEntryCompleteModal = ({
                     checkedIcon={<CustomCheckboxChecked />}
                   />
                 }
-                label={"Option 2: Submit a new SKU Group that does not exist"}
+                label={"Option 2: Submit a new SKU that does not exist"}
                 style={{ color: SecondaryTextColor }}
               />
             )}
-            {/* Add new SKU group form section */}
-            {isAddNewSkuGroupChecked && (
+            {/* Add new SKU form section */}
+            {isAddNewSkuChecked && (
               <>
-                <CardDivider />
+                <CardDivider marginBottom="36px" />
                 <Box mb={2}>
                   <FormControl fullWidth>
                     <TextField
-                      value={bespokeCatalogSkuGroup.sku_group_name}
-                      label={"Sku Group Name"}
+                      value={bespokeCatalogSku.sku}
+                      label={"Sku Name"}
                       onChange={({ target: { value } }) => {
-                        setBespokeCatalogSkuGroup({
+                        setBespokeCatalogSku({
                           ...bespokeCatalogSku,
-                          sku_group_name: value,
+                          sku: value,
                         });
                       }}
                     />
                   </FormControl>
                 </Box>
-                {!isAddNewBrandChecked &&
-                  !bespokeCatalogSkuGroup.bespoke_catalog_brand_id && (
+                {!isAddNewSkuGroupChecked &&
+                  !bespokeCatalogSku.bespoke_catalog_sku_group_id && (
                     <Text textVariant={TextVariants.Paragraph}>
-                      Two options to add a Brand to this SKU Group
+                      Two options to add a SKU group to this SKU
                     </Text>
                   )}
-                {!isAddNewBrandChecked && (
+                {!isAddNewSkuGroupChecked && (
                   <Box mb={2}>
                     <Text
-                      textVariant={TextVariants.Label}
+                      textVariant={TextVariants.Paragraph}
                       color={SecondaryTextColor}
                     >
-                      Option 1: Search for an existing Brand
+                      Option 1: Search for an existing SKU Group
                     </Text>
                     <AutocompleteSelectDropdown
-                      label="Bespoke Catalog Brand"
+                      label="Bespoke Catalog SKU Group"
                       getOptionLabel={(option) => {
-                        if (!!option.brand_name) {
-                          return option.brand_name;
+                        if (!!option.sku_group_name) {
+                          return option.sku_group_name;
                         } else if (typeof option === "string") {
                           return option;
                         } else {
                           return "";
                         }
                       }}
+                      renderOption={(option) => {
+                        return (
+                          <Box>
+                            <Text
+                              textVariant={TextVariants.Paragraph}
+                              bottomMargin={0}
+                            >
+                              {option.sku_group_name}
+                            </Text>
+                            <Box display="flex">
+                              <Text
+                                textVariant={TextVariants.SmallLabel}
+                                color={SecondaryTextColor}
+                              >
+                                {option.bespoke_catalog_brand.brand_name}
+                              </Text>
+                            </Box>
+                          </Box>
+                        );
+                      }}
                       selectableOptions={
-                        bespokeCatalogBrandData?.bespoke_catalog_brands || []
+                        bespokeCatalogSkuGroupData?.bespoke_catalog_sku_groups ||
+                        []
                       }
-                      debouncedLoadOptions={debouncedLoadBespokeCatalogBrands}
+                      debouncedLoadOptions={
+                        debouncedLoadBespokeCatalogSkuGroups
+                      }
                       onChange={(_, value) => {
                         if (!value) {
-                          setBespokeCatalogSkuGroup({
-                            ...bespokeCatalogSkuGroup,
-                            bespoke_catalog_brand_id: null,
+                          setBespokeCatalogSku({
+                            ...bespokeCatalogSku,
+                            bespoke_catalog_sku_group_id: null,
                           });
                           return;
                         }
                         if (!!value.id) {
-                          setBespokeCatalogSkuGroup({
-                            ...bespokeCatalogSkuGroup,
-                            bespoke_catalog_brand_id: value.id,
+                          setBespokeCatalogSku({
+                            ...bespokeCatalogSku,
+                            bespoke_catalog_sku_group_id: value.id,
                           });
                         }
                       }}
@@ -481,7 +429,7 @@ const CreateUpdateBespokeCatalogEntryCompleteModal = ({
                   </Box>
                 )}
                 {!isAddNewSkuGroupChecked &&
-                  !bespokeCatalogSkuGroup.bespoke_catalog_brand_id && (
+                  !bespokeCatalogSku.bespoke_catalog_sku_group_id && (
                     <Text
                       textVariant={TextVariants.Paragraph}
                       color={SecondaryTextColor}
@@ -491,22 +439,22 @@ const CreateUpdateBespokeCatalogEntryCompleteModal = ({
                       OR
                     </Text>
                   )}
-                {!bespokeCatalogSkuGroup.bespoke_catalog_brand_id && (
+                {!bespokeCatalogSku.bespoke_catalog_sku_group_id && (
                   <FormControlLabel
                     control={
                       <Checkbox
-                        checked={isAddNewBrandChecked}
+                        checked={isAddNewSkuGroupChecked}
                         onChange={(event) => {
-                          setIsAddNewBrandChecked(event.target.checked);
+                          setIsAddNewSkuGroupChecked(event.target.checked);
                           if (event.target.checked) {
-                            setBespokeCatalogBrand({
-                              ...bespokeCatalogBrand,
-                              brand_name: calculateBrand(productName as string),
+                            setBespokeCatalogSkuGroup({
+                              ...bespokeCatalogSkuGroup,
+                              sku_group_name: productName,
                             });
                           } else {
-                            setBespokeCatalogBrand({
-                              ...bespokeCatalogBrand,
-                              brand_name: "",
+                            setBespokeCatalogSkuGroup({
+                              ...bespokeCatalogSkuGroup,
+                              sku_group_name: "",
                             });
                           }
                         }}
@@ -515,48 +463,143 @@ const CreateUpdateBespokeCatalogEntryCompleteModal = ({
                         checkedIcon={<CustomCheckboxChecked />}
                       />
                     }
-                    label={"Option 2: Submit a new Brand that does not exist"}
+                    label={
+                      "Option 2: Submit a new SKU Group that does not exist"
+                    }
                     style={{ color: SecondaryTextColor }}
                   />
                 )}
-                {/* Add new Brand form section */}
-                {isAddNewBrandChecked && (
+                {/* Add new SKU group form section */}
+                {isAddNewSkuGroupChecked && (
                   <>
-                    <CardDivider />
-                    <Text
-                      textVariant={TextVariants.Label}
-                      color={SecondaryTextColor}
-                    >
-                      Option 2: Submit a new Brand that does not exist
-                    </Text>
+                    <CardDivider marginBottom="36px" />
                     <Box mb={2}>
                       <FormControl fullWidth>
                         <TextField
-                          value={bespokeCatalogBrand.brand_name}
-                          label={"Brand Name"}
+                          value={bespokeCatalogSkuGroup.sku_group_name}
+                          label={"Sku Group Name"}
                           onChange={({ target: { value } }) => {
-                            setBespokeCatalogBrand({
-                              ...bespokeCatalogBrand,
-                              brand_name: value,
+                            setBespokeCatalogSkuGroup({
+                              ...bespokeCatalogSku,
+                              sku_group_name: value,
                             });
                           }}
                         />
                       </FormControl>
                     </Box>
-                    <Box mb={2}>
-                      <FormControl fullWidth>
-                        <TextField
-                          value={bespokeCatalogBrand.us_state}
-                          label={"US State"}
-                          onChange={({ target: { value } }) => {
-                            setBespokeCatalogBrand({
-                              ...bespokeCatalogBrand,
-                              us_state: value,
-                            });
+                    {!isAddNewBrandChecked &&
+                      !bespokeCatalogSkuGroup.bespoke_catalog_brand_id && (
+                        <Text textVariant={TextVariants.Paragraph}>
+                          Two options to add a Brand to this SKU Group
+                        </Text>
+                      )}
+                    {!isAddNewBrandChecked && (
+                      <Box mb={2}>
+                        <Text
+                          textVariant={TextVariants.Paragraph}
+                          color={SecondaryTextColor}
+                        >
+                          Option 1: Search for an existing Brand
+                        </Text>
+                        <AutocompleteSelectDropdown
+                          label="Bespoke Catalog Brand"
+                          getOptionLabel={(option) => {
+                            if (!!option.brand_name) {
+                              return option.brand_name;
+                            } else if (typeof option === "string") {
+                              return option;
+                            } else {
+                              return "";
+                            }
+                          }}
+                          selectableOptions={
+                            bespokeCatalogBrandData?.bespoke_catalog_brands ||
+                            []
+                          }
+                          debouncedLoadOptions={
+                            debouncedLoadBespokeCatalogBrands
+                          }
+                          onChange={(_, value) => {
+                            if (!value) {
+                              setBespokeCatalogSkuGroup({
+                                ...bespokeCatalogSkuGroup,
+                                bespoke_catalog_brand_id: null,
+                              });
+                              return;
+                            }
+                            if (!!value.id) {
+                              setBespokeCatalogSkuGroup({
+                                ...bespokeCatalogSkuGroup,
+                                bespoke_catalog_brand_id: value.id,
+                              });
+                            }
                           }}
                         />
-                      </FormControl>
-                    </Box>
+                      </Box>
+                    )}
+                    {!isAddNewSkuGroupChecked &&
+                      !bespokeCatalogSkuGroup.bespoke_catalog_brand_id && (
+                        <Text
+                          textVariant={TextVariants.Paragraph}
+                          color={SecondaryTextColor}
+                          isBold
+                          bottomMargin={8}
+                        >
+                          OR
+                        </Text>
+                      )}
+                    {!bespokeCatalogSkuGroup.bespoke_catalog_brand_id && (
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={isAddNewBrandChecked}
+                            onChange={(event) => {
+                              setIsAddNewBrandChecked(event.target.checked);
+                              if (event.target.checked) {
+                                setBespokeCatalogBrand({
+                                  ...bespokeCatalogBrand,
+                                  brand_name: calculateBrand(
+                                    productName as string
+                                  ),
+                                });
+                              } else {
+                                setBespokeCatalogBrand({
+                                  ...bespokeCatalogBrand,
+                                  brand_name: "",
+                                });
+                              }
+                            }}
+                            color="primary"
+                            icon={<CustomCheckboxUnchecked />}
+                            checkedIcon={<CustomCheckboxChecked />}
+                          />
+                        }
+                        label={
+                          "Option 2: Submit a new Brand that does not exist"
+                        }
+                        style={{ color: SecondaryTextColor }}
+                      />
+                    )}
+                    {/* Add new Brand form section */}
+                    {isAddNewBrandChecked && (
+                      <>
+                        <CardDivider marginBottom="36px" />
+                        <Box mb={2}>
+                          <FormControl fullWidth>
+                            <TextField
+                              value={bespokeCatalogBrand.brand_name}
+                              label={"Brand Name"}
+                              onChange={({ target: { value } }) => {
+                                setBespokeCatalogBrand({
+                                  ...bespokeCatalogBrand,
+                                  brand_name: value,
+                                });
+                              }}
+                            />
+                          </FormControl>
+                        </Box>
+                      </>
+                    )}
                   </>
                 )}
               </>

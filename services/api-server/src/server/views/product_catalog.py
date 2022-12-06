@@ -164,14 +164,12 @@ class CreateUpdateBespokeCatalogBrandView(MethodView):
 
 		id = data["id"]
 		brand_name = data["brand_name"]
-		us_state = data.get("us_state")
 
 		with session_scope(current_app.session_maker) as session:
 			brand_id, err = product_catalog_util.create_update_bespoke_catalog_brand(
 				session=session,
 				id=id,
 				brand_name=brand_name,
-				us_state=us_state
 			)
 			if err:
 				raise err
@@ -310,7 +308,6 @@ class CreateUpdateMetrcToBespokeCatalogSkuView(MethodView):
 		bespoke_catalog_brand_id = bespoke_catalog_sku_group["bespoke_catalog_brand_id"]
 		bespoke_catalog_brand = bespoke_catalog_sku_group["bespoke_catalog_brand"]
 		brand_name = bespoke_catalog_brand["brand_name"]
-		us_state = bespoke_catalog_brand["us_state"]
 
 		with session_scope(current_app.session_maker) as session:
 			if sku_confidence != SKU_CONFIDENCE_INVALID:
@@ -321,7 +318,6 @@ class CreateUpdateMetrcToBespokeCatalogSkuView(MethodView):
 						session=session,
 						id=str(uuid.uuid4()),
 						brand_name=brand_name,
-						us_state=us_state
 					)
 					if err:
 						raise err
@@ -346,7 +342,8 @@ class CreateUpdateMetrcToBespokeCatalogSkuView(MethodView):
 					)
 					if err:
 						raise err
-
+			
+			user_session = auth_util.UserSession.from_session()
 			metrc_to_sku_id, err = product_catalog_util.create_update_metrc_to_sku(
 				session=session,
 				id=id,
@@ -354,6 +351,7 @@ class CreateUpdateMetrcToBespokeCatalogSkuView(MethodView):
 				product_name=product_name,
 				product_category_name=product_category_name,
 				sku_confidence=sku_confidence,
+				last_edited_by_user_id=user_session.get_user_id(),
 			)
 			if err:
 				raise err

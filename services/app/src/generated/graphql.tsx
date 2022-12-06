@@ -1940,7 +1940,6 @@ export type BespokeCatalogBrands = {
   id: Scalars["uuid"];
   is_deleted: Scalars["Boolean"];
   updated_at: Scalars["timestamptz"];
-  us_state?: Maybe<Scalars["String"]>;
   website_url?: Maybe<Scalars["String"]>;
 };
 
@@ -1974,7 +1973,6 @@ export type BespokeCatalogBrandsBoolExp = {
   id?: Maybe<UuidComparisonExp>;
   is_deleted?: Maybe<BooleanComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
-  us_state?: Maybe<StringComparisonExp>;
   website_url?: Maybe<StringComparisonExp>;
 };
 
@@ -1994,7 +1992,6 @@ export type BespokeCatalogBrandsInsertInput = {
   id?: Maybe<Scalars["uuid"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
-  us_state?: Maybe<Scalars["String"]>;
   website_url?: Maybe<Scalars["String"]>;
 };
 
@@ -2005,7 +2002,6 @@ export type BespokeCatalogBrandsMaxFields = {
   deleted_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
-  us_state?: Maybe<Scalars["String"]>;
   website_url?: Maybe<Scalars["String"]>;
 };
 
@@ -2016,7 +2012,6 @@ export type BespokeCatalogBrandsMinFields = {
   deleted_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
-  us_state?: Maybe<Scalars["String"]>;
   website_url?: Maybe<Scalars["String"]>;
 };
 
@@ -2050,7 +2045,6 @@ export type BespokeCatalogBrandsOrderBy = {
   id?: Maybe<OrderBy>;
   is_deleted?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
-  us_state?: Maybe<OrderBy>;
   website_url?: Maybe<OrderBy>;
 };
 
@@ -2074,8 +2068,6 @@ export enum BespokeCatalogBrandsSelectColumn {
   /** column name */
   UpdatedAt = "updated_at",
   /** column name */
-  UsState = "us_state",
-  /** column name */
   WebsiteUrl = "website_url",
 }
 
@@ -2087,7 +2079,6 @@ export type BespokeCatalogBrandsSetInput = {
   id?: Maybe<Scalars["uuid"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
-  us_state?: Maybe<Scalars["String"]>;
   website_url?: Maybe<Scalars["String"]>;
 };
 
@@ -2105,8 +2096,6 @@ export enum BespokeCatalogBrandsUpdateColumn {
   IsDeleted = "is_deleted",
   /** column name */
   UpdatedAt = "updated_at",
-  /** column name */
-  UsState = "us_state",
   /** column name */
   WebsiteUrl = "website_url",
 }
@@ -33339,7 +33328,7 @@ export type MonthlySummaryCalculationFragment = Pick<
 
 export type BespokeCatalogBrandFragment = Pick<
   BespokeCatalogBrands,
-  "id" | "brand_name" | "us_state"
+  "id" | "brand_name"
 >;
 
 export type BespokeCatalogSkuGroupFragment = Pick<
@@ -35441,7 +35430,6 @@ export const BespokeCatalogBrandFragmentDoc = gql`
   fragment BespokeCatalogBrand on bespoke_catalog_brands {
     id
     brand_name
-    us_state
   }
 `;
 export const BespokeCatalogSkuGroupFragmentDoc = gql`

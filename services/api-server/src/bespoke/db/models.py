@@ -1792,6 +1792,7 @@ class MetrcToBespokeCatalogSku(Base):
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
 
 	bespoke_catalog_sku_id = cast(GUID, Column(GUID, ForeignKey('bespoke_catalog_skus.id'), nullable=True))
+	last_edited_by_user_id = cast(GUID, Column(GUID, ForeignKey('users.id'), nullable=True))
 
 	product_name = Column(String, nullable=False)
 	product_category_name = Column(String, nullable=False)

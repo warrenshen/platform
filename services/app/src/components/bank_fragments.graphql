@@ -734,7 +734,6 @@ fragment MonthlySummaryCalculation on monthly_summary_calculations {
 fragment BespokeCatalogBrand on bespoke_catalog_brands {
   id
   brand_name
-  us_state
 }
 
 fragment BespokeCatalogSkuGroup on bespoke_catalog_sku_groups {

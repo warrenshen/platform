@@ -7,8 +7,6 @@ import { DebouncedFunc } from "lodash";
 interface Props {
   label: string;
   selectableOptions: any[];
-  getOptionLabel: (option: any) => string;
-  onChange: (event: any, newValue: any) => void;
   debouncedLoadOptions: DebouncedFunc<
     (
       options?:
@@ -20,6 +18,9 @@ interface Props {
         | undefined
     ) => void
   >;
+  getOptionLabel: (option: any) => string;
+  renderOption?: (option: any) => JSX.Element;
+  onChange: (event: any, newValue: any) => void;
 }
 
 const AutocompleteSelectDropdown = ({
@@ -27,6 +28,7 @@ const AutocompleteSelectDropdown = ({
   debouncedLoadOptions,
   selectableOptions,
   getOptionLabel,
+  renderOption,
   onChange,
 }: Props) => {
   return (
@@ -40,7 +42,7 @@ const AutocompleteSelectDropdown = ({
       onInputChange={(_, newInputValue) => {
         newInputValue.length > 2 &&
           debouncedLoadOptions({
-            variables: { search_prefix: newInputValue + "%" },
+            variables: { search_prefix: "%" + newInputValue + "%" },
           });
       }}
       renderInput={(params) => {
@@ -49,6 +51,7 @@ const AutocompleteSelectDropdown = ({
         );
       }}
       getOptionLabel={getOptionLabel}
+      renderOption={renderOption}
       onChange={onChange}
     />
   );
