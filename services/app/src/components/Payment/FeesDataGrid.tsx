@@ -1,5 +1,6 @@
 import { GridValueFormatterParams } from "@material-ui/data-grid";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
+import PaymentDrawerLauncher from "components/Payment/PaymentDrawerLauncher";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import {
@@ -68,7 +69,6 @@ function getRows(
     });
 
   return filteredFees.map((fee) => {
-    console.log(!!fee?.loan ? fee : "none");
     return formatRowModel({
       ...fee,
       amount:
@@ -134,20 +134,15 @@ export default function FeesDataGrid({
         },
       },
       {
-        dataField: "loan_identifier",
-        caption: "Loan",
-        width: ColumnWidths.Identifier,
-        cellRender: (params: GridValueFormatterParams) => {
-          if (!params.row.data.loan_id) {
-            return "-";
-          }
-          return (
-            <LoanDrawerLauncher
-              label={params.row.data.loan_identifier}
-              loanId={params.row.data.loan_id as string}
-            />
-          );
-        },
+        dataField: "payment_id",
+        caption: "Payment ID",
+        width: 140,
+        cellRender: (params: GridValueFormatterParams) => (
+          <PaymentDrawerLauncher
+            paymentId={params.row.data.payment_id}
+            showBankInfo
+          />
+        ),
       },
       {
         caption: "Description",

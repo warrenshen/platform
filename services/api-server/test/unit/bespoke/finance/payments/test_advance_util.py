@@ -473,7 +473,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					},
 					{
 						'amount': 50.00,
-						'loan_index': 1,
+						'loan_index': None,
 						'payment_index': 1,
 						'type': 'fee',
 						'subtype': 'wire_fee'
@@ -796,14 +796,14 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					},
 					{
 						'amount': 50.00,
-						'loan_index': 2,
+						'loan_index': None,
 						'payment_index': 1,
 						'type': 'fee',
 						'subtype': 'wire_fee'
 					},
 					{
 						'amount': 60.00,
-						'loan_index': 3,
+						'loan_index': None,
 						'payment_index': 2,
 						'type': 'fee',
 						'subtype': 'wire_fee'
@@ -959,7 +959,7 @@ class TestFundLoansWithAdvance(db_unittest.TestCase):
 					},
 					{
 						'amount': 50.00,
-						'loan_index': 1,
+						'loan_index': None,
 						'payment_index': 1,
 						'type': 'fee',
 						'subtype': 'wire_fee'

@@ -319,7 +319,6 @@ def fund_loans_with_advance(
 						created_by_user_id=bank_admin_user_id,
 						effective_date=settlement_date,
 						session=session,
-						loan_id=str(loan.id)
 					)
 
 			# If bank admin did not specify a custom bank note (memo), set the
