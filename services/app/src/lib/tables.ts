@@ -24,6 +24,7 @@ export const ColumnWidths = {
   UsState: 90,
   UserName: 130,
   UserRole: 200,
+  CompanyName: 200,
 
   Actions: 75,
   IconButton: 50,

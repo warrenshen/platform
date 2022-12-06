@@ -2575,12 +2575,10 @@ export type BigintComparisonExp = {
 export type BlazePreapprovals = {
   annual_interest_rate: Scalars["numeric"];
   created_at: Scalars["timestamptz"];
-  deleted_at?: Maybe<Scalars["timestamptz"]>;
   expiration_date: Scalars["date"];
   external_blaze_company_id: Scalars["String"];
   external_blaze_shop_id: Scalars["String"];
   id: Scalars["uuid"];
-  is_deleted?: Maybe<Scalars["Boolean"]>;
   max_credit_limit: Scalars["numeric"];
   updated_at: Scalars["timestamptz"];
 };
@@ -2625,12 +2623,10 @@ export type BlazePreapprovalsBoolExp = {
   _or?: Maybe<Array<BlazePreapprovalsBoolExp>>;
   annual_interest_rate?: Maybe<NumericComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
-  deleted_at?: Maybe<TimestamptzComparisonExp>;
   expiration_date?: Maybe<DateComparisonExp>;
   external_blaze_company_id?: Maybe<StringComparisonExp>;
   external_blaze_shop_id?: Maybe<StringComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
-  is_deleted?: Maybe<BooleanComparisonExp>;
   max_credit_limit?: Maybe<NumericComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
 };
@@ -2653,12 +2649,10 @@ export type BlazePreapprovalsIncInput = {
 export type BlazePreapprovalsInsertInput = {
   annual_interest_rate?: Maybe<Scalars["numeric"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
-  deleted_at?: Maybe<Scalars["timestamptz"]>;
   expiration_date?: Maybe<Scalars["date"]>;
   external_blaze_company_id?: Maybe<Scalars["String"]>;
   external_blaze_shop_id?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
-  is_deleted?: Maybe<Scalars["Boolean"]>;
   max_credit_limit?: Maybe<Scalars["numeric"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
@@ -2667,7 +2661,6 @@ export type BlazePreapprovalsInsertInput = {
 export type BlazePreapprovalsMaxFields = {
   annual_interest_rate?: Maybe<Scalars["numeric"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
-  deleted_at?: Maybe<Scalars["timestamptz"]>;
   expiration_date?: Maybe<Scalars["date"]>;
   external_blaze_company_id?: Maybe<Scalars["String"]>;
   external_blaze_shop_id?: Maybe<Scalars["String"]>;
@@ -2680,7 +2673,6 @@ export type BlazePreapprovalsMaxFields = {
 export type BlazePreapprovalsMinFields = {
   annual_interest_rate?: Maybe<Scalars["numeric"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
-  deleted_at?: Maybe<Scalars["timestamptz"]>;
   expiration_date?: Maybe<Scalars["date"]>;
   external_blaze_company_id?: Maybe<Scalars["String"]>;
   external_blaze_shop_id?: Maybe<Scalars["String"]>;
@@ -2708,12 +2700,10 @@ export type BlazePreapprovalsOnConflict = {
 export type BlazePreapprovalsOrderBy = {
   annual_interest_rate?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
-  deleted_at?: Maybe<OrderBy>;
   expiration_date?: Maybe<OrderBy>;
   external_blaze_company_id?: Maybe<OrderBy>;
   external_blaze_shop_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
-  is_deleted?: Maybe<OrderBy>;
   max_credit_limit?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
 };
@@ -2730,8 +2720,6 @@ export enum BlazePreapprovalsSelectColumn {
   /** column name */
   CreatedAt = "created_at",
   /** column name */
-  DeletedAt = "deleted_at",
-  /** column name */
   ExpirationDate = "expiration_date",
   /** column name */
   ExternalBlazeCompanyId = "external_blaze_company_id",
@@ -2739,8 +2727,6 @@ export enum BlazePreapprovalsSelectColumn {
   ExternalBlazeShopId = "external_blaze_shop_id",
   /** column name */
   Id = "id",
-  /** column name */
-  IsDeleted = "is_deleted",
   /** column name */
   MaxCreditLimit = "max_credit_limit",
   /** column name */
@@ -2751,12 +2737,10 @@ export enum BlazePreapprovalsSelectColumn {
 export type BlazePreapprovalsSetInput = {
   annual_interest_rate?: Maybe<Scalars["numeric"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
-  deleted_at?: Maybe<Scalars["timestamptz"]>;
   expiration_date?: Maybe<Scalars["date"]>;
   external_blaze_company_id?: Maybe<Scalars["String"]>;
   external_blaze_shop_id?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
-  is_deleted?: Maybe<Scalars["Boolean"]>;
   max_credit_limit?: Maybe<Scalars["numeric"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
@@ -2792,8 +2776,6 @@ export enum BlazePreapprovalsUpdateColumn {
   /** column name */
   CreatedAt = "created_at",
   /** column name */
-  DeletedAt = "deleted_at",
-  /** column name */
   ExpirationDate = "expiration_date",
   /** column name */
   ExternalBlazeCompanyId = "external_blaze_company_id",
@@ -2801,8 +2783,6 @@ export enum BlazePreapprovalsUpdateColumn {
   ExternalBlazeShopId = "external_blaze_shop_id",
   /** column name */
   Id = "id",
-  /** column name */
-  IsDeleted = "is_deleted",
   /** column name */
   MaxCreditLimit = "max_credit_limit",
   /** column name */
@@ -6473,6 +6453,7 @@ export type CompanySettings = {
   id: Scalars["uuid"];
   is_autogenerate_repayments_enabled?: Maybe<Scalars["Boolean"]>;
   is_dummy_account: Scalars["Boolean"];
+  is_loc_late?: Maybe<Scalars["Boolean"]>;
   late_fees_end_date?: Maybe<Scalars["date"]>;
   /** An object relationship */
   metrc_api_key?: Maybe<MetrcApiKeys>;
@@ -6572,6 +6553,7 @@ export type CompanySettingsBoolExp = {
   id?: Maybe<UuidComparisonExp>;
   is_autogenerate_repayments_enabled?: Maybe<BooleanComparisonExp>;
   is_dummy_account?: Maybe<BooleanComparisonExp>;
+  is_loc_late?: Maybe<BooleanComparisonExp>;
   late_fees_end_date?: Maybe<DateComparisonExp>;
   metrc_api_key?: Maybe<MetrcApiKeysBoolExp>;
   metrc_api_key_id?: Maybe<UuidComparisonExp>;
@@ -6654,6 +6636,7 @@ export type CompanySettingsInsertInput = {
   id?: Maybe<Scalars["uuid"]>;
   is_autogenerate_repayments_enabled?: Maybe<Scalars["Boolean"]>;
   is_dummy_account?: Maybe<Scalars["Boolean"]>;
+  is_loc_late?: Maybe<Scalars["Boolean"]>;
   late_fees_end_date?: Maybe<Scalars["date"]>;
   metrc_api_key?: Maybe<MetrcApiKeysObjRelInsertInput>;
   metrc_api_key_id?: Maybe<Scalars["uuid"]>;
@@ -6851,6 +6834,7 @@ export type CompanySettingsOrderBy = {
   id?: Maybe<OrderBy>;
   is_autogenerate_repayments_enabled?: Maybe<OrderBy>;
   is_dummy_account?: Maybe<OrderBy>;
+  is_loc_late?: Maybe<OrderBy>;
   late_fees_end_date?: Maybe<OrderBy>;
   metrc_api_key?: Maybe<MetrcApiKeysOrderBy>;
   metrc_api_key_id?: Maybe<OrderBy>;
@@ -6915,6 +6899,8 @@ export enum CompanySettingsSelectColumn {
   /** column name */
   IsDummyAccount = "is_dummy_account",
   /** column name */
+  IsLocLate = "is_loc_late",
+  /** column name */
   LateFeesEndDate = "late_fees_end_date",
   /** column name */
   MetrcApiKeyId = "metrc_api_key_id",
@@ -6964,6 +6950,7 @@ export type CompanySettingsSetInput = {
   id?: Maybe<Scalars["uuid"]>;
   is_autogenerate_repayments_enabled?: Maybe<Scalars["Boolean"]>;
   is_dummy_account?: Maybe<Scalars["Boolean"]>;
+  is_loc_late?: Maybe<Scalars["Boolean"]>;
   late_fees_end_date?: Maybe<Scalars["date"]>;
   metrc_api_key_id?: Maybe<Scalars["uuid"]>;
   payor_agreement_docusign_template?: Maybe<Scalars["String"]>;
@@ -7012,6 +6999,8 @@ export enum CompanySettingsUpdateColumn {
   IsAutogenerateRepaymentsEnabled = "is_autogenerate_repayments_enabled",
   /** column name */
   IsDummyAccount = "is_dummy_account",
+  /** column name */
+  IsLocLate = "is_loc_late",
   /** column name */
   LateFeesEndDate = "late_fees_end_date",
   /** column name */
@@ -31142,6 +31131,18 @@ export type AddCompanyPayorAgreementMutation = {
   insert_company_agreements_one?: Maybe<CompanyAgreementFragment>;
 };
 
+export type GetPayorsWithMetadataQueryVariables = Exact<{
+  date?: Maybe<Scalars["date"]>;
+}>;
+
+export type GetPayorsWithMetadataQuery = {
+  payors: Array<
+    Pick<Companies, "id"> & {
+      licenses: Array<CompanyLicenseLimitedFragment>;
+    } & CustomersWithMetadataFragment
+  >;
+};
+
 export type ListPayorPartnershipsByCompanyIdQueryVariables = Exact<{
   companyId: Scalars["uuid"];
 }>;
@@ -31894,6 +31895,20 @@ export type GetParentCompanyWithCustomerCompaniesQuery = {
   >;
 };
 
+export type GetAllCompaniesWithMetadataQueryVariables = Exact<{
+  date?: Maybe<Scalars["date"]>;
+}>;
+
+export type GetAllCompaniesWithMetadataQuery = {
+  companies: Array<CustomersWithMetadataFragment>;
+};
+
+export type GetParentCompaniesQueryVariables = Exact<{ [key: string]: never }>;
+
+export type GetParentCompaniesQuery = {
+  parent_companies: Array<Pick<ParentCompanies, "id"> & ParentCompanyFragment>;
+};
+
 export type GetBankFinancialSummariesByDateSubscriptionVariables = Exact<{
   date: Scalars["date"];
 }>;
@@ -32143,6 +32158,8 @@ export type CompanyFragment = Pick<
   | "phone_number"
 > &
   CompanyLimitedFragment;
+
+export type ParentCompanyFragment = Pick<ParentCompanies, "id" | "name">;
 
 export type ContractFragment = Pick<
   Contracts,
@@ -32562,6 +32579,18 @@ export type GetVendorContactsQuery = {
   >;
 };
 
+export type GetVendorsWithMetadataQueryVariables = Exact<{
+  date?: Maybe<Scalars["date"]>;
+}>;
+
+export type GetVendorsWithMetadataQuery = {
+  vendors: Array<
+    Pick<Companies, "id"> & {
+      licenses: Array<CompanyLicenseLimitedFragment>;
+    } & CustomersWithMetadataFragment
+  >;
+};
+
 export type GetVendorCompanyFileAttachmentsQueryVariables = Exact<{
   company_id: Scalars["uuid"];
 }>;
@@ -32870,6 +32899,7 @@ export type CustomersWithMetadataFragment = Pick<Companies, "id"> & {
   most_recent_surveillance_result: Array<
     Pick<CustomerSurveillanceResults, "id"> & CustomerSurveillanceResultFragment
   >;
+  parent_company?: Maybe<Pick<ParentCompanies, "id"> & ParentCompanyFragment>;
 } & CustomerForBankFragment;
 
 export type CustomerSurveillanceFragment = {
@@ -32922,6 +32952,9 @@ export type CustomerForBankFragment = Pick<
   | "surveillance_status"
   | "surveillance_status_note"
   | "qualify_for"
+  | "is_payor"
+  | "is_vendor"
+  | "is_customer"
 >;
 
 export type CompanySettingsFragment = Pick<
@@ -34410,6 +34443,9 @@ export const CustomerForBankFragmentDoc = gql`
     surveillance_status
     surveillance_status_note
     qualify_for
+    is_payor
+    is_vendor
+    is_customer
   }
 `;
 export const CompanySettingsLimitedFragmentDoc = gql`
@@ -34476,6 +34512,12 @@ export const CustomerSurveillanceResultFragmentDoc = gql`
     surveillance_info
   }
 `;
+export const ParentCompanyFragmentDoc = gql`
+  fragment ParentCompany on parent_companies {
+    id
+    name
+  }
+`;
 export const CustomersWithMetadataFragmentDoc = gql`
   fragment CustomersWithMetadata on companies {
     id
@@ -34509,12 +34551,17 @@ export const CustomersWithMetadataFragmentDoc = gql`
       id
       ...CustomerSurveillanceResult
     }
+    parent_company {
+      id
+      ...ParentCompany
+    }
   }
   ${CustomerForBankFragmentDoc}
   ${FinancialSummaryFragmentDoc}
   ${CompanySettingsFragmentDoc}
   ${EbbaApplicationFragmentDoc}
   ${CustomerSurveillanceResultFragmentDoc}
+  ${ParentCompanyFragmentDoc}
 `;
 export const CustomerSurveillanceFragmentDoc = gql`
   fragment CustomerSurveillance on companies {
@@ -41796,6 +41843,80 @@ export type AddCompanyPayorAgreementMutationOptions =
     AddCompanyPayorAgreementMutation,
     AddCompanyPayorAgreementMutationVariables
   >;
+export const GetPayorsWithMetadataDocument = gql`
+  query GetPayorsWithMetadata($date: date) {
+    payors: companies(
+      where: { is_payor: { _eq: true } }
+      order_by: { name: asc }
+    ) {
+      id
+      ...CustomersWithMetadata
+      licenses(
+        where: {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+      ) {
+        ...CompanyLicenseLimited
+      }
+    }
+  }
+  ${CustomersWithMetadataFragmentDoc}
+  ${CompanyLicenseLimitedFragmentDoc}
+`;
+
+/**
+ * __useGetPayorsWithMetadataQuery__
+ *
+ * To run a query within a React component, call `useGetPayorsWithMetadataQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPayorsWithMetadataQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPayorsWithMetadataQuery({
+ *   variables: {
+ *      date: // value for 'date'
+ *   },
+ * });
+ */
+export function useGetPayorsWithMetadataQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetPayorsWithMetadataQuery,
+    GetPayorsWithMetadataQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetPayorsWithMetadataQuery,
+    GetPayorsWithMetadataQueryVariables
+  >(GetPayorsWithMetadataDocument, options);
+}
+export function useGetPayorsWithMetadataLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetPayorsWithMetadataQuery,
+    GetPayorsWithMetadataQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetPayorsWithMetadataQuery,
+    GetPayorsWithMetadataQueryVariables
+  >(GetPayorsWithMetadataDocument, options);
+}
+export type GetPayorsWithMetadataQueryHookResult = ReturnType<
+  typeof useGetPayorsWithMetadataQuery
+>;
+export type GetPayorsWithMetadataLazyQueryHookResult = ReturnType<
+  typeof useGetPayorsWithMetadataLazyQuery
+>;
+export type GetPayorsWithMetadataQueryResult = Apollo.QueryResult<
+  GetPayorsWithMetadataQuery,
+  GetPayorsWithMetadataQueryVariables
+>;
 export const ListPayorPartnershipsByCompanyIdDocument = gql`
   query ListPayorPartnershipsByCompanyId($companyId: uuid!) {
     company_payor_partnerships(where: { company_id: { _eq: $companyId } }) {
@@ -45954,6 +46075,124 @@ export type GetParentCompanyWithCustomerCompaniesQueryResult =
     GetParentCompanyWithCustomerCompaniesQuery,
     GetParentCompanyWithCustomerCompaniesQueryVariables
   >;
+export const GetAllCompaniesWithMetadataDocument = gql`
+  query GetAllCompaniesWithMetadata($date: date) {
+    companies: companies(order_by: { name: asc }) {
+      ...CustomersWithMetadata
+    }
+  }
+  ${CustomersWithMetadataFragmentDoc}
+`;
+
+/**
+ * __useGetAllCompaniesWithMetadataQuery__
+ *
+ * To run a query within a React component, call `useGetAllCompaniesWithMetadataQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAllCompaniesWithMetadataQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAllCompaniesWithMetadataQuery({
+ *   variables: {
+ *      date: // value for 'date'
+ *   },
+ * });
+ */
+export function useGetAllCompaniesWithMetadataQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetAllCompaniesWithMetadataQuery,
+    GetAllCompaniesWithMetadataQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetAllCompaniesWithMetadataQuery,
+    GetAllCompaniesWithMetadataQueryVariables
+  >(GetAllCompaniesWithMetadataDocument, options);
+}
+export function useGetAllCompaniesWithMetadataLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetAllCompaniesWithMetadataQuery,
+    GetAllCompaniesWithMetadataQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetAllCompaniesWithMetadataQuery,
+    GetAllCompaniesWithMetadataQueryVariables
+  >(GetAllCompaniesWithMetadataDocument, options);
+}
+export type GetAllCompaniesWithMetadataQueryHookResult = ReturnType<
+  typeof useGetAllCompaniesWithMetadataQuery
+>;
+export type GetAllCompaniesWithMetadataLazyQueryHookResult = ReturnType<
+  typeof useGetAllCompaniesWithMetadataLazyQuery
+>;
+export type GetAllCompaniesWithMetadataQueryResult = Apollo.QueryResult<
+  GetAllCompaniesWithMetadataQuery,
+  GetAllCompaniesWithMetadataQueryVariables
+>;
+export const GetParentCompaniesDocument = gql`
+  query GetParentCompanies {
+    parent_companies(order_by: { name: asc }) {
+      id
+      ...ParentCompany
+    }
+  }
+  ${ParentCompanyFragmentDoc}
+`;
+
+/**
+ * __useGetParentCompaniesQuery__
+ *
+ * To run a query within a React component, call `useGetParentCompaniesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetParentCompaniesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetParentCompaniesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetParentCompaniesQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetParentCompaniesQuery,
+    GetParentCompaniesQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetParentCompaniesQuery,
+    GetParentCompaniesQueryVariables
+  >(GetParentCompaniesDocument, options);
+}
+export function useGetParentCompaniesLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetParentCompaniesQuery,
+    GetParentCompaniesQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetParentCompaniesQuery,
+    GetParentCompaniesQueryVariables
+  >(GetParentCompaniesDocument, options);
+}
+export type GetParentCompaniesQueryHookResult = ReturnType<
+  typeof useGetParentCompaniesQuery
+>;
+export type GetParentCompaniesLazyQueryHookResult = ReturnType<
+  typeof useGetParentCompaniesLazyQuery
+>;
+export type GetParentCompaniesQueryResult = Apollo.QueryResult<
+  GetParentCompaniesQuery,
+  GetParentCompaniesQueryVariables
+>;
 export const GetBankFinancialSummariesByDateDocument = gql`
   subscription GetBankFinancialSummariesByDate($date: date!) {
     bank_financial_summaries(
@@ -47719,6 +47958,80 @@ export type GetVendorContactsLazyQueryHookResult = ReturnType<
 export type GetVendorContactsQueryResult = Apollo.QueryResult<
   GetVendorContactsQuery,
   GetVendorContactsQueryVariables
+>;
+export const GetVendorsWithMetadataDocument = gql`
+  query GetVendorsWithMetadata($date: date) {
+    vendors: companies(
+      where: { is_vendor: { _eq: true } }
+      order_by: { name: asc }
+    ) {
+      id
+      ...CustomersWithMetadata
+      licenses(
+        where: {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+      ) {
+        ...CompanyLicenseLimited
+      }
+    }
+  }
+  ${CustomersWithMetadataFragmentDoc}
+  ${CompanyLicenseLimitedFragmentDoc}
+`;
+
+/**
+ * __useGetVendorsWithMetadataQuery__
+ *
+ * To run a query within a React component, call `useGetVendorsWithMetadataQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetVendorsWithMetadataQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetVendorsWithMetadataQuery({
+ *   variables: {
+ *      date: // value for 'date'
+ *   },
+ * });
+ */
+export function useGetVendorsWithMetadataQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetVendorsWithMetadataQuery,
+    GetVendorsWithMetadataQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetVendorsWithMetadataQuery,
+    GetVendorsWithMetadataQueryVariables
+  >(GetVendorsWithMetadataDocument, options);
+}
+export function useGetVendorsWithMetadataLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetVendorsWithMetadataQuery,
+    GetVendorsWithMetadataQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetVendorsWithMetadataQuery,
+    GetVendorsWithMetadataQueryVariables
+  >(GetVendorsWithMetadataDocument, options);
+}
+export type GetVendorsWithMetadataQueryHookResult = ReturnType<
+  typeof useGetVendorsWithMetadataQuery
+>;
+export type GetVendorsWithMetadataLazyQueryHookResult = ReturnType<
+  typeof useGetVendorsWithMetadataLazyQuery
+>;
+export type GetVendorsWithMetadataQueryResult = Apollo.QueryResult<
+  GetVendorsWithMetadataQuery,
+  GetVendorsWithMetadataQueryVariables
 >;
 export const GetVendorCompanyFileAttachmentsDocument = gql`
   query GetVendorCompanyFileAttachments($company_id: uuid!) {

@@ -53,3 +53,20 @@ query GetVendorContacts($id: uuid!) {
   }
 }
 
+query GetVendorsWithMetadata($date: date) {
+  vendors: companies(
+    where: { is_vendor: { _eq: true } }
+    order_by: { name: asc }
+  ) {
+    id
+    ...CustomersWithMetadata
+    licenses(
+      where: {
+        _or: [{ is_deleted: { _is_null: true } }, { is_deleted: { _eq: false } }]
+      }
+    ) {
+      ...CompanyLicenseLimited
+    }
+  }
+}
+

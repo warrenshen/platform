@@ -29,3 +29,6 @@ export const PrimaryBoxShadowColor = "rgba(124, 152, 102, 0.7)";
 
 export const ApproveBlue = "#03a9f4;";
 export const SuggestedRecomputeDatesSalmon = "#f6e8e8";
+export const ApproveBlueBackground = "#d2ecf8";
+export const UnverifiedRed = "#e75d5d";
+export const UnverifiedRedBackground = "#f7e8e8";

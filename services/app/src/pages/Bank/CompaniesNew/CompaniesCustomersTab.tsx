@@ -1,36 +1,21 @@
-import { Box, Checkbox, FormControlLabel, TextField } from "@material-ui/core";
+import { Box, InputAdornment, TextField } from "@material-ui/core";
+import CompaniesCustomersDataGrid from "components/Customer/CompaniesCustomersDataGrid";
 import CreateCustomerModal from "components/Customer/CreateCustomerModal";
-import CustomersDataGrid from "components/Customer/CustomersDataGrid";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import {
-  Companies,
-  CustomersWithMetadataFragment,
-  useGetActiveCustomersWithMetadataQuery,
-  useGetCustomersWithMetadataQuery,
-} from "generated/graphql";
-import { useFilterCustomersByFragment } from "hooks/useFilterCustomers";
+import { useGetCustomersWithMetadataQuery } from "generated/graphql";
+import { SearchIcon } from "icons";
 import { Action, check } from "lib/auth/rbac-rules";
 import { todayAsDateStringServer } from "lib/date";
-import { ChangeEvent, useContext, useMemo, useState } from "react";
+import { filter } from "lodash";
+import { useContext, useMemo, useState } from "react";
 
 export default function CompaniesCustomersTab() {
-  const [isActiveSelected, setIsActiveSelected] = useState(true);
-
-  const [selectedCompanyIds, setSelectedCompanyIds] = useState<Companies["id"]>(
-    []
-  );
-
   const {
     user: { role },
   } = useContext(CurrentUserContext);
 
-  const {
-    data: allData,
-    refetch: refetchAllData,
-    error: allError,
-  } = useGetCustomersWithMetadataQuery({
-    skip: !!isActiveSelected,
+  const { data: allData, error: allError } = useGetCustomersWithMetadataQuery({
     fetchPolicy: "network-only",
     variables: {
       date: todayAsDateStringServer(),
@@ -42,95 +27,56 @@ export default function CompaniesCustomersTab() {
     alert(`Error in query (details in console): ${allError.message}`);
   }
 
-  const {
-    data: activeData,
-    refetch: refetchActiveData,
-    error: allActiveError,
-  } = useGetActiveCustomersWithMetadataQuery({
-    skip: !isActiveSelected,
-    fetchPolicy: "network-only",
-    variables: {
-      date: todayAsDateStringServer(),
-    },
-  });
-
-  if (allActiveError) {
-    console.error({ allActiveError });
-    alert(`Error in query (details in console): ${allActiveError.message}`);
-  }
-
-  const data = useMemo(
-    () =>
-      !!isActiveSelected
-        ? activeData?.customers || []
-        : allData?.customers || [],
-    [isActiveSelected, activeData, allData]
-  );
-
   const [searchQuery, setSearchQuery] = useState("");
 
-  const customers = useFilterCustomersByFragment(
-    searchQuery,
-    data
-  ) as CustomersWithMetadataFragment[];
+  const customers = useMemo(
+    () =>
+      filter(
+        allData?.customers || [],
+        (company) =>
+          company.name.toLowerCase().indexOf(searchQuery.toLowerCase()) >= 0
+      ),
+    [searchQuery, allData?.customers]
+  );
 
   return (
-    <Box mt={2}>
-      <Box
-        display="flex"
-        style={{ marginBottom: "1rem" }}
-        justifyContent="space-between"
-      >
-        <Box display="flex">
-          <TextField
-            autoFocus
-            label="Search by customer identifier or name"
-            value={searchQuery}
-            onChange={({ target: { value } }) => setSearchQuery(value)}
-            style={{ width: 300 }}
-          />
-          <Box pt={1.5} ml={3}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  data-cy={"is-customer-active-checkbox"}
-                  defaultChecked={isActiveSelected}
-                  onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                    setIsActiveSelected(event.target.checked)
-                  }
-                  color="primary"
+    <Box>
+      <Box display="flex" flexDirection="row-reverse">
+        {check(role, Action.EditCustomerSettings) && (
+          <Box>
+            <ModalButton
+              dataCy={"create-customer-button"}
+              label={"Create Customer"}
+              color={"primary"}
+              modal={({ handleClose }) => (
+                <CreateCustomerModal
+                  handleClose={() => {
+                    handleClose();
+                  }}
                 />
-              }
-              label={"Is customer active?"}
+              )}
             />
           </Box>
-        </Box>
-        <Box display="flex" flexDirection="row-reverse">
-          {check(role, Action.EditCustomerSettings) && (
-            <Box>
-              <ModalButton
-                dataCy={"create-customer-button"}
-                label={"Create Customer"}
-                color={"primary"}
-                modal={({ handleClose }) => (
-                  <CreateCustomerModal
-                    handleClose={() => {
-                      isActiveSelected ? refetchAllData() : refetchActiveData();
-                      handleClose();
-                    }}
-                  />
-                )}
-              />
-            </Box>
-          )}
-        </Box>
+        )}
       </Box>
-      <Box display="flex" flexDirection="column">
-        <CustomersDataGrid
-          customers={customers}
-          selectedCompanyIds={selectedCompanyIds}
-          setSelectedCompanyIds={setSelectedCompanyIds}
+      <Box display="flex" mb={4}>
+        <TextField
+          autoFocus
+          label="Search"
+          value={searchQuery}
+          onChange={({ target: { value } }) => setSearchQuery(value)}
+          style={{ width: 430 }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
         />
+      </Box>
+      <Box>
+        <CompaniesCustomersDataGrid customers={customers} />
       </Box>
     </Box>
   );

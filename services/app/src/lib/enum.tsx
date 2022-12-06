@@ -271,14 +271,20 @@ export const BankEbbaTabLabels = [
   BankEbbaTabLabel.AllCertifications,
 ];
 
-export enum CompaniesTabLabel {
+export enum BankCompaniesTabLabel {
   Customers = "Customers",
+  Vendors = "Vendors",
+  Payors = "Payors",
   Companies = "Companies",
+  ParentCompanies = "Parent Companies",
 }
 
-export const CompaniesTabLabels = [
-  CompaniesTabLabel.Customers,
-  CompaniesTabLabel.Companies,
+export const BankCompaniesTabLabels = [
+  BankCompaniesTabLabel.Customers,
+  BankCompaniesTabLabel.Vendors,
+  BankCompaniesTabLabel.Payors,
+  BankCompaniesTabLabel.Companies,
+  BankCompaniesTabLabel.ParentCompanies,
 ];
 
 export enum BankVendorsTabLabel {

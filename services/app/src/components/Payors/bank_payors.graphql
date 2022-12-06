@@ -106,3 +106,20 @@ mutation AddCompanyPayorAgreement(
     ...CompanyAgreement
   }
 }
+
+query GetPayorsWithMetadata($date: date) {
+  payors: companies(
+    where: { is_payor: { _eq: true } }
+    order_by: { name: asc }
+  ) {
+    id
+    ...CustomersWithMetadata
+    licenses(
+      where: {
+        _or: [{ is_deleted: { _is_null: true } }, { is_deleted: { _eq: false } }]
+      }
+    ) {
+      ...CompanyLicenseLimited
+    }
+  }
+}

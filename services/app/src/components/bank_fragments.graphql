@@ -59,6 +59,10 @@ fragment CustomersWithMetadata on companies {
     id
     ...CustomerSurveillanceResult
   }
+  parent_company {
+    id
+    ...ParentCompany
+  }
 }
 
 fragment CustomerSurveillance on companies {
@@ -205,6 +209,9 @@ fragment CustomerForBank on companies {
   surveillance_status
   surveillance_status_note
   qualify_for
+  is_payor
+  is_vendor
+  is_customer
 }
 
 fragment CompanySettings on company_settings {

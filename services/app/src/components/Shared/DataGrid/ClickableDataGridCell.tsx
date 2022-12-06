@@ -1,4 +1,4 @@
-import { Button, Link, makeStyles } from "@material-ui/core";
+import { Box, Button, Link, makeStyles } from "@material-ui/core";
 import { PrimaryDefaultColor } from "components/Shared/Colors/GlobalColors";
 //import { Link } from "react-router-dom";
 import styled from "styled-components";
@@ -36,6 +36,7 @@ interface Props {
   dataCy?: string;
   label: string;
   url?: string;
+  Icon?: any;
   onClick?: () => void;
 }
 
@@ -43,21 +44,32 @@ export default function ClickableDataGridCell({
   dataCy,
   label,
   url,
+  Icon,
   onClick,
 }: Props) {
   const classes = useStyles();
 
   return !!url ? (
-    <Link data-cy={dataCy} href={url} style={{ textDecoration: "none" }}>
-      <ButtonText>{label}</ButtonText>
-    </Link>
+    <Box display="flex">
+      <Box mr={1}>{!!Icon && <Icon />}</Box>
+      <Box mt="3px">
+        <Link data-cy={dataCy} href={url} style={{ textDecoration: "none" }}>
+          <ButtonText>{label}</ButtonText>
+        </Link>
+      </Box>
+    </Box>
   ) : (
-    <Button
-      data-cy={dataCy}
-      className={classes.clickableCell}
-      onClick={onClick}
-    >
-      <ButtonText>{label}</ButtonText>
-    </Button>
+    <Box display="flex">
+      <Box mr={1}>{!!Icon && <Icon />}</Box>
+      <Box mt="3px">
+        <Button
+          data-cy={dataCy}
+          className={classes.clickableCell}
+          onClick={onClick}
+        >
+          <ButtonText>{label}</ButtonText>
+        </Button>
+      </Box>
+    </Box>
   );
 }

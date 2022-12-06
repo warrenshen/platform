@@ -79,6 +79,11 @@ fragment Company on companies {
   ...CompanyLimited
 }
 
+fragment ParentCompany on parent_companies {
+  id
+  name
+}
+
 fragment Contract on contracts {
   id
   company_id

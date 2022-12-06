@@ -40,3 +40,36 @@ query GetParentCompanyWithCustomerCompanies(
     }
   }
 }
+
+query GetCompaniesWithLicenses {
+  companies: companies(order_by: { name: asc }) {
+    id
+    ...CompanyLimited
+    licenses(
+      where: {
+        _or: [
+          { is_deleted: { _is_null: true } }
+          { is_deleted: { _eq: false } }
+        ]
+      }
+    ) {
+      id
+      license_number
+    }
+  }
+}
+
+query GetAllCompaniesWithMetadata($date: date) {
+  companies: companies(
+    order_by: { name: asc }
+  ) {
+    ...CustomersWithMetadata
+  }
+}
+
+query GetParentCompanies {
+  parent_companies (order_by: { name: asc }) {
+    id
+    ...ParentCompany
+  }
+}
