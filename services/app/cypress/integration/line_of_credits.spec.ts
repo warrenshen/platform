@@ -19,8 +19,8 @@ describe("Create line of credit contract for existing customer", () => {
     () => {
       cy.loginBankAdmin();
 
-      cy.dataCy("sidebar-item-customers").click();
-      cy.url().should("include", "customers");
+      cy.dataCy("sidebar-item-companies").click();
+      cy.url().should("include", "companies");
 
       // We need to uncheck the `Is Customer Active?` checbkox
       // since we are testing for setting up their first contract,

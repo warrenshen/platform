@@ -32,8 +32,8 @@ describe("On Settings: Delete License button should", () => {
     () => {
       cy.loginBankAdmin();
 
-      cy.dataCy("sidebar-item-customers").click();
-      cy.url().should("include", "customers");
+      cy.dataCy("sidebar-item-companies").click();
+      cy.url().should("include", "companies");
 
       cy.dataCy("customers-data-grid-view-customer-button-CC")
         .first()

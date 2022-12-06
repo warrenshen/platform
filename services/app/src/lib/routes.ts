@@ -69,7 +69,6 @@ export const bankRoutes = {
   overview: "/overview",
   async: "/async",
   companies: "/companies",
-  companiesNew: "/companies-new",
   companyRoot: "/companies/:companyId",
   company: {
     accountFeesCredits: BankCompanyRouteEnum.AccountFeesCredits,

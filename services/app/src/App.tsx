@@ -31,7 +31,6 @@ import BankAdvancesPage from "pages/Bank/Advances";
 import BankAsyncPage from "pages/Bank/Async";
 import BankClientSurveillancePage from "pages/Bank/ClientSurveillance";
 import BankCompaniesPage from "pages/Bank/Companies";
-import BankCompaniesNewPage from "pages/Bank/CompaniesNew";
 import BankCompanyCustomerAccountPage from "pages/Bank/Company/Customer/Account";
 import BankCompanyCustomerBorrowingBasePage from "pages/Bank/Company/Customer/BorrowingBase";
 import BankCompanyCustomerContractPage from "pages/Bank/Company/Customer/Contract";
@@ -492,19 +491,6 @@ export default function App() {
               ]}
             >
               <BankDebtFacilityPage />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path={bankRoutes.companiesNew}
-          element={
-            <PrivateRoute
-              requiredRoles={[
-                UserRolesEnum.BankAdmin,
-                UserRolesEnum.BankReadOnly,
-              ]}
-            >
-              <BankCompaniesNewPage />
             </PrivateRoute>
           }
         />

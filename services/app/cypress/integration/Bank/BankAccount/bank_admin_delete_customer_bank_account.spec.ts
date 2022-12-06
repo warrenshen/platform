@@ -31,8 +31,8 @@ describe("Delete bank account", () => {
       cy.loginBankAdmin();
 
       // Go to Bank > Customers
-      cy.dataCy("sidebar-item-customers").click();
-      cy.url().should("include", "customers");
+      cy.dataCy("sidebar-item-companies").click();
+      cy.url().should("include", "companies");
 
       // Select Customer
       cy.dataCy("customers-data-grid-view-customer-button-CC")

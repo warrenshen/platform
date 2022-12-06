@@ -45,10 +45,10 @@ describe("Impersonate user", () => {
       cy.dataCy("undo-impersonation-button").click();
 
       // verifying on overview isn't particularly helpful, but navigating
-      // to the customers section, which only the bank view has, is more
+      // to the companies section, which only the bank view has, is more
       // useful in verifying that we have undone the impersonation
-      cy.dataCy("sidebar-item-customers").click();
-      cy.url().should("include", "customers");
+      cy.dataCy("sidebar-item-companies").click();
+      cy.url().should("include", "companies");
     }
   );
 });

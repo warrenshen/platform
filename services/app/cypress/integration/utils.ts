@@ -12,7 +12,7 @@ export const createVendor = () => {
 };
 
 export const navigateToFirstCustomersPage = () => {
-  cy.dataCy("sidebar-item-customers").click();
+  cy.dataCy("sidebar-item-companies").click();
   cy.dataCy("customers-data-grid-view-customer-button-C1-IF").last().click();
 };
 

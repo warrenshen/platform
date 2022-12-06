@@ -12,8 +12,8 @@ describe("Create inventory financing customer", () => {
       cy.resetDatabase();
       cy.loginBankAdmin();
 
-      cy.dataCy("sidebar-item-customers").click();
-      cy.url().should("include", "customers");
+      cy.dataCy("sidebar-item-companies").click();
+      cy.url().should("include", "companies");
 
       cy.dataCy("create-customer-button").click();
 
@@ -157,8 +157,8 @@ describe(
         cy.resetDatabase();
         cy.loginBankAdmin();
 
-        cy.dataCy("sidebar-item-customers").click();
-        cy.url().should("include", "customers");
+        cy.dataCy("sidebar-item-companies").click();
+        cy.url().should("include", "companies");
 
         cy.dataCy("create-customer-button").click();
 
