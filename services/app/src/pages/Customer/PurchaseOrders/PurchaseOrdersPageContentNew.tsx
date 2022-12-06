@@ -2,12 +2,14 @@ import { Box, Tab, Tabs } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import CreateUpdatePurchaseOrderModalNew from "components/PurchaseOrder/v2/CreateUpdatePurchaseOrderModalNew";
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
+import Can from "components/Shared/Can";
 import PageContent from "components/Shared/Page/PageContent";
 import {
   Companies,
   PurchaseOrderLimitedNewFragment,
   useGetAllPurchaseOrdersByCompanyIdNewQuery,
 } from "generated/graphql";
+import { Action } from "lib/auth/rbac-rules";
 import {
   ActionType,
   ClosedNewPurchaseOrderStatuses,
@@ -129,15 +131,17 @@ export default function CustomerPurchaseOrdersPageContentNew({
         }
         customerActions={
           <Box>
-            <PrimaryButton
-              text={"Create PO"}
-              dataCy={"create-purchase-order-button"}
-              isDisabled={!isActiveContract}
-              icon={<AddIcon width={24} height={24} />}
-              onClick={() => {
-                setIsCreateModalOpen(true);
-              }}
-            />
+            <Can perform={Action.AddPurchaseOrders}>
+              <PrimaryButton
+                text={"Create PO"}
+                dataCy={"create-purchase-order-button"}
+                isDisabled={!isActiveContract}
+                icon={<AddIcon width={24} height={24} />}
+                onClick={() => {
+                  setIsCreateModalOpen(true);
+                }}
+              />
+            </Can>
           </Box>
         }
       >
