@@ -1747,7 +1747,6 @@ class BespokeCatalogBrand(Base):
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
 
 	brand_name = Column(String, nullable=False)
-	us_state = Column(String, nullable=True)
 	is_deleted = Column(Boolean, nullable=False, default=False)
 	website_url = Column(String, nullable=True)
 
