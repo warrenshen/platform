@@ -1,5 +1,4 @@
 import { GridValueFormatterParams } from "@material-ui/data-grid";
-import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
 import PaymentDrawerLauncher from "components/Payment/PaymentDrawerLauncher";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";

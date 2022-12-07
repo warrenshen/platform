@@ -91,7 +91,6 @@ def delete_job(
 	if delete_job.status != AsyncJobStatusEnum.IN_PROGRESS:
 		delete_job.is_deleted = True
 		delete_job.deleted_at = date_util.now()
-		delete_job.updated_at = date_util.now()
 	else:
 		return None, errors.Error(f"{job_id} is in progress and cannot be deleted.")
 
@@ -113,7 +112,6 @@ def change_job_priority(
 	for job in change_jobs:
 		if job.status != AsyncJobStatusEnum.IN_PROGRESS:
 			job.is_high_priority = priority
-			job.updated_at = date_util.now()
 		else:
 			return None, errors.Error(f"{job.id} is in progress and can not be changed.")
 
@@ -135,7 +133,6 @@ def retry_job(
 		if job.status == AsyncJobStatusEnum.FAILED:
 			job.queued_at = date_util.now()
 			job.status = AsyncJobStatusEnum.QUEUED
-			job.updated_at = date_util.now()
 		else:
 			return None, errors.Error(f"{job.id} is not failed and can not be changed.")
 
@@ -224,7 +221,6 @@ def orchestration_handler(
 		for job in queued_jobs_to_be_run:
 			job.status = AsyncJobStatusEnum.INITIALIZED
 			job.initialized_at = date_util.now()
-			job.updated_at = date_util.now()
 			session.commit()
 			cfg.THREAD_POOL.submit(execute_job, session_maker, cfg, sendgrid_client, job)
 
@@ -281,7 +277,6 @@ def remove_orphaned_initialized_jobs(
 			else:
 				job.status = AsyncJobStatusEnum.QUEUED
 				job.queued_at = date_util.now()
-			job.updated_at = date_util.now()
 
 	return True, None
 
@@ -293,10 +288,10 @@ def execute_job(
 ) -> Tuple[bool, errors.Error]:
 	with session_scope(session_maker) as session:
 		job.status = AsyncJobStatusEnum.IN_PROGRESS
-		job.updated_at = date_util.now()
 		job.started_at = date_util.now()
 		session.commit()
 
+	with session_scope(session_maker) as session:
 		payload = job.retry_payload if job.num_retries != 0 and job.retry_payload is not None else job.job_payload
 		payload = cast(Dict[str, Any], payload)
 
@@ -319,7 +314,6 @@ def execute_job(
 			job.err_details = [str(error_message)]
 
 		job.ended_at = date_util.now()
-		job.updated_at = date_util.now()
 		session.merge(job)
 		session.commit()
 	return True, None

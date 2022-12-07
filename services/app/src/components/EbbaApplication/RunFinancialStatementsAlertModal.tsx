@@ -89,6 +89,7 @@ export default function RunFinancialStatementsAlertModal({
       isPrimaryActionDisabled={
         isSendAlertLoading || (isTestRun && !isEmailValid(email))
       }
+      contentWidth={800}
       primaryActionText={isTestRun ? "Send Test Alerts" : "Send Live Alerts"}
       handleClose={handleClose}
       handlePrimaryAction={handleSendAlerts}
@@ -150,6 +151,7 @@ export default function RunFinancialStatementsAlertModal({
         </Box>
         <Box>
           <CustomersDataGrid
+            isFixedWidth={false}
             isMultiSelectEnabled={true}
             customers={companies}
             selectedCompanyIds={selectedCompanyIds}

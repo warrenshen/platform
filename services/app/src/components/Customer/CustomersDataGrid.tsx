@@ -25,6 +25,7 @@ import { Dispatch, SetStateAction, useMemo } from "react";
 
 interface Props {
   isDebtFacilityVisible?: boolean;
+  isFixedWidth?: boolean;
   isMultiSelectEnabled?: boolean;
   isSurveillanceStatusVisible?: boolean;
   customers: CustomersWithMetadataFragment[];
@@ -116,6 +117,7 @@ function getRows(customers: CustomersWithMetadataFragment[]) {
 
 export default function CustomersDataGrid({
   isDebtFacilityVisible = false,
+  isFixedWidth = true,
   isMultiSelectEnabled = false,
   isSurveillanceStatusVisible = false,
   customers,
@@ -127,7 +129,7 @@ export default function CustomersDataGrid({
   const columns = useMemo(
     () => [
       {
-        fixed: true,
+        fixed: true && isFixedWidth,
         dataField: "name",
         caption: "Customer Name",
         minWidth: ColumnWidths.MinWidth,
@@ -140,20 +142,20 @@ export default function CustomersDataGrid({
         ),
       },
       {
-        fixed: true,
+        fixed: true && isFixedWidth,
         dataField: "identifier",
         caption: "Identifier",
         minWidth: ColumnWidths.Identifier,
         width: ColumnWidths.Type,
       },
       {
-        fixed: true,
+        fixed: true && isFixedWidth,
         dataField: "product_type",
         caption: "Product Type",
         width: ColumnWidths.ProductType,
       },
       {
-        fixed: true,
+        fixed: true && isFixedWidth,
         dataField: "state",
         caption: "US State",
         minWidth: ColumnWidths.Identifier,
@@ -307,7 +309,7 @@ export default function CustomersDataGrid({
         alignment: "right",
       },
     ],
-    [isDebtFacilityVisible, isSurveillanceStatusVisible]
+    [isDebtFacilityVisible, isFixedWidth, isSurveillanceStatusVisible]
   );
 
   const handleSelectCompanies = useMemo(
