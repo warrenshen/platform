@@ -1496,10 +1496,26 @@ def update_purchase_order(
 
 	if action == PurchaseOrderActions.SUBMIT:
 		purchase_order.requested_at = date_util.now()
-		purchase_order.new_purchase_order_status = purchase_order.new_purchase_order_status if \
-			user_session.is_bank_admin() and not did_amount_change else NewPurchaseOrderStatus.PENDING_APPROVAL_BY_VENDOR
-		status_notes = f"Bank user edited PO on {date_util.human_readable_yearmonthday(date_util.now())}" if \
-			user_session.is_bank_admin() and not did_amount_change else f"Sent to vendor on {date_util.human_readable_yearmonthday(date_util.now())}"
+		action_label = ""
+		status_notes = ""
+		# If PO was already approved and a bespoke user required minor changes (i.e. incorrect date)
+		# we want to set status back to ready_to_request_financing after customer edits
+		if purchase_order.new_purchase_order_status == NewPurchaseOrderStatus.CHANGES_REQUESTED_BY_BESPOKE and \
+			purchase_order.approved_at is not None and \
+			not user_session.is_bank_admin() and \
+			not did_amount_change:
+			purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.READY_TO_REQUEST_FINANCING
+			action_label = "PO ready to request financing"
+			status_notes = f"Customer updated PO as requested by Bespoke User: {action_notes}"
+		# If Bank User made a minor edit to a PO on behalf of the customer, preserve the status
+		elif user_session.is_bank_admin() and (not did_amount_change):
+			action_label = "Bank user made minor edit to PO"
+			status_notes = f"Bank user edited PO on {date_util.human_readable_yearmonthday(date_util.now())}"
+		# Customer submitted/edited PO and amount changed -> resend to vendor
+		else:
+			purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.PENDING_APPROVAL_BY_VENDOR
+			action_label = "Submitted PO to vendor for approval"
+			status_notes = f"Sent to vendor on {date_util.human_readable_yearmonthday(date_util.now())}"
 		if purchase_order.all_customer_notes:
 			purchase_order.all_customer_notes["status_notes"] = status_notes
 		else:
@@ -1525,8 +1541,8 @@ def update_purchase_order(
 			purchase_order,
 			str(submitting_user.id),
 			submitting_user.full_name,
-			"Submitted PO to vendor for approval",
-			NewPurchaseOrderStatus.PENDING_APPROVAL_BY_VENDOR,
+			action_label,
+			purchase_order.new_purchase_order_status,
 			action_notes = action_notes
 		)
 		if err:
