@@ -205,10 +205,6 @@ export function formatDatetimeString(
   }
 }
 
-export function isDateStringSunday(dateString: string) {
-  return parse(dateString, DateFormatServer, new Date()).getDay() === 0;
-}
-
 export function isBankHoliday(date: Date) {
   const year = getYear(date);
   if (!bankHolidays.has(year)) {

@@ -8,17 +8,18 @@ import {
   DateFormatClientMonthDayOnly,
   DateFormatClientYearOnly,
   formatDateString,
-  isDateStringSunday,
   previousDayAsDateStringServer,
 } from "lib/date";
 import { MetrcDownloadSummaryStatusEnum } from "lib/enum";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 
-// Show 90 MetrcDownloadSummaries per page.
-const PageSize = 90;
+// Show 30 MetrcDownloadSummaries per page.
+const PageSize = 30;
 
 const Cells = styled.div`
+  flex: 1;
+
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -30,7 +31,8 @@ const Cells = styled.div`
 `;
 
 const Cell = styled.div<{ backgroundColor: string }>`
-  width: 36px;
+  align-self: stretch;
+
   height: 36px;
   background-color: ${(props) => props.backgroundColor};
   border: 1px solid white;
@@ -73,7 +75,7 @@ function MetrcDownloadSummaryColumn({
     useState<MetrcDownloadSummaries["id"]>(null);
 
   return (
-    <Box display="flex" flexDirection="column" width={36}>
+    <Box display="flex" flexDirection="column" flex={1}>
       {selectedMetrcDownloadSummaryId && (
         <MetrcDownloadSummaryModal
           metrcDownloadSummaryId={selectedMetrcDownloadSummaryId}
@@ -86,24 +88,20 @@ function MetrcDownloadSummaryColumn({
         alignItems="center"
         height={40}
       >
-        {isDateStringSunday(metrcDownloadSummary.date) && (
-          <>
-            <Typography variant="caption">
-              <strong>
-                {formatDateString(
-                  metrcDownloadSummary.date,
-                  DateFormatClientYearOnly
-                )}
-              </strong>
-            </Typography>
-            <Typography variant="caption">
-              {formatDateString(
-                metrcDownloadSummary.date,
-                DateFormatClientMonthDayOnly
-              )}
-            </Typography>
-          </>
-        )}
+        <Typography variant="caption">
+          <strong>
+            {formatDateString(
+              metrcDownloadSummary.date,
+              DateFormatClientYearOnly
+            )}
+          </strong>
+        </Typography>
+        <Typography variant="caption">
+          {formatDateString(
+            metrcDownloadSummary.date,
+            DateFormatClientMonthDayOnly
+          )}
+        </Typography>
       </Box>
       <Cells
         onClick={() =>
@@ -256,8 +254,8 @@ export default function MetrcDownloadSummariesGrid({
           </Button>
         </Box>
       </Box>
-      <Box display="flex" flexDirection="column" mt={2} overflow="scroll">
-        <Box display="flex">
+      <Box display="flex" flexDirection="column" mt={2}>
+        <Box display="flex" alignSelf="stretch">
           {visibleMetrcDownloadSummaries.map((metrcDownloadSummary) => (
             <MetrcDownloadSummaryColumn
               key={metrcDownloadSummary.id}
