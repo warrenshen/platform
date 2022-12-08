@@ -1170,10 +1170,17 @@ def validate_purchase_order_input_submission_checks(
 			str(purchase_order_input.vendor_id),
 		)]
 	)
+
+	if len(company_vendor_relationships) == 0:
+		vendor, err = queries.get_company_by_id(session, str(purchase_order_input.vendor_id))
+		if err:
+			return False, errors.Error(f'Partnership with vendor_id: {purchase_order_input.vendor_id} is not configured')
+		return False, errors.Error(f'Partnership with vendor: {vendor.name} is not configured')
+
 	company_vendor_relationship = company_vendor_relationships[0]
 
 	if not company_vendor_relationship or company_vendor_relationship.approved_at is None:
-		raise errors.Error('Vendor is not approved')
+		return False, errors.Error('Vendor is not approved')
 
 	if not company_vendor_relationship.vendor_bank_id:
 		is_vendor_missing_bank_account = True
@@ -1617,6 +1624,7 @@ def submit_purchase_order_update(
 		action = action,
 	)
 	if err:
+		session.rollback()
 		return None, err
 
 	return template_data, None
@@ -1664,6 +1672,12 @@ def send_email_alert_for_purchase_order_update_submission(
 					str(purchase_order_input.vendor_id),
 				)]
 			)
+			if len(company_vendor_relationships) == 0:
+				vendor, err = queries.get_company_by_id(session, str(purchase_order_input.vendor_id))
+				if err:
+					return False, errors.Error(f'Partnership with vendor_id: {purchase_order_input.vendor_id} is not configured')
+				return False, errors.Error(f'Partnership with vendor: {vendor.name} is not configured')
+
 			company_vendor_relationship = company_vendor_relationships[0]
 
 			vendor_users, err = partnership_util.get_partner_contacts(
