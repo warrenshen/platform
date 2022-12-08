@@ -151,7 +151,7 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
           setRefreshToken(refreshToken);
           setUser((user) => ({
             ...user,
-            ...userFieldsFromToken(accessToken),
+            ...userFields,
           }));
         }
       }

@@ -48,33 +48,8 @@ class SignInView(MethodView):
 			if not security_util.verify_password(cfg.PASSWORD_SALT, password_guess, user.password):
 				return handler_util.make_error_response(f'Invalid password provided', 401)
 
-			# Note: bank users do not have a parent company or company.
-			parent_company_id = str(user.parent_company_id) if user.parent_company_id else None
-			company_id = None
-
-			if parent_company_id:
-				parent_company = cast(
-					models.ParentCompany,
-					session.query(models.ParentCompany).filter(
-						models.ParentCompany.id == parent_company_id
-					).first())
-
-				if not parent_company:
-					return handler_util.make_error_response('No parent company found')
-
-				companies = cast(
-					List[models.Company],
-					session.query(models.Company).filter(
-						models.Company.parent_company_id == parent_company.id
-					).order_by(
-						models.Company.name.asc()
-					).all())
-
-				if not companies:
-					return handler_util.make_error_response('No companies found')
-
-				# Default to the 1st company (alphabetically) belonging to the parent company.
-				company_id = str(companies[0].id)
+			# Note: bank users never have a company and customer users always have a company.
+			company_id = str(user.company_id) if user.company_id else None
 
 			# Note: all users use simple login method in the test environment.
 			is_test_env = cfg.IS_TEST_ENV
@@ -176,8 +151,11 @@ class ResetPasswordView(MethodView):
 		password = form.get('password')
 		link_val = form.get('link_val')
 
-		if not password or not link_val:
-			return handler_util.make_error_response('No link value or password provided', 401)
+		if not password:
+			return handler_util.make_error_response('No password provided', 401)
+
+		if not link_val:
+			return handler_util.make_error_response('No link_val provided', 401)
 
 		with session_scope(current_app.session_maker) as session:
 			two_factor_info, err = two_factor_util.get_two_factor_link(
