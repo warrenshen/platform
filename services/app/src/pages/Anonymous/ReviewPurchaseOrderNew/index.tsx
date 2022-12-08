@@ -19,6 +19,7 @@ import {
 import { getCompanyDisplayName } from "lib/companies";
 import { formatDateString } from "lib/date";
 import { FileTypeEnum } from "lib/enum";
+import { GraphQLQueryTypes, logGraphQLError } from "lib/logging";
 import { formatCurrency } from "lib/number";
 import { computePurchaseOrderDueDateDateStringClient } from "lib/purchaseOrders";
 import { anonymousRoutes } from "lib/routes";
@@ -97,7 +98,14 @@ export default function ReviewPurchaseOrderPage() {
 
   if (error) {
     console.error({ error });
-    refetch();
+    logGraphQLError(
+      error,
+      GraphQLQueryTypes.Query,
+      "useGetPurchaseOrderForReviewQuery",
+      {
+        id: purchaseOrderId,
+      }
+    );
   }
 
   const purchaseOrder = data?.purchase_orders_by_pk;

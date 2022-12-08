@@ -4,7 +4,8 @@ import { CssBaseline } from "@material-ui/core";
 import { LocalizationProvider } from "@mui/x-date-pickers-pro";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LicenseInfo } from "@mui/x-license-pro";
-import * as Sentry from "@sentry/react";
+import * as Sentry from "@sentry/browser";
+import { BrowserTracing } from "@sentry/tracing";
 import { SnackbarProvider } from "material-ui-snackbar-provider";
 import { createRoot } from "react-dom/client";
 import { Helmet } from "react-helmet";
@@ -18,6 +19,8 @@ import reportWebVitals from "./reportWebVitals";
 Sentry.init({
   dsn: process.env.REACT_APP_BESPOKE_SENTRY_DNS,
   environment: process.env.NODE_ENV,
+  integrations: [new BrowserTracing()],
+  tracesSampleRate: 1.0,
 });
 
 if (!!process.env.REACT_APP_MUI_PRO_LICENSE) {
