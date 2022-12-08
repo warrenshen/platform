@@ -129,11 +129,11 @@ export default function App() {
         />
         <Route
           path={anonymousRoutes.resetPassword}
-          element={<ResetPasswordPage location={""} />}
+          element={<ResetPasswordPage />}
         />
         <Route
           path={anonymousRoutes.forgotPassword}
-          element={<ForgotPasswordPage location={""} />}
+          element={<ForgotPasswordPage />}
         />
         <Route
           path={anonymousRoutes.createVendor}

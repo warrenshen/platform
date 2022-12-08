@@ -9,18 +9,14 @@ import AuthPage from "components/Shared/Page/AuthPage";
 import { authRoutes, authenticatedApi } from "lib/api";
 import { routes } from "lib/routes";
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useTitle } from "react-use";
 
-interface Props {
-  location: any;
-}
-
-function ResetPassword(props: Props) {
+export default function ResetPasswordPage() {
   useTitle("Reset Password | Bespoke");
 
-  const linkVal = props.location.state?.link_val;
-
+  const { state } = useLocation();
+  const { link_val: linkVal } = state;
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [password, setPassword] = useState("");
@@ -158,5 +154,3 @@ function ResetPassword(props: Props) {
     </AuthPage>
   );
 }
-
-export default ResetPassword;

@@ -12,11 +12,7 @@ import { routes } from "lib/routes";
 import { useMemo, useState } from "react";
 import { useTitle } from "react-use";
 
-interface Props {
-  location: any;
-}
-
-export default function ForgotPasswordPage(props: Props) {
+export default function ForgotPasswordPage() {
   useTitle("Forgot Password | Bespoke");
 
   const [error, setError] = useState("");
