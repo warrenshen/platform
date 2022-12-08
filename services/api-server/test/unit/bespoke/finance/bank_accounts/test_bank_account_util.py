@@ -181,7 +181,8 @@ class TestIsBankAccountInfoValid(db_unittest.TestCase):
 			self.assertEqual(expect_error_message, err)
 
 	def test_wire_field_required_checks(self) -> None:
-		fields_to_nullify = [(False, "wire_routing_number", "Wire routing number is required"), (False, "recipient_address", "Wire recipient address is required"), (False, "recipient_address_2", "Wire recipient address 2 is required")]
+		fields_to_nullify = [(False, "wire_routing_number", "Wire routing number is required"), (False, "recipient_address", "Wire recipient address is required")]
+		# (False, "recipient_address_2", "Wire recipient address 2 is required")
 		company_id = str(uuid.uuid4())
 
 		bank_account_info_dict = prepare_bank_account_info_dict(company_id)

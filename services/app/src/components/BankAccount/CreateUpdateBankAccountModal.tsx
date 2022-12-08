@@ -201,7 +201,9 @@ export default function CreateUpdateBankAccountModal({
     !bankAccount.can_wire ||
     (bankAccount.wire_routing_number &&
       bankAccount.recipient_address &&
-      bankAccount.recipient_address_2 &&
+      // We can require this again once the vendor form matches it
+      // Otherwise new banks / partnerships will require editing
+      //bankAccount.recipient_address_2 &&
       isIntermediaryBankValid)
   );
   const isBankVerificationValid =

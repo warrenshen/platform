@@ -62,8 +62,8 @@ def is_bank_account_info_valid(is_bank_admin: bool, bank_account_input: BankAcco
 			return "Wire routing number is required"
 		if bank_account_input['recipient_address'] is None:
 			return "Wire recipient address is required"
-		if bank_account_input['recipient_address_2'] is None:
-			return "Wire recipient address 2 is required"
+		# if bank_account_input['recipient_address_2'] is None:
+		# 	return "Wire recipient address 2 is required"
 
 	# Checks that wire intermediary bank info is valid
 	if bank_account_input['is_wire_intermediary']:

@@ -39,7 +39,7 @@ export async function createCustomer(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not create company",
@@ -61,7 +61,7 @@ export async function createProspectiveCustomer(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not create prospective company",
@@ -90,7 +90,7 @@ export async function upsertCustomMessagesMutation(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not update company custom messages",
@@ -128,7 +128,7 @@ export async function deletePartnershipRequestMutation(req: {
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not create partner company",
@@ -150,7 +150,7 @@ export async function createPartnershipRequestMutation(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not create partner company",
@@ -179,7 +179,7 @@ export async function addNewVendorMutation(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not add new vendor",
@@ -242,7 +242,7 @@ export async function createPartnershipRequestNewMutation(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not create partnership request",

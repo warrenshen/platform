@@ -638,9 +638,9 @@ def _create_partner_company_and_its_first_user_new(
         can_wire=bool(request_info.get('bank_wire_routing_number')),
         recipient_address=request_info.get('beneficiary_address'),
 		bank_instructions_file_id=request_info.get('bank_instructions_attachment_id', None),
-        is_cannabis_compliant=True,
-		verified_date=date_util.now_as_date(date_util.DEFAULT_TIMEZONE),
-		verified_at=date_util.now(),
+        is_cannabis_compliant=False,
+		verified_date=None,
+		verified_at=None,
     )
 	session.add(bank_account)
 
@@ -921,9 +921,9 @@ def create_partnership_new(
 				can_wire=bool(request_info.get('bank_wire_routing_number')),
 				recipient_address=request_info.get('beneficiary_address'),
 				bank_instructions_file_id=request_info.get('bank_instructions_attachment_id', None),
-				is_cannabis_compliant=True,
-				verified_date=date_util.now_as_date(date_util.DEFAULT_TIMEZONE),
-				verified_at=date_util.now(),
+				is_cannabis_compliant=False,
+				verified_date=None,
+				verified_at=None,
 			)
 			session.add(bank_account)
 
