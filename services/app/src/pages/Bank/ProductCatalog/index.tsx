@@ -2,13 +2,13 @@ import { Tab, Tabs } from "@material-ui/core";
 import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
 import { ProductCatalogTabLabels } from "lib/enum";
+import BespokeCatalogTab from "pages/Bank/ProductCatalog/BespokeCatalogTab";
+import IncomingTransferPackagesTab from "pages/Bank/ProductCatalog/IncomingTransferPackagesTab";
+import InventoryPackagesTab from "pages/Bank/ProductCatalog/InventoryPackagesTab";
+import RecentlyAddedTab from "pages/Bank/ProductCatalog/RecentlyAddedTab";
+import SalesTransactionsTab from "pages/Bank/ProductCatalog/SalesTransactionsTab";
 import { useState } from "react";
 import styled from "styled-components";
-
-import IncomingTransferPackagesTab from "./IncomingTransferPackagesTab";
-import RecentlyAddedTab from "./RecentlyAddedTab";
-import SalesTransactionsTab from "./SalesTransactionsTab";
-import SkusAndBrandsTab from "./SkusAndBrandsTab";
 
 const Container = styled.div`
   display: flex;
@@ -41,9 +41,11 @@ const BankProductCatalogPage = () => {
           ) : selectedTabIndex === 1 ? (
             <IncomingTransferPackagesTab />
           ) : selectedTabIndex === 2 ? (
+            <InventoryPackagesTab />
+          ) : selectedTabIndex === 3 ? (
             <RecentlyAddedTab />
           ) : (
-            <SkusAndBrandsTab />
+            <BespokeCatalogTab />
           )}
         </Container>
       </PageContent>

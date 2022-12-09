@@ -3,6 +3,7 @@ import {
   MetrcTransferPackageFragment,
   MetrcTransferPackages,
 } from "generated/graphql";
+import { CurrencyPrecision } from "lib/number";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
@@ -30,7 +31,6 @@ const MetrcTransferPackagesDataGrid = ({
     [metrcTransferPackages]
   );
 
-  // TODO: Discuss with Spencer which additional columns if any will be most helpful
   const columns = useMemo(
     () => [
       {
@@ -43,68 +43,26 @@ const MetrcTransferPackagesDataGrid = ({
         caption: "Metrc Product Category",
         minWidth: ColumnWidths.MinWidth,
       },
-      //   {
-      //     dataField: "shipment_package_state",
-      //     caption: "Shipment Package State",
-      //     minWidth: ColumnWidths.MinWidth,
-      //   },
-
-      //   {
-      //     dataField: "shipped_quantity",
-      //     caption: "Shipped Quantity (UoM)",
-      //     width: ColumnWidths.Count,
-      //   },
-      //   {
-      //     dataField: "shipper_wholesale_price",
-      //     caption: "Shipper Wholesale Price",
-      //     format: {
-      //       type: "currency",
-      //       precision: CurrencyPrecision,
-      //     },
-      //     width: ColumnWidths.Currency,
-      //     alignment: "right",
-      //   },
-      //   {
-      //     dataField: "received_quantity",
-      //     caption: "Received Quantity (UoM)",
-      //     width: ColumnWidths.Count,
-      //   },
-      //   {
-      //     dataField: "receiver_wholesale_price",
-      //     caption: "Receiver Wholesale Price",
-      //     format: {
-      //       type: "currency",
-      //       precision: CurrencyPrecision,
-      //     },
-      //     width: ColumnWidths.Currency,
-      //     alignment: "right",
-      //   },
-
-      //   {
-      //     dataField: "item_category",
-      //     caption: "Item Category",
-      //     minWidth: ColumnWidths.MinWidth,
-      //   },
-      //   {
-      //     dataField: "item_strain_name",
-      //     caption: "Item Strain Name",
-      //     minWidth: ColumnWidths.MinWidth,
-      //   },
-      //   {
-      //     dataField: "item_state",
-      //     caption: "Item State",
-      //     minWidth: ColumnWidths.MinWidth,
-      //   },
-      //   {
-      //     dataField: "item_unit_quantity",
-      //     caption: "Item Unit Quantity",
-      //     minWidth: ColumnWidths.MinWidth,
-      //   },
-      //   {
-      //     dataField: "item_unit_weight",
-      //     caption: "Item Unit Weight",
-      //     minWidth: ColumnWidths.MinWidth,
-      //   },
+      {
+        dataField: "shipped_quantity",
+        caption: "Shipped Quantity (UoM)",
+        width: ColumnWidths.Count,
+      },
+      {
+        dataField: "shipper_wholesale_price",
+        caption: "Shipper Wholesale Price",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
+        width: ColumnWidths.Currency,
+        alignment: "right",
+      },
+      {
+        dataField: "shipped_unit_of_measure",
+        caption: "Shipped Unit of Measure",
+        width: ColumnWidths.Count,
+      },
     ],
     []
   );
@@ -115,6 +73,7 @@ const MetrcTransferPackagesDataGrid = ({
       isSortingDisabled
       dataSource={rows}
       columns={columns}
+      filtering={{ enable: true }}
       select
       pager
       pageSize={10}

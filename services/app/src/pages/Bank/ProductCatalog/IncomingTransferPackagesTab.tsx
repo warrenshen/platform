@@ -1,10 +1,18 @@
-import { Box } from "@material-ui/core";
-import CreateUpdateBespokeCatalogEntryCompleteModal from "components/ProductCatalog/CreateUpdateBespokeCatalogEntryCompleteModal";
+import {
+  Box,
+  InputAdornment,
+  LinearProgress,
+  TextField,
+} from "@material-ui/core";
+import CreateBespokeCatalogEntryCompleteModal from "components/ProductCatalog/CreateBespokeCatalogEntryCompleteModal";
 import MetrcTransferPackagesDataGrid from "components/ProductCatalog/MetrcTransferPackageDataGrid";
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
 import Can from "components/Shared/Can";
 import Text, { TextVariants } from "components/Shared/Text/Text";
 import { MetrcTransferPackageFragment } from "generated/graphql";
+import useCustomQuery from "hooks/useCustomQuery";
+import useSnackbar from "hooks/useSnackbar";
+import { SearchIcon } from "icons";
 import { getIncomingTransferPackageData } from "lib/api/productCatalog";
 import { Action } from "lib/auth/rbac-rules";
 import { useEffect, useMemo, useState } from "react";
@@ -20,6 +28,9 @@ const Container = styled.div`
 `;
 
 const IncomingTransferPackagesTab = () => {
+  const snackbar = useSnackbar();
+
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [metrcTransferPackages, setMetrcTransferPackages] = useState<
     MetrcTransferPackageFragment[]
   >([]);
@@ -33,11 +44,35 @@ const IncomingTransferPackagesTab = () => {
     setIsCreateUpdateBespokeCatalogEntryModalOpen,
   ] = useState<boolean>(false);
 
+  const [
+    getIncomingTransferPackages,
+    { loading: isGetIncomingTransferPackageDataLoading },
+  ] = useCustomQuery(getIncomingTransferPackageData);
+
   useEffect(() => {
-    getIncomingTransferPackageData({}).then((data) => {
-      setMetrcTransferPackages(data.data);
-    });
+    handleClickSearch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handleClickSearch = async () => {
+    const product_name_query =
+      searchQuery.length === 0 ? "" : `%${searchQuery.trim()}%`;
+    const response = await getIncomingTransferPackages({
+      params: {
+        product_name_query,
+      },
+    });
+    if (response.status === "OK" && response.data) {
+      setMetrcTransferPackages(response.data);
+      snackbar.showSuccess(
+        "Successfully updated Metrc Incoming Transfer Packages"
+      );
+    } else {
+      snackbar.showError(
+        `Failed to search for Metrc Incoming Transfer Packages: ${response.msg}`
+      );
+    }
+  };
 
   const handleSelectTransferPackages = useMemo(
     () =>
@@ -60,8 +95,8 @@ const IncomingTransferPackagesTab = () => {
     () =>
       selectedMetrcTransferPackages.length === 1
         ? metrcTransferPackages.find(
-            (salesTransaction: MetrcTransferPackageFragment) =>
-              salesTransaction.id === selectedMetrcTransferPackages[0]
+            (transferPackage: MetrcTransferPackageFragment) =>
+              transferPackage.id === selectedMetrcTransferPackages[0]
           )
         : null,
     [selectedMetrcTransferPackages, metrcTransferPackages]
@@ -70,7 +105,7 @@ const IncomingTransferPackagesTab = () => {
   return (
     <Container>
       {isCreateUpdateBespokeCatalogEntryModalOpen && (
-        <CreateUpdateBespokeCatalogEntryCompleteModal
+        <CreateBespokeCatalogEntryCompleteModal
           productName={selectedMetrcTransferPackage?.product_name}
           productCategoryName={
             selectedMetrcTransferPackage?.product_category_name
@@ -83,6 +118,26 @@ const IncomingTransferPackagesTab = () => {
           setMatchedProductNames={setMatchedProductNames}
         />
       )}
+      <Box display="flex" mb={2} justifyContent="space-between">
+        <TextField
+          autoFocus
+          label="Search"
+          value={searchQuery}
+          onChange={({ target: { value } }) => setSearchQuery(value)}
+          style={{ width: 430 }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
+        <PrimaryButton text={"Refetch Results"} onClick={handleClickSearch} />
+      </Box>
+      <Box width="100%" minHeight={12}>
+        {isGetIncomingTransferPackageDataLoading && <LinearProgress />}
+      </Box>
       <Box display="flex" justifyContent="space-between" mb={2}>
         <Text textVariant={TextVariants.ParagraphLead}>
           Incoming Transfer Packages
@@ -90,7 +145,7 @@ const IncomingTransferPackagesTab = () => {
         <Can perform={Action.UnarchiveLoan}>
           <PrimaryButton
             isDisabled={!selectedMetrcTransferPackage}
-            text={"Create Sku"}
+            text={"Create Catalog Entry"}
             onClick={() => setIsCreateUpdateBespokeCatalogEntryModalOpen(true)}
           />
         </Can>

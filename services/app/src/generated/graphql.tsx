@@ -6453,7 +6453,6 @@ export type CompanySettings = {
   id: Scalars["uuid"];
   is_autogenerate_repayments_enabled?: Maybe<Scalars["Boolean"]>;
   is_dummy_account: Scalars["Boolean"];
-  is_loc_late?: Maybe<Scalars["Boolean"]>;
   late_fees_end_date?: Maybe<Scalars["date"]>;
   /** An object relationship */
   metrc_api_key?: Maybe<MetrcApiKeys>;
@@ -6553,7 +6552,6 @@ export type CompanySettingsBoolExp = {
   id?: Maybe<UuidComparisonExp>;
   is_autogenerate_repayments_enabled?: Maybe<BooleanComparisonExp>;
   is_dummy_account?: Maybe<BooleanComparisonExp>;
-  is_loc_late?: Maybe<BooleanComparisonExp>;
   late_fees_end_date?: Maybe<DateComparisonExp>;
   metrc_api_key?: Maybe<MetrcApiKeysBoolExp>;
   metrc_api_key_id?: Maybe<UuidComparisonExp>;
@@ -6636,7 +6634,6 @@ export type CompanySettingsInsertInput = {
   id?: Maybe<Scalars["uuid"]>;
   is_autogenerate_repayments_enabled?: Maybe<Scalars["Boolean"]>;
   is_dummy_account?: Maybe<Scalars["Boolean"]>;
-  is_loc_late?: Maybe<Scalars["Boolean"]>;
   late_fees_end_date?: Maybe<Scalars["date"]>;
   metrc_api_key?: Maybe<MetrcApiKeysObjRelInsertInput>;
   metrc_api_key_id?: Maybe<Scalars["uuid"]>;
@@ -6834,7 +6831,6 @@ export type CompanySettingsOrderBy = {
   id?: Maybe<OrderBy>;
   is_autogenerate_repayments_enabled?: Maybe<OrderBy>;
   is_dummy_account?: Maybe<OrderBy>;
-  is_loc_late?: Maybe<OrderBy>;
   late_fees_end_date?: Maybe<OrderBy>;
   metrc_api_key?: Maybe<MetrcApiKeysOrderBy>;
   metrc_api_key_id?: Maybe<OrderBy>;
@@ -6899,8 +6895,6 @@ export enum CompanySettingsSelectColumn {
   /** column name */
   IsDummyAccount = "is_dummy_account",
   /** column name */
-  IsLocLate = "is_loc_late",
-  /** column name */
   LateFeesEndDate = "late_fees_end_date",
   /** column name */
   MetrcApiKeyId = "metrc_api_key_id",
@@ -6950,7 +6944,6 @@ export type CompanySettingsSetInput = {
   id?: Maybe<Scalars["uuid"]>;
   is_autogenerate_repayments_enabled?: Maybe<Scalars["Boolean"]>;
   is_dummy_account?: Maybe<Scalars["Boolean"]>;
-  is_loc_late?: Maybe<Scalars["Boolean"]>;
   late_fees_end_date?: Maybe<Scalars["date"]>;
   metrc_api_key_id?: Maybe<Scalars["uuid"]>;
   payor_agreement_docusign_template?: Maybe<Scalars["String"]>;
@@ -6999,8 +6992,6 @@ export enum CompanySettingsUpdateColumn {
   IsAutogenerateRepaymentsEnabled = "is_autogenerate_repayments_enabled",
   /** column name */
   IsDummyAccount = "is_dummy_account",
-  /** column name */
-  IsLocLate = "is_loc_late",
   /** column name */
   LateFeesEndDate = "late_fees_end_date",
   /** column name */
@@ -8005,8 +7996,6 @@ export type CustomerSurveillanceResultsBoolExp = {
 
 /** unique or primary key constraints on table "customer_surveillance_results" */
 export enum CustomerSurveillanceResultsConstraint {
-  /** unique or primary key constraint */
-  CompanyProductQualificationsCompanyIdQualifyingDateKey = "company_product_qualifications_company_id_qualifying_date_key",
   /** unique or primary key constraint */
   CompanyProductQualificationsPkey = "company_product_qualifications_pkey",
 }
@@ -9085,7 +9074,7 @@ export type EbbaApplications = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamp"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   /** An object relationship */
   rejected_by_user?: Maybe<Users>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
@@ -9210,7 +9199,7 @@ export type EbbaApplicationsBoolExp = {
   monthly_accounts_receivable?: Maybe<NumericComparisonExp>;
   monthly_cash?: Maybe<NumericComparisonExp>;
   monthly_inventory?: Maybe<NumericComparisonExp>;
-  rejected_at?: Maybe<TimestampComparisonExp>;
+  rejected_at?: Maybe<TimestamptzComparisonExp>;
   rejected_by_user?: Maybe<UsersBoolExp>;
   rejected_by_user_id?: Maybe<UuidComparisonExp>;
   rejection_note?: Maybe<StringComparisonExp>;
@@ -9259,7 +9248,7 @@ export type EbbaApplicationsInsertInput = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamp"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejected_by_user?: Maybe<UsersObjRelInsertInput>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
@@ -9288,7 +9277,7 @@ export type EbbaApplicationsMaxFields = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamp"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -9340,7 +9329,7 @@ export type EbbaApplicationsMinFields = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamp"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -9505,7 +9494,7 @@ export type EbbaApplicationsSetInput = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamp"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -16604,6 +16593,7 @@ export type MetrcToBespokeCatalogSkus = {
   deleted_at?: Maybe<Scalars["timestamptz"]>;
   id: Scalars["uuid"];
   is_deleted: Scalars["Boolean"];
+  last_edited_by_user_id?: Maybe<Scalars["uuid"]>;
   product_category_name: Scalars["String"];
   product_name: Scalars["String"];
   sku_confidence: Scalars["String"];
@@ -16654,6 +16644,7 @@ export type MetrcToBespokeCatalogSkusBoolExp = {
   deleted_at?: Maybe<TimestamptzComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   is_deleted?: Maybe<BooleanComparisonExp>;
+  last_edited_by_user_id?: Maybe<UuidComparisonExp>;
   product_category_name?: Maybe<StringComparisonExp>;
   product_name?: Maybe<StringComparisonExp>;
   sku_confidence?: Maybe<StringComparisonExp>;
@@ -16663,9 +16654,7 @@ export type MetrcToBespokeCatalogSkusBoolExp = {
 /** unique or primary key constraints on table "metrc_to_bespoke_catalog_skus" */
 export enum MetrcToBespokeCatalogSkusConstraint {
   /** unique or primary key constraint */
-  MetrcToBespokeCatalogSkusPkey = "metrc_to_bespoke_catalog_skus_pkey",
-  /** unique or primary key constraint */
-  MetrcToBespokeCatalogSkusProductCategoryNameProductNam = "metrc_to_bespoke_catalog_skus_product_category_name_product_nam",
+  MetrcToBespokeCatalogSkusPkey1 = "metrc_to_bespoke_catalog_skus_pkey1",
 }
 
 /** input type for inserting data into table "metrc_to_bespoke_catalog_skus" */
@@ -16676,6 +16665,7 @@ export type MetrcToBespokeCatalogSkusInsertInput = {
   deleted_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
+  last_edited_by_user_id?: Maybe<Scalars["uuid"]>;
   product_category_name?: Maybe<Scalars["String"]>;
   product_name?: Maybe<Scalars["String"]>;
   sku_confidence?: Maybe<Scalars["String"]>;
@@ -16688,6 +16678,7 @@ export type MetrcToBespokeCatalogSkusMaxFields = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   deleted_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
+  last_edited_by_user_id?: Maybe<Scalars["uuid"]>;
   product_category_name?: Maybe<Scalars["String"]>;
   product_name?: Maybe<Scalars["String"]>;
   sku_confidence?: Maybe<Scalars["String"]>;
@@ -16700,6 +16691,7 @@ export type MetrcToBespokeCatalogSkusMaxOrderBy = {
   created_at?: Maybe<OrderBy>;
   deleted_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  last_edited_by_user_id?: Maybe<OrderBy>;
   product_category_name?: Maybe<OrderBy>;
   product_name?: Maybe<OrderBy>;
   sku_confidence?: Maybe<OrderBy>;
@@ -16712,6 +16704,7 @@ export type MetrcToBespokeCatalogSkusMinFields = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   deleted_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
+  last_edited_by_user_id?: Maybe<Scalars["uuid"]>;
   product_category_name?: Maybe<Scalars["String"]>;
   product_name?: Maybe<Scalars["String"]>;
   sku_confidence?: Maybe<Scalars["String"]>;
@@ -16724,6 +16717,7 @@ export type MetrcToBespokeCatalogSkusMinOrderBy = {
   created_at?: Maybe<OrderBy>;
   deleted_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  last_edited_by_user_id?: Maybe<OrderBy>;
   product_category_name?: Maybe<OrderBy>;
   product_name?: Maybe<OrderBy>;
   sku_confidence?: Maybe<OrderBy>;
@@ -16753,6 +16747,7 @@ export type MetrcToBespokeCatalogSkusOrderBy = {
   deleted_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   is_deleted?: Maybe<OrderBy>;
+  last_edited_by_user_id?: Maybe<OrderBy>;
   product_category_name?: Maybe<OrderBy>;
   product_name?: Maybe<OrderBy>;
   sku_confidence?: Maybe<OrderBy>;
@@ -16777,6 +16772,8 @@ export enum MetrcToBespokeCatalogSkusSelectColumn {
   /** column name */
   IsDeleted = "is_deleted",
   /** column name */
+  LastEditedByUserId = "last_edited_by_user_id",
+  /** column name */
   ProductCategoryName = "product_category_name",
   /** column name */
   ProductName = "product_name",
@@ -16793,6 +16790,7 @@ export type MetrcToBespokeCatalogSkusSetInput = {
   deleted_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
+  last_edited_by_user_id?: Maybe<Scalars["uuid"]>;
   product_category_name?: Maybe<Scalars["String"]>;
   product_name?: Maybe<Scalars["String"]>;
   sku_confidence?: Maybe<Scalars["String"]>;
@@ -16811,6 +16809,8 @@ export enum MetrcToBespokeCatalogSkusUpdateColumn {
   Id = "id",
   /** column name */
   IsDeleted = "is_deleted",
+  /** column name */
+  LastEditedByUserId = "last_edited_by_user_id",
   /** column name */
   ProductCategoryName = "product_category_name",
   /** column name */

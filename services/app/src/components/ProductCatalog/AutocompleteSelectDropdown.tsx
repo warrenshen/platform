@@ -18,6 +18,7 @@ interface Props {
         | undefined
     ) => void
   >;
+  value?: any;
   getOptionLabel: (option: any) => string;
   renderOption?: (option: any) => JSX.Element;
   onChange: (event: any, newValue: any) => void;
@@ -27,6 +28,7 @@ const AutocompleteSelectDropdown = ({
   label,
   debouncedLoadOptions,
   selectableOptions,
+  value,
   getOptionLabel,
   renderOption,
   onChange,
@@ -38,6 +40,7 @@ const AutocompleteSelectDropdown = ({
       clearOnBlur
       handleHomeEndKeys
       defaultValue={[]}
+      value={value}
       options={selectableOptions}
       onInputChange={(_, newInputValue) => {
         newInputValue.length > 2 &&

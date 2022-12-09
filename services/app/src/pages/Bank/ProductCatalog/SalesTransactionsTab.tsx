@@ -1,12 +1,18 @@
-import { Box } from "@material-ui/core";
-import CreateUpdateBespokeCatalogEntryCompleteModal from "components/ProductCatalog/CreateUpdateBespokeCatalogEntryCompleteModal";
+import {
+  Box,
+  InputAdornment,
+  LinearProgress,
+  TextField,
+} from "@material-ui/core";
+import CreateBespokeCatalogEntryCompleteModal from "components/ProductCatalog/CreateBespokeCatalogEntryCompleteModal";
 import MetrcSalesTransactionsDataGrid from "components/ProductCatalog/MetrcSalesTransactionsDataGrid";
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
-import Can from "components/Shared/Can";
 import Text, { TextVariants } from "components/Shared/Text/Text";
 import { MetrcSalesTransactionFragment } from "generated/graphql";
+import useCustomQuery from "hooks/useCustomQuery";
+import useSnackbar from "hooks/useSnackbar";
+import { SearchIcon } from "icons";
 import { getSalesTransactionData } from "lib/api/productCatalog";
-import { Action } from "lib/auth/rbac-rules";
 import { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 
@@ -20,6 +26,9 @@ const Container = styled.div`
 `;
 
 const SalesTransactionsTab = () => {
+  const snackbar = useSnackbar();
+
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [metrcSalesTransactions, setMetrcSalesTransactions] = useState<
     MetrcSalesTransactionFragment[]
   >([]);
@@ -33,11 +42,31 @@ const SalesTransactionsTab = () => {
     setIsCreateUpdateBespokeCatalogEntryModalOpen,
   ] = useState<boolean>(false);
 
+  const [getSalesTransactions, { loading: isGetSalesTransactionDataLoading }] =
+    useCustomQuery(getSalesTransactionData);
+
   useEffect(() => {
-    getSalesTransactionData({}).then((data) => {
-      setMetrcSalesTransactions(data.data);
-    });
+    handleClickSearch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handleClickSearch = async () => {
+    const product_name_query =
+      searchQuery.length === 0 ? "" : `%${searchQuery.trim()}%`;
+    const response = await getSalesTransactions({
+      params: {
+        product_name_query,
+      },
+    });
+    if (response.status === "OK" && response.data) {
+      setMetrcSalesTransactions(response.data);
+      snackbar.showSuccess("Successfully updated Metrc Sales Transactions");
+    } else {
+      snackbar.showError(
+        `Failed to search for Metrc Sales Transactions: ${response.msg}`
+      );
+    }
+  };
 
   const handleSelectSalesTransactions = useMemo(
     () =>
@@ -70,7 +99,7 @@ const SalesTransactionsTab = () => {
   return (
     <Container>
       {isCreateUpdateBespokeCatalogEntryModalOpen && (
-        <CreateUpdateBespokeCatalogEntryCompleteModal
+        <CreateBespokeCatalogEntryCompleteModal
           productName={selectedMetrcSalesTransaction?.product_name}
           productCategoryName={
             selectedMetrcSalesTransaction?.product_category_name
@@ -83,15 +112,33 @@ const SalesTransactionsTab = () => {
           setMatchedProductNames={setMatchedProductNames}
         />
       )}
+      <Box display="flex" mb={2} justifyContent="space-between">
+        <TextField
+          autoFocus
+          label="Search"
+          value={searchQuery}
+          onChange={({ target: { value } }) => setSearchQuery(value)}
+          style={{ width: 430 }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
+        <PrimaryButton text={"Refetch Results"} onClick={handleClickSearch} />
+      </Box>
+      <Box width="100%" minHeight={12}>
+        {isGetSalesTransactionDataLoading && <LinearProgress />}
+      </Box>
       <Box display="flex" justifyContent="space-between" mb={2}>
         <Text textVariant={TextVariants.ParagraphLead}>Sales Transactions</Text>
-        <Can perform={Action.UnarchiveLoan}>
-          <PrimaryButton
-            isDisabled={!selectedMetrcSalesTransaction}
-            text={"Create Sku"}
-            onClick={() => setIsCreateUpdateBespokeCatalogEntryModalOpen(true)}
-          />
-        </Can>
+        <PrimaryButton
+          isDisabled={!selectedMetrcSalesTransaction}
+          text={"Create Catalog Entry"}
+          onClick={() => setIsCreateUpdateBespokeCatalogEntryModalOpen(true)}
+        />
       </Box>
       <MetrcSalesTransactionsDataGrid
         isExcelExport

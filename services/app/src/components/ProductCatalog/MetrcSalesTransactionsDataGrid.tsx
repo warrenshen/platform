@@ -73,6 +73,7 @@ const MetrcSalesTransactionsDataGrid = ({
       isSortingDisabled
       dataSource={rows}
       columns={columns}
+      filtering={{ enable: true }}
       select
       pager
       pageSize={10}

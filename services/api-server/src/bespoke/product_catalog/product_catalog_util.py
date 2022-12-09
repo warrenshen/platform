@@ -2,7 +2,7 @@ import uuid
 from bespoke import errors
 from bespoke.db import models
 from sqlalchemy.orm.session import Session
-from typing import Tuple, cast
+from typing import List, Tuple, cast
 
 def create_update_bespoke_catalog_brand(
 	session: Session,
@@ -86,8 +86,45 @@ def delete_bespoke_catalog_brand(
 			models.BespokeCatalogBrand.id == id
 		).first())
 
-	if brand: 
-		brand.is_deleted = True
+	if brand:
+		sku_groups = cast(
+			List[models.BespokeCatalogSkuGroup],
+			session.query(models.BespokeCatalogSkuGroup).filter(
+				models.BespokeCatalogSkuGroup.bespoke_catalog_brand_id == brand.id
+			).filter(
+				models.BespokeCatalogSkuGroup.is_deleted == False
+			).all())
+		if len(sku_groups) == 0:
+			brand.is_deleted = True
+			return True, None
+		else:
+			return False, errors.Error(f"Cannot delete brand: {brand.brand_name} becaused it's associated with the following sku groups: {[sku_group.sku_group_name for sku_group in sku_groups]}")
+
+	return True, None
+
+def delete_bespoke_catalog_sku_group(
+	session: Session,
+	id: str,
+) -> Tuple[bool, errors.Error]:
+	sku_group = cast(
+		models.BespokeCatalogSkuGroup,
+		session.query(models.BespokeCatalogSkuGroup).filter(
+			models.BespokeCatalogSkuGroup.id == id
+		).first())
+
+	if sku_group:
+		skus = cast(
+			List[models.BespokeCatalogSku],
+			session.query(models.BespokeCatalogSku).filter(
+				models.BespokeCatalogSku.bespoke_catalog_sku_group_id == sku_group.id
+			).filter(
+				models.BespokeCatalogSku.is_deleted == False
+			).all())
+		if len(skus) == 0:
+			sku_group.is_deleted = True
+			return True, None
+		else:
+			return False, errors.Error(f"Cannot delete SKU group: {sku_group.sku_group_name} becaused it's associated with the following skus: {[sku.sku for sku in skus]}")
 
 	return True, None
 
@@ -103,7 +140,18 @@ def delete_bespoke_catalog_sku(
 	)
 
 	if sku:
-		sku.is_deleted = True
+		metrc_to_sku = cast(
+			List[models.MetrcToBespokeCatalogSku],
+			session.query(models.MetrcToBespokeCatalogSku).filter(
+				models.MetrcToBespokeCatalogSku.bespoke_catalog_sku_id == sku.id
+			).filter(
+				models.MetrcToBespokeCatalogSku.is_deleted == False
+			).all())
+		if len(metrc_to_sku) == 0:
+			sku.is_deleted = True
+			return True, None
+		else:
+			return False, errors.Error(f"Cannot delete SKU: {sku.sku} becaused it's associated with the following Metrc to SKU mappings: {[metrc_to_sku.product_name for metrc_to_sku in metrc_to_sku]}")
 
 	return True, None
 
@@ -134,8 +182,10 @@ def create_update_metrc_to_sku(
 		session.flush()
 	else:
 		metrc_to_sku.bespoke_catalog_sku_id = bespoke_catalog_sku_id # type: ignore
-		metrc_to_sku.product_name = product_name
-		metrc_to_sku.product_category_name = product_category_name
+		if product_name:
+			metrc_to_sku.product_name = product_name
+		if product_category_name:
+			metrc_to_sku.product_category_name = product_category_name
 		metrc_to_sku.sku_confidence = sku_confidence.lower()
 		metrc_to_sku.last_edited_by_user_id = last_edited_by_user_id # type: ignore
 	

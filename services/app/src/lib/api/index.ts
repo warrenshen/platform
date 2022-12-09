@@ -253,14 +253,21 @@ export const productCatalogRoutes = {
     "product_catalog/create_update_bespoke_catalog_brand",
   createUpdateBespokeCatalogSku:
     "product_catalog/create_update_bespoke_catalog_sku",
-  createUpdateMetrcToBespokeCatalogSku:
-    "product_catalog/create_update_metrc_to_bespoke_catalog_sku",
+  createUpdateBespokeCatalogSkuGroup:
+    "product_catalog/create_update_bespoke_catalog_sku_group",
+  createMetrcToBespokeCatalogSku:
+    "product_catalog/create_metrc_to_bespoke_catalog_sku",
+  updateMetrcToBespokeCatalogSku:
+    "product_catalog/update_metrc_to_bespoke_catalog_sku",
   deleteBespokeCatalogBrand: "product_catalog/delete_bespoke_catalog_brand",
+  deleteBespokeCatalogSkuGroup:
+    "product_catalog/delete_bespoke_catalog_sku_group",
   deleteBespokeCatalogSku: "product_catalog/delete_bespoke_catalog_sku",
   deleteMetrcToBespokeCatalogSku:
     "product_catalog/delete_metrc_to_bespoke_catalog_sku",
   getSalesTransactions: "product_catalog/sales_transactions",
   getIncomingTransferPackages: "product_catalog/incoming_transfer_packages",
+  getInventoryPackages: "product_catalog/inventory_packages",
 };
 
 export const emailAlertRoutes = {
@@ -289,6 +296,13 @@ export const unAuthenticatedApi = axios.create({
 });
 
 export type CustomMutationResponse = {
+  status: string;
+  msg: string;
+  errors?: string[];
+  data?: any;
+};
+
+export type CustomQueryResponse = {
   status: string;
   msg: string;
   errors?: string[];

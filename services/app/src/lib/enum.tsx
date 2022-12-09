@@ -302,15 +302,17 @@ export const BankVendorsTabLabels = [
 export enum ProductCatalogTabLabel {
   SalesTransactions = "Sales Transactions",
   IncomingTransferPackages = "Incoming Transfer Packages",
+  InventoryPackages = "Inventory Packages",
   RecentlyAdded = "Recently Added",
-  SkusAndBrands = "SKUs & Brands",
+  BespokeCatalog = "Bespoke Catalog",
 }
 
 export const ProductCatalogTabLabels = [
   ProductCatalogTabLabel.SalesTransactions,
   ProductCatalogTabLabel.IncomingTransferPackages,
+  ProductCatalogTabLabel.InventoryPackages,
   ProductCatalogTabLabel.RecentlyAdded,
-  ProductCatalogTabLabel.SkusAndBrands,
+  ProductCatalogTabLabel.BespokeCatalog,
 ];
 
 export enum MetrcToBespokeCatalogSkuConfidenceLabel {

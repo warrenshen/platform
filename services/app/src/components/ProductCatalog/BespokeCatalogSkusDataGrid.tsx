@@ -42,7 +42,6 @@ const getRows = (bespokeCatalogSkus: BespokeCatalogSkuFragment[]) => {
 interface Props {
   bespokeCatalogSkus: BespokeCatalogSkuFragment[];
   isFilteringEnabled?: boolean;
-  isSingleSelectEnabled?: boolean;
   selectedBespokeCatalogSkuIds?: BespokeCatalogSkus["id"][];
   onSelectionChanged?: (selectedRowKeys: any) => void;
   onInitNewRow?: (newRow: any) => void;
@@ -51,7 +50,6 @@ interface Props {
 const BespokeCatalogSkusDataGrid = ({
   bespokeCatalogSkus,
   selectedBespokeCatalogSkuIds,
-  isSingleSelectEnabled = false,
   isFilteringEnabled = true,
   onSelectionChanged,
   onInitNewRow,
@@ -67,7 +65,7 @@ const BespokeCatalogSkusDataGrid = ({
       columns={columns}
       dataSource={rows}
       isExcelExport
-      singleSelect={isSingleSelectEnabled}
+      select
       selectedRowKeys={selectedBespokeCatalogSkuIds}
       onSelectionChanged={onSelectionChanged}
       onInitNewRow={onInitNewRow}

@@ -1,18 +1,23 @@
+import { AxiosRequestConfig } from "axios";
 import {
   BespokeCatalogBrands,
+  BespokeCatalogSkuGroups,
   BespokeCatalogSkus,
   BespokeCatalogSkusInsertInput,
   MetrcToBespokeCatalogSkus,
 } from "generated/graphql";
 import {
   CustomMutationResponse,
+  CustomQueryResponse,
   authenticatedApi,
   productCatalogRoutes,
 } from "lib/api";
 
-export async function getSalesTransactionData(req: any): Promise<any> {
+export async function getSalesTransactionData(
+  req: AxiosRequestConfig
+): Promise<CustomQueryResponse> {
   return authenticatedApi
-    .get(productCatalogRoutes.getSalesTransactions, req.variables)
+    .get(productCatalogRoutes.getSalesTransactions, req)
     .then((res) => res.data)
     .then(
       (res) => res,
@@ -26,9 +31,29 @@ export async function getSalesTransactionData(req: any): Promise<any> {
     );
 }
 
-export async function getIncomingTransferPackageData(req: any): Promise<any> {
+export async function getIncomingTransferPackageData(
+  req: AxiosRequestConfig
+): Promise<CustomQueryResponse> {
   return authenticatedApi
-    .get(productCatalogRoutes.getIncomingTransferPackages, req.variables)
+    .get(productCatalogRoutes.getIncomingTransferPackages, req)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.error("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not get data",
+        };
+      }
+    );
+}
+
+export async function getInventoryPackageData(
+  req: AxiosRequestConfig
+): Promise<CustomQueryResponse> {
+  return authenticatedApi
+    .get(productCatalogRoutes.getInventoryPackages, req)
     .then((res) => res.data)
     .then(
       (res) => res,
@@ -91,12 +116,64 @@ export async function deleteBespokeCatalogBrandMutation(
     );
 }
 
+export type CreateUpdateBespokeCatalogSkuGroupReq = {
+  variables: {
+    id: BespokeCatalogSkuGroups["id"];
+    sku_group_name: BespokeCatalogSkuGroups["sku_group_name"];
+    brand_id: BespokeCatalogBrands["id"];
+  };
+};
+
+export async function createUpdateBespokeCatalogSkuGroupMutation(
+  req: CreateUpdateBespokeCatalogSkuGroupReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(
+      productCatalogRoutes.createUpdateBespokeCatalogSkuGroup,
+      req.variables
+    )
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.error(error);
+        return {
+          status: "ERROR",
+          msg: error,
+        };
+      }
+    );
+}
+
+export type DeleteBespokeCatalogSkuGroupReq = {
+  variables: {
+    id: BespokeCatalogBrands["id"];
+  };
+};
+
+export async function deleteBespokeCatalogSkuGroupMutation(
+  req: DeleteBespokeCatalogSkuGroupReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(productCatalogRoutes.deleteBespokeCatalogSkuGroup, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.error(error);
+        return {
+          status: "ERROR",
+          msg: error,
+        };
+      }
+    );
+}
+
 export type CreateUpdateBespokeCatalogSkuReq = {
   variables: {
     id: BespokeCatalogSkus["id"];
     sku: BespokeCatalogSkus["sku"];
-    brand_id: BespokeCatalogBrands["id"];
-    brand_name: string;
+    bespoke_catalog_sku_group_id: BespokeCatalogSkuGroups["id"];
   };
 };
 
@@ -142,7 +219,7 @@ export async function deleteBespokeCatalogSkuMutation(
     );
 }
 
-export type CreateUpdateMetrcToBespokeCatalogSkuReq = {
+export type CreateMetrcToBespokeCatalogSkuReq = {
   variables: {
     bespoke_catalog_sku_id: BespokeCatalogSkus["id"];
     bespoke_catalog_sku: BespokeCatalogSkusInsertInput;
@@ -153,14 +230,36 @@ export type CreateUpdateMetrcToBespokeCatalogSkuReq = {
   };
 };
 
-export async function createUpdateMetrcToBespokeCatalogSkuMutation(
-  req: CreateUpdateMetrcToBespokeCatalogSkuReq
+export async function createMetrcToBespokeCatalogSkuMutation(
+  req: CreateMetrcToBespokeCatalogSkuReq
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(
-      productCatalogRoutes.createUpdateMetrcToBespokeCatalogSku,
-      req.variables
-    )
+    .post(productCatalogRoutes.createMetrcToBespokeCatalogSku, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.error(error);
+        return {
+          status: "ERROR",
+          msg: error,
+        };
+      }
+    );
+}
+
+export type UpdateMetrcToBespokeCatalogSkuReq = {
+  variables: {
+    bespoke_catalog_sku_id: BespokeCatalogSkus["id"];
+    sku_confidence: string;
+  };
+};
+
+export async function updateMetrcToBespokeCatalogSkuMutation(
+  req: UpdateMetrcToBespokeCatalogSkuReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(productCatalogRoutes.updateMetrcToBespokeCatalogSku, req.variables)
     .then((res) => res.data)
     .then(
       (res) => res,

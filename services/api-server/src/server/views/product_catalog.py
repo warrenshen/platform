@@ -36,6 +36,7 @@ RIGHT JOIN
 		COUNT(sales_transactions.tx_product_name) AS product_name_count
 	FROM
 		dbt_transformation.int__company_sales_transactions AS sales_transactions
+	{}
 	GROUP BY
 		sales_transactions.tx_product_name,
 		sales_transactions.tx_product_category_name
@@ -43,16 +44,16 @@ RIGHT JOIN
 	ON metrc_to_bespoke_sku.product_name = sales_transactions_grouped.product_name
 WHERE metrc_to_bespoke_sku.product_name IS NULL
 ORDER BY sales_transactions_grouped.product_name_count DESC
-LIMIT 100;
+LIMIT 50;
 """
 
 INCOMING_TRANSFER_PACKAGE_BY_PRODUCT_NAME_QUERY = """
 SELECT
 	transfer_packages_grouped.product_name,
 	transfer_packages_grouped.product_category_name,
-	transfer_packages_grouped.avg_received_quantity,
-	transfer_packages_grouped.avg_wholesale_price,
-	transfer_packages_grouped.received_unit_of_measure,
+	transfer_packages_grouped.avg_shipped_quantity,
+	transfer_packages_grouped.avg_shipper_wholesale_price,
+	transfer_packages_grouped.shipped_unit_of_measure,
 	transfer_packages_grouped.avg_item_unit_weight,
 	transfer_packages_grouped.item_unit_weight_unit_of_measure_name,
 	transfer_packages_grouped.product_name_count,
@@ -62,14 +63,15 @@ RIGHT JOIN
 	(SELECT
 		transfer_packages.product_name,
 		transfer_packages.product_category_name,
-		AVG(transfer_packages.received_quantity) AS avg_received_quantity,
-		AVG(transfer_packages.receiver_wholesale_price/NULLIF(transfer_packages.received_quantity, 0)) AS avg_wholesale_price,
-		MAX(transfer_packages.received_unit_of_measure) AS received_unit_of_measure,
+		AVG(transfer_packages.shipped_quantity) AS avg_shipped_quantity,
+		AVG(transfer_packages.shipper_wholesale_price/NULLIF(transfer_packages.shipped_quantity, 0)) AS avg_shipper_wholesale_price,
+		MAX(transfer_packages.shipped_unit_of_measure) AS shipped_unit_of_measure,
 		AVG(transfer_packages.item_unit_weight) AS avg_item_unit_weight,
 		MAX(transfer_packages.item_unit_weight_unit_of_measure_name) as item_unit_weight_unit_of_measure_name,
 		COUNT(transfer_packages.product_name) AS product_name_count
 	FROM
 		dbt_transformation.int__company_incoming_transfer_packages AS transfer_packages
+	{}
 	GROUP BY
 		transfer_packages.product_name,
 		transfer_packages.product_category_name
@@ -78,14 +80,43 @@ RIGHT JOIN
 WHERE metrc_to_bespoke_sku.product_name IS NULL
 ORDER BY
 	transfer_packages_grouped.product_name_count DESC
-LIMIT 100;
+LIMIT 50;
 """
+
+INVENTORY_PACKAGE_BY_PRODUCT_NAME_QUERY = """
+SELECT
+	inventory_packages_grouped.product_name,
+	inventory_packages_grouped.product_category_name,
+	inventory_packages_grouped.product_name_count,
+FROM
+    ProdMetrcData.metrc_to_bespoke_catalog_skus AS metrc_to_bespoke_sku
+RIGHT JOIN
+	(SELECT
+		inventory_packages.product_name,
+		inventory_packages.product_category_name,
+		COUNT(inventory_packages.product_name) AS product_name_count
+	FROM
+		dbt_transformation.int__company_inventory_packages AS inventory_packages
+	{}
+	GROUP BY
+		inventory_packages.product_name,
+		inventory_packages.product_category_name
+	) AS inventory_packages_grouped
+	ON metrc_to_bespoke_sku.product_name = inventory_packages_grouped.product_name
+WHERE metrc_to_bespoke_sku.product_name IS NULL
+ORDER BY
+	inventory_packages_grouped.product_name_count DESC
+LIMIT 50;
+"""
+
 
 class SalesTransactions(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
 	@handler_util.catch_bad_json_request
 	def get(self, **kwargs: Any) -> Response:
+		product_name_query = request.args.get('product_name_query', None)
+		where_clause = f"WHERE LOWER(sales_transactions.tx_product_name) like LOWER('{product_name_query}')"
 		with session_scope(current_app.session_maker) as session:
 			metrc_to_bespoke_catalog_skus = cast(
 				List[models.MetrcToBespokeCatalogSku],
@@ -95,7 +126,8 @@ class SalesTransactions(MethodView):
 			cataloged_product_names = set([sku.product_name for sku in metrc_to_bespoke_catalog_skus])
 
 		bqh = BigQueryHelper()
-		results = bqh.execute_sql(SALES_TRANSACTIONS_BY_PRODUCT_NAME_QUERY)
+		query = SALES_TRANSACTIONS_BY_PRODUCT_NAME_QUERY.format(where_clause) if product_name_query else SALES_TRANSACTIONS_BY_PRODUCT_NAME_QUERY.format('')
+		results = bqh.execute_sql(query)
 		json_results = []
 		for row in results:
 			if row.product_name not in cataloged_product_names:
@@ -120,6 +152,8 @@ class IncomingTransferPackages(MethodView):
 
 	@handler_util.catch_bad_json_request
 	def get(self, **kwargs: Any) -> Response:
+		product_name_query = request.args.get('product_name_query', None)
+		where_clause = f"WHERE LOWER(transfer_packages.product_name) like LOWER('{product_name_query}')"
 		with session_scope(current_app.session_maker) as session:
 			metrc_to_bespoke_catalog_skus = cast(
 				List[models.MetrcToBespokeCatalogSku],
@@ -129,7 +163,44 @@ class IncomingTransferPackages(MethodView):
 			cataloged_product_names = set([sku.product_name for sku in metrc_to_bespoke_catalog_skus])
 
 		bqh = BigQueryHelper()
-		results = bqh.execute_sql(SALES_TRANSACTIONS_BY_PRODUCT_NAME_QUERY)
+		query = INCOMING_TRANSFER_PACKAGE_BY_PRODUCT_NAME_QUERY.format(where_clause) if product_name_query else INCOMING_TRANSFER_PACKAGE_BY_PRODUCT_NAME_QUERY.format('')
+		results = bqh.execute_sql(query)
+		json_results = []
+		for row in results:
+			if row.product_name not in cataloged_product_names:
+				json_results.append({
+					'id': str(uuid.uuid4()),
+					'product_name': row.product_name,
+					'product_category_name': row.product_category_name,
+					'shipped_quantity': float(row.avg_shipped_quantity),
+					'total_price': float(row.avg_shipper_wholesale_price) if row.avg_shipper_wholesale_price else None,
+					'shipped_unit_of_measure': row.shipped_unit_of_measure,
+				})
+		
+		return make_response(json.dumps({
+			'status': 'OK',
+			'data': json_results
+		}), 200)
+
+
+class InventoryPackages(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def get(self, **kwargs: Any) -> Response:
+		product_name_query = request.args.get('product_name_query', None)
+		where_clause = f"WHERE LOWER(inventory_packages.product_name) like LOWER('{product_name_query}')"
+		with session_scope(current_app.session_maker) as session:
+			metrc_to_bespoke_catalog_skus = cast(
+				List[models.MetrcToBespokeCatalogSku],
+				session.query(models.MetrcToBespokeCatalogSku.product_name).filter(
+					models.MetrcToBespokeCatalogSku.is_deleted == False
+				).all())
+			cataloged_product_names = set([sku.product_name for sku in metrc_to_bespoke_catalog_skus])
+
+		bqh = BigQueryHelper()
+		query = INVENTORY_PACKAGE_BY_PRODUCT_NAME_QUERY.format(where_clause) if product_name_query else INVENTORY_PACKAGE_BY_PRODUCT_NAME_QUERY.format('')
+		results = bqh.execute_sql(query)
 		json_results = []
 		# TODO: discuss with Spencer if additional columns would be useful
 		for row in results:
@@ -144,6 +215,7 @@ class IncomingTransferPackages(MethodView):
 			'status': 'OK',
 			'data': json_results
 		}), 200)
+
 
 class CreateUpdateBespokeCatalogBrandView(MethodView):
 	decorators = [auth_util.bank_admin_required]
@@ -208,6 +280,72 @@ class DeleteBespokeCatalogBrandView(MethodView):
 		}), 200)
 
 
+class CreateUpdateBespokeCatalogSkuGroupView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		data = json.loads(request.data)
+		if not data:
+			raise errors.Error('No data provided')
+
+		required_keys = [
+			'id',
+			'sku_group_name',
+			'brand_id',
+		]
+		for key in required_keys:
+			if key not in data:
+				raise errors.Error(f'Missing {key} in respond to approval request')
+
+		id = data["id"]
+		sku_group_name = data["sku_group_name"]
+		brand_id = data["brand_id"]
+
+		with session_scope(current_app.session_maker) as session:
+			sku_id, err = product_catalog_util.create_update_bespoke_catalog_sku_group(
+				session=session,
+				id=id,
+				sku_group_name=sku_group_name,
+				brand_id=brand_id,
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': f'Successfully saved SKU group with id: {sku_id}'
+		}), 200)
+
+
+class DeleteBespokeCatalogSkuGroupView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		data = json.loads(request.data)
+		if not data:
+			raise errors.Error('No data provided')
+
+		if 'id' not in data:
+			raise errors.Error(f'Missing id in delete sku request')
+
+		id = data["id"]
+
+		with session_scope(current_app.session_maker) as session:
+			sku_group_id, err = product_catalog_util.delete_bespoke_catalog_sku_group(
+				session=session,
+				id=id,
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': f'Successfully deleted SKU group with id: {sku_group_id}'
+		}), 200)
+
+
 class CreateUpdateBespokeCatalogSkuView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
@@ -242,7 +380,7 @@ class CreateUpdateBespokeCatalogSkuView(MethodView):
 
 		return make_response(json.dumps({
 			'status': 'OK',
-			'msg': f'Successfully saved sku with id: {sku_id}'
+			'msg': f'Successfully saved SKU with id: {sku_id}'
 		}), 200)
 
 
@@ -274,7 +412,7 @@ class DeleteBespokeCatalogSkuView(MethodView):
 		}), 200)
 
 
-class CreateUpdateMetrcToBespokeCatalogSkuView(MethodView):
+class CreateMetrcToBespokeCatalogSkuView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
 	@handler_util.catch_bad_json_request
@@ -293,7 +431,7 @@ class CreateUpdateMetrcToBespokeCatalogSkuView(MethodView):
 		]
 		for key in required_keys:
 			if key not in data:
-				raise errors.Error(f'Missing {key} in /create_update_metrc_to_bespoke_catalog_sku request')
+				raise errors.Error(f'Missing {key} in /create_metrc_to_bespoke_catalog_sku request')
 		
 		id = data["id"]
 		bespoke_catalog_sku_id = data["bespoke_catalog_sku_id"]
@@ -362,6 +500,54 @@ class CreateUpdateMetrcToBespokeCatalogSkuView(MethodView):
 		}), 200)
 
 
+class UpdateMetrcToBespokeCatalogSkuView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		data = json.loads(request.data)
+		if not data:
+			raise errors.Error('No data provided')
+
+		required_keys = [
+			'id',
+			'bespoke_catalog_sku_id',
+			'sku_confidence',
+		]
+		for key in required_keys:
+			if key not in data:
+				raise errors.Error(f'Missing {key} in /update_metrc_to_bespoke_catalog_sku request')
+		
+		id = data["id"]
+		bespoke_catalog_sku_id = data["bespoke_catalog_sku_id"]
+		sku_confidence = data["sku_confidence"]
+
+		if sku_confidence != SKU_CONFIDENCE_INVALID and not bespoke_catalog_sku_id:
+			raise errors.Error(f'Cannot update bespoke_catalog_sku_id to None if sku_confidence is not {SKU_CONFIDENCE_INVALID} for entry with id: {id}')
+		
+		if sku_confidence == SKU_CONFIDENCE_INVALID and bespoke_catalog_sku_id:
+			raise errors.Error(f'Cannot assign bespoke_catalog_sku_id: {bespoke_catalog_sku_id} to entry: {id} if sku_confidence is: {SKU_CONFIDENCE_INVALID}')
+
+		with session_scope(current_app.session_maker) as session:
+			user_session = auth_util.UserSession.from_session()
+			metrc_to_sku_id, err = product_catalog_util.create_update_metrc_to_sku(
+				session=session,
+				id=id,
+				bespoke_catalog_sku_id=bespoke_catalog_sku_id,
+				product_name=None,
+				product_category_name=None,
+				sku_confidence=sku_confidence,
+				last_edited_by_user_id=user_session.get_user_id(),
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': f'Successfully updated metrc_to_sku with id: {metrc_to_sku_id}'
+		}), 200)
+
+
 class DeleteMetrcToBespokeCatalogSkuView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
@@ -397,10 +583,19 @@ handler.add_url_rule(
 	'/incoming_transfer_packages', view_func=IncomingTransferPackages.as_view(name='incoming_transfer_packages_view'))
 
 handler.add_url_rule(
+	'/inventory_packages', view_func=InventoryPackages.as_view(name='inventory_packages_view'))
+
+handler.add_url_rule(
 	'/create_update_bespoke_catalog_brand', view_func=CreateUpdateBespokeCatalogBrandView.as_view(name='create_update_bespoke_catalog_brand_view'))
 
 handler.add_url_rule(
 	'/delete_bespoke_catalog_brand', view_func=DeleteBespokeCatalogBrandView.as_view(name='delete_bespoke_catalog_brand_view'))
+
+handler.add_url_rule(
+	'/create_update_bespoke_catalog_sku_group', view_func=CreateUpdateBespokeCatalogSkuGroupView.as_view(name='create_update_bespoke_catalog_sku_group_view'))
+
+handler.add_url_rule(
+	'/delete_bespoke_catalog_sku_group', view_func=DeleteBespokeCatalogSkuGroupView.as_view(name='delete_bespoke_catalog_sku_group_view'))
 
 handler.add_url_rule(
 	'/create_update_bespoke_catalog_sku', view_func=CreateUpdateBespokeCatalogSkuView.as_view(name='create_update_bespoke_catalog_sku_view'))
@@ -409,7 +604,10 @@ handler.add_url_rule(
 	'/delete_bespoke_catalog_sku', view_func=DeleteBespokeCatalogSkuView.as_view(name='delete_bespoke_catalog_sku_view'))
 
 handler.add_url_rule(
-	'/create_update_metrc_to_bespoke_catalog_sku', view_func=CreateUpdateMetrcToBespokeCatalogSkuView.as_view(name='create_update_metrc_to_bespoke_catalog_sku_view'))
+	'/create_metrc_to_bespoke_catalog_sku', view_func=CreateMetrcToBespokeCatalogSkuView.as_view(name='create_metrc_to_bespoke_catalog_sku_view'))
+
+handler.add_url_rule(
+	'/update_metrc_to_bespoke_catalog_sku', view_func=UpdateMetrcToBespokeCatalogSkuView.as_view(name='update_metrc_to_bespoke_catalog_sku_view'))
 
 handler.add_url_rule(
 	'/delete_metrc_to_bespoke_catalog_sku', view_func=DeleteMetrcToBespokeCatalogSkuView.as_view(name='delete_metrc_to_bespoke_catalog_sku_view'))

@@ -1,7 +1,13 @@
+import { Box } from "@material-ui/core";
+import EditBespokeCatalogEntryModal from "components/ProductCatalog/EditBespokeCatalogEntryModal";
 import MetrcToBespokeCatalogSkusDataGrid from "components/ProductCatalog/MetrcToBespokeCatalogSkusDataGrid";
+import PrimaryButton from "components/Shared/Button/PrimaryButton";
 import Text, { TextVariants } from "components/Shared/Text/Text";
-import { useGetMetrcToBespokeCatalogSkusSubscription } from "generated/graphql";
-import { useMemo } from "react";
+import {
+  MetrcToBespokeCatalogSkuFragment,
+  useGetMetrcToBespokeCatalogSkusSubscription,
+} from "generated/graphql";
+import { useMemo, useState } from "react";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -18,14 +24,53 @@ const RecentlyAddedTab = () => {
     () => data?.metrc_to_bespoke_catalog_skus || [],
     [data]
   );
+  const [selectedEntryIds, setSelectedEntries] = useState<string[]>([]);
+  const [isEditEntryModalOpen, setIsEditEntryModalOpen] =
+    useState<boolean>(false);
+
+  const handleSelectEntries = useMemo(
+    () =>
+      ({ selectedRowKeys }: { selectedRowKeys: string[] }) => {
+        setSelectedEntries(selectedRowKeys);
+      },
+    [setSelectedEntries]
+  );
+  const selectedEntry = useMemo(
+    () =>
+      selectedEntryIds.length === 1
+        ? metrcToBespokeCatalogSkus.find(
+            (entry: MetrcToBespokeCatalogSkuFragment) =>
+              entry.id === selectedEntryIds[0]
+          )
+        : null,
+    [selectedEntryIds, metrcToBespokeCatalogSkus]
+  );
 
   return (
     <Container>
-      <Text textVariant={TextVariants.ParagraphLead}>
-        Matched Metrc product names to Bespoke SKUs
-      </Text>
+      {selectedEntry && isEditEntryModalOpen && (
+        <EditBespokeCatalogEntryModal
+          bespokeCatalogEntry={selectedEntry}
+          handleClose={() => {
+            setSelectedEntries([]);
+            setIsEditEntryModalOpen(false);
+          }}
+        />
+      )}
+      <Box display="flex" justifyContent="space-between" mb={2}>
+        <Text textVariant={TextVariants.ParagraphLead}>
+          Bespoke Catalog Entries
+        </Text>
+        <PrimaryButton
+          isDisabled={!selectedEntry}
+          text={"Edit Catalog Entry"}
+          onClick={() => setIsEditEntryModalOpen(true)}
+        />
+      </Box>
       <MetrcToBespokeCatalogSkusDataGrid
         metrcToBespokeCatalogSkus={metrcToBespokeCatalogSkus}
+        selectedMetricToBespokeCatalogSkuIds={selectedEntryIds}
+        onSelectionChanged={handleSelectEntries}
       />
     </Container>
   );

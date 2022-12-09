@@ -1,5 +1,8 @@
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
-import { MetrcToBespokeCatalogSkuFragment } from "generated/graphql";
+import {
+  MetrcToBespokeCatalogSkuFragment,
+  MetrcToBespokeCatalogSkus,
+} from "generated/graphql";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
@@ -56,13 +59,17 @@ const getRows = (
 };
 
 interface Props {
-  metrcToBespokeCatalogSkus: MetrcToBespokeCatalogSkuFragment[];
   isFilteringEnabled?: boolean;
+  metrcToBespokeCatalogSkus: MetrcToBespokeCatalogSkuFragment[];
+  selectedMetricToBespokeCatalogSkuIds: MetrcToBespokeCatalogSkus["id"][];
+  onSelectionChanged: (selectedRowKeys: any) => void;
 }
 
 const MetrcToBespokeCatalogSkusDataGrid = ({
   metrcToBespokeCatalogSkus,
   isFilteringEnabled = true,
+  selectedMetricToBespokeCatalogSkuIds,
+  onSelectionChanged,
 }: Props) => {
   const rows = useMemo(
     () => getRows(metrcToBespokeCatalogSkus),
@@ -81,6 +88,9 @@ const MetrcToBespokeCatalogSkusDataGrid = ({
       filtering={filtering}
       pager
       pageSize={10}
+      select
+      selectedRowKeys={selectedMetricToBespokeCatalogSkuIds}
+      onSelectionChanged={onSelectionChanged}
     />
   );
 };
