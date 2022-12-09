@@ -10816,10 +10816,10 @@ material-ui-phone-number@^2.2.6:
     react "^16.8.0"
     react-dom "^16.8.0"
 
-material-ui-snackbar-provider@^1.4.0:
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/material-ui-snackbar-provider/-/material-ui-snackbar-provider-1.6.0.tgz#7c65cf0a80c94f81bd8fee2e07489c1f9a2fa6fa"
-  integrity sha512-wu5TDad7Sud9bzThk16U7GO+zDhSaezu/gRCSUGyZteioxhMIrCjssZSDEm9gWXhtwLr473kSfrmcZiyW1cIGA==
+material-ui-snackbar-provider@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/material-ui-snackbar-provider/-/material-ui-snackbar-provider-2.0.0.tgz#81080a0376ea4121f424c6482fdd6ad1be1af06f"
+  integrity sha512-oTbtSbgiRfqAvG0TLFLaHjamG1kmbobg2xJUtwJib6EivJ2RPG9/O1gVOksp+dX2jfX5lLffrBG6+cyoU+ep4A==
   dependencies:
     prop-types "^15.7.2"
 

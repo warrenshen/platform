@@ -1,8 +1,10 @@
-import { Button, IconButton, Snackbar } from "@material-ui/core";
-import { ButtonProps } from "@material-ui/core/Button";
-import { SnackbarProps } from "@material-ui/core/Snackbar";
 import { Close } from "@material-ui/icons";
-import { Alert, AlertTitle } from "@material-ui/lab";
+import { Alert, AlertTitle, Button, IconButton } from "@mui/material";
+import { AlertColor } from "@mui/material/Alert";
+import { ButtonProps } from "@mui/material/Button";
+import Snackbar, { SnackbarProps } from "@mui/material/Snackbar";
+import Text, { TextVariants } from "components/Shared/Text/Text";
+import { SnackbarMessageDelimeter } from "hooks/useSnackbar";
 import { startCase } from "lodash";
 
 interface Props {
@@ -20,12 +22,25 @@ export default function CustomSnackbar({
   SnackbarProps,
   customParameters,
 }: Props) {
+  // Note: the magic delimeter separates the severity of the message
+  // from the actual message, so we separate them before the render.
+  const severity = !!message
+    ? message.split(SnackbarMessageDelimeter)[0]
+    : "error";
+  const actualMessage = !!message
+    ? message.split(SnackbarMessageDelimeter)[1]
+    : "Developer error: invalid snackbar message";
+
   // Note: set `autoHideDuration` to `null` during development
   // if you want the snackbar to be sticky (not hide automatically).
   return (
-    <Snackbar autoHideDuration={30000} {...SnackbarProps}>
+    <Snackbar
+      anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      autoHideDuration={30000}
+      {...SnackbarProps}
+    >
       <Alert
-        severity={customParameters?.type}
+        severity={severity as AlertColor}
         action={
           <>
             {action ? (
@@ -47,8 +62,10 @@ export default function CustomSnackbar({
           </>
         }
       >
-        <AlertTitle>{startCase(customParameters?.type)}</AlertTitle>
-        {message}
+        <AlertTitle>{startCase(severity)}</AlertTitle>
+        <Text materialVariant={"p"} textVariant={TextVariants.Label}>
+          {actualMessage}
+        </Text>
       </Alert>
     </Snackbar>
   );
