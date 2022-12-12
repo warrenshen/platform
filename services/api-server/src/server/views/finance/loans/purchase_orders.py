@@ -10,6 +10,7 @@ from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.db_constants import LoanStatusEnum, LoanTypeEnum
 from bespoke.email import sendgrid_util
+from bespoke.finance import number_util
 from bespoke.finance.loans import approval_util
 from bespoke.finance.purchase_orders import purchase_orders_util
 from flask import Blueprint, Response, current_app, make_response, request
@@ -305,7 +306,7 @@ class UpsertPurchaseOrdersLoansView(MethodView):
 					purchase_order_id = item.artifact.id,
 					created_by_user_id = str(user.id),
 					created_by_user_full_name = user.full_name,
-					action_notes = f"{item.loan.amount} financing requested",
+					action_notes = f"{number_util.to_dollar_format(float(item.loan.amount))} financing requested",
 				)
 
 			if upsert.status == LoanStatusEnum.APPROVAL_REQUESTED:

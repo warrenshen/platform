@@ -153,7 +153,7 @@ def approve_loans(
 					purchase_order_id = purchase_order.id,
 					created_by_user_id = bank_admin_user_id,
 					created_by_user_full_name = user.full_name,
-					action_notes = f"${loan.amount} financing approved",
+					action_notes = f"{number_util.to_dollar_format(float(loan.amount))} financing approved",
 				)
 				if err:
 					raise err
@@ -378,13 +378,20 @@ def submit_for_approval(
 			.filter(models.User.id == requested_by_user_id) \
 			.first()
 		purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.FINANCING_PENDING_APPROVAL
+		status_notes = f"{number_util.to_dollar_format(float(loan.amount))} financing requested";
+		if purchase_order.all_customer_notes:
+			purchase_order.all_customer_notes["status_notes"] = status_notes
+		else:
+			purchase_order.all_customer_notes = {
+				"status_notes": status_notes
+			}
 		purchase_orders_util.update_purchase_order_history(
 			purchase_order = purchase_order,
 			user_id = requested_by_user_id,
 			user_full_name = user.full_name,
 			action = "PO financing request created",
 			new_status = NewPurchaseOrderStatus.FINANCING_PENDING_APPROVAL,
-			action_notes = f"${loan.amount} financing requested",
+			action_notes = status_notes,
 		)
 
 
