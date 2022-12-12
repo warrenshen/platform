@@ -9,6 +9,7 @@ import {
   TextField,
 } from "@material-ui/core";
 import AutocompleteSelectDropdown from "components/ProductCatalog/AutocompleteSelectDropdown";
+import { DEFAULT_AUTOCOMPLETE_MINIMUM_QUERY_LENGTH } from "components/ProductCatalog/constants";
 import { calculateBrand } from "components/ProductCatalog/utils";
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
 import SecondaryButton from "components/Shared/Button/SecondaryButton";
@@ -84,18 +85,40 @@ const CreateBespokeCatalogEntryCompleteModal = ({
     fetchPolicy: "network-only",
   });
 
-  const debouncedLoadBespokeCatalogSkus = debounce(
-    loadBespokeCatalogSkus,
-    1000
-  );
-  const debouncedLoadBespokeCatalogSkuGroups = debounce(
-    loadBespokeCatalogSkuGroups,
-    1000
-  );
-  const debouncedLoadBespokeCatalogBrands = debounce(
-    loadBespokeCatalogBrands,
-    1000
-  );
+  const [clearSkuData, setClearSkuData] = useState(false);
+  const [clearSkuGroupData, setClearSkuGroupData] = useState(false);
+  const [clearBrandData, setClearBrandData] = useState(false);
+
+  const debouncedLoadBespokeCatalogSkus = debounce(({ variables }) => {
+    if (
+      variables.search_prefix.length < DEFAULT_AUTOCOMPLETE_MINIMUM_QUERY_LENGTH
+    ) {
+      setClearSkuData(true);
+      return;
+    }
+    setClearSkuData(false);
+    loadBespokeCatalogSkus({ variables });
+  }, 1000);
+  const debouncedLoadBespokeCatalogSkuGroups = debounce(({ variables }) => {
+    if (
+      variables.search_prefix.length < DEFAULT_AUTOCOMPLETE_MINIMUM_QUERY_LENGTH
+    ) {
+      setClearSkuGroupData(true);
+      return;
+    }
+    setClearSkuGroupData(false);
+    loadBespokeCatalogSkuGroups({ variables });
+  }, 1000);
+  const debouncedLoadBespokeCatalogBrands = debounce(({ variables }) => {
+    if (
+      variables.search_prefix.length < DEFAULT_AUTOCOMPLETE_MINIMUM_QUERY_LENGTH
+    ) {
+      setClearBrandData(true);
+      return;
+    }
+    setClearBrandData(false);
+    loadBespokeCatalogBrands({ variables });
+  }, 1000);
 
   const defaultBespokeCatalogEntry: MetrcToBespokeCatalogSkusInsertInput = {
     id: null,
@@ -293,7 +316,9 @@ const CreateBespokeCatalogEntryCompleteModal = ({
                     );
                   }}
                   selectableOptions={
-                    bespokeCatalogSkuData?.bespoke_catalog_skus || []
+                    (!clearSkuData &&
+                      bespokeCatalogSkuData?.bespoke_catalog_skus) ||
+                    []
                   }
                   debouncedLoadOptions={debouncedLoadBespokeCatalogSkus}
                   onChange={(_, value) => {
@@ -420,7 +445,8 @@ const CreateBespokeCatalogEntryCompleteModal = ({
                         );
                       }}
                       selectableOptions={
-                        bespokeCatalogSkuGroupData?.bespoke_catalog_sku_groups ||
+                        (!clearSkuGroupData &&
+                          bespokeCatalogSkuGroupData?.bespoke_catalog_sku_groups) ||
                         []
                       }
                       debouncedLoadOptions={
@@ -534,7 +560,8 @@ const CreateBespokeCatalogEntryCompleteModal = ({
                             }
                           }}
                           selectableOptions={
-                            bespokeCatalogBrandData?.bespoke_catalog_brands ||
+                            (!clearBrandData &&
+                              bespokeCatalogBrandData?.bespoke_catalog_brands) ||
                             []
                           }
                           debouncedLoadOptions={

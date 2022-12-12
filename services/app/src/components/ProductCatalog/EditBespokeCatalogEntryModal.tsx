@@ -1,5 +1,6 @@
 import { Box, DialogActions, DialogContent } from "@material-ui/core";
 import AutocompleteSelectDropdown from "components/ProductCatalog/AutocompleteSelectDropdown";
+import { DEFAULT_AUTOCOMPLETE_MINIMUM_QUERY_LENGTH } from "components/ProductCatalog/constants";
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
 import SecondaryButton from "components/Shared/Button/SecondaryButton";
 import CardDivider from "components/Shared/Card/CardDivider";
@@ -53,14 +54,22 @@ const EditBespokeCatalogEntryModal = ({
       sku: bespokeCatalogEntry.bespoke_catalog_sku?.sku,
     });
 
+  const [clearSkuData, setClearSkuData] = useState(false);
+
   const [loadBespokeCatalogSkus, { data: bespokeCatalogSkuData }] =
     useGetBespokeCatalogSkusBySkuNameLazyQuery({
       fetchPolicy: "network-only",
     });
-  const debouncedLoadBespokeCatalogSkus = debounce(
-    loadBespokeCatalogSkus,
-    1000
-  );
+  const debouncedLoadBespokeCatalogSkus = debounce(({ variables }) => {
+    if (
+      variables.search_prefix.length < DEFAULT_AUTOCOMPLETE_MINIMUM_QUERY_LENGTH
+    ) {
+      setClearSkuData(true);
+      return;
+    }
+    setClearSkuData(false);
+    loadBespokeCatalogSkus({ variables });
+  }, 1000);
 
   const [
     updateMetrcToBespokeCatalogSku,
@@ -171,7 +180,9 @@ const EditBespokeCatalogEntryModal = ({
                 );
               }}
               selectableOptions={
-                bespokeCatalogSkuData?.bespoke_catalog_skus || []
+                (!clearSkuData &&
+                  bespokeCatalogSkuData?.bespoke_catalog_skus) ||
+                []
               }
               debouncedLoadOptions={debouncedLoadBespokeCatalogSkus}
               onChange={(_, value) => {

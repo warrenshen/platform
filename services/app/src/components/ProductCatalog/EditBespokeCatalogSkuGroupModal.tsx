@@ -7,6 +7,7 @@ import {
   TextField,
 } from "@material-ui/core";
 import AutocompleteSelectDropdown from "components/ProductCatalog/AutocompleteSelectDropdown";
+import { DEFAULT_AUTOCOMPLETE_MINIMUM_QUERY_LENGTH } from "components/ProductCatalog/constants";
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
 import SecondaryButton from "components/Shared/Button/SecondaryButton";
 import CardDivider from "components/Shared/Card/CardDivider";
@@ -53,6 +54,8 @@ const EditBespokeCatalogSkuGroupModal = ({
       brand_name: bespokeCatalogSkuGroup.bespoke_catalog_brand?.brand_name,
     });
 
+  const [clearBrandData, setClearBrandData] = useState(false);
+
   const [
     loadBespokeCatalogBrands,
     {
@@ -62,10 +65,16 @@ const EditBespokeCatalogSkuGroupModal = ({
   ] = useGetBespokeCatalogBrandsByBrandNameLazyQuery({
     fetchPolicy: "network-only",
   });
-  const debouncedLoadBespokeCatalogBrands = debounce(
-    loadBespokeCatalogBrands,
-    1000
-  );
+  const debouncedLoadBespokeCatalogBrands = debounce(({ variables }) => {
+    if (
+      variables.search_prefix.length < DEFAULT_AUTOCOMPLETE_MINIMUM_QUERY_LENGTH
+    ) {
+      setClearBrandData(true);
+      return;
+    }
+    setClearBrandData(false);
+    loadBespokeCatalogBrands({ variables });
+  }, 1000);
 
   const [
     updateBespokeCatalogSkuGroup,
@@ -142,7 +151,9 @@ const EditBespokeCatalogSkuGroupModal = ({
               );
             }}
             selectableOptions={
-              bespokeCatalogBrandData?.bespoke_catalog_brands || []
+              (!clearBrandData &&
+                bespokeCatalogBrandData?.bespoke_catalog_brands) ||
+              []
             }
             debouncedLoadOptions={debouncedLoadBespokeCatalogBrands}
             onChange={(_, value) => {

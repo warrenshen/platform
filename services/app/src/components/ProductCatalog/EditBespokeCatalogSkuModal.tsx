@@ -7,6 +7,7 @@ import {
   TextField,
 } from "@material-ui/core";
 import AutocompleteSelectDropdown from "components/ProductCatalog/AutocompleteSelectDropdown";
+import { DEFAULT_AUTOCOMPLETE_MINIMUM_QUERY_LENGTH } from "components/ProductCatalog/constants";
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
 import SecondaryButton from "components/Shared/Button/SecondaryButton";
 import CardDivider from "components/Shared/Card/CardDivider";
@@ -53,6 +54,8 @@ const EditBespokeCatalogSkuModal = ({
         bespokeCatalogSku.bespoke_catalog_sku_group?.sku_group_name,
     });
 
+  const [clearSkuGroupData, setClearSkuGroupData] = useState(false);
+
   const [
     loadBespokeCatalogSkuGroups,
     {
@@ -62,10 +65,16 @@ const EditBespokeCatalogSkuModal = ({
   ] = useGetBespokeCatalogSkuGroupsBySkuGroupNameLazyQuery({
     fetchPolicy: "network-only",
   });
-  const debouncedLoadBespokeCatalogSkuGroups = debounce(
-    loadBespokeCatalogSkuGroups,
-    1000
-  );
+  const debouncedLoadBespokeCatalogSkuGroups = debounce(({ variables }) => {
+    if (
+      variables.search_prefix.length < DEFAULT_AUTOCOMPLETE_MINIMUM_QUERY_LENGTH
+    ) {
+      setClearSkuGroupData(true);
+      return;
+    }
+    setClearSkuGroupData(false);
+    loadBespokeCatalogSkuGroups({ variables });
+  }, 1000);
 
   const [
     updateBespokeCatalogSku,
@@ -149,7 +158,9 @@ const EditBespokeCatalogSkuModal = ({
               );
             }}
             selectableOptions={
-              bespokeCatalogSkuGroupData?.bespoke_catalog_sku_groups || []
+              (!clearSkuGroupData &&
+                bespokeCatalogSkuGroupData?.bespoke_catalog_sku_groups) ||
+              []
             }
             debouncedLoadOptions={debouncedLoadBespokeCatalogSkuGroups}
             onChange={(_, value) => {

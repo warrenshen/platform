@@ -43,14 +43,26 @@ const AutocompleteSelectDropdown = ({
       value={value}
       options={selectableOptions}
       onInputChange={(_, newInputValue) => {
-        newInputValue.length > 2 &&
-          debouncedLoadOptions({
-            variables: { search_prefix: "%" + newInputValue + "%" },
-          });
+        debouncedLoadOptions({
+          variables: { search_prefix: "%" + newInputValue + "%" },
+        });
       }}
       renderInput={(params) => {
         return (
-          <TextField {...params} required label={label} variant="outlined" />
+          <TextField
+            {...params}
+            required
+            label={label}
+            variant="outlined"
+            inputProps={{
+              ...params.inputProps,
+              onKeyDown: (e) => {
+                if (e.key === "Enter") {
+                  e.stopPropagation();
+                }
+              },
+            }}
+          />
         );
       }}
       getOptionLabel={getOptionLabel}
