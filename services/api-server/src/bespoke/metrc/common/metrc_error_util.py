@@ -1,7 +1,7 @@
 from mypy_extensions import TypedDict
 from typing import List
 
-from bespoke.db.db_constants import MetrcDownloadStatus
+from bespoke.db.db_constants import MetrcLicenseCategoryDownloadStatus
 
 BESPOKE_INTERNAL_ERROR_STATUS_CODE = -100 # some random number that won't be reused by an HTTP Response
 AUTHORIZATION_ERROR_CODES = set([401, 403])
@@ -27,12 +27,12 @@ class MetrcRetryError(object):
 		status_code = self.err_details['status_code']
 
 		if status_code in AUTHORIZATION_ERROR_CODES:
-			return MetrcDownloadStatus.NO_ACCESS
+			return MetrcLicenseCategoryDownloadStatus.NO_ACCESS
 
 		if status_code == BESPOKE_INTERNAL_ERROR_STATUS_CODE:
-			return MetrcDownloadStatus.BESPOKE_SERVER_ERROR
+			return MetrcLicenseCategoryDownloadStatus.BESPOKE_SERVER_ERROR
 
-		return MetrcDownloadStatus.METRC_SERVER_ERROR
+		return MetrcLicenseCategoryDownloadStatus.METRC_SERVER_ERROR
 
 class ErrorCatcher(object):
 

@@ -45,9 +45,7 @@ setup-db:
 	cd src && PROJECT_DIR=$(project_dir) PYTHONPATH=$(PYTHONPATH) python3 bespoke/db/main.py setup
 
 mypy-scripts:
-	MYPYPATH=stubs:src mypy scripts/analysis/compute_monthly_inventory.py --config-file=mypy.ini
-	MYPYPATH=stubs:src mypy scripts/backfill/0085_add_company_deliveries.py --config-file=mypy.ini
-	MYPYPATH=stubs:src mypy scripts/batch/sync_metrc_data.py
+# MYPYPATH=stubs:src mypy scripts/batch/*
 
 mypy:
 	MYPYPATH=stubs mypy src/bespoke/db/seed.py --config-file=mypy.ini

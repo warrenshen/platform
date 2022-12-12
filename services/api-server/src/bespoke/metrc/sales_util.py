@@ -89,7 +89,7 @@ def _download_sales_receipt(
 	receipt.payload = s
 
 	if i % LOG_EVERY == 0:
-		logging.info('Downloading transactions for sales receipt #{} for company {} on day {}'.format(i, company_id, ctx.cur_date))
+		logging.info(f'Downloading transactions for sales receipt #{i} for license number {license_number} on date {ctx.cur_date}')
 
 	resp = ctx.rest.get('/sales/v1/receipts/{}'.format(receipt.receipt_id))
 	receipt_resp = json.loads(resp.content)
@@ -330,7 +330,8 @@ def _write_sales_transactions_chunk(
 
 def _write_sales_receipts_chunk(
 	sales_receipt_objs: List[SalesReceiptObj],
-	session: Session) -> None:
+	session: Session,
+) -> None:
 	if not sales_receipt_objs:
 		return
 

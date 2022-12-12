@@ -25,7 +25,7 @@ company_identifier_to_license_facilities = {
 	]
 }
 
-def main(is_test_run: bool = True):
+def main(is_test_run: bool = True) -> None:
 	load_dotenv(os.path.join("../..", '.env'))
 
 	engine = models.create_engine()

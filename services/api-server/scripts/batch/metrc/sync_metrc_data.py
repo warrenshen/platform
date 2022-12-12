@@ -23,8 +23,8 @@ from datetime import timedelta
 from typing import cast
 
 # Path hack before we try to import bespoke
-sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
-sys.path.append(path.realpath(path.join(path.dirname(__file__), "../")))
+sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../../src")))
+sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../")))
 
 from dotenv import load_dotenv
 from server.config import get_config, get_email_client_config, is_development_env

@@ -43,7 +43,7 @@ def main(company_identifier: str, anchor_date: str, update_days_back: int) -> No
 			company_id = str(company.id)
 			company_name = company.name
 
-	compute_requests = [{
+	compute_requests = [cast(reports_util.ComputeSummaryRequest, {
 		'company': {
 			'id': company_id,
 			'identifier': company_identifier,
@@ -52,8 +52,8 @@ def main(company_identifier: str, anchor_date: str, update_days_back: int) -> No
 		'company_id': company_id,
 		'report_date': date_util.load_date_str(anchor_date),
 		'update_days_back': update_days_back,
-	}]
-	with models.session_scope(current_app.session_maker) as session:
+	})]
+	with models.session_scope(session_maker) as session:
 		dates_updated, descriptive_errors, fatal_error = reports_util.run_customer_balances_for_financial_summaries_that_need_recompute(
 			session,
 			compute_requests

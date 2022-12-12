@@ -328,7 +328,10 @@ class REST(object):
 		NON_RETRY_STATUSES = AUTHORIZATION_ERROR_CODES
 
 		for i in range(NUM_RETRIES):
-			resp = requests.get(url, auth=self.auth)
+			if i > 0:
+				logging.info(f'Retrying request with url {url} for license number {self.license_number}')
+
+			resp = requests.get(url, auth=self.auth, timeout=5)
 
 			# Return successful response.
 			if resp.ok:
@@ -401,8 +404,7 @@ class REST(object):
 			if type(cur_results) != list:
 				raise errors.Error('When splitting the results using time range, each result must be a list that can be joined together')
 			all_results.extend(cur_results)
-			if i % 4 == 0:
-				logging.info('Completed {} for sub time_range: {}'.format(path, time_range_tuple))
+			logging.info(f'Completed {path} download for license number {self.license_number} and time range: {time_range_tuple}')
 
 			i += 1
 

@@ -330,7 +330,7 @@ class DBOperation(object):
 
 # Metrc
 
-class MetrcDownloadStatus(object):
+class MetrcLicenseCategoryDownloadStatus(object):
 	NO_ACCESS = 'no_access'
 	METRC_SERVER_ERROR = 'metrc_server_error'
 	BESPOKE_SERVER_ERROR = 'bespoke_server_error'

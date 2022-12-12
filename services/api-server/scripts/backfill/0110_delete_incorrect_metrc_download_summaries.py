@@ -20,7 +20,7 @@ sys.path.append(path.realpath(path.join(path.dirname(__file__), "../")))
 
 from bespoke.date import date_util
 from bespoke.db import models
-from bespoke.db.db_constants import MetrcDownloadStatus
+from bespoke.db.db_constants import MetrcLicenseCategoryDownloadStatus
 
 
 def main(is_test_run: bool) -> None:
@@ -38,17 +38,17 @@ def main(is_test_run: bool) -> None:
 			).filter(
 				models.MetrcDownloadSummary.updated_at < date_util.load_date_str('2022-12-01')
 			).filter(
-				models.MetrcDownloadSummary.harvests_status == MetrcDownloadStatus.SUCCESS
+				models.MetrcDownloadSummary.harvests_status == MetrcLicenseCategoryDownloadStatus.SUCCESS
 			).filter(
-				models.MetrcDownloadSummary.packages_status == MetrcDownloadStatus.SUCCESS
+				models.MetrcDownloadSummary.packages_status == MetrcLicenseCategoryDownloadStatus.SUCCESS
 			).filter(
-				models.MetrcDownloadSummary.plant_batches_status == MetrcDownloadStatus.SUCCESS
+				models.MetrcDownloadSummary.plant_batches_status == MetrcLicenseCategoryDownloadStatus.SUCCESS
 			).filter(
-				models.MetrcDownloadSummary.plants_status == MetrcDownloadStatus.SUCCESS
+				models.MetrcDownloadSummary.plants_status == MetrcLicenseCategoryDownloadStatus.SUCCESS
 			).filter(
-				models.MetrcDownloadSummary.sales_status == MetrcDownloadStatus.SUCCESS
+				models.MetrcDownloadSummary.sales_status == MetrcLicenseCategoryDownloadStatus.SUCCESS
 			).filter(
-				models.MetrcDownloadSummary.transfers_status == MetrcDownloadStatus.SUCCESS
+				models.MetrcDownloadSummary.transfers_status == MetrcLicenseCategoryDownloadStatus.SUCCESS
 			).order_by(
 				models.MetrcDownloadSummary.updated_at.desc()
 			).limit(

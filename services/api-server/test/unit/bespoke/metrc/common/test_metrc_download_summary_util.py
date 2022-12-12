@@ -13,7 +13,7 @@ from bespoke.metrc.common.metrc_error_util import (
 	MetrcErrorDetailsDict, BESPOKE_INTERNAL_ERROR_STATUS_CODE
 )
 from bespoke.db.db_constants import (
-	MetrcDownloadStatus, MetrcDownloadSummaryStatus
+	MetrcLicenseCategoryDownloadStatus, MetrcDownloadSummaryStatus
 )
 from bespoke.security import security_util
 
@@ -23,12 +23,12 @@ class TestMetrcDownloadSummary(unittest.TestCase):
 
 	def _get_default_expected_summary(self) -> Dict:
 		return {
-			'harvests_status': MetrcDownloadStatus.SUCCESS,
-			'packages_status': MetrcDownloadStatus.SUCCESS,
-			'plant_batches_status': MetrcDownloadStatus.SUCCESS,
-			'plants_status': MetrcDownloadStatus.SUCCESS,
-			'sales_status': MetrcDownloadStatus.SUCCESS,
-			'transfers_status': MetrcDownloadStatus.SUCCESS
+			'harvests_status': MetrcLicenseCategoryDownloadStatus.SUCCESS,
+			'packages_status': MetrcLicenseCategoryDownloadStatus.SUCCESS,
+			'plant_batches_status': MetrcLicenseCategoryDownloadStatus.SUCCESS,
+			'plants_status': MetrcLicenseCategoryDownloadStatus.SUCCESS,
+			'sales_status': MetrcLicenseCategoryDownloadStatus.SUCCESS,
+			'transfers_status': MetrcLicenseCategoryDownloadStatus.SUCCESS
 		}
 
 	def _run_test(
@@ -85,12 +85,12 @@ class TestMetrcDownloadSummary(unittest.TestCase):
 			},
 			expected={
 				'status': MetrcDownloadSummaryStatus.COMPLETED,
-				'harvests_status': MetrcDownloadStatus.SUCCESS,
-				'packages_status': MetrcDownloadStatus.SUCCESS,
-				'plant_batches_status': MetrcDownloadStatus.SUCCESS,
-				'plants_status': MetrcDownloadStatus.SUCCESS,
-				'sales_status': MetrcDownloadStatus.SUCCESS,
-				'transfers_status': MetrcDownloadStatus.SUCCESS,
+				'harvests_status': MetrcLicenseCategoryDownloadStatus.SUCCESS,
+				'packages_status': MetrcLicenseCategoryDownloadStatus.SUCCESS,
+				'plant_batches_status': MetrcLicenseCategoryDownloadStatus.SUCCESS,
+				'plants_status': MetrcLicenseCategoryDownloadStatus.SUCCESS,
+				'sales_status': MetrcLicenseCategoryDownloadStatus.SUCCESS,
+				'transfers_status': MetrcLicenseCategoryDownloadStatus.SUCCESS,
 			},
 		)
 
@@ -111,12 +111,12 @@ class TestMetrcDownloadSummary(unittest.TestCase):
 			},
 			expected={
 				'status': MetrcDownloadSummaryStatus.COMPLETED,
-				'harvests_status': MetrcDownloadStatus.NO_ACCESS,
-				'packages_status': MetrcDownloadStatus.SUCCESS,
-				'plant_batches_status': MetrcDownloadStatus.NO_ACCESS,
-				'plants_status': MetrcDownloadStatus.NO_ACCESS,
-				'sales_status': MetrcDownloadStatus.SUCCESS,
-				'transfers_status': MetrcDownloadStatus.SUCCESS,
+				'harvests_status': MetrcLicenseCategoryDownloadStatus.NO_ACCESS,
+				'packages_status': MetrcLicenseCategoryDownloadStatus.SUCCESS,
+				'plant_batches_status': MetrcLicenseCategoryDownloadStatus.NO_ACCESS,
+				'plants_status': MetrcLicenseCategoryDownloadStatus.NO_ACCESS,
+				'sales_status': MetrcLicenseCategoryDownloadStatus.SUCCESS,
+				'transfers_status': MetrcLicenseCategoryDownloadStatus.SUCCESS,
 			},
 		)
 
@@ -142,12 +142,12 @@ class TestMetrcDownloadSummary(unittest.TestCase):
 			},
 			expected={
 				'status': MetrcDownloadSummaryStatus.NEEDS_RETRY,
-				'harvests_status': MetrcDownloadStatus.NO_ACCESS,
-				'packages_status': MetrcDownloadStatus.METRC_SERVER_ERROR,
-				'plant_batches_status': MetrcDownloadStatus.NO_ACCESS,
-				'plants_status': MetrcDownloadStatus.NO_ACCESS,
-				'sales_status': MetrcDownloadStatus.SUCCESS,
-				'transfers_status': MetrcDownloadStatus.SUCCESS,
+				'harvests_status': MetrcLicenseCategoryDownloadStatus.NO_ACCESS,
+				'packages_status': MetrcLicenseCategoryDownloadStatus.METRC_SERVER_ERROR,
+				'plant_batches_status': MetrcLicenseCategoryDownloadStatus.NO_ACCESS,
+				'plants_status': MetrcLicenseCategoryDownloadStatus.NO_ACCESS,
+				'sales_status': MetrcLicenseCategoryDownloadStatus.SUCCESS,
+				'transfers_status': MetrcLicenseCategoryDownloadStatus.SUCCESS,
 			},
 		)
 
@@ -173,12 +173,12 @@ class TestMetrcDownloadSummary(unittest.TestCase):
 			},
 			expected={
 				'status': MetrcDownloadSummaryStatus.NEEDS_RETRY,
-				'harvests_status': MetrcDownloadStatus.NO_ACCESS,
-				'packages_status': MetrcDownloadStatus.BESPOKE_SERVER_ERROR,
-				'plant_batches_status': MetrcDownloadStatus.NO_ACCESS,
-				'plants_status': MetrcDownloadStatus.NO_ACCESS,
-				'sales_status': MetrcDownloadStatus.SUCCESS,
-				'transfers_status': MetrcDownloadStatus.SUCCESS,
+				'harvests_status': MetrcLicenseCategoryDownloadStatus.NO_ACCESS,
+				'packages_status': MetrcLicenseCategoryDownloadStatus.BESPOKE_SERVER_ERROR,
+				'plant_batches_status': MetrcLicenseCategoryDownloadStatus.NO_ACCESS,
+				'plants_status': MetrcLicenseCategoryDownloadStatus.NO_ACCESS,
+				'sales_status': MetrcLicenseCategoryDownloadStatus.SUCCESS,
+				'transfers_status': MetrcLicenseCategoryDownloadStatus.SUCCESS,
 			},
 		)
 
@@ -209,12 +209,12 @@ class TestMetrcDownloadSummary(unittest.TestCase):
 			},
 			expected={
 				'status': MetrcDownloadSummaryStatus.NEEDS_RETRY,
-				'harvests_status': MetrcDownloadStatus.NO_ACCESS,
-				'packages_status': MetrcDownloadStatus.BESPOKE_SERVER_ERROR,
-				'plant_batches_status': MetrcDownloadStatus.NO_ACCESS,
-				'plants_status': MetrcDownloadStatus.NO_ACCESS,
-				'sales_status': MetrcDownloadStatus.SUCCESS,
-				'transfers_status': MetrcDownloadStatus.METRC_SERVER_ERROR,
+				'harvests_status': MetrcLicenseCategoryDownloadStatus.NO_ACCESS,
+				'packages_status': MetrcLicenseCategoryDownloadStatus.BESPOKE_SERVER_ERROR,
+				'plant_batches_status': MetrcLicenseCategoryDownloadStatus.NO_ACCESS,
+				'plants_status': MetrcLicenseCategoryDownloadStatus.NO_ACCESS,
+				'sales_status': MetrcLicenseCategoryDownloadStatus.SUCCESS,
+				'transfers_status': MetrcLicenseCategoryDownloadStatus.METRC_SERVER_ERROR,
 			},
 		)
 

@@ -24,13 +24,12 @@ from os import path
 from typing import cast
 
 # Path hack before we try to import bespoke
-sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
-sys.path.append(path.realpath(path.join(path.dirname(__file__), "../")))
+sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../../src")))
+sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../")))
 
 from dotenv import load_dotenv
 from server.config import get_config, is_development_env
 
-from bespoke.config.config_util import MetrcWorkerConfig
 from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.models import session_scope
@@ -91,7 +90,7 @@ def main(
 
 	with session_scope(session_maker) as session:
 		metrc_api_key = cast(
-			models.Company,
+			models.MetrcApiKey,
 			session.query(models.MetrcApiKey).filter(
 				models.MetrcApiKey.is_deleted == False
 			).filter(
@@ -111,7 +110,7 @@ def main(
 			exit(1)
 
 		metrc_api_key_id = str(metrc_api_key.id)
-		license_numbers = [license_permissions['license_number'] for license_permissions in metrc_api_key.permissions_payload]
+		license_numbers = [license_permissions['license_number'] for license_permissions in cast(metrc_common_util.MetrcApiKeyPermissions, metrc_api_key.permissions_payload)]
 
 	parsed_start_date = date_util.load_date_str(start_date_str)
 

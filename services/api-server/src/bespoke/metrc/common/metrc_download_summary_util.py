@@ -6,7 +6,7 @@ from sqlalchemy.orm.session import Session
 
 from bespoke import errors
 from bespoke.db import models
-from bespoke.db.db_constants import MetrcDownloadStatus, MetrcDownloadSummaryStatus
+from bespoke.db.db_constants import MetrcLicenseCategoryDownloadStatus, MetrcDownloadSummaryStatus
 from bespoke.metrc.common import metrc_common_util
 from bespoke.metrc.common.metrc_error_util import MetrcRetryError
 
@@ -24,12 +24,12 @@ def _create_metrc_download_summary_instance(
 	"""
 	# Initialize fields based on whether we have permissions to the appropriate type of data or not.
 	summary = models.MetrcDownloadSummary(
-		harvests_status=MetrcDownloadStatus.SUCCESS if license_permissions_dict['is_harvests_enabled'] else MetrcDownloadStatus.NO_ACCESS,
-		packages_status=MetrcDownloadStatus.SUCCESS if license_permissions_dict['is_packages_enabled'] else MetrcDownloadStatus.NO_ACCESS,
-		plant_batches_status=MetrcDownloadStatus.SUCCESS if license_permissions_dict['is_plant_batches_enabled'] else MetrcDownloadStatus.NO_ACCESS,
-		plants_status=MetrcDownloadStatus.SUCCESS if license_permissions_dict['is_plants_enabled'] else MetrcDownloadStatus.NO_ACCESS,
-		sales_status=MetrcDownloadStatus.SUCCESS if license_permissions_dict['is_sales_receipts_enabled'] else MetrcDownloadStatus.NO_ACCESS,
-		transfers_status=MetrcDownloadStatus.SUCCESS if license_permissions_dict['is_transfers_enabled'] else MetrcDownloadStatus.NO_ACCESS,
+		harvests_status=MetrcLicenseCategoryDownloadStatus.SUCCESS if license_permissions_dict['is_harvests_enabled'] else MetrcLicenseCategoryDownloadStatus.NO_ACCESS,
+		packages_status=MetrcLicenseCategoryDownloadStatus.SUCCESS if license_permissions_dict['is_packages_enabled'] else MetrcLicenseCategoryDownloadStatus.NO_ACCESS,
+		plant_batches_status=MetrcLicenseCategoryDownloadStatus.SUCCESS if license_permissions_dict['is_plant_batches_enabled'] else MetrcLicenseCategoryDownloadStatus.NO_ACCESS,
+		plants_status=MetrcLicenseCategoryDownloadStatus.SUCCESS if license_permissions_dict['is_plants_enabled'] else MetrcLicenseCategoryDownloadStatus.NO_ACCESS,
+		sales_status=MetrcLicenseCategoryDownloadStatus.SUCCESS if license_permissions_dict['is_sales_receipts_enabled'] else MetrcLicenseCategoryDownloadStatus.NO_ACCESS,
+		transfers_status=MetrcLicenseCategoryDownloadStatus.SUCCESS if license_permissions_dict['is_transfers_enabled'] else MetrcLicenseCategoryDownloadStatus.NO_ACCESS,
 		status=MetrcDownloadSummaryStatus.COMPLETED,
 		num_retries=0,
 		retry_payload={},
@@ -44,13 +44,13 @@ def _create_metrc_download_summary_instance(
 			# value.
 			return
 
-		if newer_status == MetrcDownloadStatus.NO_ACCESS:
+		if newer_status == MetrcLicenseCategoryDownloadStatus.NO_ACCESS:
 			# We ignore when we have NO_ACCESS to an API endpoint since
 			# retrying wont do anything there.
 			pass
-		elif newer_status == MetrcDownloadStatus.METRC_SERVER_ERROR:
+		elif newer_status == MetrcLicenseCategoryDownloadStatus.METRC_SERVER_ERROR:
 			summary.status = MetrcDownloadSummaryStatus.NEEDS_RETRY
-		elif newer_status == MetrcDownloadStatus.BESPOKE_SERVER_ERROR:
+		elif newer_status == MetrcLicenseCategoryDownloadStatus.BESPOKE_SERVER_ERROR:
 			summary.status = MetrcDownloadSummaryStatus.NEEDS_RETRY
 
 	err_details: Dict = {
@@ -61,7 +61,7 @@ def _create_metrc_download_summary_instance(
 		newer_status = retry_error.get_api_status()
 		_update_summary_status(newer_status)
 
-		if cur_status == MetrcDownloadStatus.NO_ACCESS:
+		if cur_status == MetrcLicenseCategoryDownloadStatus.NO_ACCESS:
 			# No one can override NO_ACCESS
 			return cur_status
 
@@ -70,7 +70,7 @@ def _create_metrc_download_summary_instance(
 			'err_details': retry_error.err_details,
 		})
  
-		if cur_status == MetrcDownloadStatus.METRC_SERVER_ERROR:
+		if cur_status == MetrcLicenseCategoryDownloadStatus.METRC_SERVER_ERROR:
 			# Metrc server error comes next in precedence
 			return cur_status
 
@@ -154,9 +154,14 @@ def is_metrc_download_summary_previously_successful(
 	if not existing_metrc_download_summary:
 		return False
 
+	# If status is FAILURE, treat it as if the download was previously successful.
+	# A developer should investigate summaries with status FAILURE (even the retry logic did not work).
+	if existing_metrc_download_summary.status == MetrcDownloadSummaryStatus.FAILURE:
+		return True
+
 	nlpd = new_license_permissions_dict
 	existing = existing_metrc_download_summary
-	success_status = MetrcDownloadStatus.SUCCESS
+	success_status = MetrcLicenseCategoryDownloadStatus.SUCCESS
 	# If the new license permissions dict has permission to data that
 	# the previous download summary did not successfully download,
 	# do NOT consider the previous download successful.
@@ -203,7 +208,7 @@ def write_metrc_download_summary(
 
 	if retry_errors:
 		for retry_error in retry_errors:
-			if retry_error.get_api_status() == MetrcDownloadStatus.NO_ACCESS:
+			if retry_error.get_api_status() == MetrcLicenseCategoryDownloadStatus.NO_ACCESS:
 				continue
 
 			logging.error('Error with one of the metrc downloads for day {} company {}. Reason: {}'.format(
