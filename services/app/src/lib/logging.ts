@@ -5,14 +5,14 @@ export const logMessage = (message: string): void => {
   Sentry.captureMessage(message);
 };
 
-export enum GraphQLQueryTypes {
+enum GraphQLQueryTypes {
   Mutation = "mutation",
   Query = "query",
   Subscription = "subscription",
 }
 
-export const logGraphQLError = (
-  err: ApolloError,
+const logGraphQLError = (
+  apolloErorr: ApolloError,
   queryType: GraphQLQueryTypes,
   queryName: string,
   variables: Record<string, any>
@@ -21,6 +21,19 @@ export const logGraphQLError = (
     scope.setTag("kind", queryType);
     scope.setExtra("query", queryName);
     scope.setExtra("variables", variables);
-    Sentry.captureException(err);
+    Sentry.captureException(apolloErorr);
   });
+};
+
+export const logGraphQLQueryError = (
+  apolloErorr: ApolloError,
+  queryName: string,
+  queryVariables: Record<string, any>
+): void => {
+  logGraphQLError(
+    apolloErorr,
+    GraphQLQueryTypes.Query,
+    queryName,
+    queryVariables
+  );
 };

@@ -12,7 +12,7 @@ import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { createUpdateLicensesMutation } from "lib/api/licenses";
 import { FileTypeEnum } from "lib/enum";
-import { GraphQLQueryTypes, logGraphQLError } from "lib/logging";
+import { logGraphQLQueryError } from "lib/logging";
 import { useMemo, useState } from "react";
 
 interface Props {
@@ -163,14 +163,9 @@ export default function UpdateCompanyLicensesModal({
   if (error) {
     alert(`Error in query: ${error.message}`);
     console.error({ error });
-    logGraphQLError(
-      error,
-      GraphQLQueryTypes.Query,
-      "useGetVendorCompanyFileAttachmentsQuery",
-      {
-        company_id: companyId,
-      }
-    );
+    logGraphQLQueryError(error, "useGetVendorCompanyFileAttachmentsQuery", {
+      company_id: companyId,
+    });
   }
 
   const [createUpdateLicenses, { loading: isCreateUpdateLicensesLoading }] =
