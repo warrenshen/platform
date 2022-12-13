@@ -88,7 +88,7 @@ function ReviewPurchaseOrderCompletePage(props: any) {
                   dataCy={`purchase-order-review-card${index}`}
                   purchaseOrder={purchaseOrder}
                   handleClick={() => {
-                    navigate(anonymousRoutes.reviewPurchaseOrderNew, {
+                    navigate(anonymousRoutes.reviewPurchaseOrder, {
                       state: {
                         payload: {
                           purchase_order_id: purchaseOrder.id,

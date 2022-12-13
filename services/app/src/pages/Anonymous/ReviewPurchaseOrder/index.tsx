@@ -1,14 +1,17 @@
-import {
-  Box,
-  Button,
-  Theme,
-  Typography,
-  createStyles,
-  makeStyles,
-} from "@material-ui/core";
+import { Box, Theme, createStyles, makeStyles } from "@material-ui/core";
+import ReviewPurchaseOrderApproveModalNew from "components/PurchaseOrder/ReviewPurchaseOrderApproveModalNew";
+import ReviewPurchaseOrderRejectModalNew from "components/PurchaseOrder/ReviewPurchaseOrderRejectModalNew";
+import ReviewPurchaseOrderRequestChangesModal from "components/PurchaseOrder/ReviewPurchaseOrderRequestChangesModal";
+import PrimaryButton from "components/Shared/Button/PrimaryButton";
+import SecondaryButton from "components/Shared/Button/SecondaryButton";
+import SecondaryWarningButton from "components/Shared/Button/SecondaryWarningButton";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
+import ModalDataPoint from "components/Shared/Modal/ModalDataPoint";
+import FlexContent from "components/Shared/Page/FlexContent";
+import Text, { TextVariants } from "components/Shared/Text/Text";
 import MetrcTransferInfoCardForVendor from "components/Transfers/MetrcTransferInfoCardForVendor";
 import {
+  Maybe,
   PurchaseOrderFileTypeEnum,
   RequestStatusEnum,
   useGetPurchaseOrderForReviewQuery,
@@ -21,26 +24,32 @@ import { formatCurrency } from "lib/number";
 import { computePurchaseOrderDueDateDateStringClient } from "lib/purchaseOrders";
 import { anonymousRoutes } from "lib/routes";
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { isMobile } from "react-device-detect";
+import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
-import ReviewPurchaseOrderApproveModal from "./ReviewPurchaseOrderApproveModal";
-import ReviewPurchaseOrderRejectModal from "./ReviewPurchaseOrderRejectModal";
-
-const Buttons = styled.div`
+const Buttons = styled(Box)<{
+  $padding: Maybe<string>;
+}>`
   display: flex;
+  align-items: center;
 
   width: 100%;
+
+  padding: ${(props) => (props.$padding ? props.$padding : "0")};
 `;
 
-const StyledButton = styled(Button)`
-  flex: 1;
-
-  padding: 8px 0px;
-`;
-
-const ButtonSpace = styled.div`
-  width: 12px;
+const FixedBox = styled(Box)<{
+  $height: number;
+}>`
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: ${(props) => props.$height}px;
+  border-top: #d4d3d0 1px solid;
+  padding: 23px 0;
+  background: #fff;
 `;
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -57,28 +66,22 @@ const useStyles = makeStyles((theme: Theme) =>
       display: "flex",
       flexDirection: "column",
       width: "100%",
-      maxWidth: 500,
-      paddingTop: theme.spacing(8),
-      paddingBottom: theme.spacing(8),
-      paddingLeft: theme.spacing(2),
-      paddingRight: theme.spacing(2),
+      maxWidth: 600,
     },
   })
 );
 
-interface Props {
-  location: any;
-}
-
-export default function ReviewPurchaseOrderPage({ location }: Props) {
+export default function ReviewPurchaseOrderPage() {
   const classes = useStyles();
 
-  const payload = location.state?.payload;
-  const linkVal = location.state?.link_val;
+  const { state } = useLocation();
+  const { payload, link_val: linkVal } = state;
   const purchaseOrderId = payload?.purchase_order_id;
 
   const navigate = useNavigate();
   const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
+  const [isRequestChangesModalOpen, setIsRequestChangesModalOpen] =
+    useState(false);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
 
   const {
@@ -139,26 +142,24 @@ export default function ReviewPurchaseOrderPage({ location }: Props) {
   const isDataReady = !isPurchaseOrderLoading && !error;
 
   return (
-    <Box className={classes.wrapper}>
+    <FlexContent>
       <Box className={classes.container}>
         {!isDataReady ? (
           <Box display="flex" flexDirection="column">
             {!!error ? (
-              <>
-                <Typography variant="h5">
+              <Box display="flex" flexDirection="column" mt={2}>
+                <Text textVariant={TextVariants.Paragraph}>
                   A network error occurred. Please check your network connection
                   and try again.
-                </Typography>
-                <Box display="flex" flexDirection="column" mt={2}>
-                  <StyledButton
-                    variant={"contained"}
-                    color={"primary"}
-                    onClick={() => refetch()}
-                  >
-                    Retry
-                  </StyledButton>
-                </Box>
-              </>
+                </Text>
+                <PrimaryButton
+                  dataCy={"vendor-review-retry-data-load-button"}
+                  text={"Retry"}
+                  height={"40px"}
+                  margin={"0"}
+                  onClick={() => refetch()}
+                />
+              </Box>
             ) : (
               <Box
                 display="flex"
@@ -166,31 +167,45 @@ export default function ReviewPurchaseOrderPage({ location }: Props) {
                 alignItems="center"
                 mt={2}
               >
-                <Typography variant="h5">Loading...</Typography>
+                <Text textVariant={TextVariants.Paragraph}>Loading...</Text>
               </Box>
             )}
           </Box>
         ) : !purchaseOrder || !!purchaseOrder.is_deleted ? (
           <Box display="flex" flexDirection="column">
-            <Typography variant="h5">Purchase order does not exist</Typography>
+            <Text textVariant={TextVariants.Paragraph}>
+              Purchase order does not exist
+            </Text>
           </Box>
         ) : (
           <>
-            <Box display="flex" flexDirection="column">
-              <Typography variant="h5">{`Approval requested for PO ${purchaseOrder.order_number}`}</Typography>
-              <Box mt={1}>
-                <Typography variant="body2">
-                  This purchase order requires your approval before Bespoke
-                  Financial can finance it. Please review the information and
-                  select either approve or reject.
-                </Typography>
-              </Box>
-            </Box>
+            <Text
+              alignment={"center"}
+              materialVariant={"h1"}
+              textVariant={
+                isMobile ? TextVariants.ParagraphLead : TextVariants.Header
+              }
+            >
+              {`Approval Request for PO ${purchaseOrder.order_number}`}
+            </Text>
+            <Text
+              materialVariant={"p"}
+              textVariant={
+                isMobile ? TextVariants.Paragraph : TextVariants.ParagraphLead
+              }
+            >
+              This purchase order new requires your approval before Bespoke
+              Financial can finance it. Please review the information and select
+              either approve, reject, or request changes.
+            </Text>
             {isMetrcBased && (
               <Box display="flex" flexDirection="column" mt={2}>
-                <Typography variant="body2" color="textSecondary">
+                <Text
+                  textVariant={TextVariants.Paragraph}
+                  color="textSecondary"
+                >
                   Related Metrc manifest
-                </Typography>
+                </Text>
                 {metrcTransfers.map((metrcTransfer) => (
                   <Box
                     key={metrcTransfer.id}
@@ -205,50 +220,30 @@ export default function ReviewPurchaseOrderPage({ location }: Props) {
                 ))}
               </Box>
             )}
+            <ModalDataPoint
+              subtitle={"Buyer"}
+              text={getCompanyDisplayName(purchaseOrder.company)}
+            />
+            <ModalDataPoint
+              subtitle={"PO Number"}
+              text={purchaseOrder.order_number}
+            />
+            <ModalDataPoint
+              subtitle={"Amount"}
+              text={formatCurrency(purchaseOrder.amount)}
+            />
+            <ModalDataPoint
+              subtitle={"PO Date"}
+              text={formatDateString(purchaseOrder.order_date)}
+            />
+            <ModalDataPoint
+              subtitle={"Due Date"}
+              text={computePurchaseOrderDueDateDateStringClient(purchaseOrder)}
+            />
             <Box display="flex" flexDirection="column" mt={2}>
-              <Typography variant="subtitle2" color="textSecondary">
-                Buyer
-              </Typography>
-              <Typography variant={"body1"}>
-                {getCompanyDisplayName(purchaseOrder.company)}
-              </Typography>
-            </Box>
-            <Box display="flex" flexDirection="column" mt={2}>
-              <Typography variant="subtitle2" color="textSecondary">
-                PO Number
-              </Typography>
-              <Typography variant={"body1"}>
-                {purchaseOrder.order_number}
-              </Typography>
-            </Box>
-            <Box display="flex" flexDirection="column" mt={2}>
-              <Typography variant="subtitle2" color="textSecondary">
-                Amount
-              </Typography>
-              <Typography variant={"body1"}>
-                {formatCurrency(purchaseOrder.amount)}
-              </Typography>
-            </Box>
-            <Box display="flex" flexDirection="column" mt={2}>
-              <Typography variant="subtitle2" color="textSecondary">
-                PO Date
-              </Typography>
-              <Typography variant={"body1"}>
-                {formatDateString(purchaseOrder.order_date)}
-              </Typography>
-            </Box>
-            <Box display="flex" flexDirection="column" mt={2}>
-              <Typography variant="subtitle2" color="textSecondary">
-                Due Date
-              </Typography>
-              <Typography variant={"body1"}>
-                {computePurchaseOrderDueDateDateStringClient(purchaseOrder)}
-              </Typography>
-            </Box>
-            <Box display="flex" flexDirection="column" mt={2}>
-              <Typography variant="subtitle2" color="textSecondary">
+              <Text textVariant={TextVariants.Paragraph}>
                 Purchase Order File
-              </Typography>
+              </Text>
               <DownloadThumbnail
                 fileIds={purchaseOrderFileIds}
                 fileType={FileTypeEnum.PurchaseOrder}
@@ -256,9 +251,9 @@ export default function ReviewPurchaseOrderPage({ location }: Props) {
             </Box>
             {!isMetrcBased && purchaseOrder.is_cannabis && (
               <Box display="flex" flexDirection="column" mt={2}>
-                <Typography variant="subtitle2" color="textSecondary">
+                <Text textVariant={TextVariants.Paragraph}>
                   Cannabis or Derivatives File(s)
-                </Typography>
+                </Text>
                 <DownloadThumbnail
                   fileIds={purchaseOrderCannabisFileIds}
                   fileType={FileTypeEnum.PurchaseOrder}
@@ -267,53 +262,121 @@ export default function ReviewPurchaseOrderPage({ location }: Props) {
             )}
             <Box display="flex" justifyContent="center" mt={6}>
               {isApproveModalOpen && (
-                <ReviewPurchaseOrderApproveModal
+                <ReviewPurchaseOrderApproveModalNew
                   purchaseOrder={purchaseOrder}
                   linkVal={linkVal}
                   handleClose={() => setIsApproveModalOpen(false)}
                   handleApproveSuccess={() => {
-                    navigate({
-                      pathname: anonymousRoutes.reviewPurchaseOrderComplete,
+                    navigate(anonymousRoutes.reviewPurchaseOrderComplete, {
+                      state: {
+                        vendor_id: purchaseOrder.vendor_id,
+                        link_val: linkVal,
+                      },
                     });
                   }}
                 />
               )}
-              {isRejectModalOpen && (
-                <ReviewPurchaseOrderRejectModal
+              {isRequestChangesModalOpen && (
+                <ReviewPurchaseOrderRequestChangesModal
                   purchaseOrderId={purchaseOrder.id}
                   linkVal={linkVal}
-                  handleClose={() => setIsRejectModalOpen(false)}
-                  handleRejectSuccess={() =>
-                    navigate({
-                      pathname: anonymousRoutes.reviewPurchaseOrderComplete,
+                  handleClose={() => setIsRequestChangesModalOpen(false)}
+                  handleRequestChangesSuccess={() =>
+                    navigate(anonymousRoutes.reviewPurchaseOrderComplete, {
+                      state: {
+                        vendor_id: purchaseOrder.vendor_id,
+                        link_val: linkVal,
+                      },
                     })
                   }
                 />
               )}
-              <Buttons>
-                <StyledButton
-                  disabled={false}
-                  variant={"outlined"}
-                  color={"default"}
-                  onClick={() => setIsRejectModalOpen(true)}
-                >
-                  Reject
-                </StyledButton>
-                <ButtonSpace />
-                <StyledButton
-                  data-cy={"vendor-approve-po"}
-                  disabled={false}
-                  variant={"contained"}
-                  color={"primary"}
-                  onClick={() => setIsApproveModalOpen(true)}
-                >
-                  Approve
-                </StyledButton>
-              </Buttons>
+              {isRejectModalOpen && (
+                <ReviewPurchaseOrderRejectModalNew
+                  purchaseOrderId={purchaseOrder.id}
+                  linkVal={linkVal}
+                  handleClose={() => setIsRejectModalOpen(false)}
+                  handleRejectSuccess={() =>
+                    navigate(anonymousRoutes.reviewPurchaseOrderComplete, {
+                      state: {
+                        vendor_id: purchaseOrder.vendor_id,
+                        link_val: linkVal,
+                      },
+                    })
+                  }
+                />
+              )}
+              {isMobile ? (
+                <FixedBox display="flex" flexDirection="column" $height={140}>
+                  <Buttons
+                    mb={"16px"}
+                    $padding={"0 10px"}
+                    display="flex"
+                    flexDirection="row"
+                    justifyContent="space-between"
+                  >
+                    <SecondaryWarningButton
+                      dataCy={"vendor-reject-completely-button"}
+                      text={"Reject completely"}
+                      margin={"0"}
+                      padding={"11px 0"}
+                      width={"48%"}
+                      height={"40px"}
+                      onClick={() => setIsRejectModalOpen(true)}
+                    />
+                    <SecondaryButton
+                      dataCy={"vendor-requests-changes-button"}
+                      text={"Request Changes"}
+                      margin={"0"}
+                      padding={"11px 0"}
+                      width={"48%"}
+                      height={"40px"}
+                      onClick={() => setIsRequestChangesModalOpen(true)}
+                    />
+                  </Buttons>
+                  <Buttons $padding={"0 10px"} justifyContent="center">
+                    <PrimaryButton
+                      dataCy={"vendor-approve-button"}
+                      text={"Approve"}
+                      margin={"0"}
+                      padding={"11px 0"}
+                      width={"100%"}
+                      height={"40px"}
+                      onClick={() => setIsApproveModalOpen(true)}
+                    />
+                  </Buttons>
+                </FixedBox>
+              ) : (
+                <FixedBox display="flex" flexDirection="column" $height={86}>
+                  <Buttons $padding={"0"} justifyContent="center">
+                    <SecondaryWarningButton
+                      dataCy={"vendor-reject-completely-button"}
+                      text={"Reject completely"}
+                      width={"288px"}
+                      height={"40px"}
+                      onClick={() => setIsRejectModalOpen(true)}
+                    />
+                    <SecondaryButton
+                      dataCy={"vendor-requests-changes-button"}
+                      text={"Request Changes"}
+                      width={"288px"}
+                      height={"40px"}
+                      onClick={() => setIsRequestChangesModalOpen(true)}
+                    />
+                    <PrimaryButton
+                      dataCy={"vendor-approve-button"}
+                      text={"Approve"}
+                      width={"288px"}
+                      height={"40px"}
+                      onClick={() => setIsApproveModalOpen(true)}
+                    />
+                  </Buttons>
+                </FixedBox>
+              )}
             </Box>
           </>
         )}
       </Box>
-    </Box>
+    </FlexContent>
   );
 }

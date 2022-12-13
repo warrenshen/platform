@@ -6,7 +6,7 @@ import { anonymousRoutes, routes } from "lib/routes";
 import { useCallback, useContext, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import AuthenticateViaTwoFactorPage from "../AuthenticateViaTwoFactor";
+import AuthenticateViaTwoFactorPageNew from "../AuthenticateViaTwoFactorNew";
 
 type FormInfo = {
   type: string;
@@ -22,7 +22,7 @@ type GetSecureLinkPayloadResp = {
 };
 
 const linkTypeToRoute: { [type: string]: string } = {
-  confirm_purchase_order: anonymousRoutes.reviewPurchaseOrderOld,
+  confirm_purchase_order: anonymousRoutes.reviewPurchaseOrder,
   confirm_invoice: anonymousRoutes.reviewInvoice,
   forgot_password: anonymousRoutes.resetPassword,
   pay_invoice: anonymousRoutes.reviewInvoicePayment,
@@ -103,7 +103,7 @@ function SecureLink() {
   }, [linkVal, navigate, resetUser, codeEntered, snackbar]);
 
   return (
-    <AuthenticateViaTwoFactorPage
+    <AuthenticateViaTwoFactorPageNew
       linkVal={linkVal}
       codeEntered={codeEntered}
       setCodeEntered={setCodeEntered}

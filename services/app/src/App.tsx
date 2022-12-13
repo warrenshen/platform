@@ -22,9 +22,7 @@ import ReviewInvoicePaymentPage from "pages/Anonymous/ReviewInvoicePayment";
 import ReviewInvoicePaymentCompletePage from "pages/Anonymous/ReviewInvoicePaymentComplete";
 import ReviewPurchaseOrderPage from "pages/Anonymous/ReviewPurchaseOrder";
 import ReviewPurchaseOrderCompletePage from "pages/Anonymous/ReviewPurchaseOrderComplete";
-import ReviewPurchaseOrderPageNew from "pages/Anonymous/ReviewPurchaseOrderNew";
 import AnonymousSecureLinkPage from "pages/Anonymous/SecureLink";
-import AnonymousSecureLinkPageNew from "pages/Anonymous/SecureLinkNew";
 import SignIn from "pages/Anonymous/SignIn";
 import VendorFormPage from "pages/Anonymous/VendorForm";
 import BankAdvancesPage from "pages/Bank/Advances";
@@ -96,20 +94,16 @@ export default function App() {
         />
         <Route
           path={anonymousRoutes.secureLinkNew}
-          element={<AnonymousSecureLinkPageNew />}
+          element={<AnonymousSecureLinkPage />}
         />
         {/* Reviewer user routes */}
         <Route
-          path={anonymousRoutes.reviewPurchaseOrderOld}
-          element={<ReviewPurchaseOrderPage location={""} />}
-        />
-        <Route
-          path={anonymousRoutes.reviewPurchaseOrderNew}
-          element={<ReviewPurchaseOrderPageNew />}
+          path={anonymousRoutes.reviewPurchaseOrder}
+          element={<ReviewPurchaseOrderPage />}
         />
         <Route
           path={anonymousRoutes.reviewPurchaseOrderComplete}
-          element={<ReviewPurchaseOrderCompletePage location={""} />}
+          element={<ReviewPurchaseOrderCompletePage />}
         />
         <Route
           path={anonymousRoutes.reviewInvoice}
