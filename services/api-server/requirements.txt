@@ -5,11 +5,10 @@
 #    pip-compile --output-file=requirements.txt requirements.in
 #
 add-trailing-comma==2.2.3  # via -r requirements.in
-aiosignal==1.3.1          # via ray
 alembic==1.6.5            # via dagster
 aniso8601==7.0.0          # via graphene
 astroid==2.11.5           # via pylint
-attrs==21.2.0             # via jsonschema, ray
+attrs==21.2.0             # via jsonschema
 beautifulsoup4==4.10.0    # via -r requirements.in
 bleach==3.3.1             # via nbconvert
 blinker==1.4              # via sentry-sdk
@@ -18,7 +17,7 @@ botocore==1.19.50         # via boto3, s3transfer
 cachetools==4.2.4         # via google-auth
 certifi==2020.12.5        # via requests, sentry-sdk
 chardet==4.0.0            # via requests
-click==7.1.2              # via dagit, dagster, flask, pip-tools, ray, safety
+click==7.1.2              # via dagit, dagster, flask, pip-tools, safety
 coloredlogs==14.0         # via dagster
 convertdate==2.3.1        # via holidays
 croniter==1.0.15          # via dagster
@@ -28,21 +27,18 @@ dagster-graphql==0.12.3   # via dagit
 dagster==0.12.3           # via -r requirements.in, dagit, dagster-graphql
 defusedxml==0.7.1         # via nbconvert
 dill==0.3.5.1             # via pylint
-distlib==0.3.6            # via virtualenv
 docstring-parser==0.10    # via dagster
 dparse==0.5.1             # via safety
 entrypoints==0.3          # via nbconvert
 et-xmlfile==1.0.1         # via openpyxl
 fastapi-utils==0.2.1      # via -r requirements.in
 fastapi==0.63.0           # via fastapi-utils
-filelock==3.8.0           # via ray, virtualenv
 flask-cors==3.0.9         # via -r requirements.in, dagit
 flask-graphql==2.0.1      # via dagit
 flask-jwt-extended==3.25.0  # via -r requirements.in
 flask-script==2.0.6       # via -r requirements.in
 flask-sockets==0.2.1      # via dagit
 flask==1.1.2              # via -r requirements.in, dagit, flask-cors, flask-graphql, flask-jwt-extended, flask-script, flask-sockets, sentry-sdk
-frozenlist==1.3.3         # via aiosignal, ray
 future==0.18.2            # via dagster, sqlalchemy-bigquery
 gevent-websocket==0.10.1  # via dagit, dagster-graphql, flask-sockets
 gevent==21.1.2            # via dagit, dagster-graphql, flask-sockets, gevent-websocket
@@ -64,7 +60,7 @@ graphql-ws==0.3.1         # via dagit
 greenlet==1.1.0           # via gevent
 grpcio-health-checking==1.39.0  # via dagster
 grpcio-status==1.42.0     # via google-api-core
-grpcio==1.42.0            # via dagster, google-api-core, google-cloud-bigquery, grpcio-health-checking, grpcio-status, ray
+grpcio==1.42.0            # via dagster, google-api-core, google-cloud-bigquery, grpcio-health-checking, grpcio-status
 gunicorn==20.0.4          # via -r requirements.in
 holidays==0.10.3          # via -r requirements.in
 humanfriendly==9.2        # via coloredlogs
@@ -75,7 +71,7 @@ itsdangerous==1.1.0       # via -r requirements.in, flask
 jinja2==2.11.2            # via -r requirements.in, dagster, flask, jinjasql, nbconvert
 jinjasql==0.1.8           # via -r requirements.in
 jmespath==0.10.0          # via boto3, botocore
-jsonschema==3.2.0         # via nbformat, ray
+jsonschema==3.2.0         # via nbformat
 jupyter-core==4.7.1       # via nbconvert, nbformat
 kiwisolver==1.3.2         # via matplotlib
 korean-lunar-calendar==0.2.1  # via holidays
@@ -86,12 +82,11 @@ markupsafe==1.1.1         # via jinja2, mako
 matplotlib==3.4.3         # via -r requirements.in
 mccabe==0.7.0             # via pylint
 mistune==0.8.4            # via nbconvert
-msgpack==1.0.3            # via ray
 mypy-extensions==0.4.3    # via mypy, typing-inspect
-mypy==0.931               # via -r requirements.in, sqlalchemy-stubs, typed-ray
+mypy==0.931               # via -r requirements.in, sqlalchemy-stubs
 nbconvert==5.6.1          # via dagit
 nbformat==5.1.3           # via nbconvert
-numpy==1.20.0             # via -r requirements.in, matplotlib, pandas, pyarrow, ray
+numpy==1.23.5             # via -r requirements.in, matplotlib, pandas, pyarrow
 openpyxl==3.0.7           # via -r requirements.in
 packaging==21.0           # via bleach, dagster, dparse, google-cloud-bigquery, google-cloud-bigquery-storage, safety
 pandas==1.3.2             # via -r requirements.in
@@ -101,11 +96,10 @@ pdfkit==0.6.1             # via -r requirements.in
 pendulum==2.1.2           # via dagster
 pillow==8.4.0             # via matplotlib
 pip-tools==5.4.0          # via -r requirements.in
-platformdirs==2.5.2       # via pylint, virtualenv
+platformdirs==2.5.2       # via pylint
 promise==2.3              # via gql, graphql-core, graphql-relay, graphql-server-core
 proto-plus==1.19.8        # via google-cloud-bigquery, google-cloud-bigquery-storage
-protobuf==3.19.1          # via dagster, google-api-core, google-cloud-bigquery, google-cloud-storage, googleapis-common-protos, grpcio-health-checking, grpcio-status, proto-plus, ray
-psutil==5.8.0             # via -r requirements.in
+protobuf==3.19.1          # via dagster, google-api-core, google-cloud-bigquery, google-cloud-storage, googleapis-common-protos, grpcio-health-checking, grpcio-status, proto-plus
 psycopg2-binary==2.8.5    # via -r requirements.in
 pyarrow==5.0.0            # via -r requirements.in
 pyasn1-modules==0.2.8     # via google-auth
@@ -123,9 +117,8 @@ python-editor==1.0.4      # via alembic
 python-http-client==3.3.1  # via sendgrid
 pytz==2021.1              # via convertdate, pandas, twilio
 pytzdata==2020.1          # via pendulum
-pyyaml==5.3.1             # via dagit, dagster, dparse, libcst, ray
-ray==1.13.0               # via typed-ray
-requests==2.25.1          # via dagit, dagster-graphql, google-api-core, google-cloud-bigquery, google-cloud-storage, gql, ray, safety, twilio
+pyyaml==5.3.1             # via dagit, dagster, dparse, libcst
+requests==2.25.1          # via dagit, dagster-graphql, google-api-core, google-cloud-bigquery, google-cloud-storage, gql, safety, twilio
 rsa==4.8                  # via google-auth
 rx==1.6.1                 # via dagster, graphql-core
 s3transfer==0.3.3         # via boto3
@@ -150,7 +143,6 @@ toposort==1.6             # via dagster
 tqdm==4.61.2              # via dagster
 traitlets==5.0.5          # via jupyter-core, nbconvert, nbformat
 twilio==6.55.0            # via -r requirements.in
-typed-ray==0.2.6          # via -r requirements.in
 types-click==7.1.8        # via types-flask
 types-flask==1.1.6        # via -r requirements.in
 types-jinja2==2.11.9      # via types-flask
@@ -164,7 +156,6 @@ typing-compat==0.1.0      # via dagster
 typing-extensions==4.1.1  # via astroid, libcst, mypy, pylint, sqlalchemy-stubs, typing-inspect
 typing-inspect==0.7.1     # via libcst
 urllib3==1.26.2           # via botocore, requests, sentry-sdk
-virtualenv==20.17.0       # via ray
 vulture==2.3              # via -r requirements.in
 watchdog==2.1.3           # via dagit, dagster
 webencodings==0.5.1       # via bleach
