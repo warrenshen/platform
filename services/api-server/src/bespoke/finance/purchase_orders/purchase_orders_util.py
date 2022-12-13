@@ -813,7 +813,7 @@ def submit_purchase_order_for_approval_new(
 		'customer_name': customer.get_display_name(),
 	}
 	_, err = sendgrid_client.send(
-		template_name=sendgrid_util.TemplateNames.VENDOR_TO_APPROVE_PURCHASE_ORDER,
+		template_name=sendgrid_util.TemplateNames.VENDOR_TO_APPROVE_PURCHASE_ORDER_NEW,
 		template_data=template_data,
 		recipients=[user['email'] for user in vendor_users],
 		two_factor_payload=two_factor_payload,
