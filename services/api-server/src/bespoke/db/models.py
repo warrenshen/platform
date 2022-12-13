@@ -1762,6 +1762,8 @@ class BespokeCatalogSkuGroup(Base):
 	bespoke_catalog_brand_id = cast(GUID, Column(GUID, ForeignKey('bespoke_catalog_brands.id'), nullable=False))
 
 	sku_group_name = Column(String, nullable=False)
+	unit_quantity = Column(Numeric, nullable=True)
+	unit_of_measure = Column(String, nullable=True)
 	is_deleted = Column(Boolean, nullable=False, default=False)
 
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
@@ -1796,6 +1798,7 @@ class MetrcToBespokeCatalogSku(Base):
 	product_name = Column(String, nullable=False)
 	product_category_name = Column(String, nullable=False)
 	sku_confidence = Column(String, nullable=False)
+	wholesale_quantity = Column(Integer, nullable=True)
 	is_deleted = Column(Boolean, nullable=False, default=False)
 
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)

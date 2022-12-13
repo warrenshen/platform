@@ -28,7 +28,7 @@ import styled from "styled-components";
 
 const Container = styled.div`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   flex: 1;
   width: 100%;
   margin-top: 36px;
@@ -205,7 +205,7 @@ const BespokeCatalogTab = () => {
           }}
         />
       )}
-      <Box mr={4}>
+      <Box flex={1} display="flex" flexDirection="column" width="100%" mb={4}>
         <Box display="flex" justifyContent="space-between" mb={2}>
           <Text textVariant={TextVariants.ParagraphLead}>SKUs</Text>
           <Box display="flex">
@@ -227,7 +227,7 @@ const BespokeCatalogTab = () => {
           onSelectionChanged={handleSelectSkus}
         />
       </Box>
-      <Box mr={4} minWidth={400}>
+      <Box flex={1} display="flex" flexDirection="column" width="100%" mb={4}>
         <Box display="flex" justifyContent="space-between" mb={2}>
           <Text textVariant={TextVariants.ParagraphLead}>SKU Groups</Text>
           <Box display="flex">
@@ -251,7 +251,7 @@ const BespokeCatalogTab = () => {
           onSelectionChanged={handleSelectSkuGroups}
         />
       </Box>
-      <Box minWidth={360}>
+      <Box flex={1} display="flex" flexDirection="column" width="100%">
         <Box display="flex" justifyContent="space-between" mb={2}>
           <Text textVariant={TextVariants.ParagraphLead}>Brands</Text>
           <Box display="flex">

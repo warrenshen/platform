@@ -315,6 +315,45 @@ export const ProductCatalogTabLabels = [
   ProductCatalogTabLabel.BespokeCatalog,
 ];
 
+export enum SkuGroupUnitOfMeasure {
+  Each = "each",
+  Grams = "gram",
+  Milligram = "milligram",
+  Kilogram = "kilogram",
+  Liter = "liter",
+  Milliliter = "milliliter",
+  Ounce = "ounce",
+  Pound = "pound",
+  FluidOunce = "fluid_ounce",
+  Gallon = "gallon",
+}
+
+export const SkuGroupUnitOfMeasureToLabel = {
+  [SkuGroupUnitOfMeasure.Each]: "Each",
+  [SkuGroupUnitOfMeasure.Grams]: "Grams (g)",
+  [SkuGroupUnitOfMeasure.Milligram]: "Milligram (mg)",
+  [SkuGroupUnitOfMeasure.Kilogram]: "Kilogram (kg)",
+  [SkuGroupUnitOfMeasure.Liter]: "Liter (L)",
+  [SkuGroupUnitOfMeasure.Milliliter]: "Milliliter (mL)",
+  [SkuGroupUnitOfMeasure.Ounce]: "Ounce (oz)",
+  [SkuGroupUnitOfMeasure.Pound]: "Pound (lb)",
+  [SkuGroupUnitOfMeasure.FluidOunce]: "Fluid Ounce (fl oz)",
+  [SkuGroupUnitOfMeasure.Gallon]: "Gallon (gal)",
+};
+
+export const SkuGroupUnitOfMeasureLabels = [
+  SkuGroupUnitOfMeasure.Each,
+  SkuGroupUnitOfMeasure.Grams,
+  SkuGroupUnitOfMeasure.Milligram,
+  SkuGroupUnitOfMeasure.Kilogram,
+  SkuGroupUnitOfMeasure.Liter,
+  SkuGroupUnitOfMeasure.Milliliter,
+  SkuGroupUnitOfMeasure.Ounce,
+  SkuGroupUnitOfMeasure.Pound,
+  SkuGroupUnitOfMeasure.FluidOunce,
+  SkuGroupUnitOfMeasure.Gallon,
+];
+
 export enum MetrcToBespokeCatalogSkuConfidenceLabel {
   High = "High",
   Medium = "Medium",

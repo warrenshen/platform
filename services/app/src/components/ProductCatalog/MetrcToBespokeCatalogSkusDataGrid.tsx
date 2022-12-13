@@ -9,12 +9,17 @@ import { useMemo } from "react";
 const columns = [
   {
     dataField: "product_name",
-    caption: "Product Name",
+    caption: "Metrc Product Name",
     minWidth: ColumnWidths.MinWidth,
   },
   {
     dataField: "product_category_name",
-    caption: "Product Category Name",
+    caption: "Metrc Product Category Name",
+    minWidth: ColumnWidths.MinWidth,
+  },
+  {
+    dataField: "wholesale_quantity",
+    caption: "Wholesale Quantity",
     minWidth: ColumnWidths.MinWidth,
   },
   {

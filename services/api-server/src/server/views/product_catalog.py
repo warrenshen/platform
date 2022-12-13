@@ -87,6 +87,7 @@ INVENTORY_PACKAGE_BY_PRODUCT_NAME_QUERY = """
 SELECT
 	inventory_packages_grouped.product_name,
 	inventory_packages_grouped.product_category_name,
+	inventory_packages_grouped.unit_of_measure,
 	inventory_packages_grouped.product_name_count,
 FROM
     ProdMetrcData.metrc_to_bespoke_catalog_skus AS metrc_to_bespoke_sku
@@ -94,6 +95,7 @@ RIGHT JOIN
 	(SELECT
 		inventory_packages.product_name,
 		inventory_packages.product_category_name,
+		MAX(inventory_packages.unit_of_measure) AS unit_of_measure,
 		COUNT(inventory_packages.product_name) AS product_name_count
 	FROM
 		dbt_transformation.int__company_inventory_packages AS inventory_packages
@@ -139,6 +141,7 @@ class SalesTransactions(MethodView):
 					'quantity_sold': float(row.avg_quantity_sold),
 					'total_price': float(row.avg_price),
 					'unit_of_measure': row.unit_of_measure,
+					'occurrences': row.product_name_count,
 				})
 
 		return make_response(json.dumps({
@@ -173,8 +176,9 @@ class IncomingTransferPackages(MethodView):
 					'product_name': row.product_name,
 					'product_category_name': row.product_category_name,
 					'shipped_quantity': float(row.avg_shipped_quantity),
-					'total_price': float(row.avg_shipper_wholesale_price) if row.avg_shipper_wholesale_price else None,
+					'shipper_wholesale_price': float(row.avg_shipper_wholesale_price) if row.avg_shipper_wholesale_price else None,
 					'shipped_unit_of_measure': row.shipped_unit_of_measure,
+					'occurrences': row.product_name_count,
 				})
 		
 		return make_response(json.dumps({
@@ -209,6 +213,8 @@ class InventoryPackages(MethodView):
 					'id': str(uuid.uuid4()),
 					'product_name': row.product_name,
 					'product_category_name': row.product_category_name,
+					'unit_of_measure': row.unit_of_measure,
+					'occurrences': row.product_name_count,
 				})
 		
 		return make_response(json.dumps({
@@ -293,14 +299,18 @@ class CreateUpdateBespokeCatalogSkuGroupView(MethodView):
 			'id',
 			'sku_group_name',
 			'brand_id',
+			'unit_quantity',
+			'unit_of_measure',
 		]
 		for key in required_keys:
 			if key not in data:
-				raise errors.Error(f'Missing {key} in respond to approval request')
+				raise errors.Error(f'Missing {key} in respond to create_update_bespoke_catalog_sku_group request')
 
 		id = data["id"]
 		sku_group_name = data["sku_group_name"]
 		brand_id = data["brand_id"]
+		unit_quantity = data["unit_quantity"]
+		unit_of_measure = data["unit_of_measure"]
 
 		with session_scope(current_app.session_maker) as session:
 			sku_id, err = product_catalog_util.create_update_bespoke_catalog_sku_group(
@@ -308,6 +318,8 @@ class CreateUpdateBespokeCatalogSkuGroupView(MethodView):
 				id=id,
 				sku_group_name=sku_group_name,
 				brand_id=brand_id,
+				unit_quantity=float(unit_quantity) if unit_quantity else None,
+				unit_of_measure=unit_of_measure if unit_of_measure else None,
 			)
 			if err:
 				raise err
@@ -362,7 +374,7 @@ class CreateUpdateBespokeCatalogSkuView(MethodView):
 		]
 		for key in required_keys:
 			if key not in data:
-				raise errors.Error(f'Missing {key} in respond to approval request')
+				raise errors.Error(f'Missing {key} in create_update_bespoke_catalog_sku request')
 
 		id = data["id"]
 		sku = data["sku"]
@@ -428,6 +440,7 @@ class CreateMetrcToBespokeCatalogSkuView(MethodView):
 			'product_name',
 			'product_category_name',
 			'sku_confidence',
+			'wholesale_quantity',
 		]
 		for key in required_keys:
 			if key not in data:
@@ -438,11 +451,14 @@ class CreateMetrcToBespokeCatalogSkuView(MethodView):
 		product_name = data["product_name"]
 		product_category_name = data["product_category_name"]
 		sku_confidence = data["sku_confidence"]
+		wholesale_quantity = data["wholesale_quantity"]
 		bespoke_catalog_sku = data["bespoke_catalog_sku"]
 		sku = bespoke_catalog_sku["sku"]
 		bespoke_catalog_sku_group_id = bespoke_catalog_sku["bespoke_catalog_sku_group_id"]
 		bespoke_catalog_sku_group = bespoke_catalog_sku["bespoke_catalog_sku_group"]
 		sku_group_name = bespoke_catalog_sku_group["sku_group_name"]
+		unit_quantity = bespoke_catalog_sku_group["unit_quantity"]
+		unit_of_measure = bespoke_catalog_sku_group["unit_of_measure"]
 		bespoke_catalog_brand_id = bespoke_catalog_sku_group["bespoke_catalog_brand_id"]
 		bespoke_catalog_brand = bespoke_catalog_sku_group["bespoke_catalog_brand"]
 		brand_name = bespoke_catalog_brand["brand_name"]
@@ -466,7 +482,9 @@ class CreateMetrcToBespokeCatalogSkuView(MethodView):
 						session=session,
 						id=str(uuid.uuid4()),
 						sku_group_name=sku_group_name,
-						brand_id=bespoke_catalog_brand_id
+						brand_id=bespoke_catalog_brand_id,
+						unit_quantity=float(unit_quantity) if unit_quantity else None,
+						unit_of_measure=unit_of_measure if unit_of_measure else None,
 					)
 					if err:
 						raise err
@@ -490,6 +508,7 @@ class CreateMetrcToBespokeCatalogSkuView(MethodView):
 				product_category_name=product_category_name,
 				sku_confidence=sku_confidence,
 				last_edited_by_user_id=user_session.get_user_id(),
+				wholesale_quantity=int(wholesale_quantity) if wholesale_quantity else None
 			)
 			if err:
 				raise err
@@ -512,6 +531,7 @@ class UpdateMetrcToBespokeCatalogSkuView(MethodView):
 		required_keys = [
 			'id',
 			'bespoke_catalog_sku_id',
+			'wholesale_quantity',
 			'sku_confidence',
 		]
 		for key in required_keys:
@@ -520,6 +540,7 @@ class UpdateMetrcToBespokeCatalogSkuView(MethodView):
 		
 		id = data["id"]
 		bespoke_catalog_sku_id = data["bespoke_catalog_sku_id"]
+		wholesale_quantity = data["wholesale_quantity"]
 		sku_confidence = data["sku_confidence"]
 
 		if sku_confidence != SKU_CONFIDENCE_INVALID and not bespoke_catalog_sku_id:
@@ -538,6 +559,7 @@ class UpdateMetrcToBespokeCatalogSkuView(MethodView):
 				product_category_name=None,
 				sku_confidence=sku_confidence,
 				last_edited_by_user_id=user_session.get_user_id(),
+				wholesale_quantity=int(wholesale_quantity) if wholesale_quantity else None
 			)
 			if err:
 				raise err
@@ -576,6 +598,44 @@ class DeleteMetrcToBespokeCatalogSkuView(MethodView):
 		}), 200)
 
 
+class CreateInvalidMetrcToBespokeCatalogSkuView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		data = json.loads(request.data)
+		if not data:
+			raise errors.Error('No data provided')
+
+		with session_scope(current_app.session_maker) as session:
+			for metrc_entry in data:
+				product_name = metrc_entry["product_name"]
+				product_category_name = metrc_entry["product_category_name"]
+				sku_confidence = metrc_entry["sku_confidence"]
+
+				user_session = auth_util.UserSession.from_session()
+				_, err = product_catalog_util.create_update_metrc_to_sku(
+					session=session,
+					id=None,
+					bespoke_catalog_sku_id=None,
+					product_name=product_name,
+					product_category_name=product_category_name,
+					sku_confidence=sku_confidence,
+					last_edited_by_user_id=user_session.get_user_id(),
+					wholesale_quantity=None
+				)
+				if err:
+					raise err
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': f'Successfully marked Bespoke Catalog Entries as invalid '
+		}), 200)
+
+
+
+
+
 handler.add_url_rule(
 	'/sales_transactions', view_func=SalesTransactions.as_view(name='sales_transactions_view'))
 
@@ -611,3 +671,6 @@ handler.add_url_rule(
 
 handler.add_url_rule(
 	'/delete_metrc_to_bespoke_catalog_sku', view_func=DeleteMetrcToBespokeCatalogSkuView.as_view(name='delete_metrc_to_bespoke_catalog_sku_view'))
+
+handler.add_url_rule(
+	'/create_invalid_metrc_to_bespoke_catalog_skus', view_func=CreateInvalidMetrcToBespokeCatalogSkuView.as_view(name='create_invalid_metrc_to_bespoke_catalog_skus_view'))

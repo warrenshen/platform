@@ -7,14 +7,18 @@ import {
 import CreateBespokeCatalogEntryCompleteModal from "components/ProductCatalog/CreateBespokeCatalogEntryCompleteModal";
 import MetrcTransferPackagesDataGrid from "components/ProductCatalog/MetrcTransferPackageDataGrid";
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
-import Can from "components/Shared/Can";
+import SecondaryButton from "components/Shared/Button/SecondaryButton";
 import Text, { TextVariants } from "components/Shared/Text/Text";
 import { MetrcTransferPackageFragment } from "generated/graphql";
+import useCustomMutation from "hooks/useCustomMutation";
 import useCustomQuery from "hooks/useCustomQuery";
 import useSnackbar from "hooks/useSnackbar";
 import { SearchIcon } from "icons";
-import { getIncomingTransferPackageData } from "lib/api/productCatalog";
-import { Action } from "lib/auth/rbac-rules";
+import {
+  createInvalidMetrcToBespokeCatalogSkuMutation,
+  getIncomingTransferPackageData,
+} from "lib/api/productCatalog";
+import { MetrcToBespokeCatalogSkuConfidenceLabel } from "lib/enum";
 import { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 
@@ -70,6 +74,44 @@ const IncomingTransferPackagesTab = () => {
     } else {
       snackbar.showError(
         `Failed to search for Metrc Incoming Transfer Packages: ${response.msg}`
+      );
+    }
+  };
+
+  const [
+    invalidMetrcToBespokeCatalogSku,
+    { loading: isCreateInvalidMetrcToBespokeCatalogSkuLoading },
+  ] = useCustomMutation(createInvalidMetrcToBespokeCatalogSkuMutation);
+
+  const handleMarkInvalid = async () => {
+    const handleMarkInvalidInput = metrcTransferPackages
+      .filter((transferPackage) =>
+        selectedMetrcTransferPackages.includes(transferPackage.id)
+      )
+      .map((transferPackage) => ({
+        product_name: transferPackage.product_name,
+        product_category_name: transferPackage.product_category_name,
+        sku_confidence: MetrcToBespokeCatalogSkuConfidenceLabel.Invalid,
+      }));
+    const response = await invalidMetrcToBespokeCatalogSku({
+      variables: handleMarkInvalidInput,
+    });
+    if (response.status === "OK") {
+      setMatchedProductNames(
+        new Set([
+          ...matchedProductNames,
+          ...handleMarkInvalidInput.map(
+            (input) => input.product_name as string
+          ),
+        ])
+      );
+      snackbar.showSuccess(
+        `Successfully marked ${selectedMetrcTransferPackages.length} Metrc Incoming Transfer Packages as invalid`
+      );
+      setSelectedMetrcTransferPackages([]);
+    } else {
+      snackbar.showError(
+        `Failed to mark selected Metrc Incoming Transfer Packages as invalid: ${response.msg}`
       );
     }
   };
@@ -142,13 +184,21 @@ const IncomingTransferPackagesTab = () => {
         <Text textVariant={TextVariants.ParagraphLead}>
           Incoming Transfer Packages
         </Text>
-        <Can perform={Action.UnarchiveLoan}>
+        <Box display="flex">
+          <SecondaryButton
+            isDisabled={
+              selectedMetrcTransferPackages.length === 0 ||
+              isCreateInvalidMetrcToBespokeCatalogSkuLoading
+            }
+            text={"Mark Invalid"}
+            onClick={handleMarkInvalid}
+          />
           <PrimaryButton
             isDisabled={!selectedMetrcTransferPackage}
             text={"Create Catalog Entry"}
             onClick={() => setIsCreateUpdateBespokeCatalogEntryModalOpen(true)}
           />
-        </Can>
+        </Box>
       </Box>
       <MetrcTransferPackagesDataGrid
         selectedTransferPackageIds={selectedMetrcTransferPackages}

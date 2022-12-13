@@ -3,6 +3,7 @@ import {
   BespokeCatalogSkuGroupFragment,
   BespokeCatalogSkuGroups,
 } from "generated/graphql";
+import { SkuGroupUnitOfMeasureToLabel } from "lib/enum";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
@@ -10,6 +11,16 @@ const columns = [
   {
     dataField: "sku_group_name",
     caption: "Bespoke Product SKU Group",
+    minWidth: ColumnWidths.Comment,
+  },
+  {
+    dataField: "unit_quantity",
+    caption: "Unit Quantity",
+    minWidth: ColumnWidths.MinWidth,
+  },
+  {
+    dataField: "unit_of_measure",
+    caption: "Unit of Measure",
     minWidth: ColumnWidths.MinWidth,
   },
   {
@@ -24,6 +35,11 @@ const getRows = (bespokeCatalogSkuGroups: BespokeCatalogSkuGroupFragment[]) => {
     (bespokeCatalogSkuGroup: BespokeCatalogSkuGroupFragment) => {
       return {
         ...bespokeCatalogSkuGroup,
+        unit_of_measure: !!bespokeCatalogSkuGroup.unit_of_measure
+          ? SkuGroupUnitOfMeasureToLabel[
+              bespokeCatalogSkuGroup.unit_of_measure as keyof typeof SkuGroupUnitOfMeasureToLabel
+            ]
+          : null,
         brand_name: bespokeCatalogSkuGroup?.bespoke_catalog_brand?.brand_name,
       };
     }

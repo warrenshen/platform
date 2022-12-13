@@ -248,6 +248,36 @@ export async function createMetrcToBespokeCatalogSkuMutation(
     );
 }
 
+type InvalidMetrcToBespokeCatalogSku = {
+  product_name: string;
+  product_category_name: string;
+  sku_confidence: string;
+};
+
+export type InvalidMetrcToBespokeCatalogSkuReq = {
+  variables: {
+    invalid_entries: InvalidMetrcToBespokeCatalogSku[];
+  };
+};
+
+export async function createInvalidMetrcToBespokeCatalogSkuMutation(
+  req: InvalidMetrcToBespokeCatalogSkuReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(productCatalogRoutes.createMetrcToBespokeCatalogSku, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.error(error);
+        return {
+          status: "ERROR",
+          msg: error,
+        };
+      }
+    );
+}
+
 export type UpdateMetrcToBespokeCatalogSkuReq = {
   variables: {
     bespoke_catalog_sku_id: BespokeCatalogSkus["id"];

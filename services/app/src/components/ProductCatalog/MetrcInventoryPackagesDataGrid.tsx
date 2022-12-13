@@ -20,7 +20,17 @@ const columns = [
   {
     dataField: "product_category_name",
     caption: "Metrc Product Category",
-    minWidth: ColumnWidths.MinWidth,
+    width: ColumnWidths.Comment,
+  },
+  {
+    dataField: "unit_of_measure",
+    caption: "Unit of Measure",
+    width: ColumnWidths.Comment,
+  },
+  {
+    dataField: "occurrences",
+    caption: "Occurrences",
+    width: ColumnWidths.MinWidth,
   },
 ];
 

@@ -16,17 +16,17 @@ const columns = [
   {
     dataField: "product_category_name",
     caption: "Metrc Product Category",
-    minWidth: ColumnWidths.MinWidth,
+    width: ColumnWidths.Comment,
   },
   {
     dataField: "avg_quantity_sold",
     caption: "Quantity Sold (avg)",
-    minWidth: 100,
+    width: ColumnWidths.Count,
   },
   {
     dataField: "total_price",
     caption: "Price (avg)",
-    minWidth: ColumnWidths.Currency,
+    width: ColumnWidths.Currency,
     format: {
       type: "currency",
       precision: CurrencyPrecision,
@@ -35,7 +35,12 @@ const columns = [
   {
     dataField: "unit_of_measure",
     caption: "Unit of Measure",
-    minWidth: ColumnWidths.Identifier,
+    width: ColumnWidths.Identifier,
+  },
+  {
+    dataField: "occurrences",
+    caption: "Occurrences",
+    width: ColumnWidths.MinWidth,
   },
 ];
 

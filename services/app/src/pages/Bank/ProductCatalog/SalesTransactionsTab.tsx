@@ -7,12 +7,18 @@ import {
 import CreateBespokeCatalogEntryCompleteModal from "components/ProductCatalog/CreateBespokeCatalogEntryCompleteModal";
 import MetrcSalesTransactionsDataGrid from "components/ProductCatalog/MetrcSalesTransactionsDataGrid";
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
+import SecondaryButton from "components/Shared/Button/SecondaryButton";
 import Text, { TextVariants } from "components/Shared/Text/Text";
 import { MetrcSalesTransactionFragment } from "generated/graphql";
+import useCustomMutation from "hooks/useCustomMutation";
 import useCustomQuery from "hooks/useCustomQuery";
 import useSnackbar from "hooks/useSnackbar";
 import { SearchIcon } from "icons";
-import { getSalesTransactionData } from "lib/api/productCatalog";
+import {
+  createInvalidMetrcToBespokeCatalogSkuMutation,
+  getSalesTransactionData,
+} from "lib/api/productCatalog";
+import { MetrcToBespokeCatalogSkuConfidenceLabel } from "lib/enum";
 import { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 
@@ -64,6 +70,42 @@ const SalesTransactionsTab = () => {
     } else {
       snackbar.showError(
         `Failed to search for Metrc Sales Transactions: ${response.msg}`
+      );
+    }
+  };
+
+  const [
+    invalidMetrcToBespokeCatalogSku,
+    { loading: isCreateInvalidMetrcToBespokeCatalogSkuLoading },
+  ] = useCustomMutation(createInvalidMetrcToBespokeCatalogSkuMutation);
+
+  const handleMarkInvalid = async () => {
+    const handleMarkInvalidInput = metrcSalesTransactions
+      .filter((salesTransaction) =>
+        selectedMetrcSalesTransactions.includes(salesTransaction.id)
+      )
+      .map((salesTransaction) => ({
+        product_name: salesTransaction.product_name,
+        product_category_name: salesTransaction.product_category_name,
+        sku_confidence: MetrcToBespokeCatalogSkuConfidenceLabel.Invalid,
+      }));
+    const response = await invalidMetrcToBespokeCatalogSku({
+      variables: handleMarkInvalidInput,
+    });
+    if (response.status === "OK") {
+      setMatchedProductNames(
+        new Set([
+          ...matchedProductNames,
+          ...handleMarkInvalidInput.map((input) => input.product_name),
+        ])
+      );
+      snackbar.showSuccess(
+        `Successfully marked ${selectedMetrcSalesTransactions.length} Metrc Sales Transactions as invalid`
+      );
+      setSelectedMetrcSalesTransactions([]);
+    } else {
+      snackbar.showError(
+        `Failed to mark selected Metrc Sales Transactions as invalid: ${response.msg}`
       );
     }
   };
@@ -134,11 +176,21 @@ const SalesTransactionsTab = () => {
       </Box>
       <Box display="flex" justifyContent="space-between" mb={2}>
         <Text textVariant={TextVariants.ParagraphLead}>Sales Transactions</Text>
-        <PrimaryButton
-          isDisabled={!selectedMetrcSalesTransaction}
-          text={"Create Catalog Entry"}
-          onClick={() => setIsCreateUpdateBespokeCatalogEntryModalOpen(true)}
-        />
+        <Box display="flex">
+          <SecondaryButton
+            isDisabled={
+              selectedMetrcSalesTransactions.length === 0 ||
+              isCreateInvalidMetrcToBespokeCatalogSkuLoading
+            }
+            text={"Mark Invalid"}
+            onClick={handleMarkInvalid}
+          />
+          <PrimaryButton
+            isDisabled={!selectedMetrcSalesTransaction}
+            text={"Create Catalog Entry"}
+            onClick={() => setIsCreateUpdateBespokeCatalogEntryModalOpen(true)}
+          />
+        </Box>
       </Box>
       <MetrcSalesTransactionsDataGrid
         isExcelExport

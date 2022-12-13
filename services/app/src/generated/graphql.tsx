@@ -2114,6 +2114,8 @@ export type BespokeCatalogSkuGroups = {
   id: Scalars["uuid"];
   is_deleted: Scalars["Boolean"];
   sku_group_name: Scalars["String"];
+  unit_of_measure?: Maybe<Scalars["String"]>;
+  unit_quantity?: Maybe<Scalars["numeric"]>;
   updated_at: Scalars["timestamptz"];
 };
 
@@ -2143,15 +2145,28 @@ export type BespokeCatalogSkuGroupsAggregate = {
 
 /** aggregate fields of "bespoke_catalog_sku_groups" */
 export type BespokeCatalogSkuGroupsAggregateFields = {
+  avg?: Maybe<BespokeCatalogSkuGroupsAvgFields>;
   count: Scalars["Int"];
   max?: Maybe<BespokeCatalogSkuGroupsMaxFields>;
   min?: Maybe<BespokeCatalogSkuGroupsMinFields>;
+  stddev?: Maybe<BespokeCatalogSkuGroupsStddevFields>;
+  stddev_pop?: Maybe<BespokeCatalogSkuGroupsStddevPopFields>;
+  stddev_samp?: Maybe<BespokeCatalogSkuGroupsStddevSampFields>;
+  sum?: Maybe<BespokeCatalogSkuGroupsSumFields>;
+  var_pop?: Maybe<BespokeCatalogSkuGroupsVarPopFields>;
+  var_samp?: Maybe<BespokeCatalogSkuGroupsVarSampFields>;
+  variance?: Maybe<BespokeCatalogSkuGroupsVarianceFields>;
 };
 
 /** aggregate fields of "bespoke_catalog_sku_groups" */
 export type BespokeCatalogSkuGroupsAggregateFieldsCountArgs = {
   columns?: Maybe<Array<BespokeCatalogSkuGroupsSelectColumn>>;
   distinct?: Maybe<Scalars["Boolean"]>;
+};
+
+/** aggregate avg on columns */
+export type BespokeCatalogSkuGroupsAvgFields = {
+  unit_quantity?: Maybe<Scalars["Float"]>;
 };
 
 /** Boolean expression to filter rows from the table "bespoke_catalog_sku_groups". All fields are combined with a logical 'AND'. */
@@ -2167,6 +2182,8 @@ export type BespokeCatalogSkuGroupsBoolExp = {
   id?: Maybe<UuidComparisonExp>;
   is_deleted?: Maybe<BooleanComparisonExp>;
   sku_group_name?: Maybe<StringComparisonExp>;
+  unit_of_measure?: Maybe<StringComparisonExp>;
+  unit_quantity?: Maybe<NumericComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
 };
 
@@ -2178,6 +2195,11 @@ export enum BespokeCatalogSkuGroupsConstraint {
   BespokeCatalogSkuGroupsPkey = "bespoke_catalog_sku_groups_pkey",
 }
 
+/** input type for incrementing numeric columns in table "bespoke_catalog_sku_groups" */
+export type BespokeCatalogSkuGroupsIncInput = {
+  unit_quantity?: Maybe<Scalars["numeric"]>;
+};
+
 /** input type for inserting data into table "bespoke_catalog_sku_groups" */
 export type BespokeCatalogSkuGroupsInsertInput = {
   bespoke_catalog_brand?: Maybe<BespokeCatalogBrandsObjRelInsertInput>;
@@ -2188,6 +2210,8 @@ export type BespokeCatalogSkuGroupsInsertInput = {
   id?: Maybe<Scalars["uuid"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
   sku_group_name?: Maybe<Scalars["String"]>;
+  unit_of_measure?: Maybe<Scalars["String"]>;
+  unit_quantity?: Maybe<Scalars["numeric"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
@@ -2198,6 +2222,8 @@ export type BespokeCatalogSkuGroupsMaxFields = {
   deleted_at?: Maybe<Scalars["timestamp"]>;
   id?: Maybe<Scalars["uuid"]>;
   sku_group_name?: Maybe<Scalars["String"]>;
+  unit_of_measure?: Maybe<Scalars["String"]>;
+  unit_quantity?: Maybe<Scalars["numeric"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
@@ -2208,6 +2234,8 @@ export type BespokeCatalogSkuGroupsMinFields = {
   deleted_at?: Maybe<Scalars["timestamp"]>;
   id?: Maybe<Scalars["uuid"]>;
   sku_group_name?: Maybe<Scalars["String"]>;
+  unit_of_measure?: Maybe<Scalars["String"]>;
+  unit_quantity?: Maybe<Scalars["numeric"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
@@ -2243,6 +2271,8 @@ export type BespokeCatalogSkuGroupsOrderBy = {
   id?: Maybe<OrderBy>;
   is_deleted?: Maybe<OrderBy>;
   sku_group_name?: Maybe<OrderBy>;
+  unit_of_measure?: Maybe<OrderBy>;
+  unit_quantity?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
 };
 
@@ -2266,6 +2296,10 @@ export enum BespokeCatalogSkuGroupsSelectColumn {
   /** column name */
   SkuGroupName = "sku_group_name",
   /** column name */
+  UnitOfMeasure = "unit_of_measure",
+  /** column name */
+  UnitQuantity = "unit_quantity",
+  /** column name */
   UpdatedAt = "updated_at",
 }
 
@@ -2277,7 +2311,29 @@ export type BespokeCatalogSkuGroupsSetInput = {
   id?: Maybe<Scalars["uuid"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
   sku_group_name?: Maybe<Scalars["String"]>;
+  unit_of_measure?: Maybe<Scalars["String"]>;
+  unit_quantity?: Maybe<Scalars["numeric"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
+};
+
+/** aggregate stddev on columns */
+export type BespokeCatalogSkuGroupsStddevFields = {
+  unit_quantity?: Maybe<Scalars["Float"]>;
+};
+
+/** aggregate stddev_pop on columns */
+export type BespokeCatalogSkuGroupsStddevPopFields = {
+  unit_quantity?: Maybe<Scalars["Float"]>;
+};
+
+/** aggregate stddev_samp on columns */
+export type BespokeCatalogSkuGroupsStddevSampFields = {
+  unit_quantity?: Maybe<Scalars["Float"]>;
+};
+
+/** aggregate sum on columns */
+export type BespokeCatalogSkuGroupsSumFields = {
+  unit_quantity?: Maybe<Scalars["numeric"]>;
 };
 
 /** update columns of table "bespoke_catalog_sku_groups" */
@@ -2295,8 +2351,27 @@ export enum BespokeCatalogSkuGroupsUpdateColumn {
   /** column name */
   SkuGroupName = "sku_group_name",
   /** column name */
+  UnitOfMeasure = "unit_of_measure",
+  /** column name */
+  UnitQuantity = "unit_quantity",
+  /** column name */
   UpdatedAt = "updated_at",
 }
+
+/** aggregate var_pop on columns */
+export type BespokeCatalogSkuGroupsVarPopFields = {
+  unit_quantity?: Maybe<Scalars["Float"]>;
+};
+
+/** aggregate var_samp on columns */
+export type BespokeCatalogSkuGroupsVarSampFields = {
+  unit_quantity?: Maybe<Scalars["Float"]>;
+};
+
+/** aggregate variance on columns */
+export type BespokeCatalogSkuGroupsVarianceFields = {
+  unit_quantity?: Maybe<Scalars["Float"]>;
+};
 
 /** columns and relationships of "bespoke_catalog_skus" */
 export type BespokeCatalogSkus = {
@@ -16598,6 +16673,7 @@ export type MetrcToBespokeCatalogSkus = {
   product_name: Scalars["String"];
   sku_confidence: Scalars["String"];
   updated_at: Scalars["timestamptz"];
+  wholesale_quantity?: Maybe<Scalars["Int"]>;
 };
 
 /** aggregated selection of "metrc_to_bespoke_catalog_skus" */
@@ -16608,9 +16684,17 @@ export type MetrcToBespokeCatalogSkusAggregate = {
 
 /** aggregate fields of "metrc_to_bespoke_catalog_skus" */
 export type MetrcToBespokeCatalogSkusAggregateFields = {
+  avg?: Maybe<MetrcToBespokeCatalogSkusAvgFields>;
   count: Scalars["Int"];
   max?: Maybe<MetrcToBespokeCatalogSkusMaxFields>;
   min?: Maybe<MetrcToBespokeCatalogSkusMinFields>;
+  stddev?: Maybe<MetrcToBespokeCatalogSkusStddevFields>;
+  stddev_pop?: Maybe<MetrcToBespokeCatalogSkusStddevPopFields>;
+  stddev_samp?: Maybe<MetrcToBespokeCatalogSkusStddevSampFields>;
+  sum?: Maybe<MetrcToBespokeCatalogSkusSumFields>;
+  var_pop?: Maybe<MetrcToBespokeCatalogSkusVarPopFields>;
+  var_samp?: Maybe<MetrcToBespokeCatalogSkusVarSampFields>;
+  variance?: Maybe<MetrcToBespokeCatalogSkusVarianceFields>;
 };
 
 /** aggregate fields of "metrc_to_bespoke_catalog_skus" */
@@ -16621,9 +16705,17 @@ export type MetrcToBespokeCatalogSkusAggregateFieldsCountArgs = {
 
 /** order by aggregate values of table "metrc_to_bespoke_catalog_skus" */
 export type MetrcToBespokeCatalogSkusAggregateOrderBy = {
+  avg?: Maybe<MetrcToBespokeCatalogSkusAvgOrderBy>;
   count?: Maybe<OrderBy>;
   max?: Maybe<MetrcToBespokeCatalogSkusMaxOrderBy>;
   min?: Maybe<MetrcToBespokeCatalogSkusMinOrderBy>;
+  stddev?: Maybe<MetrcToBespokeCatalogSkusStddevOrderBy>;
+  stddev_pop?: Maybe<MetrcToBespokeCatalogSkusStddevPopOrderBy>;
+  stddev_samp?: Maybe<MetrcToBespokeCatalogSkusStddevSampOrderBy>;
+  sum?: Maybe<MetrcToBespokeCatalogSkusSumOrderBy>;
+  var_pop?: Maybe<MetrcToBespokeCatalogSkusVarPopOrderBy>;
+  var_samp?: Maybe<MetrcToBespokeCatalogSkusVarSampOrderBy>;
+  variance?: Maybe<MetrcToBespokeCatalogSkusVarianceOrderBy>;
 };
 
 /** input type for inserting array relation for remote table "metrc_to_bespoke_catalog_skus" */
@@ -16631,6 +16723,16 @@ export type MetrcToBespokeCatalogSkusArrRelInsertInput = {
   data: Array<MetrcToBespokeCatalogSkusInsertInput>;
   /** upsert condition */
   on_conflict?: Maybe<MetrcToBespokeCatalogSkusOnConflict>;
+};
+
+/** aggregate avg on columns */
+export type MetrcToBespokeCatalogSkusAvgFields = {
+  wholesale_quantity?: Maybe<Scalars["Float"]>;
+};
+
+/** order by avg() on columns of table "metrc_to_bespoke_catalog_skus" */
+export type MetrcToBespokeCatalogSkusAvgOrderBy = {
+  wholesale_quantity?: Maybe<OrderBy>;
 };
 
 /** Boolean expression to filter rows from the table "metrc_to_bespoke_catalog_skus". All fields are combined with a logical 'AND'. */
@@ -16649,6 +16751,7 @@ export type MetrcToBespokeCatalogSkusBoolExp = {
   product_name?: Maybe<StringComparisonExp>;
   sku_confidence?: Maybe<StringComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
+  wholesale_quantity?: Maybe<IntComparisonExp>;
 };
 
 /** unique or primary key constraints on table "metrc_to_bespoke_catalog_skus" */
@@ -16656,6 +16759,11 @@ export enum MetrcToBespokeCatalogSkusConstraint {
   /** unique or primary key constraint */
   MetrcToBespokeCatalogSkusPkey1 = "metrc_to_bespoke_catalog_skus_pkey1",
 }
+
+/** input type for incrementing numeric columns in table "metrc_to_bespoke_catalog_skus" */
+export type MetrcToBespokeCatalogSkusIncInput = {
+  wholesale_quantity?: Maybe<Scalars["Int"]>;
+};
 
 /** input type for inserting data into table "metrc_to_bespoke_catalog_skus" */
 export type MetrcToBespokeCatalogSkusInsertInput = {
@@ -16670,6 +16778,7 @@ export type MetrcToBespokeCatalogSkusInsertInput = {
   product_name?: Maybe<Scalars["String"]>;
   sku_confidence?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
+  wholesale_quantity?: Maybe<Scalars["Int"]>;
 };
 
 /** aggregate max on columns */
@@ -16683,6 +16792,7 @@ export type MetrcToBespokeCatalogSkusMaxFields = {
   product_name?: Maybe<Scalars["String"]>;
   sku_confidence?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
+  wholesale_quantity?: Maybe<Scalars["Int"]>;
 };
 
 /** order by max() on columns of table "metrc_to_bespoke_catalog_skus" */
@@ -16696,6 +16806,7 @@ export type MetrcToBespokeCatalogSkusMaxOrderBy = {
   product_name?: Maybe<OrderBy>;
   sku_confidence?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
+  wholesale_quantity?: Maybe<OrderBy>;
 };
 
 /** aggregate min on columns */
@@ -16709,6 +16820,7 @@ export type MetrcToBespokeCatalogSkusMinFields = {
   product_name?: Maybe<Scalars["String"]>;
   sku_confidence?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
+  wholesale_quantity?: Maybe<Scalars["Int"]>;
 };
 
 /** order by min() on columns of table "metrc_to_bespoke_catalog_skus" */
@@ -16722,6 +16834,7 @@ export type MetrcToBespokeCatalogSkusMinOrderBy = {
   product_name?: Maybe<OrderBy>;
   sku_confidence?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
+  wholesale_quantity?: Maybe<OrderBy>;
 };
 
 /** response of any mutation on the table "metrc_to_bespoke_catalog_skus" */
@@ -16752,6 +16865,7 @@ export type MetrcToBespokeCatalogSkusOrderBy = {
   product_name?: Maybe<OrderBy>;
   sku_confidence?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
+  wholesale_quantity?: Maybe<OrderBy>;
 };
 
 /** primary key columns input for table: metrc_to_bespoke_catalog_skus */
@@ -16781,6 +16895,8 @@ export enum MetrcToBespokeCatalogSkusSelectColumn {
   SkuConfidence = "sku_confidence",
   /** column name */
   UpdatedAt = "updated_at",
+  /** column name */
+  WholesaleQuantity = "wholesale_quantity",
 }
 
 /** input type for updating data in table "metrc_to_bespoke_catalog_skus" */
@@ -16795,6 +16911,47 @@ export type MetrcToBespokeCatalogSkusSetInput = {
   product_name?: Maybe<Scalars["String"]>;
   sku_confidence?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
+  wholesale_quantity?: Maybe<Scalars["Int"]>;
+};
+
+/** aggregate stddev on columns */
+export type MetrcToBespokeCatalogSkusStddevFields = {
+  wholesale_quantity?: Maybe<Scalars["Float"]>;
+};
+
+/** order by stddev() on columns of table "metrc_to_bespoke_catalog_skus" */
+export type MetrcToBespokeCatalogSkusStddevOrderBy = {
+  wholesale_quantity?: Maybe<OrderBy>;
+};
+
+/** aggregate stddev_pop on columns */
+export type MetrcToBespokeCatalogSkusStddevPopFields = {
+  wholesale_quantity?: Maybe<Scalars["Float"]>;
+};
+
+/** order by stddev_pop() on columns of table "metrc_to_bespoke_catalog_skus" */
+export type MetrcToBespokeCatalogSkusStddevPopOrderBy = {
+  wholesale_quantity?: Maybe<OrderBy>;
+};
+
+/** aggregate stddev_samp on columns */
+export type MetrcToBespokeCatalogSkusStddevSampFields = {
+  wholesale_quantity?: Maybe<Scalars["Float"]>;
+};
+
+/** order by stddev_samp() on columns of table "metrc_to_bespoke_catalog_skus" */
+export type MetrcToBespokeCatalogSkusStddevSampOrderBy = {
+  wholesale_quantity?: Maybe<OrderBy>;
+};
+
+/** aggregate sum on columns */
+export type MetrcToBespokeCatalogSkusSumFields = {
+  wholesale_quantity?: Maybe<Scalars["Int"]>;
+};
+
+/** order by sum() on columns of table "metrc_to_bespoke_catalog_skus" */
+export type MetrcToBespokeCatalogSkusSumOrderBy = {
+  wholesale_quantity?: Maybe<OrderBy>;
 };
 
 /** update columns of table "metrc_to_bespoke_catalog_skus" */
@@ -16819,7 +16976,39 @@ export enum MetrcToBespokeCatalogSkusUpdateColumn {
   SkuConfidence = "sku_confidence",
   /** column name */
   UpdatedAt = "updated_at",
+  /** column name */
+  WholesaleQuantity = "wholesale_quantity",
 }
+
+/** aggregate var_pop on columns */
+export type MetrcToBespokeCatalogSkusVarPopFields = {
+  wholesale_quantity?: Maybe<Scalars["Float"]>;
+};
+
+/** order by var_pop() on columns of table "metrc_to_bespoke_catalog_skus" */
+export type MetrcToBespokeCatalogSkusVarPopOrderBy = {
+  wholesale_quantity?: Maybe<OrderBy>;
+};
+
+/** aggregate var_samp on columns */
+export type MetrcToBespokeCatalogSkusVarSampFields = {
+  wholesale_quantity?: Maybe<Scalars["Float"]>;
+};
+
+/** order by var_samp() on columns of table "metrc_to_bespoke_catalog_skus" */
+export type MetrcToBespokeCatalogSkusVarSampOrderBy = {
+  wholesale_quantity?: Maybe<OrderBy>;
+};
+
+/** aggregate variance on columns */
+export type MetrcToBespokeCatalogSkusVarianceFields = {
+  wholesale_quantity?: Maybe<Scalars["Float"]>;
+};
+
+/** order by variance() on columns of table "metrc_to_bespoke_catalog_skus" */
+export type MetrcToBespokeCatalogSkusVarianceOrderBy = {
+  wholesale_quantity?: Maybe<OrderBy>;
+};
 
 /** columns and relationships of "metrc_transfer_packages" */
 export type MetrcTransferPackages = {
@@ -20540,12 +20729,14 @@ export type MutationRootUpdateBespokeCatalogBrandsByPkArgs = {
 
 /** mutation root */
 export type MutationRootUpdateBespokeCatalogSkuGroupsArgs = {
+  _inc?: Maybe<BespokeCatalogSkuGroupsIncInput>;
   _set?: Maybe<BespokeCatalogSkuGroupsSetInput>;
   where: BespokeCatalogSkuGroupsBoolExp;
 };
 
 /** mutation root */
 export type MutationRootUpdateBespokeCatalogSkuGroupsByPkArgs = {
+  _inc?: Maybe<BespokeCatalogSkuGroupsIncInput>;
   _set?: Maybe<BespokeCatalogSkuGroupsSetInput>;
   pk_columns: BespokeCatalogSkuGroupsPkColumnsInput;
 };
@@ -21138,12 +21329,14 @@ export type MutationRootUpdateMetrcSalesTransactionsByPkArgs = {
 
 /** mutation root */
 export type MutationRootUpdateMetrcToBespokeCatalogSkusArgs = {
+  _inc?: Maybe<MetrcToBespokeCatalogSkusIncInput>;
   _set?: Maybe<MetrcToBespokeCatalogSkusSetInput>;
   where: MetrcToBespokeCatalogSkusBoolExp;
 };
 
 /** mutation root */
 export type MutationRootUpdateMetrcToBespokeCatalogSkusByPkArgs = {
+  _inc?: Maybe<MetrcToBespokeCatalogSkusIncInput>;
   _set?: Maybe<MetrcToBespokeCatalogSkusSetInput>;
   pk_columns: MetrcToBespokeCatalogSkusPkColumnsInput;
 };
@@ -33366,7 +33559,7 @@ export type BespokeCatalogBrandFragment = Pick<
 
 export type BespokeCatalogSkuGroupFragment = Pick<
   BespokeCatalogSkuGroups,
-  "id" | "sku_group_name"
+  "id" | "sku_group_name" | "unit_quantity" | "unit_of_measure"
 > & {
   bespoke_catalog_brand: Pick<BespokeCatalogBrands, "id"> &
     BespokeCatalogBrandFragment;
@@ -33382,7 +33575,11 @@ export type BespokeCatalogSkuFragment = Pick<
 
 export type MetrcToBespokeCatalogSkuFragment = Pick<
   MetrcToBespokeCatalogSkus,
-  "id" | "product_name" | "product_category_name" | "sku_confidence"
+  | "id"
+  | "product_name"
+  | "product_category_name"
+  | "wholesale_quantity"
+  | "sku_confidence"
 > & {
   bespoke_catalog_sku?: Maybe<
     Pick<BespokeCatalogSkus, "id"> & BespokeCatalogSkuFragment
@@ -35483,6 +35680,8 @@ export const BespokeCatalogSkuGroupFragmentDoc = gql`
   fragment BespokeCatalogSkuGroup on bespoke_catalog_sku_groups {
     id
     sku_group_name
+    unit_quantity
+    unit_of_measure
     bespoke_catalog_brand {
       id
       ...BespokeCatalogBrand
@@ -35506,6 +35705,7 @@ export const MetrcToBespokeCatalogSkuFragmentDoc = gql`
     id
     product_name
     product_category_name
+    wholesale_quantity
     sku_confidence
     bespoke_catalog_sku {
       id

@@ -11,6 +11,7 @@ import { DEFAULT_AUTOCOMPLETE_MINIMUM_QUERY_LENGTH } from "components/ProductCat
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
 import SecondaryButton from "components/Shared/Button/SecondaryButton";
 import CardDivider from "components/Shared/Card/CardDivider";
+import SelectDropdown from "components/Shared/FormInputs/SelectDropdown";
 import ModalDialog from "components/Shared/Modal/ModalDialog";
 import Text, { TextVariants } from "components/Shared/Text/Text";
 import {
@@ -21,6 +22,10 @@ import {
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { createUpdateBespokeCatalogSkuGroupMutation } from "lib/api/productCatalog";
+import {
+  SkuGroupUnitOfMeasureLabels,
+  SkuGroupUnitOfMeasureToLabel,
+} from "lib/enum";
 import { debounce } from "lodash";
 import { useState } from "react";
 import styled from "styled-components";
@@ -44,6 +49,12 @@ const EditBespokeCatalogSkuGroupModal = ({
 
   const [skuGroupName, setSkuGroupName] = useState<string>(
     bespokeCatalogSkuGroup.sku_group_name
+  );
+  const [unitQuantity, setUnitQuantity] = useState(
+    bespokeCatalogSkuGroup.unit_quantity
+  );
+  const [unitOfMeasure, setUnitOfMeasure] = useState(
+    bespokeCatalogSkuGroup.unit_of_measure
   );
   // Only changing the mapping from:
   // bespoke_catalog_sku_group.bespoke_catalog_brand to bespoke_catalog_brand.id
@@ -86,6 +97,8 @@ const EditBespokeCatalogSkuGroupModal = ({
       variables: {
         id: bespokeCatalogSkuGroup.id,
         sku_group_name: skuGroupName,
+        unit_quantity: unitQuantity,
+        unit_of_measure: unitOfMeasure,
         brand_id: bespokeCatalogBrand.id,
       },
     });
@@ -103,7 +116,6 @@ const EditBespokeCatalogSkuGroupModal = ({
 
   const isSubmitDisabled = !skuGroupName || !bespokeCatalogBrand.id;
 
-  console.log({ skuGroupName, bespokeCatalogBrand, bespokeCatalogSkuGroup });
   return (
     <ModalDialog
       title="Edit Bespoke Catalog SKU Group"
@@ -125,8 +137,30 @@ const EditBespokeCatalogSkuGroupModal = ({
               }}
             />
           </FormControl>
-          <CardDivider marginBottom="16px" />
         </Box>
+        <Box mb={3}>
+          <FormControl fullWidth>
+            <TextField
+              value={unitQuantity}
+              label={"Unit Quantity"}
+              type={"number"}
+              onChange={({ target: { value } }) => {
+                setUnitQuantity(value ? Number(value) : null);
+              }}
+            />
+          </FormControl>
+        </Box>
+        <Box mb={3}>
+          <SelectDropdown
+            value={unitOfMeasure || ""}
+            label={"Unit of Measure"}
+            options={SkuGroupUnitOfMeasureLabels}
+            optionDisplayMapper={SkuGroupUnitOfMeasureToLabel}
+            id="unit-of-measure-dropdown"
+            setValue={(value) => setUnitOfMeasure(value)}
+          />
+        </Box>
+        <CardDivider marginBottom="16px" />
         <Box>
           <Box minHeight={16}>
             {isGetBespokeCatalogBrandDataLoading && <LinearProgress />}

@@ -9,13 +9,15 @@ select_permissions:
   - role: bank_admin
     permission:
       columns:
+        - bespoke_catalog_sku_id
+        - created_at
+        - deleted_at
+        - id
         - is_deleted
+        - last_edited_by_user_id
         - product_category_name
         - product_name
         - sku_confidence
-        - created_at
-        - deleted_at
         - updated_at
-        - bespoke_catalog_sku_id
-        - id
+        - wholesale_quantity
       filter: {}

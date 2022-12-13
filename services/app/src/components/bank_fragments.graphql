@@ -746,6 +746,8 @@ fragment BespokeCatalogBrand on bespoke_catalog_brands {
 fragment BespokeCatalogSkuGroup on bespoke_catalog_sku_groups {
   id
   sku_group_name
+  unit_quantity
+  unit_of_measure
   bespoke_catalog_brand {
     id
     ...BespokeCatalogBrand
@@ -765,6 +767,7 @@ fragment MetrcToBespokeCatalogSku on metrc_to_bespoke_catalog_skus {
   id
   product_name
   product_category_name
+  wholesale_quantity
   sku_confidence
   bespoke_catalog_sku {
     id

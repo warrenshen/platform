@@ -257,6 +257,8 @@ export const productCatalogRoutes = {
     "product_catalog/create_update_bespoke_catalog_sku_group",
   createMetrcToBespokeCatalogSku:
     "product_catalog/create_metrc_to_bespoke_catalog_sku",
+  invalidMetrcToBespokeCatalogSku:
+    "product_catalog/invalid_metrc_to_bespoke_catalog_skus",
   updateMetrcToBespokeCatalogSku:
     "product_catalog/update_metrc_to_bespoke_catalog_sku",
   deleteBespokeCatalogBrand: "product_catalog/delete_bespoke_catalog_brand",

@@ -1,4 +1,3 @@
-import uuid
 from bespoke import errors
 from bespoke.db import models
 from sqlalchemy.orm.session import Session
@@ -31,6 +30,8 @@ def create_update_bespoke_catalog_sku_group(
 	id: str,
 	sku_group_name: str,
 	brand_id: str,
+	unit_quantity: float,
+	unit_of_measure: str,
 ) -> Tuple[str, errors.Error]:
 	sku_group = cast(
 		models.BespokeCatalogSkuGroup,
@@ -42,12 +43,16 @@ def create_update_bespoke_catalog_sku_group(
 		sku_group = models.BespokeCatalogSkuGroup(# type: ignore
 			sku_group_name = sku_group_name,
 			bespoke_catalog_brand_id = brand_id,
+			unit_quantity = unit_quantity,
+			unit_of_measure = unit_of_measure,
 		)
 		session.add(sku_group)
 		session.flush()
 	else:
 		sku_group.sku_group_name = sku_group_name
 		sku_group.bespoke_catalog_brand_id = brand_id # type: ignore
+		sku_group.unit_quantity = unit_quantity # type: ignore
+		sku_group.unit_of_measure = unit_of_measure
 	
 	return str(sku_group.id), None
 
@@ -163,6 +168,7 @@ def create_update_metrc_to_sku(
 	product_category_name: str,
 	sku_confidence: str,
 	last_edited_by_user_id: str,
+	wholesale_quantity: int,
 ) -> Tuple[str, errors.Error]:
 	metrc_to_sku = cast(
 		models.MetrcToBespokeCatalogSku,
@@ -176,7 +182,8 @@ def create_update_metrc_to_sku(
 			product_name = product_name,
 			product_category_name = product_category_name,
 			sku_confidence = sku_confidence.lower(),
-			last_edited_by_user_id = last_edited_by_user_id
+			last_edited_by_user_id = last_edited_by_user_id,
+			wholesale_quantity = wholesale_quantity
 		)
 		session.add(metrc_to_sku)
 		session.flush()
@@ -188,6 +195,8 @@ def create_update_metrc_to_sku(
 			metrc_to_sku.product_category_name = product_category_name
 		metrc_to_sku.sku_confidence = sku_confidence.lower()
 		metrc_to_sku.last_edited_by_user_id = last_edited_by_user_id # type: ignore
+		if wholesale_quantity:
+			metrc_to_sku.wholesale_quantity = wholesale_quantity
 	
 	return str(metrc_to_sku.id), None
 

@@ -41,7 +41,7 @@ const MetrcTransferPackagesDataGrid = ({
       {
         dataField: "product_category_name",
         caption: "Metrc Product Category",
-        minWidth: ColumnWidths.MinWidth,
+        width: ColumnWidths.Comment,
       },
       {
         dataField: "shipped_quantity",
@@ -62,6 +62,11 @@ const MetrcTransferPackagesDataGrid = ({
         dataField: "shipped_unit_of_measure",
         caption: "Shipped Unit of Measure",
         width: ColumnWidths.Count,
+      },
+      {
+        dataField: "occurrences",
+        caption: "Occurrences",
+        width: ColumnWidths.MinWidth,
       },
     ],
     []

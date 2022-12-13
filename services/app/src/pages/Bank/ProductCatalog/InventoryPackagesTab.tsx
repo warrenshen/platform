@@ -7,14 +7,18 @@ import {
 import CreateBespokeCatalogEntryCompleteModal from "components/ProductCatalog/CreateBespokeCatalogEntryCompleteModal";
 import MetrcInventoryPackagesDataGrid from "components/ProductCatalog/MetrcInventoryPackagesDataGrid";
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
-import Can from "components/Shared/Can";
+import SecondaryButton from "components/Shared/Button/SecondaryButton";
 import Text, { TextVariants } from "components/Shared/Text/Text";
 import { MetrcPackageFragment } from "generated/graphql";
+import useCustomMutation from "hooks/useCustomMutation";
 import useCustomQuery from "hooks/useCustomQuery";
 import useSnackbar from "hooks/useSnackbar";
 import { SearchIcon } from "icons";
-import { getInventoryPackageData } from "lib/api/productCatalog";
-import { Action } from "lib/auth/rbac-rules";
+import {
+  createInvalidMetrcToBespokeCatalogSkuMutation,
+  getInventoryPackageData,
+} from "lib/api/productCatalog";
+import { MetrcToBespokeCatalogSkuConfidenceLabel } from "lib/enum";
 import { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 
@@ -66,6 +70,44 @@ const InventoryPackagesTab = () => {
     } else {
       snackbar.showError(
         `Failed to search for Metrc Inventory Packages: ${response.msg}`
+      );
+    }
+  };
+
+  const [
+    invalidMetrcToBespokeCatalogSku,
+    { loading: isCreateInvalidMetrcToBespokeCatalogSkuLoading },
+  ] = useCustomMutation(createInvalidMetrcToBespokeCatalogSkuMutation);
+
+  const handleMarkInvalid = async () => {
+    const handleMarkInvalidInput = metrcInventoryPackages
+      .filter((inventoryPackage) =>
+        selectedMetrcInventoryPackages.includes(inventoryPackage.id)
+      )
+      .map((inventoryPackage) => ({
+        product_name: inventoryPackage.product_name,
+        product_category_name: inventoryPackage.product_category_name,
+        sku_confidence: MetrcToBespokeCatalogSkuConfidenceLabel.Invalid,
+      }));
+    const response = await invalidMetrcToBespokeCatalogSku({
+      variables: handleMarkInvalidInput,
+    });
+    if (response.status === "OK") {
+      setMatchedProductNames(
+        new Set([
+          ...matchedProductNames,
+          ...handleMarkInvalidInput.map(
+            (input) => input.product_name as string
+          ),
+        ])
+      );
+      snackbar.showSuccess(
+        `Successfully marked ${selectedMetrcInventoryPackages.length} Metrc Inventory Packages as invalid`
+      );
+      setSelectedMetrcInventoryPackages([]);
+    } else {
+      snackbar.showError(
+        `Failed to mark selected Metrc Inventory Packages as invalid: ${response.msg}`
       );
     }
   };
@@ -138,13 +180,21 @@ const InventoryPackagesTab = () => {
         <Text textVariant={TextVariants.ParagraphLead}>
           Incoming Inventory Packages
         </Text>
-        <Can perform={Action.UnarchiveLoan}>
+        <Box display="flex">
+          <SecondaryButton
+            isDisabled={
+              selectedMetrcInventoryPackages.length === 0 ||
+              isCreateInvalidMetrcToBespokeCatalogSkuLoading
+            }
+            text={"Mark Invalid"}
+            onClick={handleMarkInvalid}
+          />
           <PrimaryButton
             isDisabled={!selectedMetrcInventoryPackage}
             text={"Create Catalog Entry"}
             onClick={() => setIsCreateUpdateBespokeCatalogEntryModalOpen(true)}
           />
-        </Can>
+        </Box>
       </Box>
       <MetrcInventoryPackagesDataGrid
         selectedInventoryPackageIds={selectedMetrcInventoryPackages}

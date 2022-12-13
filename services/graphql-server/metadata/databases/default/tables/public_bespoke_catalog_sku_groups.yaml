@@ -23,5 +23,7 @@ select_permissions:
         - id
         - is_deleted
         - sku_group_name
+        - unit_of_measure
+        - unit_quantity
         - updated_at
       filter: {}

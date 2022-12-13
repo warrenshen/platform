@@ -35,6 +35,8 @@ import { createMetrcToBespokeCatalogSkuMutation } from "lib/api/productCatalog";
 import {
   MetrcToBespokeCatalogSkuConfidenceLabel,
   MetrcToBespokeCatalogSkuConfidenceLabels,
+  SkuGroupUnitOfMeasureLabels,
+  SkuGroupUnitOfMeasureToLabel,
 } from "lib/enum";
 import { debounce } from "lodash";
 import { useState } from "react";
@@ -125,24 +127,27 @@ const CreateBespokeCatalogEntryCompleteModal = ({
     product_name: productName,
     product_category_name: productCategoryName,
     sku_confidence: MetrcToBespokeCatalogSkuConfidenceLabel.High,
+    wholesale_quantity: null,
     bespoke_catalog_sku_id: null,
   };
 
   const defaultBespokeCatalogSku: BespokeCatalogSkusInsertInput = {
     id: null,
-    sku: "",
+    sku: null,
     bespoke_catalog_sku_group_id: null,
   };
 
   const defaultBespokeCatalogSkuGroup: BespokeCatalogSkuGroupsInsertInput = {
     id: null,
-    sku_group_name: "",
+    sku_group_name: null,
+    unit_quantity: null,
+    unit_of_measure: null,
     bespoke_catalog_brand_id: null,
   };
 
   const defaultBespokeCatalogBrand: BespokeCatalogBrandsInsertInput = {
     id: null,
-    brand_name: "",
+    brand_name: null,
   };
 
   const [bespokeCatalogEntry, setBespokeCatalogEntry] =
@@ -178,6 +183,8 @@ const CreateBespokeCatalogEntryCompleteModal = ({
           ...bespokeCatalogSku,
           bespoke_catalog_sku_group: {
             bespoke_catalog_brand_id: null,
+            unit_quantity: null,
+            unit_of_measure: null,
             ...bespokeCatalogSkuGroup,
             bespoke_catalog_brand: bespokeCatalogBrand,
           },
@@ -249,6 +256,21 @@ const CreateBespokeCatalogEntryCompleteModal = ({
             {bespokeCatalogEntry.product_category_name as string}
           </Text>
           <CardDivider marginBottom="16px" />
+        </Box>
+        <Box mb={3}>
+          <FormControl fullWidth>
+            <TextField
+              value={bespokeCatalogEntry.wholesale_quantity || ""}
+              label={"Wholesale Quantity"}
+              type={"number"}
+              onChange={({ target: { value } }) => {
+                setBespokeCatalogEntry({
+                  ...bespokeCatalogEntry,
+                  wholesale_quantity: value ? Number(value) : null,
+                });
+              }}
+            />
+          </FormControl>
         </Box>
         <Box mb={3}>
           <SelectDropdown
@@ -385,7 +407,7 @@ const CreateBespokeCatalogEntryCompleteModal = ({
                 <Box mb={2}>
                   <FormControl fullWidth>
                     <TextField
-                      value={bespokeCatalogSku.sku}
+                      value={bespokeCatalogSku.sku || ""}
                       label={"Sku Name"}
                       onChange={({ target: { value } }) => {
                         setBespokeCatalogSku({
@@ -518,7 +540,7 @@ const CreateBespokeCatalogEntryCompleteModal = ({
                     <Box mb={2}>
                       <FormControl fullWidth>
                         <TextField
-                          value={bespokeCatalogSkuGroup.sku_group_name}
+                          value={bespokeCatalogSkuGroup.sku_group_name || ""}
                           label={"Sku Group Name"}
                           onChange={({ target: { value } }) => {
                             setBespokeCatalogSkuGroup({
@@ -528,6 +550,36 @@ const CreateBespokeCatalogEntryCompleteModal = ({
                           }}
                         />
                       </FormControl>
+                    </Box>
+                    <Box mb={3}>
+                      <FormControl fullWidth>
+                        <TextField
+                          value={bespokeCatalogSkuGroup.unit_quantity || ""}
+                          label={"Unit Quantity"}
+                          type={"number"}
+                          onChange={({ target: { value } }) => {
+                            setBespokeCatalogSkuGroup({
+                              ...bespokeCatalogSkuGroup,
+                              unit_quantity: value ? Number(value) : null,
+                            });
+                          }}
+                        />
+                      </FormControl>
+                    </Box>
+                    <Box mb={3}>
+                      <SelectDropdown
+                        value={bespokeCatalogSkuGroup.unit_of_measure || ""}
+                        label={"Unit of Measure"}
+                        options={SkuGroupUnitOfMeasureLabels}
+                        optionDisplayMapper={SkuGroupUnitOfMeasureToLabel}
+                        id="unit-of-measure-dropdown"
+                        setValue={(value) =>
+                          setBespokeCatalogSkuGroup({
+                            ...bespokeCatalogSkuGroup,
+                            unit_of_measure: value,
+                          })
+                        }
+                      />
                     </Box>
                     {!isAddNewBrandChecked &&
                       !bespokeCatalogSkuGroup.bespoke_catalog_brand_id && (
@@ -635,7 +687,7 @@ const CreateBespokeCatalogEntryCompleteModal = ({
                         <Box mb={2}>
                           <FormControl fullWidth>
                             <TextField
-                              value={bespokeCatalogBrand.brand_name}
+                              value={bespokeCatalogBrand.brand_name || ""}
                               label={"Brand Name"}
                               onChange={({ target: { value } }) => {
                                 setBespokeCatalogBrand({

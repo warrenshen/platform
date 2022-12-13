@@ -1,4 +1,10 @@
-import { Box, DialogActions, DialogContent } from "@material-ui/core";
+import {
+  Box,
+  DialogActions,
+  DialogContent,
+  FormControl,
+  TextField,
+} from "@material-ui/core";
 import AutocompleteSelectDropdown from "components/ProductCatalog/AutocompleteSelectDropdown";
 import { DEFAULT_AUTOCOMPLETE_MINIMUM_QUERY_LENGTH } from "components/ProductCatalog/constants";
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
@@ -41,6 +47,9 @@ const EditBespokeCatalogEntryModal = ({
 }: Props) => {
   const snackbar = useSnackbar();
 
+  const [wholesaleQuantity, setWholesaleQuantity] = useState(
+    bespokeCatalogEntry.wholesale_quantity
+  );
   const [skuConfidence, setSkuConfidence] = useState(
     bespokeCatalogEntry.sku_confidence.charAt(0).toUpperCase() +
       bespokeCatalogEntry.sku_confidence.slice(1)
@@ -84,6 +93,7 @@ const EditBespokeCatalogEntryModal = ({
           skuConfidence === MetrcToBespokeCatalogSkuConfidenceLabel.Invalid
             ? null
             : bespokeCatalogSku.id,
+        wholesale_quantity: wholesaleQuantity,
         sku_confidence: skuConfidence,
       },
     });
@@ -137,6 +147,18 @@ const EditBespokeCatalogEntryModal = ({
             {bespokeCatalogEntry.product_category_name}
           </Text>
           <CardDivider marginBottom="16px" />
+        </Box>
+        <Box mb={3}>
+          <FormControl fullWidth>
+            <TextField
+              value={wholesaleQuantity}
+              label={"Wholesale Quantity"}
+              type={"number"}
+              onChange={({ target: { value } }) => {
+                setWholesaleQuantity(value ? Number(value) : null);
+              }}
+            />
+          </FormControl>
         </Box>
         <Box mb={3}>
           <SelectDropdown
