@@ -52,7 +52,7 @@ function ReviewPurchaseOrderCompletePage(props: any) {
   const purchaseOrders = data?.purchase_orders || [];
   const successMessage =
     purchaseOrders.length > 0
-      ? "Your response was saved successfully. You can view other POs waiting for your review below"
+      ? "Your response was saved successfully. You can view other POs waiting for your review below."
       : "Your response was saved successfully. You may now close this page.";
 
   return (

@@ -71,7 +71,7 @@ import CustomerLoansPageNew from "pages/Customer/LoansNew";
 import CustomerLocationsPage from "pages/Customer/Locations";
 import CustomerOverviewPage from "pages/Customer/Overview";
 import CustomerPayorsPage from "pages/Customer/Payors";
-import CustomerPurchaseOrdersPageNew from "pages/Customer/PurchaseOrders/indexNew";
+import CustomerPurchaseOrdersPage from "pages/Customer/PurchaseOrders";
 import CustomerRepaymentsPage from "pages/Customer/Repayments";
 import CustomerReportsPage from "pages/Customer/Reports";
 import CustomerSettingsPage from "pages/Customer/Settings";
@@ -279,7 +279,7 @@ export default function App() {
           }
         />
         <Route
-          path={customerRoutes.purchaseOrdersNew}
+          path={customerRoutes.purchaseOrders}
           element={
             <PrivateRoute
               requiredRoles={[
@@ -287,7 +287,7 @@ export default function App() {
                 UserRolesEnum.CompanyReadOnly,
               ]}
             >
-              <CustomerPurchaseOrdersPageNew />
+              <CustomerPurchaseOrdersPage />
             </PrivateRoute>
           }
         />

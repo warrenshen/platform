@@ -1,18 +1,19 @@
 import { Box, Theme, createStyles, makeStyles } from "@material-ui/core";
-import CreateUpdatePurchaseOrderModal from "components/PurchaseOrder/CreateUpdatePurchaseOrderModal";
-import PurchaseOrdersDataGrid from "components/PurchaseOrder/PurchaseOrdersDataGrid";
-import ReopenPurchaseOrderModal from "components/PurchaseOrder/ReopenPurchaseOrderModal";
+import ArchivePurchaseOrderModalNew from "components/PurchaseOrder/v2/ArchivePurchaseOrderModalNew";
+import PurchaseOrdersDataGridNew from "components/PurchaseOrder/v2/PurchaseOrdersDataGridNew";
+import SecondaryButton from "components/Shared/Button/SecondaryButton";
 import Can from "components/Shared/Can";
-import ModalButton from "components/Shared/Modal/ModalButton";
+import LinearFinancialSummaryOverview from "components/Shared/FinancialSummaries/LinearFinancialSummaryOverview";
+import { CurrentCustomerContext } from "contexts/CurrentCustomerContext";
 import {
   Companies,
   PurchaseOrderFragment,
+  PurchaseOrderLimitedNewFragment,
   PurchaseOrders,
-  useGetClosedPurchaseOrdersByCompanyIdQuery,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
-import { ActionType, ProductTypeEnum } from "lib/enum";
-import { useMemo, useState } from "react";
+import { ClosedNewPurchaseOrderStatuses, ProductTypeEnum } from "lib/enum";
+import { useContext, useMemo, useState } from "react";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -38,32 +39,22 @@ interface Props {
   companyId: Companies["id"];
   productType: ProductTypeEnum;
   isActiveContract: boolean;
+  purchaseOrders: PurchaseOrderLimitedNewFragment[];
+  refetchPurchaseOrders: () => void;
 }
 
-export default function CustomerPurchaseOrdersClosedTab({
+export default function CustomerPurchaseOrdersClosedTabNew({
   companyId,
   productType,
   isActiveContract,
+  purchaseOrders,
+  refetchPurchaseOrders,
 }: Props) {
   const classes = useStyles();
 
-  const { data, error, refetch } = useGetClosedPurchaseOrdersByCompanyIdQuery({
-    fetchPolicy: "network-only",
-    variables: {
-      company_id: companyId,
-    },
-  });
+  const { financialSummary } = useContext(CurrentCustomerContext);
 
-  if (error) {
-    console.error({ error });
-    alert(`Error in query (details in console): ${error.message}`);
-  }
-
-  const purchaseOrders = useMemo(
-    () => data?.purchase_orders || [],
-    [data?.purchase_orders]
-  );
-
+  const [isUnArchiveModalOpen, setIsUnArchiveModalOpen] = useState(false);
   const [selectedPurchaseOrderIds, setSelectedPurchaseOrderIds] = useState<
     PurchaseOrders["id"][]
   >([]);
@@ -89,54 +80,43 @@ export default function CustomerPurchaseOrdersClosedTab({
 
   return (
     <Container>
+      {isUnArchiveModalOpen && (
+        <ArchivePurchaseOrderModalNew
+          action={Action.ReopenPurchaseOrders}
+          purchaseOrder={selectedPurchaseOrder}
+          handleClose={() => {
+            setSelectedPurchaseOrderIds([]);
+            setIsUnArchiveModalOpen(false);
+            refetchPurchaseOrders();
+          }}
+        />
+      )}
+      <Box mt={3}>
+        <LinearFinancialSummaryOverview
+          adjustedTotalLimit={financialSummary?.adjusted_total_limit || null}
+          availableLimit={financialSummary?.available_limit || null}
+        />
+      </Box>
       <Box flex={1} display="flex" flexDirection="column" width="100%">
         <Box className={classes.section}>
           <Box my={2} display="flex" flexDirection="row-reverse">
-            <Can perform={Action.EditPurchaseOrders}>
-              <Box>
-                <ModalButton
-                  isDisabled={!selectedPurchaseOrder || !isActiveContract}
-                  label={"Edit PO"}
-                  modal={({ handleClose }) => (
-                    <CreateUpdatePurchaseOrderModal
-                      actionType={ActionType.Update}
-                      companyId={companyId}
-                      purchaseOrderId={selectedPurchaseOrder?.id}
-                      productType={productType}
-                      handleClose={() => {
-                        refetch();
-                        handleClose();
-                        setSelectedPurchaseOrderIds([]);
-                      }}
-                    />
-                  )}
-                />
-              </Box>
-            </Can>
-            <Can perform={Action.ReopenPurchaseOrders}>
-              <Box mr={2}>
-                <ModalButton
-                  isDisabled={!selectedPurchaseOrder || !isActiveContract}
-                  label={"Reopen PO"}
-                  variant={"outlined"}
-                  modal={({ handleClose }) => (
-                    <ReopenPurchaseOrderModal
-                      purchaseOrder={selectedPurchaseOrder || null}
-                      handleClose={() => {
-                        refetch();
-                        handleClose();
-                        setSelectedPurchaseOrderIds([]);
-                      }}
-                    />
-                  )}
-                />
-              </Box>
-            </Can>
+            {selectedPurchaseOrderIds.length > 0 && (
+              <Can perform={Action.ReopenPurchaseOrders}>
+                <Box mr={2}>
+                  <SecondaryButton
+                    isDisabled={!selectedPurchaseOrder || !isActiveContract}
+                    text={"Unarchive"}
+                    onClick={() => setIsUnArchiveModalOpen(true)}
+                  />
+                </Box>
+              </Can>
+            )}
           </Box>
-          <PurchaseOrdersDataGrid
+          <PurchaseOrdersDataGridNew
             isCompanyVisible={false}
             purchaseOrders={purchaseOrders}
             selectedPurchaseOrderIds={selectedPurchaseOrderIds}
+            selectablePurchaseOrderStatuses={ClosedNewPurchaseOrderStatuses}
             handleSelectPurchaseOrders={handleSelectPurchaseOrders}
           />
         </Box>

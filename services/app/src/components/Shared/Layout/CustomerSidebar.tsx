@@ -143,7 +143,7 @@ const getCustomerNavItems = (
         ].includes(productType),
       iconNode: PurchaseOrdersIcon,
       text: "Purchase Orders",
-      link: customerRoutes.purchaseOrdersNew,
+      link: customerRoutes.purchaseOrders,
       counterColor: "rgb(230, 126, 34)",
       counter: purchaseOrdersChangesRequestedCount,
     },

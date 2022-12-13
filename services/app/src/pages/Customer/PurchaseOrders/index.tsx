@@ -1,9 +1,10 @@
 import Page from "components/Shared/Page";
+import CurrentCustomerProvider from "contexts/CurrentCustomerProvider";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import CustomerPurchaseOrdersPageContent from "pages/Customer/PurchaseOrders/PurchaseOrdersPageContent";
 import { useContext } from "react";
 
-function PurchaseOrdersPage() {
+export default function PurchaseOrdersPageNew() {
   const {
     user: { companyId, productType, isActiveContract },
   } = useContext(CurrentUserContext);
@@ -11,14 +12,14 @@ function PurchaseOrdersPage() {
   return (
     <Page appBarTitle={"Purchase Orders"}>
       {companyId && productType && (
-        <CustomerPurchaseOrdersPageContent
-          companyId={companyId}
-          productType={productType}
-          isActiveContract={!!isActiveContract}
-        />
+        <CurrentCustomerProvider companyId={companyId}>
+          <CustomerPurchaseOrdersPageContent
+            companyId={companyId}
+            productType={productType}
+            isActiveContract={!!isActiveContract}
+          />
+        </CurrentCustomerProvider>
       )}
     </Page>
   );
 }
-
-export default PurchaseOrdersPage;
