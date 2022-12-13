@@ -18,7 +18,7 @@ const Container = styled.div`
 `;
 
 const BankProductCatalogPage = () => {
-  const [selectedTabIndex, setSelectedTabIndex] = useState(5);
+  const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
   return (
     <Page appBarTitle={"Product Catalog"}>
