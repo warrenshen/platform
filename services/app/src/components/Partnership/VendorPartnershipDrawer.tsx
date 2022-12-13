@@ -68,8 +68,8 @@ export default function VendorPartnershipDrawer({
         ? companyVendorPartnership?.vendor_contacts.map(
             (vendorContact) => vendorContact.user
           ) || []
-        : vendor?.users || [],
-    [companyVendorPartnership, vendor]
+        : [],
+    [companyVendorPartnership]
   );
 
   if (!companyVendorPartnership || !customer || !vendor) {
