@@ -54,6 +54,7 @@ function getRows(customers: CustomersWithMetadataFragment[]) {
         BankCompanyRouteEnum.Overview
       ),
       cy_identifier: `customers-data-grid-view-customer-button-${company.identifier}`,
+      dba_name: company?.dba_name || "",
       debt_facility_status: !!company?.debt_facility_status
         ? (company.debt_facility_status as DebtFacilityCompanyStatusEnum)
         : null,
@@ -116,6 +117,16 @@ export default function CompaniesCustomersDataGrid({ customers }: Props) {
             label={value}
           />
         ),
+      },
+      {
+        dataField: "identifier",
+        caption: "Identifier",
+        minWidth: ColumnWidths.MinWidth,
+      },
+      {
+        dataField: "dba_name",
+        caption: "DBA",
+        minWidth: ColumnWidths.MinWidth,
       },
       {
         dataField: "product_type",

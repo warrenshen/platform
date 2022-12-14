@@ -21,7 +21,13 @@ export default function CompaniesVendorsTab() {
       filter(
         data?.payors || [],
         (payor) =>
-          payor.name.toLowerCase().indexOf(searchQuery.toLowerCase()) >= 0
+          payor.name.toLowerCase().indexOf(searchQuery.toLowerCase()) >= 0 ||
+          (payor?.dba_name || "")
+            .toLowerCase()
+            .indexOf(searchQuery.toLowerCase()) >= 0 ||
+          (payor?.identifier || "")
+            .toLowerCase()
+            .indexOf(searchQuery.toLowerCase()) >= 0
       ),
     [searchQuery, data?.payors]
   );

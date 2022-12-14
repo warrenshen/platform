@@ -38,7 +38,13 @@ export default function CompaniesCustomersTab({ setSelectedTabIndex }: Props) {
       filter(
         allData?.customers || [],
         (company) =>
-          company.name.toLowerCase().indexOf(searchQuery.toLowerCase()) >= 0
+          company.name.toLowerCase().indexOf(searchQuery.toLowerCase()) >= 0 ||
+          (company?.dba_name || "")
+            .toLowerCase()
+            .indexOf(searchQuery.toLowerCase()) >= 0 ||
+          (company?.identifier || "")
+            .toLowerCase()
+            .indexOf(searchQuery.toLowerCase()) >= 0
       ),
     [searchQuery, allData?.customers]
   );

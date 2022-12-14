@@ -35,7 +35,13 @@ export default function CompaniesCompaniesTab() {
       filter(
         allData?.companies || [],
         (company) =>
-          company.name.toLowerCase().indexOf(searchQuery.toLowerCase()) >= 0
+          company.name.toLowerCase().indexOf(searchQuery.toLowerCase()) >= 0 ||
+          (company?.dba_name || "")
+            .toLowerCase()
+            .indexOf(searchQuery.toLowerCase()) >= 0 ||
+          (company?.identifier || "")
+            .toLowerCase()
+            .indexOf(searchQuery.toLowerCase()) >= 0
       ),
     [searchQuery, allData?.companies]
   );

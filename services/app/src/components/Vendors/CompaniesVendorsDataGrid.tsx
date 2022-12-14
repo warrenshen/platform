@@ -58,6 +58,11 @@ export default function CompaniesVendorsDataGrid({ vendors }: Props) {
         },
       },
       {
+        dataField: "identifier",
+        caption: "Identifier",
+        minWidth: ColumnWidths.MinWidth,
+      },
+      {
         dataField: "dba_name",
         caption: "DBA",
         minWidth: ColumnWidths.MinWidth,
