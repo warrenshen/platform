@@ -170,7 +170,7 @@ const getCustomerNavItems = (
       dataCy: "repayments",
       iconNode: RepaymentsIcon,
       text: "Repayments",
-      link: customerRoutes.payments,
+      link: customerRoutes.repayments,
     },
     {
       dataCy: "borrowing-base",
@@ -260,6 +260,13 @@ const getBankNavItems = (
       isBankMenu: true,
     },
     {
+      dataCy: "purchase-orders-new",
+      iconNode: PurchaseOrdersIcon,
+      text: "Purchase Orders",
+      link: bankRoutes.purchaseOrdersNew,
+      isBankMenu: true,
+    },
+    {
       dataCy: "financing-requests",
       iconNode: FinancingRequestsIcon,
       text: "Financing Requests",
@@ -286,15 +293,8 @@ const getBankNavItems = (
       dataCy: "repayments",
       iconNode: RepaymentsIcon,
       text: "Repayments",
-      link: bankRoutes.payments,
+      link: bankRoutes.repayments,
       counter: repaymentsCount,
-      isBankMenu: true,
-    },
-    {
-      dataCy: "purchase-orders-new",
-      iconNode: PurchaseOrdersIcon,
-      text: "Purchase Orders",
-      link: bankRoutes.purchaseOrdersNew,
       isBankMenu: true,
     },
     {

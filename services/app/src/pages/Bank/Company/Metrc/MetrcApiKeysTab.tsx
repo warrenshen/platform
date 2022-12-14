@@ -7,7 +7,6 @@ import CompanyLicensesDataGrid from "components/CompanyLicenses/CompanyLicensesD
 import CreateUpdateCompanyLicenseModal from "components/CompanyLicenses/CreateUpdateCompanyLicenseModal";
 import DeleteLicenseModal from "components/CompanyLicenses/DeleteLicenseModal";
 import MetrcApiKeysList from "components/Metrc/MetrcApiKeysList";
-import SyncMetrcData from "components/Metrc/SyncMetrcData";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import {
   Companies,
@@ -252,14 +251,6 @@ export default function CompanyMetrcApiKeysTab({ companyId }: Props) {
           companyFacilities={companyFacilities}
           refetch={refetch}
         />
-      </Box>
-      <Box display="flex" flexDirection="column" mt={4}>
-        <Typography variant="h6">
-          <strong>[Deprecated] Download Metrc Data</strong>
-        </Typography>
-        <Box display="flex">
-          <SyncMetrcData companyId={companyId} />
-        </Box>
       </Box>
     </Box>
   );

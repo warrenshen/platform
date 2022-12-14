@@ -170,7 +170,7 @@ const getCustomerNavItems = (
       dataCy: "repayments",
       iconNode: RepaymentsIcon,
       text: "Repayments",
-      link: customerRoutes.payments,
+      link: customerRoutes.repayments,
     },
     {
       dataCy: "borrowing-base",
@@ -286,7 +286,7 @@ const getBankNavItems = (
       dataCy: "repayments",
       iconNode: RepaymentsIcon,
       text: "Repayments",
-      link: bankRoutes.payments,
+      link: bankRoutes.repayments,
       counter: repaymentsCount,
       isBankMenu: true,
     },

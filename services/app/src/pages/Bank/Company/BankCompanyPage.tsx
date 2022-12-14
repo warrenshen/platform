@@ -206,7 +206,7 @@ const getCustomerPaths = (
         {
           dataCy: "customer-repayments",
           label: "Repayments",
-          path: bankRoutes.company.payments,
+          path: bankRoutes.company.repayments,
         },
         {
           dataCy: "borrowing-base",

@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function ReviewPurchaseOrderCompletePage(props: any) {
+function ReviewPurchaseOrderCompletePage() {
   const classes = useStyles();
   const navigate = useNavigate();
 

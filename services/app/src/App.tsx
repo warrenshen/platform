@@ -107,7 +107,7 @@ export default function App() {
         />
         <Route
           path={anonymousRoutes.reviewInvoice}
-          element={<ReviewInvoicePage location={""} />}
+          element={<ReviewInvoicePage />}
         />
         <Route
           path={anonymousRoutes.reviewInvoiceComplete}
@@ -115,7 +115,7 @@ export default function App() {
         />
         <Route
           path={anonymousRoutes.reviewInvoicePayment}
-          element={<ReviewInvoicePaymentPage location={""} />}
+          element={<ReviewInvoicePaymentPage />}
         />
         <Route
           path={anonymousRoutes.reviewInvoicePaymentComplete}
@@ -305,7 +305,7 @@ export default function App() {
           }
         />
         <Route
-          path={customerRoutes.payments}
+          path={customerRoutes.repayments}
           element={
             <PrivateRoute
               requiredRoles={[
@@ -606,7 +606,7 @@ export default function App() {
           }
         />
         <Route
-          path={"companies/:companyId/payments"}
+          path={"companies/:companyId/repayments"}
           element={
             <PrivateRoute
               requiredRoles={[
@@ -753,7 +753,7 @@ export default function App() {
           }
         />
         <Route
-          path={bankRoutes.payments}
+          path={bankRoutes.repayments}
           element={
             <PrivateRoute
               requiredRoles={[

@@ -18,7 +18,7 @@ import { FileTypeEnum } from "lib/enum";
 import { formatCurrency } from "lib/number";
 import { anonymousRoutes } from "lib/routes";
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 import ReviewInvoiceApproveModal from "./ReviewInvoiceApproveModal";
@@ -39,10 +39,6 @@ const StyledButton = styled(Button)`
 const ButtonSpace = styled.div`
   width: 12px;
 `;
-
-interface Props {
-  location: any;
-}
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -67,14 +63,12 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export default function ReviewInvoicePage(props: Props) {
+export default function ReviewInvoicePage() {
   const classes = useStyles();
   const navigate = useNavigate();
 
-  const location: any = props.location;
-  const payload = location.state?.payload;
-  const linkVal = location.state?.link_val;
-  const invoiceId = payload?.invoice_id;
+  const { state } = useLocation();
+  const { invoice_id: invoiceId, link_val: linkVal } = state;
 
   const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);

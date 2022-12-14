@@ -34,10 +34,6 @@ const StyledButton = styled(Button)`
   padding: 8px 0px;
 `;
 
-interface Props {
-  location: any;
-}
-
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     wrapper: {
@@ -79,14 +75,13 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export default function ReviewInvoicePaymentPage(props: Props) {
+export default function ReviewInvoicePaymentPage() {
   const classes = useStyles();
+  const navigate = useNavigate();
 
   const { state } = useLocation();
-  const { payload, link_val: linkVal } = state;
-  const invoiceId = payload?.invoice_id;
+  const { invoice_id: invoiceId, link_val: linkVal } = state;
 
-  const navigate = useNavigate();
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
 
