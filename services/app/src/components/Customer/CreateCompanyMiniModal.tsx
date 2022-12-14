@@ -1,48 +1,32 @@
 import {
   Box,
+  Button,
+  DialogActions,
+  DialogContent,
   TextField,
-  Theme,
-  Typography,
-  createStyles,
-  makeStyles,
 } from "@material-ui/core";
-import Modal from "components/Shared/Modal/Modal";
+import { SecondaryTextColor } from "components/Shared/Colors/GlobalColors";
+import AutocompleteParentCompany from "components/Shared/Company/AutocompleteParentCompany";
+import ModalDialog from "components/Shared/Modal/ModalDialog";
+import Text, { TextVariants } from "components/Shared/Text/Text";
 import { CompaniesInsertInput } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
 import { createProspectiveCustomer } from "lib/api/companies";
 import { useState } from "react";
 
-// TODO: (Grace) - remove after redesign
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    dialog: {
-      width: 500,
-    },
-    dialogTitle: {
-      borderBottom: "1px solid #c7c7c7",
-    },
-    dialogActions: {
-      margin: theme.spacing(2),
-    },
-    input: {
-      width: "100%",
-    },
-  })
-);
-
 interface Props {
   handleClose: () => void;
 }
 
-export default function CreateCompanyModal({ handleClose }: Props) {
+export default function CreateCompanyMiniModal({ handleClose }: Props) {
   const snackbar = useSnackbar();
-  const classes = useStyles();
 
   const [company, setCompany] = useState<CompaniesInsertInput>({
     id: null,
     name: null,
     identifier: null,
     dba_name: null,
+    parent_company_id: null,
   });
 
   const handleClickCreate = async () => {
@@ -61,23 +45,32 @@ export default function CreateCompanyModal({ handleClose }: Props) {
   const isSubmitDisabled = !company.name || !company.identifier;
 
   return (
-    <Modal
-      dataCy={"create-company-modal"}
-      isPrimaryActionDisabled={isSubmitDisabled}
-      title={"Create Company"}
-      primaryActionText={"Save"}
-      handleClose={handleClose}
-      handlePrimaryAction={handleClickCreate}
-    >
-      <Box display="flex" flexDirection="column">
+    <ModalDialog handleClose={handleClose} title={"Create Company"}>
+      <DialogContent>
+        <Text textVariant={TextVariants.Paragraph}>
+          What is the parent company?
+        </Text>
         <Box mb={2}>
-          <Typography variant="h6">Company Information</Typography>
+          <AutocompleteParentCompany
+            textFieldLabel="Existing Parent Company"
+            onChange={(selectedCompanyId) =>
+              setCompany({ ...company, parent_company_id: selectedCompanyId })
+            }
+          />
         </Box>
-        <Box mt={2}>
+        <Text textVariant={TextVariants.Paragraph} color={SecondaryTextColor}>
+          If the company you want to create belongs to an existing parent
+          company, please select that parent company above. Otherwise, leave the
+          above blank.
+        </Text>
+        <Box>
+          <Text textVariant={TextVariants.Paragraph}>Company Information</Text>
+        </Box>
+        <Box>
           <TextField
+            fullWidth
             data-cy={"company-form-input-name"}
             autoFocus
-            className={classes.input}
             label="Company Name"
             placeholder="Distributor Example"
             value={company.name || ""}
@@ -88,8 +81,8 @@ export default function CreateCompanyModal({ handleClose }: Props) {
         </Box>
         <Box mt={2}>
           <TextField
-            data-cy={"customer-form-input-identifier"}
-            className={classes.input}
+            fullWidth
+            data-cy={"company-form-input-identifier"}
             label="Company Identifier (Unique Short Name)"
             placeholder="DE"
             value={company.identifier || ""}
@@ -100,8 +93,8 @@ export default function CreateCompanyModal({ handleClose }: Props) {
         </Box>
         <Box mt={2}>
           <TextField
-            data-cy={"customer-form-input-dba"}
-            className={classes.input}
+            fullWidth
+            data-cy={"company-form-input-dba"}
             label="DBA"
             placeholder="DBA 1, DBA 2"
             value={company.dba_name || ""}
@@ -110,7 +103,22 @@ export default function CreateCompanyModal({ handleClose }: Props) {
             }
           />
         </Box>
-      </Box>
-    </Modal>
+      </DialogContent>
+      <DialogActions>
+        <Box display="flex">
+          <Box mr={1}>
+            <Button onClick={handleClose}>Cancel</Button>
+          </Box>
+          <Button
+            disabled={isSubmitDisabled}
+            onClick={handleClickCreate}
+            variant="contained"
+            color="primary"
+          >
+            Submit
+          </Button>
+        </Box>
+      </DialogActions>
+    </ModalDialog>
   );
 }

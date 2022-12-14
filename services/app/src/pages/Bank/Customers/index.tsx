@@ -21,7 +21,7 @@ import { useFilterCustomersByFragment } from "hooks/useFilterCustomers";
 import { Action, check } from "lib/auth/rbac-rules";
 import { todayAsDateStringServer } from "lib/date";
 import { ChangeEvent, useContext, useMemo, useState } from "react";
-
+// TODO: (Grace) - remove after redesign
 export default function BankCustomersPage() {
   const [isActiveSelected, setIsActiveSelected] = useState(true);
 
@@ -227,6 +227,7 @@ export default function BankCustomersPage() {
                           : refetchActiveData();
                         handleClose();
                       }}
+                      setSelectedTabIndex={() => {}}
                     />
                   )}
                 />

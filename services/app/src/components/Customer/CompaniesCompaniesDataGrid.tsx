@@ -1,7 +1,7 @@
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
-import { ReactComponent as CompanyIcon } from "components/Shared/Layout/Icons/Company.svg";
-import { ReactComponent as ParentCompanyIcon } from "components/Shared/Layout/Icons/ParentCompany.svg";
+import { ReactComponent as CompanyIcon } from "components/Shared/Layout/Icons/CompanyGreen.svg";
+import { ReactComponent as ParentCompanyIcon } from "components/Shared/Layout/Icons/ParentCompanyGreen.svg";
 import VerificationChip from "components/Vendors/v2/VerificationChip";
 import { CustomersWithMetadataFragment } from "generated/graphql";
 import { ProductTypeEnum, ProductTypeToLabel } from "lib/enum";
@@ -19,6 +19,10 @@ function getRows(companies: CustomersWithMetadataFragment[]) {
         company.id,
         BankCompanyRouteEnum.Overview
       ),
+      cy_identifier:
+        `companies-companies-data-grid-view-customer-button-${company.identifier}`
+          .replace(/\s+/g, "-")
+          .toLowerCase(),
       dba_name: company?.dba_name || "",
       is_vendor: company?.is_vendor || false,
       is_payor: company?.is_payor || false,

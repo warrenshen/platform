@@ -15,18 +15,31 @@ describe("Create inventory financing customer", () => {
       cy.dataCy("sidebar-item-companies").click();
       cy.url().should("include", "companies");
 
+      // create existing company
+      cy.dataCy("companies-tab").first().click({ force: true });
+      cy.contains("Create Company").click();
+
+      cy.dataCy("company-form-input-name").clear().type("Distributor Inc");
+
+      cy.dataCy("company-form-input-identifier").clear().type("DI");
+
+      cy.dataCy("company-form-input-dba").clear().type("DISTRIBUTOR, INC.");
+
+      cy.contains("Submit").click();
+
+      cy.reload();
+
+      cy.dataCy("sidebar-item-companies").click();
+      cy.url().should("include", "companies");
+
       cy.dataCy("create-customer-button").click();
 
       cy.dataCy("create-customer-modal").should("be.visible");
 
-      // Enter customer company information.
-      cy.dataCySelector("customer-form-input-name", "input").type(
-        "Distributor Inc"
-      );
-      cy.dataCySelector("customer-form-input-identifier", "input").type("DI");
-      cy.dataCySelector("customer-form-input-contract-name", "input").type(
-        "DISTRIBUTOR, INC."
-      );
+      cy.dataCy("existing-company-dropdown")
+        .click()
+        .type("Distributor Inc")
+        .type("{enter}");
 
       // Enter contract non-terms information.
       cy.dataCy("contract-form-input-product-type").click();
@@ -160,18 +173,31 @@ describe(
         cy.dataCy("sidebar-item-companies").click();
         cy.url().should("include", "companies");
 
+        // create existing company
+        cy.dataCy("companies-tab").first().click({ force: true });
+        cy.contains("Create Company").click();
+
+        cy.dataCy("company-form-input-name").clear().type("Distributor Inc");
+
+        cy.dataCy("company-form-input-identifier").clear().type("DI");
+
+        cy.dataCy("company-form-input-dba").clear().type("DISTRIBUTOR, INC.");
+
+        cy.contains("Submit").click();
+
+        cy.reload();
+
+        cy.dataCy("sidebar-item-companies").click();
+        cy.url().should("include", "companies");
+
         cy.dataCy("create-customer-button").click();
 
         cy.dataCy("create-customer-modal").should("be.visible");
 
-        // Enter customer company information.
-        cy.dataCySelector("customer-form-input-name", "input").type(
-          "Distributor Inc"
-        );
-        cy.dataCySelector("customer-form-input-identifier", "input").type("DI");
-        cy.dataCySelector("customer-form-input-contract-name", "input").type(
-          "DISTRIBUTOR, INC."
-        );
+        cy.dataCy("existing-company-dropdown")
+          .click()
+          .type("Distributor Inc")
+          .type("{enter}");
 
         // Enter contract non-terms information.
         cy.dataCy("contract-form-input-product-type").click();

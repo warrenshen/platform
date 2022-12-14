@@ -1,38 +1,41 @@
 import { TextField } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
-import { Companies, useGetCompaniesWithLicensesQuery } from "generated/graphql";
+import {
+  ParentCompanyFragment,
+  useGetParentCompaniesQuery,
+} from "generated/graphql";
 import { useMemo } from "react";
 
 interface Props {
-  onChange: (selectedCompanyId: Companies["id"]) => void;
+  onChange: (selectedCompanyId: ParentCompanyFragment["id"]) => void;
   textFieldLabel: string;
 }
 
-function AutocompleteCompany(props: Props) {
-  const { data, error } = useGetCompaniesWithLicensesQuery();
+function AutocompleteParentCompany(props: Props) {
+  const { data, error } = useGetParentCompaniesQuery();
 
   if (error) {
     console.error({ error });
     alert(`Error in query (details in console): ${error.message}`);
   }
 
-  const companies = useMemo(() => data?.companies || [], [data?.companies]);
+  const companies = useMemo(
+    () => data?.parent_companies || [],
+    [data?.parent_companies]
+  );
 
   return (
     <Autocomplete
-      data-cy={"existing-company-dropdown"}
+      data-cy={"autocomplete-parent-company"}
       autoHighlight
       id="auto-complete-company"
       options={companies}
       getOptionLabel={(company) => {
-        const licenses = company.licenses
-          .filter((companyLicense) => !!companyLicense.license_number)
-          .map((companyLicense) => companyLicense.license_number)
-          .join(", ");
-        return `${company.name}${licenses ? " | " : ""}${licenses}`;
+        return `${company.name}`;
       }}
       renderInput={(params) => (
         <TextField
+          data-cy={`${params}`.replace(/\s+/g, "-").toLowerCase()}
           {...params}
           label={props.textFieldLabel}
           variant="outlined"
@@ -43,4 +46,4 @@ function AutocompleteCompany(props: Props) {
   );
 }
 
-export default AutocompleteCompany;
+export default AutocompleteParentCompany;

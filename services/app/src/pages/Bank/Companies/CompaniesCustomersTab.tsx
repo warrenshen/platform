@@ -10,7 +10,11 @@ import { todayAsDateStringServer } from "lib/date";
 import { filter } from "lodash";
 import { useContext, useMemo, useState } from "react";
 
-export default function CompaniesCustomersTab() {
+interface Props {
+  setSelectedTabIndex: (index: number) => void;
+}
+
+export default function CompaniesCustomersTab({ setSelectedTabIndex }: Props) {
   const {
     user: { role },
   } = useContext(CurrentUserContext);
@@ -53,6 +57,7 @@ export default function CompaniesCustomersTab() {
                   handleClose={() => {
                     handleClose();
                   }}
+                  setSelectedTabIndex={setSelectedTabIndex}
                 />
               )}
             />

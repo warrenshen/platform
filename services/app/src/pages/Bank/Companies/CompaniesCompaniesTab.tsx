@@ -1,6 +1,6 @@
 import { Box, InputAdornment, TextField } from "@material-ui/core";
 import CompaniesCompaniesDataGrid from "components/Customer/CompaniesCompaniesDataGrid";
-import CreateCompanyModal from "components/Customer/CreateCompanyModal";
+import CreateCompanyMiniModal from "components/Customer/CreateCompanyMiniModal";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { useGetAllCompaniesWithMetadataQuery } from "generated/graphql";
@@ -50,7 +50,7 @@ export default function CompaniesCompaniesTab() {
               label={"Create Company"}
               color={"primary"}
               modal={({ handleClose }) => (
-                <CreateCompanyModal
+                <CreateCompanyMiniModal
                   handleClose={() => {
                     handleClose();
                   }}

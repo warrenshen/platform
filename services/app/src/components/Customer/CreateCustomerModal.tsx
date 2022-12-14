@@ -1,14 +1,9 @@
-import {
-  Box,
-  TextField,
-  Theme,
-  Typography,
-  createStyles,
-  makeStyles,
-} from "@material-ui/core";
+import { Box, Button, Divider, Typography } from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
 import ContractTermsForm from "components/Contract/ContractTermsForm";
 import AutocompleteCompany from "components/Shared/Company/AutocompleteCompany";
 import Modal from "components/Shared/Modal/Modal";
+import Text, { TextVariants } from "components/Shared/Text/Text";
 import {
   CompaniesInsertInput,
   CompanySettingsInsertInput,
@@ -25,30 +20,16 @@ import {
 import { ProductTypeEnum } from "lib/enum";
 import { useEffect, useState } from "react";
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    dialog: {
-      width: 500,
-    },
-    dialogTitle: {
-      borderBottom: "1px solid #c7c7c7",
-    },
-    dialogActions: {
-      margin: theme.spacing(2),
-    },
-    input: {
-      width: "100%",
-    },
-  })
-);
-
 interface Props {
   handleClose: () => void;
+  setSelectedTabIndex: (index: number) => void;
 }
 
-export default function CreateCustomerModal({ handleClose }: Props) {
+export default function CreateCustomerModal({
+  handleClose,
+  setSelectedTabIndex,
+}: Props) {
   const snackbar = useSnackbar();
-  const classes = useStyles();
 
   const [customer, setCustomer] = useState<CompaniesInsertInput>({
     id: null,
@@ -128,8 +109,6 @@ export default function CreateCustomerModal({ handleClose }: Props) {
   const isSubmitDisabled =
     !hasCustomerFieldsSet || !contract.product_type || !contract.start_date;
 
-  const companyExists = !!customer.id;
-
   return (
     <Modal
       dataCy={"create-customer-modal"}
@@ -148,9 +127,8 @@ export default function CreateCustomerModal({ handleClose }: Props) {
             <strong>Select existing company</strong>
           </Typography>
           <Typography variant={"subtitle2"} color={"textSecondary"}>
-            Does the company you want to create a customer profile for ALREADY
-            exist in the system? If yes, please select this existing company in
-            the dropdown below.
+            To create a customer profile, you have to choose an existing
+            company, please select this existing company in the dropdown below.
           </Typography>
           <Box mt={2}>
             <AutocompleteCompany
@@ -160,71 +138,36 @@ export default function CreateCustomerModal({ handleClose }: Props) {
               }
             />
           </Box>
+          <Box mt={2} mb={-1}>
+            <Alert severity="info">
+              <Box display="flex" alignItems="center">
+                <Box mr={2}>
+                  <Text textVariant={TextVariants.SmallLabel}>
+                    If you want to create a new company, click the button.
+                  </Text>
+                </Box>
+                <Box display="flex" pt={0.5} mt={-1}>
+                  <Button
+                    color="default"
+                    size="small"
+                    variant="outlined"
+                    onClick={() => {
+                      handleClose();
+                      setSelectedTabIndex(3);
+                    }}
+                  >
+                    Click Here
+                  </Button>
+                </Box>
+              </Box>
+            </Alert>
+          </Box>
         </Box>
-        {!companyExists && (
-          <>
-            <Box mt={2}>
-              <Typography variant={"subtitle2"} color={"textSecondary"}>
-                OR
-              </Typography>
-            </Box>
-            <Box mt={2}>
-              <Typography variant={"body2"}>
-                <strong>Create new company</strong>
-              </Typography>
-            </Box>
-            <Box mt={2}>
-              <TextField
-                data-cy={"customer-form-input-name"}
-                className={classes.input}
-                label="Customer Name"
-                placeholder="Distributor Example"
-                value={customer.name || ""}
-                onChange={({ target: { value } }) =>
-                  setCustomer({ ...customer, name: value })
-                }
-              />
-            </Box>
-            <Box mt={2}>
-              <TextField
-                data-cy={"customer-form-input-identifier"}
-                className={classes.input}
-                label="Company Identifier (Unique Short Name)"
-                placeholder="DE"
-                value={customer.identifier || ""}
-                onChange={({ target: { value } }) =>
-                  setCustomer({ ...customer, identifier: value })
-                }
-              />
-            </Box>
-            <Box mt={2}>
-              <TextField
-                data-cy={"customer-form-input-contract-name"}
-                className={classes.input}
-                label="Contract Name"
-                placeholder="DISTRIBUTOR EXAMPLE, INC."
-                value={customer.contract_name || ""}
-                onChange={({ target: { value } }) =>
-                  setCustomer({ ...customer, contract_name: value })
-                }
-              />
-            </Box>
-            <Box mt={2}>
-              <TextField
-                data-cy={"customer-form-input-dba"}
-                className={classes.input}
-                label="DBA"
-                placeholder="DBA 1, DBA 2"
-                value={customer.dba_name || ""}
-                onChange={({ target: { value } }) =>
-                  setCustomer({ ...customer, dba_name: value })
-                }
-              />
-            </Box>
-          </>
-        )}
       </Box>
-      <Box mt={6}>
+      <Box mt={4}>
+        <Divider />
+      </Box>
+      <Box mt={2}>
         <Box mb={2}>
           <Typography variant="h6">Contract Information</Typography>
         </Box>
