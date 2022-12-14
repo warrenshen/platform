@@ -194,7 +194,7 @@ export default function ReviewPurchaseOrderPage() {
                 isMobile ? TextVariants.Paragraph : TextVariants.ParagraphLead
               }
             >
-              This purchase order new requires your approval before Bespoke
+              This purchase order requires your approval before Bespoke
               Financial can finance it. Please review the information and select
               either approve, reject, or request changes.
             </Text>

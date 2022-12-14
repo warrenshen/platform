@@ -1,73 +1,10 @@
 import {
   GetConfirmedPurchaseOrdersSubscription,
-  GetDraftPurchaseOrdersSubscription,
-  GetIncompletePurchaseOrdersSubscription,
-  GetNotConfirmedPurchaseOrdersSubscription,
   GetPurchaseOrdersSubscription,
   PurchaseOrderFragment,
 } from "generated/graphql";
 import { filter } from "lodash";
 import { useMemo } from "react";
-
-export const useFilterDraftedPurchaseOrders = (
-  searchQuery: string,
-  data: GetDraftPurchaseOrdersSubscription | undefined
-): PurchaseOrderFragment[] => {
-  return useMemo(() => {
-    const doesSearchQueryExistInDraftedPurchaseOrder = ({
-      company,
-      order_number,
-    }: PurchaseOrderFragment) =>
-      `${company.name} ${order_number}`
-        .toLowerCase()
-        .indexOf(searchQuery.toLowerCase()) >= 0;
-
-    return filter(
-      data?.purchase_orders || [],
-      doesSearchQueryExistInDraftedPurchaseOrder
-    );
-  }, [searchQuery, data?.purchase_orders]);
-};
-
-export const useFilterIncompletePurchaseOrders = (
-  searchQuery: string,
-  data: GetIncompletePurchaseOrdersSubscription | undefined
-): PurchaseOrderFragment[] => {
-  return useMemo(() => {
-    const doesSearchQueryExistInIncompletePurchaseOrder = ({
-      company,
-      order_number,
-    }: PurchaseOrderFragment) =>
-      `${company.name} ${order_number}`
-        .toLowerCase()
-        .indexOf(searchQuery.toLowerCase()) >= 0;
-
-    return filter(
-      data?.purchase_orders || [],
-      doesSearchQueryExistInIncompletePurchaseOrder
-    );
-  }, [searchQuery, data?.purchase_orders]);
-};
-
-export const useFilterNotConfirmedPurchaseOrders = (
-  searchQuery: string,
-  data: GetNotConfirmedPurchaseOrdersSubscription | undefined
-): PurchaseOrderFragment[] => {
-  return useMemo(() => {
-    const doesSearchQueryExistInNotConfirmedPurchaseOrder = ({
-      company,
-      order_number,
-    }: PurchaseOrderFragment) =>
-      `${company.name} ${order_number}`
-        .toLowerCase()
-        .indexOf(searchQuery.toLowerCase()) >= 0;
-
-    return filter(
-      data?.purchase_orders || [],
-      doesSearchQueryExistInNotConfirmedPurchaseOrder
-    );
-  }, [searchQuery, data?.purchase_orders]);
-};
 
 export const useFilterConfirmedPurchaseOrders = (
   searchQuery: string,

@@ -107,13 +107,7 @@ export const ebbaApplicationsRoutes = {
 };
 
 export const purchaseOrdersRoutes = {
-  createUpdateAsDraft: "/purchase_orders/create_update_as_draft",
-  createUpdateAsDraftNew: "/purchase_orders/create_update_as_draft_new",
-  createUpdateAndSubmit: "/purchase_orders/create_update_and_submit",
   submitPurchaseOrderUpdate: "/purchase_orders/submit_purchase_order_update",
-  update: "/purchase_orders/update",
-  updateNew: "/purchase_orders/update_new",
-  submit: "/purchase_orders/submit",
   submitNew: "/purchase_orders/submit_new",
   respondToApprovalRequest: "/purchase_orders/respond_to_approval_request",
   respondToRequestChanges: "/purchase_orders/respond_to_request_changes",
@@ -121,9 +115,7 @@ export const purchaseOrdersRoutes = {
   rejectPurchaseOrder: "/purchase_orders/reject_purchase_order",
   requestPurchaseOrderChanges:
     "/purchase_orders/request_purchase_order_changes",
-  respondToIncompleteRequest: "/purchase_orders/respond_to_incomplete_request",
   updateBankFields: "/purchase_orders/update_bank_fields",
-  delete: "/purchase_orders/delete",
   close: "/purchase_orders/close",
   reopen: "/purchase_orders/reopen",
   archiveMultiple: "/purchase_orders/archive_multiple",

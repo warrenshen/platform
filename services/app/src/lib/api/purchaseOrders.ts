@@ -13,86 +13,6 @@ import {
   purchaseOrdersRoutes,
 } from "lib/api";
 
-export type CreateUpdatePurchaseOrderAsDraftReq = {
-  variables: {
-    purchase_order: PurchaseOrdersInsertInput;
-    purchase_order_files: PurchaseOrderFilesInsertInput[];
-    purchase_order_metrc_transfers: PurchaseOrderMetrcTransfersInsertInput[];
-  };
-};
-
-export type CreateUpdatePurchaseOrderAsDraftReqNew = {
-  variables: {
-    purchase_order: PurchaseOrdersInsertInput;
-    purchase_order_files: PurchaseOrderFilesInsertInput[];
-    purchase_order_metrc_transfers: PurchaseOrderMetrcTransfersInsertInput[];
-    action: string;
-  };
-};
-
-export async function createUpdatePurchaseOrderAsDraftMutation(
-  req: CreateUpdatePurchaseOrderAsDraftReq
-): Promise<CustomMutationResponse> {
-  return authenticatedApi
-    .post(purchaseOrdersRoutes.createUpdateAsDraft, req.variables)
-    .then((res) => res.data)
-    .then(
-      (res) => res,
-      (error) => {
-        console.error(error);
-        return {
-          status: "ERROR",
-          msg: "Could not save purchase order",
-        };
-      }
-    );
-}
-
-export async function createUpdatePurchaseOrderAsDraftNewMutation(
-  req: CreateUpdatePurchaseOrderAsDraftReqNew
-): Promise<CustomMutationResponse> {
-  return authenticatedApi
-    .post(purchaseOrdersRoutes.createUpdateAsDraftNew, req.variables)
-    .then((res) => res.data)
-    .then(
-      (res) => res,
-      (error) => {
-        console.error(error);
-        return {
-          status: "ERROR",
-          msg: "Could not save purchase order",
-        };
-      }
-    );
-}
-
-export type CreateUpdatePurchaseOrderAndSubmitReq = {
-  variables: {
-    purchase_order: PurchaseOrdersInsertInput;
-    purchase_order_files: PurchaseOrderFilesInsertInput[];
-    purchase_order_metrc_transfers: PurchaseOrderMetrcTransfersInsertInput[];
-    action: string;
-  };
-};
-
-export async function createUpdatePurchaseOrderAndSubmitMutation(
-  req: CreateUpdatePurchaseOrderAndSubmitReq
-): Promise<CustomMutationResponse> {
-  return authenticatedApi
-    .post(purchaseOrdersRoutes.createUpdateAndSubmit, req.variables)
-    .then((res) => res.data)
-    .then(
-      (res) => res,
-      (error) => {
-        console.error(error);
-        return {
-          status: "ERROR",
-          msg: "Could not save and submit purchase order",
-        };
-      }
-    );
-}
-
 export type SubmitPurchaseOrderUpdateReq = {
   variables: {
     purchase_order: PurchaseOrdersInsertInput;
@@ -120,72 +40,11 @@ export async function submitPurchaseOrderUpdateMutation(
     );
 }
 
-export type UpdatePurchaseOrderReq = {
-  variables: {
-    purchase_order: PurchaseOrdersInsertInput;
-    purchase_order_files: PurchaseOrderFilesInsertInput[];
-  };
-};
-
-export async function updatePurchaseOrderMutation(
-  req: UpdatePurchaseOrderReq
-): Promise<CustomMutationResponse> {
-  return authenticatedApi
-    .post(purchaseOrdersRoutes.update, req.variables)
-    .then((res) => res.data)
-    .then(
-      (res) => res,
-      (error) => {
-        console.error(error);
-        return {
-          status: "ERROR",
-          msg: "Could not update purchase order",
-        };
-      }
-    );
-}
-
-export async function updatePurchaseOrderNewMutation(
-  req: UpdatePurchaseOrderReq
-): Promise<CustomMutationResponse> {
-  return authenticatedApi
-    .post(purchaseOrdersRoutes.updateNew, req.variables)
-    .then((res) => res.data)
-    .then(
-      (res) => res,
-      (error) => {
-        console.error(error);
-        return {
-          status: "ERROR",
-          msg: "Could not update purchase order",
-        };
-      }
-    );
-}
-
 export type SubmitPurchaseOrderReq = {
   variables: {
     purchase_order: PurchaseOrdersInsertInput;
   };
 };
-
-export async function submitPurchaseOrderMutation(
-  req: SubmitPurchaseOrderReq
-): Promise<CustomMutationResponse> {
-  return authenticatedApi
-    .post(purchaseOrdersRoutes.submit, req.variables)
-    .then((res) => res.data)
-    .then(
-      (res) => res,
-      (error) => {
-        console.error(error);
-        return {
-          status: "ERROR",
-          msg: "Could not submit purchase order",
-        };
-      }
-    );
-}
 
 export async function submitPurchaseOrderNewMutation(
   req: SubmitPurchaseOrderReq
@@ -321,33 +180,6 @@ export async function respondToPurchaseOrderRequestChangesMutation(
     );
 }
 
-export type RespondToPurchaseOrderIncompleteReq = {
-  variables: {
-    purchase_order_id: PurchaseOrders["id"];
-    new_request_status: RequestStatusEnum;
-    incomplete_note: string;
-    link_val: string;
-  };
-};
-
-export async function respondToPurchaseOrderIncompleteRequestMutation(
-  req: RespondToPurchaseOrderIncompleteReq
-): Promise<CustomMutationResponse> {
-  return authenticatedApi
-    .post(purchaseOrdersRoutes.respondToIncompleteRequest, req.variables)
-    .then((res) => res.data)
-    .then(
-      (res) => res,
-      (error) => {
-        console.error(error);
-        return {
-          status: "ERROR",
-          msg: "Could not respond to purchase order incomplete request",
-        };
-      }
-    );
-}
-
 export type UpdateBankFieldsReq = {
   variables: {
     purchase_order_id: PurchaseOrders["id"];
@@ -368,30 +200,6 @@ export async function updateBankFieldsMutation(
         return {
           status: "ERROR",
           msg: "Could not update purchase order",
-        };
-      }
-    );
-}
-
-export type DeletePurchaseOrderReq = {
-  variables: {
-    purchase_order_id: PurchaseOrders["id"];
-  };
-};
-
-export async function deletePurchaseOrderMutation(
-  req: DeletePurchaseOrderReq
-): Promise<CustomMutationResponse> {
-  return authenticatedApi
-    .post(purchaseOrdersRoutes.delete, req.variables)
-    .then((res) => res.data)
-    .then(
-      (res) => res,
-      (error) => {
-        console.error(error);
-        return {
-          status: "ERROR",
-          msg: "Could not delete purchase order",
         };
       }
     );
