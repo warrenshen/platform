@@ -74,8 +74,8 @@ def main(is_test_run: bool = True) -> None:
 							partnership_id=partnership,
 							vendor_user_id=user.id,
 						)
-
-						session.add(new_company_vendor_contact)
+						if not is_test_run:
+							session.add(new_company_vendor_contact)
 						print(f"added {user.id} to vendor contacts for {partnership}")
 
 			except Exception as e:
@@ -99,4 +99,4 @@ if __name__ == "__main__":
 	else:
 		is_test_run = False
 
-	main(is_test_run)
+	main(is_test_run=is_test_run)
