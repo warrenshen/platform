@@ -37,7 +37,7 @@ subscription GetOpenEbbaApplicationsCountForBank {
             { is_deleted: { _eq: false } }
           ]
         }
-        { approved_at: { _is_null: true } }
+        { status: { _in: [approval_requested, rejected] }}
       ]
     }
   ) {
@@ -57,7 +57,7 @@ query GetOpenEbbaApplicationsByCategory($category: String!) {
           ]
         }
         { category: { _eq: $category } }
-        { approved_at: { _is_null: true } }
+        { status: { _in: [approval_requested, rejected] }}
       ]
     }
     order_by: [{ application_date: desc }, { created_at: desc }]

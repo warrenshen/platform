@@ -38561,7 +38561,7 @@ export const GetOpenEbbaApplicationsCountForBankDocument = gql`
               { is_deleted: { _eq: false } }
             ]
           }
-          { approved_at: { _is_null: true } }
+          { status: { _in: [approval_requested, rejected] } }
         ]
       }
     ) {
@@ -38614,7 +38614,7 @@ export const GetOpenEbbaApplicationsByCategoryDocument = gql`
             ]
           }
           { category: { _eq: $category } }
-          { approved_at: { _is_null: true } }
+          { status: { _in: [approval_requested, rejected] } }
         ]
       }
       order_by: [{ application_date: desc }, { created_at: desc }]
