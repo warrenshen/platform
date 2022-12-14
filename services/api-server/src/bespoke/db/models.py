@@ -1799,6 +1799,7 @@ class MetrcToBespokeCatalogSku(Base):
 	product_category_name = Column(String, nullable=False)
 	sku_confidence = Column(String, nullable=False)
 	wholesale_quantity = Column(Integer, nullable=True)
+	is_sample = Column(Boolean, nullable=False, default=False)
 	is_deleted = Column(Boolean, nullable=False, default=False)
 
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)

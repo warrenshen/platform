@@ -1,8 +1,10 @@
 import {
   Box,
+  Checkbox,
   DialogActions,
   DialogContent,
   FormControl,
+  FormControlLabel,
   TextField,
 } from "@material-ui/core";
 import AutocompleteSelectDropdown from "components/ProductCatalog/AutocompleteSelectDropdown";
@@ -21,6 +23,7 @@ import {
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
+import { CustomCheckboxChecked, CustomCheckboxUnchecked } from "icons";
 import { updateMetrcToBespokeCatalogSkuMutation } from "lib/api/productCatalog";
 import {
   MetrcToBespokeCatalogSkuConfidenceLabel,
@@ -47,12 +50,13 @@ const EditBespokeCatalogEntryModal = ({
 }: Props) => {
   const snackbar = useSnackbar();
 
-  const [wholesaleQuantity, setWholesaleQuantity] = useState(
-    bespokeCatalogEntry.wholesale_quantity
-  );
+  const [isSample, setIsSample] = useState(bespokeCatalogEntry.is_sample);
   const [skuConfidence, setSkuConfidence] = useState(
     bespokeCatalogEntry.sku_confidence.charAt(0).toUpperCase() +
       bespokeCatalogEntry.sku_confidence.slice(1)
+  );
+  const [wholesaleQuantity, setWholesaleQuantity] = useState(
+    bespokeCatalogEntry.wholesale_quantity
   );
   // Only changing the mapping from:
   // metrc_to_bespoke_catalog_sku.bespoke_catalog_sku_id to bespoke_catalog_sku.id
@@ -95,6 +99,7 @@ const EditBespokeCatalogEntryModal = ({
             : bespokeCatalogSku.id,
         wholesale_quantity: wholesaleQuantity,
         sku_confidence: skuConfidence,
+        is_sample: isSample,
       },
     });
     if (response.status === "OK") {
@@ -111,6 +116,7 @@ const EditBespokeCatalogEntryModal = ({
 
   const isSubmitDisabled =
     skuConfidence !== MetrcToBespokeCatalogSkuConfidenceLabel.Invalid &&
+    !isSample &&
     !bespokeCatalogSku.id;
 
   return (
@@ -148,19 +154,23 @@ const EditBespokeCatalogEntryModal = ({
           </Text>
           <CardDivider marginBottom="16px" />
         </Box>
-        <Box mb={3}>
-          <FormControl fullWidth>
-            <TextField
-              value={wholesaleQuantity}
-              label={"Wholesale Quantity"}
-              type={"number"}
-              onChange={({ target: { value } }) => {
-                setWholesaleQuantity(value ? Number(value) : null);
-              }}
-            />
-          </FormControl>
+        <Box mb={2}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={isSample}
+                onChange={(event) => {
+                  setIsSample(event.target.checked);
+                }}
+                color="primary"
+                icon={<CustomCheckboxUnchecked />}
+                checkedIcon={<CustomCheckboxChecked />}
+              />
+            }
+            label={"Is this product a sample?"}
+          />
         </Box>
-        <Box mb={3}>
+        <Box mb={2}>
           <SelectDropdown
             value={skuConfidence}
             label="SKU Mapping Confidence"
@@ -170,60 +180,77 @@ const EditBespokeCatalogEntryModal = ({
           />
         </Box>
         <Box>
-          {skuConfidence !==
-            MetrcToBespokeCatalogSkuConfidenceLabel.Invalid && (
-            <AutocompleteSelectDropdown
-              label="Bespoke Catalog Sku"
-              getOptionLabel={(option) => {
-                if (!!option.sku) {
-                  return option.sku;
-                } else if (typeof option === "string") {
-                  return option;
-                } else {
-                  return "";
-                }
-              }}
-              value={bespokeCatalogSku}
-              renderOption={(option) => {
-                return (
-                  <Box>
-                    <Text textVariant={TextVariants.Paragraph} bottomMargin={0}>
-                      {option.sku}
-                    </Text>
-                    <Box display="flex">
-                      <Text
-                        textVariant={TextVariants.SmallLabel}
-                        color={SecondaryTextColor}
-                      >
-                        {`${option.bespoke_catalog_sku_group.sku_group_name} | ${option.bespoke_catalog_sku_group.bespoke_catalog_brand.brand_name}`}
-                      </Text>
-                    </Box>
-                  </Box>
-                );
-              }}
-              selectableOptions={
-                (!clearSkuData &&
-                  bespokeCatalogSkuData?.bespoke_catalog_skus) ||
-                []
-              }
-              debouncedLoadOptions={debouncedLoadBespokeCatalogSkus}
-              onChange={(_, value) => {
-                if (!value) {
-                  setBespokeCatalogSku({
-                    id: "",
-                    sku: "",
-                  });
-                  return;
-                }
-                if (!!value.id) {
-                  setBespokeCatalogSku({
-                    id: value.id,
-                    sku: value.sku,
-                  });
-                }
-              }}
-            />
-          )}
+          {skuConfidence !== MetrcToBespokeCatalogSkuConfidenceLabel.Invalid &&
+            !isSample && (
+              <>
+                <Box mb={3}>
+                  <FormControl fullWidth>
+                    <TextField
+                      value={wholesaleQuantity}
+                      label={"Wholesale Quantity"}
+                      type={"number"}
+                      onChange={({ target: { value } }) => {
+                        setWholesaleQuantity(value ? Number(value) : null);
+                      }}
+                    />
+                  </FormControl>
+                </Box>
+                <AutocompleteSelectDropdown
+                  label="Bespoke Catalog Sku"
+                  getOptionLabel={(option) => {
+                    if (!!option.sku) {
+                      return option.sku;
+                    } else if (typeof option === "string") {
+                      return option;
+                    } else {
+                      return "";
+                    }
+                  }}
+                  value={bespokeCatalogSku}
+                  renderOption={(option) => {
+                    return (
+                      <Box>
+                        <Text
+                          textVariant={TextVariants.Paragraph}
+                          bottomMargin={0}
+                        >
+                          {option.sku}
+                        </Text>
+                        <Box display="flex">
+                          <Text
+                            textVariant={TextVariants.SmallLabel}
+                            color={SecondaryTextColor}
+                          >
+                            {`${option.bespoke_catalog_sku_group.sku_group_name} | ${option.bespoke_catalog_sku_group.bespoke_catalog_brand.brand_name}`}
+                          </Text>
+                        </Box>
+                      </Box>
+                    );
+                  }}
+                  selectableOptions={
+                    (!clearSkuData &&
+                      bespokeCatalogSkuData?.bespoke_catalog_skus) ||
+                    []
+                  }
+                  debouncedLoadOptions={debouncedLoadBespokeCatalogSkus}
+                  onChange={(_, value) => {
+                    if (!value) {
+                      setBespokeCatalogSku({
+                        id: "",
+                        sku: "",
+                      });
+                      return;
+                    }
+                    if (!!value.id) {
+                      setBespokeCatalogSku({
+                        id: value.id,
+                        sku: value.sku,
+                      });
+                    }
+                  }}
+                />
+              </>
+            )}
         </Box>
       </DialogContent>
       <DialogActions>

@@ -16668,6 +16668,7 @@ export type MetrcToBespokeCatalogSkus = {
   deleted_at?: Maybe<Scalars["timestamptz"]>;
   id: Scalars["uuid"];
   is_deleted: Scalars["Boolean"];
+  is_sample: Scalars["Boolean"];
   last_edited_by_user_id?: Maybe<Scalars["uuid"]>;
   product_category_name: Scalars["String"];
   product_name: Scalars["String"];
@@ -16746,6 +16747,7 @@ export type MetrcToBespokeCatalogSkusBoolExp = {
   deleted_at?: Maybe<TimestamptzComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   is_deleted?: Maybe<BooleanComparisonExp>;
+  is_sample?: Maybe<BooleanComparisonExp>;
   last_edited_by_user_id?: Maybe<UuidComparisonExp>;
   product_category_name?: Maybe<StringComparisonExp>;
   product_name?: Maybe<StringComparisonExp>;
@@ -16773,6 +16775,7 @@ export type MetrcToBespokeCatalogSkusInsertInput = {
   deleted_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
+  is_sample?: Maybe<Scalars["Boolean"]>;
   last_edited_by_user_id?: Maybe<Scalars["uuid"]>;
   product_category_name?: Maybe<Scalars["String"]>;
   product_name?: Maybe<Scalars["String"]>;
@@ -16860,6 +16863,7 @@ export type MetrcToBespokeCatalogSkusOrderBy = {
   deleted_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   is_deleted?: Maybe<OrderBy>;
+  is_sample?: Maybe<OrderBy>;
   last_edited_by_user_id?: Maybe<OrderBy>;
   product_category_name?: Maybe<OrderBy>;
   product_name?: Maybe<OrderBy>;
@@ -16886,6 +16890,8 @@ export enum MetrcToBespokeCatalogSkusSelectColumn {
   /** column name */
   IsDeleted = "is_deleted",
   /** column name */
+  IsSample = "is_sample",
+  /** column name */
   LastEditedByUserId = "last_edited_by_user_id",
   /** column name */
   ProductCategoryName = "product_category_name",
@@ -16906,6 +16912,7 @@ export type MetrcToBespokeCatalogSkusSetInput = {
   deleted_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
+  is_sample?: Maybe<Scalars["Boolean"]>;
   last_edited_by_user_id?: Maybe<Scalars["uuid"]>;
   product_category_name?: Maybe<Scalars["String"]>;
   product_name?: Maybe<Scalars["String"]>;
@@ -16966,6 +16973,8 @@ export enum MetrcToBespokeCatalogSkusUpdateColumn {
   Id = "id",
   /** column name */
   IsDeleted = "is_deleted",
+  /** column name */
+  IsSample = "is_sample",
   /** column name */
   LastEditedByUserId = "last_edited_by_user_id",
   /** column name */
@@ -33580,6 +33589,7 @@ export type MetrcToBespokeCatalogSkuFragment = Pick<
   | "product_category_name"
   | "wholesale_quantity"
   | "sku_confidence"
+  | "is_sample"
 > & {
   bespoke_catalog_sku?: Maybe<
     Pick<BespokeCatalogSkus, "id"> & BespokeCatalogSkuFragment
@@ -35707,6 +35717,7 @@ export const MetrcToBespokeCatalogSkuFragmentDoc = gql`
     product_category_name
     wholesale_quantity
     sku_confidence
+    is_sample
     bespoke_catalog_sku {
       id
       ...BespokeCatalogSku

@@ -441,30 +441,39 @@ class CreateMetrcToBespokeCatalogSkuView(MethodView):
 			'product_category_name',
 			'sku_confidence',
 			'wholesale_quantity',
+			'is_sample',
 		]
 		for key in required_keys:
 			if key not in data:
 				raise errors.Error(f'Missing {key} in /create_metrc_to_bespoke_catalog_sku request')
 		
+		# MetrcToBespokeCatalogSku
 		id = data["id"]
 		bespoke_catalog_sku_id = data["bespoke_catalog_sku_id"]
 		product_name = data["product_name"]
 		product_category_name = data["product_category_name"]
 		sku_confidence = data["sku_confidence"]
 		wholesale_quantity = data["wholesale_quantity"]
+		is_sample = data["is_sample"]
+
+		# BespokeCatalogSku
 		bespoke_catalog_sku = data["bespoke_catalog_sku"]
 		sku = bespoke_catalog_sku["sku"]
 		bespoke_catalog_sku_group_id = bespoke_catalog_sku["bespoke_catalog_sku_group_id"]
+
+		# BespokeCatalogSkuGroup
 		bespoke_catalog_sku_group = bespoke_catalog_sku["bespoke_catalog_sku_group"]
 		sku_group_name = bespoke_catalog_sku_group["sku_group_name"]
 		unit_quantity = bespoke_catalog_sku_group["unit_quantity"]
 		unit_of_measure = bespoke_catalog_sku_group["unit_of_measure"]
 		bespoke_catalog_brand_id = bespoke_catalog_sku_group["bespoke_catalog_brand_id"]
+
+		# BespokeCatalogBrand
 		bespoke_catalog_brand = bespoke_catalog_sku_group["bespoke_catalog_brand"]
 		brand_name = bespoke_catalog_brand["brand_name"]
 
 		with session_scope(current_app.session_maker) as session:
-			if sku_confidence != SKU_CONFIDENCE_INVALID:
+			if sku_confidence != SKU_CONFIDENCE_INVALID and not is_sample:
 				if not bespoke_catalog_sku_id and \
 					not bespoke_catalog_sku_group_id and \
 					not bespoke_catalog_brand_id:
@@ -508,7 +517,8 @@ class CreateMetrcToBespokeCatalogSkuView(MethodView):
 				product_category_name=product_category_name,
 				sku_confidence=sku_confidence,
 				last_edited_by_user_id=user_session.get_user_id(),
-				wholesale_quantity=int(wholesale_quantity) if wholesale_quantity else None
+				wholesale_quantity=int(wholesale_quantity) if wholesale_quantity else None,
+				is_sample=is_sample,
 			)
 			if err:
 				raise err
@@ -532,6 +542,7 @@ class UpdateMetrcToBespokeCatalogSkuView(MethodView):
 			'id',
 			'bespoke_catalog_sku_id',
 			'wholesale_quantity',
+			'is_sample',
 			'sku_confidence',
 		]
 		for key in required_keys:
@@ -541,6 +552,7 @@ class UpdateMetrcToBespokeCatalogSkuView(MethodView):
 		id = data["id"]
 		bespoke_catalog_sku_id = data["bespoke_catalog_sku_id"]
 		wholesale_quantity = data["wholesale_quantity"]
+		is_sample = data["is_sample"]
 		sku_confidence = data["sku_confidence"]
 
 		if sku_confidence != SKU_CONFIDENCE_INVALID and not bespoke_catalog_sku_id:
@@ -559,7 +571,8 @@ class UpdateMetrcToBespokeCatalogSkuView(MethodView):
 				product_category_name=None,
 				sku_confidence=sku_confidence,
 				last_edited_by_user_id=user_session.get_user_id(),
-				wholesale_quantity=int(wholesale_quantity) if wholesale_quantity else None
+				wholesale_quantity=int(wholesale_quantity) if wholesale_quantity else None,
+				is_sample=is_sample,
 			)
 			if err:
 				raise err
@@ -598,7 +611,7 @@ class DeleteMetrcToBespokeCatalogSkuView(MethodView):
 		}), 200)
 
 
-class CreateInvalidMetrcToBespokeCatalogSkuView(MethodView):
+class CreateInvalidMetrcToBespokeCatalogSkusView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
 	@handler_util.catch_bad_json_request
@@ -608,31 +621,46 @@ class CreateInvalidMetrcToBespokeCatalogSkuView(MethodView):
 			raise errors.Error('No data provided')
 
 		with session_scope(current_app.session_maker) as session:
-			for metrc_entry in data:
-				product_name = metrc_entry["product_name"]
-				product_category_name = metrc_entry["product_category_name"]
-				sku_confidence = metrc_entry["sku_confidence"]
-
-				user_session = auth_util.UserSession.from_session()
-				_, err = product_catalog_util.create_update_metrc_to_sku(
-					session=session,
-					id=None,
-					bespoke_catalog_sku_id=None,
-					product_name=product_name,
-					product_category_name=product_category_name,
-					sku_confidence=sku_confidence,
-					last_edited_by_user_id=user_session.get_user_id(),
-					wholesale_quantity=None
-				)
-				if err:
-					raise err
+			user_session = auth_util.UserSession.from_session()
+			_, err = product_catalog_util.create_invalid_or_sample_metrc_to_sku_multiple(
+				session=session,
+				data=data,
+				is_sample=False,
+				last_edited_by_user_id=user_session.get_user_id(),
+			)
+			if err:
+				raise err
 
 		return make_response(json.dumps({
 			'status': 'OK',
-			'msg': f'Successfully marked Bespoke Catalog Entries as invalid '
+			'msg': f'Successfully marked Bespoke Catalog Entries as invalid'
 		}), 200)
 
 
+class CreateSampleMetrcToBespokeCatalogSkusView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		data = json.loads(request.data)
+		if not data:
+			raise errors.Error('No data provided')
+
+		with session_scope(current_app.session_maker) as session:
+			user_session = auth_util.UserSession.from_session()
+			_, err = product_catalog_util.create_invalid_or_sample_metrc_to_sku_multiple(
+				session=session,
+				data=data,
+				is_sample=True,
+				last_edited_by_user_id=user_session.get_user_id(),
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': f'Successfully marked Bespoke Catalog Entries as samples'
+		}), 200)
 
 
 
@@ -673,4 +701,7 @@ handler.add_url_rule(
 	'/delete_metrc_to_bespoke_catalog_sku', view_func=DeleteMetrcToBespokeCatalogSkuView.as_view(name='delete_metrc_to_bespoke_catalog_sku_view'))
 
 handler.add_url_rule(
-	'/create_invalid_metrc_to_bespoke_catalog_skus', view_func=CreateInvalidMetrcToBespokeCatalogSkuView.as_view(name='create_invalid_metrc_to_bespoke_catalog_skus_view'))
+	'/create_invalid_metrc_to_bespoke_catalog_skus', view_func=CreateInvalidMetrcToBespokeCatalogSkusView.as_view(name='create_invalid_metrc_to_bespoke_catalog_skus_view'))
+
+handler.add_url_rule(
+	'/create_sample_metrc_to_bespoke_catalog_skus', view_func=CreateSampleMetrcToBespokeCatalogSkusView.as_view(name='create_sample_metrc_to_bespoke_catalog_skus_view'))

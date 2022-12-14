@@ -769,6 +769,7 @@ fragment MetrcToBespokeCatalogSku on metrc_to_bespoke_catalog_skus {
   product_category_name
   wholesale_quantity
   sku_confidence
+  is_sample
   bespoke_catalog_sku {
     id
     ...BespokeCatalogSku

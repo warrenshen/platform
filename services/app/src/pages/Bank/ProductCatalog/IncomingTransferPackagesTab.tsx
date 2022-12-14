@@ -16,6 +16,7 @@ import useSnackbar from "hooks/useSnackbar";
 import { SearchIcon } from "icons";
 import {
   createInvalidMetrcToBespokeCatalogSkuMutation,
+  createSampleMetrcToBespokeCatalogSkuMutation,
   getIncomingTransferPackageData,
 } from "lib/api/productCatalog";
 import { MetrcToBespokeCatalogSkuConfidenceLabel } from "lib/enum";
@@ -116,6 +117,42 @@ const IncomingTransferPackagesTab = () => {
     }
   };
 
+  const [
+    createSampleMetrcToBespokeCatalogSku,
+    { loading: isCreateSampleMetrcToBespokeCatalogSkuLoading },
+  ] = useCustomMutation(createSampleMetrcToBespokeCatalogSkuMutation);
+
+  const handleMarkSample = async () => {
+    const handleMarkSampleInput = metrcTransferPackages
+      .filter((transferPackage) =>
+        selectedMetrcTransferPackages.includes(transferPackage.id)
+      )
+      .map((transferPackage) => ({
+        product_name: transferPackage.product_name,
+        product_category_name: transferPackage.product_category_name,
+        sku_confidence: MetrcToBespokeCatalogSkuConfidenceLabel.High,
+      }));
+    const response = await createSampleMetrcToBespokeCatalogSku({
+      variables: handleMarkSampleInput,
+    });
+    if (response.status === "OK") {
+      setMatchedProductNames(
+        new Set([
+          ...matchedProductNames,
+          ...handleMarkSampleInput.map((input) => input.product_name as string),
+        ])
+      );
+      snackbar.showSuccess(
+        `Successfully marked ${selectedMetrcTransferPackages.length} Metrc Transfer Packages as samples`
+      );
+      setSelectedMetrcTransferPackages([]);
+    } else {
+      snackbar.showError(
+        `Failed to mark selected Metrc Transfer Packages as samples: ${response.msg}`
+      );
+    }
+  };
+
   const handleSelectTransferPackages = useMemo(
     () =>
       ({ selectedRowKeys }: { selectedRowKeys: string[] }) => {
@@ -192,6 +229,14 @@ const IncomingTransferPackagesTab = () => {
             }
             text={"Mark Invalid"}
             onClick={handleMarkInvalid}
+          />
+          <SecondaryButton
+            isDisabled={
+              selectedMetrcTransferPackages.length === 0 ||
+              isCreateSampleMetrcToBespokeCatalogSkuLoading
+            }
+            text={"Mark as Sample"}
+            onClick={handleMarkSample}
           />
           <PrimaryButton
             isDisabled={!selectedMetrcTransferPackage}

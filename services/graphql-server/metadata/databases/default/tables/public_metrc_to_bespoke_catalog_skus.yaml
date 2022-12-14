@@ -14,6 +14,7 @@ select_permissions:
         - deleted_at
         - id
         - is_deleted
+        - is_sample
         - last_edited_by_user_id
         - product_category_name
         - product_name

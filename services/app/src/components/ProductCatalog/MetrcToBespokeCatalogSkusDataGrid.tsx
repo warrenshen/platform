@@ -42,6 +42,11 @@ const columns = [
     caption: "Bespoke Catalog Brand",
     minWidth: ColumnWidths.MinWidth,
   },
+  {
+    dataField: "is_sample",
+    caption: "Sample?",
+    minWidth: ColumnWidths.MinWidth,
+  },
 ];
 
 const getRows = (

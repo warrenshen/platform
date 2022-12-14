@@ -16,6 +16,7 @@ import useSnackbar from "hooks/useSnackbar";
 import { SearchIcon } from "icons";
 import {
   createInvalidMetrcToBespokeCatalogSkuMutation,
+  createSampleMetrcToBespokeCatalogSkuMutation,
   getInventoryPackageData,
 } from "lib/api/productCatalog";
 import { MetrcToBespokeCatalogSkuConfidenceLabel } from "lib/enum";
@@ -112,6 +113,42 @@ const InventoryPackagesTab = () => {
     }
   };
 
+  const [
+    createSampleMetrcToBespokeCatalogSku,
+    { loading: isCreateSampleMetrcToBespokeCatalogSkuLoading },
+  ] = useCustomMutation(createSampleMetrcToBespokeCatalogSkuMutation);
+
+  const handleMarkSample = async () => {
+    const handleMarkSampleInput = metrcInventoryPackages
+      .filter((inventoryPackage) =>
+        selectedMetrcInventoryPackages.includes(inventoryPackage.id)
+      )
+      .map((inventoryPackage) => ({
+        product_name: inventoryPackage.product_name,
+        product_category_name: inventoryPackage.product_category_name,
+        sku_confidence: MetrcToBespokeCatalogSkuConfidenceLabel.High,
+      }));
+    const response = await createSampleMetrcToBespokeCatalogSku({
+      variables: handleMarkSampleInput,
+    });
+    if (response.status === "OK") {
+      setMatchedProductNames(
+        new Set([
+          ...matchedProductNames,
+          ...handleMarkSampleInput.map((input) => input.product_name as string),
+        ])
+      );
+      snackbar.showSuccess(
+        `Successfully marked ${selectedMetrcInventoryPackages.length} Metrc Sales Transactions as samples`
+      );
+      setSelectedMetrcInventoryPackages([]);
+    } else {
+      snackbar.showError(
+        `Failed to mark selected Metrc Sales Transactions as samples: ${response.msg}`
+      );
+    }
+  };
+
   const handleSelectInventoryPackages = useMemo(
     () =>
       ({ selectedRowKeys }: { selectedRowKeys: string[] }) => {
@@ -188,6 +225,14 @@ const InventoryPackagesTab = () => {
             }
             text={"Mark Invalid"}
             onClick={handleMarkInvalid}
+          />
+          <SecondaryButton
+            isDisabled={
+              selectedMetrcInventoryPackages.length === 0 ||
+              isCreateSampleMetrcToBespokeCatalogSkuLoading
+            }
+            text={"Mark as Sample"}
+            onClick={handleMarkSample}
           />
           <PrimaryButton
             isDisabled={!selectedMetrcInventoryPackage}

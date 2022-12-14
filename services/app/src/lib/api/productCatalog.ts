@@ -120,6 +120,8 @@ export type CreateUpdateBespokeCatalogSkuGroupReq = {
   variables: {
     id: BespokeCatalogSkuGroups["id"];
     sku_group_name: BespokeCatalogSkuGroups["sku_group_name"];
+    unit_quantity: BespokeCatalogSkuGroups["unit_quantity"];
+    unit_of_measure: BespokeCatalogSkuGroups["unit_of_measure"];
     brand_id: BespokeCatalogBrands["id"];
   };
 };
@@ -225,6 +227,8 @@ export type CreateMetrcToBespokeCatalogSkuReq = {
     bespoke_catalog_sku: BespokeCatalogSkusInsertInput;
     product_name: string;
     product_category_name: string;
+    wholesale_quantity: number;
+    is_sample: boolean;
     sku_confidence: string;
     brand_confidence: string;
   };
@@ -264,7 +268,31 @@ export async function createInvalidMetrcToBespokeCatalogSkuMutation(
   req: InvalidMetrcToBespokeCatalogSkuReq
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(productCatalogRoutes.createMetrcToBespokeCatalogSku, req.variables)
+    .post(productCatalogRoutes.invalidMetrcToBespokeCatalogSku, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.error(error);
+        return {
+          status: "ERROR",
+          msg: error,
+        };
+      }
+    );
+}
+
+export type SampleMetrcToBespokeCatalogSkuReq = {
+  variables: {
+    sample_entries: InvalidMetrcToBespokeCatalogSku[];
+  };
+};
+
+export async function createSampleMetrcToBespokeCatalogSkuMutation(
+  req: SampleMetrcToBespokeCatalogSkuReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(productCatalogRoutes.sampleMetrcToBespokeCatalogSku, req.variables)
     .then((res) => res.data)
     .then(
       (res) => res,

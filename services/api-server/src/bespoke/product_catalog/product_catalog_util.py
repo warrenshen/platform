@@ -1,7 +1,7 @@
 from bespoke import errors
 from bespoke.db import models
 from sqlalchemy.orm.session import Session
-from typing import List, Tuple, cast
+from typing import Dict, List, Tuple, cast
 
 def create_update_bespoke_catalog_brand(
 	session: Session,
@@ -169,6 +169,7 @@ def create_update_metrc_to_sku(
 	sku_confidence: str,
 	last_edited_by_user_id: str,
 	wholesale_quantity: int,
+	is_sample: bool,
 ) -> Tuple[str, errors.Error]:
 	metrc_to_sku = cast(
 		models.MetrcToBespokeCatalogSku,
@@ -183,7 +184,8 @@ def create_update_metrc_to_sku(
 			product_category_name = product_category_name,
 			sku_confidence = sku_confidence.lower(),
 			last_edited_by_user_id = last_edited_by_user_id,
-			wholesale_quantity = wholesale_quantity
+			wholesale_quantity = wholesale_quantity,
+			is_sample = is_sample,
 		)
 		session.add(metrc_to_sku)
 		session.flush()
@@ -197,8 +199,25 @@ def create_update_metrc_to_sku(
 		metrc_to_sku.last_edited_by_user_id = last_edited_by_user_id # type: ignore
 		if wholesale_quantity:
 			metrc_to_sku.wholesale_quantity = wholesale_quantity
+		metrc_to_sku.is_sample = is_sample
 	
 	return str(metrc_to_sku.id), None
+
+def create_invalid_or_sample_metrc_to_sku_multiple(
+	session: Session,
+	data: List[Dict[str, str]],
+	is_sample: bool,
+	last_edited_by_user_id: str,
+) -> Tuple[bool, errors.Error]:
+	metrc_to_sku_models = [models.MetrcToBespokeCatalogSku(# type: ignore
+		product_name = metrc_entry['product_name'],
+		product_category_name = metrc_entry['product_category_name'],
+		sku_confidence = metrc_entry['sku_confidence'].lower(),
+		is_sample = is_sample,
+		last_edited_by_user_id = last_edited_by_user_id,
+	) for metrc_entry in data]
+	session.add_all(metrc_to_sku_models)
+	return True, None
 
 def delete_metrc_to_bespoke_catalog_sku(
 	session: Session,
