@@ -1,12 +1,10 @@
 import {
   Box,
   Button,
-  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
   Divider,
-  FormControlLabel,
   Theme,
   Typography,
   createStyles,
@@ -21,7 +19,7 @@ import useSnackbar from "hooks/useSnackbar";
 import { DateInputIcon } from "icons";
 import { todayAsDateStringServer } from "lib/date";
 import { runCustomerBalancesMutation } from "lib/finance/loans/reports";
-import { ChangeEvent, useState } from "react";
+import { useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -61,8 +59,6 @@ export default function RunCustomerBalancesModal({
   const [reportDate, setReportDate] = useState<string | null>(
     recommendedEndDate || todayAsDateStringServer()
   );
-  const [isRunImmediately, setIsRunImmediately] = useState(false);
-
   const [runCustomerBalances, { loading: isRunCustomerBalancesLoading }] =
     useCustomMutation(runCustomerBalancesMutation);
 
@@ -160,22 +156,6 @@ export default function RunCustomerBalancesModal({
             keyboardIcon={<DateInputIcon width="16px" height="16px" />}
           />
         </Box>
-        {!!companyId && !!startDate && startDate === reportDate && (
-          <Box display="flex" flexDirection="column" mt={2}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={isRunImmediately}
-                  onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                    setIsRunImmediately(event.target.checked)
-                  }
-                  color="primary"
-                />
-              }
-              label={"Run Immediately?"}
-            />
-          </Box>
-        )}
       </DialogContent>
       <DialogActions className={classes.dialogActions}>
         <Box>
