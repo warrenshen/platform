@@ -137,8 +137,8 @@ export default function CreateUpdateBankAccountModal({
       bank_address: bankAccount.bank_address,
 
       is_cannabis_compliant: bankAccount.is_cannabis_compliant,
-      verified_date: isBankUser ? bankAccount.verified_date : undefined,
-      verified_at: isBankUser ? bankAccount.verified_at : undefined,
+      verified_date: isBankUser ? bankAccount.verified_date : null,
+      verified_at: isBankUser ? bankAccount.verified_at : null,
     };
   };
 
