@@ -618,6 +618,13 @@ def delete_payment(
 			if tx.loan_id:
 				loan_ids_set.add(str(tx.loan_id))
 
+		# No transactions: loan status should be reset
+		items_covered = cast(model_types.ItemsCoveredDict, cur_payment.items_covered)
+		if items_covered != None:
+			loan_ids = cast(List[str], items_covered.get("loan_ids", []))
+			for loan_id in loan_ids:
+				loan_ids_set.add(loan_id)
+
 	_delete_payment(payment)
 	for cur_payment in originated_payments:
 		_delete_payment(cur_payment)
