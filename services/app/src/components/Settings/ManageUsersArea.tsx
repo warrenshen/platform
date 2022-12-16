@@ -118,7 +118,8 @@ function ActiveUsersTab({
             <ModalButton
               dataCy="deactivate-user-button"
               isDisabled={
-                selectedUsers.length !== 1 || !isVendorOrActiveCustomer
+                selectedUsers.length !== 1 ||
+                (!isBankUser && !isVendorOrActiveCustomer)
               }
               label={"Deactivate User"}
               modal={({ handleClose }) => (
