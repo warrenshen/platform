@@ -1,17 +1,9 @@
-import { Box, Typography } from "@material-ui/core";
-import SyncMetrcData from "components/Metrc/SyncMetrcData";
+import { Box } from "@material-ui/core";
 
 export default function BankMetrcApiKeysTab() {
   return (
     <Box mt={3}>
-      <Box display="flex" flexDirection="column">
-        <Typography variant="subtitle1">
-          <strong>Download Metrc Data - All Companies</strong>
-        </Typography>
-        <Box display="flex">
-          <SyncMetrcData companyId={null} />
-        </Box>
-      </Box>
+      <Box display="flex" flexDirection="column"></Box>
     </Box>
   );
 }

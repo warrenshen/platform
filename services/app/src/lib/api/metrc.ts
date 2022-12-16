@@ -289,47 +289,6 @@ export async function viewApiKey(req: {
     );
 }
 
-export async function downloadMetrcDataAllCompanies(req: {
-  variables: {};
-}): Promise<CustomMutationResponse> {
-  return authenticatedApi
-    .post(metrcRoutes.downloadMetrcDataAllCompanies, req.variables)
-    .then((res) => res.data)
-    .then(
-      (res) => res,
-      (error) => {
-        console.error("error", error);
-        return {
-          status: "ERROR",
-          msg: "Could not sync metrc data per customer",
-        };
-      }
-    );
-}
-
-export async function downloadMetrcDataForCompany(req: {
-  variables: {
-    start_date: string;
-    end_date: string;
-    company_id: string;
-    is_sync: boolean;
-  };
-}): Promise<CustomMutationResponse> {
-  return authenticatedApi
-    .post(metrcRoutes.downloadMetrcDataForCompany, req.variables)
-    .then((res) => res.data)
-    .then(
-      (res) => res,
-      (error) => {
-        console.error("error", error);
-        return {
-          status: "ERROR",
-          msg: "Could not sync metrc data per customer",
-        };
-      }
-    );
-}
-
 export function getCompanyDeliveryVendorDescription(
   companyDelivery: NonNullable<
     GetIncomingFromVendorCompanyDeliveriesByCompanyIdQuery["company_deliveries"]
