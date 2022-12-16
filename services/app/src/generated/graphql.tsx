@@ -31730,7 +31730,7 @@ export type GetRepaymentsByDepositDateRangeQuery = {
     Pick<Payments, "id"> & {
       company: Pick<Companies, "id" | "name">;
       settled_by_user?: Maybe<Pick<Users, "id" | "full_name">>;
-    } & PaymentFragment
+    } & PaymentWithTransactionsFragment
   >;
 };
 
@@ -33284,6 +33284,15 @@ export type PaymentFragment = Pick<
   "id" | "bank_note" | "created_at"
 > &
   PaymentLimitedFragment;
+
+export type PaymentWithTransactionsFragment = Pick<Payments, "id"> & {
+  transactions: Array<
+    Pick<
+      Transactions,
+      "id" | "amount" | "to_fees" | "to_interest" | "to_principal"
+    >
+  >;
+} & PaymentFragment;
 
 export type PaymentBankOnlyFragment = Pick<
   Payments,
@@ -35203,13 +35212,6 @@ export const PayorPartnershipFragmentDoc = gql`
   }
   ${PayorPartnershipLimitedFragmentDoc}
 `;
-export const PaymentBankOnlyFragmentDoc = gql`
-  fragment PaymentBankOnly on payments {
-    id
-    bank_note
-    created_at
-  }
-`;
 export const PaymentLimitedFragmentDoc = gql`
   fragment PaymentLimited on payments {
     id
@@ -35249,6 +35251,36 @@ export const PaymentLimitedFragmentDoc = gql`
       id
       full_name
     }
+  }
+`;
+export const PaymentFragmentDoc = gql`
+  fragment Payment on payments {
+    id
+    bank_note
+    created_at
+    ...PaymentLimited
+  }
+  ${PaymentLimitedFragmentDoc}
+`;
+export const PaymentWithTransactionsFragmentDoc = gql`
+  fragment PaymentWithTransactions on payments {
+    id
+    ...Payment
+    transactions {
+      id
+      amount
+      to_fees
+      to_interest
+      to_principal
+    }
+  }
+  ${PaymentFragmentDoc}
+`;
+export const PaymentBankOnlyFragmentDoc = gql`
+  fragment PaymentBankOnly on payments {
+    id
+    bank_note
+    created_at
   }
 `;
 export const PaymentCombinedFragmentDoc = gql`
@@ -35294,15 +35326,6 @@ export const TransactionFragmentDoc = gql`
     to_interest
     to_fees
   }
-`;
-export const PaymentFragmentDoc = gql`
-  fragment Payment on payments {
-    id
-    bank_note
-    created_at
-    ...PaymentLimited
-  }
-  ${PaymentLimitedFragmentDoc}
 `;
 export const TransactionExtendedFragmentDoc = gql`
   fragment TransactionExtended on transactions {
@@ -43889,7 +43912,7 @@ export const GetRepaymentsByDepositDateRangeDocument = gql`
       order_by: [{ settlement_date: asc }, { created_at: asc }]
     ) {
       id
-      ...Payment
+      ...PaymentWithTransactions
       company {
         id
         name
@@ -43900,7 +43923,7 @@ export const GetRepaymentsByDepositDateRangeDocument = gql`
       }
     }
   }
-  ${PaymentFragmentDoc}
+  ${PaymentWithTransactionsFragmentDoc}
 `;
 
 /**

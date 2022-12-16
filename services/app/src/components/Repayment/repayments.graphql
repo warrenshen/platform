@@ -67,7 +67,7 @@ query GetRepaymentsByDepositDateRange($start_date: date!, $end_date: date!) {
     order_by: [{ settlement_date: asc }, { created_at: asc }]
   ) {
     id
-    ...Payment
+    ...PaymentWithTransactions
     company {
       id
       name

@@ -88,6 +88,7 @@ export default function BankRepaymentsAllTab() {
         </Box>
         <RepaymentsDataGrid
           isCompanyVisible
+          isAppliedToVisible
           payments={payments}
           handleClickCustomer={() => {}}
         />

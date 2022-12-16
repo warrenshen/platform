@@ -486,6 +486,18 @@ fragment Payment on payments {
   ...PaymentLimited
 }
 
+fragment PaymentWithTransactions on payments {
+  id
+  ...Payment
+  transactions {
+    id
+    amount
+    to_fees
+    to_interest
+    to_principal
+  }
+}
+
 fragment PaymentBankOnly on payments {
   id
   bank_note

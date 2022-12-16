@@ -4,12 +4,18 @@ import CommentIcon from "@material-ui/icons/Comment";
 import PaymentDrawerLauncher from "components/Payment/PaymentDrawerLauncher";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
-import { Companies, PaymentLimitedFragment, Payments } from "generated/graphql";
+import {
+  Companies,
+  PaymentLimitedFragment,
+  PaymentWithTransactionsFragment,
+  Payments,
+} from "generated/graphql";
 import { getCompanyDisplayName } from "lib/companies";
 import { addBizDays, parseDateStringServer } from "lib/date";
 import { RepaymentMethodEnum, RepaymentMethodToLabel } from "lib/enum";
 import { CurrencyPrecision } from "lib/number";
 import { ColumnWidths, formatRowModel } from "lib/tables";
+import { sumBy } from "lodash";
 import { useMemo, useState } from "react";
 
 export enum RepaymentTypeEnum {
@@ -25,8 +31,9 @@ interface Props {
   isMethodVisible?: boolean;
   isMultiSelectEnabled?: boolean;
   isHoldingAccountVisible?: boolean;
+  isAppliedToVisible?: boolean;
   repaymentType?: RepaymentTypeEnum;
-  payments: PaymentLimitedFragment[];
+  payments: PaymentLimitedFragment[] | PaymentWithTransactionsFragment[];
   selectedPaymentIds?: Payments["id"][];
   handleClickCustomer?: (customerId: Companies["id"]) => void;
   handleSelectPayments?: (payments: PaymentLimitedFragment[]) => void;
@@ -39,6 +46,7 @@ export default function RepaymentsDataGrid({
   isExcelExport = true,
   isMethodVisible = true,
   isMultiSelectEnabled = false,
+  isAppliedToVisible = false,
   repaymentType = RepaymentTypeEnum.Other,
   payments,
   selectedPaymentIds,
@@ -76,6 +84,27 @@ export default function RepaymentsDataGrid({
           forecasted_interest: payment.items_covered.forecasted_interest || 0,
           forecasted_late_fees: payment.items_covered.forecasted_late_fees || 0,
           forecasted_principal: payment.items_covered.forecasted_principal || 0,
+          applied_to_interest: (payment as PaymentWithTransactionsFragment)
+            .transactions?.length
+            ? sumBy(
+                (payment as PaymentWithTransactionsFragment).transactions,
+                "to_interest"
+              )
+            : undefined,
+          applied_to_late_fees: (payment as PaymentWithTransactionsFragment)
+            .transactions?.length
+            ? sumBy(
+                (payment as PaymentWithTransactionsFragment).transactions,
+                "to_fees"
+              )
+            : undefined,
+          applied_to_principal: (payment as PaymentWithTransactionsFragment)
+            .transactions?.length
+            ? sumBy(
+                (payment as PaymentWithTransactionsFragment).transactions,
+                "to_principal"
+              )
+            : undefined,
           method:
             RepaymentMethodToLabel[payment.method as RepaymentMethodEnum] ||
             null,
@@ -176,6 +205,42 @@ export default function RepaymentsDataGrid({
         minWidth: ColumnWidths.MinWidth,
       },
       {
+        visible: isAppliedToVisible,
+        dataField: "applied_to_principal",
+        caption: "Applied to Principal",
+        minWidth: ColumnWidths.MinWidth,
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
+        width: ColumnWidths.Currency,
+        alignment: "right",
+      },
+      {
+        visible: isAppliedToVisible,
+        dataField: "applied_to_interest",
+        caption: "Applied to Interest",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
+        width: ColumnWidths.Currency,
+        alignment: "right",
+      },
+      {
+        visible: isAppliedToVisible,
+        dataField: "applied_to_late_fees",
+        caption: "Applied to Late Fees",
+        minWidth: ColumnWidths.MinWidth,
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
+        width: ColumnWidths.Currency,
+        alignment: "right",
+      },
+      {
+        visible: !isAppliedToVisible,
         dataField: "forecasted_principal",
         caption: "Applied to Principal",
         minWidth: ColumnWidths.MinWidth,
@@ -187,6 +252,7 @@ export default function RepaymentsDataGrid({
         alignment: "right",
       },
       {
+        visible: !isAppliedToVisible,
         dataField: "forecasted_interest",
         caption: "Applied to Interest",
         format: {
@@ -197,6 +263,7 @@ export default function RepaymentsDataGrid({
         alignment: "right",
       },
       {
+        visible: !isAppliedToVisible,
         dataField: "forecasted_late_fees",
         caption: "Applied to Late Fees",
         minWidth: ColumnWidths.MinWidth,
