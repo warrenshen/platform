@@ -11,7 +11,11 @@ import { grey } from "@material-ui/core/colors";
 import EbbaApplicationDrawerLauncher from "components/EbbaApplication/EbbaApplicationDrawerLauncher";
 import EbbaApplicationStatusChip from "components/EbbaApplication/EbbaApplicationStatusChip";
 import { EbbaApplicationFragment } from "generated/graphql";
-import { formatDateString } from "lib/date";
+import {
+  DateFormatClient,
+  formatDateString,
+  getEndOfNextMonth,
+} from "lib/date";
 import { CustomerSurveillanceCategoryEnum } from "lib/enum";
 import { formatCurrency } from "lib/number";
 
@@ -48,7 +52,10 @@ export default function EbbaApplicationCard({ ebbaApplication }: Props) {
         <Box display="flex" alignItems="center" mb={0.5}>
           <Typography className={classes.label}>Certification Date</Typography>
           <Typography>
-            {formatDateString(ebbaApplication.application_date)}
+            {getEndOfNextMonth(
+              ebbaApplication.application_date,
+              DateFormatClient
+            )}
           </Typography>
         </Box>
         <Box display="flex" alignItems="center" mb={0.5}>

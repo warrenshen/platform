@@ -143,10 +143,18 @@ export function getEndOfPreviousMonth(dateString: string = "") {
   return dateAsDateStringServer(date);
 }
 
-export function getEndOfNextMonth(dateString: string) {
+export function getEndOfNextMonth(
+  dateString: string,
+  formatString: string = DateFormatServer
+) {
   const date = parse(dateString, DateFormatServer, new Date());
 
   if (!!date) {
+    // 7/31 becomes + 2 months = 9/31 which is incorrectly converted to 10/1
+    // which is why we set to first of month before we add two months, since there's no way
+    // overflow can occur
+    date.setDate(1);
+
     // We add two months so we can take away of the Date rollback feature to get the last day
     date.setMonth(date.getMonth() + 2);
 
@@ -154,7 +162,7 @@ export function getEndOfNextMonth(dateString: string) {
     // ref: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/setDate
     date.setDate(0);
 
-    return format(date, DateFormatServer);
+    return format(date, formatString);
   } else {
     return "";
   }
