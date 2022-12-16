@@ -30,9 +30,6 @@ run-async-local-fast:
 	cd src && FLASK_ENV=development PYTHONPATH=$(PYTHONPATH) SERVER_ROOT_DIR=$(server_root_dir) gunicorn --reload --bind 0.0.0.0:7003 --timeout 300 --threads 2 manage_async_fast:app
 
 # Scripts
-run-metrc-script:
-	cd src && PYTHONPATH=$(PYTHONPATH) SERVER_ROOT_DIR=$(server_root_dir) python3 bespoke/metrc/metrc_util.py
-
 run-test-seed-db:
 	cd src && FLASK_ENV=test PYTHONPATH=$(PYTHONPATH) SERVER_ROOT_DIR=$(server_root_dir) python3 bespoke/db/main.py setup_test
 

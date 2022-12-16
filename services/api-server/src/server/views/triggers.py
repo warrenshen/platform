@@ -205,83 +205,6 @@ class RerunFailedMetrcDownloadsView(MethodView):
 			"errors": ['{}'.format(err) for err in all_errs],
 		}))
 
-class DownloadMetrcDataView(MethodView):
-	decorators = [auth_util.requires_async_magic_header]
-
-	@handler_util.catch_bad_json_request
-	def post(self) -> Response:
-		logging.info("Received request to download metrc data for all customers")
-		if os.environ.get('FLASK_ENV') != 'production':
-			logging.info('Skipping downloading metrc data because we are not running in production')
-			return make_response(json.dumps({
-				'status': 'OK'
-			}))
-
-		data = json.loads(request.data)
-
-		TIME_WINDOW_IN_DAYS = 1
-		end_date = date_util.now_as_date() - datetime.timedelta(days=1) # End date is yesterday.
-		start_date = end_date - timedelta(days=TIME_WINDOW_IN_DAYS)
-
-		before = time.time()		
-		company_ids = metrc_util.get_companies_with_metrc_keys(current_app.session_maker)
-
-		if data.get('use_async'):
-			logging.info(f"Submitting request to download metrc data for all customers [async]")
-		
-			with session_scope(current_app.session_maker) as session:
-				pipeline = models.AsyncPipeline()
-				pipeline.name = PipelineName.SYNC_METRC_DATA_ALL_CUSTOMERS
-				pipeline.internal_state = {}
-				pipeline.status = PipelineState.SUBMITTED
-				pipeline.params = {
-					'company_ids': company_ids,
-					'start_date': start_date,
-					'end_date': end_date
-				}
-				session.add(pipeline)
-				session.flush()
-				pipeline_id = str(pipeline.id)
-
-			return make_response(json.dumps({'status': 'OK', 'pipeline_id': pipeline_id}))
-
-		all_errs = []
-		failed_company_ids = []
-
-		for company_id in company_ids:
-			cur_date = start_date
-
-			while cur_date <= end_date:
-				resp, fatal_err = _download_metrc_data_for_one_customer(
-					cur_date, company_id, current_app)
-
-				if fatal_err:
-					all_errs.append(fatal_err)
-					failed_company_ids.append(company_id)
-					# Dont continue with additional days if one of the days failed
-					break
-
-				cur_date = cur_date + timedelta(days=1)
-
-
-		email_success, err = _handle_errs_after_metrc_downloads(
-			before=before,
-			trigger_name='download_metrc_data',
-			company_ids=company_ids,
-			failed_company_ids=failed_company_ids,
-			all_errs=all_errs,
-		)
-
-		if err:
-			return handler_util.make_error_response(err, status_code=500)
-
-		logging.info(f"Finished downloading metrc data for all customers")
-
-		return make_response(json.dumps({
-			'status': 'OK',
-			'errors': ['{}'.format(err) for err in all_errs]
-		}))
-
 class ExecuteAsyncTasksView(MethodView):
 	decorators = [auth_util.requires_async_magic_header]
 
@@ -309,10 +232,6 @@ handler.add_url_rule(
 handler.add_url_rule(
 	'/rerun-failed-metrc-downloads',
 	view_func=RerunFailedMetrcDownloadsView.as_view(name='rerun_failed_metrc_download_view'))
-
-handler.add_url_rule(
-	"/download-metrc-data",
-	view_func=DownloadMetrcDataView.as_view(name='download_metrc_data_view'))
 
 handler.add_url_rule(
 	"/execute_async_tasks_view",

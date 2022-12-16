@@ -514,6 +514,9 @@ class MetrcApiKeyDataFetcher(MetrcApiKeyDataFetcherInterface):
 		if not self.metrc_api_key_permissions:
 			self.get_metrc_api_key_permissions()
 
+		if len(self.metrc_api_key_permissions) == 0:
+			raise errors.Error(f'There are unexpectedly no Metrc API key permissions')
+
 		# Target license's permissions will always be the 0th element of the
 		# array given how the method self.get_metrc_api_key_permissions works.
 		return self.metrc_api_key_permissions[0]
