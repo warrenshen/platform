@@ -289,6 +289,9 @@ def execute_job(
 	with session_scope(session_maker) as session:
 		job.status = AsyncJobStatusEnum.IN_PROGRESS
 		job.started_at = date_util.now()
+		# explicitly adding a session.merge() needed here in order for 
+		# it to recognize that this is the same job created earlier. 
+		session.merge(job)
 		session.commit()
 
 	with session_scope(session_maker) as session:
