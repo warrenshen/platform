@@ -7,6 +7,7 @@ import EditBespokeCatalogSkuGroupModal from "components/ProductCatalog/EditBespo
 import EditBespokeCatalogSkuModal from "components/ProductCatalog/EditBespokeCatalogSkuModal";
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
 import PrimaryWarningButton from "components/Shared/Button/PrimaryWarningButton";
+import Can from "components/Shared/Can";
 import Text, { TextVariants } from "components/Shared/Text/Text";
 import {
   BespokeCatalogBrandFragment,
@@ -23,6 +24,7 @@ import {
   deleteBespokeCatalogSkuGroupMutation,
   deleteBespokeCatalogSkuMutation,
 } from "lib/api/productCatalog";
+import { Action } from "lib/auth/rbac-rules";
 import { useMemo, useState } from "react";
 import styled from "styled-components";
 
@@ -208,18 +210,20 @@ const BespokeCatalogTab = () => {
       <Box flex={1} display="flex" flexDirection="column" width="100%" mb={4}>
         <Box display="flex" justifyContent="space-between" mb={2}>
           <Text textVariant={TextVariants.ParagraphLead}>SKUs</Text>
-          <Box display="flex">
-            <PrimaryWarningButton
-              isDisabled={!selectedSku || isDeleteBespokeCatalogSkuLoading}
-              text={"Delete SKU"}
-              onClick={handleClickDeleteSku}
-            />
-            <PrimaryButton
-              isDisabled={!selectedSku}
-              text={"Edit SKU"}
-              onClick={() => setIsEditSkuModalOpen(true)}
-            />
-          </Box>
+          <Can perform={Action.EditBespokeCatalog}>
+            <Box display="flex">
+              <PrimaryWarningButton
+                isDisabled={!selectedSku || isDeleteBespokeCatalogSkuLoading}
+                text={"Delete SKU"}
+                onClick={handleClickDeleteSku}
+              />
+              <PrimaryButton
+                isDisabled={!selectedSku}
+                text={"Edit SKU"}
+                onClick={() => setIsEditSkuModalOpen(true)}
+              />
+            </Box>
+          </Can>
         </Box>
         <BespokeCatalogSkusDataGrid
           bespokeCatalogSkus={skus}
@@ -230,20 +234,22 @@ const BespokeCatalogTab = () => {
       <Box flex={1} display="flex" flexDirection="column" width="100%" mb={4}>
         <Box display="flex" justifyContent="space-between" mb={2}>
           <Text textVariant={TextVariants.ParagraphLead}>SKU Groups</Text>
-          <Box display="flex">
-            <PrimaryWarningButton
-              isDisabled={
-                !selectedSkuGroup || isDeleteBespokeCatalogSkuGroupLoading
-              }
-              text={"Delete Group"}
-              onClick={handleClickDeleteSkuGroup}
-            />
-            <PrimaryButton
-              isDisabled={!selectedSkuGroup}
-              text={"Edit Group"}
-              onClick={() => setIsEditSkuGroupModalOpen(true)}
-            />
-          </Box>
+          <Can perform={Action.EditBespokeCatalog}>
+            <Box display="flex">
+              <PrimaryWarningButton
+                isDisabled={
+                  !selectedSkuGroup || isDeleteBespokeCatalogSkuGroupLoading
+                }
+                text={"Delete Group"}
+                onClick={handleClickDeleteSkuGroup}
+              />
+              <PrimaryButton
+                isDisabled={!selectedSkuGroup}
+                text={"Edit Group"}
+                onClick={() => setIsEditSkuGroupModalOpen(true)}
+              />
+            </Box>
+          </Can>
         </Box>
         <BespokeCatalogSkuGroupsDataGrid
           bespokeCatalogSkuGroups={skuGroups}
@@ -254,18 +260,22 @@ const BespokeCatalogTab = () => {
       <Box flex={1} display="flex" flexDirection="column" width="100%">
         <Box display="flex" justifyContent="space-between" mb={2}>
           <Text textVariant={TextVariants.ParagraphLead}>Brands</Text>
-          <Box display="flex">
-            <PrimaryWarningButton
-              isDisabled={!selectedBrand || isDeleteBespokeCatalogBrandLoading}
-              text={"Delete Brand"}
-              onClick={handleClickDeleteBrand}
-            />
-            <PrimaryButton
-              isDisabled={!selectedBrand}
-              text={"Edit Brand"}
-              onClick={() => setIsEditBrandModalOpen(true)}
-            />
-          </Box>
+          <Can perform={Action.EditBespokeCatalog}>
+            <Box display="flex">
+              <PrimaryWarningButton
+                isDisabled={
+                  !selectedBrand || isDeleteBespokeCatalogBrandLoading
+                }
+                text={"Delete Brand"}
+                onClick={handleClickDeleteBrand}
+              />
+              <PrimaryButton
+                isDisabled={!selectedBrand}
+                text={"Edit Brand"}
+                onClick={() => setIsEditBrandModalOpen(true)}
+              />
+            </Box>
+          </Can>
         </Box>
         <BespokeCatalogBrandsDataGrid
           bespokeCatalogBrands={brands}

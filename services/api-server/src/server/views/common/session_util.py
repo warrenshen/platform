@@ -56,6 +56,9 @@ class UserSession(object):
 	def is_bank_admin(self) -> bool:
 		return 'bank_admin' in self._user_roles()
 
+	def is_bank_contractor(self) -> bool:
+		return 'bank_contractor' in self._user_roles()
+
 	def is_company_admin_of_this_company(self, company_id: str) -> bool:
 		return self.get_company_id() == company_id
 

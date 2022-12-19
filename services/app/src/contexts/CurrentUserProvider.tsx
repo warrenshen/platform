@@ -8,7 +8,7 @@ import {
   User,
   isRoleBankUser,
 } from "contexts/CurrentUserContext";
-import { BlazePreapprovalFragment } from "generated/graphql";
+import { BlazePreapprovalFragment, UserRolesEnum } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import JwtDecode from "jwt-decode";
 import { authRoutes, authenticatedApi, unAuthenticatedApi } from "lib/api";
@@ -22,7 +22,7 @@ import {
   setRefreshToken,
 } from "lib/auth/tokenStorage";
 import { ProductTypeEnum } from "lib/enum";
-import { routes } from "lib/routes";
+import { bankRoutes, routes } from "lib/routes";
 import { validUUIDOrDefault } from "lib/uuid";
 import { ReactNode, useCallback, useEffect, useState } from "react";
 
@@ -181,7 +181,12 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
           !!data.refresh_token
         ) {
           setUserFromAccessToken(data.access_token, data.refresh_token);
-          handleSuccess(routes.root);
+          const userFields = userFieldsFromToken(data.access_token);
+          if (userFields?.role === UserRolesEnum.BankContractor) {
+            handleSuccess(bankRoutes.productCatalog);
+          } else {
+            handleSuccess(routes.root);
+          }
         } else if (data.login_method === "2fa" && data.status === "OK") {
           handleSuccess(data.two_factor_link);
         } else {

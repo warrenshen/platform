@@ -157,6 +157,7 @@ def setup_db_test(app: Any) -> None:
 							),
 						),
 						session_maker=session_maker,
+						created_by_user_id=None,
 					)
 					user = session.query(models.User).get(user_id)
 					auth_util.create_login_for_user(user, password)

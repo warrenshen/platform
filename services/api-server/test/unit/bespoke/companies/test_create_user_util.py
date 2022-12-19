@@ -14,6 +14,7 @@ class TestCreateUser(db_unittest.TestCase):
 
 		parent_company_id = seed.get_parent_company_id('company_admin', index=0)
 		company_id = seed.get_company_id('company_admin', index=0)
+		created_by_user_id = seed.get_user_id('company_admin', index=0)
 
 		USER_EMAIL = 'warren@cannabisbusiness.com'
 
@@ -28,12 +29,14 @@ class TestCreateUser(db_unittest.TestCase):
 					phone_number='4085293475',
 				),
 			),
-			session_maker=session_maker
+			session_maker=session_maker,
+			created_by_user_id=seed.get_user_id('company_admin', index=0),
 		)
 		self.assertIsNone(err)
 
 		expected_users = [
 			{
+				'created_by_user_id': created_by_user_id,
 				'parent_company_id': parent_company_id,
 				'company_id': company_id,
 				'email': USER_EMAIL,
@@ -51,3 +54,4 @@ class TestCreateUser(db_unittest.TestCase):
 				self.assertEqual(exp['email'], str(actual.email))
 				self.assertEqual(exp['parent_company_id'], str(actual.parent_company_id))
 				self.assertEqual(exp['company_id'], str(actual.company_id))
+				self.assertEqual(exp['created_by_user_id'], str(actual.created_by_user_id))

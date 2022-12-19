@@ -116,6 +116,7 @@ class User(Base):
 	phone_number = Column(Text)
 	is_deleted = Column(Boolean, default=False)
 	login_method = Column(Text, nullable=False)
+	created_by_user_id = cast(GUID, Column(GUID, nullable=True))
 
 
 class UserRole(Base):

@@ -116,6 +116,9 @@ export enum Action {
 
   // Email Alerts
   RunFinancialAlert = "email_alerts:send_financial_alert",
+
+  // Product Catalog
+  EditBespokeCatalog = "product_catalog:edit_bespoke_catalog",
 }
 
 export interface ActionData {
@@ -135,6 +138,7 @@ export interface Rule {
 export interface Rules {
   [UserRolesEnum.BankAdmin]: Rule;
   [UserRolesEnum.BankReadOnly]: Rule;
+  [UserRolesEnum.BankContractor]: Rule;
   [UserRolesEnum.CompanyAdmin]: Rule;
   [UserRolesEnum.CompanyReadOnly]: Rule;
   [UserRolesEnum.CompanyContactOnly]: Rule;
@@ -268,11 +272,16 @@ const rules: Rules = {
       Action.ChangeAsyncJobPriority,
 
       Action.RunFinancialAlert,
+      Action.EditBespokeCatalog,
     ],
     dynamic: [],
   },
   [UserRolesEnum.BankReadOnly]: {
     static: [Action.ViewLoanInternalNote],
+    dynamic: [],
+  },
+  [UserRolesEnum.BankContractor]: {
+    static: [Action.EditBespokeCatalog],
     dynamic: [],
   },
   [UserRolesEnum.CompanyAdmin]: {

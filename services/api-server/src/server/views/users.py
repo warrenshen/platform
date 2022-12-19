@@ -104,6 +104,7 @@ class CreateBankCustomerUserView(MethodView):
 		user_id, err = create_user_util.create_bank_or_customer_user(
 			cast(create_user_util.CreateBankOrCustomerUserInputDict, form),
 			current_app.session_maker,
+			user_session.get_user_id()
 		)
 
 		if err:

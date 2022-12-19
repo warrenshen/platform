@@ -484,6 +484,7 @@ class AuthenticateBlazeUserView(MethodView):
 							),
 						),
 						session=session,
+						created_by_user_id=None
 					)
 
 					if err:

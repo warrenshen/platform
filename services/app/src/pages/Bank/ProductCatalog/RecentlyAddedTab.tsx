@@ -2,11 +2,13 @@ import { Box } from "@material-ui/core";
 import EditBespokeCatalogEntryModal from "components/ProductCatalog/EditBespokeCatalogEntryModal";
 import MetrcToBespokeCatalogSkusDataGrid from "components/ProductCatalog/MetrcToBespokeCatalogSkusDataGrid";
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
+import Can from "components/Shared/Can";
 import Text, { TextVariants } from "components/Shared/Text/Text";
 import {
   MetrcToBespokeCatalogSkuFragment,
   useGetMetrcToBespokeCatalogSkusSubscription,
 } from "generated/graphql";
+import { Action } from "lib/auth/rbac-rules";
 import { useMemo, useState } from "react";
 import styled from "styled-components";
 
@@ -61,11 +63,13 @@ const RecentlyAddedTab = () => {
         <Text textVariant={TextVariants.ParagraphLead}>
           Bespoke Catalog Entries
         </Text>
-        <PrimaryButton
-          isDisabled={!selectedEntry}
-          text={"Edit Catalog Entry"}
-          onClick={() => setIsEditEntryModalOpen(true)}
-        />
+        <Can perform={Action.EditBespokeCatalog}>
+          <PrimaryButton
+            isDisabled={!selectedEntry}
+            text={"Edit Catalog Entry"}
+            onClick={() => setIsEditEntryModalOpen(true)}
+          />
+        </Can>
       </Box>
       <MetrcToBespokeCatalogSkusDataGrid
         metrcToBespokeCatalogSkus={metrcToBespokeCatalogSkus}

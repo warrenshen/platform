@@ -49,6 +49,7 @@ UpdateThirdPartyUserRespDict = TypedDict('UpdateThirdPartyUserRespDict', {
 def create_bank_or_customer_user_with_session(
 	req: CreateBankOrCustomerUserInputDict,
 	session: Session,
+	created_by_user_id: str,
 ) -> Tuple[str, errors.Error]:
 	company_id = req['company_id'] 
 	user_input = req['user']
@@ -105,6 +106,7 @@ def create_bank_or_customer_user_with_session(
 	user.login_method = LoginMethod.TWO_FA if is_bank_user else LoginMethod.SIMPLE
 	if "company_role" in user_input:
 		user.company_role = user_input["company_role"]
+	user.created_by_user_id = created_by_user_id # type: ignore
 
 	session.add(user)
 	session.flush()
@@ -117,9 +119,10 @@ def create_bank_or_customer_user_with_session(
 def create_bank_or_customer_user(
 	req: CreateBankOrCustomerUserInputDict,
 	session_maker: Callable,
+	created_by_user_id: str,
 ) -> Tuple[str, errors.Error]:
 	with session_scope(session_maker) as session:
-		return create_bank_or_customer_user_with_session(req, session)
+		return create_bank_or_customer_user_with_session(req, session, created_by_user_id)
 
 	raise errors.Error("Could not create session")
 

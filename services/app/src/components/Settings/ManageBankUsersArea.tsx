@@ -26,7 +26,11 @@ function ActiveUsersTab() {
   const isBankUser = isRoleBankUser(role);
   const { data, refetch } = useGetActiveUsersByRolesQuery({
     variables: {
-      roles: [UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly],
+      roles: [
+        UserRolesEnum.BankAdmin,
+        UserRolesEnum.BankReadOnly,
+        UserRolesEnum.BankContractor,
+      ],
       isBankUser: isBankUser,
     },
   });
@@ -47,7 +51,11 @@ function ActiveUsersTab() {
     [setSelectedUsers]
   );
 
-  const bankUserRoles = [UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly];
+  const bankUserRoles = [
+    UserRolesEnum.BankAdmin,
+    UserRolesEnum.BankReadOnly,
+    UserRolesEnum.BankContractor,
+  ];
 
   return (
     <>
@@ -131,7 +139,11 @@ function ActiveUsersTab() {
 function DeactivatedUsersTab() {
   const { data, refetch } = useGetDeactivatedUsersByRolesQuery({
     variables: {
-      roles: [UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly],
+      roles: [
+        UserRolesEnum.BankAdmin,
+        UserRolesEnum.BankReadOnly,
+        UserRolesEnum.BankContractor,
+      ],
     },
   });
 

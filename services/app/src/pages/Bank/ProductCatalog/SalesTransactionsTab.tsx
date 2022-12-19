@@ -8,6 +8,7 @@ import CreateBespokeCatalogEntryCompleteModal from "components/ProductCatalog/Cr
 import MetrcSalesTransactionsDataGrid from "components/ProductCatalog/MetrcSalesTransactionsDataGrid";
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
 import SecondaryButton from "components/Shared/Button/SecondaryButton";
+import Can from "components/Shared/Can";
 import Text, { TextVariants } from "components/Shared/Text/Text";
 import { MetrcSalesTransactionFragment } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
@@ -19,6 +20,7 @@ import {
   createSampleMetrcToBespokeCatalogSkuMutation,
   getSalesTransactionData,
 } from "lib/api/productCatalog";
+import { Action } from "lib/auth/rbac-rules";
 import { MetrcToBespokeCatalogSkuConfidenceLabel } from "lib/enum";
 import { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
@@ -213,29 +215,33 @@ const SalesTransactionsTab = () => {
       </Box>
       <Box display="flex" justifyContent="space-between" mb={2}>
         <Text textVariant={TextVariants.ParagraphLead}>Sales Transactions</Text>
-        <Box display="flex">
-          <SecondaryButton
-            isDisabled={
-              selectedMetrcSalesTransactions.length === 0 ||
-              isCreateInvalidMetrcToBespokeCatalogSkuLoading
-            }
-            text={"Mark Invalid"}
-            onClick={handleMarkInvalid}
-          />
-          <SecondaryButton
-            isDisabled={
-              selectedMetrcSalesTransactions.length === 0 ||
-              isCreateSampleMetrcToBespokeCatalogSkuLoading
-            }
-            text={"Mark as Sample"}
-            onClick={handleMarkSample}
-          />
-          <PrimaryButton
-            isDisabled={!selectedMetrcSalesTransaction}
-            text={"Create Catalog Entry"}
-            onClick={() => setIsCreateUpdateBespokeCatalogEntryModalOpen(true)}
-          />
-        </Box>
+        <Can perform={Action.EditBespokeCatalog}>
+          <Box display="flex">
+            <SecondaryButton
+              isDisabled={
+                selectedMetrcSalesTransactions.length === 0 ||
+                isCreateInvalidMetrcToBespokeCatalogSkuLoading
+              }
+              text={"Mark Invalid"}
+              onClick={handleMarkInvalid}
+            />
+            <SecondaryButton
+              isDisabled={
+                selectedMetrcSalesTransactions.length === 0 ||
+                isCreateSampleMetrcToBespokeCatalogSkuLoading
+              }
+              text={"Mark as Sample"}
+              onClick={handleMarkSample}
+            />
+            <PrimaryButton
+              isDisabled={!selectedMetrcSalesTransaction}
+              text={"Create Catalog Entry"}
+              onClick={() =>
+                setIsCreateUpdateBespokeCatalogEntryModalOpen(true)
+              }
+            />
+          </Box>
+        </Can>
       </Box>
       <MetrcSalesTransactionsDataGrid
         isExcelExport

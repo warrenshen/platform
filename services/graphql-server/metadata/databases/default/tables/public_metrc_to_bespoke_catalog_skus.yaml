@@ -22,3 +22,18 @@ select_permissions:
         - updated_at
         - wholesale_quantity
       filter: {}
+  - role: bank_contractor
+    permission:
+      columns:
+        - bespoke_catalog_sku_id
+        - created_at
+        - deleted_at
+        - id
+        - is_deleted
+        - is_sample
+        - product_category_name
+        - product_name
+        - sku_confidence
+        - updated_at
+        - wholesale_quantity
+      filter: {}

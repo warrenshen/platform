@@ -8,6 +8,7 @@ import CreateBespokeCatalogEntryCompleteModal from "components/ProductCatalog/Cr
 import MetrcTransferPackagesDataGrid from "components/ProductCatalog/MetrcTransferPackageDataGrid";
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
 import SecondaryButton from "components/Shared/Button/SecondaryButton";
+import Can from "components/Shared/Can";
 import Text, { TextVariants } from "components/Shared/Text/Text";
 import { MetrcTransferPackageFragment } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
@@ -19,6 +20,7 @@ import {
   createSampleMetrcToBespokeCatalogSkuMutation,
   getIncomingTransferPackageData,
 } from "lib/api/productCatalog";
+import { Action } from "lib/auth/rbac-rules";
 import { MetrcToBespokeCatalogSkuConfidenceLabel } from "lib/enum";
 import { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
@@ -221,29 +223,33 @@ const IncomingTransferPackagesTab = () => {
         <Text textVariant={TextVariants.ParagraphLead}>
           Incoming Transfer Packages
         </Text>
-        <Box display="flex">
-          <SecondaryButton
-            isDisabled={
-              selectedMetrcTransferPackages.length === 0 ||
-              isCreateInvalidMetrcToBespokeCatalogSkuLoading
-            }
-            text={"Mark Invalid"}
-            onClick={handleMarkInvalid}
-          />
-          <SecondaryButton
-            isDisabled={
-              selectedMetrcTransferPackages.length === 0 ||
-              isCreateSampleMetrcToBespokeCatalogSkuLoading
-            }
-            text={"Mark as Sample"}
-            onClick={handleMarkSample}
-          />
-          <PrimaryButton
-            isDisabled={!selectedMetrcTransferPackage}
-            text={"Create Catalog Entry"}
-            onClick={() => setIsCreateUpdateBespokeCatalogEntryModalOpen(true)}
-          />
-        </Box>
+        <Can perform={Action.EditBespokeCatalog}>
+          <Box display="flex">
+            <SecondaryButton
+              isDisabled={
+                selectedMetrcTransferPackages.length === 0 ||
+                isCreateInvalidMetrcToBespokeCatalogSkuLoading
+              }
+              text={"Mark Invalid"}
+              onClick={handleMarkInvalid}
+            />
+            <SecondaryButton
+              isDisabled={
+                selectedMetrcTransferPackages.length === 0 ||
+                isCreateSampleMetrcToBespokeCatalogSkuLoading
+              }
+              text={"Mark as Sample"}
+              onClick={handleMarkSample}
+            />
+            <PrimaryButton
+              isDisabled={!selectedMetrcTransferPackage}
+              text={"Create Catalog Entry"}
+              onClick={() =>
+                setIsCreateUpdateBespokeCatalogEntryModalOpen(true)
+              }
+            />
+          </Box>
+        </Can>
       </Box>
       <MetrcTransferPackagesDataGrid
         selectedTransferPackageIds={selectedMetrcTransferPackages}

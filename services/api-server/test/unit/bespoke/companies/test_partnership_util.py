@@ -35,7 +35,8 @@ class TestGetPartnerContacts(db_unittest.TestCase):
 					phone_number='4085293475',
 				),
 			),
-			session_maker=session_maker
+			session_maker=session_maker,
+			created_by_user_id=seed.get_user_id('company_admin', index=0),
 		)
 		self.assertIsNone(err)
 
@@ -98,7 +99,8 @@ class TestGetPartnerContacts(db_unittest.TestCase):
 					phone_number='4085293475',
 				),
 			),
-			session_maker=session_maker
+			session_maker=session_maker,
+			created_by_user_id=seed.get_user_id('company_admin', index=0),
 		)
 		self.assertIsNone(err)
 

@@ -71,6 +71,18 @@ def bank_admin_required(f: Callable[..., Response]) -> Response:
 
 	return inner_func
 
+def bank_admin_or_bank_contractor_required(f: Callable[..., Response]) -> Response:
+
+	@jwt_required
+	def inner_func(*args: Any, **kwargs: Any) -> Response:
+		user_session = UserSession.from_session()
+		if not user_session.is_bank_admin() and not user_session.is_bank_contractor():
+			return handler_util.make_error_response(errors.Error('Access Denied'))
+
+		return f(*args, **kwargs)
+
+	return inner_func
+
 def login_required(f: Callable[..., Response]) -> Response:
 
 	@jwt_required

@@ -6068,9 +6068,11 @@ export enum CompanyPartnershipRequestsUpdateColumn {
 
 /** columns and relationships of "company_payor_contacts" */
 export type CompanyPayorContacts = {
+  created_at: Scalars["timestamptz"];
   id: Scalars["uuid"];
   partnership_id: Scalars["uuid"];
   payor_user_id: Scalars["uuid"];
+  updated_at: Scalars["timestamptz"];
   /** An object relationship */
   user: Users;
 };
@@ -6113,9 +6115,11 @@ export type CompanyPayorContactsBoolExp = {
   _and?: Maybe<Array<CompanyPayorContactsBoolExp>>;
   _not?: Maybe<CompanyPayorContactsBoolExp>;
   _or?: Maybe<Array<CompanyPayorContactsBoolExp>>;
+  created_at?: Maybe<TimestamptzComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   partnership_id?: Maybe<UuidComparisonExp>;
   payor_user_id?: Maybe<UuidComparisonExp>;
+  updated_at?: Maybe<TimestamptzComparisonExp>;
   user?: Maybe<UsersBoolExp>;
 };
 
@@ -6127,38 +6131,48 @@ export enum CompanyPayorContactsConstraint {
 
 /** input type for inserting data into table "company_payor_contacts" */
 export type CompanyPayorContactsInsertInput = {
+  created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   partnership_id?: Maybe<Scalars["uuid"]>;
   payor_user_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
   user?: Maybe<UsersObjRelInsertInput>;
 };
 
 /** aggregate max on columns */
 export type CompanyPayorContactsMaxFields = {
+  created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   partnership_id?: Maybe<Scalars["uuid"]>;
   payor_user_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
 /** order by max() on columns of table "company_payor_contacts" */
 export type CompanyPayorContactsMaxOrderBy = {
+  created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   partnership_id?: Maybe<OrderBy>;
   payor_user_id?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
 };
 
 /** aggregate min on columns */
 export type CompanyPayorContactsMinFields = {
+  created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   partnership_id?: Maybe<Scalars["uuid"]>;
   payor_user_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
 /** order by min() on columns of table "company_payor_contacts" */
 export type CompanyPayorContactsMinOrderBy = {
+  created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   partnership_id?: Maybe<OrderBy>;
   payor_user_id?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
 };
 
 /** response of any mutation on the table "company_payor_contacts" */
@@ -6178,9 +6192,11 @@ export type CompanyPayorContactsOnConflict = {
 
 /** Ordering options when selecting data from "company_payor_contacts". */
 export type CompanyPayorContactsOrderBy = {
+  created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   partnership_id?: Maybe<OrderBy>;
   payor_user_id?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
   user?: Maybe<UsersOrderBy>;
 };
 
@@ -6192,28 +6208,38 @@ export type CompanyPayorContactsPkColumnsInput = {
 /** select columns of table "company_payor_contacts" */
 export enum CompanyPayorContactsSelectColumn {
   /** column name */
+  CreatedAt = "created_at",
+  /** column name */
   Id = "id",
   /** column name */
   PartnershipId = "partnership_id",
   /** column name */
   PayorUserId = "payor_user_id",
+  /** column name */
+  UpdatedAt = "updated_at",
 }
 
 /** input type for updating data in table "company_payor_contacts" */
 export type CompanyPayorContactsSetInput = {
+  created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   partnership_id?: Maybe<Scalars["uuid"]>;
   payor_user_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
 /** update columns of table "company_payor_contacts" */
 export enum CompanyPayorContactsUpdateColumn {
   /** column name */
+  CreatedAt = "created_at",
+  /** column name */
   Id = "id",
   /** column name */
   PartnershipId = "partnership_id",
   /** column name */
   PayorUserId = "payor_user_id",
+  /** column name */
+  UpdatedAt = "updated_at",
 }
 
 /** columns and relationships of "company_payor_partnerships" */
@@ -7201,8 +7227,10 @@ export enum CompanyTypeUpdateColumn {
 
 /** columns and relationships of "company_vendor_contacts" */
 export type CompanyVendorContacts = {
+  created_at: Scalars["timestamptz"];
   id: Scalars["uuid"];
   partnership_id: Scalars["uuid"];
+  updated_at: Scalars["timestamptz"];
   /** An object relationship */
   user: Users;
   vendor_user_id: Scalars["uuid"];
@@ -7246,8 +7274,10 @@ export type CompanyVendorContactsBoolExp = {
   _and?: Maybe<Array<CompanyVendorContactsBoolExp>>;
   _not?: Maybe<CompanyVendorContactsBoolExp>;
   _or?: Maybe<Array<CompanyVendorContactsBoolExp>>;
+  created_at?: Maybe<TimestamptzComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   partnership_id?: Maybe<UuidComparisonExp>;
+  updated_at?: Maybe<TimestamptzComparisonExp>;
   user?: Maybe<UsersBoolExp>;
   vendor_user_id?: Maybe<UuidComparisonExp>;
 };
@@ -7260,37 +7290,47 @@ export enum CompanyVendorContactsConstraint {
 
 /** input type for inserting data into table "company_vendor_contacts" */
 export type CompanyVendorContactsInsertInput = {
+  created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   partnership_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
   user?: Maybe<UsersObjRelInsertInput>;
   vendor_user_id?: Maybe<Scalars["uuid"]>;
 };
 
 /** aggregate max on columns */
 export type CompanyVendorContactsMaxFields = {
+  created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   partnership_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_user_id?: Maybe<Scalars["uuid"]>;
 };
 
 /** order by max() on columns of table "company_vendor_contacts" */
 export type CompanyVendorContactsMaxOrderBy = {
+  created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   partnership_id?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
   vendor_user_id?: Maybe<OrderBy>;
 };
 
 /** aggregate min on columns */
 export type CompanyVendorContactsMinFields = {
+  created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   partnership_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_user_id?: Maybe<Scalars["uuid"]>;
 };
 
 /** order by min() on columns of table "company_vendor_contacts" */
 export type CompanyVendorContactsMinOrderBy = {
+  created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   partnership_id?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
   vendor_user_id?: Maybe<OrderBy>;
 };
 
@@ -7311,8 +7351,10 @@ export type CompanyVendorContactsOnConflict = {
 
 /** Ordering options when selecting data from "company_vendor_contacts". */
 export type CompanyVendorContactsOrderBy = {
+  created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   partnership_id?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
   user?: Maybe<UsersOrderBy>;
   vendor_user_id?: Maybe<OrderBy>;
 };
@@ -7325,26 +7367,36 @@ export type CompanyVendorContactsPkColumnsInput = {
 /** select columns of table "company_vendor_contacts" */
 export enum CompanyVendorContactsSelectColumn {
   /** column name */
+  CreatedAt = "created_at",
+  /** column name */
   Id = "id",
   /** column name */
   PartnershipId = "partnership_id",
+  /** column name */
+  UpdatedAt = "updated_at",
   /** column name */
   VendorUserId = "vendor_user_id",
 }
 
 /** input type for updating data in table "company_vendor_contacts" */
 export type CompanyVendorContactsSetInput = {
+  created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   partnership_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_user_id?: Maybe<Scalars["uuid"]>;
 };
 
 /** update columns of table "company_vendor_contacts" */
 export enum CompanyVendorContactsUpdateColumn {
   /** column name */
+  CreatedAt = "created_at",
+  /** column name */
   Id = "id",
   /** column name */
   PartnershipId = "partnership_id",
+  /** column name */
+  UpdatedAt = "updated_at",
   /** column name */
   VendorUserId = "vendor_user_id",
 }
@@ -29087,6 +29139,8 @@ export enum UserRolesEnum {
   Anonymous = "anonymous",
   /** Bank Admin */
   BankAdmin = "bank_admin",
+  /** Bank Contractor */
+  BankContractor = "bank_contractor",
   /** Bank Read Only */
   BankReadOnly = "bank_read_only",
   /** Company Admin */
@@ -29180,6 +29234,7 @@ export type Users = {
   company_role?: Maybe<Scalars["String"]>;
   company_role_new?: Maybe<Scalars["json"]>;
   created_at: Scalars["timestamptz"];
+  created_by_user_id?: Maybe<Scalars["uuid"]>;
   email: Scalars["String"];
   first_name: Scalars["String"];
   full_name: Scalars["String"];
@@ -29244,6 +29299,7 @@ export type UsersBoolExp = {
   company_role?: Maybe<StringComparisonExp>;
   company_role_new?: Maybe<JsonComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
+  created_by_user_id?: Maybe<UuidComparisonExp>;
   email?: Maybe<StringComparisonExp>;
   first_name?: Maybe<StringComparisonExp>;
   full_name?: Maybe<StringComparisonExp>;
@@ -29274,6 +29330,7 @@ export type UsersInsertInput = {
   company_role?: Maybe<Scalars["String"]>;
   company_role_new?: Maybe<Scalars["json"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  created_by_user_id?: Maybe<Scalars["uuid"]>;
   email?: Maybe<Scalars["String"]>;
   first_name?: Maybe<Scalars["String"]>;
   full_name?: Maybe<Scalars["String"]>;
@@ -29294,6 +29351,7 @@ export type UsersMaxFields = {
   company_id?: Maybe<Scalars["uuid"]>;
   company_role?: Maybe<Scalars["String"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  created_by_user_id?: Maybe<Scalars["uuid"]>;
   email?: Maybe<Scalars["String"]>;
   first_name?: Maybe<Scalars["String"]>;
   full_name?: Maybe<Scalars["String"]>;
@@ -29311,6 +29369,7 @@ export type UsersMaxOrderBy = {
   company_id?: Maybe<OrderBy>;
   company_role?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
+  created_by_user_id?: Maybe<OrderBy>;
   email?: Maybe<OrderBy>;
   first_name?: Maybe<OrderBy>;
   full_name?: Maybe<OrderBy>;
@@ -29328,6 +29387,7 @@ export type UsersMinFields = {
   company_id?: Maybe<Scalars["uuid"]>;
   company_role?: Maybe<Scalars["String"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  created_by_user_id?: Maybe<Scalars["uuid"]>;
   email?: Maybe<Scalars["String"]>;
   first_name?: Maybe<Scalars["String"]>;
   full_name?: Maybe<Scalars["String"]>;
@@ -29345,6 +29405,7 @@ export type UsersMinOrderBy = {
   company_id?: Maybe<OrderBy>;
   company_role?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
+  created_by_user_id?: Maybe<OrderBy>;
   email?: Maybe<OrderBy>;
   first_name?: Maybe<OrderBy>;
   full_name?: Maybe<OrderBy>;
@@ -29386,6 +29447,7 @@ export type UsersOrderBy = {
   company_role?: Maybe<OrderBy>;
   company_role_new?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
+  created_by_user_id?: Maybe<OrderBy>;
   email?: Maybe<OrderBy>;
   first_name?: Maybe<OrderBy>;
   full_name?: Maybe<OrderBy>;
@@ -29416,6 +29478,8 @@ export enum UsersSelectColumn {
   CompanyRoleNew = "company_role_new",
   /** column name */
   CreatedAt = "created_at",
+  /** column name */
+  CreatedByUserId = "created_by_user_id",
   /** column name */
   Email = "email",
   /** column name */
@@ -29448,6 +29512,7 @@ export type UsersSetInput = {
   company_role?: Maybe<Scalars["String"]>;
   company_role_new?: Maybe<Scalars["json"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  created_by_user_id?: Maybe<Scalars["uuid"]>;
   email?: Maybe<Scalars["String"]>;
   first_name?: Maybe<Scalars["String"]>;
   full_name?: Maybe<Scalars["String"]>;
@@ -29472,6 +29537,8 @@ export enum UsersUpdateColumn {
   CompanyRoleNew = "company_role_new",
   /** column name */
   CreatedAt = "created_at",
+  /** column name */
+  CreatedByUserId = "created_by_user_id",
   /** column name */
   Email = "email",
   /** column name */

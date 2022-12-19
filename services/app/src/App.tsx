@@ -837,6 +837,7 @@ export default function App() {
               requiredRoles={[
                 UserRolesEnum.BankAdmin,
                 UserRolesEnum.BankReadOnly,
+                UserRolesEnum.BankContractor,
               ]}
             >
               <BankProductCatalogPage />

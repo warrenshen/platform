@@ -752,7 +752,8 @@ def create_partnership(
 					phone_number = cast(Dict[str, Any], user_info).get("phone_number", "")
 				),
 			),
-			session = session
+			session = session,
+			created_by_user_id = bank_admin_user_id
 		)
 
 	contact_user_id = existing_user.id if existing_user is not None else user_id
@@ -958,7 +959,8 @@ def create_partnership_new(
 					phone_number = cast(Dict[str, Any], user_info).get("phone_number", "")
 				),
 			),
-			session = session
+			session = session,
+			created_by_user_id = bank_admin_user_id,
 		)
 
 	contact_user_id = existing_user.id if existing_user is not None else user_id

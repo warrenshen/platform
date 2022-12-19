@@ -375,6 +375,7 @@ export default function RepaymentsDataGrid({
       handleClickCustomer,
       handleClickPaymentBankNote,
       isHoldingAccountVisible,
+      isAppliedToVisible,
     ]
   );
 

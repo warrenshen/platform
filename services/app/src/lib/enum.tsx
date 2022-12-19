@@ -836,6 +836,7 @@ export const EbbaApplicationStatusToLabel = {
 export const UserRoleToLabel = {
   [UserRolesEnum.BankAdmin]: "Bank Admin",
   [UserRolesEnum.BankReadOnly]: "Bank User (View Only)",
+  [UserRolesEnum.BankContractor]: "Bank Contractor",
   [UserRolesEnum.CompanyAdmin]: "Company Admin",
   [UserRolesEnum.CompanyReadOnly]: "Company User (View Only)",
   [UserRolesEnum.CompanyContactOnly]: "Company Contact (No Account)",

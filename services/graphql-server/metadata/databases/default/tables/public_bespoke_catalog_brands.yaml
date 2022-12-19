@@ -13,3 +13,14 @@ select_permissions:
         - updated_at
         - website_url
       filter: {}
+  - role: bank_contractor
+    permission:
+      columns:
+        - is_deleted
+        - brand_name
+        - website_url
+        - created_at
+        - deleted_at
+        - updated_at
+        - id
+      filter: {}

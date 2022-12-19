@@ -27,3 +27,16 @@ select_permissions:
         - unit_quantity
         - updated_at
       filter: {}
+  - role: bank_contractor
+    permission:
+      columns:
+        - is_deleted
+        - unit_quantity
+        - sku_group_name
+        - unit_of_measure
+        - deleted_at
+        - created_at
+        - updated_at
+        - bespoke_catalog_brand_id
+        - id
+      filter: {}
