@@ -106,6 +106,7 @@ export default function InviteUserModal({
     !user.role ||
     !user.first_name ||
     !user.last_name ||
+    !user.phone_number ||
     !user.email ||
     !isEmailValid(user.email) ||
     isCreateBankCustomerUserLoading;
