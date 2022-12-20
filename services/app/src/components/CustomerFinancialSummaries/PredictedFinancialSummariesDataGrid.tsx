@@ -5,7 +5,7 @@ import {
   Companies,
   FinancialSummaryWithLoansInfoFragment,
 } from "generated/graphql";
-import { getDifferenceInDays, parseDateStringServer } from "lib/date";
+import { parseDateStringServer } from "lib/date";
 import { ProductTypeEnum, ProductTypeToLabel } from "lib/enum";
 import { CurrencyPrecision, PercentPrecision } from "lib/number";
 import { formatRowModel } from "lib/tables";
@@ -47,29 +47,6 @@ interface CombinedLoanData {
   outstandingPrincipal: number;
 }
 
-const getLateFeeMultiplier = (
-  daysPastDue: number,
-  lateFeeSchedules: LateFeeSchedule[]
-): number => {
-  const matchingFees = lateFeeSchedules.filter((schedule) => {
-    const start = schedule.start;
-    const end = schedule.end;
-
-    const isBetweenPeriod =
-      start !== -1 && end !== -1 && daysPastDue >= start && daysPastDue <= end;
-    const isAfterPeriod = start !== -1 && end === -1 && daysPastDue >= start;
-
-    return isBetweenPeriod || isAfterPeriod;
-  });
-
-  // We are filtering for all matches in the late fee schedule
-  // and then taking the max late fee multiplier because that is
-  // associated with the latest matching part of the schedule
-  // If it isn't late (i.e. doesn't have matching fees) then we
-  // just return 0
-  return !!matchingFees?.[0]?.fee ? matchingFees[0].fee : 0;
-};
-
 const combineFinancialSummariesAndLoanPredictions = (
   companyId: string,
   companyIdentifier: string,
@@ -86,7 +63,6 @@ const combineFinancialSummariesAndLoanPredictions = (
   const productType = !!mostRecentFinancialSummary?.product_type
     ? mostRecentFinancialSummary?.product_type
     : ProductTypeEnum.None;
-  const today = new Date();
 
   const mappedLoanPredictions: CombinedLoanData[] = loanPredictions.flatMap(
     (loanPrediction) => {
@@ -97,34 +73,10 @@ const combineFinancialSummariesAndLoanPredictions = (
         ? loanPrediction.predictions
         : [];
 
-      const lateFeeSchedule =
-        !!loanPrediction?.date &&
-        dateToLateFeeSchedule.hasOwnProperty(loanPrediction.date)
-          ? dateToLateFeeSchedule[loanPrediction.date]
-          : ([] as LateFeeSchedule[]);
-
       const totalLateFeesAccruedToday = loans.reduce((sum, loan) => {
-        const maturityDate = !!loanMaturityDateLookup.hasOwnProperty(
-          loan.loanId
-        )
-          ? parseDateStringServer(loanMaturityDateLookup[loan.loanId])
-          : null;
-
-        // Since we're looking for days past due, we want today as the second parameter
-        const daysPastDue = !!maturityDate
-          ? getDifferenceInDays(today, maturityDate)
-          : 0;
-
-        const feeMultiplier =
-          daysPastDue > 0
-            ? getLateFeeMultiplier(daysPastDue, lateFeeSchedule)
-            : 0;
-
-        const interestAccruedToday = !!loan?.interestAccruedToday
-          ? loan.interestAccruedToday
-          : 0;
-
-        return sum + interestAccruedToday * feeMultiplier;
+        return (
+          sum + (!!loan?.lateFeesAccruedToday ? loan.lateFeesAccruedToday : 0)
+        );
       }, 0);
 
       const totalInterestAccruedToday = loans.reduce(
