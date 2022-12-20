@@ -39,7 +39,7 @@ interface Props {
 
 // As of this commit, this form is the version of the "create purchase order"
 // form when user creates a purchase order from a Metrc manifest.
-export default function PurchaseOrderFormMetrcNew({
+export default function PurchaseOrderFormMetrc({
   companyId,
   purchaseOrder,
   purchaseOrderFiles,

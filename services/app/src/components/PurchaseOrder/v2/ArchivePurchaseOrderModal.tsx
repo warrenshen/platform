@@ -41,7 +41,7 @@ interface Props {
   handleClose: () => void;
 }
 
-function ArchivePurchaseOrderModalNew({
+function ArchivePurchaseOrderModal({
   purchaseOrder,
   action,
   handleClose,
@@ -149,4 +149,4 @@ function ArchivePurchaseOrderModalNew({
   );
 }
 
-export default ArchivePurchaseOrderModalNew;
+export default ArchivePurchaseOrderModal;

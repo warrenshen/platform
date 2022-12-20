@@ -1,6 +1,6 @@
 import { Box, InputAdornment, TextField, Typography } from "@material-ui/core";
-import ArchivePurchaseOrderModalNew from "components/PurchaseOrder/v2/ArchivePurchaseOrderModalNew";
-import BankPurchaseOrdersDataGridNew from "components/PurchaseOrder/v2/BankPurchaseOrdersDataGridNew";
+import ArchivePurchaseOrderModal from "components/PurchaseOrder/v2/ArchivePurchaseOrderModal";
+import BankPurchaseOrdersDataGrid from "components/PurchaseOrder/v2/BankPurchaseOrdersDataGrid";
 import SecondaryButton from "components/Shared/Button/SecondaryButton";
 import Can from "components/Shared/Can";
 import {
@@ -76,7 +76,7 @@ export default function BankPurchaseOrdersReadyForFinancingTab() {
   return (
     <Box mt={3}>
       {isUnArchiveModalOpen && (
-        <ArchivePurchaseOrderModalNew
+        <ArchivePurchaseOrderModal
           action={Action.ReopenPurchaseOrders}
           purchaseOrder={selectedPurchaseOrder}
           handleClose={() => {
@@ -126,7 +126,7 @@ export default function BankPurchaseOrdersReadyForFinancingTab() {
         flexDirection="column"
         data-cy="incomplete-purchase-orders-data-grid-container"
       >
-        <BankPurchaseOrdersDataGridNew
+        <BankPurchaseOrdersDataGrid
           purchaseOrders={purchaseOrders}
           selectedPurchaseOrderIds={selectedPurchaseOrderIds}
           selectablePurchaseOrderStatuses={ReadyNewPurchaseOrderStatuses}

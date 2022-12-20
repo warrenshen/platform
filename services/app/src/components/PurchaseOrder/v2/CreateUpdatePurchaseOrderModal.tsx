@@ -1,7 +1,7 @@
 import { Box, Button, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
-import PurchaseOrderFormManualNew from "components/PurchaseOrder/v2/PurchaseOrderFormManualNew";
-import PurchaseOrderFormMetrcNew from "components/PurchaseOrder/v2/PurchaseOrderFormMetrcNew";
+import PurchaseOrderFormManual from "components/PurchaseOrder/v2/PurchaseOrderFormManual";
+import PurchaseOrderFormMetrc from "components/PurchaseOrder/v2/PurchaseOrderFormMetrc";
 import MetrcLogo from "components/Shared/Images/MetrcLogo.png";
 import { ReactComponent as KeyboardIcon } from "components/Shared/Layout/Icons/Keyboard.svg";
 import Modal from "components/Shared/Modal/Modal";
@@ -77,7 +77,7 @@ interface Props {
   handleClose: () => void;
 }
 
-export default function CreateUpdatePurchaseOrderModalNew({
+export default function CreateUpdatePurchaseOrderModal({
   actionType,
   companyId,
   purchaseOrderId,
@@ -590,7 +590,7 @@ export default function CreateUpdatePurchaseOrderModalNew({
       {isMetrcEnabled ? (
         isMetrcBased !== null &&
         (!!isMetrcBased ? (
-          <PurchaseOrderFormMetrcNew
+          <PurchaseOrderFormMetrc
             companyId={companyId}
             purchaseOrder={purchaseOrder}
             purchaseOrderFiles={purchaseOrderFiles}
@@ -607,7 +607,7 @@ export default function CreateUpdatePurchaseOrderModalNew({
             }
           />
         ) : (
-          <PurchaseOrderFormManualNew
+          <PurchaseOrderFormManual
             companyId={companyId}
             purchaseOrder={purchaseOrder}
             purchaseOrderFiles={purchaseOrderFiles}
@@ -623,7 +623,7 @@ export default function CreateUpdatePurchaseOrderModalNew({
           />
         ))
       ) : (
-        <PurchaseOrderFormManualNew
+        <PurchaseOrderFormManual
           companyId={companyId}
           purchaseOrder={purchaseOrder}
           purchaseOrderFiles={purchaseOrderFiles}

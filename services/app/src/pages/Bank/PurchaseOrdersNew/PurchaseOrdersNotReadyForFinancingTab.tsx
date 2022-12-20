@@ -1,10 +1,10 @@
 import { Box, InputAdornment, TextField, Typography } from "@material-ui/core";
-import ReviewPurchaseOrderApproveModalNew from "components/PurchaseOrder/ReviewPurchaseOrderApproveModalNew";
-import ReviewPurchaseOrderRejectModalNew from "components/PurchaseOrder/ReviewPurchaseOrderRejectModalNew";
+import ReviewPurchaseOrderApproveModal from "components/PurchaseOrder/ReviewPurchaseOrderApproveModal";
+import ReviewPurchaseOrderRejectModal from "components/PurchaseOrder/ReviewPurchaseOrderRejectModal";
 import ReviewPurchaseOrderRequestChangesModal from "components/PurchaseOrder/ReviewPurchaseOrderRequestChangesModal";
+import ArchivePurchaseOrderModal from "components/PurchaseOrder/v2/ArchivePurchaseOrderModal";
 import ArchivePurchaseOrderModalMultiple from "components/PurchaseOrder/v2/ArchivePurchaseOrderModalMultiple";
-import ArchivePurchaseOrderModalNew from "components/PurchaseOrder/v2/ArchivePurchaseOrderModalNew";
-import BankPurchaseOrdersDataGridNew from "components/PurchaseOrder/v2/BankPurchaseOrdersDataGridNew";
+import BankPurchaseOrdersDataGrid from "components/PurchaseOrder/v2/BankPurchaseOrdersDataGrid";
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
 import SecondaryButton from "components/Shared/Button/SecondaryButton";
 import SecondaryWarningButton from "components/Shared/Button/SecondaryWarningButton";
@@ -89,14 +89,14 @@ export default function BankPurchaseOrdersReadyForFinancingTab() {
   return (
     <Box mt={3}>
       {!!selectedPurchaseOrder && isApproveModalOpen && (
-        <ReviewPurchaseOrderApproveModalNew
+        <ReviewPurchaseOrderApproveModal
           purchaseOrder={selectedPurchaseOrder}
           handleClose={() => setIsApproveModalOpen(false)}
           handleApproveSuccess={() => {}}
         />
       )}
       {isArchiveModalOpen && (
-        <ArchivePurchaseOrderModalNew
+        <ArchivePurchaseOrderModal
           action={Action.ArchivePurchaseOrders}
           purchaseOrder={selectedPurchaseOrder}
           handleClose={() => {
@@ -128,7 +128,7 @@ export default function BankPurchaseOrdersReadyForFinancingTab() {
         />
       )}
       {!!selectedPurchaseOrder && isRejectModalOpen && (
-        <ReviewPurchaseOrderRejectModalNew
+        <ReviewPurchaseOrderRejectModal
           purchaseOrderId={selectedPurchaseOrder.id}
           handleClose={() => setIsRejectModalOpen(false)}
           handleRejectSuccess={() => {}}
@@ -213,7 +213,7 @@ export default function BankPurchaseOrdersReadyForFinancingTab() {
         flexDirection="column"
         data-cy="incomplete-purchase-orders-data-grid-container"
       >
-        <BankPurchaseOrdersDataGridNew
+        <BankPurchaseOrdersDataGrid
           purchaseOrders={purchaseOrders}
           selectedPurchaseOrderIds={selectedPurchaseOrderIds}
           selectablePurchaseOrderStatuses={NotReadyNewPurchaseOrderStatuses}

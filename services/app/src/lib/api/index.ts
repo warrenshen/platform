@@ -108,9 +108,7 @@ export const ebbaApplicationsRoutes = {
 
 export const purchaseOrdersRoutes = {
   submitPurchaseOrderUpdate: "/purchase_orders/submit_purchase_order_update",
-  submitNew: "/purchase_orders/submit_new",
-  respondToApprovalRequest: "/purchase_orders/respond_to_approval_request",
-  respondToRequestChanges: "/purchase_orders/respond_to_request_changes",
+  submitToVendor: "/purchase_orders/submit_to_vendor",
   approvePurchaseOrder: "/purchase_orders/approve_purchase_order",
   rejectPurchaseOrder: "/purchase_orders/reject_purchase_order",
   requestPurchaseOrderChanges:

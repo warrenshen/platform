@@ -1,4 +1,5 @@
 import { Box } from "@material-ui/core";
+import PurchaseOrdersDataGrid from "components/PurchaseOrder/v2/PurchaseOrdersDataGrid";
 import UpdatePurchaseOrderBankNoteModal from "components/PurchaseOrder/v2/UpdatePurchaseOrderBankNoteModal";
 import {
   Companies,
@@ -7,8 +8,6 @@ import {
 } from "generated/graphql";
 import { NewPurchaseOrderStatus } from "lib/enum";
 import { useMemo, useState } from "react";
-
-import PurchaseOrdersDataGridNew from "./PurchaseOrdersDataGridNew";
 
 interface Props {
   isApprovedByVendor: boolean;
@@ -22,7 +21,7 @@ interface Props {
   ) => void;
 }
 
-const BankPurchaseOrdersDataGridNew = ({
+const BankPurchaseOrdersDataGrid = ({
   isApprovedByVendor,
   isMultiSelectEnabled,
   purchaseOrders,
@@ -48,7 +47,7 @@ const BankPurchaseOrdersDataGridNew = ({
           handleClose={() => setSelectedPurchaseOrderId(null)}
         />
       )}
-      <PurchaseOrdersDataGridNew
+      <PurchaseOrdersDataGrid
         isApprovedByVendor={isApprovedByVendor}
         isBankNoteVisible
         isCompanyVisible
@@ -66,4 +65,4 @@ const BankPurchaseOrdersDataGridNew = ({
   );
 };
 
-export default BankPurchaseOrdersDataGridNew;
+export default BankPurchaseOrdersDataGrid;

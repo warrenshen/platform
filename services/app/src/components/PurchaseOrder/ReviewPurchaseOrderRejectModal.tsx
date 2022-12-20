@@ -42,7 +42,7 @@ interface Props {
   handleRejectSuccess: () => void;
 }
 
-function ReviewPurchaseOrderRejectModalNew({
+function ReviewPurchaseOrderRejectModal({
   purchaseOrderId,
   linkVal = "",
   handleClose,
@@ -112,4 +112,4 @@ function ReviewPurchaseOrderRejectModalNew({
   );
 }
 
-export default ReviewPurchaseOrderRejectModalNew;
+export default ReviewPurchaseOrderRejectModal;

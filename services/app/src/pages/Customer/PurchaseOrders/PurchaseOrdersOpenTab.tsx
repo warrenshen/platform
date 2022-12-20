@@ -1,10 +1,10 @@
 import { Box, Theme, createStyles, makeStyles } from "@material-ui/core";
+import ArchivePurchaseOrderModal from "components/PurchaseOrder/v2/ArchivePurchaseOrderModal";
 import ArchivePurchaseOrderModalMultiple from "components/PurchaseOrder/v2/ArchivePurchaseOrderModalMultiple";
-import ArchivePurchaseOrderModalNew from "components/PurchaseOrder/v2/ArchivePurchaseOrderModalNew";
-import CreateUpdatePurchaseOrderModalNew from "components/PurchaseOrder/v2/CreateUpdatePurchaseOrderModalNew";
+import CreateUpdatePurchaseOrderModal from "components/PurchaseOrder/v2/CreateUpdatePurchaseOrderModal";
 import ManagePurchaseOrderFinancingModal from "components/PurchaseOrder/v2/ManagePurchaseOrderFinancingModal";
 import ManagePurchaseOrderFinancingModalMultiple from "components/PurchaseOrder/v2/ManagePurchaseOrderFinancingModalMultiple";
-import PurchaseOrdersDataGridNew from "components/PurchaseOrder/v2/PurchaseOrdersDataGridNew";
+import PurchaseOrdersDataGrid from "components/PurchaseOrder/v2/PurchaseOrdersDataGrid";
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
 import SecondaryButton from "components/Shared/Button/SecondaryButton";
 import Can from "components/Shared/Can";
@@ -20,7 +20,7 @@ import {
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { submitPurchaseOrderNewMutation } from "lib/api/purchaseOrders";
+import { submitPurchaseOrderToVendorMutation } from "lib/api/purchaseOrders";
 import { Action } from "lib/auth/rbac-rules";
 import {
   ActionType,
@@ -188,7 +188,7 @@ export default function CustomerPurchaseOrdersOpenTabNew({
   ] = useState(false);
 
   const [submitPurchaseOrder, { loading: isSubmitPurchaseOrderLoading }] =
-    useCustomMutation(submitPurchaseOrderNewMutation);
+    useCustomMutation(submitPurchaseOrderToVendorMutation);
 
   const handleSubmitPurchaseOrder = async () => {
     const purchaseOrder = selectedNotApprovedPurchaseOrder;
@@ -230,7 +230,7 @@ export default function CustomerPurchaseOrdersOpenTabNew({
         />
       </Box>
       {isArchiveModalOpenForNotApprovedPurchaseOrders && (
-        <ArchivePurchaseOrderModalNew
+        <ArchivePurchaseOrderModal
           action={Action.ArchivePurchaseOrders}
           purchaseOrder={selectedNotApprovedPurchaseOrder}
           handleClose={() => {
@@ -241,7 +241,7 @@ export default function CustomerPurchaseOrdersOpenTabNew({
         />
       )}
       {isArchiveModalOpenForApprovedPurchaseOrders && (
-        <ArchivePurchaseOrderModalNew
+        <ArchivePurchaseOrderModal
           action={Action.ArchivePurchaseOrders}
           purchaseOrder={selectedApprovedPurchaseOrder}
           handleClose={() => {
@@ -274,7 +274,7 @@ export default function CustomerPurchaseOrdersOpenTabNew({
         />
       )}
       {isCreateUpdateModalOpenForNotApprovedPurchaseOrders && (
-        <CreateUpdatePurchaseOrderModalNew
+        <CreateUpdatePurchaseOrderModal
           actionType={ActionType.Update}
           purchaseOrderId={selectedNotApprovedPurchaseOrder?.id}
           companyId={companyId}
@@ -287,7 +287,7 @@ export default function CustomerPurchaseOrdersOpenTabNew({
         />
       )}
       {isCreateUpdateModalOpenForApprovedPurchaseOrders && (
-        <CreateUpdatePurchaseOrderModalNew
+        <CreateUpdatePurchaseOrderModal
           actionType={ActionType.Update}
           purchaseOrderId={selectedApprovedPurchaseOrder?.id}
           companyId={companyId}
@@ -389,7 +389,7 @@ export default function CustomerPurchaseOrdersOpenTabNew({
           </Box>
         </Box>
         <Box data-cy="not-ready-to-request-financing-data-grid">
-          <PurchaseOrdersDataGridNew
+          <PurchaseOrdersDataGrid
             isApprovedByVendor={false}
             isCompanyVisible={false}
             isFilteringEnabled={true}
@@ -505,7 +505,7 @@ export default function CustomerPurchaseOrdersOpenTabNew({
             </Box>
           </Box>
           <Box data-cy="ready-to-request-financing-data-grid">
-            <PurchaseOrdersDataGridNew
+            <PurchaseOrdersDataGrid
               dataCy={"ready-to-request-financing-purchase-order-data-grid"}
               isCompanyVisible={false}
               purchaseOrders={approvedPurchaseOrders}

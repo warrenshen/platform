@@ -1,5 +1,5 @@
 import { Box, InputAdornment, TextField, Typography } from "@material-ui/core";
-import BankPurchaseOrdersDataGridNew from "components/PurchaseOrder/v2/BankPurchaseOrdersDataGridNew";
+import BankPurchaseOrdersDataGrid from "components/PurchaseOrder/v2/BankPurchaseOrdersDataGrid";
 import {
   CustomerForBankFragment,
   useGetPurchaseOrdersSubscription,
@@ -66,7 +66,7 @@ export default function BankPurchaseOrdersAllTab() {
         flexDirection="column"
         data-cy="incomplete-purchase-orders-data-grid-container"
       >
-        <BankPurchaseOrdersDataGridNew
+        <BankPurchaseOrdersDataGrid
           purchaseOrders={purchaseOrders}
           selectablePurchaseOrderStatuses={ReadyNewPurchaseOrderStatuses}
           handleClickCustomer={handleClickCustomer}

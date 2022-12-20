@@ -1,6 +1,6 @@
 import { Box, Theme, createStyles, makeStyles } from "@material-ui/core";
-import ReviewPurchaseOrderApproveModalNew from "components/PurchaseOrder/ReviewPurchaseOrderApproveModalNew";
-import ReviewPurchaseOrderRejectModalNew from "components/PurchaseOrder/ReviewPurchaseOrderRejectModalNew";
+import ReviewPurchaseOrderApproveModal from "components/PurchaseOrder/ReviewPurchaseOrderApproveModal";
+import ReviewPurchaseOrderRejectModal from "components/PurchaseOrder/ReviewPurchaseOrderRejectModal";
 import ReviewPurchaseOrderRequestChangesModal from "components/PurchaseOrder/ReviewPurchaseOrderRequestChangesModal";
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
 import SecondaryButton from "components/Shared/Button/SecondaryButton";
@@ -262,7 +262,7 @@ export default function ReviewPurchaseOrderPage() {
             )}
             <Box display="flex" justifyContent="center" mt={6}>
               {isApproveModalOpen && (
-                <ReviewPurchaseOrderApproveModalNew
+                <ReviewPurchaseOrderApproveModal
                   purchaseOrder={purchaseOrder}
                   linkVal={linkVal}
                   handleClose={() => setIsApproveModalOpen(false)}
@@ -292,7 +292,7 @@ export default function ReviewPurchaseOrderPage() {
                 />
               )}
               {isRejectModalOpen && (
-                <ReviewPurchaseOrderRejectModalNew
+                <ReviewPurchaseOrderRejectModal
                   purchaseOrderId={purchaseOrder.id}
                   linkVal={linkVal}
                   handleClose={() => setIsRejectModalOpen(false)}

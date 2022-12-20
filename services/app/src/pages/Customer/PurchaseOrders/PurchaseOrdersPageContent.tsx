@@ -1,6 +1,6 @@
 import { Box, Tab, Tabs } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
-import CreateUpdatePurchaseOrderModalNew from "components/PurchaseOrder/v2/CreateUpdatePurchaseOrderModalNew";
+import CreateUpdatePurchaseOrderModal from "components/PurchaseOrder/v2/CreateUpdatePurchaseOrderModal";
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
 import Can from "components/Shared/Can";
 import PageContent from "components/Shared/Page/PageContent";
@@ -113,7 +113,7 @@ export default function CustomerPurchaseOrdersPageContentNew({
   return !!productType && isActiveContract !== null ? (
     <>
       {isCreateModalOpen && (
-        <CreateUpdatePurchaseOrderModalNew
+        <CreateUpdatePurchaseOrderModal
           actionType={ActionType.New}
           purchaseOrderId={null}
           companyId={companyId}

@@ -46,11 +46,11 @@ export type SubmitPurchaseOrderReq = {
   };
 };
 
-export async function submitPurchaseOrderNewMutation(
+export async function submitPurchaseOrderToVendorMutation(
   req: SubmitPurchaseOrderReq
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(purchaseOrdersRoutes.submitNew, req.variables)
+    .post(purchaseOrdersRoutes.submitToVendor, req.variables)
     .then((res) => res.data)
     .then(
       (res) => res,
@@ -59,64 +59,6 @@ export async function submitPurchaseOrderNewMutation(
         return {
           status: "ERROR",
           msg: "Could not submit purchase order",
-        };
-      }
-    );
-}
-
-export type RespondToPurchaseOrderApprovalReq = {
-  variables: {
-    purchase_order_id: PurchaseOrders["id"];
-    new_request_status: RequestStatusEnum;
-    rejection_note: string;
-    rejected_by_user_id?: Users["id"];
-    approved_by_user_id?: Users["id"];
-    link_val: string;
-  };
-};
-
-export async function respondToPurchaseOrderApprovalRequestMutation(
-  req: RespondToPurchaseOrderApprovalReq
-): Promise<CustomMutationResponse> {
-  return authenticatedApi
-    .post(purchaseOrdersRoutes.respondToApprovalRequest, req.variables)
-    .then((res) => res.data)
-    .then(
-      (res) => res,
-      (error) => {
-        console.error(error);
-        return {
-          status: "ERROR",
-          msg: "Could not respond to purchase order approval request",
-        };
-      }
-    );
-}
-
-export type RespondToPurchaseOrderApprovalNewReq = {
-  variables: {
-    purchase_order_id: PurchaseOrders["id"];
-    new_request_status: RequestStatusEnum;
-    rejection_note: string;
-    rejected_by_user_id?: Users["id"];
-    approved_by_user_id?: Users["id"];
-    link_val: string;
-  };
-};
-
-export async function respondToPurchaseOrderApprovalRequestNewMutation(
-  req: RespondToPurchaseOrderApprovalNewReq
-): Promise<CustomMutationResponse> {
-  return authenticatedApi
-    .post(purchaseOrdersRoutes.approvePurchaseOrder, req.variables)
-    .then((res) => res.data)
-    .then(
-      (res) => res,
-      (error) => {
-        console.error(error);
-        return {
-          status: "ERROR",
-          msg: "Could not respond to purchase order approval request",
         };
       }
     );
@@ -146,35 +88,6 @@ export async function approvePurchaseOrderutation(
         return {
           status: "ERROR",
           msg: "Could not approve purchase order",
-        };
-      }
-    );
-}
-
-export type RespondToPurchaseOrderRequestChangesReq = {
-  variables: {
-    purchase_order_id: PurchaseOrders["id"];
-    new_request_status: RequestStatusEnum;
-    rejection_note: string;
-    rejected_by_user_id?: Users["id"];
-    approved_by_user_id?: Users["id"];
-    link_val: string;
-  };
-};
-
-export async function respondToPurchaseOrderRequestChangesMutation(
-  req: RespondToPurchaseOrderRequestChangesReq
-): Promise<CustomMutationResponse> {
-  return authenticatedApi
-    .post(purchaseOrdersRoutes.respondToRequestChanges, req.variables)
-    .then((res) => res.data)
-    .then(
-      (res) => res,
-      (error) => {
-        console.error(error);
-        return {
-          status: "ERROR",
-          msg: "Could not respond to purchase order change request",
         };
       }
     );

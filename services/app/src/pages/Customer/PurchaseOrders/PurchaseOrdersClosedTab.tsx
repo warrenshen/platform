@@ -1,6 +1,6 @@
 import { Box, Theme, createStyles, makeStyles } from "@material-ui/core";
-import ArchivePurchaseOrderModalNew from "components/PurchaseOrder/v2/ArchivePurchaseOrderModalNew";
-import PurchaseOrdersDataGridNew from "components/PurchaseOrder/v2/PurchaseOrdersDataGridNew";
+import ArchivePurchaseOrderModal from "components/PurchaseOrder/v2/ArchivePurchaseOrderModal";
+import PurchaseOrdersDataGrid from "components/PurchaseOrder/v2/PurchaseOrdersDataGrid";
 import SecondaryButton from "components/Shared/Button/SecondaryButton";
 import Can from "components/Shared/Can";
 import LinearFinancialSummaryOverview from "components/Shared/FinancialSummaries/LinearFinancialSummaryOverview";
@@ -43,7 +43,7 @@ interface Props {
   refetchPurchaseOrders: () => void;
 }
 
-export default function CustomerPurchaseOrdersClosedTabNew({
+export default function CustomerPurchaseOrdersClosedTab({
   companyId,
   productType,
   isActiveContract,
@@ -81,7 +81,7 @@ export default function CustomerPurchaseOrdersClosedTabNew({
   return (
     <Container>
       {isUnArchiveModalOpen && (
-        <ArchivePurchaseOrderModalNew
+        <ArchivePurchaseOrderModal
           action={Action.ReopenPurchaseOrders}
           purchaseOrder={selectedPurchaseOrder}
           handleClose={() => {
@@ -112,7 +112,7 @@ export default function CustomerPurchaseOrdersClosedTabNew({
               </Can>
             )}
           </Box>
-          <PurchaseOrdersDataGridNew
+          <PurchaseOrdersDataGrid
             isCompanyVisible={false}
             purchaseOrders={purchaseOrders}
             selectedPurchaseOrderIds={selectedPurchaseOrderIds}

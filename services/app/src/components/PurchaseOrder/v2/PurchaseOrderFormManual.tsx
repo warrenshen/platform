@@ -27,7 +27,7 @@ interface Props {
   frozenPurchaseOrderCannabisFileIds: string[];
 }
 
-export default function PurchaseOrderFormManualNew({
+export default function PurchaseOrderFormManual({
   companyId,
   purchaseOrder,
   purchaseOrderFiles,

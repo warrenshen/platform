@@ -13,7 +13,7 @@ import CreateAdjustmentModal from "components/Loans/CreateAdjustmentModal";
 import PolymorphicLoansDataGrid from "components/Loans/PolymorphicLoansDataGrid";
 import RunCustomerBalancesModal from "components/Loans/RunCustomerBalancesModal";
 import DeletePaymentModal from "components/Payment/DeletePaymentModal";
-import CreateUpdatePurchaseOrderModalNew from "components/PurchaseOrder/v2/CreateUpdatePurchaseOrderModalNew";
+import CreateUpdatePurchaseOrderModal from "components/PurchaseOrder/v2/CreateUpdatePurchaseOrderModal";
 import CreateRepaymentModal from "components/Repayment/CreateRepaymentModal";
 import RepaymentsDataGrid from "components/Repayment/RepaymentsDataGrid";
 import Can from "components/Shared/Can";
@@ -286,7 +286,7 @@ export default function CustomerOverviewPageContent({
                   label={"Create PO"}
                   isDisabled={!isActiveContract}
                   modal={({ handleClose }) => (
-                    <CreateUpdatePurchaseOrderModalNew
+                    <CreateUpdatePurchaseOrderModal
                       actionType={ActionType.New}
                       companyId={companyId}
                       purchaseOrderId={null}

@@ -88,7 +88,7 @@ interface Props {
   ) => void;
 }
 
-export default function PurchaseOrdersDataGridNew({
+export default function PurchaseOrdersDataGrid({
   isApprovedByVendor = true,
   isBankNoteVisible = false,
   isCompanyVisible,
