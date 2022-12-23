@@ -43,7 +43,7 @@ interface Props {
   refetchPurchaseOrders: () => void;
 }
 
-export default function CustomerPurchaseOrdersClosedTab({
+export default function CustomerPurchaseOrdersArchivedTab({
   companyId,
   productType,
   isActiveContract,
@@ -114,6 +114,7 @@ export default function CustomerPurchaseOrdersClosedTab({
           </Box>
           <PurchaseOrdersDataGrid
             isCompanyVisible={false}
+            isFilteringEnabled
             purchaseOrders={purchaseOrders}
             selectedPurchaseOrderIds={selectedPurchaseOrderIds}
             selectablePurchaseOrderStatuses={ClosedNewPurchaseOrderStatuses}

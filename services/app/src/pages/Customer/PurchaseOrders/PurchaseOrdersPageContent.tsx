@@ -20,8 +20,8 @@ import {
 } from "lib/enum";
 import { floatEq } from "lib/number";
 import { partition } from "lodash";
-import CustomerPurchaseOrdersClosedTab from "pages/Customer/PurchaseOrders/PurchaseOrdersClosedTab";
-import CustomerPurchaseOrdersOpenTab from "pages/Customer/PurchaseOrders/PurchaseOrdersOpenTab";
+import CustomerPurchaseOrdersActiveTab from "pages/Customer/PurchaseOrders/PurchaseOrdersActiveTab";
+import CustomerPurchaseOrdersArchivedTab from "pages/Customer/PurchaseOrders/PurchaseOrdersArchivedTab";
 import { useMemo, useState } from "react";
 
 interface Props {
@@ -50,7 +50,7 @@ const PurchaseOrderComponentMap: {
     purchaseOrders,
     refetchPurchaseOrders,
   }: TabComponentProps) => (
-    <CustomerPurchaseOrdersOpenTab
+    <CustomerPurchaseOrdersActiveTab
       companyId={companyId}
       productType={productType}
       isActiveContract={isActiveContract}
@@ -65,7 +65,7 @@ const PurchaseOrderComponentMap: {
     purchaseOrders,
     refetchPurchaseOrders,
   }: TabComponentProps) => (
-    <CustomerPurchaseOrdersClosedTab
+    <CustomerPurchaseOrdersArchivedTab
       companyId={companyId}
       productType={productType}
       isActiveContract={isActiveContract}

@@ -56,7 +56,7 @@ interface Props {
   refetchPurchaseOrders: () => void;
 }
 
-export default function CustomerPurchaseOrdersOpenTabNew({
+export default function CustomerPurchaseOrdersActiveTab({
   companyId,
   productType,
   isActiveContract,
@@ -509,7 +509,7 @@ export default function CustomerPurchaseOrdersOpenTabNew({
               dataCy={"ready-to-request-financing-purchase-order-data-grid"}
               isCompanyVisible={false}
               purchaseOrders={approvedPurchaseOrders}
-              isFilteringEnabled={true}
+              isFilteringEnabled
               selectedPurchaseOrderIds={selectedApprovedPurchaseOrderIds}
               selectablePurchaseOrderStatuses={ReadyNewPurchaseOrderStatuses}
               handleSelectPurchaseOrders={handleSelectApprovedPurchaseOrdersNew}
