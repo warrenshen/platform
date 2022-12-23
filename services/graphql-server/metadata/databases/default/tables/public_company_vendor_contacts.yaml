@@ -2,6 +2,9 @@ table:
   schema: public
   name: company_vendor_contacts
 object_relationships:
+  - name: company_vendor_partnership
+    using:
+      foreign_key_constraint_on: partnership_id
   - name: user
     using:
       foreign_key_constraint_on: vendor_user_id
@@ -32,18 +35,9 @@ select_permissions:
               _eq: X-Hasura-Company-Id
           - partnership_id:
               _eq: X-Hasura-Company-Id
-          - _exists:
-              _where:
-                _exists:
-                  _where:
-                    company_id:
-                      _eq: X-Hasura-Company-Id
-                  _table:
-                    schema: public
-                    name: company_vendor_partnerships
-              _table:
-                schema: public
-                name: company_vendor_contacts
+          - company_vendor_partnership:
+              company_id:
+                _eq: X-Hasura-Company-Id
   - role: company_read_only
     permission:
       columns:
@@ -56,3 +50,6 @@ select_permissions:
               _eq: X-Hasura-Company-Id
           - partnership_id:
               _eq: X-Hasura-Company-Id
+          - company_vendor_partnership:
+              company_id:
+                _eq: X-Hasura-Company-Id

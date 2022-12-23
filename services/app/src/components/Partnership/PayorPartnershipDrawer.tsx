@@ -92,8 +92,8 @@ export default function PayorPartnershipDrawer({
 
   return (
     <Modal
-      title={`${payor.name} <> ${customer.name}`}
-      subtitle={"Payor <> Customer"}
+      title={`Customer Payor Partnership`}
+      subtitle={`${customer.name} (Customer) <> ${payor.name} (Payor)`}
       contentWidth={800}
       handleClose={handleClose}
     >

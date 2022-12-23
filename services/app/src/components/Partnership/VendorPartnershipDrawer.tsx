@@ -86,8 +86,8 @@ export default function VendorPartnershipDrawer({
 
   return (
     <Modal
-      title={`${vendor.name} <> ${customer.name}`}
-      subtitle={"Vendor <> Customer"}
+      title={`Customer Vendor Partnership`}
+      subtitle={`${customer.name} (Customer) <> ${vendor.name} (Vendor)`}
       contentWidth={800}
       handleClose={handleClose}
     >

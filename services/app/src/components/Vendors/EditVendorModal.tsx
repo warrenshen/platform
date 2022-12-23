@@ -3,7 +3,7 @@ import Modal from "components/Shared/Modal/Modal";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import EditUserProfileMiniModal from "components/Users/EditUserProfileMiniModal";
 import UsersDataGrid from "components/Users/UsersDataGrid";
-import UpdateCustomerVendorContactModal from "components/Vendors/UpdateCustomerVendorContactModal";
+import UpdateCustomerVendorContactsModal from "components/Vendors/UpdateCustomerVendorContactsModal";
 import {
   CompanyVendorPartnerships,
   useCompanyVendorPartnershipForCustomerQuery,
@@ -37,12 +37,12 @@ export default function VendorPartnershipDrawer({
   const customer = companyVendorPartnership?.company;
 
   const vendor = companyVendorPartnership?.vendor;
-  const vendorContacts = useMemo(
+  const vendorContactUsers = useMemo(
     () =>
-      (companyVendorPartnership?.vendor?.users || []).length > 0
-        ? companyVendorPartnership?.vendor?.users || []
-        : vendor?.users || [],
-    [companyVendorPartnership, vendor]
+      companyVendorPartnership?.vendor_contacts.map(
+        (vendorContact) => vendorContact.user
+      ) || [],
+    [companyVendorPartnership]
   );
 
   if (!companyVendorPartnership || !customer || !vendor) {
@@ -51,8 +51,8 @@ export default function VendorPartnershipDrawer({
 
   return (
     <Modal
-      title={`${vendor.name} <> ${customer.name}`}
-      subtitle={"Vendor <> Customer"}
+      title={`Edit Vendor Partnership`}
+      subtitle={`${customer.name} (Customer) <> ${vendor.name} (Vendor)`}
       contentWidth={800}
       handleClose={handleClose}
     >
@@ -77,13 +77,13 @@ export default function VendorPartnershipDrawer({
             size="small"
             variant="outlined"
             modal={({ handleClose }) => (
-              <UpdateCustomerVendorContactModal
+              <UpdateCustomerVendorContactsModal
                 vendorPartnershipId={vendorPartnershipId}
                 vendorId={vendor.id}
                 requestingCompanyId={customer.id}
                 customerName={customer.name}
                 vendorName={vendor.name || ""}
-                vendorContacts={vendorContacts}
+                vendorContactUsers={vendorContactUsers}
                 handleClose={() => {
                   refetch();
                   handleClose();
@@ -94,7 +94,7 @@ export default function VendorPartnershipDrawer({
         </Box>
         <UsersDataGrid
           isEditIconVisible={true}
-          users={vendorContacts}
+          users={vendorContactUsers}
           setSelectedUserProfile={setSelectedUserProfile}
         />
       </Box>

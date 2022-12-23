@@ -6681,6 +6681,7 @@ export type CompanySettings = {
   id: Scalars["uuid"];
   is_autogenerate_repayments_enabled?: Maybe<Scalars["Boolean"]>;
   is_dummy_account: Scalars["Boolean"];
+  is_loc_late?: Maybe<Scalars["Boolean"]>;
   late_fees_end_date?: Maybe<Scalars["date"]>;
   /** An object relationship */
   metrc_api_key?: Maybe<MetrcApiKeys>;
@@ -6780,6 +6781,7 @@ export type CompanySettingsBoolExp = {
   id?: Maybe<UuidComparisonExp>;
   is_autogenerate_repayments_enabled?: Maybe<BooleanComparisonExp>;
   is_dummy_account?: Maybe<BooleanComparisonExp>;
+  is_loc_late?: Maybe<BooleanComparisonExp>;
   late_fees_end_date?: Maybe<DateComparisonExp>;
   metrc_api_key?: Maybe<MetrcApiKeysBoolExp>;
   metrc_api_key_id?: Maybe<UuidComparisonExp>;
@@ -6862,6 +6864,7 @@ export type CompanySettingsInsertInput = {
   id?: Maybe<Scalars["uuid"]>;
   is_autogenerate_repayments_enabled?: Maybe<Scalars["Boolean"]>;
   is_dummy_account?: Maybe<Scalars["Boolean"]>;
+  is_loc_late?: Maybe<Scalars["Boolean"]>;
   late_fees_end_date?: Maybe<Scalars["date"]>;
   metrc_api_key?: Maybe<MetrcApiKeysObjRelInsertInput>;
   metrc_api_key_id?: Maybe<Scalars["uuid"]>;
@@ -7059,6 +7062,7 @@ export type CompanySettingsOrderBy = {
   id?: Maybe<OrderBy>;
   is_autogenerate_repayments_enabled?: Maybe<OrderBy>;
   is_dummy_account?: Maybe<OrderBy>;
+  is_loc_late?: Maybe<OrderBy>;
   late_fees_end_date?: Maybe<OrderBy>;
   metrc_api_key?: Maybe<MetrcApiKeysOrderBy>;
   metrc_api_key_id?: Maybe<OrderBy>;
@@ -7123,6 +7127,8 @@ export enum CompanySettingsSelectColumn {
   /** column name */
   IsDummyAccount = "is_dummy_account",
   /** column name */
+  IsLocLate = "is_loc_late",
+  /** column name */
   LateFeesEndDate = "late_fees_end_date",
   /** column name */
   MetrcApiKeyId = "metrc_api_key_id",
@@ -7172,6 +7178,7 @@ export type CompanySettingsSetInput = {
   id?: Maybe<Scalars["uuid"]>;
   is_autogenerate_repayments_enabled?: Maybe<Scalars["Boolean"]>;
   is_dummy_account?: Maybe<Scalars["Boolean"]>;
+  is_loc_late?: Maybe<Scalars["Boolean"]>;
   late_fees_end_date?: Maybe<Scalars["date"]>;
   metrc_api_key_id?: Maybe<Scalars["uuid"]>;
   payor_agreement_docusign_template?: Maybe<Scalars["String"]>;
@@ -7220,6 +7227,8 @@ export enum CompanySettingsUpdateColumn {
   IsAutogenerateRepaymentsEnabled = "is_autogenerate_repayments_enabled",
   /** column name */
   IsDummyAccount = "is_dummy_account",
+  /** column name */
+  IsLocLate = "is_loc_late",
   /** column name */
   LateFeesEndDate = "late_fees_end_date",
   /** column name */
@@ -7354,10 +7363,11 @@ export enum CompanyTypeUpdateColumn {
 
 /** columns and relationships of "company_vendor_contacts" */
 export type CompanyVendorContacts = {
+  /** An object relationship */
+  company_vendor_partnership: CompanyVendorPartnerships;
   created_at: Scalars["timestamptz"];
   id: Scalars["uuid"];
   partnership_id: Scalars["uuid"];
-  updated_at: Scalars["timestamptz"];
   /** An object relationship */
   user: Users;
   vendor_user_id: Scalars["uuid"];
@@ -7401,10 +7411,10 @@ export type CompanyVendorContactsBoolExp = {
   _and?: Maybe<Array<CompanyVendorContactsBoolExp>>;
   _not?: Maybe<CompanyVendorContactsBoolExp>;
   _or?: Maybe<Array<CompanyVendorContactsBoolExp>>;
+  company_vendor_partnership?: Maybe<CompanyVendorPartnershipsBoolExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   partnership_id?: Maybe<UuidComparisonExp>;
-  updated_at?: Maybe<TimestamptzComparisonExp>;
   user?: Maybe<UsersBoolExp>;
   vendor_user_id?: Maybe<UuidComparisonExp>;
 };
@@ -7417,10 +7427,10 @@ export enum CompanyVendorContactsConstraint {
 
 /** input type for inserting data into table "company_vendor_contacts" */
 export type CompanyVendorContactsInsertInput = {
+  company_vendor_partnership?: Maybe<CompanyVendorPartnershipsObjRelInsertInput>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   partnership_id?: Maybe<Scalars["uuid"]>;
-  updated_at?: Maybe<Scalars["timestamptz"]>;
   user?: Maybe<UsersObjRelInsertInput>;
   vendor_user_id?: Maybe<Scalars["uuid"]>;
 };
@@ -7430,7 +7440,6 @@ export type CompanyVendorContactsMaxFields = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   partnership_id?: Maybe<Scalars["uuid"]>;
-  updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_user_id?: Maybe<Scalars["uuid"]>;
 };
 
@@ -7439,7 +7448,6 @@ export type CompanyVendorContactsMaxOrderBy = {
   created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   partnership_id?: Maybe<OrderBy>;
-  updated_at?: Maybe<OrderBy>;
   vendor_user_id?: Maybe<OrderBy>;
 };
 
@@ -7448,7 +7456,6 @@ export type CompanyVendorContactsMinFields = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   partnership_id?: Maybe<Scalars["uuid"]>;
-  updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_user_id?: Maybe<Scalars["uuid"]>;
 };
 
@@ -7457,7 +7464,6 @@ export type CompanyVendorContactsMinOrderBy = {
   created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   partnership_id?: Maybe<OrderBy>;
-  updated_at?: Maybe<OrderBy>;
   vendor_user_id?: Maybe<OrderBy>;
 };
 
@@ -7478,10 +7484,10 @@ export type CompanyVendorContactsOnConflict = {
 
 /** Ordering options when selecting data from "company_vendor_contacts". */
 export type CompanyVendorContactsOrderBy = {
+  company_vendor_partnership?: Maybe<CompanyVendorPartnershipsOrderBy>;
   created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   partnership_id?: Maybe<OrderBy>;
-  updated_at?: Maybe<OrderBy>;
   user?: Maybe<UsersOrderBy>;
   vendor_user_id?: Maybe<OrderBy>;
 };
@@ -7500,8 +7506,6 @@ export enum CompanyVendorContactsSelectColumn {
   /** column name */
   PartnershipId = "partnership_id",
   /** column name */
-  UpdatedAt = "updated_at",
-  /** column name */
   VendorUserId = "vendor_user_id",
 }
 
@@ -7510,7 +7514,6 @@ export type CompanyVendorContactsSetInput = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   partnership_id?: Maybe<Scalars["uuid"]>;
-  updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_user_id?: Maybe<Scalars["uuid"]>;
 };
 
@@ -7522,8 +7525,6 @@ export enum CompanyVendorContactsUpdateColumn {
   Id = "id",
   /** column name */
   PartnershipId = "partnership_id",
-  /** column name */
-  UpdatedAt = "updated_at",
   /** column name */
   VendorUserId = "vendor_user_id",
 }
@@ -7731,6 +7732,13 @@ export type CompanyVendorPartnershipsMutationResponse = {
   affected_rows: Scalars["Int"];
   /** data from the rows affected by the mutation */
   returning: Array<CompanyVendorPartnerships>;
+};
+
+/** input type for inserting object relation for remote table "company_vendor_partnerships" */
+export type CompanyVendorPartnershipsObjRelInsertInput = {
+  data: CompanyVendorPartnershipsInsertInput;
+  /** upsert condition */
+  on_conflict?: Maybe<CompanyVendorPartnershipsOnConflict>;
 };
 
 /** on_conflict condition type for table "company_vendor_partnerships" */
@@ -8250,6 +8258,8 @@ export type CustomerSurveillanceResultsBoolExp = {
 
 /** unique or primary key constraints on table "customer_surveillance_results" */
 export enum CustomerSurveillanceResultsConstraint {
+  /** unique or primary key constraint */
+  CompanyProductQualificationsCompanyIdQualifyingDateKey = "company_product_qualifications_company_id_qualifying_date_key",
   /** unique or primary key constraint */
   CompanyProductQualificationsPkey = "company_product_qualifications_pkey",
 }
@@ -9328,7 +9338,7 @@ export type EbbaApplications = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["timestamp"]>;
   /** An object relationship */
   rejected_by_user?: Maybe<Users>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
@@ -9453,7 +9463,7 @@ export type EbbaApplicationsBoolExp = {
   monthly_accounts_receivable?: Maybe<NumericComparisonExp>;
   monthly_cash?: Maybe<NumericComparisonExp>;
   monthly_inventory?: Maybe<NumericComparisonExp>;
-  rejected_at?: Maybe<TimestamptzComparisonExp>;
+  rejected_at?: Maybe<TimestampComparisonExp>;
   rejected_by_user?: Maybe<UsersBoolExp>;
   rejected_by_user_id?: Maybe<UuidComparisonExp>;
   rejection_note?: Maybe<StringComparisonExp>;
@@ -9502,7 +9512,7 @@ export type EbbaApplicationsInsertInput = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["timestamp"]>;
   rejected_by_user?: Maybe<UsersObjRelInsertInput>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
@@ -9531,7 +9541,7 @@ export type EbbaApplicationsMaxFields = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["timestamp"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -9583,7 +9593,7 @@ export type EbbaApplicationsMinFields = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["timestamp"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -9748,7 +9758,7 @@ export type EbbaApplicationsSetInput = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["timestamp"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -16938,7 +16948,9 @@ export type MetrcToBespokeCatalogSkusBoolExp = {
 /** unique or primary key constraints on table "metrc_to_bespoke_catalog_skus" */
 export enum MetrcToBespokeCatalogSkusConstraint {
   /** unique or primary key constraint */
-  MetrcToBespokeCatalogSkusPkey1 = "metrc_to_bespoke_catalog_skus_pkey1",
+  MetrcToBespokeCatalogSkusPkey = "metrc_to_bespoke_catalog_skus_pkey",
+  /** unique or primary key constraint */
+  MetrcToBespokeCatalogSkusProductCategoryNameProductNam = "metrc_to_bespoke_catalog_skus_product_category_name_product_nam",
 }
 
 /** input type for incrementing numeric columns in table "metrc_to_bespoke_catalog_skus" */
@@ -33183,6 +33195,11 @@ export type CompanyVendorPartnershipForCustomerQuery = {
           users: Array<Pick<Users, "id"> & UserFragment>;
         }
       >;
+      vendor_contacts: Array<
+        Pick<CompanyVendorContacts, "id"> & {
+          user: Pick<Users, "id"> & UserFragment;
+        }
+      >;
     }
   >;
 };
@@ -49099,6 +49116,13 @@ export const CompanyVendorPartnershipForCustomerDocument = gql`
             ]
           }
         ) {
+          id
+          ...User
+        }
+      }
+      vendor_contacts {
+        id
+        user {
           id
           ...User
         }

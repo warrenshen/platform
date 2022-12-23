@@ -103,6 +103,13 @@ query CompanyVendorPartnershipForCustomer($id: uuid!) {
         ...User
       }
     }
+    vendor_contacts {
+      id
+      user {
+        id
+        ...User
+      }
+    }
   }
 }
 

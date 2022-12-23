@@ -20,7 +20,7 @@ interface Props {
   customerName: string;
   vendorName: string;
   handleClose: () => void;
-  vendorContacts: UserFragment[];
+  vendorContactUsers: UserFragment[];
   requestingCompanyId: Companies["id"];
 }
 
@@ -30,7 +30,7 @@ export default function UpdateCustomerVendorContactsModal({
   customerName,
   vendorName,
   handleClose,
-  vendorContacts,
+  vendorContactUsers,
   requestingCompanyId,
 }: Props) {
   const snackbar = useSnackbar();
@@ -57,13 +57,16 @@ export default function UpdateCustomerVendorContactsModal({
 
   const selectedContacts = useMemo(
     () =>
-      vendorContacts.filter((user) => selectedUserIds.indexOf(user.id) >= 0),
-    [selectedUserIds, vendorContacts]
+      vendorContactUsers.filter(
+        (user) => selectedUserIds.indexOf(user.id) >= 0
+      ),
+    [selectedUserIds, vendorContactUsers]
   );
 
   const notSelectedContacts = useMemo(
-    () => vendorContacts.filter((user) => selectedUserIds.indexOf(user.id) < 0),
-    [selectedUserIds, vendorContacts]
+    () =>
+      vendorContactUsers.filter((user) => selectedUserIds.indexOf(user.id) < 0),
+    [selectedUserIds, vendorContactUsers]
   );
 
   const notSelectedUserIds = useMemo(
@@ -131,7 +134,7 @@ export default function UpdateCustomerVendorContactsModal({
     <Modal
       isPrimaryActionDisabled={isSubmitDisabled}
       title={"Select Vendor Contacts"}
-      subtitle={`${vendorName} <> ${customerName}`}
+      subtitle={`${customerName} (Customer) <> ${vendorName} (Vendor)`}
       contentWidth={800}
       primaryActionText={"Submit Change Request"}
       handleClose={handleClose}

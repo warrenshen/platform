@@ -133,7 +133,7 @@ export default function UpdatePayorContactsModal({
     <Modal
       isPrimaryActionDisabled={isSubmitDisabled}
       title={"Select Payor Contacts"}
-      subtitle={`${payor.name} <> ${customer.name}`}
+      subtitle={` ${customer.name} (Customer) <> ${payor.name} (Payor)`}
       contentWidth={800}
       primaryActionText={"Save"}
       handleClose={handleClose}

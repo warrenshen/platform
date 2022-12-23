@@ -121,7 +121,6 @@ export default function UpdateVendorContactsModal({
   if (!customer || !vendor) {
     return null;
   }
-
   const isSubmitDisabled =
     isUpdatePartnershipContactsLoading || selectedUserIds.length <= 0;
 
@@ -129,7 +128,7 @@ export default function UpdateVendorContactsModal({
     <Modal
       isPrimaryActionDisabled={isSubmitDisabled}
       title={"Select Vendor Contacts"}
-      subtitle={`${vendor.name} <> ${customer.name}`}
+      subtitle={`${customer.name} (Customer) <> ${vendor.name} (Vendor)`}
       contentWidth={800}
       primaryActionText={"Save"}
       handleClose={handleClose}

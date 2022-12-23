@@ -179,7 +179,7 @@ export default function CustomerVendorsPageContent({
           <ModalButton
             dataCy="edit-vendor-button"
             isDisabled={selectedVendorIds.length !== 1 || !isActiveContract}
-            label={"Edit Vendors"}
+            label={"Edit Vendor Partnership"}
             modal={({ handleClose }) => (
               <EditVendorModal
                 vendorPartnershipId={selectedVendorId}
