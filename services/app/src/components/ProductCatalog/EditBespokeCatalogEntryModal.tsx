@@ -236,8 +236,8 @@ const EditBespokeCatalogEntryModal = ({
                   onChange={(_, value) => {
                     if (!value) {
                       setBespokeCatalogSku({
-                        id: "",
-                        sku: "",
+                        id: null,
+                        sku: null,
                       });
                       return;
                     }

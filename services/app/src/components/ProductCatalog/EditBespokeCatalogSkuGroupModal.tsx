@@ -193,8 +193,8 @@ const EditBespokeCatalogSkuGroupModal = ({
             onChange={(_, value) => {
               if (!value) {
                 setBespokeCatalogBrand({
-                  id: "",
-                  brand_name: "",
+                  id: null,
+                  brand_name: null,
                 });
                 return;
               }

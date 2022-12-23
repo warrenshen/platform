@@ -7,6 +7,7 @@ def create_update_bespoke_catalog_brand(
 	session: Session,
 	id: str,
 	brand_name: str,
+	parent_company_id: str,
 ) -> Tuple[str, errors.Error]:
 	brand = cast(
 		models.BespokeCatalogBrand,
@@ -15,13 +16,15 @@ def create_update_bespoke_catalog_brand(
 		).first())
 
 	if not brand:
-		brand = models.BespokeCatalogBrand(
+		brand = models.BespokeCatalogBrand(# type: ignore
 			brand_name = brand_name,
+			parent_company_id = parent_company_id,
 		)
 		session.add(brand)
 		session.flush()
 	else:
 		brand.brand_name = brand_name
+		brand.parent_company_id = parent_company_id # type: ignore
 	
 	return str(brand.id), None
 

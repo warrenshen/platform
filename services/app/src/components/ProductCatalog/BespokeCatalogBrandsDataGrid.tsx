@@ -9,12 +9,18 @@ const columns = [
     caption: "Bespoke Brand",
     minWidth: ColumnWidths.MinWidth,
   },
+  {
+    dataField: "parent_company_name",
+    caption: "Parent Company",
+    minWidth: ColumnWidths.MinWidth,
+  },
 ];
 
 const getRows = (bespokeCatalogBrands: any) => {
   return bespokeCatalogBrands.map((bespokeCatalogBrand: any) => {
     return {
       ...bespokeCatalogBrand,
+      parent_company_name: bespokeCatalogBrand?.parent_company?.name,
     };
   });
 };

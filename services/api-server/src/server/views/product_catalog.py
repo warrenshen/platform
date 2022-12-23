@@ -44,7 +44,7 @@ RIGHT JOIN
 	ON metrc_to_bespoke_sku.product_name = sales_transactions_grouped.product_name
 WHERE metrc_to_bespoke_sku.product_name IS NULL
 ORDER BY sales_transactions_grouped.product_name_count DESC
-LIMIT 50;
+LIMIT 100;
 """
 
 INCOMING_TRANSFER_PACKAGE_BY_PRODUCT_NAME_QUERY = """
@@ -80,7 +80,7 @@ RIGHT JOIN
 WHERE metrc_to_bespoke_sku.product_name IS NULL
 ORDER BY
 	transfer_packages_grouped.product_name_count DESC
-LIMIT 50;
+LIMIT 100;
 """
 
 INVENTORY_PACKAGE_BY_PRODUCT_NAME_QUERY = """
@@ -108,7 +108,7 @@ RIGHT JOIN
 WHERE metrc_to_bespoke_sku.product_name IS NULL
 ORDER BY
 	inventory_packages_grouped.product_name_count DESC
-LIMIT 50;
+LIMIT 100;
 """
 
 
@@ -235,6 +235,7 @@ class CreateUpdateBespokeCatalogBrandView(MethodView):
 		required_keys = [
 			'id',
 			'brand_name',
+			'parent_company_id'
 		]
 		for key in required_keys:
 			if key not in data:
@@ -242,12 +243,14 @@ class CreateUpdateBespokeCatalogBrandView(MethodView):
 
 		id = data["id"]
 		brand_name = data["brand_name"]
+		parent_company_id = data["parent_company_id"]
 
 		with session_scope(current_app.session_maker) as session:
 			brand_id, err = product_catalog_util.create_update_bespoke_catalog_brand(
 				session=session,
 				id=id,
 				brand_name=brand_name,
+				parent_company_id=parent_company_id,
 			)
 			if err:
 				raise err
@@ -471,6 +474,7 @@ class CreateMetrcToBespokeCatalogSkuView(MethodView):
 		# BespokeCatalogBrand
 		bespoke_catalog_brand = bespoke_catalog_sku_group["bespoke_catalog_brand"]
 		brand_name = bespoke_catalog_brand["brand_name"]
+		parent_company_id = bespoke_catalog_brand["parent_company_id"]
 
 		with session_scope(current_app.session_maker) as session:
 			if sku_confidence != SKU_CONFIDENCE_INVALID and not is_sample:
@@ -481,6 +485,7 @@ class CreateMetrcToBespokeCatalogSkuView(MethodView):
 						session=session,
 						id=str(uuid.uuid4()),
 						brand_name=brand_name,
+						parent_company_id=parent_company_id,
 					)
 					if err:
 						raise err

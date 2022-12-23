@@ -753,6 +753,10 @@ fragment MonthlySummaryCalculation on monthly_summary_calculations {
 fragment BespokeCatalogBrand on bespoke_catalog_brands {
   id
   brand_name
+  parent_company {
+    id
+    name
+  }
 }
 
 fragment BespokeCatalogSkuGroup on bespoke_catalog_sku_groups {

@@ -1,6 +1,18 @@
 table:
   schema: public
   name: bespoke_catalog_brands
+object_relationships:
+  - name: parent_company
+    using:
+      foreign_key_constraint_on: parent_company_id
+array_relationships:
+  - name: bespoke_catalog_sku_groups
+    using:
+      foreign_key_constraint_on:
+        column: bespoke_catalog_brand_id
+        table:
+          schema: public
+          name: bespoke_catalog_sku_groups
 select_permissions:
   - role: bank_admin
     permission:

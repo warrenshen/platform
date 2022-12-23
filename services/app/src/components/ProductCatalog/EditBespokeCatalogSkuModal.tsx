@@ -166,8 +166,8 @@ const EditBespokeCatalogSkuModal = ({
             onChange={(_, value) => {
               if (!value) {
                 setBespokeCatalogSkuGroup({
-                  id: "",
-                  sku_group_name: "",
+                  id: null,
+                  sku_group_name: null,
                 });
                 return;
               }

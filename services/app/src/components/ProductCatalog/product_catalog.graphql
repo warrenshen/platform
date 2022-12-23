@@ -85,3 +85,16 @@ query GetBespokeCatalogBrandsByBrandName($search_prefix: String!) {
     ...BespokeCatalogBrand
   }
 }
+
+query GetParentCompaniesByName($search_prefix: String!) {
+  parent_companies(
+    where: { 
+      name: { _ilike: $search_prefix }
+    }
+    order_by: { created_at: desc }
+    limit: 10
+  ) {
+    id
+    ...ParentCompany
+  }
+}

@@ -1746,6 +1746,7 @@ class BespokeCatalogBrand(Base):
 	__tablename__ = 'bespoke_catalog_brands'
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	parent_company_id = cast(GUID, Column(GUID, ForeignKey('parent_companies.id'), nullable=True))
 
 	brand_name = Column(String, nullable=False)
 	is_deleted = Column(Boolean, nullable=False, default=False)
