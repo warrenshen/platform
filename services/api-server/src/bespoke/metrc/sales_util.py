@@ -13,31 +13,37 @@ from bespoke.metrc.common import metrc_common_util
 from bespoke.metrc.common.metrc_common_util import chunker, SplitTimeBy
 
 
+METRC_SALES_RECEIPT_SPECIAL_PII_KEYS = [
+	'PatientLicenseNumber',
+	'CaregiverLicenseNumber',
+	'IdentificationMethod',
+	'PatientRegistrationLocationId',
+]
+
 class SalesTransactions(object):
 
-	def __init__(self, sales_transactions: List[Dict], transaction_type: str) -> None:
-		self._sales_transactions = sales_transactions
+	def __init__(self, raw_sales_transaction_jsons: List[Dict], transaction_type: str) -> None:
+		self._raw_sales_transaction_jsons = raw_sales_transaction_jsons
 		self._type = transaction_type
 
 	def get_sales_transactions_models(self, ctx: metrc_common_util.DownloadContext, receipt_id: str) -> List[models.MetrcSalesTransaction]:
 		sales_transactions = []
-		for i in range(len(self._sales_transactions)):
-			tx = self._sales_transactions[i]
+		for raw_sales_transaction_json in self._raw_sales_transaction_jsons:
 			sales_tx = models.MetrcSalesTransaction()
 			sales_tx.type = self._type
 			sales_tx.license_number = ctx.license['license_number']
 			sales_tx.us_state = ctx.license['us_state']
-			sales_tx.package_id = '{}'.format(tx['PackageId'])
-			sales_tx.package_label = tx['PackageLabel']
-			sales_tx.product_name = tx['ProductName']
-			sales_tx.product_category_name = tx['ProductCategoryName']
-			sales_tx.quantity_sold = tx['QuantitySold']
-			sales_tx.unit_of_measure = tx['UnitOfMeasureName']
-			sales_tx.total_price = tx['TotalPrice']
-			sales_tx.recorded_datetime = parser.parse(tx['RecordedDateTime'])
-			sales_tx.last_modified_at = parser.parse(tx['LastModified'])
+			sales_tx.package_id = '{}'.format(raw_sales_transaction_json['PackageId'])
+			sales_tx.package_label = raw_sales_transaction_json['PackageLabel']
+			sales_tx.product_name = raw_sales_transaction_json['ProductName']
+			sales_tx.product_category_name = raw_sales_transaction_json['ProductCategoryName']
+			sales_tx.quantity_sold = raw_sales_transaction_json['QuantitySold']
+			sales_tx.unit_of_measure = raw_sales_transaction_json['UnitOfMeasureName']
+			sales_tx.total_price = raw_sales_transaction_json['TotalPrice']
+			sales_tx.recorded_datetime = parser.parse(raw_sales_transaction_json['RecordedDateTime'])
+			sales_tx.last_modified_at = parser.parse(raw_sales_transaction_json['LastModified'])
 			sales_tx.receipt_id = receipt_id
-			sales_tx.payload = tx
+			sales_tx.payload = raw_sales_transaction_json
 
 			sales_transactions.append(sales_tx)
 
@@ -121,8 +127,16 @@ def get_sales_receipt_models(
 
 class SalesReceipts(object):
 
-	def __init__(self, sales_receipts: List[Dict], receipt_type: str) -> None:
-		self._sales_receipts = sales_receipts
+	def __init__(self, raw_sales_receipt_jsons: List[Dict], receipt_type: str) -> None:
+		self._sales_receipts = []
+		for raw_sales_receipt_json in raw_sales_receipt_jsons:
+			new_sales_receipt_json = raw_sales_receipt_json.copy()
+			# BEGIN: remove PII information.
+			for special_pii_key in METRC_SALES_RECEIPT_SPECIAL_PII_KEYS:
+				if special_pii_key in new_sales_receipt_json:
+					new_sales_receipt_json.pop(special_pii_key)
+			# END: remove PII information.
+			self._sales_receipts.append(new_sales_receipt_json)
 		self._type = receipt_type
 
 	@property

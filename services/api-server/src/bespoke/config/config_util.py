@@ -39,10 +39,10 @@ class MetrcAuthProvider(object):
 		self._state_to_vendor_key = state_to_vendor_key
 
 	def get_vendor_key_by_state(self, us_state: str) -> Tuple[str, errors.Error]:
-		if us_state not in self._state_to_vendor_key:
-			return None, errors.Error('No vendor key registered for state {}'.format(us_state))
-
-		return self._state_to_vendor_key[us_state], None
+		if us_state not in self._state_to_vendor_key or not self._state_to_vendor_key[us_state]:
+			return None, errors.Error(f'No vendor key registered for state {us_state}')
+		else:
+			return self._state_to_vendor_key[us_state], None
 
 def get_metrc_auth_provider() -> MetrcAuthProvider:
 	return MetrcAuthProvider(
