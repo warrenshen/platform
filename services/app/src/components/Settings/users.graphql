@@ -5,6 +5,17 @@ query GetUser($id: uuid!) {
   }
 }
 
+query GetUserByEmail($email: String!) {
+  users(where: { email: { _eq: $email } } ) {
+    id
+    ...User
+    company {
+      id
+      name
+    }
+  }  
+}
+
 query GetActiveUsersByRoles($roles: [user_roles_enum!]!, $isBankUser: Boolean = false) {
   users(
     where: {

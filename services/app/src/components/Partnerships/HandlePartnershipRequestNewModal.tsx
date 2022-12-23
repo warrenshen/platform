@@ -8,6 +8,7 @@ import {
   TextField,
   Typography,
 } from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
 import BankAccountInfoCard from "components/BankAccount/BankAccountInfoCard";
 import AutocompleteCompany from "components/Shared/Company/AutocompleteCompany";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
@@ -17,11 +18,12 @@ import {
   BankAccounts,
   Companies,
   GetPartnershipRequestsForBankSubscription,
+  useGetUserByEmailQuery,
 } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
 import { createPartnershipNewMutation } from "lib/api/companies";
 import { FileTypeEnum } from "lib/enum";
-import { ChangeEvent, useState } from "react";
+import { useMemo, useState } from "react";
 
 interface Props {
   partnerRequest: GetPartnershipRequestsForBankSubscription["company_partnership_requests"][0];
@@ -38,7 +40,6 @@ export default function HandlePartnershipRequestNewModal({
 }: Props) {
   const snackbar = useSnackbar();
 
-  const isSubmitDisabled = false;
   const [selectedCompanyId, setSelectedCompanyId] =
     useState<Companies["id"]>(null);
 
@@ -50,12 +51,28 @@ export default function HandlePartnershipRequestNewModal({
 
   const [isCompanyLicenseFileViewerOpen, setIsCompanyLicenseFileViewerOpen] =
     useState(false);
-  const [canUseExistingUser, setCanUseExistingUser] = useState<boolean>(false);
 
   const [
     isBankInstructionsFileViewerOpen,
     setIsBankInstructionsFileViewerOpen,
   ] = useState(false);
+
+  const { data } = useGetUserByEmailQuery({
+    fetchPolicy: "network-only",
+    variables: {
+      email: partnerRequest.user_info.email,
+    },
+  });
+
+  const hasExistingUserInDifferentCompany = useMemo(() => {
+    const companyName = data?.users?.[0]?.company?.name || "";
+    return (
+      (data?.users || []).length > 0 &&
+      companyName.trim().toLowerCase() !==
+        partnerRequest.company_name.trim().toLowerCase() &&
+      selectedCompanyId === null
+    );
+  }, [partnerRequest.company_name, data, selectedCompanyId]);
 
   const handleSubmit = async () => {
     const response = await createPartnershipNewMutation({
@@ -64,7 +81,6 @@ export default function HandlePartnershipRequestNewModal({
         should_create_company: selectedCompanyId === null,
         partner_company_id: selectedCompanyId,
         license_info: licenseIds,
-        can_use_existing_user: canUseExistingUser,
       },
     });
     if (response.status !== "OK") {
@@ -108,7 +124,7 @@ export default function HandlePartnershipRequestNewModal({
   return (
     <Modal
       dataCy={"triage-partnership-request-modal"}
-      isPrimaryActionDisabled={isSubmitDisabled}
+      isPrimaryActionDisabled={hasExistingUserInDifferentCompany}
       title={"Triage Partnership Request"}
       primaryActionText={"Submit"}
       contentWidth={600}
@@ -293,22 +309,20 @@ export default function HandlePartnershipRequestNewModal({
             : ""}
         </Typography>
       </Box>
-      <Box display="flex" flexDirection="column">
-        <FormControlLabel
-          control={
-            <Checkbox
-              data-cy={"existing-user-checkbox"}
-              checked={canUseExistingUser}
-              onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                setCanUseExistingUser(event.target.checked)
-              }
-              color="primary"
-            />
-          }
-          label={"Use existing user if email match found?"}
-        />
-      </Box>
-
+      {hasExistingUserInDifferentCompany && (
+        <Box mt={1}>
+          <Alert severity="warning">
+            <span>
+              There is already an existing user with the given primary contact’s
+              email, but this user belongs to a different vendor company than
+              the vendor company for this partnership request. This is likely
+              because this person wants to be a contact for multiple unrelated
+              companies (which is valid). To proceed, please change the primary
+              contact’s email and try again.
+            </span>
+          </Alert>
+        </Box>
+      )}
       <Box mb={4} mt={4}>
         <Divider />
       </Box>

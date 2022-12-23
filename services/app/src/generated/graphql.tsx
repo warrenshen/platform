@@ -6681,7 +6681,6 @@ export type CompanySettings = {
   id: Scalars["uuid"];
   is_autogenerate_repayments_enabled?: Maybe<Scalars["Boolean"]>;
   is_dummy_account: Scalars["Boolean"];
-  is_loc_late?: Maybe<Scalars["Boolean"]>;
   late_fees_end_date?: Maybe<Scalars["date"]>;
   /** An object relationship */
   metrc_api_key?: Maybe<MetrcApiKeys>;
@@ -6781,7 +6780,6 @@ export type CompanySettingsBoolExp = {
   id?: Maybe<UuidComparisonExp>;
   is_autogenerate_repayments_enabled?: Maybe<BooleanComparisonExp>;
   is_dummy_account?: Maybe<BooleanComparisonExp>;
-  is_loc_late?: Maybe<BooleanComparisonExp>;
   late_fees_end_date?: Maybe<DateComparisonExp>;
   metrc_api_key?: Maybe<MetrcApiKeysBoolExp>;
   metrc_api_key_id?: Maybe<UuidComparisonExp>;
@@ -6864,7 +6862,6 @@ export type CompanySettingsInsertInput = {
   id?: Maybe<Scalars["uuid"]>;
   is_autogenerate_repayments_enabled?: Maybe<Scalars["Boolean"]>;
   is_dummy_account?: Maybe<Scalars["Boolean"]>;
-  is_loc_late?: Maybe<Scalars["Boolean"]>;
   late_fees_end_date?: Maybe<Scalars["date"]>;
   metrc_api_key?: Maybe<MetrcApiKeysObjRelInsertInput>;
   metrc_api_key_id?: Maybe<Scalars["uuid"]>;
@@ -7062,7 +7059,6 @@ export type CompanySettingsOrderBy = {
   id?: Maybe<OrderBy>;
   is_autogenerate_repayments_enabled?: Maybe<OrderBy>;
   is_dummy_account?: Maybe<OrderBy>;
-  is_loc_late?: Maybe<OrderBy>;
   late_fees_end_date?: Maybe<OrderBy>;
   metrc_api_key?: Maybe<MetrcApiKeysOrderBy>;
   metrc_api_key_id?: Maybe<OrderBy>;
@@ -7127,8 +7123,6 @@ export enum CompanySettingsSelectColumn {
   /** column name */
   IsDummyAccount = "is_dummy_account",
   /** column name */
-  IsLocLate = "is_loc_late",
-  /** column name */
   LateFeesEndDate = "late_fees_end_date",
   /** column name */
   MetrcApiKeyId = "metrc_api_key_id",
@@ -7178,7 +7172,6 @@ export type CompanySettingsSetInput = {
   id?: Maybe<Scalars["uuid"]>;
   is_autogenerate_repayments_enabled?: Maybe<Scalars["Boolean"]>;
   is_dummy_account?: Maybe<Scalars["Boolean"]>;
-  is_loc_late?: Maybe<Scalars["Boolean"]>;
   late_fees_end_date?: Maybe<Scalars["date"]>;
   metrc_api_key_id?: Maybe<Scalars["uuid"]>;
   payor_agreement_docusign_template?: Maybe<Scalars["String"]>;
@@ -7227,8 +7220,6 @@ export enum CompanySettingsUpdateColumn {
   IsAutogenerateRepaymentsEnabled = "is_autogenerate_repayments_enabled",
   /** column name */
   IsDummyAccount = "is_dummy_account",
-  /** column name */
-  IsLocLate = "is_loc_late",
   /** column name */
   LateFeesEndDate = "late_fees_end_date",
   /** column name */
@@ -7368,6 +7359,7 @@ export type CompanyVendorContacts = {
   created_at: Scalars["timestamptz"];
   id: Scalars["uuid"];
   partnership_id: Scalars["uuid"];
+  updated_at: Scalars["timestamptz"];
   /** An object relationship */
   user: Users;
   vendor_user_id: Scalars["uuid"];
@@ -7415,6 +7407,7 @@ export type CompanyVendorContactsBoolExp = {
   created_at?: Maybe<TimestamptzComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   partnership_id?: Maybe<UuidComparisonExp>;
+  updated_at?: Maybe<TimestamptzComparisonExp>;
   user?: Maybe<UsersBoolExp>;
   vendor_user_id?: Maybe<UuidComparisonExp>;
 };
@@ -7431,6 +7424,7 @@ export type CompanyVendorContactsInsertInput = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   partnership_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
   user?: Maybe<UsersObjRelInsertInput>;
   vendor_user_id?: Maybe<Scalars["uuid"]>;
 };
@@ -7440,6 +7434,7 @@ export type CompanyVendorContactsMaxFields = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   partnership_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_user_id?: Maybe<Scalars["uuid"]>;
 };
 
@@ -7448,6 +7443,7 @@ export type CompanyVendorContactsMaxOrderBy = {
   created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   partnership_id?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
   vendor_user_id?: Maybe<OrderBy>;
 };
 
@@ -7456,6 +7452,7 @@ export type CompanyVendorContactsMinFields = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   partnership_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_user_id?: Maybe<Scalars["uuid"]>;
 };
 
@@ -7464,6 +7461,7 @@ export type CompanyVendorContactsMinOrderBy = {
   created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   partnership_id?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
   vendor_user_id?: Maybe<OrderBy>;
 };
 
@@ -7488,6 +7486,7 @@ export type CompanyVendorContactsOrderBy = {
   created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   partnership_id?: Maybe<OrderBy>;
+  updated_at?: Maybe<OrderBy>;
   user?: Maybe<UsersOrderBy>;
   vendor_user_id?: Maybe<OrderBy>;
 };
@@ -7506,6 +7505,8 @@ export enum CompanyVendorContactsSelectColumn {
   /** column name */
   PartnershipId = "partnership_id",
   /** column name */
+  UpdatedAt = "updated_at",
+  /** column name */
   VendorUserId = "vendor_user_id",
 }
 
@@ -7514,6 +7515,7 @@ export type CompanyVendorContactsSetInput = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   partnership_id?: Maybe<Scalars["uuid"]>;
+  updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_user_id?: Maybe<Scalars["uuid"]>;
 };
 
@@ -7525,6 +7527,8 @@ export enum CompanyVendorContactsUpdateColumn {
   Id = "id",
   /** column name */
   PartnershipId = "partnership_id",
+  /** column name */
+  UpdatedAt = "updated_at",
   /** column name */
   VendorUserId = "vendor_user_id",
 }
@@ -32107,6 +32111,18 @@ export type GetUserQuery = {
   users_by_pk?: Maybe<Pick<Users, "id"> & UserFragment>;
 };
 
+export type GetUserByEmailQueryVariables = Exact<{
+  email: Scalars["String"];
+}>;
+
+export type GetUserByEmailQuery = {
+  users: Array<
+    Pick<Users, "id"> & {
+      company?: Maybe<Pick<Companies, "id" | "name">>;
+    } & UserFragment
+  >;
+};
+
 export type GetActiveUsersByRolesQueryVariables = Exact<{
   roles: Array<UserRolesEnum> | UserRolesEnum;
   isBankUser?: Maybe<Scalars["Boolean"]>;
@@ -45183,6 +45199,70 @@ export type GetUserLazyQueryHookResult = ReturnType<typeof useGetUserLazyQuery>;
 export type GetUserQueryResult = Apollo.QueryResult<
   GetUserQuery,
   GetUserQueryVariables
+>;
+export const GetUserByEmailDocument = gql`
+  query GetUserByEmail($email: String!) {
+    users(where: { email: { _eq: $email } }) {
+      id
+      ...User
+      company {
+        id
+        name
+      }
+    }
+  }
+  ${UserFragmentDoc}
+`;
+
+/**
+ * __useGetUserByEmailQuery__
+ *
+ * To run a query within a React component, call `useGetUserByEmailQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUserByEmailQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetUserByEmailQuery({
+ *   variables: {
+ *      email: // value for 'email'
+ *   },
+ * });
+ */
+export function useGetUserByEmailQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetUserByEmailQuery,
+    GetUserByEmailQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetUserByEmailQuery, GetUserByEmailQueryVariables>(
+    GetUserByEmailDocument,
+    options
+  );
+}
+export function useGetUserByEmailLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetUserByEmailQuery,
+    GetUserByEmailQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetUserByEmailQuery, GetUserByEmailQueryVariables>(
+    GetUserByEmailDocument,
+    options
+  );
+}
+export type GetUserByEmailQueryHookResult = ReturnType<
+  typeof useGetUserByEmailQuery
+>;
+export type GetUserByEmailLazyQueryHookResult = ReturnType<
+  typeof useGetUserByEmailLazyQuery
+>;
+export type GetUserByEmailQueryResult = Apollo.QueryResult<
+  GetUserByEmailQuery,
+  GetUserByEmailQueryVariables
 >;
 export const GetActiveUsersByRolesDocument = gql`
   query GetActiveUsersByRoles(

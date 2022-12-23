@@ -556,7 +556,6 @@ def _create_partner_company_and_its_first_user(
 def _create_partner_company_and_its_first_user_new(
 	session: Session,
 	partnership_req: models.CompanyPartnershipRequest,
-	can_use_existing_user: bool,
 ) -> str:
 	user_input = cast(Dict, partnership_req.user_info)
 
@@ -584,11 +583,8 @@ def _create_partner_company_and_its_first_user_new(
 	existing_user = session.query(models.User).filter(
 		models.User.email == user_input['email'].lower()
 	).first()
-	if existing_user and can_use_existing_user is False:
-		raise errors.Error('Email is already taken')
-	elif existing_user and can_use_existing_user is True:
-		pass
-	else:
+
+	if not existing_user:
 		_create_user(
 			user_input=user_input,
 			parent_company_id=parent_company_id,
@@ -845,7 +841,6 @@ def create_partnership_new(
 	session: Session,
 	req: CreatePartnershipInputDict,
 	bank_admin_user_id: str,
-	can_use_existing_user: bool = False,
 ) -> Tuple[CreatePartnershipRespDict, errors.Error]:
 	should_create_company = req['should_create_company']
 
@@ -867,10 +862,20 @@ def create_partnership_new(
 	customer_id = str(partnership_req.requesting_company_id)
 
 	if should_create_company:
+
+		# this is a check to make sure that the user email doesn't already exist
+		user_input = cast(Dict, partnership_req.user_info)
+
+		existing_user = session.query(models.User).filter(
+				models.User.email == user_input.get('email').lower()
+			).first()
+
+		if existing_user != None:
+			raise errors.Error('A user with this email already exists in an existing company')
+
 		company_id = _create_partner_company_and_its_first_user_new(
 			session,
 			partnership_req,
-			can_use_existing_user,
 		)
 	else:
 		company_id = req.get('partner_company_id')

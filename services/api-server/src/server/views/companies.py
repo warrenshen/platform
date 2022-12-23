@@ -539,7 +539,6 @@ class CreatePartnershipNewView(MethodView):
 				session = session,
 				req = cast(create_company_util.CreatePartnershipInputDict, form),
 				bank_admin_user_id = user_session.get_user_id(),
-				can_use_existing_user = can_use_existing_user
 			)
 			if err:
 				raise err
