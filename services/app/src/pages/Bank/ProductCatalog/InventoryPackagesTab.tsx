@@ -46,6 +46,8 @@ const InventoryPackagesTab = () => {
   const [matchedProductNames, setMatchedProductNames] = useState<Set<string>>(
     new Set()
   );
+  const [recentlyAssignedSkuGroupIds, setRecentlyAssignedSkuGroupIds] =
+    useState<string[]>([]);
   const [
     isCreateUpdateBespokeCatalogEntryModalOpen,
     setIsCreateUpdateBespokeCatalogEntryModalOpen,
@@ -188,11 +190,13 @@ const InventoryPackagesTab = () => {
             selectedMetrcInventoryPackage?.product_category_name
           }
           matchedProductNames={matchedProductNames}
+          recentlyAssignedSkuGroupIds={recentlyAssignedSkuGroupIds}
           handleClose={() => {
             setSelectedMetrcInventoryPackages([]);
             setIsCreateUpdateBespokeCatalogEntryModalOpen(false);
           }}
           setMatchedProductNames={setMatchedProductNames}
+          setRecentlyAssignedSkuGroupIds={setRecentlyAssignedSkuGroupIds}
         />
       )}
       <Box display="flex" mb={2} justifyContent="space-between">

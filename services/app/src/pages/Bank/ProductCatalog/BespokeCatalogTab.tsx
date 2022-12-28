@@ -13,9 +13,9 @@ import {
   BespokeCatalogBrandFragment,
   BespokeCatalogSkuFragment,
   BespokeCatalogSkuGroupFragment,
-  useGetBespokeCatalogBrandsSubscription,
-  useGetBespokeCatalogSkuGroupsSubscription,
-  useGetBespokeCatalogSkusSubscription,
+  useGetBespokeCatalogBrandsQuery,
+  useGetBespokeCatalogSkuGroupsQuery,
+  useGetBespokeCatalogSkusQuery,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -38,9 +38,12 @@ const Container = styled.div`
 
 const BespokeCatalogTab = () => {
   const snackbar = useSnackbar();
-  const { data: dataSkus } = useGetBespokeCatalogSkusSubscription();
-  const { data: dataSkuGroups } = useGetBespokeCatalogSkuGroupsSubscription();
-  const { data: dataBrands } = useGetBespokeCatalogBrandsSubscription();
+  const { data: dataSkus, refetch: refetchSkus } =
+    useGetBespokeCatalogSkusQuery();
+  const { data: dataSkuGroups, refetch: refetchSkuGroups } =
+    useGetBespokeCatalogSkuGroupsQuery();
+  const { data: dataBrands, refetch: refetchBrands } =
+    useGetBespokeCatalogBrandsQuery();
   const skus = useMemo(() => dataSkus?.bespoke_catalog_skus || [], [dataSkus]);
   const skuGroups = useMemo(
     () => dataSkuGroups?.bespoke_catalog_sku_groups || [],
@@ -187,6 +190,7 @@ const BespokeCatalogTab = () => {
             setIsEditSkuModalOpen(false);
             setSelectedSkuIds([]);
           }}
+          refetchSkus={refetchSkus}
         />
       )}
       {isEditSkuGroupModalOpen && selectedSkuGroup && (
@@ -196,6 +200,7 @@ const BespokeCatalogTab = () => {
             setIsEditSkuGroupModalOpen(false);
             setSelectedSkuGroupIds([]);
           }}
+          refetchSkuGroups={refetchSkuGroups}
         />
       )}
       {isEditBrandModalOpen && selectedBrand && (
@@ -205,6 +210,7 @@ const BespokeCatalogTab = () => {
             setIsEditBrandModalOpen(false);
             setSelectedBrandIds([]);
           }}
+          refetchBrands={refetchBrands}
         />
       )}
       <Box flex={1} display="flex" flexDirection="column" width="100%" mb={4}>

@@ -46,6 +46,8 @@ const IncomingTransferPackagesTab = () => {
   const [matchedProductNames, setMatchedProductNames] = useState<Set<string>>(
     new Set()
   );
+  const [recentlyAssignedSkuGroupIds, setRecentlyAssignedSkuGroupIds] =
+    useState<string[]>([]);
   const [
     isCreateUpdateBespokeCatalogEntryModalOpen,
     setIsCreateUpdateBespokeCatalogEntryModalOpen,
@@ -192,11 +194,13 @@ const IncomingTransferPackagesTab = () => {
             selectedMetrcTransferPackage?.product_category_name
           }
           matchedProductNames={matchedProductNames}
+          recentlyAssignedSkuGroupIds={recentlyAssignedSkuGroupIds}
           handleClose={() => {
             setSelectedMetrcTransferPackages([]);
             setIsCreateUpdateBespokeCatalogEntryModalOpen(false);
           }}
           setMatchedProductNames={setMatchedProductNames}
+          setRecentlyAssignedSkuGroupIds={setRecentlyAssignedSkuGroupIds}
         />
       )}
       <Box display="flex" mb={2} justifyContent="space-between">

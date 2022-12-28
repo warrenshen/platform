@@ -109,7 +109,7 @@ const EditBespokeCatalogEntryModal = ({
       handleClose();
     } else {
       snackbar.showError(
-        `Failed to create bespoke catalog entry: ${response.msg}`
+        `Failed to update bespoke catalog entry: ${response.msg}`
       );
     }
   };

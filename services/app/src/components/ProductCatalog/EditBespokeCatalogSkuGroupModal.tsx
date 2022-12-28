@@ -39,11 +39,13 @@ const StyledButtonContainer = styled.div`
 interface Props {
   bespokeCatalogSkuGroup: BespokeCatalogSkuGroupFragment;
   handleClose: () => void;
+  refetchSkuGroups: () => void;
 }
 
 const EditBespokeCatalogSkuGroupModal = ({
   bespokeCatalogSkuGroup,
   handleClose,
+  refetchSkuGroups,
 }: Props) => {
   const snackbar = useSnackbar();
 
@@ -106,6 +108,7 @@ const EditBespokeCatalogSkuGroupModal = ({
       snackbar.showSuccess(
         `Successfully updated bespoke catalog SKU for ${bespokeCatalogSkuGroup.sku_group_name}`
       );
+      refetchSkuGroups();
       handleClose();
     } else {
       snackbar.showError(

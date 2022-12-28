@@ -530,6 +530,7 @@ class CreateMetrcToBespokeCatalogSkuView(MethodView):
 
 		return make_response(json.dumps({
 			'status': 'OK',
+			'data': { 'sku_group_id': bespoke_catalog_sku_group_id },
 			'msg': f'Successfully saved metrc_to_sku with id: {metrc_to_sku_id}'
 		}), 200)
 

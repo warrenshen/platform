@@ -9,7 +9,10 @@ import {
   TextField,
 } from "@material-ui/core";
 import AutocompleteSelectDropdown from "components/ProductCatalog/AutocompleteSelectDropdown";
-import { DEFAULT_AUTOCOMPLETE_MINIMUM_QUERY_LENGTH } from "components/ProductCatalog/constants";
+import {
+  DEFAULT_AUTOCOMPLETE_MINIMUM_QUERY_LENGTH,
+  DEFAULT_MAX_RECENTLY_ASSIGNED_SKU_GROUPS,
+} from "components/ProductCatalog/constants";
 import { calculateBrand } from "components/ProductCatalog/utils";
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
 import SecondaryButton from "components/Shared/Button/SecondaryButton";
@@ -25,6 +28,7 @@ import {
   Maybe,
   MetrcToBespokeCatalogSkusInsertInput,
   useGetBespokeCatalogBrandsByBrandNameLazyQuery,
+  useGetBespokeCatalogSkuGroupsByIdsLazyQuery,
   useGetBespokeCatalogSkuGroupsBySkuGroupNameLazyQuery,
   useGetBespokeCatalogSkusBySkuNameLazyQuery,
   useGetParentCompaniesByNameLazyQuery,
@@ -40,7 +44,7 @@ import {
   SkuGroupUnitOfMeasureToLabel,
 } from "lib/enum";
 import { debounce } from "lodash";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import styled from "styled-components";
 
 const StyledButtonContainer = styled.div`
@@ -53,18 +57,33 @@ interface Props {
   productName: string | Maybe<string> | undefined;
   productCategoryName: string | Maybe<string> | undefined;
   matchedProductNames: Set<string>;
+  recentlyAssignedSkuGroupIds: string[];
   handleClose: () => void;
   setMatchedProductNames: (matchedProductNames: Set<string>) => void;
+  setRecentlyAssignedSkuGroupIds: Dispatch<SetStateAction<string[]>>;
 }
 
 const CreateBespokeCatalogEntryCompleteModal = ({
   productName,
   productCategoryName,
   matchedProductNames,
+  recentlyAssignedSkuGroupIds = [],
   handleClose,
   setMatchedProductNames,
+  setRecentlyAssignedSkuGroupIds,
 }: Props) => {
   const snackbar = useSnackbar();
+
+  const [loadRecentlyAssignedSkuGroups, { data: recentlyAssignedSkuGroups }] =
+    useGetBespokeCatalogSkuGroupsByIdsLazyQuery();
+
+  useEffect(() => {
+    loadRecentlyAssignedSkuGroups({
+      variables: {
+        ids: recentlyAssignedSkuGroupIds,
+      },
+    });
+  }, [recentlyAssignedSkuGroupIds, loadRecentlyAssignedSkuGroups]);
 
   const [
     loadBespokeCatalogSkus,
@@ -216,6 +235,28 @@ const CreateBespokeCatalogEntryCompleteModal = ({
       const newMatchedProductNames = new Set<string>(matchedProductNames);
       newMatchedProductNames.add(productName as string);
       setMatchedProductNames(newMatchedProductNames);
+
+      // For efficiency, we show the last 5 reccently added SKU Groups by default
+      const skuGroupId =
+        bespokeCatalogSkuGroup.id || response.data.sku_group_id;
+      if (!recentlyAssignedSkuGroupIds.includes(skuGroupId)) {
+        if (
+          recentlyAssignedSkuGroupIds.length >=
+          DEFAULT_MAX_RECENTLY_ASSIGNED_SKU_GROUPS
+        ) {
+          setRecentlyAssignedSkuGroupIds &&
+            setRecentlyAssignedSkuGroupIds([
+              ...recentlyAssignedSkuGroupIds.slice(1),
+              skuGroupId,
+            ]);
+        } else {
+          setRecentlyAssignedSkuGroupIds &&
+            setRecentlyAssignedSkuGroupIds([
+              ...recentlyAssignedSkuGroupIds,
+              skuGroupId,
+            ]);
+        }
+      }
       snackbar.showSuccess(
         `Successfully created bespoke catalog entry for ${productName}`
       );
@@ -351,7 +392,7 @@ const CreateBespokeCatalogEntryCompleteModal = ({
                             textVariant={TextVariants.SmallLabel}
                             color={SecondaryTextColor}
                           >
-                            {`${option.bespoke_catalog_sku_group.sku_group_name} | ${option.bespoke_catalog_sku_group.bespoke_catalog_brand.brand_name}`}
+                            {`${option.bespoke_catalog_sku_group.sku_group_name} | ${option.bespoke_catalog_sku_group.bespoke_catalog_brand?.brand_name}`}
                           </Text>
                         </Box>
                       </Box>
@@ -480,7 +521,7 @@ const CreateBespokeCatalogEntryCompleteModal = ({
                                 textVariant={TextVariants.SmallLabel}
                                 color={SecondaryTextColor}
                               >
-                                {option.bespoke_catalog_brand.brand_name}
+                                {option.bespoke_catalog_brand?.brand_name}
                               </Text>
                             </Box>
                           </Box>
@@ -489,6 +530,7 @@ const CreateBespokeCatalogEntryCompleteModal = ({
                       selectableOptions={
                         (!clearSkuGroupData &&
                           bespokeCatalogSkuGroupData?.bespoke_catalog_sku_groups) ||
+                        recentlyAssignedSkuGroups?.bespoke_catalog_sku_groups ||
                         []
                       }
                       debouncedLoadOptions={

@@ -7354,8 +7354,6 @@ export enum CompanyTypeUpdateColumn {
 
 /** columns and relationships of "company_vendor_contacts" */
 export type CompanyVendorContacts = {
-  /** An object relationship */
-  company_vendor_partnership: CompanyVendorPartnerships;
   created_at: Scalars["timestamptz"];
   id: Scalars["uuid"];
   partnership_id: Scalars["uuid"];
@@ -7403,7 +7401,6 @@ export type CompanyVendorContactsBoolExp = {
   _and?: Maybe<Array<CompanyVendorContactsBoolExp>>;
   _not?: Maybe<CompanyVendorContactsBoolExp>;
   _or?: Maybe<Array<CompanyVendorContactsBoolExp>>;
-  company_vendor_partnership?: Maybe<CompanyVendorPartnershipsBoolExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   partnership_id?: Maybe<UuidComparisonExp>;
@@ -7420,7 +7417,6 @@ export enum CompanyVendorContactsConstraint {
 
 /** input type for inserting data into table "company_vendor_contacts" */
 export type CompanyVendorContactsInsertInput = {
-  company_vendor_partnership?: Maybe<CompanyVendorPartnershipsObjRelInsertInput>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   partnership_id?: Maybe<Scalars["uuid"]>;
@@ -7482,7 +7478,6 @@ export type CompanyVendorContactsOnConflict = {
 
 /** Ordering options when selecting data from "company_vendor_contacts". */
 export type CompanyVendorContactsOrderBy = {
-  company_vendor_partnership?: Maybe<CompanyVendorPartnershipsOrderBy>;
   created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   partnership_id?: Maybe<OrderBy>;
@@ -7736,13 +7731,6 @@ export type CompanyVendorPartnershipsMutationResponse = {
   affected_rows: Scalars["Int"];
   /** data from the rows affected by the mutation */
   returning: Array<CompanyVendorPartnerships>;
-};
-
-/** input type for inserting object relation for remote table "company_vendor_partnerships" */
-export type CompanyVendorPartnershipsObjRelInsertInput = {
-  data: CompanyVendorPartnershipsInsertInput;
-  /** upsert condition */
-  on_conflict?: Maybe<CompanyVendorPartnershipsOnConflict>;
 };
 
 /** on_conflict condition type for table "company_vendor_partnerships" */
@@ -8262,8 +8250,6 @@ export type CustomerSurveillanceResultsBoolExp = {
 
 /** unique or primary key constraints on table "customer_surveillance_results" */
 export enum CustomerSurveillanceResultsConstraint {
-  /** unique or primary key constraint */
-  CompanyProductQualificationsCompanyIdQualifyingDateKey = "company_product_qualifications_company_id_qualifying_date_key",
   /** unique or primary key constraint */
   CompanyProductQualificationsPkey = "company_product_qualifications_pkey",
 }
@@ -9342,7 +9328,7 @@ export type EbbaApplications = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamp"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   /** An object relationship */
   rejected_by_user?: Maybe<Users>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
@@ -9467,7 +9453,7 @@ export type EbbaApplicationsBoolExp = {
   monthly_accounts_receivable?: Maybe<NumericComparisonExp>;
   monthly_cash?: Maybe<NumericComparisonExp>;
   monthly_inventory?: Maybe<NumericComparisonExp>;
-  rejected_at?: Maybe<TimestampComparisonExp>;
+  rejected_at?: Maybe<TimestamptzComparisonExp>;
   rejected_by_user?: Maybe<UsersBoolExp>;
   rejected_by_user_id?: Maybe<UuidComparisonExp>;
   rejection_note?: Maybe<StringComparisonExp>;
@@ -9516,7 +9502,7 @@ export type EbbaApplicationsInsertInput = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamp"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejected_by_user?: Maybe<UsersObjRelInsertInput>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
@@ -9545,7 +9531,7 @@ export type EbbaApplicationsMaxFields = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamp"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -9597,7 +9583,7 @@ export type EbbaApplicationsMinFields = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamp"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -9762,7 +9748,7 @@ export type EbbaApplicationsSetInput = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamp"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -16867,6 +16853,8 @@ export type MetrcToBespokeCatalogSkus = {
   product_name: Scalars["String"];
   sku_confidence: Scalars["String"];
   updated_at: Scalars["timestamptz"];
+  /** An object relationship */
+  user?: Maybe<Users>;
   wholesale_quantity?: Maybe<Scalars["Int"]>;
 };
 
@@ -16946,15 +16934,14 @@ export type MetrcToBespokeCatalogSkusBoolExp = {
   product_name?: Maybe<StringComparisonExp>;
   sku_confidence?: Maybe<StringComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
+  user?: Maybe<UsersBoolExp>;
   wholesale_quantity?: Maybe<IntComparisonExp>;
 };
 
 /** unique or primary key constraints on table "metrc_to_bespoke_catalog_skus" */
 export enum MetrcToBespokeCatalogSkusConstraint {
   /** unique or primary key constraint */
-  MetrcToBespokeCatalogSkusPkey = "metrc_to_bespoke_catalog_skus_pkey",
-  /** unique or primary key constraint */
-  MetrcToBespokeCatalogSkusProductCategoryNameProductNam = "metrc_to_bespoke_catalog_skus_product_category_name_product_nam",
+  MetrcToBespokeCatalogSkusPkey1 = "metrc_to_bespoke_catalog_skus_pkey1",
 }
 
 /** input type for incrementing numeric columns in table "metrc_to_bespoke_catalog_skus" */
@@ -16976,6 +16963,7 @@ export type MetrcToBespokeCatalogSkusInsertInput = {
   product_name?: Maybe<Scalars["String"]>;
   sku_confidence?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
+  user?: Maybe<UsersObjRelInsertInput>;
   wholesale_quantity?: Maybe<Scalars["Int"]>;
 };
 
@@ -17064,6 +17052,7 @@ export type MetrcToBespokeCatalogSkusOrderBy = {
   product_name?: Maybe<OrderBy>;
   sku_confidence?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
+  user?: Maybe<UsersOrderBy>;
   wholesale_quantity?: Maybe<OrderBy>;
 };
 
@@ -31567,41 +31556,62 @@ export type ListPayorPartnershipsByCompanyIdQuery = {
   >;
 };
 
-export type GetBespokeCatalogSkusSubscriptionVariables = Exact<{
+export type GetBespokeCatalogSkusQueryVariables = Exact<{
   [key: string]: never;
 }>;
 
-export type GetBespokeCatalogSkusSubscription = {
+export type GetBespokeCatalogSkusQuery = {
   bespoke_catalog_skus: Array<
     Pick<BespokeCatalogSkus, "id"> & BespokeCatalogSkuFragment
   >;
 };
 
-export type GetBespokeCatalogSkuGroupsSubscriptionVariables = Exact<{
+export type GetBespokeCatalogSkuGroupsQueryVariables = Exact<{
   [key: string]: never;
 }>;
 
-export type GetBespokeCatalogSkuGroupsSubscription = {
+export type GetBespokeCatalogSkuGroupsQuery = {
   bespoke_catalog_sku_groups: Array<
     Pick<BespokeCatalogSkuGroups, "id"> & BespokeCatalogSkuGroupFragment
   >;
 };
 
-export type GetBespokeCatalogBrandsSubscriptionVariables = Exact<{
+export type GetBespokeCatalogSkuGroupsByIdsQueryVariables = Exact<{
+  ids: Array<Scalars["uuid"]> | Scalars["uuid"];
+}>;
+
+export type GetBespokeCatalogSkuGroupsByIdsQuery = {
+  bespoke_catalog_sku_groups: Array<
+    Pick<BespokeCatalogSkuGroups, "id"> & BespokeCatalogSkuGroupFragment
+  >;
+};
+
+export type GetBespokeCatalogBrandsQueryVariables = Exact<{
   [key: string]: never;
 }>;
 
-export type GetBespokeCatalogBrandsSubscription = {
+export type GetBespokeCatalogBrandsQuery = {
   bespoke_catalog_brands: Array<
     Pick<BespokeCatalogBrands, "id"> & BespokeCatalogBrandFragment
   >;
 };
 
-export type GetMetrcToBespokeCatalogSkusSubscriptionVariables = Exact<{
+export type GetMetrcToBespokeCatalogSkusQueryVariables = Exact<{
   [key: string]: never;
 }>;
 
-export type GetMetrcToBespokeCatalogSkusSubscription = {
+export type GetMetrcToBespokeCatalogSkusQuery = {
+  metrc_to_bespoke_catalog_skus: Array<
+    Pick<MetrcToBespokeCatalogSkus, "id"> & MetrcToBespokeCatalogSkuFragment
+  >;
+};
+
+export type GetMetrcToBespokeCatalogSkusByProductNameQueryVariables = Exact<{
+  search_query: Scalars["String"];
+  limit?: Scalars["Int"];
+}>;
+
+export type GetMetrcToBespokeCatalogSkusByProductNameQuery = {
   metrc_to_bespoke_catalog_skus: Array<
     Pick<MetrcToBespokeCatalogSkus, "id"> & MetrcToBespokeCatalogSkuFragment
   >;
@@ -33764,6 +33774,7 @@ export type MetrcToBespokeCatalogSkuFragment = Pick<
   bespoke_catalog_sku?: Maybe<
     Pick<BespokeCatalogSkus, "id"> & BespokeCatalogSkuFragment
   >;
+  user?: Maybe<Pick<Users, "id" | "full_name">>;
 };
 
 export type CompanySettingsLimitedFragment = Pick<
@@ -35909,6 +35920,10 @@ export const MetrcToBespokeCatalogSkuFragmentDoc = gql`
     bespoke_catalog_sku {
       id
       ...BespokeCatalogSku
+    }
+    user {
+      id
+      full_name
     }
   }
   ${BespokeCatalogSkuFragmentDoc}
@@ -42381,7 +42396,7 @@ export type ListPayorPartnershipsByCompanyIdQueryResult = Apollo.QueryResult<
   ListPayorPartnershipsByCompanyIdQueryVariables
 >;
 export const GetBespokeCatalogSkusDocument = gql`
-  subscription GetBespokeCatalogSkus {
+  query GetBespokeCatalogSkus {
     bespoke_catalog_skus(
       where: { is_deleted: { _eq: false } }
       order_by: { created_at: desc }
@@ -42394,39 +42409,56 @@ export const GetBespokeCatalogSkusDocument = gql`
 `;
 
 /**
- * __useGetBespokeCatalogSkusSubscription__
+ * __useGetBespokeCatalogSkusQuery__
  *
- * To run a query within a React component, call `useGetBespokeCatalogSkusSubscription` and pass it any options that fit your needs.
- * When your component renders, `useGetBespokeCatalogSkusSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetBespokeCatalogSkusQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetBespokeCatalogSkusQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
- * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetBespokeCatalogSkusSubscription({
+ * const { data, loading, error } = useGetBespokeCatalogSkusQuery({
  *   variables: {
  *   },
  * });
  */
-export function useGetBespokeCatalogSkusSubscription(
-  baseOptions?: Apollo.SubscriptionHookOptions<
-    GetBespokeCatalogSkusSubscription,
-    GetBespokeCatalogSkusSubscriptionVariables
+export function useGetBespokeCatalogSkusQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetBespokeCatalogSkusQuery,
+    GetBespokeCatalogSkusQueryVariables
   >
 ) {
   const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useSubscription<
-    GetBespokeCatalogSkusSubscription,
-    GetBespokeCatalogSkusSubscriptionVariables
+  return Apollo.useQuery<
+    GetBespokeCatalogSkusQuery,
+    GetBespokeCatalogSkusQueryVariables
   >(GetBespokeCatalogSkusDocument, options);
 }
-export type GetBespokeCatalogSkusSubscriptionHookResult = ReturnType<
-  typeof useGetBespokeCatalogSkusSubscription
+export function useGetBespokeCatalogSkusLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetBespokeCatalogSkusQuery,
+    GetBespokeCatalogSkusQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetBespokeCatalogSkusQuery,
+    GetBespokeCatalogSkusQueryVariables
+  >(GetBespokeCatalogSkusDocument, options);
+}
+export type GetBespokeCatalogSkusQueryHookResult = ReturnType<
+  typeof useGetBespokeCatalogSkusQuery
 >;
-export type GetBespokeCatalogSkusSubscriptionResult =
-  Apollo.SubscriptionResult<GetBespokeCatalogSkusSubscription>;
+export type GetBespokeCatalogSkusLazyQueryHookResult = ReturnType<
+  typeof useGetBespokeCatalogSkusLazyQuery
+>;
+export type GetBespokeCatalogSkusQueryResult = Apollo.QueryResult<
+  GetBespokeCatalogSkusQuery,
+  GetBespokeCatalogSkusQueryVariables
+>;
 export const GetBespokeCatalogSkuGroupsDocument = gql`
-  subscription GetBespokeCatalogSkuGroups {
+  query GetBespokeCatalogSkuGroups {
     bespoke_catalog_sku_groups(
       where: { is_deleted: { _eq: false } }
       order_by: { created_at: desc }
@@ -42439,39 +42471,119 @@ export const GetBespokeCatalogSkuGroupsDocument = gql`
 `;
 
 /**
- * __useGetBespokeCatalogSkuGroupsSubscription__
+ * __useGetBespokeCatalogSkuGroupsQuery__
  *
- * To run a query within a React component, call `useGetBespokeCatalogSkuGroupsSubscription` and pass it any options that fit your needs.
- * When your component renders, `useGetBespokeCatalogSkuGroupsSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetBespokeCatalogSkuGroupsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetBespokeCatalogSkuGroupsQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
- * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetBespokeCatalogSkuGroupsSubscription({
+ * const { data, loading, error } = useGetBespokeCatalogSkuGroupsQuery({
  *   variables: {
  *   },
  * });
  */
-export function useGetBespokeCatalogSkuGroupsSubscription(
-  baseOptions?: Apollo.SubscriptionHookOptions<
-    GetBespokeCatalogSkuGroupsSubscription,
-    GetBespokeCatalogSkuGroupsSubscriptionVariables
+export function useGetBespokeCatalogSkuGroupsQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetBespokeCatalogSkuGroupsQuery,
+    GetBespokeCatalogSkuGroupsQueryVariables
   >
 ) {
   const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useSubscription<
-    GetBespokeCatalogSkuGroupsSubscription,
-    GetBespokeCatalogSkuGroupsSubscriptionVariables
+  return Apollo.useQuery<
+    GetBespokeCatalogSkuGroupsQuery,
+    GetBespokeCatalogSkuGroupsQueryVariables
   >(GetBespokeCatalogSkuGroupsDocument, options);
 }
-export type GetBespokeCatalogSkuGroupsSubscriptionHookResult = ReturnType<
-  typeof useGetBespokeCatalogSkuGroupsSubscription
+export function useGetBespokeCatalogSkuGroupsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetBespokeCatalogSkuGroupsQuery,
+    GetBespokeCatalogSkuGroupsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetBespokeCatalogSkuGroupsQuery,
+    GetBespokeCatalogSkuGroupsQueryVariables
+  >(GetBespokeCatalogSkuGroupsDocument, options);
+}
+export type GetBespokeCatalogSkuGroupsQueryHookResult = ReturnType<
+  typeof useGetBespokeCatalogSkuGroupsQuery
 >;
-export type GetBespokeCatalogSkuGroupsSubscriptionResult =
-  Apollo.SubscriptionResult<GetBespokeCatalogSkuGroupsSubscription>;
+export type GetBespokeCatalogSkuGroupsLazyQueryHookResult = ReturnType<
+  typeof useGetBespokeCatalogSkuGroupsLazyQuery
+>;
+export type GetBespokeCatalogSkuGroupsQueryResult = Apollo.QueryResult<
+  GetBespokeCatalogSkuGroupsQuery,
+  GetBespokeCatalogSkuGroupsQueryVariables
+>;
+export const GetBespokeCatalogSkuGroupsByIdsDocument = gql`
+  query GetBespokeCatalogSkuGroupsByIds($ids: [uuid!]!) {
+    bespoke_catalog_sku_groups(
+      where: { _and: [{ is_deleted: { _eq: false } }, { id: { _in: $ids } }] }
+      order_by: { created_at: desc }
+    ) {
+      id
+      ...BespokeCatalogSkuGroup
+    }
+  }
+  ${BespokeCatalogSkuGroupFragmentDoc}
+`;
+
+/**
+ * __useGetBespokeCatalogSkuGroupsByIdsQuery__
+ *
+ * To run a query within a React component, call `useGetBespokeCatalogSkuGroupsByIdsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetBespokeCatalogSkuGroupsByIdsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetBespokeCatalogSkuGroupsByIdsQuery({
+ *   variables: {
+ *      ids: // value for 'ids'
+ *   },
+ * });
+ */
+export function useGetBespokeCatalogSkuGroupsByIdsQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetBespokeCatalogSkuGroupsByIdsQuery,
+    GetBespokeCatalogSkuGroupsByIdsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetBespokeCatalogSkuGroupsByIdsQuery,
+    GetBespokeCatalogSkuGroupsByIdsQueryVariables
+  >(GetBespokeCatalogSkuGroupsByIdsDocument, options);
+}
+export function useGetBespokeCatalogSkuGroupsByIdsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetBespokeCatalogSkuGroupsByIdsQuery,
+    GetBespokeCatalogSkuGroupsByIdsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetBespokeCatalogSkuGroupsByIdsQuery,
+    GetBespokeCatalogSkuGroupsByIdsQueryVariables
+  >(GetBespokeCatalogSkuGroupsByIdsDocument, options);
+}
+export type GetBespokeCatalogSkuGroupsByIdsQueryHookResult = ReturnType<
+  typeof useGetBespokeCatalogSkuGroupsByIdsQuery
+>;
+export type GetBespokeCatalogSkuGroupsByIdsLazyQueryHookResult = ReturnType<
+  typeof useGetBespokeCatalogSkuGroupsByIdsLazyQuery
+>;
+export type GetBespokeCatalogSkuGroupsByIdsQueryResult = Apollo.QueryResult<
+  GetBespokeCatalogSkuGroupsByIdsQuery,
+  GetBespokeCatalogSkuGroupsByIdsQueryVariables
+>;
 export const GetBespokeCatalogBrandsDocument = gql`
-  subscription GetBespokeCatalogBrands {
+  query GetBespokeCatalogBrands {
     bespoke_catalog_brands(
       where: { is_deleted: { _eq: false } }
       order_by: { created_at: desc }
@@ -42484,42 +42596,60 @@ export const GetBespokeCatalogBrandsDocument = gql`
 `;
 
 /**
- * __useGetBespokeCatalogBrandsSubscription__
+ * __useGetBespokeCatalogBrandsQuery__
  *
- * To run a query within a React component, call `useGetBespokeCatalogBrandsSubscription` and pass it any options that fit your needs.
- * When your component renders, `useGetBespokeCatalogBrandsSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetBespokeCatalogBrandsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetBespokeCatalogBrandsQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
- * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetBespokeCatalogBrandsSubscription({
+ * const { data, loading, error } = useGetBespokeCatalogBrandsQuery({
  *   variables: {
  *   },
  * });
  */
-export function useGetBespokeCatalogBrandsSubscription(
-  baseOptions?: Apollo.SubscriptionHookOptions<
-    GetBespokeCatalogBrandsSubscription,
-    GetBespokeCatalogBrandsSubscriptionVariables
+export function useGetBespokeCatalogBrandsQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetBespokeCatalogBrandsQuery,
+    GetBespokeCatalogBrandsQueryVariables
   >
 ) {
   const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useSubscription<
-    GetBespokeCatalogBrandsSubscription,
-    GetBespokeCatalogBrandsSubscriptionVariables
+  return Apollo.useQuery<
+    GetBespokeCatalogBrandsQuery,
+    GetBespokeCatalogBrandsQueryVariables
   >(GetBespokeCatalogBrandsDocument, options);
 }
-export type GetBespokeCatalogBrandsSubscriptionHookResult = ReturnType<
-  typeof useGetBespokeCatalogBrandsSubscription
+export function useGetBespokeCatalogBrandsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetBespokeCatalogBrandsQuery,
+    GetBespokeCatalogBrandsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetBespokeCatalogBrandsQuery,
+    GetBespokeCatalogBrandsQueryVariables
+  >(GetBespokeCatalogBrandsDocument, options);
+}
+export type GetBespokeCatalogBrandsQueryHookResult = ReturnType<
+  typeof useGetBespokeCatalogBrandsQuery
 >;
-export type GetBespokeCatalogBrandsSubscriptionResult =
-  Apollo.SubscriptionResult<GetBespokeCatalogBrandsSubscription>;
+export type GetBespokeCatalogBrandsLazyQueryHookResult = ReturnType<
+  typeof useGetBespokeCatalogBrandsLazyQuery
+>;
+export type GetBespokeCatalogBrandsQueryResult = Apollo.QueryResult<
+  GetBespokeCatalogBrandsQuery,
+  GetBespokeCatalogBrandsQueryVariables
+>;
 export const GetMetrcToBespokeCatalogSkusDocument = gql`
-  subscription GetMetrcToBespokeCatalogSkus {
+  query GetMetrcToBespokeCatalogSkus {
     metrc_to_bespoke_catalog_skus(
       where: { is_deleted: { _eq: false } }
       order_by: { created_at: desc }
+      limit: 200
     ) {
       id
       ...MetrcToBespokeCatalogSku
@@ -42529,37 +42659,126 @@ export const GetMetrcToBespokeCatalogSkusDocument = gql`
 `;
 
 /**
- * __useGetMetrcToBespokeCatalogSkusSubscription__
+ * __useGetMetrcToBespokeCatalogSkusQuery__
  *
- * To run a query within a React component, call `useGetMetrcToBespokeCatalogSkusSubscription` and pass it any options that fit your needs.
- * When your component renders, `useGetMetrcToBespokeCatalogSkusSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetMetrcToBespokeCatalogSkusQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMetrcToBespokeCatalogSkusQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
- * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetMetrcToBespokeCatalogSkusSubscription({
+ * const { data, loading, error } = useGetMetrcToBespokeCatalogSkusQuery({
  *   variables: {
  *   },
  * });
  */
-export function useGetMetrcToBespokeCatalogSkusSubscription(
-  baseOptions?: Apollo.SubscriptionHookOptions<
-    GetMetrcToBespokeCatalogSkusSubscription,
-    GetMetrcToBespokeCatalogSkusSubscriptionVariables
+export function useGetMetrcToBespokeCatalogSkusQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetMetrcToBespokeCatalogSkusQuery,
+    GetMetrcToBespokeCatalogSkusQueryVariables
   >
 ) {
   const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useSubscription<
-    GetMetrcToBespokeCatalogSkusSubscription,
-    GetMetrcToBespokeCatalogSkusSubscriptionVariables
+  return Apollo.useQuery<
+    GetMetrcToBespokeCatalogSkusQuery,
+    GetMetrcToBespokeCatalogSkusQueryVariables
   >(GetMetrcToBespokeCatalogSkusDocument, options);
 }
-export type GetMetrcToBespokeCatalogSkusSubscriptionHookResult = ReturnType<
-  typeof useGetMetrcToBespokeCatalogSkusSubscription
+export function useGetMetrcToBespokeCatalogSkusLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetMetrcToBespokeCatalogSkusQuery,
+    GetMetrcToBespokeCatalogSkusQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetMetrcToBespokeCatalogSkusQuery,
+    GetMetrcToBespokeCatalogSkusQueryVariables
+  >(GetMetrcToBespokeCatalogSkusDocument, options);
+}
+export type GetMetrcToBespokeCatalogSkusQueryHookResult = ReturnType<
+  typeof useGetMetrcToBespokeCatalogSkusQuery
 >;
-export type GetMetrcToBespokeCatalogSkusSubscriptionResult =
-  Apollo.SubscriptionResult<GetMetrcToBespokeCatalogSkusSubscription>;
+export type GetMetrcToBespokeCatalogSkusLazyQueryHookResult = ReturnType<
+  typeof useGetMetrcToBespokeCatalogSkusLazyQuery
+>;
+export type GetMetrcToBespokeCatalogSkusQueryResult = Apollo.QueryResult<
+  GetMetrcToBespokeCatalogSkusQuery,
+  GetMetrcToBespokeCatalogSkusQueryVariables
+>;
+export const GetMetrcToBespokeCatalogSkusByProductNameDocument = gql`
+  query GetMetrcToBespokeCatalogSkusByProductName(
+    $search_query: String!
+    $limit: Int! = 200
+  ) {
+    metrc_to_bespoke_catalog_skus(
+      where: {
+        _and: [
+          { is_deleted: { _eq: false } }
+          { product_name: { _ilike: $search_query } }
+        ]
+      }
+      order_by: { created_at: desc }
+      limit: $limit
+    ) {
+      id
+      ...MetrcToBespokeCatalogSku
+    }
+  }
+  ${MetrcToBespokeCatalogSkuFragmentDoc}
+`;
+
+/**
+ * __useGetMetrcToBespokeCatalogSkusByProductNameQuery__
+ *
+ * To run a query within a React component, call `useGetMetrcToBespokeCatalogSkusByProductNameQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMetrcToBespokeCatalogSkusByProductNameQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetMetrcToBespokeCatalogSkusByProductNameQuery({
+ *   variables: {
+ *      search_query: // value for 'search_query'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetMetrcToBespokeCatalogSkusByProductNameQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetMetrcToBespokeCatalogSkusByProductNameQuery,
+    GetMetrcToBespokeCatalogSkusByProductNameQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetMetrcToBespokeCatalogSkusByProductNameQuery,
+    GetMetrcToBespokeCatalogSkusByProductNameQueryVariables
+  >(GetMetrcToBespokeCatalogSkusByProductNameDocument, options);
+}
+export function useGetMetrcToBespokeCatalogSkusByProductNameLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetMetrcToBespokeCatalogSkusByProductNameQuery,
+    GetMetrcToBespokeCatalogSkusByProductNameQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetMetrcToBespokeCatalogSkusByProductNameQuery,
+    GetMetrcToBespokeCatalogSkusByProductNameQueryVariables
+  >(GetMetrcToBespokeCatalogSkusByProductNameDocument, options);
+}
+export type GetMetrcToBespokeCatalogSkusByProductNameQueryHookResult =
+  ReturnType<typeof useGetMetrcToBespokeCatalogSkusByProductNameQuery>;
+export type GetMetrcToBespokeCatalogSkusByProductNameLazyQueryHookResult =
+  ReturnType<typeof useGetMetrcToBespokeCatalogSkusByProductNameLazyQuery>;
+export type GetMetrcToBespokeCatalogSkusByProductNameQueryResult =
+  Apollo.QueryResult<
+    GetMetrcToBespokeCatalogSkusByProductNameQuery,
+    GetMetrcToBespokeCatalogSkusByProductNameQueryVariables
+  >;
 export const GetBespokeCatalogSkusBySkuNameDocument = gql`
   query GetBespokeCatalogSkusBySkuName($search_prefix: String!) {
     bespoke_catalog_skus(

@@ -1,15 +1,21 @@
-import { Box } from "@material-ui/core";
+import { Box, InputAdornment, TextField } from "@material-ui/core";
+import { DEFAULT_BESPOKE_CATALOG_QUERY_SIZE } from "components/ProductCatalog/constants";
 import EditBespokeCatalogEntryModal from "components/ProductCatalog/EditBespokeCatalogEntryModal";
 import MetrcToBespokeCatalogSkusDataGrid from "components/ProductCatalog/MetrcToBespokeCatalogSkusDataGrid";
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
 import Can from "components/Shared/Can";
 import Text, { TextVariants } from "components/Shared/Text/Text";
 import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
+import {
   MetrcToBespokeCatalogSkuFragment,
-  useGetMetrcToBespokeCatalogSkusSubscription,
+  useGetMetrcToBespokeCatalogSkusByProductNameLazyQuery,
 } from "generated/graphql";
+import { SearchIcon } from "icons";
 import { Action } from "lib/auth/rbac-rules";
-import { useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -21,10 +27,20 @@ const Container = styled.div`
 `;
 
 const RecentlyAddedTab = () => {
-  const { data } = useGetMetrcToBespokeCatalogSkusSubscription();
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
+  const isBankAdminOrReadOnlyUser = isRoleBankUser(role);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [
+    loadBespokeCatalogEntriesByProductName,
+    { data: bespokeCatalogEntriesByProductNameData },
+  ] = useGetMetrcToBespokeCatalogSkusByProductNameLazyQuery();
   const metrcToBespokeCatalogSkus = useMemo(
-    () => data?.metrc_to_bespoke_catalog_skus || [],
-    [data]
+    () =>
+      bespokeCatalogEntriesByProductNameData?.metrc_to_bespoke_catalog_skus ||
+      [],
+    [bespokeCatalogEntriesByProductNameData]
   );
   const [selectedEntryIds, setSelectedEntries] = useState<string[]>([]);
   const [isEditEntryModalOpen, setIsEditEntryModalOpen] =
@@ -48,6 +64,22 @@ const RecentlyAddedTab = () => {
     [selectedEntryIds, metrcToBespokeCatalogSkus]
   );
 
+  useEffect(() => {
+    handleClickSearch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleClickSearch = () => {
+    const search_query =
+      searchQuery.length === 0 ? "%%" : `%${searchQuery.trim()}%`;
+    loadBespokeCatalogEntriesByProductName({
+      variables: {
+        search_query,
+        limit: DEFAULT_BESPOKE_CATALOG_QUERY_SIZE,
+      },
+    });
+  };
+
   return (
     <Container>
       {selectedEntry && isEditEntryModalOpen && (
@@ -59,6 +91,23 @@ const RecentlyAddedTab = () => {
           }}
         />
       )}
+      <Box display="flex" mb={2} justifyContent="space-between">
+        <TextField
+          autoFocus
+          label="Search"
+          value={searchQuery}
+          onChange={({ target: { value } }) => setSearchQuery(value)}
+          style={{ width: 430 }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
+        <PrimaryButton text={"Refetch Results"} onClick={handleClickSearch} />
+      </Box>
       <Box display="flex" justifyContent="space-between" mb={2}>
         <Text textVariant={TextVariants.ParagraphLead}>
           Bespoke Catalog Entries
@@ -74,6 +123,7 @@ const RecentlyAddedTab = () => {
       <MetrcToBespokeCatalogSkusDataGrid
         metrcToBespokeCatalogSkus={metrcToBespokeCatalogSkus}
         selectedMetricToBespokeCatalogSkuIds={selectedEntryIds}
+        isBankAdminUser={isBankAdminOrReadOnlyUser}
         onSelectionChanged={handleSelectEntries}
       />
     </Container>

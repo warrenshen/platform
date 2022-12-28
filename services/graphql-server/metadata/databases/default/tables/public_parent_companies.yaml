@@ -25,6 +25,12 @@ select_permissions:
         - updated_at
         - name
       filter: {}
+  - role: bank_contractor
+    permission:
+      columns:
+        - id
+        - name
+      filter: {}
   - role: bank_read_only
     permission:
       columns:

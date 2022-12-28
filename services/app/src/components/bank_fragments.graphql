@@ -790,4 +790,8 @@ fragment MetrcToBespokeCatalogSku on metrc_to_bespoke_catalog_skus {
     id
     ...BespokeCatalogSku
   }
+  user {
+    id
+    full_name
+  }
 }
