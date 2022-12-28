@@ -76,9 +76,6 @@ class TestGetOptInCustomers(db_unittest.TestCase):
 	def test_for_filtering_out_non_supported_product_types(self) -> None:
 		with session_scope(self.session_maker) as session:
 			company_id = str(uuid.uuid4())
-			product_types_with_autogenerate: List[str] = [
-				ProductType.DISPENSARY_FINANCING
-			]
 			self.setup_data_for_get_opt_in_customers_from_chunk(
 				session,
 				company_id,
@@ -95,7 +92,7 @@ class TestGetOptInCustomers(db_unittest.TestCase):
 			filtered_customers, filtered_customer_ids, company_settings_lookup, filtered_err = autogenerate_repayment_util.get_opt_in_customers(
 				session, 
 				customers,
-				product_types_with_autogenerate,
+				autogenerate_repayment_util.product_types_with_autogenerate,
 				TODAY_DATE
 			)
 
@@ -107,9 +104,6 @@ class TestGetOptInCustomers(db_unittest.TestCase):
 	def test_for_filtering_out_inactive_client(self) -> None:
 		with session_scope(self.session_maker) as session:
 			company_id = str(uuid.uuid4())
-			product_types_with_autogenerate: List[str] = [
-				ProductType.DISPENSARY_FINANCING
-			]
 			self.setup_data_for_get_opt_in_customers_from_chunk(
 				session,
 				company_id,
@@ -126,7 +120,7 @@ class TestGetOptInCustomers(db_unittest.TestCase):
 			filtered_customers, filtered_customer_ids, company_settings_lookup, filtered_err = autogenerate_repayment_util.get_opt_in_customers(
 				session, 
 				customers,
-				product_types_with_autogenerate,
+				autogenerate_repayment_util.product_types_with_autogenerate,
 				TODAY_DATE
 			)
 
@@ -139,10 +133,6 @@ class TestGetOptInCustomers(db_unittest.TestCase):
 		with session_scope(self.session_maker) as session:
 			company_ids = [str(uuid.uuid4()), str(uuid.uuid4())]
 			is_dummy = [True, False]
-			product_types_with_autogenerate: List[str] = [
-				ProductType.DISPENSARY_FINANCING
-			]
-
 			
 			for i in range(2):
 				self.setup_data_for_get_opt_in_customers_from_chunk(
@@ -161,7 +151,7 @@ class TestGetOptInCustomers(db_unittest.TestCase):
 			filtered_customers, filtered_customer_ids, company_settings_lookup, filtered_err = autogenerate_repayment_util.get_opt_in_customers(
 				session, 
 				customers,
-				product_types_with_autogenerate,
+				autogenerate_repayment_util.product_types_with_autogenerate,
 				TODAY_DATE
 			)
 
@@ -173,10 +163,7 @@ class TestGetOptInCustomers(db_unittest.TestCase):
 	def test_for_filtering_out_bank_overridden_customers(self) -> None:
 		with session_scope(self.session_maker) as session:
 			company_id = str(uuid.uuid4())
-			product_types_with_autogenerate: List[str] = [
-				ProductType.DISPENSARY_FINANCING
-			]
-
+			
 			self.setup_data_for_get_opt_in_customers_from_chunk(
 				session,
 				company_id,
@@ -193,7 +180,7 @@ class TestGetOptInCustomers(db_unittest.TestCase):
 			filtered_customers, filtered_customer_ids, company_settings_lookup, filtered_err = autogenerate_repayment_util.get_opt_in_customers(
 				session, 
 				customers,
-				product_types_with_autogenerate,
+				autogenerate_repayment_util.product_types_with_autogenerate,
 				TODAY_DATE
 			)
 
@@ -205,10 +192,7 @@ class TestGetOptInCustomers(db_unittest.TestCase):
 	def test_get_opt_in_customers_from_chunk_for_no_company_settings_error(self) -> None:
 		with session_scope(self.session_maker) as session:
 			company_id = str(uuid.uuid4())
-			product_types_with_autogenerate: List[str] = [
-				ProductType.DISPENSARY_FINANCING
-			]
-
+			
 			self.setup_data_for_get_opt_in_customers_from_chunk(
 				session,
 				company_id,
@@ -225,7 +209,7 @@ class TestGetOptInCustomers(db_unittest.TestCase):
 			filtered_customers, filtered_customer_ids, company_settings_lookup, filtered_err = autogenerate_repayment_util.get_opt_in_customers(
 				session, 
 				customers,
-				product_types_with_autogenerate,
+				autogenerate_repayment_util.product_types_with_autogenerate,
 				TODAY_DATE
 			)
 			self.assertIsNone(filtered_customers)
@@ -236,10 +220,7 @@ class TestGetOptInCustomers(db_unittest.TestCase):
 	def test_get_opt_in_customers_from_chunk_for_no_financial_summaries_error(self) -> None:
 		with session_scope(self.session_maker) as session:
 			company_id = str(uuid.uuid4())
-			product_types_with_autogenerate: List[str] = [
-				ProductType.DISPENSARY_FINANCING
-			]
-
+			
 			self.setup_data_for_get_opt_in_customers_from_chunk(
 				session,
 				company_id,
@@ -257,7 +238,7 @@ class TestGetOptInCustomers(db_unittest.TestCase):
 			filtered_customers, filtered_customer_ids, company_settings_lookup, filtered_err = autogenerate_repayment_util.get_opt_in_customers(
 				session, 
 				customers,
-				product_types_with_autogenerate,
+				autogenerate_repayment_util.product_types_with_autogenerate,
 				TODAY_DATE
 			)
 			self.assertIsNone(filtered_customers)
@@ -273,6 +254,8 @@ class TestFindMatureLoansWithoutOpenRepayments(db_unittest.TestCase):
 		setup_loans: bool = False,
 		setup_repayments: bool = False,
 		repayment_count: int = 0,
+		repayment_reversed: List[bool] = [],
+		repayment_soft_deleted: List[bool] = [],
 		target_date: datetime.date = TODAY_DATE,
 	) -> None:
 		for i in range(len(customer_ids)):
@@ -368,8 +351,10 @@ class TestFindMatureLoansWithoutOpenRepayments(db_unittest.TestCase):
 					settled_at = None,
 					settled_by_user_id = None,
 					originating_payment_id = str(uuid.uuid4()),
-					is_deleted = False,
-					reversed_at = None
+					is_deleted = True if i < len(repayment_soft_deleted) \
+						and repayment_soft_deleted[i] else False,
+					reversed_at = get_relative_date(target_date, -1) \
+						if i < len(repayment_reversed) and repayment_reversed[i] else None, 
 				)
 
 				session.add(repayment)
@@ -505,6 +490,7 @@ class TestFindMatureLoansWithoutOpenRepayments(db_unittest.TestCase):
 					setup_loans = True,
 					setup_repayments = True,
 					repayment_count = 2,
+					repayment_reversed = [True, False],
 					target_date = target_date,
 				)
 
@@ -527,6 +513,58 @@ class TestFindMatureLoansWithoutOpenRepayments(db_unittest.TestCase):
 					number_of_loans += len(loans_for_repayment[company_id])
 				self.assertEqual(number_of_companies_with_loans, 4)
 				self.assertEqual(number_of_loans, 6)
+				self.assertIsNone(err)
+
+	def test_customers_with_loans_and_some_repayments_that_were_soft_deleted(self) -> None:
+		with session_scope(self.session_maker) as session:
+			target_dates = [
+				get_relative_date(TODAY_DATE, -3), # Monday 9/28/2020
+				get_relative_date(TODAY_DATE, -2), # Tuesday 9/29/2020
+				get_relative_date(TODAY_DATE, -1), # Wednesday 9/30/2020 
+				get_relative_date(TODAY_DATE, 0),  # Thursday 10/1/2020
+				get_relative_date(TODAY_DATE, 1),  # Friday 10/2/2020
+				# this tests for a holiday (Columbus Day) on the following Monday
+				# if the code and tests are correct, then we should be testing 
+				# for loans the tuesday after the holiday
+				get_relative_date(TODAY_DATE, 8),  # Friday 10/9/2020
+			]
+
+			for target_date in target_dates:
+				customer_ids = []
+				for i in range(4):
+					customer_ids.append(str(uuid.uuid4()))
+
+				self.setup_data_for_test(
+					session,
+					customer_ids,
+					setup_loans = True,
+					setup_repayments = True,
+					repayment_count = 2,
+					repayment_reversed = [True, False],
+					repayment_soft_deleted = [True, True],
+					target_date = target_date,
+				)
+
+				loans_for_repayment, err = autogenerate_repayment_util.find_mature_loans_without_open_repayments(
+					session,
+					customer_ids,
+					target_date,
+				)
+
+				# We set up 12 loans over 4 customers. They come in three categories
+				# 1. Already matured loans (i.e. prior to this run) with repayments - won't count towards total
+				# 2. Loans that are maturing on the next business day from target_date - counts toward total
+				# 3. Loans that are not yet mature - won't count towards total
+				# For this unit test, note that we're expecting 6 loans overall. This is because we only set up
+				# repayments for two of the companies' already mature loans. Put another way: 
+				# 12 total loans - 4 immature loans = 8 expected loans
+				# Since the two repayments were soft deleted, they should not impact the expected count
+				number_of_companies_with_loans = len(loans_for_repayment)
+				number_of_loans = 0
+				for company_id in loans_for_repayment:
+					number_of_loans += len(loans_for_repayment[company_id])
+				self.assertEqual(number_of_companies_with_loans, 4)
+				self.assertEqual(number_of_loans, 8)
 				self.assertIsNone(err)
 
 class TestGenerateRepaymentsForMatureLoans(db_unittest.TestCase):
@@ -622,9 +660,6 @@ class TestGenerateRepaymentsForMatureLoans(db_unittest.TestCase):
 
 	def test_generation_happy_path(self) -> None:
 		with session_scope(self.session_maker) as session:
-			product_types_with_autogenerate: List[str] = [
-				ProductType.DISPENSARY_FINANCING
-			]
 			bot_user_id = str(uuid.uuid4())
 			customer_ids = []
 			contract_ids = []
@@ -649,7 +684,7 @@ class TestGenerateRepaymentsForMatureLoans(db_unittest.TestCase):
 			filtered_customers, filtered_customer_ids, company_settings_lookup, filtered_err = autogenerate_repayment_util.get_opt_in_customers(
 				session, 
 				customers,
-				product_types_with_autogenerate,
+				autogenerate_repayment_util.product_types_with_autogenerate,
 				TODAY_DATE,
 			)
 
