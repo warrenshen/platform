@@ -10,14 +10,14 @@ import {
   CustomMutationResponse,
   CustomQueryResponse,
   authenticatedApi,
-  productCatalogRoutes,
+  bespokeCatalogRoutes,
 } from "lib/api";
 
 export async function getSalesTransactionData(
   req: AxiosRequestConfig
 ): Promise<CustomQueryResponse> {
   return authenticatedApi
-    .get(productCatalogRoutes.getSalesTransactions, req)
+    .get(bespokeCatalogRoutes.getSalesTransactions, req)
     .then((res) => res.data)
     .then(
       (res) => res,
@@ -35,7 +35,7 @@ export async function getIncomingTransferPackageData(
   req: AxiosRequestConfig
 ): Promise<CustomQueryResponse> {
   return authenticatedApi
-    .get(productCatalogRoutes.getIncomingTransferPackages, req)
+    .get(bespokeCatalogRoutes.getIncomingTransferPackages, req)
     .then((res) => res.data)
     .then(
       (res) => res,
@@ -53,7 +53,7 @@ export async function getInventoryPackageData(
   req: AxiosRequestConfig
 ): Promise<CustomQueryResponse> {
   return authenticatedApi
-    .get(productCatalogRoutes.getInventoryPackages, req)
+    .get(bespokeCatalogRoutes.getInventoryPackages, req)
     .then((res) => res.data)
     .then(
       (res) => res,
@@ -78,7 +78,7 @@ export async function createUpdateBespokeCatalogBrandMutation(
   req: CreateUpdateBespokeCatalogBrandReq
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(productCatalogRoutes.createUpdateBespokeCatalogBrand, req.variables)
+    .post(bespokeCatalogRoutes.createUpdateBespokeCatalogBrand, req.variables)
     .then((res) => res.data)
     .then(
       (res) => res,
@@ -102,7 +102,7 @@ export async function deleteBespokeCatalogBrandMutation(
   req: DeleteBespokeCatalogBrandReq
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(productCatalogRoutes.deleteBespokeCatalogBrand, req.variables)
+    .post(bespokeCatalogRoutes.deleteBespokeCatalogBrand, req.variables)
     .then((res) => res.data)
     .then(
       (res) => res,
@@ -131,7 +131,7 @@ export async function createUpdateBespokeCatalogSkuGroupMutation(
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
     .post(
-      productCatalogRoutes.createUpdateBespokeCatalogSkuGroup,
+      bespokeCatalogRoutes.createUpdateBespokeCatalogSkuGroup,
       req.variables
     )
     .then((res) => res.data)
@@ -157,7 +157,7 @@ export async function deleteBespokeCatalogSkuGroupMutation(
   req: DeleteBespokeCatalogSkuGroupReq
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(productCatalogRoutes.deleteBespokeCatalogSkuGroup, req.variables)
+    .post(bespokeCatalogRoutes.deleteBespokeCatalogSkuGroup, req.variables)
     .then((res) => res.data)
     .then(
       (res) => res,
@@ -183,7 +183,7 @@ export async function createUpdateBespokeCatalogSkuMutation(
   req: CreateUpdateBespokeCatalogSkuReq
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(productCatalogRoutes.createUpdateBespokeCatalogSku, req.variables)
+    .post(bespokeCatalogRoutes.createUpdateBespokeCatalogSku, req.variables)
     .then((res) => res.data)
     .then(
       (res) => res,
@@ -207,7 +207,7 @@ export async function deleteBespokeCatalogSkuMutation(
   req: DeleteBespokeCatalogSkuReq
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(productCatalogRoutes.deleteBespokeCatalogSku, req.variables)
+    .post(bespokeCatalogRoutes.deleteBespokeCatalogSku, req.variables)
     .then((res) => res.data)
     .then(
       (res) => res,
@@ -225,8 +225,8 @@ export type CreateMetrcToBespokeCatalogSkuReq = {
   variables: {
     bespoke_catalog_sku_id: BespokeCatalogSkus["id"];
     bespoke_catalog_sku: BespokeCatalogSkusInsertInput;
-    product_name: string;
-    product_category_name: string;
+    bespoke_name: string;
+    bespoke_category_name: string;
     wholesale_quantity: number;
     is_sample: boolean;
     sku_confidence: string;
@@ -238,7 +238,7 @@ export async function createMetrcToBespokeCatalogSkuMutation(
   req: CreateMetrcToBespokeCatalogSkuReq
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(productCatalogRoutes.createMetrcToBespokeCatalogSku, req.variables)
+    .post(bespokeCatalogRoutes.createMetrcToBespokeCatalogSku, req.variables)
     .then((res) => res.data)
     .then(
       (res) => res,
@@ -253,8 +253,8 @@ export async function createMetrcToBespokeCatalogSkuMutation(
 }
 
 type InvalidMetrcToBespokeCatalogSku = {
-  product_name: string;
-  product_category_name: string;
+  bespoke_name: string;
+  bespoke_category_name: string;
   sku_confidence: string;
 };
 
@@ -268,7 +268,7 @@ export async function createInvalidMetrcToBespokeCatalogSkuMutation(
   req: InvalidMetrcToBespokeCatalogSkuReq
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(productCatalogRoutes.invalidMetrcToBespokeCatalogSku, req.variables)
+    .post(bespokeCatalogRoutes.invalidMetrcToBespokeCatalogSku, req.variables)
     .then((res) => res.data)
     .then(
       (res) => res,
@@ -292,7 +292,7 @@ export async function createSampleMetrcToBespokeCatalogSkuMutation(
   req: SampleMetrcToBespokeCatalogSkuReq
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(productCatalogRoutes.sampleMetrcToBespokeCatalogSku, req.variables)
+    .post(bespokeCatalogRoutes.sampleMetrcToBespokeCatalogSku, req.variables)
     .then((res) => res.data)
     .then(
       (res) => res,
@@ -317,7 +317,7 @@ export async function updateMetrcToBespokeCatalogSkuMutation(
   req: UpdateMetrcToBespokeCatalogSkuReq
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(productCatalogRoutes.updateMetrcToBespokeCatalogSku, req.variables)
+    .post(bespokeCatalogRoutes.updateMetrcToBespokeCatalogSku, req.variables)
     .then((res) => res.data)
     .then(
       (res) => res,
@@ -341,7 +341,7 @@ export async function deleteMetrcToBespokeCatalogSkuMutation(
   req: DeleteMetrcToBespokeCatalogSkuReq
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(productCatalogRoutes.deleteMetrcToBespokeCatalogSku, req.variables)
+    .post(bespokeCatalogRoutes.deleteMetrcToBespokeCatalogSku, req.variables)
     .then((res) => res.data)
     .then(
       (res) => res,

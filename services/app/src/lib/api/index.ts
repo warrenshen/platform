@@ -236,30 +236,30 @@ export const asyncJobRoutes = {
   retryAsyncJob: "async_jobs/retry-job",
 };
 
-export const productCatalogRoutes = {
+export const bespokeCatalogRoutes = {
   createUpdateBespokeCatalogBrand:
-    "product_catalog/create_update_bespoke_catalog_brand",
+    "bespoke_catalog/create_update_bespoke_catalog_brand",
   createUpdateBespokeCatalogSku:
-    "product_catalog/create_update_bespoke_catalog_sku",
+    "bespoke_catalog/create_update_bespoke_catalog_sku",
   createUpdateBespokeCatalogSkuGroup:
-    "product_catalog/create_update_bespoke_catalog_sku_group",
+    "bespoke_catalog/create_update_bespoke_catalog_sku_group",
   createMetrcToBespokeCatalogSku:
-    "product_catalog/create_metrc_to_bespoke_catalog_sku",
+    "bespoke_catalog/create_metrc_to_bespoke_catalog_sku",
   sampleMetrcToBespokeCatalogSku:
-    "product_catalog/create_sample_metrc_to_bespoke_catalog_skus",
+    "bespoke_catalog/create_sample_metrc_to_bespoke_catalog_skus",
   invalidMetrcToBespokeCatalogSku:
-    "product_catalog/create_invalid_metrc_to_bespoke_catalog_skus",
+    "bespoke_catalog/create_invalid_metrc_to_bespoke_catalog_skus",
   updateMetrcToBespokeCatalogSku:
-    "product_catalog/update_metrc_to_bespoke_catalog_sku",
-  deleteBespokeCatalogBrand: "product_catalog/delete_bespoke_catalog_brand",
+    "bespoke_catalog/update_metrc_to_bespoke_catalog_sku",
+  deleteBespokeCatalogBrand: "bespoke_catalog/delete_bespoke_catalog_brand",
   deleteBespokeCatalogSkuGroup:
-    "product_catalog/delete_bespoke_catalog_sku_group",
-  deleteBespokeCatalogSku: "product_catalog/delete_bespoke_catalog_sku",
+    "bespoke_catalog/delete_bespoke_catalog_sku_group",
+  deleteBespokeCatalogSku: "bespoke_catalog/delete_bespoke_catalog_sku",
   deleteMetrcToBespokeCatalogSku:
-    "product_catalog/delete_metrc_to_bespoke_catalog_sku",
-  getSalesTransactions: "product_catalog/sales_transactions",
-  getIncomingTransferPackages: "product_catalog/incoming_transfer_packages",
-  getInventoryPackages: "product_catalog/inventory_packages",
+    "bespoke_catalog/delete_metrc_to_bespoke_catalog_sku",
+  getSalesTransactions: "bespoke_catalog/sales_transactions",
+  getIncomingTransferPackages: "bespoke_catalog/incoming_transfer_packages",
+  getInventoryPackages: "bespoke_catalog/inventory_packages",
 };
 
 export const emailAlertRoutes = {

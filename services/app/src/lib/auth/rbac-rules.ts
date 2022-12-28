@@ -118,7 +118,7 @@ export enum Action {
   RunFinancialAlert = "email_alerts:send_financial_alert",
 
   // Product Catalog
-  EditBespokeCatalog = "product_catalog:edit_bespoke_catalog",
+  EditBespokeCatalog = "bespoke_catalog:edit_bespoke_catalog",
 }
 
 export interface ActionData {

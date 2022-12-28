@@ -7,8 +7,8 @@ import {
   FormControlLabel,
   TextField,
 } from "@material-ui/core";
-import AutocompleteSelectDropdown from "components/ProductCatalog/AutocompleteSelectDropdown";
-import { DEFAULT_AUTOCOMPLETE_MINIMUM_QUERY_LENGTH } from "components/ProductCatalog/constants";
+import AutocompleteSelectDropdown from "components/BespokeCatalog/AutocompleteSelectDropdown";
+import { DEFAULT_AUTOCOMPLETE_MINIMUM_QUERY_LENGTH } from "components/BespokeCatalog/constants";
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
 import SecondaryButton from "components/Shared/Button/SecondaryButton";
 import CardDivider from "components/Shared/Card/CardDivider";
@@ -24,7 +24,7 @@ import {
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { CustomCheckboxChecked, CustomCheckboxUnchecked } from "icons";
-import { updateMetrcToBespokeCatalogSkuMutation } from "lib/api/productCatalog";
+import { updateMetrcToBespokeCatalogSkuMutation } from "lib/api/bespokeCatalog";
 import {
   MetrcToBespokeCatalogSkuConfidenceLabel,
   MetrcToBespokeCatalogSkuConfidenceLabels,

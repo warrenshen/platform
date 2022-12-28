@@ -4,8 +4,8 @@ import {
   LinearProgress,
   TextField,
 } from "@material-ui/core";
-import CreateBespokeCatalogEntryCompleteModal from "components/ProductCatalog/CreateBespokeCatalogEntryCompleteModal";
-import MetrcInventoryPackagesDataGrid from "components/ProductCatalog/MetrcInventoryPackagesDataGrid";
+import CreateBespokeCatalogEntryCompleteModal from "components/BespokeCatalog/CreateBespokeCatalogEntryCompleteModal";
+import MetrcInventoryPackagesDataGrid from "components/BespokeCatalog/MetrcInventoryPackagesDataGrid";
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
 import SecondaryButton from "components/Shared/Button/SecondaryButton";
 import Can from "components/Shared/Can";
@@ -19,7 +19,7 @@ import {
   createInvalidMetrcToBespokeCatalogSkuMutation,
   createSampleMetrcToBespokeCatalogSkuMutation,
   getInventoryPackageData,
-} from "lib/api/productCatalog";
+} from "lib/api/bespokeCatalog";
 import { Action } from "lib/auth/rbac-rules";
 import { MetrcToBespokeCatalogSkuConfidenceLabel } from "lib/enum";
 import { useEffect, useMemo, useState } from "react";

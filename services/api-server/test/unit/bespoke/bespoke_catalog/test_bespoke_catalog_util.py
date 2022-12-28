@@ -2,7 +2,7 @@ import uuid
 from typing import cast
 from bespoke.db import models
 from bespoke.db.models import session_scope
-from bespoke.product_catalog import product_catalog_util
+from bespoke.bespoke_catalog import bespoke_catalog_util
 from bespoke_test.db import db_unittest
 from sqlalchemy.orm.session import Session
 
@@ -26,7 +26,7 @@ class TestCreateUpdateBespokeCatalogBrandView(db_unittest.TestCase):
 			brand_name = 'Test Brand'
 			parent_company_id = None
 
-			brand_id, err = product_catalog_util.create_update_bespoke_catalog_brand(
+			brand_id, err = bespoke_catalog_util.create_update_bespoke_catalog_brand(
 				id=None,
 				session=session,
 				brand_name=brand_name,
@@ -54,7 +54,7 @@ class TestCreateUpdateBespokeCatalogBrandView(db_unittest.TestCase):
 			)
 
 			new_brand_name = 'Gucci'
-			brand_id, err = product_catalog_util.create_update_bespoke_catalog_brand(
+			brand_id, err = bespoke_catalog_util.create_update_bespoke_catalog_brand(
 				session=session,
 				id=brand_id,
 				brand_name=new_brand_name,

@@ -1,7 +1,7 @@
 import { Box, InputAdornment, TextField } from "@material-ui/core";
-import { DEFAULT_BESPOKE_CATALOG_QUERY_SIZE } from "components/ProductCatalog/constants";
-import EditBespokeCatalogEntryModal from "components/ProductCatalog/EditBespokeCatalogEntryModal";
-import MetrcToBespokeCatalogSkusDataGrid from "components/ProductCatalog/MetrcToBespokeCatalogSkusDataGrid";
+import { DEFAULT_BESPOKE_CATALOG_QUERY_SIZE } from "components/BespokeCatalog/constants";
+import EditBespokeCatalogEntryModal from "components/BespokeCatalog/EditBespokeCatalogEntryModal";
+import MetrcToBespokeCatalogSkusDataGrid from "components/BespokeCatalog/MetrcToBespokeCatalogSkusDataGrid";
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
 import Can from "components/Shared/Can";
 import Text, { TextVariants } from "components/Shared/Text/Text";

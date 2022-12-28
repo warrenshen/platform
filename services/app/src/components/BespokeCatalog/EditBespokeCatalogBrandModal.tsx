@@ -6,8 +6,8 @@ import {
   LinearProgress,
   TextField,
 } from "@material-ui/core";
-import AutocompleteSelectDropdown from "components/ProductCatalog/AutocompleteSelectDropdown";
-import { DEFAULT_AUTOCOMPLETE_MINIMUM_QUERY_LENGTH } from "components/ProductCatalog/constants";
+import AutocompleteSelectDropdown from "components/BespokeCatalog/AutocompleteSelectDropdown";
+import { DEFAULT_AUTOCOMPLETE_MINIMUM_QUERY_LENGTH } from "components/BespokeCatalog/constants";
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
 import SecondaryButton from "components/Shared/Button/SecondaryButton";
 import ModalDialog from "components/Shared/Modal/ModalDialog";
@@ -19,7 +19,7 @@ import {
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { createUpdateBespokeCatalogBrandMutation } from "lib/api/productCatalog";
+import { createUpdateBespokeCatalogBrandMutation } from "lib/api/bespokeCatalog";
 import { debounce } from "lodash";
 import { useState } from "react";
 import styled from "styled-components";

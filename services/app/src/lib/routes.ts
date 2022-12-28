@@ -103,7 +103,7 @@ export const bankRoutes = {
   partnerships: "/partnerships",
   payors: "/payors",
   purchaseOrdersNew: "/purchase-orders",
-  productCatalog: "/product-catalog",
+  bespokeCatalog: "/bespoke-catalog",
   repayments: "/repayments",
   reports: "/reports",
   settings: "/settings",

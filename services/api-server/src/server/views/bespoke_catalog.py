@@ -5,7 +5,7 @@ from typing import Any, cast, List
 from bespoke import errors
 from bespoke.db import models
 from bespoke.db.models import session_scope
-from bespoke.product_catalog import product_catalog_util
+from bespoke.bespoke_catalog import bespoke_catalog_util
 from flask import Blueprint, Response, make_response, request, current_app
 from flask.views import MethodView
 from server.views.common import auth_util, handler_util
@@ -246,7 +246,7 @@ class CreateUpdateBespokeCatalogBrandView(MethodView):
 		parent_company_id = data["parent_company_id"]
 
 		with session_scope(current_app.session_maker) as session:
-			brand_id, err = product_catalog_util.create_update_bespoke_catalog_brand(
+			brand_id, err = bespoke_catalog_util.create_update_bespoke_catalog_brand(
 				session=session,
 				id=id,
 				brand_name=brand_name,
@@ -276,7 +276,7 @@ class DeleteBespokeCatalogBrandView(MethodView):
 		id = data["id"]
 
 		with session_scope(current_app.session_maker) as session:
-			brand_id, err = product_catalog_util.delete_bespoke_catalog_brand(
+			brand_id, err = bespoke_catalog_util.delete_bespoke_catalog_brand(
 				session=session,
 				id=id,
 			)
@@ -316,7 +316,7 @@ class CreateUpdateBespokeCatalogSkuGroupView(MethodView):
 		unit_of_measure = data["unit_of_measure"]
 
 		with session_scope(current_app.session_maker) as session:
-			sku_id, err = product_catalog_util.create_update_bespoke_catalog_sku_group(
+			sku_id, err = bespoke_catalog_util.create_update_bespoke_catalog_sku_group(
 				session=session,
 				id=id,
 				sku_group_name=sku_group_name,
@@ -348,7 +348,7 @@ class DeleteBespokeCatalogSkuGroupView(MethodView):
 		id = data["id"]
 
 		with session_scope(current_app.session_maker) as session:
-			sku_group_id, err = product_catalog_util.delete_bespoke_catalog_sku_group(
+			sku_group_id, err = bespoke_catalog_util.delete_bespoke_catalog_sku_group(
 				session=session,
 				id=id,
 			)
@@ -384,7 +384,7 @@ class CreateUpdateBespokeCatalogSkuView(MethodView):
 		sku_group_id = data["sku_group_id"]
 
 		with session_scope(current_app.session_maker) as session:
-			sku_id, err = product_catalog_util.create_update_bespoke_catalog_sku(
+			sku_id, err = bespoke_catalog_util.create_update_bespoke_catalog_sku(
 				session=session,
 				id=id,
 				sku=sku,
@@ -414,7 +414,7 @@ class DeleteBespokeCatalogSkuView(MethodView):
 		id = data["id"]
 
 		with session_scope(current_app.session_maker) as session:
-			brand_id, err = product_catalog_util.delete_bespoke_catalog_sku(
+			brand_id, err = bespoke_catalog_util.delete_bespoke_catalog_sku(
 				session=session,
 				id=id,
 			)
@@ -481,7 +481,7 @@ class CreateMetrcToBespokeCatalogSkuView(MethodView):
 				if not bespoke_catalog_sku_id and \
 					not bespoke_catalog_sku_group_id and \
 					not bespoke_catalog_brand_id:
-					bespoke_catalog_brand_id, err = product_catalog_util.create_update_bespoke_catalog_brand(
+					bespoke_catalog_brand_id, err = bespoke_catalog_util.create_update_bespoke_catalog_brand(
 						session=session,
 						id=str(uuid.uuid4()),
 						brand_name=brand_name,
@@ -492,7 +492,7 @@ class CreateMetrcToBespokeCatalogSkuView(MethodView):
 				
 				if not bespoke_catalog_sku_id and \
 					not bespoke_catalog_sku_group_id:
-					bespoke_catalog_sku_group_id, err = product_catalog_util.create_update_bespoke_catalog_sku_group(
+					bespoke_catalog_sku_group_id, err = bespoke_catalog_util.create_update_bespoke_catalog_sku_group(
 						session=session,
 						id=str(uuid.uuid4()),
 						sku_group_name=sku_group_name,
@@ -504,7 +504,7 @@ class CreateMetrcToBespokeCatalogSkuView(MethodView):
 						raise err
 					
 				if not bespoke_catalog_sku_id:
-					bespoke_catalog_sku_id, err = product_catalog_util.create_update_bespoke_catalog_sku(
+					bespoke_catalog_sku_id, err = bespoke_catalog_util.create_update_bespoke_catalog_sku(
 						session=session,
 						id=str(uuid.uuid4()),
 						sku=sku,
@@ -514,7 +514,7 @@ class CreateMetrcToBespokeCatalogSkuView(MethodView):
 						raise err
 			
 			user_session = auth_util.UserSession.from_session()
-			metrc_to_sku_id, err = product_catalog_util.create_update_metrc_to_sku(
+			metrc_to_sku_id, err = bespoke_catalog_util.create_update_metrc_to_sku(
 				session=session,
 				id=id,
 				bespoke_catalog_sku_id=bespoke_catalog_sku_id,
@@ -569,7 +569,7 @@ class UpdateMetrcToBespokeCatalogSkuView(MethodView):
 
 		with session_scope(current_app.session_maker) as session:
 			user_session = auth_util.UserSession.from_session()
-			metrc_to_sku_id, err = product_catalog_util.create_update_metrc_to_sku(
+			metrc_to_sku_id, err = bespoke_catalog_util.create_update_metrc_to_sku(
 				session=session,
 				id=id,
 				bespoke_catalog_sku_id=bespoke_catalog_sku_id,
@@ -604,7 +604,7 @@ class DeleteMetrcToBespokeCatalogSkuView(MethodView):
 		id = data["id"]
 
 		with session_scope(current_app.session_maker) as session:
-			brand_id, err = product_catalog_util.delete_metrc_to_bespoke_catalog_sku(
+			brand_id, err = bespoke_catalog_util.delete_metrc_to_bespoke_catalog_sku(
 				session=session,
 				id=id,
 			)
@@ -628,7 +628,7 @@ class CreateInvalidMetrcToBespokeCatalogSkusView(MethodView):
 
 		with session_scope(current_app.session_maker) as session:
 			user_session = auth_util.UserSession.from_session()
-			_, err = product_catalog_util.create_invalid_or_sample_metrc_to_sku_multiple(
+			_, err = bespoke_catalog_util.create_invalid_or_sample_metrc_to_sku_multiple(
 				session=session,
 				data=data,
 				is_sample=False,
@@ -654,7 +654,7 @@ class CreateSampleMetrcToBespokeCatalogSkusView(MethodView):
 
 		with session_scope(current_app.session_maker) as session:
 			user_session = auth_util.UserSession.from_session()
-			_, err = product_catalog_util.create_invalid_or_sample_metrc_to_sku_multiple(
+			_, err = bespoke_catalog_util.create_invalid_or_sample_metrc_to_sku_multiple(
 				session=session,
 				data=data,
 				is_sample=True,

@@ -183,7 +183,7 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
           setUserFromAccessToken(data.access_token, data.refresh_token);
           const userFields = userFieldsFromToken(data.access_token);
           if (userFields?.role === UserRolesEnum.BankContractor) {
-            handleSuccess(bankRoutes.productCatalog);
+            handleSuccess(bankRoutes.bespokeCatalog);
           } else {
             handleSuccess(routes.root);
           }

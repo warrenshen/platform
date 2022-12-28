@@ -4,13 +4,13 @@ import {
   LinearProgress,
   TextField,
 } from "@material-ui/core";
-import CreateBespokeCatalogEntryCompleteModal from "components/ProductCatalog/CreateBespokeCatalogEntryCompleteModal";
-import MetrcSalesTransactionsDataGrid from "components/ProductCatalog/MetrcSalesTransactionsDataGrid";
+import CreateBespokeCatalogEntryCompleteModal from "components/BespokeCatalog/CreateBespokeCatalogEntryCompleteModal";
+import MetrcTransferPackagesDataGrid from "components/BespokeCatalog/MetrcTransferPackageDataGrid";
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
 import SecondaryButton from "components/Shared/Button/SecondaryButton";
 import Can from "components/Shared/Can";
 import Text, { TextVariants } from "components/Shared/Text/Text";
-import { MetrcSalesTransactionFragment } from "generated/graphql";
+import { MetrcTransferPackageFragment } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useCustomQuery from "hooks/useCustomQuery";
 import useSnackbar from "hooks/useSnackbar";
@@ -18,8 +18,8 @@ import { SearchIcon } from "icons";
 import {
   createInvalidMetrcToBespokeCatalogSkuMutation,
   createSampleMetrcToBespokeCatalogSkuMutation,
-  getSalesTransactionData,
-} from "lib/api/productCatalog";
+  getIncomingTransferPackageData,
+} from "lib/api/bespokeCatalog";
 import { Action } from "lib/auth/rbac-rules";
 import { MetrcToBespokeCatalogSkuConfidenceLabel } from "lib/enum";
 import { useEffect, useMemo, useState } from "react";
@@ -34,14 +34,14 @@ const Container = styled.div`
   margin-top: 36px;
 `;
 
-const SalesTransactionsTab = () => {
+const IncomingTransferPackagesTab = () => {
   const snackbar = useSnackbar();
 
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [metrcSalesTransactions, setMetrcSalesTransactions] = useState<
-    MetrcSalesTransactionFragment[]
+  const [metrcTransferPackages, setMetrcTransferPackages] = useState<
+    MetrcTransferPackageFragment[]
   >([]);
-  const [selectedMetrcSalesTransactions, setSelectedMetrcSalesTransactions] =
+  const [selectedMetrcTransferPackages, setSelectedMetrcTransferPackages] =
     useState<string[]>([]);
   const [matchedProductNames, setMatchedProductNames] = useState<Set<string>>(
     new Set()
@@ -53,8 +53,10 @@ const SalesTransactionsTab = () => {
     setIsCreateUpdateBespokeCatalogEntryModalOpen,
   ] = useState<boolean>(false);
 
-  const [getSalesTransactions, { loading: isGetSalesTransactionDataLoading }] =
-    useCustomQuery(getSalesTransactionData);
+  const [
+    getIncomingTransferPackages,
+    { loading: isGetIncomingTransferPackageDataLoading },
+  ] = useCustomQuery(getIncomingTransferPackageData);
 
   useEffect(() => {
     handleClickSearch();
@@ -64,17 +66,19 @@ const SalesTransactionsTab = () => {
   const handleClickSearch = async () => {
     const product_name_query =
       searchQuery.length === 0 ? "" : `%${searchQuery.trim()}%`;
-    const response = await getSalesTransactions({
+    const response = await getIncomingTransferPackages({
       params: {
         product_name_query,
       },
     });
     if (response.status === "OK" && response.data) {
-      setMetrcSalesTransactions(response.data);
-      snackbar.showSuccess("Successfully updated Metrc Sales Transactions");
+      setMetrcTransferPackages(response.data);
+      snackbar.showSuccess(
+        "Successfully updated Metrc Incoming Transfer Packages"
+      );
     } else {
       snackbar.showError(
-        `Failed to search for Metrc Sales Transactions: ${response.msg}`
+        `Failed to search for Metrc Incoming Transfer Packages: ${response.msg}`
       );
     }
   };
@@ -85,13 +89,13 @@ const SalesTransactionsTab = () => {
   ] = useCustomMutation(createInvalidMetrcToBespokeCatalogSkuMutation);
 
   const handleMarkInvalid = async () => {
-    const handleMarkInvalidInput = metrcSalesTransactions
-      .filter((salesTransaction) =>
-        selectedMetrcSalesTransactions.includes(salesTransaction.id)
+    const handleMarkInvalidInput = metrcTransferPackages
+      .filter((transferPackage) =>
+        selectedMetrcTransferPackages.includes(transferPackage.id)
       )
-      .map((salesTransaction) => ({
-        product_name: salesTransaction.product_name,
-        product_category_name: salesTransaction.product_category_name,
+      .map((transferPackage) => ({
+        product_name: transferPackage.product_name,
+        product_category_name: transferPackage.product_category_name,
         sku_confidence: MetrcToBespokeCatalogSkuConfidenceLabel.Invalid,
       }));
     const response = await invalidMetrcToBespokeCatalogSku({
@@ -101,16 +105,18 @@ const SalesTransactionsTab = () => {
       setMatchedProductNames(
         new Set([
           ...matchedProductNames,
-          ...handleMarkInvalidInput.map((input) => input.product_name),
+          ...handleMarkInvalidInput.map(
+            (input) => input.product_name as string
+          ),
         ])
       );
       snackbar.showSuccess(
-        `Successfully marked ${selectedMetrcSalesTransactions.length} Metrc Sales Transactions as invalid`
+        `Successfully marked ${selectedMetrcTransferPackages.length} Metrc Incoming Transfer Packages as invalid`
       );
-      setSelectedMetrcSalesTransactions([]);
+      setSelectedMetrcTransferPackages([]);
     } else {
       snackbar.showError(
-        `Failed to mark selected Metrc Sales Transactions as invalid: ${response.msg}`
+        `Failed to mark selected Metrc Incoming Transfer Packages as invalid: ${response.msg}`
       );
     }
   };
@@ -121,13 +127,13 @@ const SalesTransactionsTab = () => {
   ] = useCustomMutation(createSampleMetrcToBespokeCatalogSkuMutation);
 
   const handleMarkSample = async () => {
-    const handleMarkSampleInput = metrcSalesTransactions
-      .filter((salesTransaction) =>
-        selectedMetrcSalesTransactions.includes(salesTransaction.id)
+    const handleMarkSampleInput = metrcTransferPackages
+      .filter((transferPackage) =>
+        selectedMetrcTransferPackages.includes(transferPackage.id)
       )
-      .map((salesTransaction) => ({
-        product_name: salesTransaction.product_name,
-        product_category_name: salesTransaction.product_category_name,
+      .map((transferPackage) => ({
+        product_name: transferPackage.product_name,
+        product_category_name: transferPackage.product_category_name,
         sku_confidence: MetrcToBespokeCatalogSkuConfidenceLabel.High,
       }));
     const response = await createSampleMetrcToBespokeCatalogSku({
@@ -137,60 +143,60 @@ const SalesTransactionsTab = () => {
       setMatchedProductNames(
         new Set([
           ...matchedProductNames,
-          ...handleMarkSampleInput.map((input) => input.product_name),
+          ...handleMarkSampleInput.map((input) => input.product_name as string),
         ])
       );
       snackbar.showSuccess(
-        `Successfully marked ${selectedMetrcSalesTransactions.length} Metrc Sales Transactions as samples`
+        `Successfully marked ${selectedMetrcTransferPackages.length} Metrc Transfer Packages as samples`
       );
-      setSelectedMetrcSalesTransactions([]);
+      setSelectedMetrcTransferPackages([]);
     } else {
       snackbar.showError(
-        `Failed to mark selected Metrc Sales Transactions as samples: ${response.msg}`
+        `Failed to mark selected Metrc Transfer Packages as samples: ${response.msg}`
       );
     }
   };
 
-  const handleSelectSalesTransactions = useMemo(
+  const handleSelectTransferPackages = useMemo(
     () =>
       ({ selectedRowKeys }: { selectedRowKeys: string[] }) => {
-        setSelectedMetrcSalesTransactions(selectedRowKeys);
+        setSelectedMetrcTransferPackages(selectedRowKeys);
       },
-    [setSelectedMetrcSalesTransactions]
+    [setSelectedMetrcTransferPackages]
   );
 
-  const unmatchedSalesTransactions = useMemo(
+  const unmatchedTransferPackages = useMemo(
     () =>
-      metrcSalesTransactions.filter(
-        (salesTransaction) =>
-          !matchedProductNames.has(salesTransaction.product_name as string)
+      metrcTransferPackages.filter(
+        (transferPackage) =>
+          !matchedProductNames.has(transferPackage.product_name as string)
       ),
-    [metrcSalesTransactions, matchedProductNames]
+    [metrcTransferPackages, matchedProductNames]
   );
 
-  const selectedMetrcSalesTransaction = useMemo(
+  const selectedMetrcTransferPackage = useMemo(
     () =>
-      selectedMetrcSalesTransactions.length === 1
-        ? metrcSalesTransactions.find(
-            (salesTransaction: MetrcSalesTransactionFragment) =>
-              salesTransaction.id === selectedMetrcSalesTransactions[0]
+      selectedMetrcTransferPackages.length === 1
+        ? metrcTransferPackages.find(
+            (transferPackage: MetrcTransferPackageFragment) =>
+              transferPackage.id === selectedMetrcTransferPackages[0]
           )
         : null,
-    [selectedMetrcSalesTransactions, metrcSalesTransactions]
+    [selectedMetrcTransferPackages, metrcTransferPackages]
   );
 
   return (
     <Container>
       {isCreateUpdateBespokeCatalogEntryModalOpen && (
         <CreateBespokeCatalogEntryCompleteModal
-          productName={selectedMetrcSalesTransaction?.product_name}
+          productName={selectedMetrcTransferPackage?.product_name}
           productCategoryName={
-            selectedMetrcSalesTransaction?.product_category_name
+            selectedMetrcTransferPackage?.product_category_name
           }
           matchedProductNames={matchedProductNames}
           recentlyAssignedSkuGroupIds={recentlyAssignedSkuGroupIds}
           handleClose={() => {
-            setSelectedMetrcSalesTransactions([]);
+            setSelectedMetrcTransferPackages([]);
             setIsCreateUpdateBespokeCatalogEntryModalOpen(false);
           }}
           setMatchedProductNames={setMatchedProductNames}
@@ -215,15 +221,17 @@ const SalesTransactionsTab = () => {
         <PrimaryButton text={"Refetch Results"} onClick={handleClickSearch} />
       </Box>
       <Box width="100%" minHeight={12}>
-        {isGetSalesTransactionDataLoading && <LinearProgress />}
+        {isGetIncomingTransferPackageDataLoading && <LinearProgress />}
       </Box>
       <Box display="flex" justifyContent="space-between" mb={2}>
-        <Text textVariant={TextVariants.ParagraphLead}>Sales Transactions</Text>
+        <Text textVariant={TextVariants.ParagraphLead}>
+          Incoming Transfer Packages
+        </Text>
         <Can perform={Action.EditBespokeCatalog}>
           <Box display="flex">
             <SecondaryButton
               isDisabled={
-                selectedMetrcSalesTransactions.length === 0 ||
+                selectedMetrcTransferPackages.length === 0 ||
                 isCreateInvalidMetrcToBespokeCatalogSkuLoading
               }
               text={"Mark Invalid"}
@@ -231,14 +239,14 @@ const SalesTransactionsTab = () => {
             />
             <SecondaryButton
               isDisabled={
-                selectedMetrcSalesTransactions.length === 0 ||
+                selectedMetrcTransferPackages.length === 0 ||
                 isCreateSampleMetrcToBespokeCatalogSkuLoading
               }
               text={"Mark as Sample"}
               onClick={handleMarkSample}
             />
             <PrimaryButton
-              isDisabled={!selectedMetrcSalesTransaction}
+              isDisabled={!selectedMetrcTransferPackage}
               text={"Create Catalog Entry"}
               onClick={() =>
                 setIsCreateUpdateBespokeCatalogEntryModalOpen(true)
@@ -247,14 +255,13 @@ const SalesTransactionsTab = () => {
           </Box>
         </Can>
       </Box>
-      <MetrcSalesTransactionsDataGrid
-        isExcelExport
-        selectedSalesTransactionIds={selectedMetrcSalesTransactions}
-        metrcSalesTransactions={unmatchedSalesTransactions}
-        onSelectionChanged={handleSelectSalesTransactions}
+      <MetrcTransferPackagesDataGrid
+        selectedTransferPackageIds={selectedMetrcTransferPackages}
+        metrcTransferPackages={unmatchedTransferPackages}
+        onSelectionChanged={handleSelectTransferPackages}
       />
     </Container>
   );
 };
 
-export default SalesTransactionsTab;
+export default IncomingTransferPackagesTab;

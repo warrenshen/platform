@@ -299,7 +299,7 @@ export const BankVendorsTabLabels = [
   BankVendorsTabLabel.Approved,
 ];
 
-export enum ProductCatalogTabLabel {
+export enum BespokeCatalogTabLabel {
   SalesTransactions = "Sales Transactions",
   IncomingTransferPackages = "Incoming Transfer Packages",
   InventoryPackages = "Inventory Packages",
@@ -307,12 +307,12 @@ export enum ProductCatalogTabLabel {
   BespokeCatalog = "Bespoke Catalog",
 }
 
-export const ProductCatalogTabLabels = [
-  ProductCatalogTabLabel.SalesTransactions,
-  ProductCatalogTabLabel.IncomingTransferPackages,
-  ProductCatalogTabLabel.InventoryPackages,
-  ProductCatalogTabLabel.RecentlyAdded,
-  ProductCatalogTabLabel.BespokeCatalog,
+export const BespokeCatalogTabLabels = [
+  BespokeCatalogTabLabel.SalesTransactions,
+  BespokeCatalogTabLabel.IncomingTransferPackages,
+  BespokeCatalogTabLabel.InventoryPackages,
+  BespokeCatalogTabLabel.RecentlyAdded,
+  BespokeCatalogTabLabel.BespokeCatalog,
 ];
 
 export enum SkuGroupUnitOfMeasure {

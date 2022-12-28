@@ -1,10 +1,10 @@
 import { Box } from "@material-ui/core";
-import BespokeCatalogBrandsDataGrid from "components/ProductCatalog/BespokeCatalogBrandsDataGrid";
-import BespokeCatalogSkuGroupsDataGrid from "components/ProductCatalog/BespokeCatalogSkuGroupsDataGrid";
-import BespokeCatalogSkusDataGrid from "components/ProductCatalog/BespokeCatalogSkusDataGrid";
-import EditBespokeCatalogBrandModal from "components/ProductCatalog/EditBespokeCatalogBrandModal";
-import EditBespokeCatalogSkuGroupModal from "components/ProductCatalog/EditBespokeCatalogSkuGroupModal";
-import EditBespokeCatalogSkuModal from "components/ProductCatalog/EditBespokeCatalogSkuModal";
+import BespokeCatalogBrandsDataGrid from "components/BespokeCatalog/BespokeCatalogBrandsDataGrid";
+import BespokeCatalogSkuGroupsDataGrid from "components/BespokeCatalog/BespokeCatalogSkuGroupsDataGrid";
+import BespokeCatalogSkusDataGrid from "components/BespokeCatalog/BespokeCatalogSkusDataGrid";
+import EditBespokeCatalogBrandModal from "components/BespokeCatalog/EditBespokeCatalogBrandModal";
+import EditBespokeCatalogSkuGroupModal from "components/BespokeCatalog/EditBespokeCatalogSkuGroupModal";
+import EditBespokeCatalogSkuModal from "components/BespokeCatalog/EditBespokeCatalogSkuModal";
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
 import PrimaryWarningButton from "components/Shared/Button/PrimaryWarningButton";
 import Can from "components/Shared/Can";
@@ -23,7 +23,7 @@ import {
   deleteBespokeCatalogBrandMutation,
   deleteBespokeCatalogSkuGroupMutation,
   deleteBespokeCatalogSkuMutation,
-} from "lib/api/productCatalog";
+} from "lib/api/bespokeCatalog";
 import { Action } from "lib/auth/rbac-rules";
 import { useMemo, useState } from "react";
 import styled from "styled-components";

@@ -27,6 +27,7 @@ import SignIn from "pages/Anonymous/SignIn";
 import VendorFormPage from "pages/Anonymous/VendorForm";
 import BankAdvancesPage from "pages/Bank/Advances";
 import BankAsyncPage from "pages/Bank/Async";
+import BankBespokeCatalogPage from "pages/Bank/BespokeCatalog";
 import BankClientSurveillancePage from "pages/Bank/ClientSurveillance";
 import BankCompaniesPage from "pages/Bank/Companies";
 import BankCompanyCustomerAccountPage from "pages/Bank/Company/Customer/Account";
@@ -55,7 +56,6 @@ import BankMetrcPage from "pages/Bank/Metrc";
 import BankOverviewPage from "pages/Bank/Overview";
 import BankPartnershipsPage from "pages/Bank/Partnerships";
 import BankPayorsPage from "pages/Bank/Payors";
-import BankProductCatalogPage from "pages/Bank/ProductCatalog";
 import BankPurchaseOrdersPageNew from "pages/Bank/PurchaseOrdersNew";
 import BankRepaymentsPage from "pages/Bank/Repayments";
 import BankReportsPage from "pages/Bank/Reports";
@@ -831,7 +831,7 @@ export default function App() {
           }
         />
         <Route
-          path={bankRoutes.productCatalog}
+          path={bankRoutes.bespokeCatalog}
           element={
             <PrivateRoute
               requiredRoles={[
@@ -840,7 +840,7 @@ export default function App() {
                 UserRolesEnum.BankContractor,
               ]}
             >
-              <BankProductCatalogPage />
+              <BankBespokeCatalogPage />
             </PrivateRoute>
           }
         />

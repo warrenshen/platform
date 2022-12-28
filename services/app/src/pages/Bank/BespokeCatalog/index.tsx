@@ -1,11 +1,11 @@
 import { Tab, Tabs } from "@material-ui/core";
 import PageContent from "components/Shared/Page/PageContent";
-import { ProductCatalogTabLabels } from "lib/enum";
-import BespokeCatalogTab from "pages/Bank/ProductCatalog/BespokeCatalogTab";
-import IncomingTransferPackagesTab from "pages/Bank/ProductCatalog/IncomingTransferPackagesTab";
-import InventoryPackagesTab from "pages/Bank/ProductCatalog/InventoryPackagesTab";
-import RecentlyAddedTab from "pages/Bank/ProductCatalog/RecentlyAddedTab";
-import SalesTransactionsTab from "pages/Bank/ProductCatalog/SalesTransactionsTab";
+import { BespokeCatalogTabLabels } from "lib/enum";
+import BespokeCatalogTab from "pages/Bank/BespokeCatalog/BespokeCatalogTab";
+import IncomingTransferPackagesTab from "pages/Bank/BespokeCatalog/IncomingTransferPackagesTab";
+import InventoryPackagesTab from "pages/Bank/BespokeCatalog/InventoryPackagesTab";
+import RecentlyAddedTab from "pages/Bank/BespokeCatalog/RecentlyAddedTab";
+import SalesTransactionsTab from "pages/Bank/BespokeCatalog/SalesTransactionsTab";
 import { useState } from "react";
 import styled from "styled-components";
 
@@ -16,11 +16,11 @@ const Container = styled.div`
   width: 100%;
 `;
 
-const BankProductCatalogPage = () => {
+const BankBespokeCatalogPage = () => {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
   return (
-    <PageContent title={"Product Catalog"}>
+    <PageContent title={"Bespoke Catalog"}>
       <Container>
         <Tabs
           value={selectedTabIndex}
@@ -28,7 +28,7 @@ const BankProductCatalogPage = () => {
           textColor="primary"
           onChange={(_event: any, value: number) => setSelectedTabIndex(value)}
         >
-          {ProductCatalogTabLabels.map((label) => (
+          {BespokeCatalogTabLabels.map((label) => (
             <Tab key={label} label={label} />
           ))}
         </Tabs>
@@ -48,4 +48,4 @@ const BankProductCatalogPage = () => {
   );
 };
 
-export default BankProductCatalogPage;
+export default BankBespokeCatalogPage;
