@@ -28,6 +28,7 @@ select_permissions:
   - role: bank_contractor
     permission:
       columns:
+        - created_at
         - id
         - name
       filter: {}
