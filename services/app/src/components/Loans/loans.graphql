@@ -357,3 +357,18 @@ query GetLimitedLoansByLoanIds($loan_ids: [uuid!]!) {
     }
   }
 }
+
+query GetClosedLimitedLoansByLoanIds($loan_ids: [uuid!]!) {
+  loans(
+    where: {
+      _and: [
+        { id: { _in: $loan_ids }}
+        { closed_at: { _is_null: false }}
+      ]
+    }
+  ) {
+    id
+    ...LoanLimited
+    ...LoanArtifactLimited
+  }
+}

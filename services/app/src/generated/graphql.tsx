@@ -31389,6 +31389,16 @@ export type GetLimitedLoansByLoanIdsQuery = {
   >;
 };
 
+export type GetClosedLimitedLoansByLoanIdsQueryVariables = Exact<{
+  loan_ids: Array<Scalars["uuid"]> | Scalars["uuid"];
+}>;
+
+export type GetClosedLimitedLoansByLoanIdsQuery = {
+  loans: Array<
+    Pick<Loans, "id"> & LoanLimitedFragment & LoanArtifactLimitedFragment
+  >;
+};
+
 export type GetMetrcApiKeysByCompanyIdQueryVariables = Exact<{
   companyId: Scalars["uuid"];
 }>;
@@ -41530,6 +41540,72 @@ export type GetLimitedLoansByLoanIdsLazyQueryHookResult = ReturnType<
 export type GetLimitedLoansByLoanIdsQueryResult = Apollo.QueryResult<
   GetLimitedLoansByLoanIdsQuery,
   GetLimitedLoansByLoanIdsQueryVariables
+>;
+export const GetClosedLimitedLoansByLoanIdsDocument = gql`
+  query GetClosedLimitedLoansByLoanIds($loan_ids: [uuid!]!) {
+    loans(
+      where: {
+        _and: [{ id: { _in: $loan_ids } }, { closed_at: { _is_null: false } }]
+      }
+    ) {
+      id
+      ...LoanLimited
+      ...LoanArtifactLimited
+    }
+  }
+  ${LoanLimitedFragmentDoc}
+  ${LoanArtifactLimitedFragmentDoc}
+`;
+
+/**
+ * __useGetClosedLimitedLoansByLoanIdsQuery__
+ *
+ * To run a query within a React component, call `useGetClosedLimitedLoansByLoanIdsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetClosedLimitedLoansByLoanIdsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetClosedLimitedLoansByLoanIdsQuery({
+ *   variables: {
+ *      loan_ids: // value for 'loan_ids'
+ *   },
+ * });
+ */
+export function useGetClosedLimitedLoansByLoanIdsQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetClosedLimitedLoansByLoanIdsQuery,
+    GetClosedLimitedLoansByLoanIdsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetClosedLimitedLoansByLoanIdsQuery,
+    GetClosedLimitedLoansByLoanIdsQueryVariables
+  >(GetClosedLimitedLoansByLoanIdsDocument, options);
+}
+export function useGetClosedLimitedLoansByLoanIdsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetClosedLimitedLoansByLoanIdsQuery,
+    GetClosedLimitedLoansByLoanIdsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetClosedLimitedLoansByLoanIdsQuery,
+    GetClosedLimitedLoansByLoanIdsQueryVariables
+  >(GetClosedLimitedLoansByLoanIdsDocument, options);
+}
+export type GetClosedLimitedLoansByLoanIdsQueryHookResult = ReturnType<
+  typeof useGetClosedLimitedLoansByLoanIdsQuery
+>;
+export type GetClosedLimitedLoansByLoanIdsLazyQueryHookResult = ReturnType<
+  typeof useGetClosedLimitedLoansByLoanIdsLazyQuery
+>;
+export type GetClosedLimitedLoansByLoanIdsQueryResult = Apollo.QueryResult<
+  GetClosedLimitedLoansByLoanIdsQuery,
+  GetClosedLimitedLoansByLoanIdsQueryVariables
 >;
 export const GetMetrcApiKeysByCompanyIdDocument = gql`
   query GetMetrcApiKeysByCompanyId($companyId: uuid!) {

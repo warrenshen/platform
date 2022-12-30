@@ -20,6 +20,7 @@ import {
   Loans,
   PaymentsInsertInput,
   PayorFragment,
+  useGetClosedLimitedLoansByLoanIdsQuery,
   useGetOpenFundedLoansByCompanyAndLoanTypeQuery,
 } from "generated/graphql";
 import { ProductTypeEnum, ProductTypeToLoanType } from "lib/enum";
@@ -81,6 +82,29 @@ export default function SettleRepaymentSelectLoans({
     console.error({ error });
     alert(`Error in query (details in console): ${error.message}`);
   }
+
+  const { data: closedLoansByIdData, error: closedLoansByIdError } =
+    useGetClosedLimitedLoansByLoanIdsQuery({
+      skip:
+        !payment.items_covered?.loan_ids ||
+        payment.items_covered.loan_ids.length === 0,
+      fetchPolicy: "network-only",
+      variables: {
+        loan_ids: payment.items_covered.loan_ids,
+      },
+    });
+
+  if (closedLoansByIdError) {
+    console.error({ closedLoansByIdError });
+    alert(
+      `Error in query (details in console): ${closedLoansByIdError.message}`
+    );
+  }
+
+  const closedLoansCoveredByPayment = useMemo(
+    () => closedLoansByIdData?.loans || [],
+    [closedLoansByIdData?.loans]
+  );
 
   const selectedLoans = useMemo(
     () =>
@@ -248,7 +272,7 @@ export default function SettleRepaymentSelectLoans({
               isMaturityVisible
               isSortingDisabled
               pager={false}
-              loans={selectedLoans}
+              loans={[...selectedLoans, ...closedLoansCoveredByPayment]}
               actionItems={selectedLoansActionItems}
             />
           </Box>

@@ -10,6 +10,7 @@ const StatusToColor = {
   [LoanPaymentStatusEnum.PartiallyPaid]: "#ee95a1", // Pink
   [LoanPaymentStatusEnum.Pending]: "#ffc96b", // Yellow
   [LoanPaymentStatusEnum.Scheduled]: "#cf8937", // Orange
+  [LoanPaymentStatusEnum.Closing]: "#7dcb9d", // Sea Foam Green
   [LoanPaymentStatusEnum.Closed]: "#594ca4", // Purple
 };
 

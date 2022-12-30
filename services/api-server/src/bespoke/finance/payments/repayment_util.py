@@ -220,9 +220,9 @@ def calculate_repayment_effect(
 		# if len(not_funded_loan_ids) > 0:
 		# 	return None, errors.Error('Not all selected loans are funded')
 
-		closed_loan_ids = [loan.id for loan in loans if loan.closed_at]
+		closed_loan_ids = [loan.id for loan in loans if loan.closed_at or loan.payment_status == PaymentStatusEnum.CLOSING]
 		if len(closed_loan_ids) > 0:
-			return None, errors.Error('Some selected loans are closed already')
+			return None, errors.Error('Some selected loans are closing or closed already')
 
 	selected_loan_ids = set([])
 	artifact_ids = []

@@ -564,6 +564,7 @@ export enum LoanPaymentStatusEnum {
   PartiallyPaid = "partially_paid",
   Pending = "pending",
   Scheduled = "scheduled",
+  Closing = "closing",
   Closed = "closed",
 }
 
@@ -573,6 +574,7 @@ export const LoanPaymentStatusToLabel = {
   [LoanPaymentStatusEnum.PartiallyPaid]: "Partially Paid",
   [LoanPaymentStatusEnum.Pending]: "Payment Pending",
   [LoanPaymentStatusEnum.Scheduled]: "Payment Scheduled",
+  [LoanPaymentStatusEnum.Closing]: "Closing",
   [LoanPaymentStatusEnum.Closed]: "Closed",
 };
 
