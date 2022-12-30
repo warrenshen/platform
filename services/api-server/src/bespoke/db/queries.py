@@ -377,11 +377,9 @@ def get_loan(
     artifact_id: str = None,
     amount: float = None,
     is_funded: bool = False,
-    loan_type: str = LoanTypeEnum.INVENTORY,
 ) -> Tuple[ models.Loan, errors.Error ]:
     filters = [
         cast(Callable, models.Loan.is_deleted.isnot)(True),
-        models.Loan.loan_type == loan_type,
     ]
 
     if loan_id is not None:

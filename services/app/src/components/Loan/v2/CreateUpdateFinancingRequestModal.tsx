@@ -44,7 +44,6 @@ const CreateUpdateFinancingRequestModal = ({
   handleClose,
 }: Props) => {
   const snackbar = useSnackbar();
-  console.log("hello world");
 
   const {
     user: { role },

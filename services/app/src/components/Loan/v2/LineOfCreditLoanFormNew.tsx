@@ -40,7 +40,6 @@ const LineOfCreditLoanFormNew = ({
 
   const amountBorrowed =
     adjustedTotalLimit - availableLimit + (loan.amount || 0);
-  console.log({ adjustedTotalLimit, availableLimit });
 
   return (
     <Box display="flex" flexDirection="column">

@@ -15,6 +15,7 @@ import SecondaryButton from "components/Shared/Button/SecondaryButton";
 import { SecondaryTextColor } from "components/Shared/Colors/GlobalColors";
 import ModalDialog from "components/Shared/Modal/ModalDialog";
 import Text, { TextVariants } from "components/Shared/Text/Text";
+import { LoanFragment, LoanTypeEnum } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { CustomCheckboxChecked, CustomCheckboxUnchecked } from "icons";
@@ -39,11 +40,11 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
-  loanId: string;
+  loan: LoanFragment;
   handleClose: () => void;
 }
 
-const ReviewFinancingRequestRejectModal = ({ loanId, handleClose }: Props) => {
+const ReviewFinancingRequestRejectModal = ({ loan, handleClose }: Props) => {
   const snackbar = useSnackbar();
   const classes = useStyles();
 
@@ -59,7 +60,7 @@ const ReviewFinancingRequestRejectModal = ({ loanId, handleClose }: Props) => {
   const handleClickReject = async () => {
     const response = await rejectLoan({
       variables: {
-        loan_id: loanId,
+        loan_id: loan.id,
         rejection_note: rejectionNote,
         reject_related_purchase_order: rejectRelatedPurchaseOrder,
         is_vendor_approval_required: isVendorApprovalRequired,
@@ -80,23 +81,25 @@ const ReviewFinancingRequestRejectModal = ({ loanId, handleClose }: Props) => {
   return (
     <ModalDialog title={"Reject Financing Request"} handleClose={handleClose}>
       <DialogContent>
-        <Box mb={3}>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={rejectRelatedPurchaseOrder}
-                onChange={(event) =>
-                  setRejectRelatedPurchaseOrder(event.target.checked)
-                }
-                color="primary"
-                icon={<CustomCheckboxUnchecked />}
-                checkedIcon={<CustomCheckboxChecked />}
-              />
-            }
-            label={"Completely reject related purchase order?"}
-            disabled={isVendorApprovalRequired}
-          />
-        </Box>
+        {loan.loan_type === LoanTypeEnum.PurchaseOrder && (
+          <Box mb={3}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={rejectRelatedPurchaseOrder}
+                  onChange={(event) =>
+                    setRejectRelatedPurchaseOrder(event.target.checked)
+                  }
+                  color="primary"
+                  icon={<CustomCheckboxUnchecked />}
+                  checkedIcon={<CustomCheckboxChecked />}
+                />
+              }
+              label={"Completely reject related purchase order?"}
+              disabled={isVendorApprovalRequired}
+            />
+          </Box>
+        )}
         <Text
           textVariant={TextVariants.Paragraph}
           color={SecondaryTextColor}
@@ -117,23 +120,25 @@ const ReviewFinancingRequestRejectModal = ({ loanId, handleClose }: Props) => {
             />
           </FormControl>
         </Box>
-        <Box mb={5}>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={isVendorApprovalRequired}
-                onChange={(event) =>
-                  setIsVendorApprovalRequired(event.target.checked)
-                }
-                color="primary"
-                icon={<CustomCheckboxUnchecked />}
-                checkedIcon={<CustomCheckboxChecked />}
-              />
-            }
-            label={"Is vendor approval required?"}
-            disabled={rejectRelatedPurchaseOrder}
-          />
-        </Box>
+        {loan.loan_type === LoanTypeEnum.PurchaseOrder && (
+          <Box mb={5}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={isVendorApprovalRequired}
+                  onChange={(event) =>
+                    setIsVendorApprovalRequired(event.target.checked)
+                  }
+                  color="primary"
+                  icon={<CustomCheckboxUnchecked />}
+                  checkedIcon={<CustomCheckboxChecked />}
+                />
+              }
+              label={"Is vendor approval required?"}
+              disabled={rejectRelatedPurchaseOrder}
+            />
+          </Box>
+        )}
       </DialogContent>
       <DialogActions className={classes.dialogActions}>
         <SecondaryButton

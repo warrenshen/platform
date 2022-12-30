@@ -127,18 +127,9 @@ export default function BankFinancingRequestsActionRequiredTab({
           }}
         />
       )}
-      {isRejectFinancingRequestModalOpen && (
+      {isRejectFinancingRequestModalOpen && selectedFinancingRequest && (
         <ReviewFinancingRequestRejectModal
-          loanId={selectedFinancingRequestIds[0]}
-          handleClose={() => {
-            setSelectedFinancingRequestIds([]);
-            setIsRejectFinancingRequestModalOpen(false);
-          }}
-        />
-      )}
-      {isRejectFinancingRequestModalOpen && (
-        <ReviewFinancingRequestRejectModal
-          loanId={selectedFinancingRequestIds[0]}
+          loan={selectedFinancingRequest}
           handleClose={() => {
             setSelectedFinancingRequestIds([]);
             setIsRejectFinancingRequestModalOpen(false);
