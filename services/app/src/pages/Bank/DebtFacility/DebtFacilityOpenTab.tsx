@@ -9,8 +9,8 @@ import {
   GetDebtFacilitiesQuery,
   Loans,
   OpenLoanForDebtFacilityFragment,
-  useGetOpenLoansByDebtFacilityIdSubscription,
-  useGetOpenLoansByDebtFacilityStatusesSubscription,
+  useGetOpenLoansByDebtFacilityIdQuery,
+  useGetOpenLoansByDebtFacilityStatusesQuery,
 } from "generated/graphql";
 import { useFilterDebtFacilityLoansBySearchQuery } from "hooks/useFilterDebtFacilityLoans";
 import { Action } from "lib/auth/rbac-rules";
@@ -77,7 +77,7 @@ export default function DebtFacilityOpenTab({
   );
 
   const { data: debtFacilityData, error: debtFacilityError } =
-    useGetOpenLoansByDebtFacilityIdSubscription({
+    useGetOpenLoansByDebtFacilityIdQuery({
       variables: {
         statuses: [
           DebtFacilityStatusEnum.SoldIntoDebtFacility,
@@ -100,7 +100,7 @@ export default function DebtFacilityOpenTab({
 
   // Get loans currently on bespoke's books (or repurchased)
   const { data: bespokeData, error: bespokeError } =
-    useGetOpenLoansByDebtFacilityStatusesSubscription({
+    useGetOpenLoansByDebtFacilityStatusesQuery({
       variables: {
         statuses: [
           DebtFacilityStatusEnum.BespokeBalanceSheet,

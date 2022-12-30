@@ -1,5 +1,5 @@
 import {
-  GetOpenLoansByDebtFacilityStatusesSubscription,
+  GetOpenLoansByDebtFacilityStatusesQuery,
   OpenLoanForDebtFacilityFragment,
 } from "generated/graphql";
 import { filter } from "lodash";
@@ -7,7 +7,7 @@ import { useMemo } from "react";
 
 export const useFilterDebtFacilityLoansBySearchQuery = (
   searchQuery: string,
-  data: GetOpenLoansByDebtFacilityStatusesSubscription | undefined
+  data: GetOpenLoansByDebtFacilityStatusesQuery | undefined
 ): OpenLoanForDebtFacilityFragment[] => {
   return useMemo(() => {
     const doesSearchQueryExistInDebtFacilityLoan = ({

@@ -12,7 +12,7 @@ import GaugeProgressBar from "components/Shared/ProgressBar/GaugeProgressBar";
 import {
   DebtFacilities,
   GetDebtFacilitiesQuery,
-  useGetOpenLoansByDebtFacilityIdSubscription,
+  useGetOpenLoansByDebtFacilityIdQuery,
 } from "generated/graphql";
 import { DebtFacilityStatusEnum, ProductTypeEnum } from "lib/enum";
 import { formatCurrency } from "lib/number";
@@ -64,7 +64,7 @@ function DebtFacilityCapacitySummary({
 
   // Get total of loans currently in the debt facility
   const { data: debtFacilityData, error: debtFacilityError } =
-    useGetOpenLoansByDebtFacilityIdSubscription({
+    useGetOpenLoansByDebtFacilityIdQuery({
       variables: {
         statuses: [
           DebtFacilityStatusEnum.SoldIntoDebtFacility,

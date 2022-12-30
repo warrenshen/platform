@@ -12,7 +12,7 @@ import DateInput from "components/Shared/FormInputs/DateInput";
 import {
   DebtFacilities,
   GetDebtFacilitiesQuery,
-  useGetReportLoansByDebtFacilityIdSubscription,
+  useGetReportLoansByDebtFacilityIdQuery,
 } from "generated/graphql";
 import { parseDateStringServer, todayAsDateStringServer } from "lib/date";
 import {
@@ -64,7 +64,7 @@ export default function DebtFacilityReportTab({
     useState(todayAsDateStringServer());
   const [isAnonymized, setIsAnonymized] = useState(false);
 
-  const { data, error } = useGetReportLoansByDebtFacilityIdSubscription({
+  const { data, error } = useGetReportLoansByDebtFacilityIdQuery({
     skip: currentDebtFacilityReportDate === "",
     variables: {
       debt_facility_statuses: [

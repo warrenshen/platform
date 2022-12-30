@@ -29,7 +29,7 @@ import {
   useGetCompanySettingsByCompanyIdForCustomerQuery,
   useGetEbbaApplicationsCountForBankSubscription,
   useGetLoansCountForBankSubscription,
-  useGetOpenLoansByDebtFacilityStatusesSubscription,
+  useGetOpenLoansByDebtFacilityStatusesQuery,
   useGetPartnershipRequestsCountForBankSubscription,
   useGetPurchaseOrdersChangesRequestedCountForCustomerQuery,
   useGetRepaymentsCountForBankSubscription,
@@ -414,7 +414,7 @@ export default function Layout({
     });
 
   const { data: debtFacilityUpdateCountData } =
-    useGetOpenLoansByDebtFacilityStatusesSubscription({
+    useGetOpenLoansByDebtFacilityStatusesQuery({
       skip: !isBankUser,
       variables: {
         statuses: ["update_required"],

@@ -6,7 +6,7 @@ import {
   DebtFacilities,
   GetDebtFacilitiesQuery,
   useGetDebtFacilitiesQuery,
-  useGetOpenLoansByDebtFacilityStatusesSubscription,
+  useGetOpenLoansByDebtFacilityStatusesQuery,
 } from "generated/graphql";
 import { useFilterDebtFacilityLoansBySearchQuery } from "hooks/useFilterDebtFacilityLoans";
 import {
@@ -87,7 +87,7 @@ function DebtFacilityPage({
   ] = useState<ProductTypeEnum[]>([]);
 
   // Pulls data for action required tab, grabs data here to update count in tab
-  const { data, error } = useGetOpenLoansByDebtFacilityStatusesSubscription({
+  const { data, error } = useGetOpenLoansByDebtFacilityStatusesQuery({
     variables: {
       statuses: [DebtFacilityStatusEnum.UpdateRequired],
     },

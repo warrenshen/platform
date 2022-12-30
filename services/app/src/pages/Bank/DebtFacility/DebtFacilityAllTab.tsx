@@ -1,6 +1,6 @@
 import { Box, TextField } from "@material-ui/core";
 import DebtFacilityLoansDataGrid from "components/DebtFacility/DebtFacilityLoansDataGrid";
-import { useGetOpenLoansByDebtFacilityStatusesSubscription } from "generated/graphql";
+import { useGetOpenLoansByDebtFacilityStatusesQuery } from "generated/graphql";
 import { useFilterDebtFacilityLoansBySearchQuery } from "hooks/useFilterDebtFacilityLoans";
 import {
   DebtFacilityCompanyStatusEnum,
@@ -24,7 +24,7 @@ export default function DebtFacilityAllTab() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data, error } = useGetOpenLoansByDebtFacilityStatusesSubscription({
+  const { data, error } = useGetOpenLoansByDebtFacilityStatusesQuery({
     variables: {
       statuses: [
         DebtFacilityStatusEnum.SoldIntoDebtFacility,

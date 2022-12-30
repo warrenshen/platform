@@ -580,12 +580,9 @@ export const reduceLineOfCreditLoans = (
         getProductTypeFromOpenLoanForDebtFacilityFragment(loans[0]) ===
         ProductTypeEnum.LineOfCredit;
       if (isLineOfCredit) {
-        const filteredLoans = loans.filter((loan) => {
-          return loan["closed_at"] === null;
-        });
-        return filteredLoans.length > 0
+        return loans.length > 0
           ? [
-              filteredLoans.reduce((a, b) => {
+              loans.reduce((a, b) => {
                 return {
                   ...a,
                   amount: a.amount + b.amount,
