@@ -272,6 +272,31 @@ def get_approved_financial_reports_by_company_id(
 
     return financial_reports, None
 
+def get_approved_borrowing_bases_by_company_id(
+    session: Session,
+    company_id: str,
+) -> Tuple[ List[models.EbbaApplication], errors.Error ]:
+    filters = [
+        models.EbbaApplication.company_id == company_id,
+        models.EbbaApplication.category == ClientSurveillanceCategoryEnum.BORROWING_BASE,
+        models.EbbaApplication.status == RequestStatusEnum.APPROVED,
+    ]
+
+    # fmt: off
+    borrowing_bases = cast(
+        List[models.EbbaApplication],
+        session.query(models.EbbaApplication).filter(
+            *filters
+        ).order_by(
+            models.EbbaApplication.application_date.desc()
+        ).all())
+    # fmt: on
+
+    # no need to check for if borrowing_bases is none
+    # as that is not an error state
+
+    return borrowing_bases, None
+
 def get_most_recent_ebba_applications_by_company_id(
     session: Session,
     company_id: str,

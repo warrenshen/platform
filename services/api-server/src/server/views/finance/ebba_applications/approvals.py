@@ -77,6 +77,16 @@ class RespondToEbbaApplicationApprovalRequest(MethodView):
 				# since it was just approved, depending on the application category.
 				if ebba_application.category == ClientSurveillanceCategoryEnum.BORROWING_BASE:
 					company_settings.active_borrowing_base_id = ebba_application.id
+
+					borrowing_bases, err = queries.get_approved_borrowing_bases_by_company_id(
+						session,
+						str(ebba_application.company_id),
+					)
+					if err:
+						raise err
+
+					company_settings.active_borrowing_base_id = ebba_application.id if borrowing_bases is None \
+						or len(borrowing_bases) == 0 else borrowing_bases[0].id
 				elif ebba_application.category == ClientSurveillanceCategoryEnum.FINANCIAL_REPORT:
 					financial_reports, err = queries.get_approved_financial_reports_by_company_id(
 						session,
@@ -85,9 +95,8 @@ class RespondToEbbaApplicationApprovalRequest(MethodView):
 					if err:
 						raise err
 
-
 					company_settings.active_financial_report_id = ebba_application.id if financial_reports is None \
-						and len(financial_reports) > 0 else financial_reports[0].id
+						or len(financial_reports) == 0 else financial_reports[0].id
 				else:
 					raise errors.Error('Application category is invalid')
 			else:
