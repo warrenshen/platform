@@ -25,7 +25,8 @@ from bespoke.metrc.sales_util import METRC_SALES_RECEIPT_SPECIAL_PII_KEYS
 
 
 def main(is_test_run: bool) -> None:
-	engine = models.create_engine()
+	# For this backfill job, set SQL statement timeout to 10 seconds.
+	engine = models.create_engine(statement_timeout=10000)
 	session_maker = models.new_sessionmaker(engine)
 
 	company_ids = []

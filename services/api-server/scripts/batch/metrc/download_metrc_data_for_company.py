@@ -70,7 +70,7 @@ def main(
 			print(f'You must set "{env_var}" in the environment to use this script')
 			exit(1)
 
-	# For batch job, set SQL statement timeout to 10 seconds.
+	# For this batch job, set SQL statement timeout to 10 seconds.
 	engine = models.create_engine(statement_timeout=10000)
 	session_maker = models.new_sessionmaker(engine)
 
