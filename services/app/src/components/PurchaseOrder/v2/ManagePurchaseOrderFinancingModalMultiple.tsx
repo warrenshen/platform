@@ -7,11 +7,15 @@ import {
   Typography,
 } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
+import BankPurchaseOrderDrawer from "components/PurchaseOrder/v2/BankPurchaseOrderDrawer";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import ClickableDataGridCell from "components/Shared/DataGrid/v2/ClickableDataGridCell";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import Modal from "components/Shared/Modal/Modal";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
 import {
   Companies,
   GetPurchaseOrdersForIdsQuery,
@@ -40,8 +44,6 @@ import {
 import { ColumnWidths, formatRowModel } from "lib/tables";
 import { useContext, useMemo, useState } from "react";
 import styled from "styled-components";
-
-import PurchaseOrderDrawer from "../PurchaseOrderDrawer";
 
 export const DateInputContainer = styled(FormControl)`
   background-color: #f6f5f3;
@@ -141,8 +143,9 @@ function ManagePurchaseOrderFinancingModalMultiple({
   const snackbar = useSnackbar();
 
   const {
-    user: { productType },
+    user: { productType, role },
   } = useContext(CurrentUserContext);
+  const isBankUser = isRoleBankUser(role);
 
   const { data: customerData } = useGetCustomerOverviewQuery({
     variables: {
@@ -273,8 +276,9 @@ function ManagePurchaseOrderFinancingModalMultiple({
         </Box>
         <Box>
           {!!selectedPurchaseOrderId && (
-            <PurchaseOrderDrawer
+            <BankPurchaseOrderDrawer
               purchaseOrderId={selectedPurchaseOrderId}
+              isBankUser={isBankUser}
               handleClose={() => setSelectedPurchaseOrderId(null)}
             />
           )}

@@ -1,11 +1,12 @@
 import { Box } from "@material-ui/core";
 import { GridValueFormatterParams } from "@material-ui/data-grid";
-import InvoiceDrawerLauncher from "components/Invoices/InvoiceDrawerLauncher";
+import InvoiceDrawer from "components/Invoices/InvoiceDrawer";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
 import PaymentDrawer from "components/Payment/PaymentDrawer";
-import PurchaseOrderDrawerLauncher from "components/PurchaseOrder/PurchaseOrderDrawerLauncher";
+import BankPurchaseOrderDrawer from "components/PurchaseOrder/v2/BankPurchaseOrderDrawer";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
+import PurchaseOrderIdentifierDataGridCell from "components/Shared/DataGrid/PurchaseOrderIdentifierDataGridCell";
 import {
   CurrentUserContext,
   isRoleBankUser,
@@ -13,9 +14,11 @@ import {
 import {
   Companies,
   GetRepaymentsForCompanyQuery,
+  Invoices,
   LoanLimitedFragment,
   PaymentLimitedFragment,
   Payments,
+  PurchaseOrders,
 } from "generated/graphql";
 import { parseDateStringServer } from "lib/date";
 import {
@@ -219,6 +222,10 @@ export default function CustomerRepaymentTransactionsDataGrid({
   const isBankUser = isRoleBankUser(role);
 
   const [selectedRepaymentId, setSelectedRepaymentId] = useState();
+  const [selectedPurchaseOrderId, setSelectedPurchaseOrderId] =
+    useState<PurchaseOrders["id"]>(null);
+  const [selectedInvoiceId, setSelectedInvoiceId] =
+    useState<Invoices["id"]>(null);
 
   const rows = useMemo(
     () => getRows(isLineOfCredit, payments),
@@ -327,17 +334,25 @@ export default function CustomerRepaymentTransactionsDataGrid({
         minWidth: ColumnWidths.MinWidth,
         cellRender: (params: GridValueFormatterParams) =>
           params.row.data.transaction?.loan?.purchase_order ? (
-            <PurchaseOrderDrawerLauncher
-              label={params.row.data.transaction.loan.artifact_name}
+            <PurchaseOrderIdentifierDataGridCell
+              onClick={() => {
+                setSelectedPurchaseOrderId(
+                  params.row.data.transaction.loan.artifact_id
+                );
+              }}
+              artifactName={params.row.data.transaction.loan.artifact_name}
               isMetrcBased={
                 params.row.data.transaction.loan.purchase_order.is_metrc_based
               }
-              purchaseOrderId={params.row.data.transaction.loan.artifact_id}
             />
           ) : params.row.data.transaction?.loan?.invoice ? (
-            <InvoiceDrawerLauncher
+            <ClickableDataGridCell
+              onClick={() => {
+                setSelectedInvoiceId(
+                  params.row.data.transaction.loan.artifact_id
+                );
+              }}
               label={params.row.data.transaction.loan.artifact_name}
-              invoiceId={params.row.data.transaction.loan.artifact_id}
             />
           ) : params.row.data.line_of_credit ? (
             "N/A"
@@ -441,6 +456,19 @@ export default function CustomerRepaymentTransactionsDataGrid({
           paymentId={selectedRepaymentId}
           handleClose={() => setSelectedRepaymentId(undefined)}
           showBankInfo={isBankUser}
+        />
+      )}
+      {!!selectedPurchaseOrderId && (
+        <BankPurchaseOrderDrawer
+          purchaseOrderId={selectedPurchaseOrderId}
+          isBankUser={isBankUser}
+          handleClose={() => setSelectedPurchaseOrderId(null)}
+        />
+      )}
+      {!!selectedInvoiceId && (
+        <InvoiceDrawer
+          invoiceId={selectedInvoiceId}
+          handleClose={() => setSelectedInvoiceId(null)}
         />
       )}
       <ControlledDataGrid

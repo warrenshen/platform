@@ -58,7 +58,6 @@ export default function CustomerReportsPageContent({
         isCompanyVisible={false}
         isReportingVisible={true}
         isSortingDisabled
-        isStatusVisible={true}
         isDisbursementIdentifierVisible={true}
         isMaturityVisible={true}
         isDaysPastDueVisible={false}
@@ -74,7 +73,6 @@ export default function CustomerReportsPageContent({
         isCompanyVisible={false}
         isReportingVisible={true}
         isSortingDisabled
-        isStatusVisible={true}
         isDisbursementIdentifierVisible={true}
         isMaturityVisible={true}
         isDaysPastDueVisible={true}

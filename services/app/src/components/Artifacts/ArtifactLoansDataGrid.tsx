@@ -1,14 +1,23 @@
+import { Box } from "@material-ui/core";
 import { GridValueFormatterParams } from "@material-ui/data-grid";
-import InvoiceDrawerLauncher from "components/Invoices/InvoiceDrawerLauncher";
+import InvoiceDrawer from "components/Invoices/InvoiceDrawer";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
-import PurchaseOrderDrawerLauncher from "components/PurchaseOrder/PurchaseOrderDrawerLauncher";
+import BankPurchaseOrderDrawer from "components/PurchaseOrder/v2/BankPurchaseOrderDrawer";
 import LoanPaymentStatusChip from "components/Shared/Chip/LoanPaymentStatusChip";
 import LoanStatusChip from "components/Shared/Chip/LoanStatusChip";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
+import PurchaseOrderIdentifierDataGridCell from "components/Shared/DataGrid/PurchaseOrderIdentifierDataGridCell";
+import ClickableDataGridCell from "components/Shared/DataGrid/v2/ClickableDataGridCell";
 import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
+import {
+  Invoices,
   LoanArtifactLimitedFragment,
   LoanFragment,
   Loans,
+  PurchaseOrders,
 } from "generated/graphql";
 import { parseDateStringServer } from "lib/date";
 import {
@@ -24,7 +33,7 @@ import {
 } from "lib/loans";
 import { CurrencyPrecision } from "lib/number";
 import { ColumnWidths, formatRowModel } from "lib/tables";
-import { useMemo } from "react";
+import { useContext, useMemo, useState } from "react";
 
 export interface ArtifactLoansDataGridFlagProps {
   isApprovalStatusVisible?: boolean;
@@ -102,6 +111,15 @@ export default function ArtifactLoansDataGrid({
 }: ArtifactLoansDataGridFlagProps &
   ArtifactLoansDataGridArtifactProps &
   ArtifactLoansDataGridLoansProps) {
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
+  const isBankUser = isRoleBankUser(role);
+  const [selectedPurchaseOrderId, setSelectedPurchaseOrderId] =
+    useState<PurchaseOrders["id"]>(null);
+  const [selectedInvoiceId, setSelectedInvoiceId] =
+    useState<Invoices["id"]>(null);
+
   const rows = useMemo(() => getRows(loans), [loans]);
 
   const columns = useMemo(
@@ -209,15 +227,19 @@ export default function ArtifactLoansDataGrid({
         minWidth: ColumnWidths.MinWidth,
         cellRender: (params: GridValueFormatterParams) =>
           params.row.data.purchase_order ? (
-            <PurchaseOrderDrawerLauncher
-              label={params.row.data.artifact_name}
+            <PurchaseOrderIdentifierDataGridCell
+              onClick={() => {
+                setSelectedPurchaseOrderId(params.row.data.purchase_order.id);
+              }}
+              artifactName={params.row.data.artifact_name}
               isMetrcBased={params.row.data.purchase_order.is_metrc_based}
-              purchaseOrderId={params.row.data.purchase_order.id}
             />
           ) : params.row.data.invoice ? (
-            <InvoiceDrawerLauncher
+            <ClickableDataGridCell
+              onClick={() => {
+                setSelectedInvoiceId(params.row.data.invoice.id);
+              }}
               label={params.row.data.artifact_name}
-              invoiceId={params.row.data.invoice.id}
             />
           ) : params.row.data.line_of_credit ? (
             params.row.data.artifact_name
@@ -310,16 +332,31 @@ export default function ArtifactLoansDataGrid({
   );
 
   return (
-    <ControlledDataGrid
-      columns={columns}
-      dataSource={rows}
-      filtering={{ enable: isFilteringEnabled }}
-      isExcelExport={isExcelExport}
-      onSelectionChanged={handleSelectionChanged}
-      pager={pager}
-      pageSize={isMiniTable ? 10 : 10}
-      select={isMultiSelectEnabled && !isMiniTable}
-      selectedRowKeys={selectedLoanIds}
-    />
+    <Box>
+      {!!selectedPurchaseOrderId && (
+        <BankPurchaseOrderDrawer
+          purchaseOrderId={selectedPurchaseOrderId}
+          isBankUser={isBankUser}
+          handleClose={() => setSelectedPurchaseOrderId(null)}
+        />
+      )}
+      {!!selectedInvoiceId && (
+        <InvoiceDrawer
+          invoiceId={selectedInvoiceId}
+          handleClose={() => setSelectedInvoiceId(null)}
+        />
+      )}
+      <ControlledDataGrid
+        columns={columns}
+        dataSource={rows}
+        filtering={{ enable: isFilteringEnabled }}
+        isExcelExport={isExcelExport}
+        onSelectionChanged={handleSelectionChanged}
+        pager={pager}
+        pageSize={isMiniTable ? 10 : 10}
+        select={isMultiSelectEnabled && !isMiniTable}
+        selectedRowKeys={selectedLoanIds}
+      />
+    </Box>
   );
 }

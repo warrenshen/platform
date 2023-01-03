@@ -1,7 +1,5 @@
 import { GridValueFormatterParams } from "@material-ui/data-grid";
-import InvoiceDrawerLauncher from "components/Invoices/InvoiceDrawerLauncher";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
-import PurchaseOrderDrawerLauncher from "components/PurchaseOrder/PurchaseOrderDrawerLauncher";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
@@ -31,8 +29,6 @@ import { ColumnWidths, truncateString } from "lib/tables";
 import { useEffect, useMemo, useState } from "react";
 
 interface Props {
-  isArtifactVisible?: boolean;
-  isArtifactBankNoteVisible?: boolean;
   isCompanyVisible?: boolean;
   isDaysPastDueVisible?: boolean;
   isDisbursementIdentifierVisible?: boolean;
@@ -42,7 +38,6 @@ interface Props {
   isMultiSelectEnabled?: boolean;
   isReportingVisible?: boolean;
   isSortingDisabled?: boolean;
-  isStatusVisible?: boolean;
   pager?: boolean;
   matureDays?: number;
   pageSize?: number;
@@ -94,8 +89,6 @@ const getMaturityDate = (rowData: any) => {
 };
 
 export default function ReportLoansDataGrid({
-  isArtifactVisible = false,
-  isArtifactBankNoteVisible = false,
   isCompanyVisible = false,
   isDaysPastDueVisible = false,
   isDisbursementIdentifierVisible = false,
@@ -105,7 +98,6 @@ export default function ReportLoansDataGrid({
   isMultiSelectEnabled = false,
   isReportingVisible = false,
   isSortingDisabled = false,
-  isStatusVisible = true,
   pager = true,
   matureDays = 0,
   pageSize = 10,
@@ -226,27 +218,6 @@ export default function ReportLoansDataGrid({
         ),
       },
       {
-        visible: isArtifactVisible,
-        dataField: "artifact_name",
-        caption: "Purchase Order / Invoice",
-        minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: GridValueFormatterParams) =>
-          params.row.data.purchase_order ? (
-            <PurchaseOrderDrawerLauncher
-              label={params.row.data.artifact_name}
-              isMetrcBased={params.row.data.purchase_order.is_metrc_based}
-              purchaseOrderId={params.row.data.purchase_order.id}
-            />
-          ) : params.row.data.invoice ? (
-            <InvoiceDrawerLauncher
-              label={params.row.data.artifact_name}
-              invoiceId={params.row.data.invoice.id}
-            />
-          ) : params.row.data.line_of_credit ? (
-            "N/A"
-          ) : null,
-      },
-      {
         dataField: "vendor_name",
         caption: "Vendor Name",
         minWidth: ColumnWidths.MinWidth,
@@ -354,7 +325,6 @@ export default function ReportLoansDataGrid({
       },
     ],
     [
-      isArtifactVisible,
       isCompanyVisible,
       isDaysPastDueVisible,
       isDisbursementIdentifierVisible,
