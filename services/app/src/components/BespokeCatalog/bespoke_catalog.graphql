@@ -97,7 +97,7 @@ query GetBespokeCatalogSkuGroupsBySkuGroupName($search_prefix: String!) {
       ]
     }
     order_by: { created_at: desc }
-    limit: 10
+    limit: 25
   ) {
     id
     ...BespokeCatalogSkuGroup
