@@ -24,24 +24,24 @@ class DeleteJobView(MethodView):
 		user_session = auth_util.UserSession.from_session()
 		
 		required_keys = [
-			'async_job_id',
+			'async_job_ids',
 		]
 
 		for key in required_keys:
 			if key not in form:
 				return handler_util.make_error_response(f'Missing {key} in request')
 
-		job_id = form['async_job_id']
+		job_ids = form['async_job_ids']
 
 		with session_scope(current_app.session_maker) as session:
 			_, err = async_jobs_util.delete_job(
 				session = session,
-				job_id = job_id
+				job_ids = job_ids
 			)
 			if err:
 				raise err
 
-		logging.info(f"Deleted async job with id {job_id}")
+		logging.info(f"Deleted async job with id {job_ids}")
 
 		return make_response(json.dumps({
 			'status': 'OK'

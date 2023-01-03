@@ -7,7 +7,7 @@ import {
 
 export type DeleteAsyncJobReq = {
   variables: {
-    async_job_id: AsyncJobs["id"];
+    async_job_ids: AsyncJobs["id"][];
   };
 };
 

@@ -79,20 +79,21 @@ def add_job_to_queue(
 @errors.return_error_tuple
 def delete_job(
 	session: Session,
-	job_id: str,
+	job_ids: List[str],
 ) -> Tuple[bool, errors.Error]:
 
-	delete_job = cast(
-		models.AsyncJob,
+	delete_jobs = cast(
+		List[models.AsyncJob],
 		session.query(models.AsyncJob).filter(
-			models.AsyncJob.id == job_id
-		).first())
+			models.AsyncJob.id.in_(job_ids)
+		).all())
 
-	if delete_job.status != AsyncJobStatusEnum.IN_PROGRESS:
-		delete_job.is_deleted = True
-		delete_job.deleted_at = date_util.now()
-	else:
-		return None, errors.Error(f"{job_id} is in progress and cannot be deleted.")
+	for job in delete_jobs:
+		if job.status != AsyncJobStatusEnum.IN_PROGRESS:
+			job.is_deleted = True
+			job.deleted_at = date_util.now()
+		else:
+			return None, errors.Error(f"{job.id} is in progress and cannot be deleted.")
 
 	return True, None
 

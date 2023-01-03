@@ -28,10 +28,6 @@ function OpenAsyncJobsTab() {
     [setSelectedAsyncJobs]
   );
 
-  const jobStatus = !!selectedAsyncJobs?.[0]?.status
-    ? selectedAsyncJobs[0].status
-    : null;
-
   const selectJobPriority = selectedAsyncJobs.map(
     (job) => job.is_high_priority
   );
@@ -44,9 +40,11 @@ function OpenAsyncJobsTab() {
     (job) => job.status === AsyncJobStatusEnum.Failed
   );
 
-  const isDeleteDisabled =
-    selectedAsyncJobs.length !== 1 ||
-    jobStatus === AsyncJobStatusEnum.InProgress;
+  const allNotInProgress = selectedAsyncJobs.every(
+    (job) => job.status !== AsyncJobStatusEnum.InProgress
+  );
+
+  const isDeleteDisabled = selectedAsyncJobs.length < 1 || !allNotInProgress;
 
   const isRetryAsyncDisabled = selectedAsyncJobs.length < 1 || !allSameStatus;
 
@@ -98,7 +96,7 @@ function OpenAsyncJobsTab() {
                 label={"Delete Job"}
                 modal={({ handleClose }) => (
                   <DeleteAsyncJobModal
-                    asyncJob={selectedAsyncJobs[0]}
+                    asyncJobs={selectedAsyncJobs}
                     handleClose={() => {
                       handleClose();
                     }}

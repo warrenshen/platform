@@ -5,17 +5,16 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  TextField,
   Theme,
   Typography,
   createStyles,
   makeStyles,
 } from "@material-ui/core";
+import AsyncJobsDataGrid from "components/Settings/AsyncJobsDataGrid";
 import { AsyncJobs } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { deleteAsyncJobMutation } from "lib/api/asyncJobs";
-import { formatDatetimeString } from "lib/date";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -35,21 +34,23 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
-  asyncJob: AsyncJobs;
+  asyncJobs: AsyncJobs[];
   handleClose: () => void;
 }
 
-function DeleteAsyncJobModal({ asyncJob, handleClose }: Props) {
+function DeleteAsyncJobModal({ asyncJobs, handleClose }: Props) {
   const snackbar = useSnackbar();
   const classes = useStyles();
 
   const [deleteAsyncJob, { loading: isDeleteAsyncJobLoading }] =
     useCustomMutation(deleteAsyncJobMutation);
 
+  const asyncJobIds = asyncJobs.map((job) => job.id);
+
   const handleClickSubmit = async () => {
     const response = await deleteAsyncJob({
       variables: {
-        async_job_id: asyncJob.id,
+        async_job_ids: asyncJobIds,
       },
     });
 
@@ -76,23 +77,7 @@ function DeleteAsyncJobModal({ asyncJob, handleClose }: Props) {
           not be undone.
         </Typography>
         <Box display="flex" flexDirection="column">
-          <Box display="flex" flexDirection="column" mt={4}>
-            <TextField disabled label="Job Name" value={asyncJob.name} />
-          </Box>
-          <Box display="flex" flexDirection="column" mt={4}>
-            <TextField
-              disabled
-              label="Submitted By"
-              value={asyncJob.submitted_by_user_id}
-            />
-          </Box>
-          <Box display="flex" flexDirection="column" mt={4}>
-            <TextField
-              disabled
-              label="Queued time"
-              value={formatDatetimeString(asyncJob.queued_at)}
-            />
-          </Box>
+          <AsyncJobsDataGrid asyncJobs={asyncJobs} />
         </Box>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>
@@ -105,7 +90,7 @@ function DeleteAsyncJobModal({ asyncJob, handleClose }: Props) {
             variant="contained"
             color="secondary"
           >
-            Deactivate
+            Delete
           </Button>
         </Box>
       </DialogActions>
