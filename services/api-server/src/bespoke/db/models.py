@@ -1149,7 +1149,7 @@ class LoanReport(Base):
 	__tablename__ = 'loan_reports'
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
-	repayment_date = Column(Date) # Settlement date of most recent repayment on the associated loan.
+	repayment_date = Column(Date) # Deposit date of most recent repayment on the associated loan.
 	total_principal_paid = Column(Numeric)
 	total_interest_paid = Column(Numeric)
 	total_fees_paid = Column(Numeric)

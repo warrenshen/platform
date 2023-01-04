@@ -50,6 +50,7 @@ mypy:
 	MYPYPATH=stubs mypy src/manage.py --config-file=mypy.ini
 	MYPYPATH=stubs mypy src/manage_async.py --config-file=mypy.ini
 	MYPYPATH=stubs mypy src/manage_async_fast.py --config-file=mypy.ini
+	# MYPYPATH=stubs:src mypy scripts/backfill/*
 	$(MAKE) mypy-scripts
 
 mypy-tests:

@@ -41,7 +41,7 @@ LoanUpdateDict = TypedDict('LoanUpdateDict', {
 	'interest_accrued_today': float,
 	'fees_accrued_today': float,
 	'should_close_loan': bool,
-	'repayment_date': datetime.date, # last repayment settlement date, calculated on the settlement date
+	'repayment_date': datetime.date, # last repayment deposit date, calculated on the deposited date
 	'day_last_repayment_settles': datetime.date, # last repayment settlement date, calculated on the deposit date, e.g., a "look ahead"
 	'total_principal_paid': float,
 	'total_interest_paid': float,
@@ -607,7 +607,7 @@ def _update_end_of_day_repayment_settlements(
 			balances['outstanding_principal_for_interest'] -= tx['to_principal']
 			balances['amount_paid_back_on_loan'] += tx['amount']
 
-			balances['repayment_date'] = tx['effective_date']
+			balances['repayment_date'] = aug_tx['payment']['deposit_date']
 			balances['total_principal_paid'] += tx['to_principal']
 			balances['total_interest_paid'] += tx['to_interest']
 			balances['total_fees_paid'] += tx['to_fees']

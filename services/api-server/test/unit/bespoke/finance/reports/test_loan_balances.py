@@ -859,7 +859,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': number_util.round_currency(0.005 * 500.03),
 						'fees_accrued_today': 0.0,
 						'day_last_repayment_settles': date_util.load_date_str('11/06/2020'),
-						'financing_period': 33,
+						'financing_period': 31,
 						'should_close_loan': True,
 						'days_overdue': 0
 					},
@@ -880,7 +880,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': number_util.round_currency(0.005 * 500.03),
 						'fees_accrued_today': 0.0,
 						'day_last_repayment_settles': date_util.load_date_str('11/06/2020'),
-						'financing_period': 33,
+						'financing_period': 31,
 						'should_close_loan': True,
 						'days_overdue': 0
 					},
@@ -1474,7 +1474,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'fees_accrued_today': 0.0,
 						'interest_paid_daily_adjustment': number_util.round_currency(0.05 * 100.00 * 4), # You paid an extra 4 days of interest that we report for this month
 						'day_last_repayment_settles': date_util.load_date_str('11/04/2020'),
-						'financing_period': 15,
+						'financing_period': 10,
 						'should_close_loan': True,
 						'days_overdue': 1
 					},
@@ -1497,7 +1497,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'fees_accrued_today': 0.0,
 						'interest_paid_daily_adjustment': number_util.round_currency(-0.05 * 100.00 * 4), # THe extra 4 days of interest paid off is subtracted on the first of the month
 						'day_last_repayment_settles': date_util.load_date_str('11/04/2020'),
-						'financing_period': 15,
+						'financing_period': 10,
 						'should_close_loan': True,
 						'days_overdue': 2
 					},
@@ -1519,7 +1519,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': 5.0,
 						'fees_accrued_today': 0.0,
 						'day_last_repayment_settles': date_util.load_date_str('11/04/2020'),
-						'financing_period': 15,
+						'financing_period': 10,
 						'should_close_loan': True,
 						'days_overdue': 0
 					},
@@ -1650,7 +1650,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'fees_accrued_today': 0.0,
 						'interest_paid_daily_adjustment': number_util.round_currency(0.05 * 100.00 * 4), # You paid an extra 4 days of interest that we report for this month
 						'day_last_repayment_settles': date_util.load_date_str('11/04/2020'),
-						'financing_period': 15,
+						'financing_period': 10,
 						'should_close_loan': True,
 						'days_overdue': 1
 					},
@@ -1673,7 +1673,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'fees_accrued_today': 0.0,
 						'interest_paid_daily_adjustment': number_util.round_currency(-0.05 * 100.00 * 4), # THe extra 4 days of interest paid off is subtracted on the first of the month
 						'day_last_repayment_settles': date_util.load_date_str('11/04/2020'),
-						'financing_period': 15,
+						'financing_period': 10,
 						'should_close_loan': True,
 						'days_overdue': 2
 					},
@@ -1695,7 +1695,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': 5.0,
 						'fees_accrued_today': 0.0,
 						'day_last_repayment_settles': date_util.load_date_str('11/04/2020'),
-						'financing_period': 15,
+						'financing_period': 10,
 						'should_close_loan': True,
 						'days_overdue': 0
 					},
@@ -1826,7 +1826,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'fees_accrued_today': 0.0,
 						'interest_paid_daily_adjustment': number_util.round_currency(0.05 * 100.00 * 3), # You paid an extra 4 days of interest that we report for this month
 						'day_last_repayment_settles': date_util.load_date_str('01/03/2021'),
-						'financing_period': 14,
+						'financing_period': 10,
 						'should_close_loan': True,
 						'days_overdue': 1
 					},
@@ -1872,7 +1872,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'fees_accrued_today': 0.0,
 						'interest_paid_daily_adjustment': number_util.round_currency(-0.05 * 100.00 * 3), # THe extra 3 days of interest paid off is subtracted on the first of the month
 						'day_last_repayment_settles': date_util.load_date_str('01/03/2021'),
-						'financing_period': 14,
+						'financing_period': 10,
 						'should_close_loan': True,
 						'days_overdue': 2
 					},
@@ -1895,7 +1895,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'interest_accrued_today': 0.0,
 						'fees_accrued_today': 0.0,
 						'day_last_repayment_settles': date_util.load_date_str('01/03/2021'),
-						'financing_period': 14,
+						'financing_period': 10,
 						'should_close_loan': True,
 						'days_overdue': 0
 					},
@@ -2587,7 +2587,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'amount_to_pay_interest_on': 500.0,
 						'interest_accrued_today': 500.0 * 0.002,
 						'fees_accrued_today': 0.0,
-						'financing_period': 4,
+						'financing_period': 3,
 						'day_last_repayment_settles': date_util.load_date_str('10/04/2020'),
 						'should_close_loan': True,
 						'days_overdue': 0
@@ -2636,7 +2636,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'amount_to_pay_interest_on': 500.0,
 						'interest_accrued_today': 500.0 * 0.002,
 						'fees_accrued_today': 0.0,
-						'financing_period': 4,
+						'financing_period': 3,
 						'day_last_repayment_settles': date_util.load_date_str('10/04/2020'),
 						'should_close_loan': True,
 						'days_overdue': 0
@@ -2685,7 +2685,7 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'amount_to_pay_interest_on': 0.0,
 						'interest_accrued_today': 0.0,
 						'fees_accrued_today': 0.0,
-						'financing_period': 4,
+						'financing_period': 3,
 						'day_last_repayment_settles': date_util.load_date_str('10/04/2020'),
 						'should_close_loan': True,
 						'days_overdue': 0
