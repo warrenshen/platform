@@ -456,7 +456,7 @@ export const CommentIcon = ({
     $height2={height}
   >
     <rect width="24" height="24" rx="4" fill="#F6F5F3" />
-    <g clip-path="url(#clip0_2061_8219)">
+    <g clipPath="url(#clip0_2061_8219)">
       <StyledPath
         fillRule="evenodd"
         clipRule="evenodd"

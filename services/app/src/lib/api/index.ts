@@ -137,7 +137,6 @@ export const loansRoutes = {
   submitLoCForApproval: "/finance/loans/approvals/submit_loc_for_approval", // TEMPORARY
 
   approveLoans: "/finance/loans/approvals/approve_loans",
-  rejectLoan: "/finance/loans/approvals/reject_loan",
   rejectLoanNew: "/finance/loans/approvals/reject_loan_new",
 
   deleteLoan: "/finance/loans/deletion/delete_loan",

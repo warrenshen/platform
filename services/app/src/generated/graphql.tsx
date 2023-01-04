@@ -34647,7 +34647,7 @@ export const LoanWithRelationshipsFragmentDoc = gql`
       id
       ...CompanyLimited
     }
-    loan_report {
+    loan_report @include(if: $is_bank_user) {
       ...LoanReport
       debt_facility {
         ...DebtFacility

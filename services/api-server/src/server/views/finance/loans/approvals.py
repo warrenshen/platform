@@ -121,95 +121,6 @@ class ApproveLoansView(MethodView):
 		resp['status'] = 'OK'
 		return make_response(json.dumps(resp), 200)
 
-class RejectLoanView(MethodView):
-	decorators = [auth_util.bank_admin_required]
-
-	@events.wrap(events.Actions.LOANS_REJECT)
-	@handler_util.catch_bad_json_request
-	def post(self, **kwargs: Any) -> Response:
-		form = json.loads(request.data)
-		if not form:
-			return handler_util.make_error_response('No data provided')
-
-		required_keys = ['loan_id', 'rejection_note']
-		for key in required_keys:
-			if key not in form:
-				return handler_util.make_error_response(
-					'Missing key {} from handle payment request'.format(key))
-
-		loan_id = form['loan_id']
-		rejection_note = form['rejection_note']
-		user_session = auth_util.UserSession.from_session()
-
-		customer_name = ''
-		loan_identifier = ''
-		loan_amount = ''
-		loan_requested_payment_date = ''
-		loan_requested_date = ''
-
-		with session_scope(current_app.session_maker) as session:
-			loan = cast(
-				models.Loan,
-				session.query(models.Loan).filter_by(
-					id=loan_id).first()
-			)
-
-			if not loan:
-				raise errors.Error('Could not find loan for given Loan ID')
-
-			customer_id = loan.company_id
-			# When a loan gets rejected, we clear out
-			# any state about whether it was approved.
-			loan.rejection_note = rejection_note
-			loan.rejected_at = date_util.now()
-			loan.rejected_by_user_id = user_session.get_user_id()
-			loan.approved_at = None
-			loan.approved_by_user_id = None
-			# Reset loan approval status.
-			loan.status = models_util.compute_loan_approval_status(loan)
-
-			customer = cast(
-				models.Company,
-				session.query(models.Company).filter(
-					models.Company.id == customer_id
-				).first())
-
-			loan_identifier = f'{customer.identifier}{loan.identifier}'
-			loan_amount = number_util.to_dollar_format(float(loan.amount))
-			loan_requested_payment_date = date_util.date_to_str(loan.requested_payment_date)
-			loan_requested_date = date_util.human_readable_yearmonthday(loan.requested_at)
-
-			customer_users = models_util.get_active_users(company_id=customer_id, session=session)
-			customer_emails = [user.email for user in customer_users]
-
-			template_name = sendgrid_util.TemplateNames.BANK_REJECTED_LOAN
-			template_data = {
-				'customer_name': customer.get_display_name(),
-				'loan_identifier': loan_identifier,
-				'loan_amount': loan_amount,
-				'loan_requested_payment_date': loan_requested_payment_date,
-				'loan_requested_date': loan_requested_date,
-				'rejection_note': rejection_note,
-			}
-
-			cfg = cast(Config, current_app.app_config)
-			sendgrid_client = cast(sendgrid_util.Client,
-								current_app.sendgrid_client)
-
-			recipients = customer_emails
-			_, err = sendgrid_client.send(
-				template_name, 
-				template_data, 
-				recipients,
-				filter_out_contact_only=True,
-			)
-			if err:
-				raise err
-
-		return make_response(json.dumps({
-			'status': 'OK'
-		}), 200)
-
 
 class RejectLoanNewView(MethodView):
 	decorators = [auth_util.bank_admin_required]
@@ -518,9 +429,6 @@ class SubmitForApprovalViewNew(MethodView):
 
 handler.add_url_rule(
 	'/approve_loans', view_func=ApproveLoansView.as_view(name='approve_loans_view'))
-
-handler.add_url_rule(
-	'/reject_loan', view_func=RejectLoanView.as_view(name='reject_loan_view'))
 
 handler.add_url_rule(
 	'/reject_loan_new', view_func=RejectLoanNewView.as_view(name='reject_loan_new_view'))

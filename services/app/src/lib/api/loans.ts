@@ -172,35 +172,6 @@ export async function approveLoans(
     );
 }
 
-type RejectLoanReq = {
-  variables: {
-    loan_id: Loans["id"];
-    rejection_note: string;
-  };
-};
-
-export async function rejectLoanMutation(
-  req: RejectLoanReq
-): Promise<CustomMutationResponse> {
-  return authenticatedApi
-    .post(loansRoutes.rejectLoan, req.variables)
-    .then((res) => {
-      return res.data;
-    })
-    .then(
-      (response) => {
-        return response;
-      },
-      (error) => {
-        console.error("error", error);
-        return {
-          status: "ERROR",
-          msg: "Could not reject loan for an unexpected reason",
-        };
-      }
-    );
-}
-
 type RejectLoanReqNew = {
   variables: {
     loan_id: Loans["id"];
