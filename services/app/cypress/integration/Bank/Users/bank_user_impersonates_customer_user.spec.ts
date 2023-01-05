@@ -1,3 +1,5 @@
+export {};
+
 describe("Impersonate user", () => {
   before(() => {
     cy.resetDatabase();

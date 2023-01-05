@@ -2,11 +2,13 @@
   "compilerOptions": {
     "target": "es5",
     "lib": ["es5", "dom"],
-    "baseUrl": ".",
+    "baseUrl": "./../src",
+    "outDir": "build",
     "paths": {
-      "@app/*": ["../src/*"],
+      "@cypress/*": ["./../cypress/*"],
     },
-    "types": ["cypress", "cypress-file-upload"]
+    "types": ["cypress", "cypress-file-upload", "./support"]
   },
-  "include": ["**/*.ts", "support/index.js", "../src/**/*.ts"]
+  "include": ["./**/*.ts", "./support/index.js"],
+  "extends": "./../tsconfig.json"
 }

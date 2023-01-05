@@ -358,6 +358,23 @@ def update_company_settings(
 
     return company_settings, None
 
+def create_company_vendor_contact(
+    session: Session,
+    id: str,
+	partnership_id: str,
+	vendor_user_id: str,
+) -> Tuple[models.CompanyVendorContact, errors.Error]:
+
+    company_vendor_contact = models.CompanyVendorContact( # type: ignore
+        partnership_id = partnership_id,
+        vendor_user_id = vendor_user_id
+    )
+
+    session.add(company_vendor_contact)
+    session.flush()
+
+    return company_vendor_contact, None
+
 def create_company_vendor_partnership_new(
     session: Session,
     approved_at: datetime.datetime,

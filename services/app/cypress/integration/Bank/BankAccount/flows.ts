@@ -2,6 +2,7 @@ interface CypressBankAccountFlowProps {
   isAch: boolean;
   isWire: boolean;
   isWireIntermediate: boolean;
+  isVerified: boolean;
   isVerifiedCleared: boolean;
   isVerifiedUpdated: boolean;
 }
@@ -11,7 +12,7 @@ export const bankUserCreatesCustomerBankAccount = ({
   isWire = false,
   isWireIntermediate = false,
   isVerified = false,
-}: CypressBankAccountFlowProps) => {
+}: Partial<CypressBankAccountFlowProps>) => {
   cy.loginBankAdmin();
 
   // Go to Bank > Companies
@@ -111,9 +112,10 @@ export const bankUserEditsCustomerBankAccount = ({
   isAch = false,
   isWire = false,
   isWireIntermediate = false,
+  isVerified = false,
   isVerifiedCleared = false,
   isVerifiedUpdated = false,
-}: CypressBankAccountFlowProps) => {
+}: Partial<CypressBankAccountFlowProps>) => {
   cy.loginBankAdmin();
 
   // Go to Bank > Customers

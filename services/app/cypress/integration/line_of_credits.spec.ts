@@ -1,3 +1,5 @@
+export {};
+
 describe("Create line of credit contract for existing customer", () => {
   before(() => {
     cy.resetDatabase();
@@ -25,7 +27,8 @@ describe("Create line of credit contract for existing customer", () => {
       // We need to uncheck the `Is Customer Active?` checbkox
       // since we are testing for setting up their first contract,
       // thus making the customer hidden with this filter
-      cy.dataCy("is-customer-active-checkbox").first().click({ force: true });
+      // TODO(JR): this was removed due to a miscommunication, this should return
+      // cy.dataCy("is-customer-active-checkbox").first().click({ force: true });
 
       cy.dataCy("customers-data-grid-view-customer-button-CC")
         .first()

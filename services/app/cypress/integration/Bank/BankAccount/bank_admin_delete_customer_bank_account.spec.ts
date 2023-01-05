@@ -1,7 +1,4 @@
-import {
-  bankUserCreatesCustomerBankAccount,
-  bankUserEditsCustomerBankAccount,
-} from "./flows";
+export {};
 
 describe("Delete bank account", () => {
   before(() => {

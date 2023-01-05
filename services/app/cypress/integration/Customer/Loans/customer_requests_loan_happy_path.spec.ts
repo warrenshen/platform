@@ -1,4 +1,7 @@
-import { getTestSetupDates, requestFinancing } from "./flows";
+import {
+  getTestSetupDates,
+  requestFinancing,
+} from "@cypress/integration/Customer/Loans/flows";
 
 describe("Request financing", () => {
   before(() => {

@@ -1,4 +1,6 @@
-import { password, users } from "../fixtures/logins";
+// Empty export solves tsc warning. Alternatively,
+// having *any* export or import also works
+export {};
 
 describe("Sign in: multilocation customer user", () => {
   before(() => {
@@ -8,28 +10,28 @@ describe("Sign in: multilocation customer user", () => {
     cy.addCompany({
       is_customer: true,
       parent_company_id: parentCompanyId,
-    }).then((results) => {
+    }).then((companyResults1) => {
       cy.addContract({
-        company_id: results.companyId,
+        company_id: companyResults1.companyId,
         product_type: "line_of_credit",
       });
       cy.addFinancialSummary({
-        company_id: results.companyId,
+        company_id: companyResults1.companyId,
       });
 
       cy.addCompany({
         is_customer: true,
         parent_company_id: parentCompanyId,
-      }).then((results) => {
+      }).then((companyResults2) => {
         cy.addContract({
-          company_id: results.companyId,
+          company_id: companyResults2.companyId,
           product_type: "line_of_credit",
         });
         cy.addFinancialSummary({
-          company_id: results.companyId,
+          company_id: companyResults2.companyId,
         });
         cy.addUser({
-          company_id: results.companyId,
+          company_id: companyResults1.companyId,
           parent_company_id: parentCompanyId,
           role: "company_admin",
         }).then((results) => {

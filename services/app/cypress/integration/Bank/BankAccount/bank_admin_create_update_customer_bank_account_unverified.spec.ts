@@ -1,7 +1,7 @@
 import {
   bankUserCreatesCustomerBankAccount,
   bankUserEditsCustomerBankAccount,
-} from "./flows";
+} from "@cypress/integration/Bank/BankAccount/flows";
 
 describe("Create and update bank account", () => {
   before(() => {

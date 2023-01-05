@@ -1,3 +1,5 @@
+export {};
+
 const createCannabisLicense = (
   licenseNumber: string,
   isUnderwrittingEnabled = false

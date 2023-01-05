@@ -1,3 +1,5 @@
+export {};
+
 describe("Deleting a company vendor partnership request", () => {
   before(() => {
     cy.resetDatabase();

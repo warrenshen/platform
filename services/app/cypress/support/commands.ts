@@ -1,3 +1,4 @@
+/// <reference types="../support"/>
 // ***********************************************
 // This example commands.js shows you how to
 // create various custom commands and overwrite
@@ -25,12 +26,14 @@
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 import "cypress-file-upload";
 
+import { format } from "date-fns";
 import {
   BankAccounts,
   Companies,
   CompanyLicenses,
   CompanyPartnershipRequests,
   CompanySettings,
+  CompanyVendorContacts,
   CompanyVendorPartnerships,
   Contracts,
   EbbaApplications,
@@ -42,30 +45,21 @@ import {
   PurchaseOrders,
   TwoFactorLinks,
   Users,
-} from "@app/generated/graphql";
-import { format } from "date-fns";
+} from "generated/graphql";
 
 import { password, users } from "../fixtures/logins";
 
-declare global {
-  namespace Cypress {
-    interface Chainable {
-      loginBankAdmin: typeof loginBankAdmin;
-      loginCustomerAdmin: typeof loginCustomerAdmin;
-      logout: typeof logout;
-      resetDatabase: typeof resetDatabase;
-      todayAsDateStringClient: typeof todayAsDateStringClient;
-    }
-  }
+function dataCy(value: string) {
+  cy.get(`[data-cy=${value}]`);
 }
 
-Cypress.Commands.add("dataCy", (value) => {
-  return cy.get(`[data-cy=${value}]`);
-});
+Cypress.Commands.add("dataCy", dataCy);
 
-Cypress.Commands.add("dataCySelector", (value, selector) => {
-  return cy.get(`[data-cy=${value}] *> ${selector}`);
-});
+function dataCySelector(value: string, selector: string) {
+  cy.get(`[data-cy=${value}] *> ${selector}`);
+}
+
+Cypress.Commands.add("dataCySelector", dataCySelector);
 
 function resetDatabase() {
   cy.request("POST", `${Cypress.env("apiServerUrl")}/cypress/reset_database`);
@@ -134,145 +128,38 @@ Cypress.Commands.add("logout", logout);
 // TEST DATA INSERTION
 // ///////////////////////////////
 
-function addBankAccount({
-  account_number,
-  account_title,
-  account_type,
-  ach_default_memo,
-  bank_address,
-  bank_instructions_file_id,
-  bank_name,
-  can_ach,
-  can_wire,
-  company_id,
-  created_at,
-  id,
-  intermediary_account_name,
-  intermediary_account_number,
-  intermediary_bank_address,
-  intermediary_bank_name,
-  is_bank_international,
-  is_cannabis_compliant,
-  is_deleted,
-  is_wire_intermediary,
-  recipient_address,
-  recipient_address_2,
-  recipient_name,
-  routing_number,
-  torrey_pines_template_name,
-  updated_at,
-  us_state,
-  verified_at,
-  verified_date,
-  wire_default_memo,
-  wire_routing_number,
-  wire_template_name,
-}: BankAccounts) {
+export type AddBankAccountResult = {
+  bankAccountId: string;
+};
+
+function addBankAccount(props: Partial<BankAccounts>) {
   cy.request(
     "POST",
     `${Cypress.env("apiServerUrl")}/cypress/add_bank_account`,
-    {
-      account_number: account_number || null,
-      account_title: account_title || null,
-      account_type: account_type || null,
-      ach_default_memo: ach_default_memo || null,
-      bank_address: bank_address || null,
-      bank_instructions_file_id: bank_instructions_file_id || null,
-      bank_name: bank_name || null,
-      can_ach: can_ach || null,
-      can_wire: can_wire || null,
-      company_id: company_id || null,
-      created_at: created_at,
-      id: id || null,
-      intermediary_account_name: intermediary_account_name || null,
-      intermediary_account_number: intermediary_account_number || null,
-      intermediary_bank_address: intermediary_bank_address || null,
-      intermediary_bank_name: intermediary_bank_name || null,
-      is_bank_international: is_bank_international || null,
-      is_cannabis_compliant: is_cannabis_compliant || null,
-      is_deleted: is_deleted || null,
-      is_wire_intermediary: is_wire_intermediary || null,
-      recipient_address: recipient_address || null,
-      recipient_address_2: recipient_address_2 || null,
-      recipient_name: recipient_name || null,
-      routing_number: routing_number || null,
-      torrey_pines_template_name: torrey_pines_template_name || null,
-      updated_at: updated_at || null,
-      us_state: us_state || null,
-      verified_at: verified_at || null,
-      verified_date: verified_date || null,
-      wire_default_memo: wire_default_memo || null,
-      wire_routing_number: wire_routing_number || null,
-      wire_template_name: wire_template_name || null,
-    }
+    props
   ).then((response) => {
     const bankAccountId = !!response?.body?.data?.bank_account_id
       ? response.body.data.bank_account_id
       : null;
 
-    return cy.wrap(bankAccountId);
+    return cy.wrap<AddBankAccountResult>({
+      bankAccountId: bankAccountId,
+    });
   });
 }
 
-function addCompany({
-  address,
-  city,
-  company_settings_id,
-  contract_id,
-  contract_name,
-  country,
-  dba_name,
-  debt_facility_status,
-  debt_facility_waiver_date,
-  debt_facility_waiver_expiration_date,
-  id,
-  identifier,
-  is_cannabis,
-  is_customer,
-  is_payor,
-  is_vendor,
-  latest_disbursement_identifier,
-  latest_loan_identifier,
-  latest_repayment_identifier,
-  name,
-  parent_company_id,
-  phone_number,
-  qualify_for,
-  state,
-  surveillance_status,
-  surveillance_status_note,
-  zip_code,
-}: Companies) {
-  cy.request("POST", `${Cypress.env("apiServerUrl")}/cypress/add_company`, {
-    address: address || null,
-    city: city || null,
-    company_settings_id: company_settings_id || null,
-    contract_id: contract_id || null,
-    contract_name: contract_name || null,
-    country: country || null,
-    dba_name: dba_name || null,
-    debt_facility_status: debt_facility_status || null,
-    debt_facility_waiver_date: debt_facility_waiver_date || null,
-    debt_facility_waiver_expiration_date:
-      debt_facility_waiver_expiration_date || null,
-    id: id || null,
-    identifier: identifier || null,
-    is_cannabis: is_cannabis || null,
-    is_customer: is_customer || null,
-    is_payor: is_payor || null,
-    is_vendor: is_vendor || null,
-    latest_disbursement_identifier: latest_disbursement_identifier || null,
-    latest_loan_identifier: latest_loan_identifier || null,
-    latest_repayment_identifier: latest_repayment_identifier || null,
-    name: name || null,
-    parent_company_id: parent_company_id || null,
-    phone_number: phone_number || null,
-    qualify_for: qualify_for || null,
-    state: state || null,
-    surveillance_status: surveillance_status || null,
-    surveillance_status_note: surveillance_status_note || null,
-    zip_code: zip_code || null,
-  }).then((response) => {
+export type AddCompanyResults = {
+  companyId: string;
+  companySettingsId: string;
+  parentCompanyId: string;
+};
+
+function addCompany(props: Partial<Companies>) {
+  cy.request(
+    "POST",
+    `${Cypress.env("apiServerUrl")}/cypress/add_company`,
+    props
+  ).then((response) => {
     const companyId = !!response?.body?.data?.company_id
       ? response.body.data.company_id
       : null;
@@ -285,7 +172,7 @@ function addCompany({
       ? response.body.data.parent_company_id
       : null;
 
-    return cy.wrap({
+    return cy.wrap<AddCompanyResults>({
       companyId: companyId,
       companySettingsId: companySettingsId,
       parentCompanyId: parentCompanyId,
@@ -293,605 +180,344 @@ function addCompany({
   });
 }
 
-function addCompanyLicense({
-  company_id,
-  created_at,
-  estimate_latitude,
-  estimate_longitude,
-  estimate_zip,
-  expiration_date,
-  facility_row_id,
-  file_id,
-  id,
-  is_current,
-  is_deleted,
-  is_underwriting_enabled,
-  legal_name,
-  license_category,
-  license_description,
-  license_number,
-  license_status,
-  rollup_id,
-  updated_at,
-  us_state,
-}: CompanyLicense) {
+export type AddCompanyLicenseResult = {
+  companyLicenseId: string;
+};
+
+function addCompanyLicense(props: Partial<CompanyLicenses>) {
   cy.request(
     "POST",
     `${Cypress.env("apiServerUrl")}/cypress/add_company_license`,
-    {
-      company_id: company_id || null,
-      created_at: created_at || null,
-      estimate_latitude: estimate_latitude || null,
-      estimate_longitude: estimate_longitude || null,
-      estimate_zip: estimate_zip || null,
-      expiration_date: expiration_date || null,
-      facility_row_id: facility_row_id || null,
-      file_id: file_id || null,
-      id: id || null,
-      is_current: is_current || null,
-      is_deleted: is_deleted || null,
-      is_underwriting_enabled: is_underwriting_enabled || null,
-      legal_name: legal_name || null,
-      license_category: license_category || null,
-      license_description: license_description || null,
-      license_number: license_number || null,
-      license_status: license_status || null,
-      rollup_id: rollup_id || null,
-      updated_at: updated_at || null,
-      us_state: us_state || null,
-    }
+    props
   ).then((response) => {
     const companyLicenseId = !!response?.body?.data?.company_license_id
       ? response.body.data.company_license_id
       : null;
 
-    return cy.wrap(companyLicenseId);
+    return cy.wrap<AddCompanyLicenseResult>({
+      companyLicenseId: companyLicenseId,
+    });
   });
 }
 
-function addCompanyPartnershipRequest({
-  company_name,
-  company_type,
-  created_at,
-  id,
-  is_cannabis,
-  is_deleted,
-  license_info,
-  request_info,
-  requested_by_user_id,
-  requesting_company_id,
-  settled_at,
-  settled_by_user_id,
-  two_factor_message_method,
-  updated_at,
-  user_info,
-}: CompanyPartnershipRequests) {
+export type AddCompanyPartnershipResult = {
+  companyPartnershipRequestId: string;
+};
+
+function addCompanyPartnershipRequest(
+  props: Partial<CompanyPartnershipRequests>
+) {
   cy.request(
     "POST",
     `${Cypress.env("apiServerUrl")}/cypress/add_company_partnership_request`,
-    {
-      company_name: company_name || null,
-      company_type: company_type || null,
-      created_at: created_at || null,
-      id: id || null,
-      is_cannabis: is_cannabis || null,
-      is_deleted: is_deleted || null,
-      license_info: license_info || null,
-      request_info: request_info || null,
-      requested_by_user_id: requested_by_user_id || null,
-      requesting_company_id: requesting_company_id || null,
-      settled_at: settled_at || null,
-      settled_by_user_id: settled_by_user_id || null,
-      two_factor_message_method: two_factor_message_method || null,
-      updated_at: updated_at || null,
-      user_info: user_info || null,
-    }
+    props
   ).then((response) => {
     const companyPartnershipRequestId = !!response?.body?.data
       ?.company_partnership_request_id
       ? response.body.data.company_partnership_request_id
       : null;
 
-    return cy.wrap(companyPartnershipRequestId);
+    return cy.wrap<AddCompanyPartnershipResult>({
+      companyPartnershipRequestId: companyPartnershipRequestId,
+    });
   });
 }
 
-function updateCompanySettings({
-  id,
-  company_id,
-  active_ebba_application_id,
-  active_borrowing_base_id,
-  active_financial_report_id,
-  metrc_api_key_id,
-  advances_bespoke_bank_account_id,
-  collections_bespoke_bank_account_id,
-  advances_bank_account_id,
-  collections_bank_account_id,
-  vendor_agreement_docusign_template,
-  payor_agreement_docusign_template,
-  vendor_onboarding_link,
-  has_autofinancing,
-  two_factor_message_method,
-  feature_flags_payload,
-  custom_messages_payload,
-  is_dummy_account,
-  client_success_user_id,
-  business_development_user_id,
-  underwriter_user_id,
-  is_autogenerate_repayments_enabled,
-}: CompanySettings) {
+export type UpdateCompanySettingsResult = {
+  companySettingsId: string;
+};
+
+function updateCompanySettings(props: Partial<CompanySettings>) {
   cy.request(
     "POST",
     `${Cypress.env("apiServerUrl")}/cypress/add_company_settings`,
-    {
-      id: id || null,
-      company_id: company_id || null,
-      active_ebba_application_id: active_ebba_application_id || null,
-      active_borrowing_base_id: active_borrowing_base_id || null,
-      active_financial_report_id: active_financial_report_id || null,
-      metrc_api_key_id: metrc_api_key_id || null,
-      advances_bespoke_bank_account_id:
-        advances_bespoke_bank_account_id || null,
-      collections_bespoke_bank_account_id:
-        collections_bespoke_bank_account_id || null,
-      advances_bank_account_id: advances_bank_account_id || null,
-      collections_bank_account_id: collections_bank_account_id || null,
-      vendor_agreement_docusign_template:
-        vendor_agreement_docusign_template || null,
-      payor_agreement_docusign_template:
-        payor_agreement_docusign_template || null,
-      vendor_onboarding_link: vendor_onboarding_link || null,
-      has_autofinancing: has_autofinancing || null,
-      two_factor_message_method: two_factor_message_method || null,
-      feature_flags_payload: feature_flags_payload || null,
-      custom_messages_payload: custom_messages_payload || null,
-      is_dummy_account: is_dummy_account || null,
-      client_success_user_id: client_success_user_id || null,
-      business_development_user_id: business_development_user_id || null,
-      underwriter_user_id: underwriter_user_id || null,
-      is_autogenerate_repayments_enabled:
-        is_autogenerate_repayments_enabled || null,
-    }
+    props
   ).then((response) => {
     const companySettingsId = !!response?.body?.data?.company_settings_id
       ? response.body.data.company_settings_id
       : null;
 
-    return cy.wrap(companySettingsId);
+    return cy.wrap<UpdateCompanySettingsResult>({
+      companySettingsId: companySettingsId,
+    });
   });
 }
 
-function addCompanyVendorPartnership({
-  approved_at,
-  company_id,
-  created_at,
-  id,
-  updated_at,
-  vendor_agreement_id,
-  vendor_bank_id,
-  vendor_id,
-}: CompanyVendorPartnerships) {
+export type AddCompanyVendorContactResult = {
+  companyVendorContactId: string;
+};
+
+function addCompanyVendorContact(props: Partial<CompanyVendorContacts>) {
+  cy.request(
+    "POST",
+    `${Cypress.env("apiServerUrl")}/cypress/add_company_vendor_contact`,
+    props
+  ).then((response) => {
+    const companyVendorContactId = !!response?.body?.data
+      ?.company_vendor_contact_id
+      ? response.body.data.company_vendor_contact_id
+      : null;
+
+    return cy.wrap<AddCompanyVendorContactResult>({
+      companyVendorContactId: companyVendorContactId,
+    });
+  });
+}
+
+export type AddCompanyVendorPartnershipResult = {
+  companyVendorPartnershipId: string;
+};
+
+function addCompanyVendorPartnership(
+  props: Partial<CompanyVendorPartnerships>
+) {
   cy.request(
     "POST",
     `${Cypress.env("apiServerUrl")}/cypress/add_company_vendor_partnership`,
-    {
-      approved_at: approved_at || null,
-      company_id: company_id || null,
-      created_at: created_at || null,
-      id: id || null,
-      updated_at: updated_at || null,
-      vendor_agreement_id: vendor_agreement_id || null,
-      vendor_bank_id: vendor_bank_id || null,
-      vendor_id: vendor_id || null,
-    }
+    props
   ).then((response) => {
     const companyVendorPartnershipId = !!response?.body?.data
       ?.company_vendor_partnership_id
       ? response.body.data.company_vendor_partnership_id
       : null;
 
-    return cy.wrap(companyVendorPartnershipId);
+    return cy.wrap<AddCompanyVendorPartnershipResult>({
+      companyVendorPartnershipId: companyVendorPartnershipId,
+    });
   });
 }
 
-function addContract({
-  id,
-  company_id,
-  product_type,
-  start_date,
-  end_date,
-  adjusted_end_date,
-  modified_by_user_id,
-  terminated_at,
-  terminated_by_user_id,
-  is_deleted,
+export type ContractExtraInput = {
+  contract_financing_terms: string;
+  interest_rate: number;
+  advance_rate: number;
+  maximum_principal_amount: number;
+  max_days_until_repayment: number;
+  late_fee_structure: Record<string, string>;
+  dynamic_interest_rate: number;
+  preceeding_business_day: string;
+  minimum_monthly_amount: number;
+  minimum_quarterly_amount: number;
+  minimum_annual_amount: number;
+  factoring_fee_threshold: number;
+  factoring_fee_threshold_starting_value: number;
+  adjusted_factoring_fee_percentage: number;
+  wire_fee: number;
+  repayment_type_settlement_timeline: number;
+  timezone: string;
+  us_state: string;
+  borrowing_base_accounts_receivable_percentage: number;
+  borrowing_base_inventory_percentage: number;
+  borrowing_base_cash_percentage: number;
+  borrowing_base_cash_in_daca_percentage: number;
+};
 
-  // Product Config
-  contract_financing_terms,
-  interest_rate,
-  advance_rate,
-  maximum_principal_amount,
-  max_days_until_repayment,
-  late_fee_structure,
-  dynamic_interest_rate,
-  preceeding_business_day,
-  minimum_monthly_amount,
-  minimum_quarterly_amount,
-  minimum_annual_amount,
-  factoring_fee_threshold,
-  factoring_fee_threshold_starting_value,
-  adjusted_factoring_fee_percentage,
-  wire_fee,
-  repayment_type_settlement_timeline,
-  timezone,
-  us_state,
+export type AddContractResult = {
+  contractId: string;
+};
 
-  // LoC only product config
-  borrowing_base_accounts_receivable_percentage,
-  borrowing_base_inventory_percentage,
-  borrowing_base_cash_percentage,
-  borrowing_base_cash_in_daca_percentage,
-}: Contracts) {
-  cy.request("POST", `${Cypress.env("apiServerUrl")}/cypress/add_contract`, {
-    id: id || null,
-    company_id: company_id || null,
-    product_type: product_type || null,
-    start_date: start_date || null,
-    end_date: end_date || null,
-    adjusted_end_date: adjusted_end_date || null,
-    modified_by_user_id: modified_by_user_id || null,
-    terminated_at: terminated_at || null,
-    terminated_by_user_id: terminated_by_user_id || null,
-    is_deleted: is_deleted || null,
-    contract_financing_terms: contract_financing_terms || null,
-    interest_rate: interest_rate || null,
-    advance_rate: advance_rate || null,
-    maximum_principal_amount: maximum_principal_amount || null,
-    max_days_until_repayment: max_days_until_repayment || null,
-    late_fee_structure: late_fee_structure || null,
-    dynamic_interest_rate: dynamic_interest_rate || null,
-    preceeding_business_day: preceeding_business_day || null,
-    minimum_monthly_amount: minimum_monthly_amount || null,
-    minimum_quarterly_amount: minimum_quarterly_amount || null,
-    minimum_annual_amount: minimum_annual_amount || null,
-    factoring_fee_threshold: factoring_fee_threshold || null,
-    factoring_fee_threshold_starting_value:
-      factoring_fee_threshold_starting_value || null,
-    adjusted_factoring_fee_percentage:
-      adjusted_factoring_fee_percentage || null,
-    wire_fee: wire_fee || null,
-    repayment_type_settlement_timeline:
-      repayment_type_settlement_timeline || null,
-    timezone: timezone || null,
-    us_state: us_state || null,
-    borrowing_base_accounts_receivable_percentage:
-      borrowing_base_accounts_receivable_percentage || null,
-    borrowing_base_inventory_percentage:
-      borrowing_base_inventory_percentage || null,
-    borrowing_base_cash_percentage: borrowing_base_cash_percentage || null,
-    borrowing_base_cash_in_daca_percentage:
-      borrowing_base_cash_in_daca_percentage || null,
-  }).then((response) => {
+function addContract(props: Partial<Contracts> & Partial<ContractExtraInput>) {
+  cy.request(
+    "POST",
+    `${Cypress.env("apiServerUrl")}/cypress/add_contract`,
+    props
+  ).then((response) => {
     const contractId = !!response?.body?.data?.contract_id
       ? response.body.data.contract_id
       : null;
 
-    return cy.wrap(contractId);
+    return cy.wrap<AddContractResult>({
+      contractId: contractId,
+    });
   });
 }
 
-function addFile({
-  company_id,
-  created_at,
-  created_by_user_id,
-  extension,
-  id,
-  mime_type,
-  name,
-  path,
-  sequential_id,
-  size,
-  updated_at,
-}: Files) {
-  cy.request("POST", `${Cypress.env("apiServerUrl")}/cypress/add_file`, {
-    company_id: company_id || null,
-    created_at: created_at || null,
-    created_by_user_id: created_by_user_id || null,
-    extension: extension || null,
-    id: id || null,
-    mime_type: mime_type || null,
-    name: name || null,
-    path: path || null,
-    sequential_id: sequential_id || null,
-    size: size || null,
-    updated_at: updated_at || null,
-  }).then((response) => {
+export type AddEbbaApplicationResult = {
+  ebbaApplicationId: string;
+};
+
+function addEbbaApplication(props: Partial<EbbaApplications>) {
+  cy.request(
+    "POST",
+    `${Cypress.env("apiServerUrl")}/cypress/add_ebba_application`,
+    props
+  ).then((response) => {
+    const ebbaApplicationId = !!response?.body?.data?.ebba_application_id
+      ? response.body.data.ebba_application_id
+      : null;
+
+    return cy.wrap<AddEbbaApplicationResult>({
+      ebbaApplicationId: ebbaApplicationId,
+    });
+  });
+}
+
+export type AddFileResult = {
+  fileId: string;
+};
+
+function addFile(props: Partial<Files>) {
+  cy.request(
+    "POST",
+    `${Cypress.env("apiServerUrl")}/cypress/add_file`,
+    props
+  ).then((response) => {
     const fileId = !!response?.body?.data?.file_id
       ? response.body.data.file_id
       : null;
 
-    return cy.wrap({
+    return cy.wrap<AddFileResult>({
       fileId: fileId,
     });
   });
 }
 
-function addFinancialSummary({
-  id,
-  company_id,
-  total_limit,
-  total_outstanding_principal,
-  total_outstanding_interest,
-  total_principal_in_requested_state,
-  available_limit,
-  total_outstanding_fees,
-  adjusted_total_limit,
-  date,
-  total_outstanding_principal_for_interest,
-  minimum_monthly_payload,
-  account_level_balance_payload,
-  day_volume_threshold_met,
-  interest_accrued_today,
-  total_amount_to_pay_interest_on,
-  product_type,
-  needs_recompute,
-  days_to_compute_back,
-  total_interest_paid_adjustment_today,
-  total_fees_paid_adjustment_today,
-  total_outstanding_principal_past_due,
-  daily_interest_rate,
-  minimum_interest_duration,
-  minimum_interest_amount,
-  minimum_interest_remaining,
-  most_overdue_loan_days,
-  late_fees_accrued_today,
-  loans_info,
-}: FinancialSummaries) {
+export type AddFinancialSummaryResult = {
+  financialSummaryId: string;
+};
+
+function addFinancialSummary(props: Partial<FinancialSummaries>) {
   cy.request(
     "POST",
     `${Cypress.env("apiServerUrl")}/cypress/add_financial_summary`,
-    {
-      id: id || null,
-      company_id: company_id || null,
-      total_limit: total_limit || null,
-      total_outstanding_principal: total_outstanding_principal || null,
-      total_outstanding_interest: total_outstanding_interest || null,
-      total_principal_in_requested_state:
-        total_principal_in_requested_state || null,
-      available_limit: available_limit || null,
-      total_outstanding_fees: total_outstanding_fees || null,
-      adjusted_total_limit: adjusted_total_limit || null,
-      date: date || null,
-      total_outstanding_principal_for_interest:
-        total_outstanding_principal_for_interest || null,
-      minimum_monthly_payload: minimum_monthly_payload || null,
-      account_level_balance_payload: account_level_balance_payload || null,
-      day_volume_threshold_met: day_volume_threshold_met || null,
-      interest_accrued_today: interest_accrued_today || null,
-      total_amount_to_pay_interest_on: total_amount_to_pay_interest_on || null,
-      product_type: product_type || null,
-      needs_recompute: needs_recompute || null,
-      days_to_compute_back: days_to_compute_back || null,
-      total_interest_paid_adjustment_today:
-        total_interest_paid_adjustment_today || null,
-      total_fees_paid_adjustment_today:
-        total_fees_paid_adjustment_today || null,
-      total_outstanding_principal_past_due:
-        total_outstanding_principal_past_due || null,
-      daily_interest_rate: daily_interest_rate || null,
-      minimum_interest_duration: minimum_interest_duration || null,
-      minimum_interest_amount: minimum_interest_amount || null,
-      minimum_interest_remaining: minimum_interest_remaining || null,
-      most_overdue_loan_days: most_overdue_loan_days || null,
-      late_fees_accrued_today: late_fees_accrued_today || null,
-      loans_info: loans_info || null,
-      created_at: null,
-      updated_at: null,
-    }
+    props
   ).then((response) => {
     const financialSummaryId = !!response?.body?.data?.financial_summary_id
       ? response.body.data.financial_summary_id
       : null;
 
-    return cy.wrap(financialSummaryId);
+    return cy.wrap<AddFinancialSummaryResult>({
+      financialSummaryId: financialSummaryId,
+    });
   });
 }
 
-type PurchaseOrderExtraInput = {
+export type AddLoanResult = {
+  loanId: string;
+};
+
+function addLoan(props: Partial<Loans>) {
+  cy.request(
+    "POST",
+    `${Cypress.env("apiServerUrl")}/cypress/add_loan`,
+    props
+  ).then((response) => {
+    const loanId = !!response?.body?.data?.loan_id
+      ? response.body.data.loan_id
+      : null;
+
+    return cy.wrap<AddLoanResult>({
+      loanId: loanId,
+    });
+  });
+}
+
+export type AddPaymentResult = {
+  paymentId: string;
+};
+
+function addPayment(props: Partial<Payments>) {
+  cy.request(
+    "POST",
+    `${Cypress.env("apiServerUrl")}/cypress/add_payment`,
+    props
+  ).then((response) => {
+    const paymentId = !!response?.body?.data?.paymentId
+      ? response.body.data.paymentId
+      : null;
+    return cy.wrap<AddPaymentResult>({
+      paymentId: paymentId,
+    });
+  });
+}
+
+export type PurchaseOrderExtraInput = {
   clear_approved_at?: boolean;
 };
 
-function addPurchaseOrder({
-  all_bank_notes,
-  all_customer_notes,
-  amount,
-  amount_funded,
-  amount_updated_at,
-  approved_at,
-  approved_by_user_id,
-  bank_incomplete_note,
-  bank_note,
-  bank_rejection_note,
-  closed_at,
-  company_id,
-  created_at,
-  customer_note,
-  delivery_date,
-  funded_at,
-  history,
-  id,
-  incompleted_at,
-  is_cannabis,
-  is_deleted,
-  is_metrc_based,
-  net_terms,
-  new_purchase_order_status,
-  order_date,
-  order_number,
-  rejected_at,
-  rejected_by_user_id,
-  rejection_note,
-  requested_at,
-  status,
-  updated_at,
-  vendor_id,
-  clear_approved_at = false,
-}: PurcaseOrders & PurchaseOrderExtraInput) {
+export type AddPurchaseOrderResult = {
+  purchaseOrderId: string;
+};
+
+function addPurchaseOrder(
+  props: Partial<PurchaseOrders> & Partial<PurchaseOrderExtraInput>
+) {
   cy.request(
     "POST",
     `${Cypress.env("apiServerUrl")}/cypress/add_purchase_order`,
-    {
-      all_bank_notes: all_bank_notes || null,
-      all_customer_notes: all_customer_notes || null,
-      amount: amount || null,
-      amount_funded: amount_funded || null,
-      amount_updated_at: amount_updated_at || null,
-      approved_at: approved_at || null,
-      approved_by_user_id: approved_by_user_id || null,
-      bank_incomplete_note: bank_incomplete_note || null,
-      bank_note: bank_note || null,
-      bank_rejection_note: bank_rejection_note || null,
-      closed_at: closed_at || null,
-      company_id: company_id || null,
-      created_at: created_at || null,
-      customer_note: customer_note || null,
-      delivery_date: delivery_date || null,
-      funded_at: funded_at || null,
-      history: history || null,
-      id: id || null,
-      incompleted_at: incompleted_at || null,
-      is_cannabis: is_cannabis || null,
-      is_deleted: is_deleted || null,
-      is_metrc_based: is_metrc_based || null,
-      net_terms: net_terms || null,
-      new_purchase_order_status: new_purchase_order_status || null,
-      order_date: order_date || null,
-      order_number: order_number || null,
-      rejected_at: rejected_at || null,
-      rejected_by_user_id: rejected_by_user_id || null,
-      rejection_note: rejection_note || null,
-      requested_at: requested_at || null,
-      status: status || null,
-      updated_at: updated_at || null,
-      vendor_id: vendor_id || null,
-      clear_approved_at: clear_approved_at,
-    }
+    props
   ).then((response) => {
     const purchaseOrderId = !!response?.body?.data?.purchase_order_id
       ? response.body.data.purchase_order_id
       : null;
 
-    return cy.wrap({
+    return cy.wrap<AddPurchaseOrderResult>({
       purchaseOrderId: purchaseOrderId,
     });
   });
 }
 
-function addPurchaseOrderFile({
-  created_at,
-  file_id,
-  file_type,
-  purchase_order_id,
-  updated_at,
-}: PurchaseOrderFiles) {
+export type AddPurchaseOrderFileResult = {
+  purchaseOrderFileId: string;
+};
+
+function addPurchaseOrderFile(props: Partial<PurchaseOrderFiles>) {
   cy.request(
     "POST",
     `${Cypress.env("apiServerUrl")}/cypress/add_purchase_order_file`,
-    {
-      created_at: created_at || null,
-      file_id: file_id || null,
-      file_type: file_type || null,
-      purchase_order_id: purchase_order_id || null,
-      updated_at: updated_at || null,
-    }
+    props
   ).then((response) => {
     const purchaseOrderFileId = !!response?.body?.data?.purchase_order_file_id
       ? response.body.data.purchase_order_file_id
       : null;
 
-    return cy.wrap({
+    return cy.wrap<AddPurchaseOrderFileResult>({
       purchaseOrderFileId: purchaseOrderFileId,
     });
   });
 }
 
-type TwoFactorLinksExtraInput = {
+export type TwoFactorLinksExtraInput = {
   purchase_order_id: string;
   form_type: string;
   form_payload_key: string;
   vendor_email: string;
 };
 
-function addTwoFactorLink({
-  expires_at,
-  form_info,
-  id,
-  token_states,
-  purchase_order_id,
-  form_type,
-  form_payload_key,
-  vendor_email,
-}: TwoFactorLinks & TwoFactorLinksExtraInput) {
+export type AddTwoFactorLinkResult = {
+  twoFactorLinkId: string;
+};
+
+function addTwoFactorLink(
+  props: Partial<TwoFactorLinks> & Partial<TwoFactorLinksExtraInput>
+) {
   cy.request(
     "POST",
     `${Cypress.env("apiServerUrl")}/cypress/add_two_factor_link`,
-    {
-      expires_at: expires_at || null,
-      form_info: form_info || null,
-      id: id || null,
-      token_states: token_states || null,
-      purchase_order_id: purchase_order_id || null,
-      form_type: form_type || null,
-      form_payload_key: form_payload_key || null,
-      vendor_email: vendor_email || null,
-    }
+    props
   ).then((response) => {
     const twoFactorLinkId = !!response?.body?.data?.two_factor_link_id
       ? response.body.data.two_factor_link_id
       : null;
 
-    return cy.wrap({
+    return cy.wrap<AddTwoFactorLinkResult>({
       twoFactorLinkId: twoFactorLinkId,
     });
   });
 }
 
-function addUser({
-  company_id,
-  company_role,
-  company_role_new,
-  created_at,
-  email,
-  first_name,
-  full_name,
-  id,
-  is_deleted,
-  last_name,
-  login_method,
-  parent_company_id,
-  password,
-  phone_number,
-  role,
-  updated_at,
-}: Users) {
-  cy.request("POST", `${Cypress.env("apiServerUrl")}/cypress/add_user`, {
-    company_id: company_id || null,
-    company_role: company_role || null,
-    company_role_new: company_role_new || null,
-    created_at: created_at || null,
-    email: email || null,
-    first_name: first_name || null,
-    full_name: full_name || null,
-    id: id || null,
-    is_deleted: is_deleted || null,
-    last_name: last_name || null,
-    login_method: login_method || null,
-    parent_company_id: parent_company_id || null,
-    password: password || null,
-    phone_number: phone_number || null,
-    role: role || null,
-    updated_at: updated_at || null,
-  }).then((response) => {
+export type AddUserResult = {
+  userId: string;
+  userEmail: string;
+  userPassword: string;
+};
+
+function addUser(props: Partial<Users>) {
+  cy.request(
+    "POST",
+    `${Cypress.env("apiServerUrl")}/cypress/add_user`,
+    props
+  ).then((response) => {
     const userId = !!response?.body?.data?.user_id
       ? response.body.data.user_id
       : null;
@@ -904,196 +530,10 @@ function addUser({
       ? response.body.data.user_password
       : null;
 
-    return cy.wrap({
+    return cy.wrap<AddUserResult>({
       userId: userId,
       userEmail: userEmail,
       userPassword: userPassword,
-    });
-  });
-}
-
-function addLoan({
-  amount,
-  approved_at,
-  approved_by_user_id,
-  artifact_id,
-  closed_at,
-  company_id,
-  created_at,
-  customer_notes,
-  funded_at,
-  funded_by_user_id,
-  id,
-  identifier,
-  is_deleted,
-  maturity_date,
-  adjusted_maturity_date,
-  rejected_at,
-  rejected_by_user_id,
-  rejection_note,
-  requested_at,
-  status,
-  updated_at,
-}: Loans) {
-  cy.request("POST", `${Cypress.env("apiServerUrl")}/cypress/add_loan`, {
-    amount: amount || null,
-    approved_at: approved_at || null,
-    approved_by_user_id: approved_by_user_id || null,
-    artifact_id: artifact_id || null,
-    closed_at: closed_at || null,
-    company_id: company_id || null,
-    created_at: created_at || null,
-    customer_note: customer_notes || null,
-    funded_at: funded_at || null,
-    funded_by_user_id: funded_by_user_id || null,
-    history: history || null,
-    id: id || null,
-    identifier: identifier || null,
-    is_deleted: is_deleted || null,
-    maturity_date: maturity_date || null,
-    adjusted_maturity_date: adjusted_maturity_date || null,
-    rejected_at: rejected_at || null,
-    rejected_by_user_id: rejected_by_user_id || null,
-    rejection_note: rejection_note || null,
-    requested_at: requested_at || null,
-    status: status || null,
-    updated_at: updated_at || null,
-  }).then((response) => {
-    const loanId = !!response?.body?.data?.loan_id
-      ? response.body.data.loan_id
-      : null;
-
-    return cy.wrap({
-      loanId: loanId,
-    });
-  });
-}
-
-function addEbbaApplication({
-  id,
-  company_id,
-  category,
-  status,
-  application_date,
-  is_deleted,
-  submitted_by_user_id,
-  approved_by_user_id,
-  rejected_by_user_id,
-  monthly_accounts_receivable,
-  monthly_inventory,
-  monthly_cash,
-  amount_cash_in_daca,
-  amount_custom,
-  amount_custom_note,
-  bank_note,
-  calculated_borrowing_base,
-  rejection_note,
-  expires_date,
-  requested_at,
-  approved_at,
-  rejected_at,
-}: EbbaApplications) {
-  cy.request(
-    "POST",
-    `${Cypress.env("apiServerUrl")}/cypress/add_ebba_application`,
-    {
-      id: id || null,
-      company_id: company_id || null,
-      category: category || null,
-      status: status || null,
-      application_date: application_date || null,
-      is_deleted: is_deleted || null,
-      submitted_by_user_id: submitted_by_user_id || null,
-      approved_by_user_id: approved_by_user_id || null,
-      rejected_by_user_id: rejected_by_user_id || null,
-      monthly_accounts_receivable: monthly_accounts_receivable || null,
-      monthly_inventory: monthly_inventory || null,
-      monthly_cash: monthly_cash || null,
-      amount_cash_in_daca: amount_cash_in_daca || null,
-      amount_custom: amount_custom || null,
-      amount_custom_note: amount_custom_note || null,
-      bank_note: bank_note || null,
-      calculated_borrowing_base: calculated_borrowing_base || null,
-      rejection_note: rejection_note || null,
-      expires_date: expires_date || null,
-      requested_at: requested_at || null,
-      approved_at: approved_at || null,
-      rejected_at: rejected_at || null,
-    }
-  ).then((response) => {
-    const ebbaApplicationId = !!response?.body?.data?.ebba_application_id
-      ? response.body.data.ebba_application_id
-      : null;
-
-    return cy.wrap({
-      ebbaApplicationId: ebbaApplicationId,
-    });
-  });
-}
-
-function addPayment({
-  id,
-  amount,
-  type,
-  company_id,
-  method,
-  company_bank_account_id,
-  submitted_at,
-  settled_at,
-  items_covered,
-  settlement_date,
-  payment_date,
-  submitted_by_user_id,
-  settled_by_user_id,
-  requested_payment_date,
-  requested_by_user_id,
-  created_at,
-  updated_at,
-  deposit_date,
-  requested_amount,
-  originating_payment_id,
-  is_deleted,
-  identifier,
-  settlement_identifier,
-  customer_note,
-  bank_note,
-  reversed_at,
-  recipient_bank_account_id,
-}: Payments) {
-  cy.request("POST", `${Cypress.env("apiServerUrl")}/cypress/add_payment`, {
-    id: id || null,
-    amount: amount || null,
-    type: type || null,
-    company_id: company_id || null,
-    method: method || null,
-    company_bank_account_id: company_bank_account_id || null,
-    submitted_at: submitted_at || null,
-    settled_at: settled_at || null,
-    items_covered: items_covered || null,
-    settlement_date: settlement_date || null,
-    payment_date: payment_date || null,
-    submitted_by_user_id: submitted_by_user_id || null,
-    settled_by_user_id: settled_by_user_id || null,
-    requested_payment_date: requested_payment_date || null,
-    requested_by_user_id: requested_by_user_id || null,
-    created_at: created_at || null,
-    updated_at: updated_at || null,
-    deposit_date: deposit_date || null,
-    requested_amount: requested_amount || null,
-    originating_payment_id: originating_payment_id || null,
-    is_deleted: is_deleted || null,
-    identifier: identifier || null,
-    settlement_identifier: settlement_identifier || null,
-    customer_note: customer_note || null,
-    bank_note: bank_note || null,
-    reversed_at: reversed_at || null,
-    recipient_bank_account_id: recipient_bank_account_id || null,
-  }).then((response) => {
-    const paymentId = !!response?.body?.data?.paymentId
-      ? response.body.data.paymentId
-      : null;
-    return cy.wrap({
-      paymentId: paymentId,
     });
   });
 }
@@ -1107,19 +547,20 @@ Cypress.Commands.add(
   addCompanyPartnershipRequest
 );
 Cypress.Commands.add("updateCompanySettings", updateCompanySettings);
+Cypress.Commands.add("addCompanyVendorContact", addCompanyVendorContact);
 Cypress.Commands.add(
   "addCompanyVendorPartnership",
   addCompanyVendorPartnership
 );
+Cypress.Commands.add("addEbbaApplication", addEbbaApplication);
 Cypress.Commands.add("addFile", addFile);
 Cypress.Commands.add("addFinancialSummary", addFinancialSummary);
+Cypress.Commands.add("addLoan", addLoan);
+Cypress.Commands.add("addPayment", addPayment);
 Cypress.Commands.add("addPurchaseOrder", addPurchaseOrder);
 Cypress.Commands.add("addPurchaseOrderFile", addPurchaseOrderFile);
 Cypress.Commands.add("addTwoFactorLink", addTwoFactorLink);
 Cypress.Commands.add("addUser", addUser);
-Cypress.Commands.add("addLoan", addLoan);
-Cypress.Commands.add("addEbbaApplication", addEbbaApplication);
-Cypress.Commands.add("addPayment", addPayment);
 
 // ///////////////////////////////
 // UTILITY ACTIONS

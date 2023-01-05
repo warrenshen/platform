@@ -1,7 +1,7 @@
 import {
   customerCreatesPurchaseOrderFlowNew,
   setupDataForTest,
-} from "./../flows";
+} from "@cypress/integration/Customer/PurchaseOrders/flows";
 
 describe("Dispensary financing customer can", () => {
   before(() => {

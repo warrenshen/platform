@@ -1,3 +1,5 @@
+export {};
+
 describe("Creating a repayments", () => {
   before(() => {
     cy.resetDatabase();

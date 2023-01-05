@@ -1,4 +1,4 @@
-import { bankAdminCreatePurchaseOrderFlowNew } from "./flows";
+import { bankAdminCreatePurchaseOrderFlowNew } from "@cypress/integration/Bank/PurchaseOrders/flows";
 
 describe("Create purchase order", () => {
   before(() => {
@@ -33,15 +33,21 @@ describe("Create purchase order", () => {
           email: "do-not-reply-development+vendor@bespokefinancial.com",
           parent_company_id: vendorResults.parentCompanyId,
           role: "company_contact_only",
-        });
-        cy.addBankAccount({
-          company_id: vendorResults.companyId,
-          bank_name: "Vendor Bank",
-        }).then((vendorBankResults) => {
-          cy.addCompanyVendorPartnership({
-            company_id: results.companyId,
-            vendor_bank_id: vendorBankResults.bankAccountId,
-            vendor_id: vendorResults.companyId,
+        }).then((vendorUserResults) => {
+          cy.addBankAccount({
+            company_id: vendorResults.companyId,
+            bank_name: "Vendor Bank",
+          }).then((vendorBankResults) => {
+            cy.addCompanyVendorPartnership({
+              company_id: results.companyId,
+              vendor_bank_id: vendorBankResults.bankAccountId,
+              vendor_id: vendorResults.companyId,
+            }).then((partnershipResults) => {
+              cy.addCompanyVendorContact({
+                partnership_id: partnershipResults.companyVendorPartnershipId,
+                vendor_user_id: vendorUserResults.userId,
+              });
+            });
           });
         });
       });

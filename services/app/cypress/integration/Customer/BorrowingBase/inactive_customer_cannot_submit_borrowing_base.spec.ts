@@ -1,5 +1,5 @@
-import { getTestSetupDates } from "../loans/flows";
-import { inactiveCustomerCannotSubmitBorrowingBaseFlow } from "./flows";
+import { inactiveCustomerCannotSubmitBorrowingBaseFlow } from "@cypress/integration/Customer/BorrowingBase/flows";
+import { getTestSetupDates } from "@cypress/integration/Customer/Loans/flows";
 
 describe("Create purchase order", () => {
   before(() => {

@@ -43,6 +43,7 @@
     "select-timezone-material-ui": "^2.6.0",
     "styled-components": "^5.2.3",
     "subscriptions-transport-ws": "^0.9.18",
+    "tsc-alias": "^1.8.2",
     "typescript": "^4.1.2",
     "uuid": "^8.3.2",
     "web-vitals": "^0.2.4"
@@ -146,6 +147,8 @@
     "eject": "react-scripts eject",
     "cypress": "./node_modules/.bin/cypress open",
     "cypress:run": "cypress run",
+    "cypress:compile": "tsc --project cypress/tsconfig.json && tsc-alias -p cypress/tsconfig.json",
+    "cypress:compile:watch": "tsc --watch --project tsconfig.cypress.json && tsc-alias",
     "gql-gen": "graphql-codegen --config codegen.js --require dotenv/config",
     "prettier-write": "prettier --config .prettierrc --write \"src/**/*.{js,ts,jsx,tsx,json}\" \"cypress/**/*.{js,ts}\"",
     "prettier": "prettier --config .prettierrc --check \"src/**/*.{js,ts,jsx,tsx,json}\" \"cypress/**/*.{js,ts}\""

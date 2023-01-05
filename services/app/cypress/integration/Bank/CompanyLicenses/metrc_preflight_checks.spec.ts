@@ -1,3 +1,5 @@
+export {};
+
 describe("On Metrc: Edit Licenses Pre-flight Checks", () => {
   before(() => {
     cy.resetDatabase();

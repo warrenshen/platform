@@ -1,4 +1,4 @@
-import { editLicenseOnMetrcPage } from "./flows";
+import { editLicenseOnMetrcPage } from "@cypress/integration/Bank/CompanyLicenses/flows";
 
 describe("On Metrc: Edit Licenses", () => {
   before(() => {

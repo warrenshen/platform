@@ -1,3 +1,5 @@
+export {};
+
 describe("Bank Account Creation", () => {
   before(() => {
     cy.resetDatabase();

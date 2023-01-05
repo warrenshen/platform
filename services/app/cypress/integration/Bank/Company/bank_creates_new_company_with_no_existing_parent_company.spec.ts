@@ -1,3 +1,5 @@
+export {};
+
 describe("Bank creates a new company", () => {
   before(() => {
     cy.resetDatabase();

@@ -1,5 +1,5 @@
-import { getTestSetupDates } from "../Loans/flows";
-import { createFinancingRequestSingle } from "./flows";
+import { createFinancingRequestSingle } from "@cypress/integration/Customer/FinancingRequests/flows";
+import { getTestSetupDates } from "@cypress/integration/Customer/Loans/flows";
 
 describe("Create financing requests", () => {
   before(() => {
@@ -58,10 +58,10 @@ describe("Create financing requests", () => {
           cy.addBankAccount({
             company_id: vendorResults.companyId,
             bank_name: "Vendor Bank",
-          }).then((vendorBankAccountId) => {
+          }).then((vendorBankAccountResults) => {
             cy.addCompanyVendorPartnership({
               company_id: results.companyId,
-              vendor_bank_id: vendorBankAccountId,
+              vendor_bank_id: vendorBankAccountResults.bankAccountId,
               vendor_id: vendorResults.companyId,
             });
             cy.loginCustomerAdminNew(

@@ -1,3 +1,5 @@
+export {};
+
 describe("Create inventory financing customer", () => {
   it(
     "can create customer",

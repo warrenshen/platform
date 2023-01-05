@@ -1,9 +1,7 @@
-import { getTestSetupDates } from "../loans/flows";
-import { inactiveCustomerCannotInviteVendorFlow } from "./flows";
+import { inactiveCustomerCannotInviteVendorFlow } from "@cypress/integration/Customer/Vendors/flows";
 
 describe("Create purchase order", () => {
   before(() => {
-    const { orderDate, requestedAt, approvedAt } = getTestSetupDates();
     cy.resetDatabase();
     cy.addCompany({
       is_customer: true,

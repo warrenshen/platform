@@ -1,4 +1,4 @@
-import { deleteLicenseOnMetrcPage } from "./flows";
+import { deleteLicenseOnMetrcPage } from "@cypress/integration/Bank/CompanyLicenses/flows";
 
 describe("On Metrc: Deleting a license should", () => {
   before(() => {

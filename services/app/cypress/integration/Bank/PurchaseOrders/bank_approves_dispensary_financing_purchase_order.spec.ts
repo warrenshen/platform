@@ -1,8 +1,5 @@
-import { getTestSetupDates } from "./../../Customer/Loans/flows";
-import {
-  approvePurchaseOrderAsBankAdmin,
-  customerCreatesPurchaseOrderFlow,
-} from "./flows";
+import { approvePurchaseOrderAsBankAdmin } from "@cypress/integration/Bank/PurchaseOrders/flows";
+import { getTestSetupDates } from "@cypress/integration/Customer/Loans/flows";
 
 describe("Create purchase order", () => {
   before(() => {
@@ -57,15 +54,20 @@ describe("Create purchase order", () => {
               is_metrc_based: false,
               net_terms: 30,
             });
-          });
-          cy.addBankAccount({
-            company_id: vendorResults.companyId,
-            bank_name: "Vendor Bank",
-          }).then((vendorBankAccountId) => {
-            cy.addCompanyVendorPartnership({
-              company_id: results.companyId,
-              vendor_bank_id: vendorBankAccountId,
-              vendor_id: vendorResults.companyId,
+            cy.addBankAccount({
+              company_id: vendorResults.companyId,
+              bank_name: "Vendor Bank",
+            }).then((vendorBankAccountId) => {
+              cy.addCompanyVendorPartnership({
+                company_id: results.companyId,
+                vendor_bank_id: vendorBankAccountId.bankAccountId,
+                vendor_id: vendorResults.companyId,
+              }).then((partnershipResults) => {
+                cy.addCompanyVendorContact({
+                  partnership_id: partnershipResults.companyVendorPartnershipId,
+                  vendor_user_id: userResults.userId,
+                });
+              });
             });
           });
         });

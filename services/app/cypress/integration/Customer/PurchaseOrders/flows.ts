@@ -14,7 +14,7 @@ export const setupDataForTest = ({
   purchaseOrderOldStatus = "draft",
   setupPurchaseOrder = false,
   shouldLogin = true,
-}: SetupProps) => {
+}: Partial<SetupProps>) => {
   cy.resetDatabase();
   cy.addCompany({
     is_customer: true,
@@ -45,75 +45,81 @@ export const setupDataForTest = ({
           email: "vendor@bespokefinancial.com",
           parent_company_id: vendorResults.parentCompanyId,
           role: "company_contact_only",
-        });
-
-        if (setupPurchaseOrderToSubmitOrEdit) {
-          cy.addPurchaseOrder({
-            approved_at: null,
-            company_id: results.companyId,
-            vendor_id: vendorResults.companyId,
-            order_number: "Cypress-2",
-            new_purchase_order_status: purchaseOrderOldStatus,
-            clear_approved_at: true,
-          }).then((purchaseOrderDraftResults) => {
-            cy.addFile({
+        }).then((vendorUserResults) => {
+          if (setupPurchaseOrderToSubmitOrEdit) {
+            cy.addPurchaseOrder({
+              approved_at: null,
               company_id: results.companyId,
-            }).then((fileResults1) => {
-              cy.addPurchaseOrderFile({
-                purchase_order_id: purchaseOrderDraftResults.purchaseOrderId,
-                file_id: fileResults1.fileId,
+              vendor_id: vendorResults.companyId,
+              order_number: "Cypress-2",
+              new_purchase_order_status: purchaseOrderOldStatus,
+              clear_approved_at: true,
+            }).then((purchaseOrderDraftResults) => {
+              cy.addFile({
+                company_id: results.companyId,
+              }).then((fileResults1) => {
+                cy.addPurchaseOrderFile({
+                  purchase_order_id: purchaseOrderDraftResults.purchaseOrderId,
+                  file_id: fileResults1.fileId,
+                });
+              });
+              cy.addFile({
+                company_id: results.companyId,
+              }).then((fileResults2) => {
+                cy.addPurchaseOrderFile({
+                  purchase_order_id: purchaseOrderDraftResults.purchaseOrderId,
+                  file_id: fileResults2.fileId,
+                  file_type: "cannabis",
+                });
               });
             });
-            cy.addFile({
-              company_id: results.companyId,
-            }).then((fileResults2) => {
-              cy.addPurchaseOrderFile({
-                purchase_order_id: purchaseOrderDraftResults.purchaseOrderId,
-                file_id: fileResults2.fileId,
-                file_type: "cannabis",
-              });
-            });
-          });
-        }
-
-        if (setupPurchaseOrder) {
-          cy.addPurchaseOrder({
-            company_id: results.companyId,
-            vendor_id: vendorResults.companyId,
-            order_number: "Cypress-3",
-            new_purchase_order_status: "pending_approval_by_vendor",
-          }).then((purchaseOrdeResults1) => {
-            cy.addTwoFactorLink({
-              purchase_order_id: purchaseOrdeResults1.purchaseOrderId,
-            });
-          });
-
-          cy.addPurchaseOrder({
-            company_id: results.companyId,
-            vendor_id: vendorResults.companyId,
-            order_number: "Cypress-4",
-            new_purchase_order_status: "pending_approval_by_vendor",
-          }).then((purchaseOrdeResults2) => {
-            cy.addTwoFactorLink({
-              purchase_order_id: purchaseOrdeResults2.purchaseOrderId,
-            });
-          });
-        }
-        cy.addBankAccount({
-          company_id: vendorResults.companyId,
-          bank_name: "Vendor Bank",
-        }).then((vendorBankAccountId) => {
-          cy.addCompanyVendorPartnership({
-            company_id: results.companyId,
-            vendor_bank_id: vendorBankAccountId,
-            vendor_id: vendorResults.companyId,
-          });
-          if (shouldLogin) {
-            cy.loginCustomerAdminNew(
-              companyUserResults.userEmail,
-              companyUserResults.userPassword
-            );
           }
+
+          if (setupPurchaseOrder) {
+            cy.addPurchaseOrder({
+              company_id: results.companyId,
+              vendor_id: vendorResults.companyId,
+              order_number: "Cypress-3",
+              new_purchase_order_status: "pending_approval_by_vendor",
+            }).then((purchaseOrdeResults1) => {
+              cy.addTwoFactorLink({
+                purchase_order_id: purchaseOrdeResults1.purchaseOrderId,
+              });
+            });
+
+            cy.addPurchaseOrder({
+              company_id: results.companyId,
+              vendor_id: vendorResults.companyId,
+              order_number: "Cypress-4",
+              new_purchase_order_status: "pending_approval_by_vendor",
+            }).then((purchaseOrdeResults2) => {
+              cy.addTwoFactorLink({
+                purchase_order_id: purchaseOrdeResults2.purchaseOrderId,
+              });
+            });
+          }
+          cy.addBankAccount({
+            company_id: vendorResults.companyId,
+            bank_name: "Vendor Bank",
+          }).then((vendorBankAccountResults) => {
+            cy.addCompanyVendorPartnership({
+              company_id: results.companyId,
+              vendor_bank_id: vendorBankAccountResults.bankAccountId,
+              vendor_id: vendorResults.companyId,
+            }).then((partnershipResults) => {
+              cy.addCompanyVendorContact({
+                partnership_id: partnershipResults.companyVendorPartnershipId,
+                vendor_user_id: vendorUserResults.userId,
+              });
+
+              if (shouldLogin) {
+                cy.loginCustomerAdminNew(
+                  companyUserResults.userEmail,
+                  companyUserResults.userPassword
+                );
+              }
+            });
+          });
         });
       });
     });
@@ -150,7 +156,7 @@ interface EditFlowProps {
 
 export const customerEditsPurchaseOrderFlow = ({
   shouldSubmit = true,
-}: shouldSubmit) => {
+}: Partial<EditFlowProps>) => {
   // Go to Customer > Borrowing Base
   cy.dataCy("sidebar-item-purchase-orders-new").click();
   cy.url().should("include", "purchase-orders");
@@ -178,7 +184,9 @@ export const customerEditsPurchaseOrderFlow = ({
     .type("60")
     .type("{enter}");
 
-  cy.dataCy("purchase-order-form-input-amount").clear().type(5432.01);
+  cy.dataCy("purchase-order-form-input-amount")
+    .clear()
+    .type(Number(5432.01).toString());
 
   cy.dataCy("purchase-order-form-input-customer-note")
     .clear()
@@ -190,48 +198,6 @@ export const customerEditsPurchaseOrderFlow = ({
   } else {
     cy.dataCy("create-purchase-order-modal-secondary-button").click();
   }
-};
-
-export const customerCreatesPurchaseOrderFlow = (
-  purchaseOrderNumber: string,
-  modalButtonDataCy: string
-) => {
-  // Go to Customer > Borrowing Base
-  cy.dataCy("sidebar-item-purchase-orders-new").click();
-  cy.url().should("include", "purchase-orders");
-
-  // Create purchase order
-  cy.dataCy("create-purchase-order-button").click();
-
-  cy.dataCy("create-purchase-order-modal").should("be.visible");
-
-  // Fill out form
-  cy.dataCy("purchase-order-form-autocomplete-vendors").click();
-  cy.dataCy("purchase-order-form-autocomplete-vendors").type("{enter}");
-
-  // Fill the rest of the form and hit submit
-  cy.dataCySelector("purchase-order-form-input-order-number", "input").type(
-    purchaseOrderNumber
-  );
-  const { paymentDate } = getFuturePaymentDate();
-  cy.dataCySelector("purchase-order-form-input-order-date", "input").type(
-    paymentDate
-  );
-  cy.get("[data-cy='purchase-order-form-input-net-terms'] input")
-    .type("30")
-    .type("{enter}");
-  cy.dataCy("purchase-order-form-input-amount").type("10000.00");
-  cy.dataCy("purchase-order-form-input-customer-note").type("Cypress");
-  cy.uploadFileSynchronously(
-    "purchase-order-form-file-uploader-purchase-order-file"
-  );
-  cy.uploadFileSynchronously(
-    "purchase-order-form-file-uploader-cannabis-file-attachments"
-  );
-
-  // Submit and check for success snackbar
-  cy.dataCy(modalButtonDataCy).click();
-  cy.get(".MuiAlert-standardSuccess").should("exist");
 };
 
 interface CreateFlowProps {
@@ -252,6 +218,30 @@ export const customerSubmitsDraftPurchaseOrder = () => {
 
   cy.dataCy("submit-to-vendor-button").click();
   cy.get(".MuiAlert-standardSuccess").should("exist");
+};
+
+export const inactiveCustomerCreatesPurchaseOrderFlow = () => {
+  // Go to Customer > Borrowing Base
+  cy.dataCy("sidebar-item-purchase-orders-new").click();
+  cy.url().should("include", "purchase-orders");
+
+  // Check purchase order action buttons are disabled for inactive customer
+  // (Not Ready to Request Financing)
+  cy.get(
+    "[data-cy='not-ready-to-request-financing-data-grid'] table tr[aria-rowindex='1'] td[aria-colindex='1'] .dx-select-checkbox"
+  ).click();
+
+  cy.dataCy("create-purchase-order-button").should("be.disabled");
+  cy.dataCy("edit-not-ready-po-button").should("be.disabled");
+  cy.dataCy("archive-not-ready-po-button").should("be.disabled");
+  cy.dataCy("submit-to-vendor-button").should("be.disabled");
+
+  // (Ready to Request Financing)
+  cy.get(
+    "[data-cy='ready-to-request-financing-purchase-order-data-grid'] table tr[aria-rowindex='1'] td[aria-colindex='1'] .dx-select-checkbox"
+  ).click();
+  cy.dataCy("archive-ready-po-button").should("be.disabled");
+  cy.dataCy("request-financing-button").should("be.disabled");
 };
 
 export const customerCreatesPurchaseOrderFlowNew = ({

@@ -1,5 +1,5 @@
-import { getTestSetupDates } from "../loans/flows";
-import { inactiveCustomerCreatesPurchaseOrderFlow } from "./flows";
+import { getTestSetupDates } from "@cypress/integration/Customer/Loans/flows";
+import { inactiveCustomerCreatesPurchaseOrderFlow } from "@cypress/integration/Customer/PurchaseOrders/flows";
 
 describe("Create purchase order", () => {
   before(() => {
@@ -35,6 +35,7 @@ describe("Create purchase order", () => {
               company_id: results.companyId,
               vendor_id: vendorResults.companyId,
               status: "approved",
+              new_purchase_order_status: "draft",
               approved_at: approvedAt,
               requested_at: requestedAt,
               approved_by_user_id: userResults.userId,
@@ -49,6 +50,7 @@ describe("Create purchase order", () => {
               company_id: results.companyId,
               vendor_id: vendorResults.companyId,
               status: "drafted",
+              new_purchase_order_status: "ready_to_request_financing",
               approved_at: null,
               requested_at: requestedAt,
               order_date: orderDate,

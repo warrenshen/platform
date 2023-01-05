@@ -1,6 +1,6 @@
-import { addBusinessDays, format, parse } from "date-fns";
+import { addBusinessDays, format } from "date-fns";
 
-const getNextDayOfWeek = (date, weekday) => {
+const getNextDayOfWeek = (date: Date, weekday: number) => {
   const offset = (weekday + 7 - date.getDay()) % 7;
   date.setDate(date.getDate() + offset);
 
@@ -90,10 +90,10 @@ interface RequestFinancingProps {
 }
 
 export const requestFinancing = ({
-  expectedMuiStatus,
+  expectedMuiStatus = "",
   weekday,
   isHappyPath = false,
-}: RequestFinancingProps) => {
+}: Partial<RequestFinancingProps>) => {
   const now = new Date();
 
   // The requested date fell on a Saturday, we just grab the next available
@@ -122,7 +122,7 @@ export const requestFinancing = ({
   cy.dataCy("requested-payment-date-date-picker").type(
     requestedPaymentDateString
   );
-  cy.dataCy("financing-request-amount-input").type(440.0);
+  cy.dataCy("financing-request-amount-input").type(Number(440.0).toString());
 
   cy.dataCy("create-financing-requests-modal-primary-button").click();
   cy.get(expectedMuiStatus).should("exist");

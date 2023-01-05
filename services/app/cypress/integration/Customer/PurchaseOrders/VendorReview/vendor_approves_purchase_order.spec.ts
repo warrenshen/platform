@@ -1,4 +1,7 @@
-import { approvePurchaseOrderAsVendor, setupDataForTest } from "./../flows";
+import {
+  approvePurchaseOrderAsVendor,
+  setupDataForTest,
+} from "@cypress/integration/Customer/PurchaseOrders/flows";
 
 describe("Vendor approval", () => {
   before(() => {

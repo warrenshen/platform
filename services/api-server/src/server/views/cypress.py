@@ -77,13 +77,6 @@ class AddBankAccountView(MethodView):
 		if not form:
 			return handler_util.make_error_response("No data provided")
 
-		required_keys = [attr for attr in dir(models.BankAccount()) if not callable(getattr(models.BankAccount(), attr)) \
-			and not attr.startswith('_') and attr != 'metadata']
-
-		for key in required_keys:
-			if key not in form:
-				return handler_util.make_error_response(f'Missing {key} in response to creating a customer for a Cypress test')
-
 		account_number = get_field_or_default(form, 'account_number', '123456')
 		account_title = get_field_or_default(form, 'account_title', 'Cypress Checking')
 		account_type = get_field_or_default(form, 'account_type', BankAccountType.CHECKING)
@@ -181,13 +174,6 @@ class AddCompanyView(MethodView):
 		if not form:
 			return handler_util.make_error_response("No data provided")
 
-		required_keys = [attr for attr in dir(models.Company()) if not callable(getattr(models.Company(), attr)) \
-			and not attr.startswith('_') and attr != 'metadata']
-
-		for key in required_keys:
-			if key not in form:
-				return handler_util.make_error_response(f'Missing {key} in response to creating a company for a Cypress test')
-
 		address = get_field_or_default(form, 'address', '123 Main Street')
 		city = get_field_or_default(form, 'city', 'Annapolis')
 		company_settings_id = get_field_or_default(form, 'company_settings_id', None)
@@ -281,13 +267,6 @@ class AddCompanyLicenseView(MethodView):
 		if not form:
 			return handler_util.make_error_response("No data provided")
 
-		required_keys = [attr for attr in dir(models.CompanyLicense()) if not callable(getattr(models.CompanyLicense(), attr)) \
-			and not attr.startswith('_') and attr != 'metadata']
-
-		for key in required_keys:
-			if key not in form:
-				return handler_util.make_error_response(f'Missing {key} in response to creating a company for a Cypress test')
-
 		company_id = get_field_or_default(form, 'company_id', None)
 		created_at = get_field_or_default(form, 'created_at', date_util.now())
 		estimate_latitude = get_field_or_default(form, 'estimate_latitude', None)
@@ -360,15 +339,6 @@ class AddCompanyPartnershipRequestView(MethodView):
 		form = json.loads(request.data)
 		if not form:
 			return handler_util.make_error_response("No data provided")
-
-		required_keys = [attr for attr in dir(models.CompanyPartnershipRequest()) if not callable(getattr(models.CompanyPartnershipRequest(), attr)) \
-			and not attr.startswith('_') and attr != 'metadata']
-
-		for key in required_keys:
-			if key not in form:
-				return handler_util.make_error_response(f'Missing {key} in response to creating a customer partnership request for a Cypress test')
-
-		
 
 		company_name = get_field_or_default(form, 'company_name', 'Cypress Vendor')
 		company_type = get_field_or_default(form, 'company_type', 'vendor')
@@ -446,13 +416,6 @@ class AddCompanySettingsView(MethodView):
 		if not form:
 			return handler_util.make_error_response("No data provided")
 
-		required_keys = [attr for attr in dir(models.CompanySettings()) if not callable(getattr(models.CompanySettings(), attr)) \
-			and not attr.startswith('_') and attr != 'metadata']
-
-		for key in required_keys:
-			if key not in form:
-				return handler_util.make_error_response(f'Missing {key} in response to creating a customer settings for a Cypress test')
-
 		id = get_field_or_default(form, 'id', None)
 		company_id = get_field_or_default(form, 'company_id', None)
 		active_ebba_application_id = get_field_or_default(form, 'active_ebba_application_id', None)
@@ -475,7 +438,6 @@ class AddCompanySettingsView(MethodView):
 		business_development_user_id = get_field_or_default(form, 'business_development_user_id', None)
 		underwriter_user_id = get_field_or_default(form, 'underwriter_user_id', None)
 		is_autogenerate_repayments_enabled = get_field_or_default(form, 'is_autogenerate_repayments_enabled', False)
-
 
 		company_settings_id = ''
 		with session_scope(session_maker) as session:
@@ -521,7 +483,7 @@ class AddCompanySettingsView(MethodView):
 			},
 		}))
 
-class AddCompanyVendorPartnershipView(MethodView):
+class AddCompanyVendorContactView(MethodView):
 	def post(self, **kwargs: Any) -> Response:
 		session_maker, err = run_cypress_preflight_checks()
 		if err:
@@ -531,12 +493,44 @@ class AddCompanyVendorPartnershipView(MethodView):
 		if not form:
 			return handler_util.make_error_response("No data provided")
 
-		required_keys = [attr for attr in dir(models.CompanyVendorPartnership()) if not callable(getattr(models.CompanyVendorPartnership(), attr)) \
-			and not attr.startswith('_') and attr != 'metadata']
+		id = get_field_or_default(form, 'id', None)
+		partnership_id = get_field_or_default(form, 'partnership_id', None)
+		vendor_user_id = get_field_or_default(form, 'vendor_user_id', None)
+		
+		company_vendor_partnership_id = ''
+		with session_scope(session_maker) as session:
+			logging.info('Adding company vendor contact for cypress test...')
 
-		for key in required_keys:
-			if key not in form:
-				return handler_util.make_error_response(f'Missing {key} in response to creating a customer vendor partnership for a Cypress test')
+			company_vendor_contact, err = seed_util.create_company_vendor_contact(
+				session,
+				id,
+				partnership_id,
+				vendor_user_id,
+			)
+			if err:
+				raise err
+
+			company_vendor_contact_id = str(company_vendor_contact.id)
+			
+			logging.info('Finished adding company vendor contact for cypress test...')
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': 'Success',
+			'data': {
+				'company_vendor_contact_id': company_vendor_contact_id,
+			},
+		}))
+
+class AddCompanyVendorPartnershipView(MethodView):
+	def post(self, **kwargs: Any) -> Response:
+		session_maker, err = run_cypress_preflight_checks()
+		if err:
+			raise err
+
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response("No data provided")
 
 		approved_at = get_field_or_default(form, 'approved_at', date_util.now())
 		company_id = get_field_or_default(form, 'company_id', None)
@@ -587,15 +581,6 @@ class AddContractView(MethodView):
 		form = json.loads(request.data)
 		if not form:
 			return handler_util.make_error_response("No data provided")
-
-		# We skip product config because we construct that based off the fields inside
-		# not a preset json
-		required_keys = [attr for attr in dir(models.Contract()) if not callable(getattr(models.Contract(), attr)) \
-			and not attr.startswith('_') and attr != 'metadata' and attr!= 'product_config']
-
-		for key in required_keys:
-			if key not in form:
-				return handler_util.make_error_response(f'Missing {key} in response to creating a contract for a Cypress test')
 
 		id = get_field_or_default(form, 'id', None)
 		company_id = get_field_or_default(form, 'company_id', None)
@@ -684,6 +669,83 @@ class AddContractView(MethodView):
 			},
 		}))
 
+class AddEbbaApplicationView(MethodView):
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		session_maker, err = run_cypress_preflight_checks()
+		if err:
+			raise err
+		
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response("No data provided")	
+
+		id = get_field_or_default(form, 'id', None)
+		company_id = get_field_or_default(form, 'company_id', None)
+		category = get_field_or_default(form, 'category', None)
+		status = get_field_or_default(form, 'status', None)
+		application_date = get_field_or_default(form, 'application_date', date_util.now_as_date())
+		is_deleted = get_field_or_default(form, 'is_deleted', None)
+		submitted_by_user_id = get_field_or_default(form, 'submitted_by_user_id', None)
+		approved_by_user_id = get_field_or_default(form, 'approved_by_user_id', None)
+		rejected_by_user_id = get_field_or_default(form, 'rejected_by_user_id', None)
+		monthly_accounts_receivable = get_field_or_default(form, 'monthly_accounts_receivable', 0.0)
+		monthly_inventory = get_field_or_default(form, 'monthly_inventory', 0.0)
+		monthly_cash = get_field_or_default(form, 'monthly_cash', 0.0)
+		amount_cash_in_daca = get_field_or_default(form, 'amount_cash_in_daca', 0.0)
+		amount_custom = get_field_or_default(form, 'amount_custom', 0.0)
+		amount_custom_note = get_field_or_default(form, 'amount_custom_note', None)
+		bank_note = get_field_or_default(form, 'bank_note', None)
+		calculated_borrowing_base = get_field_or_default(form, 'calculated_borrowing_base', None)
+		rejection_note = get_field_or_default(form, 'rejection_note', None)
+		expires_date = get_field_or_default(form, 'expires_date', None)
+		requested_at = get_field_or_default(form, 'requested_at', date_util.now())
+		approved_at = get_field_or_default(form, 'approved_at', None)
+		rejected_at = get_field_or_default(form, 'rejected_at', None)
+
+		with session_scope(session_maker) as session:
+			logging.info('Adding ebba application for cypress test...')
+
+			ebba_application, err = seed_util.create_ebba_application(
+				session,
+				id,
+				company_id,
+				category,
+				status,
+				application_date,
+				is_deleted,
+				submitted_by_user_id,
+				approved_by_user_id,
+				rejected_by_user_id,
+				monthly_accounts_receivable,
+				monthly_inventory,
+				monthly_cash,
+				amount_cash_in_daca,
+				amount_custom,
+				amount_custom_note,
+				bank_note,
+				calculated_borrowing_base,
+				rejection_note,
+				expires_date,
+				requested_at,
+				approved_at,
+				rejected_at,
+			)
+			if err:
+				raise err
+			
+			ebba_application_id = str(ebba_application.id)
+
+			logging.info('Finished adding ebba application for cypress test...')
+		
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': 'Success',
+			'data': {
+				'ebba_application_id': ebba_application_id,
+			}
+		}))
+
 class AddFileView(MethodView):
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
@@ -697,13 +759,6 @@ class AddFileView(MethodView):
 		if not form:
 			return handler_util.make_error_response("No data provided")
 
-		required_keys = [attr for attr in dir(models.File()) if not callable(getattr(models.File(), attr)) \
-			and not attr.startswith('_') and attr != 'metadata']
-
-		for key in required_keys:
-			if key not in form:
-				return handler_util.make_error_response(f'Missing {key} in response to creating a file for a Cypress test')
-
 		id = get_field_or_default(form, 'id', None)
 
 		company_id = get_field_or_default(form, 'company_id', None)
@@ -716,7 +771,6 @@ class AddFileView(MethodView):
 		sequential_id = get_field_or_default(form, 'sequential_id', None)
 		size = get_field_or_default(form, 'size', 3028)
 		updated_at = get_field_or_default(form, 'updated_at', date_util.now())
-
 
 		file_id = ""
 		with session_scope(session_maker) as session:
@@ -763,13 +817,6 @@ class AddFinancialSummaryView(MethodView):
 		form = json.loads(request.data)
 		if not form:
 			return handler_util.make_error_response("No data provided")
-
-		required_keys = [attr for attr in dir(models.FinancialSummary()) if not callable(getattr(models.FinancialSummary(), attr)) \
-			and not attr.startswith('_') and attr != 'metadata']
-
-		for key in required_keys:
-			if key not in form:
-				return handler_util.make_error_response(f'Missing {key} in response to creating a financial summary for a Cypress test')
 
 		id = get_field_or_default(form, 'id', None)
 		company_id = get_field_or_default(form, 'company_id', None)
@@ -850,322 +897,6 @@ class AddFinancialSummaryView(MethodView):
 			'msg': 'Success',
 			'data': {
 				'financial_summary_id': financial_summary_id,
-			},
-		}))
-
-class AddPurchaseOrderView(MethodView):
-	@handler_util.catch_bad_json_request
-	def post(self, **kwargs: Any) -> Response:
-		session_maker, err = run_cypress_preflight_checks()
-		if err:
-			raise err
-		
-		form = json.loads(request.data)
-		if not form:
-			return handler_util.make_error_response("No data provided")
-
-		models_relationships_to_ignore = [
-			'approved_by_user',
-			'company',
-			'rejected_by_user',
-			'vendor',
-		]
-
-		required_keys = [attr for attr in dir(models.PurchaseOrder()) if not callable(getattr(models.PurchaseOrder(), attr)) \
-			and not attr.startswith('_') and attr != 'metadata' and attr not in models_relationships_to_ignore]
-
-		for key in required_keys:
-			if key not in form:
-				return handler_util.make_error_response(f'Missing {key} in response to creating a purchase order for a Cypress test')
-
-		# Get optional fields
-		clear_approved_at = form['clear_approved_at']
-
-		all_bank_notes = get_field_or_default(form, 'all_bank_notes', {})
-		all_customer_notes = get_field_or_default(form, 'all_customer_notes', {})
-		amount = get_field_or_default(form, 'amount', 1000.00)
-		amount_funded = get_field_or_default(form, 'amount_funded', 0.0)
-		amount_updated_at = get_field_or_default(form, 'amount_updated_at', None)
-		approved_at = get_field_or_default(form, 'approved_at', date_util.now() if clear_approved_at is False else None)
-		approved_by_user_id = get_field_or_default(form, 'approved_by_user_id', None)
-		bank_incomplete_note = get_field_or_default(form, 'bank_incomplete_note', None)
-		bank_note = get_field_or_default(form, 'bank_note', None)
-		bank_rejection_note = get_field_or_default(form, 'bank_rejection_note', None)
-		closed_at = get_field_or_default(form, 'closed_at', None)
-		company_id = get_field_or_default(form, 'company_id', None)
-		customer_note = get_field_or_default(form, 'customer_note', None)
-		delivery_date = get_field_or_default(form, 'delivery_date', None)
-		funded_at = get_field_or_default(form, 'funded_at', None)
-		history = get_field_or_default(form, 'history', [])
-		id = get_field_or_default(form, 'id', None)
-		incompleted_at = get_field_or_default(form, 'incompleted_at', None)
-		is_cannabis = get_field_or_default(form, 'is_cannabis', True)
-		is_deleted = get_field_or_default(form, 'is_deleted', None)
-		is_metrc_based = get_field_or_default(form, 'is_metrc_based', False)
-		net_terms = get_field_or_default(form, 'net_terms', 60)
-		new_purchase_order_status = get_field_or_default(form, 'new_purchase_order_status', NewPurchaseOrderStatus.DRAFT)
-		order_date = get_field_or_default(form, 'order_date', date_util.now_as_date())
-		order_number = get_field_or_default(form, 'order_number', "Cypress-1")
-		rejected_at = get_field_or_default(form, 'rejected_at', None)
-		rejected_by_user_id = get_field_or_default(form, 'rejected_by_user_id', None)
-		rejection_note = get_field_or_default(form, 'rejection_note', None)
-		requested_at = get_field_or_default(form, 'requested_at', date_util.now())
-		status = get_field_or_default(form, 'status', RequestStatusEnum.DRAFTED)
-		vendor_id = get_field_or_default(form, 'vendor_id', None)
-
-		purchase_order_id = ''
-		with session_scope(session_maker) as session:
-			logging.info('Adding purchase order for cypress test...')
-
-			purchase_order, err = seed_util.create_purchase_order(
-				session,
-				all_bank_notes,
-				all_customer_notes,
-				amount,
-				amount_funded,
-				amount_updated_at,
-				approved_at,
-				approved_by_user_id,
-				bank_incomplete_note,
-				bank_note,
-				bank_rejection_note,
-				closed_at,
-				company_id,
-				customer_note,
-				delivery_date,
-				funded_at,
-				history,
-				id,
-				incompleted_at,
-				is_cannabis,
-				is_deleted,
-				is_metrc_based,
-				net_terms,
-				new_purchase_order_status,
-				order_date,
-				order_number,
-				rejected_at,
-				rejected_by_user_id,
-				rejection_note,
-				requested_at,
-				status,
-				vendor_id,
-			)
-			if err:
-				raise err
-
-			purchase_order_id = str(purchase_order.id)
-
-			logging.info('Finished adding purchase order for cypress test...')
-
-		return make_response(json.dumps({
-			'status': 'OK',
-			'msg': 'Success',
-			'data': {
-				'purchase_order_id': purchase_order_id,
-			},
-		}))
-
-class AddPurchaseOrderFileView(MethodView):
-	@handler_util.catch_bad_json_request
-	def post(self, **kwargs: Any) -> Response:
-		session_maker, err = run_cypress_preflight_checks()
-		if err:
-			raise err
-		
-		form = json.loads(request.data)
-		if not form:
-			return handler_util.make_error_response("No data provided")
-
-		models_relationships_to_ignore = [
-			'file',
-			'purchase_order',
-		]
-
-		required_keys = [attr for attr in dir(models.PurchaseOrderFile()) if not callable(getattr(models.PurchaseOrderFile(), attr)) \
-			and not attr.startswith('_') and attr != 'metadata' and attr not in models_relationships_to_ignore]
-
-		for key in required_keys:
-			if key not in form:
-				return handler_util.make_error_response(f'Missing {key} in response to creating a purchase order file for a Cypress test')
-
-		id = get_field_or_default(form, 'id', None)
-		created_at = get_field_or_default(form, 'created_at', date_util.now())
-		file_id = get_field_or_default(form, 'file_id', None)
-		file_type = get_field_or_default(form, 'file_type', PurchaseOrderFileTypeEnum.PURCHASE_ORDER)
-		purchase_order_id = get_field_or_default(form, 'purchase_order_id', None)
-		updated_at = get_field_or_default(form, 'updated_at', date_util.now())
-
-		purchase_order_file_id = ''
-		with session_scope(session_maker) as session:
-			logging.info('Adding purchase order file for cypress test...')
-
-			purchase_order_file, err = seed_util.create_purchase_order_file(
-				session,
-				created_at,
-				file_id,
-				file_type,
-				purchase_order_id,
-				updated_at,
-			)
-			if err:
-				raise err
-
-			# Please note! This table doesn't have an `id` column, so we are
-			# returning `file_id` in case that would be useful for verification
-			purchase_order_file_id = str(purchase_order_file.file_id)
-
-			logging.info('Finished adding purchase order file for cypress test...')
-
-		return make_response(json.dumps({
-			'status': 'OK',
-			'msg': 'Success',
-			'data': {
-				'purchase_order_file_id': purchase_order_file_id,
-			},
-		}))
-
-class AddTwoFactorLinkView(MethodView):
-	@handler_util.catch_bad_json_request
-	def post(self, **kwargs: Any) -> Response:
-		session_maker, err = run_cypress_preflight_checks()
-		if err:
-			raise err
-		
-		form = json.loads(request.data)
-		if not form:
-			return handler_util.make_error_response("No data provided")
-
-		required_keys = [attr for attr in dir(models.TwoFactorLink()) if not callable(getattr(models.TwoFactorLink(), attr)) \
-			and not attr.startswith('_') and attr != 'metadata']
-
-		for key in required_keys:
-			if key not in form:
-				return handler_util.make_error_response(f'Missing {key} in response to creating a two factor link for a Cypress test')
-
-		expires_at_input = date_util.datetime_to_str(
-			datetime.combine(
-				date_util.add_biz_days(date_util.now_as_date(), 365),
-				datetime.min.time()
-			)
-		)
-
-		# Optional parameters need to be set first in order to pass to form_info and token_states
-		purchase_order_id = get_field_or_default(form, 'purchase_order_id', None)
-		form_type = get_field_or_default(form, 'form_type', 'confirm_purchase_order')
-		form_payload_key = get_field_or_default(form, 'id', 'purchase_order_id')
-		vendor_email = get_field_or_default(form, 'id', 'vendor@bespokefinancial.com')
-
-		# These are the fields actually in models.TwoFactorLink
-		id = get_field_or_default(form, 'id', None)
-		expires_at = get_field_or_default(form, 'expires_at', expires_at_input)
-		default_form_info = {
-			"type": form_type,
-			"payload": { }
-		}
-		default_form_info["payload"][form_payload_key] = purchase_order_id
-		form_info = get_field_or_default(form, 'form_info', default_form_info)
-		default_token_states = {}
-		default_token_states[vendor_email] = {
-			"token_val":"103580",
-			"expires_in": expires_at_input,
-		}
-		token_states = get_field_or_default(form, 'token_states', default_token_states)
-
-		two_factor_link_id = ''
-		with session_scope(session_maker) as session:
-			logging.info('Adding two factor link for cypress test...')
-
-			two_factor_link, err = seed_util.create_two_factor_link(
-				session,
-				id,
-				expires_at,
-				form_info,
-				token_states,
-			)
-			if err:
-				raise err
-
-			two_factor_link_id = str(two_factor_link.id)
-
-			logging.info('Finished adding two factor link for cypress test...')
-
-		return make_response(json.dumps({
-			'status': 'OK',
-			'msg': 'Success',
-			'data': {
-				'two_factor_link_id': two_factor_link_id,
-			},
-		}))
-
-class AddUserView(MethodView):
-	@handler_util.catch_bad_json_request
-	def post(self, **kwargs: Any) -> Response:
-		session_maker, err = run_cypress_preflight_checks()
-		if err:
-			raise err
-		
-		form = json.loads(request.data)
-		if not form:
-			return handler_util.make_error_response("No data provided")
-
-		required_keys = [attr for attr in dir(models.User()) if not callable(getattr(models.User(), attr)) \
-			and not attr.startswith('_') and attr != 'metadata']
-
-		for key in required_keys:
-			if key not in form:
-				return handler_util.make_error_response(f'Missing {key} in response to creating a user for a Cypress test')
-
-		id = get_field_or_default(form, 'id', None)
-		parent_company_id = get_field_or_default(form, 'parent_company_id', None)
-		company_id = get_field_or_default(form, 'company_id', None)
-		email = get_field_or_default(form, 'email', 'do-not-reply-development@bespokefinancial.com')
-		password = get_field_or_default(form, 'password', 'Password123!')
-		role = get_field_or_default(form, 'role', None)
-		company_role = get_field_or_default(form, 'company_role', None)
-		company_role_new = get_field_or_default(form, 'company_role_new', {})
-		first_name = get_field_or_default(form, 'first_name', 'Oscar')
-		last_name = get_field_or_default(form, 'last_name', 'the Grouch')
-		phone_number = get_field_or_default(form, 'phone_number', '3010987654')
-		is_deleted = get_field_or_default(form, 'is_deleted', None)
-		login_method = get_field_or_default(form, 'login_method', LoginMethod.TWO_FA)
-
-		user_id = ''
-		user_email = ''
-		with session_scope(session_maker) as session:
-			logging.info('Adding user for cypress test...')
-
-			user, err = seed_util.create_user(
-				session,
-				id,
-				parent_company_id,
-				company_id,
-				email,
-				password,
-				role,
-				company_role,
-				company_role_new,
-				first_name,
-				last_name,
-				phone_number,
-				is_deleted,
-				login_method,
-			)
-			if err:
-				raise err
-
-			user_id = str(user.id)
-			user_email = user.email
-
-			logging.info('Finished adding user for cypress test...')
-
-		return make_response(json.dumps({
-			'status': 'OK',
-			'msg': 'Success',
-			'data': {
-				'user_id': user_id,
-				'user_email': user_email,
-				'user_password': password,
 			},
 		}))
 
@@ -1268,95 +999,6 @@ class AddLoanView(MethodView):
 			}
 		}))
 
-
-class AddEbbaApplicationView(MethodView):
-	@handler_util.catch_bad_json_request
-	def post(self, **kwargs: Any) -> Response:
-		session_maker, err = run_cypress_preflight_checks()
-		if err:
-			raise err
-		
-		form = json.loads(request.data)
-		if not form:
-			return handler_util.make_error_response("No data provided")	
-		
-		models_relationships_to_ignore = [
-			'company',
-		]
-		
-		required_keys = [attr for attr in dir(models.EbbaApplication()) if not callable(getattr(models.EbbaApplication(), attr)) \
-			and not attr.startswith('_') and attr != 'metadata' and attr not in models_relationships_to_ignore]
-
-		for key in required_keys:
-			if key not in form:
-				return handler_util.make_error_response(f'Missing {key} in response to creating a user for a Cypress test')
-
-		id = get_field_or_default(form, 'id', None)
-		company_id = get_field_or_default(form, 'company_id', None)
-		category = get_field_or_default(form, 'category', None)
-		status = get_field_or_default(form, 'status', None)
-		application_date = get_field_or_default(form, 'application_date', date_util.now_as_date())
-		is_deleted = get_field_or_default(form, 'is_deleted', None)
-		submitted_by_user_id = get_field_or_default(form, 'submitted_by_user_id', None)
-		approved_by_user_id = get_field_or_default(form, 'approved_by_user_id', None)
-		rejected_by_user_id = get_field_or_default(form, 'rejected_by_user_id', None)
-		monthly_accounts_receivable = get_field_or_default(form, 'monthly_accounts_receivable', 0.0)
-		monthly_inventory = get_field_or_default(form, 'monthly_inventory', 0.0)
-		monthly_cash = get_field_or_default(form, 'monthly_cash', 0.0)
-		amount_cash_in_daca = get_field_or_default(form, 'amount_cash_in_daca', 0.0)
-		amount_custom = get_field_or_default(form, 'amount_custom', 0.0)
-		amount_custom_note = get_field_or_default(form, 'amount_custom_note', None)
-		bank_note = get_field_or_default(form, 'bank_note', None)
-		calculated_borrowing_base = get_field_or_default(form, 'calculated_borrowing_base', None)
-		rejection_note = get_field_or_default(form, 'rejection_note', None)
-		expires_date = get_field_or_default(form, 'expires_date', None)
-		requested_at = get_field_or_default(form, 'requested_at', date_util.now())
-		approved_at = get_field_or_default(form, 'approved_at', None)
-		rejected_at = get_field_or_default(form, 'rejected_at', None)
-
-		with session_scope(session_maker) as session:
-			logging.info('Adding ebba application for cypress test...')
-
-			ebba_application, err = seed_util.create_ebba_application(
-				session,
-				id,
-				company_id,
-				category,
-				status,
-				application_date,
-				is_deleted,
-				submitted_by_user_id,
-				approved_by_user_id,
-				rejected_by_user_id,
-				monthly_accounts_receivable,
-				monthly_inventory,
-				monthly_cash,
-				amount_cash_in_daca,
-				amount_custom,
-				amount_custom_note,
-				bank_note,
-				calculated_borrowing_base,
-				rejection_note,
-				expires_date,
-				requested_at,
-				approved_at,
-				rejected_at,
-			)
-			if err:
-				raise err
-			
-			ebba_application_id = str(ebba_application.id)
-
-			logging.info('Finished adding ebba application for cypress test...')
-		
-		return make_response(json.dumps({
-			'status': 'OK',
-			'msg': 'Success',
-			'data': {
-				'ebba_application_id': ebba_application_id,
-			}
-		}))
-
 class addPaymentView(MethodView):
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
@@ -1367,17 +1009,6 @@ class addPaymentView(MethodView):
 		form = json.loads(request.data)
 		if not form:
 			return handler_util.make_error_response("No data provided")	
-		
-		models_relationships_to_ignore = [
-			'company',
-		]
-		
-		required_keys = [attr for attr in dir(models.Payment()) if not callable(getattr(models.Payment(), attr)) \
-			and not attr.startswith('_') and attr != 'metadata' and attr not in models_relationships_to_ignore]
-
-		for key in required_keys:
-			if key not in form:
-				return handler_util.make_error_response(f'Missing {key} in response to creating a user for a Cypress test')
 
 		id = get_field_or_default(form, 'id', None)
 		amount = get_field_or_default(form, 'amount', 0.0)
@@ -1450,6 +1081,282 @@ class addPaymentView(MethodView):
 				'payment_id': payment_id,
 			}
 		}))
+		
+class AddPurchaseOrderView(MethodView):
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		session_maker, err = run_cypress_preflight_checks()
+		if err:
+			raise err
+		
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response("No data provided")
+
+		# Get optional fields
+		clear_approved_at = form['clear_approved_at'] if 'clear_approved_at' in form else False
+
+		all_bank_notes = get_field_or_default(form, 'all_bank_notes', {})
+		all_customer_notes = get_field_or_default(form, 'all_customer_notes', {})
+		amount = get_field_or_default(form, 'amount', 1000.00)
+		amount_funded = get_field_or_default(form, 'amount_funded', 0.0)
+		amount_updated_at = get_field_or_default(form, 'amount_updated_at', None)
+		approved_at = get_field_or_default(form, 'approved_at', date_util.now() if clear_approved_at is False else None)
+		approved_by_user_id = get_field_or_default(form, 'approved_by_user_id', None)
+		bank_incomplete_note = get_field_or_default(form, 'bank_incomplete_note', None)
+		bank_note = get_field_or_default(form, 'bank_note', None)
+		bank_rejection_note = get_field_or_default(form, 'bank_rejection_note', None)
+		closed_at = get_field_or_default(form, 'closed_at', None)
+		company_id = get_field_or_default(form, 'company_id', None)
+		customer_note = get_field_or_default(form, 'customer_note', None)
+		delivery_date = get_field_or_default(form, 'delivery_date', None)
+		funded_at = get_field_or_default(form, 'funded_at', None)
+		history = get_field_or_default(form, 'history', [])
+		id = get_field_or_default(form, 'id', None)
+		incompleted_at = get_field_or_default(form, 'incompleted_at', None)
+		is_cannabis = get_field_or_default(form, 'is_cannabis', True)
+		is_deleted = get_field_or_default(form, 'is_deleted', None)
+		is_metrc_based = get_field_or_default(form, 'is_metrc_based', False)
+		net_terms = get_field_or_default(form, 'net_terms', 60)
+		new_purchase_order_status = get_field_or_default(form, 'new_purchase_order_status', NewPurchaseOrderStatus.DRAFT)
+		order_date = get_field_or_default(form, 'order_date', date_util.now_as_date())
+		order_number = get_field_or_default(form, 'order_number', "Cypress-1")
+		rejected_at = get_field_or_default(form, 'rejected_at', None)
+		rejected_by_user_id = get_field_or_default(form, 'rejected_by_user_id', None)
+		rejection_note = get_field_or_default(form, 'rejection_note', None)
+		requested_at = get_field_or_default(form, 'requested_at', date_util.now())
+		status = get_field_or_default(form, 'status', RequestStatusEnum.DRAFTED)
+		vendor_id = get_field_or_default(form, 'vendor_id', None)
+
+		purchase_order_id = ''
+		with session_scope(session_maker) as session:
+			logging.info('Adding purchase order for cypress test...')
+
+			purchase_order, err = seed_util.create_purchase_order(
+				session,
+				all_bank_notes,
+				all_customer_notes,
+				amount,
+				amount_funded,
+				amount_updated_at,
+				approved_at,
+				approved_by_user_id,
+				bank_incomplete_note,
+				bank_note,
+				bank_rejection_note,
+				closed_at,
+				company_id,
+				customer_note,
+				delivery_date,
+				funded_at,
+				history,
+				id,
+				incompleted_at,
+				is_cannabis,
+				is_deleted,
+				is_metrc_based,
+				net_terms,
+				new_purchase_order_status,
+				order_date,
+				order_number,
+				rejected_at,
+				rejected_by_user_id,
+				rejection_note,
+				requested_at,
+				status,
+				vendor_id,
+			)
+			if err:
+				raise err
+
+			purchase_order_id = str(purchase_order.id)
+
+			logging.info('Finished adding purchase order for cypress test...')
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': 'Success',
+			'data': {
+				'purchase_order_id': purchase_order_id,
+			},
+		}))
+
+class AddPurchaseOrderFileView(MethodView):
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		session_maker, err = run_cypress_preflight_checks()
+		if err:
+			raise err
+		
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response("No data provided")
+
+		id = get_field_or_default(form, 'id', None)
+		created_at = get_field_or_default(form, 'created_at', date_util.now())
+		file_id = get_field_or_default(form, 'file_id', None)
+		file_type = get_field_or_default(form, 'file_type', PurchaseOrderFileTypeEnum.PURCHASE_ORDER)
+		purchase_order_id = get_field_or_default(form, 'purchase_order_id', None)
+		updated_at = get_field_or_default(form, 'updated_at', date_util.now())
+
+		purchase_order_file_id = ''
+		with session_scope(session_maker) as session:
+			logging.info('Adding purchase order file for cypress test...')
+
+			purchase_order_file, err = seed_util.create_purchase_order_file(
+				session,
+				created_at,
+				file_id,
+				file_type,
+				purchase_order_id,
+				updated_at,
+			)
+			if err:
+				raise err
+
+			# Please note! This table doesn't have an `id` column, so we are
+			# returning `file_id` in case that would be useful for verification
+			purchase_order_file_id = str(purchase_order_file.file_id)
+
+			logging.info('Finished adding purchase order file for cypress test...')
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': 'Success',
+			'data': {
+				'purchase_order_file_id': purchase_order_file_id,
+			},
+		}))
+
+class AddTwoFactorLinkView(MethodView):
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		session_maker, err = run_cypress_preflight_checks()
+		if err:
+			raise err
+		
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response("No data provided")
+
+		expires_at_input = date_util.datetime_to_str(
+			datetime.combine(
+				date_util.add_biz_days(date_util.now_as_date(), 365),
+				datetime.min.time()
+			)
+		)
+
+		# Optional parameters need to be set first in order to pass to form_info and token_states
+		purchase_order_id = get_field_or_default(form, 'purchase_order_id', None)
+		form_type = get_field_or_default(form, 'form_type', 'confirm_purchase_order')
+		form_payload_key = get_field_or_default(form, 'id', 'purchase_order_id')
+		vendor_email = get_field_or_default(form, 'id', 'vendor@bespokefinancial.com')
+
+		# These are the fields actually in models.TwoFactorLink
+		id = get_field_or_default(form, 'id', None)
+		expires_at = get_field_or_default(form, 'expires_at', expires_at_input)
+		default_form_info = {
+			"type": form_type,
+			"payload": { }
+		}
+		default_form_info["payload"][form_payload_key] = purchase_order_id
+		form_info = get_field_or_default(form, 'form_info', default_form_info)
+		default_token_states = {}
+		default_token_states[vendor_email] = {
+			"token_val":"103580",
+			"expires_in": expires_at_input,
+		}
+		token_states = get_field_or_default(form, 'token_states', default_token_states)
+
+		two_factor_link_id = ''
+		with session_scope(session_maker) as session:
+			logging.info('Adding two factor link for cypress test...')
+
+			two_factor_link, err = seed_util.create_two_factor_link(
+				session,
+				id,
+				expires_at,
+				form_info,
+				token_states,
+			)
+			if err:
+				raise err
+
+			two_factor_link_id = str(two_factor_link.id)
+
+			logging.info('Finished adding two factor link for cypress test...')
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': 'Success',
+			'data': {
+				'two_factor_link_id': two_factor_link_id,
+			},
+		}))
+
+class AddUserView(MethodView):
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		session_maker, err = run_cypress_preflight_checks()
+		if err:
+			raise err
+		
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response("No data provided")
+
+		id = get_field_or_default(form, 'id', None)
+		parent_company_id = get_field_or_default(form, 'parent_company_id', None)
+		company_id = get_field_or_default(form, 'company_id', None)
+		email = get_field_or_default(form, 'email', 'do-not-reply-development@bespokefinancial.com')
+		password = get_field_or_default(form, 'password', 'Password123!')
+		role = get_field_or_default(form, 'role', None)
+		company_role = get_field_or_default(form, 'company_role', None)
+		company_role_new = get_field_or_default(form, 'company_role_new', {})
+		first_name = get_field_or_default(form, 'first_name', 'Oscar')
+		last_name = get_field_or_default(form, 'last_name', 'the Grouch')
+		phone_number = get_field_or_default(form, 'phone_number', '3010987654')
+		is_deleted = get_field_or_default(form, 'is_deleted', None)
+		login_method = get_field_or_default(form, 'login_method', LoginMethod.TWO_FA)
+
+		user_id = ''
+		user_email = ''
+		with session_scope(session_maker) as session:
+			logging.info('Adding user for cypress test...')
+
+			user, err = seed_util.create_user(
+				session,
+				id,
+				parent_company_id,
+				company_id,
+				email,
+				password,
+				role,
+				company_role,
+				company_role_new,
+				first_name,
+				last_name,
+				phone_number,
+				is_deleted,
+				login_method,
+			)
+			if err:
+				raise err
+
+			user_id = str(user.id)
+			user_email = user.email
+
+			logging.info('Finished adding user for cypress test...')
+
+		return make_response(json.dumps({
+			'status': 'OK',
+			'msg': 'Success',
+			'data': {
+				'user_id': user_id,
+				'user_email': user_email,
+				'user_password': password,
+			},
+		}))
 
 handler.add_url_rule(
 	'/reset_database',
@@ -1479,6 +1386,11 @@ handler.add_url_rule(
 handler.add_url_rule(
 	'/add_company_settings',
 	view_func=AddCompanySettingsView.as_view(name='add_company_settings_view'),
+)
+
+handler.add_url_rule(
+	'/add_company_vendor_contact',
+	view_func=AddCompanyVendorContactView.as_view(name='add_company_vendor_contact_view'),
 )
 
 handler.add_url_rule(

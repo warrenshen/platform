@@ -18,7 +18,7 @@ export const createFinancingRequestSingle = () => {
   // Fill in date
   const { paymentDate } = getFuturePaymentDate();
   cy.dataCy("requested-payment-date-date-picker").type(paymentDate);
-  cy.dataCy("financing-request-amount-input").type(10000.0);
+  cy.dataCy("financing-request-amount-input").type(Number(10000.0).toString());
 
   // Submit and check for success snackbar
   cy.dataCy("create-financing-requests-modal-primary-button").click();

@@ -1,3 +1,5 @@
+export {};
+
 describe("Setup borrowing base", () => {
   before(() => {
     cy.resetDatabase();

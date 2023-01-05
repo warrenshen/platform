@@ -1,3 +1,5 @@
+export {};
+
 describe("On Settings: Delete License button should", () => {
   before(() => {
     cy.resetDatabase();

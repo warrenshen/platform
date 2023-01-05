@@ -1,3 +1,5 @@
+export {};
+
 describe("Accepting a company partnership request", () => {
   before(() => {
     cy.resetDatabase();

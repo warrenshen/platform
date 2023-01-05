@@ -1,4 +1,4 @@
-import { inactiveCustomerCannotEditSettingsFlow } from "./flows";
+import { inactiveCustomerCannotEditSettingsFlow } from "@cypress/integration/Customer/Settings/flows";
 
 describe("Inactive customer cannot edit settings", () => {
   before(() => {

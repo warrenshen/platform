@@ -1,7 +1,7 @@
 import {
   requestChangesPurchaseOrderAsVendor,
   setupDataForTest,
-} from "./../flows";
+} from "@cypress/integration/Customer/PurchaseOrders/flows";
 
 describe("Vendor requests changes", () => {
   before(() => {

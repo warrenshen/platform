@@ -1,3 +1,5 @@
+export {};
+
 describe("Creating a new partnership request", () => {
   before(() => {
     cy.resetDatabase();
@@ -19,12 +21,6 @@ describe("Creating a new partnership request", () => {
         cy.addCompanyPartnershipRequest({
           requested_by_user_id: companyUserResults.userId,
           requesting_company_id: results.companyId,
-          user_info: {
-            first_name: "Oscar",
-            last_name: "the Grouch",
-            email: "do-not-reply-development+vendor2@bespokefinancial.com",
-            phone_number: "+1 (123) 280-0391",
-          },
         });
       });
     });
@@ -38,12 +34,13 @@ describe("Creating a new partnership request", () => {
       cy.addUser({
         company_id: results.companyId,
         parent_company_id: results.parentCompanyId,
+        role: "company_admin",
         email: "do-not-reply-development+vendor2@bespokefinancial.com",
       });
     });
   });
 
-  it("should create a new vendor partnership with existing vendor and existing contact", () => {
+  it("should create a new vendor partnership with an existing vendor and new contact", () => {
     cy.loginBankAdmin();
 
     cy.dataCy("sidebar-item-partnerships").click();
@@ -55,8 +52,6 @@ describe("Creating a new partnership request", () => {
     cy.dataCy("triage-request-button").click();
 
     cy.dataCy("triage-partnership-request-modal").should("be.visible");
-
-    cy.dataCy("existing-user-checkbox").click();
 
     cy.get("[data-cy=vendor-dropdown]").click();
     cy.contains("Vendor2").click();
