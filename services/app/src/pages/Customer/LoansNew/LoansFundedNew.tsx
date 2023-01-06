@@ -68,16 +68,6 @@ const LoansFundedNew = ({
   return (
     <StyledContainer>
       {isRepaymentModalOpen && (
-        // <CreateRepaymentModalNew
-        //   companyId={companyId}
-        //   productType={productType}
-        //   initiallySelectedLoanIds={selectedLoanIds}
-        //   handleClose={() => {
-        //     handleDataChange();
-        //     setIsRepaymentModalOpen(false);
-        //     setSelectedLoanIds([]);
-        //   }}
-        // />
         <CreateRepaymentModal
           companyId={companyId}
           productType={productType}
@@ -107,6 +97,7 @@ const LoansFundedNew = ({
       <Box
         display="flex"
         flex={1}
+        flexDirection="column"
         data-cy="funded-loans-data-grid-container"
         className="active-loans-data-grid"
       >

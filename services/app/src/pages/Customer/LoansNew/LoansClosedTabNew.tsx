@@ -53,7 +53,7 @@ function CustomerLoansPageLoansClosedTab({ companyId, productType }: Props) {
     <StyledContainer>
       <Box mb={3} />
       <Text textVariant={TextVariants.ParagraphLead}>Active</Text>
-      <Box display="flex" flex={1}>
+      <Box display="flex" flex={1} flexDirection="column">
         <PolymorphicLoansDataGrid
           isDisbursementIdentifierVisible={isBankUser}
           // We do not show loan outstanding principal, interest, late fees for Line of Credit.
