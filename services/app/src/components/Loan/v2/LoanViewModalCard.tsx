@@ -5,6 +5,7 @@ import FinancingRequestStatusChipNew from "components/Shared/Chip/FinancingReque
 import LoanPaymentStatusChip from "components/Shared/Chip/LoanPaymentStatusChip";
 import Text, { TextVariants } from "components/Shared/Text/Text";
 import { LoanTypeEnum, LoanWithRelationshipsFragment } from "generated/graphql";
+import { formatDateString } from "lib/date";
 import {
   LoanPaymentStatusEnum,
   LoanStatusEnum,
@@ -25,10 +26,14 @@ export default function LoanViewModalCard({ loan }: Props) {
   const loanType = !!loan.loan_type ? loan.loan_type : "";
   const customerName = !!loan?.company?.name ? loan.company.name : "";
   const requestedPaymentDate = !!loan.requested_payment_date
-    ? loan.requested_payment_date
+    ? formatDateString(loan.requested_payment_date) || ""
     : "";
-  const originationDate = !!loan.origination_date ? loan.origination_date : "";
-  const maturityDate = !!loan.maturity_date ? loan.maturity_date : "";
+  const originationDate = !!loan.origination_date
+    ? formatDateString(loan.origination_date) || ""
+    : "";
+  const maturityDate = !!loan.maturity_date
+    ? formatDateString(loan.maturity_date) || ""
+    : "";
   const outstandingPrincipalBalance = !!loan.outstanding_principal_balance
     ? loan.outstanding_principal_balance
     : 0;
