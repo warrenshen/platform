@@ -104,6 +104,7 @@ CompanyStateInfoDict = TypedDict('CompanyStateInfoDict', {
 
 class SplitTimeBy(object):
 	HOUR = 'hour'
+	QUARTER_HOUR = 'quarter_hour'
 
 def _get_date_str(cur_date: datetime.date) -> str:
 	return cur_date.strftime('%m/%d/%Y')
@@ -116,19 +117,58 @@ def _get_time_ranges(orig_time_str: str, split_time_by: str) -> List[List[str]]:
 		time_ranges = []
 		while cur_hour < 24:
 			cur_start_time = datetime.datetime(
-				orig_date.year, orig_date.month, orig_date.day, hour=cur_hour)
+				year=orig_date.year,
+				month=orig_date.month,
+				day=orig_date.day,
+				hour=cur_hour,
+			)
+			cur_end_time = datetime.datetime(
+				year=orig_date.year,
+				month=orig_date.month,
+				day=orig_date.day,
+				hour=(cur_hour + 1) % 24,
+			)
 			if cur_hour == 23:
-				cur_end_time = datetime.datetime(orig_date.year, orig_date.month, orig_date.day) + timedelta(days=1)
-			else:
-				cur_end_time = datetime.datetime(
-					orig_date.year, orig_date.month, orig_date.day, hour=cur_hour + 1)
-			
-			time_ranges.append([
+				cur_end_time += timedelta(days=1)
+			time_range = [
 				date_util.datetime_to_str(cur_start_time), 
 				date_util.datetime_to_str(cur_end_time)
-			])
+			]
+			time_ranges.append(time_range)
 			cur_hour += 1
+		return time_ranges
 
+	elif split_time_by == SplitTimeBy.QUARTER_HOUR:
+		cur_hour = 0
+		cur_quarter_hour = 0
+		time_ranges = []
+		while cur_hour < 24:
+			while cur_quarter_hour < 4:
+				cur_start_time = datetime.datetime(
+					year=orig_date.year,
+					month=orig_date.month,
+					day=orig_date.day,
+					hour=cur_hour,
+					minute=cur_quarter_hour * 15,
+				)
+				cur_end_time = datetime.datetime(
+					year=orig_date.year,
+					month=orig_date.month,
+					day=orig_date.day,
+					hour=(cur_hour + (1 if cur_quarter_hour == 3 else 0)) % 24,
+					minute=((cur_quarter_hour + 1) % 4) * 15,
+				)
+				if cur_hour == 23 and cur_quarter_hour == 3:
+					cur_end_time += timedelta(days=1)
+				time_range = [
+					date_util.datetime_to_str(cur_start_time),
+					date_util.datetime_to_str(cur_end_time)
+				]
+				time_ranges.append(time_range)
+				cur_quarter_hour += 1
+			cur_hour += 1
+			cur_quarter_hour = 0
+		print('')
 		return time_ranges
 
 	raise errors.Error('Unhandled option to get_time_ranges, split_time_by={}'.format(split_time_by))
@@ -329,12 +369,15 @@ class REST(object):
 
 		for i in range(NUM_RETRIES):
 			if i > 0:
+				logging.info(f'Retry #00{i} {path} download for license number {self.license_number} and time range: {time_range}')
 				logging.info(f'Retrying request with url {url} for license number {self.license_number}')
 
-			resp = requests.get(url, auth=self.auth, timeout=5)
+			resp = requests.get(url, auth=self.auth)
 
 			# Return successful response.
 			if resp.ok:
+				if time_range:
+					logging.info(f'Completed {path} download for license number {self.license_number} and time range: {time_range}')
 				return HTTPResponse(resp)
 
 			e = errors.Error('Metrc error: URL: {}. Code: {}. Reason: {}. Response: {}. License num: {}. Company: {}. Time range: {}'.format(
@@ -404,8 +447,6 @@ class REST(object):
 			if type(cur_results) != list:
 				raise errors.Error('When splitting the results using time range, each result must be a list that can be joined together')
 			all_results.extend(cur_results)
-			logging.info(f'Completed {path} download for license number {self.license_number} and time range: {time_range_tuple}')
-
 			i += 1
 
 		return HTTPResponse(response=None, results=all_results)

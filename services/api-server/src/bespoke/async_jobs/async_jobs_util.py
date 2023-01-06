@@ -1496,6 +1496,7 @@ def run_download_data_for_metrc_api_key_license_job(
 		start_date=start_date,
 		end_date=end_date,
 		is_async_job=True,
+		is_retry_failures=False,
 	)
 
 	if err:

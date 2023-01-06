@@ -138,12 +138,12 @@ def _get_metrc_download_summary(
 		).first())
 	return metrc_download_summary
 
-
 def is_metrc_download_summary_previously_successful(
 	session: Session,
 	license_number: str,
 	date: datetime.date,
 	new_license_permissions_dict: metrc_common_util.LicensePermissionsDict,
+	is_retry_failures: bool,
 ) -> bool:
 	existing_metrc_download_summary = _get_metrc_download_summary(
 		session=session,
@@ -154,9 +154,10 @@ def is_metrc_download_summary_previously_successful(
 	if not existing_metrc_download_summary:
 		return False
 
-	# If status is FAILURE, treat it as if the download was previously successful.
-	# A developer should investigate summaries with status FAILURE (even the retry logic did not work).
-	if existing_metrc_download_summary.status == MetrcDownloadSummaryStatus.FAILURE:
+	# If is_retry_failures is False...
+	# - If status is FAILURE, treat it as if the download was previously successful.
+	# - A developer should investigate summaries with status FAILURE (even the retry logic did not work).
+	if not is_retry_failures and existing_metrc_download_summary.status == MetrcDownloadSummaryStatus.FAILURE:
 		return True
 
 	nlpd = new_license_permissions_dict

@@ -53,6 +53,7 @@ def main(
 	is_packages_disabled: bool,
 	is_lab_tests_disabled: bool,
 	is_plants_disabled: bool,
+	force_retry_failures: bool,
 	force_fetch_missing_sales_transactions: bool,
 	num_parallel_licenses: int,
 	num_parallel_sales_transactions: int,
@@ -142,7 +143,8 @@ def main(
 	print(f'End date: {date_util.date_to_str(parsed_end_date)}')
 	print(f'Number of parallel licenses: {num_parallel_licenses}')
 	print(f'Number of parallel sales transactions: {num_parallel_sales_transactions}')
-	print(f'Force fetch missing sales transactions? {force_fetch_missing_sales_transactions}')
+	print(f'Force retry failed download summaries?: {force_retry_failures}')
+	print(f'Force fetch missing sales transactions?: {force_fetch_missing_sales_transactions}')
 	print(f'APIs to fetch data from: {apis_to_use}')
 	print('')
 	print('LOGS...')
@@ -163,6 +165,7 @@ def main(
 				start_date=parsed_start_date,
 				end_date=parsed_end_date,
 				is_async_job=False,
+				is_retry_failures=force_retry_failures,
 			)
 
 	if fatal_err:
@@ -213,6 +216,11 @@ parser.add_argument(
 	action='store_true',
 )
 parser.add_argument(
+	'--force_retry_failures',
+	dest='force_retry_failures',
+	action='store_true',
+)
+parser.add_argument(
 	'--force_fetch_missing_sales_transactions',
 	dest='force_fetch_missing_sales_transactions',
 	action='store_true',
@@ -241,7 +249,8 @@ if __name__ == '__main__':
 		is_packages_disabled=args.is_packages_disabled,
 		is_lab_tests_disabled=args.is_lab_tests_disabled,
 		is_plants_disabled=args.is_plants_disabled,
-		force_fetch_missing_sales_transactions=args.force_fetch_missing_sales_transactions or False,
+		force_fetch_missing_sales_transactions=args.force_fetch_missing_sales_transactions,
+		force_retry_failures=args.force_retry_failures,
 		num_parallel_licenses=args.num_parallel_licenses,
 		num_parallel_sales_transactions=args.num_parallel_sales_transactions,
 	)

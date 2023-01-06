@@ -146,6 +146,7 @@ def _download_data_for_metrc_api_key_license_for_date(
 	apis_to_use: Optional[metrc_common_util.ApisToUseDict],
 	metrc_api_key_data_fetcher: metrc_common_util.MetrcApiKeyDataFetcher,
 	date: datetime.date,
+	is_retry_failures: bool,
 ) -> Tuple[DownloadDataForMetrcApiKeyForDateRespDict, errors.Error]:
 	all_nonblocking_download_errors: List[errors.Error] = []
 
@@ -204,6 +205,7 @@ def _download_data_for_metrc_api_key_license_for_date(
 		license_number=license_number,
 		date=date,
 		new_license_permissions_dict=license_permissions_dict,
+		is_retry_failures=is_retry_failures,
 	)
 	if is_previously_successful:
 		logging.info(f'Download data for license number {license_number} and date {date} was previously successful')
@@ -259,6 +261,9 @@ def _download_data_for_metrc_api_key_license_for_date(
 #   a. If download was previously done for license and date with greater than
 #      or equal to permissions vs current permissions, skip download
 #   b. Otherwise, run download for license and date
+#
+# is_async_job: whether invocation is within an async job
+# is_retry_failures: whether or not download retries Metrc download summaries marked as failures
 @errors.return_error_tuple
 def download_data_for_metrc_api_key_license_in_date_range(
 	session: Session,
@@ -269,6 +274,7 @@ def download_data_for_metrc_api_key_license_in_date_range(
 	start_date: datetime.date,
 	end_date: datetime.date,
 	is_async_job: bool = False,
+	is_retry_failures: bool = False,
 ) -> Tuple[DownloadDataForMetrcApiKeyInDateRangeRespDict, errors.Error]:
 	metrc_api_key, err = queries.get_metrc_api_key_by_id(
 		session=session,
@@ -319,6 +325,7 @@ def download_data_for_metrc_api_key_license_in_date_range(
 			apis_to_use=apis_to_use,
 			metrc_api_key_data_fetcher=metrc_api_key_data_fetcher,
 			date=cur_date,
+			is_retry_failures=is_retry_failures,
 		)
 
 		if not current_date_response['success']:
