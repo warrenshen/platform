@@ -133,7 +133,7 @@ const getCustomerNavItems = (
       link: customerRoutes.overview,
     },
     {
-      dataCy: "purchase-orders-new",
+      dataCy: "purchase-orders",
       visible:
         !!productType &&
         [
@@ -291,10 +291,10 @@ const getBankNavItems = (
       isBankMenu: true,
     },
     {
-      dataCy: "purchase-orders-new",
+      dataCy: "purchase-orders",
       iconNode: PurchaseOrdersIcon,
       text: "Purchase Orders",
-      link: bankRoutes.purchaseOrdersNew,
+      link: bankRoutes.purchaseOrders,
       isBankMenu: true,
     },
     {

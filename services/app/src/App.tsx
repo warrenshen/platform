@@ -51,12 +51,12 @@ import BankCustomersPage from "pages/Bank/Customers";
 import BankDebtFacilityPage from "pages/Bank/DebtFacility";
 import BankFinancingRequestsPage from "pages/Bank/FinancingRequests";
 import BankInvoicesPage from "pages/Bank/Invoices";
-import BankLoansPageNew from "pages/Bank/LoansNew";
+import BankLoansPage from "pages/Bank/Loans";
 import BankMetrcPage from "pages/Bank/Metrc";
 import BankOverviewPage from "pages/Bank/Overview";
 import BankPartnershipsPage from "pages/Bank/Partnerships";
 import BankPayorsPage from "pages/Bank/Payors";
-import BankPurchaseOrdersPageNew from "pages/Bank/PurchaseOrdersNew";
+import BankPurchaseOrdersPage from "pages/Bank/PurchaseOrders";
 import BankRepaymentsPage from "pages/Bank/Repayments";
 import BankReportsPage from "pages/Bank/Reports";
 import BankSettingsPage from "pages/Bank/Settings";
@@ -67,7 +67,7 @@ import CustomerContractPage from "pages/Customer/Contract";
 import CustomerFinancialCertificationsPage from "pages/Customer/FinancialCertifications";
 import CustomerFinancingRequestsPage from "pages/Customer/FinancingRequests";
 import CustomerInvoicesPages from "pages/Customer/Invoices";
-import CustomerLoansPageNew from "pages/Customer/LoansNew";
+import CustomerLoansPage from "pages/Customer/Loans";
 import CustomerLocationsPage from "pages/Customer/Locations";
 import CustomerOverviewPage from "pages/Customer/Overview";
 import CustomerPayorsPage from "pages/Customer/Payors";
@@ -260,7 +260,7 @@ export default function App() {
                 UserRolesEnum.CompanyReadOnly,
               ]}
             >
-              <CustomerLoansPageNew />
+              <CustomerLoansPage />
             </PrivateRoute>
           }
         />
@@ -406,7 +406,7 @@ export default function App() {
                 UserRolesEnum.BankReadOnly,
               ]}
             >
-              <BankLoansPageNew />
+              <BankLoansPage />
             </PrivateRoute>
           }
         />
@@ -437,7 +437,7 @@ export default function App() {
           }
         />
         <Route
-          path={bankRoutes.purchaseOrdersNew}
+          path={bankRoutes.purchaseOrders}
           element={
             <PrivateRoute
               requiredRoles={[
@@ -445,7 +445,7 @@ export default function App() {
                 UserRolesEnum.BankReadOnly,
               ]}
             >
-              <BankPurchaseOrdersPageNew />
+              <BankPurchaseOrdersPage />
             </PrivateRoute>
           }
         />

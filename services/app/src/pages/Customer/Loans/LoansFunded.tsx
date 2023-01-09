@@ -34,7 +34,7 @@ interface Props {
   handleDataChange: () => void;
 }
 
-const LoansFundedNew = ({
+const LoansFunded = ({
   companyId,
   productType,
   isActiveContract,
@@ -121,4 +121,4 @@ const LoansFundedNew = ({
   );
 };
 
-export default LoansFundedNew;
+export default LoansFunded;

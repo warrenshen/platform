@@ -1,9 +1,8 @@
 import { Box } from "@material-ui/core";
 import { Companies, useGetActiveLoansForCompanyQuery } from "generated/graphql";
 import { ProductTypeEnum, ProductTypeToLoanType } from "lib/enum";
+import LoansFunded from "pages/Customer/Loans/LoansFunded";
 import styled from "styled-components";
-
-import LoansFundedNew from "./LoansFundedNew";
 
 const StyledContainer = styled.div`
   display: flex;
@@ -43,7 +42,7 @@ function CustomerLoansPageLoansTab({
   return (
     <StyledContainer>
       <Box mb={3} />
-      <LoansFundedNew
+      <LoansFunded
         companyId={companyId}
         productType={productType}
         isActiveContract={isActiveContract}

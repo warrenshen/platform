@@ -173,7 +173,7 @@ const getCustomerPaths = (
               ProductTypeEnum.InventoryFinancing,
               ProductTypeEnum.PurchaseMoneyFinancing,
             ].includes(productType),
-          dataCy: "customer-purchase-orders-new",
+          dataCy: "customer-purchase-orders",
           label: "Purchase Orders",
           path: bankRoutes.company.purchaseOrders,
           counter: purchaseOrdersChangesRequestedCount,

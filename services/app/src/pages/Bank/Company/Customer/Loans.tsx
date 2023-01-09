@@ -1,5 +1,5 @@
 import BankCompanyPage from "pages/Bank/Company/BankCompanyPage";
-import CustomerLoansPageContent from "pages/Customer/LoansNew/LoansPageContentNew";
+import CustomerLoansPageContent from "pages/Customer/Loans/LoansPageContent";
 
 export default function BankCompanyCustomerLoansPage() {
   return (

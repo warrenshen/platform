@@ -1,7 +1,7 @@
 import Page from "components/Shared/Page";
 import CurrentCustomerProvider from "contexts/CurrentCustomerProvider";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
-import CustomerLoansPageContentNew from "pages/Customer/LoansNew/LoansPageContentNew";
+import CustomerLoansPageContent from "pages/Customer/Loans/LoansPageContent";
 import { useContext } from "react";
 
 export default function CustomerLoansPageNew() {
@@ -13,7 +13,7 @@ export default function CustomerLoansPageNew() {
     <Page appBarTitle={"Loans"}>
       {companyId && productType && (
         <CurrentCustomerProvider companyId={companyId}>
-          <CustomerLoansPageContentNew
+          <CustomerLoansPageContent
             companyId={companyId}
             productType={productType}
             isActiveContract={!!isActiveContract}

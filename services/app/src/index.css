@@ -43,15 +43,15 @@ code {
 }
 
 /* Purchase Order Flow V2 Datagrid Custom Styles */
-.purchase-orders-data-grid-new .dx-checkbox-checked .dx-checkbox-icon {
+.purchase-orders-data-grid .dx-checkbox-checked .dx-checkbox-icon {
   background-color: #8eab79 
 }
 
-.purchase-orders-data-grid-new .dx-checkbox-indeterminate .dx-checkbox-icon {
+.purchase-orders-data-grid .dx-checkbox-indeterminate .dx-checkbox-icon {
   background-color: #8eab79 
 }
 
-.purchase-orders-data-grid-new .dx-checkbox-icon {
+.purchase-orders-data-grid .dx-checkbox-icon {
   border: 1px solid #d5d3d0;
   border-radius: 4px;
 }

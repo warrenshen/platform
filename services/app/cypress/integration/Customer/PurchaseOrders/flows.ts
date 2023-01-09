@@ -134,7 +134,7 @@ export const customerArchivesPurchaseOrderFlow = ({
   datagrid,
 }: ArchiveFlowProps) => {
   // Go to Customer > Borrowing Base
-  cy.dataCy("sidebar-item-purchase-orders-new").click();
+  cy.dataCy("sidebar-item-purchase-orders").click();
   cy.url().should("include", "purchase-orders");
 
   cy.persistentClick(
@@ -158,7 +158,7 @@ export const customerEditsPurchaseOrderFlow = ({
   shouldSubmit = true,
 }: Partial<EditFlowProps>) => {
   // Go to Customer > Borrowing Base
-  cy.dataCy("sidebar-item-purchase-orders-new").click();
+  cy.dataCy("sidebar-item-purchase-orders").click();
   cy.url().should("include", "purchase-orders");
 
   cy.persistentClick(
@@ -208,7 +208,7 @@ interface CreateFlowProps {
 
 export const customerSubmitsDraftPurchaseOrder = () => {
   // Go to Customer > Borrowing Base
-  cy.dataCy("sidebar-item-purchase-orders-new").click();
+  cy.dataCy("sidebar-item-purchase-orders").click();
   cy.url().should("include", "purchase-orders");
 
   //cy.wait(1000);
@@ -222,7 +222,7 @@ export const customerSubmitsDraftPurchaseOrder = () => {
 
 export const inactiveCustomerCreatesPurchaseOrderFlow = () => {
   // Go to Customer > Borrowing Base
-  cy.dataCy("sidebar-item-purchase-orders-new").click();
+  cy.dataCy("sidebar-item-purchase-orders").click();
   cy.url().should("include", "purchase-orders");
 
   // Check purchase order action buttons are disabled for inactive customer
@@ -250,7 +250,7 @@ export const customerCreatesPurchaseOrderFlowNew = ({
   expectedResultStatus,
 }: CreateFlowProps) => {
   // Go to Customer > Borrowing Base
-  cy.dataCy("sidebar-item-purchase-orders-new").click();
+  cy.dataCy("sidebar-item-purchase-orders").click();
   cy.url().should("include", "purchase-orders");
 
   // Create purchase order

@@ -331,7 +331,7 @@ export default function PurchaseOrdersDataGrid({
       data-cy={dataCy}
       display="flex"
       flexDirection="column"
-      className="purchase-orders-data-grid-new"
+      className="purchase-orders-data-grid"
     >
       {!!selectedPurchaseOrderId && (
         <BankPurchaseOrderDrawer

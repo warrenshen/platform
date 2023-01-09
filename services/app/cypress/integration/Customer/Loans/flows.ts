@@ -110,7 +110,7 @@ export const requestFinancing = ({
   cy.clock(now, ["Date"]);
 
   // Go to Customer > Purchase Orders
-  cy.dataCy("sidebar-item-purchase-orders-new").click();
+  cy.dataCy("sidebar-item-purchase-orders").click();
   cy.url().should("include", "purchase-orders");
 
   cy.persistentClick(

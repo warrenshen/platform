@@ -5,10 +5,10 @@ import {
   BankPurchaseOrdersTabLabelNew,
   BankPurchaseOrdersTabLabelsNew,
 } from "lib/enum";
-import PurchaseOrdersAllTab from "pages/Bank/PurchaseOrdersNew/PurchaseOrdersAllTab";
-import PurchaseOrdersArchivedTab from "pages/Bank/PurchaseOrdersNew/PurchaseOrdersArchivedTab";
-import PurchaseOrdersNotReadyForFinancingTab from "pages/Bank/PurchaseOrdersNew/PurchaseOrdersNotReadyForFinancingTab";
-import PurchaseOrdersReadyForFinancingTab from "pages/Bank/PurchaseOrdersNew/PurchaseOrdersReadyForFinancingTab";
+import PurchaseOrdersAllTab from "pages/Bank/PurchaseOrders/PurchaseOrdersAllTab";
+import PurchaseOrdersArchivedTab from "pages/Bank/PurchaseOrders/PurchaseOrdersArchivedTab";
+import PurchaseOrdersNotReadyForFinancingTab from "pages/Bank/PurchaseOrders/PurchaseOrdersNotReadyForFinancingTab";
+import PurchaseOrdersReadyForFinancingTab from "pages/Bank/PurchaseOrders/PurchaseOrdersReadyForFinancingTab";
 import { useState } from "react";
 
 const PurchaseOrderComponentMap: {

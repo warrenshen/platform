@@ -2,7 +2,7 @@ import { getFuturePaymentDate } from "../Loans/flows";
 
 export const createFinancingRequestSingle = () => {
   // Go to Purchase Orders New Tab
-  cy.dataCy("sidebar-item-purchase-orders-new").click();
+  cy.dataCy("sidebar-item-purchase-orders").click();
   cy.url().should("include", "purchase-orders");
 
   // Click checkboxes next to purchase orders
@@ -27,7 +27,7 @@ export const createFinancingRequestSingle = () => {
 
 export const createFinancingRequestMultiple = () => {
   // Go to Purchase Orders New Tab
-  cy.dataCy("sidebar-item-purchase-orders-new").click();
+  cy.dataCy("sidebar-item-purchase-orders").click();
   cy.url().should("include", "purchase-orders");
 
   // Click checkboxes next to purchase orders

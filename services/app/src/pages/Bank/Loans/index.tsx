@@ -2,9 +2,9 @@ import { Tab, Tabs } from "@material-ui/core";
 import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
 import { BankLoansTabLabelNew, BankLoansTabLabelsNew } from "lib/enum";
-import BankLoansActiveTab from "pages/Bank/LoansNew/LoansActiveTab";
-import BankLoansAllTab from "pages/Bank/LoansNew/LoansAllTab";
-import BankLoansClosedTab from "pages/Bank/LoansNew/LoansClosedTab";
+import BankLoansActiveTab from "pages/Bank/Loans/LoansActiveTab";
+import BankLoansAllTab from "pages/Bank/Loans/LoansAllTab";
+import BankLoansClosedTab from "pages/Bank/Loans/LoansClosedTab";
 import { useState } from "react";
 import styled from "styled-components";
 

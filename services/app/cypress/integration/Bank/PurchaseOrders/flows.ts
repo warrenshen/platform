@@ -14,7 +14,7 @@ export const bankAdminCreatePurchaseOrderFlowNew = (
   cy.url().should("include", "overview");
 
   // Create purchase order
-  cy.dataCy("company-sidebar-item-customer-purchase-orders-new").click();
+  cy.dataCy("company-sidebar-item-customer-purchase-orders").click();
   cy.url().should("include", "purchase-orders");
 
   cy.dataCy("create-purchase-order-button").click();

@@ -1,8 +1,8 @@
 import { Tab, Tabs } from "@material-ui/core";
 import PageContent from "components/Shared/Page/PageContent";
 import { ProductTypeEnum } from "lib/enum";
-import CustomerLoansActiveTabNew from "pages/Customer/LoansNew/LoansActiveTabNew";
-import CustomerLoansClosedTabNew from "pages/Customer/LoansNew/LoansClosedTabNew";
+import CustomerLoansActiveTab from "pages/Customer/Loans/LoansActiveTab";
+import CustomerLoansClosedTab from "pages/Customer/Loans/LoansClosedTab";
 import { useState } from "react";
 
 interface Props {
@@ -11,7 +11,7 @@ interface Props {
   isActiveContract: boolean | null;
 }
 
-export default function CustomerLoansPageContentNew({
+export default function CustomerLoansPageContent({
   companyId,
   productType,
   isActiveContract,
@@ -35,13 +35,13 @@ export default function CustomerLoansPageContentNew({
         <Tab label="Closed" />
       </Tabs>
       {selectedTabIndex === 0 ? (
-        <CustomerLoansActiveTabNew
+        <CustomerLoansActiveTab
           companyId={companyId}
           productType={productType}
           isActiveContract={isActiveContract}
         />
       ) : (
-        <CustomerLoansClosedTabNew
+        <CustomerLoansClosedTab
           companyId={companyId}
           productType={productType}
         />
