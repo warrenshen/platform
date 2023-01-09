@@ -647,23 +647,23 @@ fragment DebtFacilityCapacityLimited on debt_facility_capacities {
 
 fragment CompanyForDebtFacilityReport on companies {
   id
-  most_recent_contract: contracts (
-    where: {
-      _and: [
-        {
-          _or: [
-            { is_deleted: { _is_null: true } }
-            { is_deleted: { _eq: false } }
-          ]
-        }
-      ]
-    }
-    order_by: { start_date: desc }
-    limit: 1
-  ) {
-    id
-    product_type
-  }
+  # most_recent_contract: contracts (
+  #   where: {
+  #     _and: [
+  #       {
+  #         _or: [
+  #           { is_deleted: { _is_null: true } }
+  #           { is_deleted: { _eq: false } }
+  #         ]
+  #       }
+  #     ]
+  #   }
+  #   order_by: { start_date: desc }
+  #   limit: 1
+  # ) {
+  #   id
+  #   product_type
+  # }
   financial_summaries (
     where: {
       date: { _eq: $target_date }

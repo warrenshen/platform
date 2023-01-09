@@ -9328,7 +9328,7 @@ export type EbbaApplications = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["timestamp"]>;
   /** An object relationship */
   rejected_by_user?: Maybe<Users>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
@@ -9453,7 +9453,7 @@ export type EbbaApplicationsBoolExp = {
   monthly_accounts_receivable?: Maybe<NumericComparisonExp>;
   monthly_cash?: Maybe<NumericComparisonExp>;
   monthly_inventory?: Maybe<NumericComparisonExp>;
-  rejected_at?: Maybe<TimestamptzComparisonExp>;
+  rejected_at?: Maybe<TimestampComparisonExp>;
   rejected_by_user?: Maybe<UsersBoolExp>;
   rejected_by_user_id?: Maybe<UuidComparisonExp>;
   rejection_note?: Maybe<StringComparisonExp>;
@@ -9502,7 +9502,7 @@ export type EbbaApplicationsInsertInput = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["timestamp"]>;
   rejected_by_user?: Maybe<UsersObjRelInsertInput>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
@@ -9531,7 +9531,7 @@ export type EbbaApplicationsMaxFields = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["timestamp"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -9583,7 +9583,7 @@ export type EbbaApplicationsMinFields = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["timestamp"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -9748,7 +9748,7 @@ export type EbbaApplicationsSetInput = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["timestamp"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -10322,6 +10322,7 @@ export type FinancialSummaries = {
   /** This is the day the customer met their volume discount threshold for their contract term */
   day_volume_threshold_met?: Maybe<Scalars["date"]>;
   days_to_compute_back?: Maybe<Scalars["Int"]>;
+  end_dates_payload?: Maybe<Scalars["json"]>;
   id: Scalars["uuid"];
   interest_accrued_today?: Maybe<Scalars["numeric"]>;
   late_fees_accrued_today?: Maybe<Scalars["numeric"]>;
@@ -10348,6 +10349,11 @@ export type FinancialSummaries = {
 
 /** columns and relationships of "financial_summaries" */
 export type FinancialSummariesAccountLevelBalancePayloadArgs = {
+  path?: Maybe<Scalars["String"]>;
+};
+
+/** columns and relationships of "financial_summaries" */
+export type FinancialSummariesEndDatesPayloadArgs = {
   path?: Maybe<Scalars["String"]>;
 };
 
@@ -10477,6 +10483,7 @@ export type FinancialSummariesBoolExp = {
   date?: Maybe<DateComparisonExp>;
   day_volume_threshold_met?: Maybe<DateComparisonExp>;
   days_to_compute_back?: Maybe<IntComparisonExp>;
+  end_dates_payload?: Maybe<JsonComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   interest_accrued_today?: Maybe<NumericComparisonExp>;
   late_fees_accrued_today?: Maybe<NumericComparisonExp>;
@@ -10563,6 +10570,7 @@ export type FinancialSummariesInsertInput = {
   /** This is the day the customer met their volume discount threshold for their contract term */
   day_volume_threshold_met?: Maybe<Scalars["date"]>;
   days_to_compute_back?: Maybe<Scalars["Int"]>;
+  end_dates_payload?: Maybe<Scalars["json"]>;
   id?: Maybe<Scalars["uuid"]>;
   interest_accrued_today?: Maybe<Scalars["numeric"]>;
   late_fees_accrued_today?: Maybe<Scalars["numeric"]>;
@@ -10742,6 +10750,7 @@ export type FinancialSummariesOrderBy = {
   date?: Maybe<OrderBy>;
   day_volume_threshold_met?: Maybe<OrderBy>;
   days_to_compute_back?: Maybe<OrderBy>;
+  end_dates_payload?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   interest_accrued_today?: Maybe<OrderBy>;
   late_fees_accrued_today?: Maybe<OrderBy>;
@@ -10797,6 +10806,8 @@ export enum FinancialSummariesSelectColumn {
   DayVolumeThresholdMet = "day_volume_threshold_met",
   /** column name */
   DaysToComputeBack = "days_to_compute_back",
+  /** column name */
+  EndDatesPayload = "end_dates_payload",
   /** column name */
   Id = "id",
   /** column name */
@@ -10855,6 +10866,7 @@ export type FinancialSummariesSetInput = {
   /** This is the day the customer met their volume discount threshold for their contract term */
   day_volume_threshold_met?: Maybe<Scalars["date"]>;
   days_to_compute_back?: Maybe<Scalars["Int"]>;
+  end_dates_payload?: Maybe<Scalars["json"]>;
   id?: Maybe<Scalars["uuid"]>;
   interest_accrued_today?: Maybe<Scalars["numeric"]>;
   late_fees_accrued_today?: Maybe<Scalars["numeric"]>;
@@ -11083,6 +11095,8 @@ export enum FinancialSummariesUpdateColumn {
   DayVolumeThresholdMet = "day_volume_threshold_met",
   /** column name */
   DaysToComputeBack = "days_to_compute_back",
+  /** column name */
+  EndDatesPayload = "end_dates_payload",
   /** column name */
   Id = "id",
   /** column name */
@@ -16941,7 +16955,9 @@ export type MetrcToBespokeCatalogSkusBoolExp = {
 /** unique or primary key constraints on table "metrc_to_bespoke_catalog_skus" */
 export enum MetrcToBespokeCatalogSkusConstraint {
   /** unique or primary key constraint */
-  MetrcToBespokeCatalogSkusPkey1 = "metrc_to_bespoke_catalog_skus_pkey1",
+  MetrcToBespokeCatalogSkusPkey = "metrc_to_bespoke_catalog_skus_pkey",
+  /** unique or primary key constraint */
+  MetrcToBespokeCatalogSkusProductCategoryNameProductNam = "metrc_to_bespoke_catalog_skus_product_category_name_product_nam",
 }
 
 /** input type for incrementing numeric columns in table "metrc_to_bespoke_catalog_skus" */
@@ -23652,6 +23668,7 @@ export type PurchaseOrders = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   /** An object relationship */
@@ -23856,6 +23873,7 @@ export type PurchaseOrdersBoolExp = {
   all_customer_notes?: Maybe<JsonComparisonExp>;
   amount?: Maybe<NumericComparisonExp>;
   amount_funded?: Maybe<NumericComparisonExp>;
+  amount_updated_at?: Maybe<TimestamptzComparisonExp>;
   approved_at?: Maybe<TimestamptzComparisonExp>;
   approved_by_user_id?: Maybe<UuidComparisonExp>;
   approving_user_id?: Maybe<UsersBoolExp>;
@@ -23929,6 +23947,7 @@ export type PurchaseOrdersInsertInput = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   approving_user_id?: Maybe<UsersObjRelInsertInput>;
@@ -23977,6 +23996,7 @@ export type PurchaseOrdersMaxFields = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -24011,6 +24031,7 @@ export type PurchaseOrdersMaxOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
+  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   bank_incomplete_note?: Maybe<OrderBy>;
@@ -24045,6 +24066,7 @@ export type PurchaseOrdersMinFields = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -24079,6 +24101,7 @@ export type PurchaseOrdersMinOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
+  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   bank_incomplete_note?: Maybe<OrderBy>;
@@ -24136,6 +24159,7 @@ export type PurchaseOrdersOrderBy = {
   all_customer_notes?: Maybe<OrderBy>;
   amount?: Maybe<OrderBy>;
   amount_funded?: Maybe<OrderBy>;
+  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   approving_user_id?: Maybe<UsersOrderBy>;
@@ -24193,6 +24217,8 @@ export enum PurchaseOrdersSelectColumn {
   Amount = "amount",
   /** column name */
   AmountFunded = "amount_funded",
+  /** column name */
+  AmountUpdatedAt = "amount_updated_at",
   /** column name */
   ApprovedAt = "approved_at",
   /** column name */
@@ -24258,6 +24284,7 @@ export type PurchaseOrdersSetInput = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
+  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -24368,6 +24395,8 @@ export enum PurchaseOrdersUpdateColumn {
   Amount = "amount",
   /** column name */
   AmountFunded = "amount_funded",
+  /** column name */
+  AmountUpdatedAt = "amount_updated_at",
   /** column name */
   ApprovedAt = "approved_at",
   /** column name */
@@ -33667,7 +33696,6 @@ export type DebtFacilityCapacityLimitedFragment = Pick<
 >;
 
 export type CompanyForDebtFacilityReportFragment = Pick<Companies, "id"> & {
-  most_recent_contract: Array<Pick<Contracts, "id" | "product_type">>;
   financial_summaries: Array<
     Pick<FinancialSummaries, "id" | "product_type" | "loans_info">
   >;
@@ -35818,23 +35846,6 @@ export const OpenLoanForDebtFacilityFragmentDoc = gql`
 export const CompanyForDebtFacilityReportFragmentDoc = gql`
   fragment CompanyForDebtFacilityReport on companies {
     id
-    most_recent_contract: contracts(
-      where: {
-        _and: [
-          {
-            _or: [
-              { is_deleted: { _is_null: true } }
-              { is_deleted: { _eq: false } }
-            ]
-          }
-        ]
-      }
-      order_by: { start_date: desc }
-      limit: 1
-    ) {
-      id
-      product_type
-    }
     financial_summaries(where: { date: { _eq: $target_date } }) {
       id
       product_type
