@@ -493,7 +493,7 @@ export default function CustomerOverviewPageContent({
               <Box display="flex" flex={1}>
                 <Box display="flex" flexDirection="column" width="100%">
                   {loans.length > 0 ? (
-                    <Box display="flex" flex={1}>
+                    <Box display="flex" flex={1} flexDirection="column">
                       <PolymorphicLoansDataGrid
                         isDisbursementIdentifierVisible={isBankUser}
                         isMultiSelectEnabled={check(role, Action.SelectLoan)}
