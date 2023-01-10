@@ -752,10 +752,10 @@ fragment OpenLoanForDebtFacility on loans {
     id
     ...Transaction
   }
-  # company {
-  #   id
-  #   ...CompanyForDebtFacility
-  # }
+  company {
+    id
+    ...CompanyForDebtFacility
+  }
 }
 
 fragment DebtFacilityEvent on debt_facility_events {

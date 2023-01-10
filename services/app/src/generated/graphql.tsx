@@ -33711,6 +33711,7 @@ export type OpenLoanForDebtFacilityFragment = {
   line_of_credit?: Maybe<Pick<LineOfCredits, "id"> & LineOfCreditFragment>;
   transactions: Array<Pick<Transactions, "id" | "effective_date">>;
   repayments: Array<Pick<Transactions, "id"> & TransactionFragment>;
+  company: Pick<Companies, "id"> & CompanyForDebtFacilityFragment;
 } & LoanForDebtFacilityFragment;
 
 export type DebtFacilityEventFragment = Pick<
@@ -35817,6 +35818,10 @@ export const OpenLoanForDebtFacilityFragmentDoc = gql`
       id
       ...Transaction
     }
+    company {
+      id
+      ...CompanyForDebtFacility
+    }
   }
   ${LoanForDebtFacilityFragmentDoc}
   ${LoanReportFragmentDoc}
@@ -35825,6 +35830,7 @@ export const OpenLoanForDebtFacilityFragmentDoc = gql`
   ${InvoiceFragmentDoc}
   ${LineOfCreditFragmentDoc}
   ${TransactionFragmentDoc}
+  ${CompanyForDebtFacilityFragmentDoc}
 `;
 export const CompanyForDebtFacilityReportFragmentDoc = gql`
   fragment CompanyForDebtFacilityReport on companies {
