@@ -410,13 +410,14 @@ export const getOriginationOrCreatedDate = (
   productType: ProductTypeEnum
 ): Maybe<Date> => {
   return !!productType && productType !== ProductTypeEnum.LineOfCredit
-    ? !!loan.purchase_order?.purchase_order_metrc_transfers?.[0]?.metrc_transfer
-        ?.created_date
-      ? parseDateStringServer(
-          loan.purchase_order?.purchase_order_metrc_transfers[0]?.metrc_transfer
-            ?.created_date
-        )
-      : parseDateStringServer(loan.origination_date)
+    ? // ? !!loan.purchase_order?.purchase_order_metrc_transfers?.[0]?.metrc_transfer
+      //     ?.created_date
+      //   ? parseDateStringServer(
+      //       loan.purchase_order?.purchase_order_metrc_transfers[0]?.metrc_transfer
+      //         ?.created_date
+      //     )
+      //   : parseDateStringServer(loan.origination_date)
+      parseDateStringServer(loan.origination_date)
     : null;
 };
 

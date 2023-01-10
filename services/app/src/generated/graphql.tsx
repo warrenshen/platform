@@ -33440,13 +33440,8 @@ export type PurchaseOrderNewFragment = Pick<
 export type PurchaseOrderForDebtFacilityFragment = Pick<
   PurchaseOrders,
   "id" | "bank_note"
-> & {
-  purchase_order_metrc_transfers: Array<
-    Pick<PurchaseOrderMetrcTransfers, "id"> & {
-      metrc_transfer: Pick<MetrcTransfers, "id" | "created_date">;
-    }
-  >;
-} & PurchaseOrderLimitedFragment;
+> &
+  PurchaseOrderLimitedFragment;
 
 export type LoanFragment = Pick<Loans, "id" | "loan_report_id" | "notes"> &
   LoanLimitedFragment;
@@ -33696,6 +33691,7 @@ export type DebtFacilityCapacityLimitedFragment = Pick<
 >;
 
 export type CompanyForDebtFacilityReportFragment = Pick<Companies, "id"> & {
+  most_recent_contract: Array<Pick<Contracts, "id" | "product_type">>;
   financial_summaries: Array<
     Pick<FinancialSummaries, "id" | "product_type" | "loans_info">
   >;
@@ -33715,7 +33711,6 @@ export type OpenLoanForDebtFacilityFragment = {
   line_of_credit?: Maybe<Pick<LineOfCredits, "id"> & LineOfCreditFragment>;
   transactions: Array<Pick<Transactions, "id" | "effective_date">>;
   repayments: Array<Pick<Transactions, "id"> & TransactionFragment>;
-  company: Pick<Companies, "id"> & CompanyForDebtFacilityFragment;
 } & LoanForDebtFacilityFragment;
 
 export type DebtFacilityEventFragment = Pick<
@@ -35786,13 +35781,6 @@ export const PurchaseOrderForDebtFacilityFragmentDoc = gql`
     id
     bank_note
     ...PurchaseOrderLimited
-    purchase_order_metrc_transfers {
-      id
-      metrc_transfer {
-        id
-        created_date
-      }
-    }
   }
   ${PurchaseOrderLimitedFragmentDoc}
 `;
@@ -35829,10 +35817,6 @@ export const OpenLoanForDebtFacilityFragmentDoc = gql`
       id
       ...Transaction
     }
-    company {
-      id
-      ...CompanyForDebtFacility
-    }
   }
   ${LoanForDebtFacilityFragmentDoc}
   ${LoanReportFragmentDoc}
@@ -35841,11 +35825,27 @@ export const OpenLoanForDebtFacilityFragmentDoc = gql`
   ${InvoiceFragmentDoc}
   ${LineOfCreditFragmentDoc}
   ${TransactionFragmentDoc}
-  ${CompanyForDebtFacilityFragmentDoc}
 `;
 export const CompanyForDebtFacilityReportFragmentDoc = gql`
   fragment CompanyForDebtFacilityReport on companies {
     id
+    most_recent_contract: contracts(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+        ]
+      }
+      order_by: { start_date: desc }
+      limit: 1
+    ) {
+      id
+      product_type
+    }
     financial_summaries(where: { date: { _eq: $target_date } }) {
       id
       product_type

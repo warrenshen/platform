@@ -317,13 +317,13 @@ fragment PurchaseOrderForDebtFacility on purchase_orders {
   id
   bank_note
   ...PurchaseOrderLimited
-  purchase_order_metrc_transfers {
-    id
-    metrc_transfer {
-      id
-      created_date
-    }
-  }
+  # purchase_order_metrc_transfers {
+  #   id
+  #   metrc_transfer {
+  #     id
+  #     created_date
+  #   }
+  # }
 }
 
 fragment Loan on loans {
@@ -647,23 +647,23 @@ fragment DebtFacilityCapacityLimited on debt_facility_capacities {
 
 fragment CompanyForDebtFacilityReport on companies {
   id
-  # most_recent_contract: contracts (
-  #   where: {
-  #     _and: [
-  #       {
-  #         _or: [
-  #           { is_deleted: { _is_null: true } }
-  #           { is_deleted: { _eq: false } }
-  #         ]
-  #       }
-  #     ]
-  #   }
-  #   order_by: { start_date: desc }
-  #   limit: 1
-  # ) {
-  #   id
-  #   product_type
-  # }
+  most_recent_contract: contracts (
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+      ]
+    }
+    order_by: { start_date: desc }
+    limit: 1
+  ) {
+    id
+    product_type
+  }
   financial_summaries (
     where: {
       date: { _eq: $target_date }
@@ -752,10 +752,10 @@ fragment OpenLoanForDebtFacility on loans {
     id
     ...Transaction
   }
-  company {
-    id
-    ...CompanyForDebtFacility
-  }
+  # company {
+  #   id
+  #   ...CompanyForDebtFacility
+  # }
 }
 
 fragment DebtFacilityEvent on debt_facility_events {
