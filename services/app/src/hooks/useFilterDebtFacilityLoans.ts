@@ -15,6 +15,11 @@ export const useFilterDebtFacilityLoansBySearchQuery = (
     }: OpenLoanForDebtFacilityFragment) =>
       `${company.name}`.toLowerCase().indexOf(searchQuery.toLowerCase()) >= 0;
 
-    return filter(data?.loans || [], doesSearchQueryExistInDebtFacilityLoan);
-  }, [searchQuery, data?.loans]);
+    const companies = data?.companies || [];
+    const loans = companies.flatMap((company) => {
+      return company.loans;
+    });
+
+    return filter(loans || [], doesSearchQueryExistInDebtFacilityLoan);
+  }, [searchQuery, data]);
 };

@@ -34,6 +34,7 @@ import {
   useGetPurchaseOrdersChangesRequestedCountForCustomerQuery,
   useGetRepaymentsCountForBankSubscription,
 } from "generated/graphql";
+import { todayAsDateStringServer } from "lib/date";
 import {
   FeatureFlagEnum,
   ProductTypeEnum,
@@ -418,8 +419,14 @@ export default function Layout({
       skip: !isBankUser,
       variables: {
         statuses: ["update_required"],
+        target_date: todayAsDateStringServer(),
       },
     });
+
+  const debtFacilityCompanies = debtFacilityUpdateCountData?.companies || [];
+  const debtFacilityLoans = debtFacilityCompanies.flatMap((company) => {
+    return company.loans;
+  });
 
   const { data: purchaseOrdersChangesRequestedCountData } =
     useGetPurchaseOrdersChangesRequestedCountForCustomerQuery({
@@ -435,8 +442,7 @@ export default function Layout({
     ebbaApplicationsCountData?.ebba_applications?.length || 0;
   const partnershipRequestsCount =
     partnershipRequestsCountData?.company_partnership_requests?.length || 0;
-  const debtFacilityUpdateCount =
-    debtFacilityUpdateCountData?.loans?.length || 0;
+  const debtFacilityUpdateCount = debtFacilityLoans?.length || 0;
   const purchaseOrdersChangesRequestedCount =
     purchaseOrdersChangesRequestedCountData?.purchase_orders?.length || 0;
 

@@ -6,6 +6,7 @@ import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridC
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import {
   Companies,
+  DebtFacilityReportCompanyDetailsFragment,
   Loans,
   OpenLoanForDebtFacilityFragment,
 } from "generated/graphql";
@@ -22,7 +23,7 @@ import {
   getFinancingPeriod,
   getLoanIdentifier,
   getMaturityDate,
-  getProductTypeFromOpenLoanForDebtFacilityFragment,
+  getProductTypeFromDebtFacilityFragment,
   getRepaymentDate,
   getVendorName,
 } from "lib/debtFacility";
@@ -51,6 +52,7 @@ interface Props {
 
   // data
   loans: OpenLoanForDebtFacilityFragment[];
+  companyInfoLookup: Record<string, DebtFacilityReportCompanyDetailsFragment>;
   supportedProductTypes?: ProductTypeEnum[];
   selectedLoanIds?: Loans["id"][];
 
@@ -61,21 +63,26 @@ interface Props {
 
 function getRows(
   loans: OpenLoanForDebtFacilityFragment[],
+  companyInfoLookup: Record<string, DebtFacilityReportCompanyDetailsFragment>,
   supportedProductTypes: ProductTypeEnum[]
 ) {
   return loans.map((loan) => {
-    const productType = getProductTypeFromOpenLoanForDebtFacilityFragment(loan);
+    const productType = getProductTypeFromDebtFacilityFragment(
+      companyInfoLookup[loan.company_id]
+    );
 
     return formatRowModel({
       ...loan,
       artifact_name: getLoanArtifactName(loan),
       borrower_eligibility: determineBorrowerEligibility(
         loan,
+        companyInfoLookup[loan.company_id],
         supportedProductTypes,
         productType
       ),
       customer_identifier: getCustomerIdentifier({
         loan,
+        companyInfo: companyInfoLookup[loan.company_id],
         productType,
       }),
       debt_facility_added_date: getDebtFacilityAddedDate(loan),
@@ -90,6 +97,7 @@ function getRows(
       financing_period: getFinancingPeriod(loan, productType),
       loan_eligibility: determineLoanEligibility(
         loan,
+        companyInfoLookup[loan.company_id],
         supportedProductTypes,
         productType
       ),
@@ -116,6 +124,7 @@ export default function DebtFacilityLoansDataGrid({
 
   // data
   loans,
+  companyInfoLookup,
   supportedProductTypes = [] as ProductTypeEnum[],
   selectedLoanIds,
 
@@ -124,8 +133,8 @@ export default function DebtFacilityLoansDataGrid({
   handleSelectLoans,
 }: Props) {
   const rows = useMemo(
-    () => getRows(loans, supportedProductTypes),
-    [loans, supportedProductTypes]
+    () => getRows(loans, companyInfoLookup, supportedProductTypes),
+    [loans, companyInfoLookup, supportedProductTypes]
   );
 
   const columns = useMemo(

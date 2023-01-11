@@ -645,8 +645,12 @@ fragment DebtFacilityCapacityLimited on debt_facility_capacities {
   debt_facility_id
 }
 
-fragment CompanyForDebtFacilityReport on companies {
+fragment DebtFacilityReportCompanyDetails on companies {
   id
+  name
+  debt_facility_status
+  state
+  identifier
   most_recent_contract: contracts (
     where: {
       _and: [
@@ -662,6 +666,7 @@ fragment CompanyForDebtFacilityReport on companies {
     limit: 1
   ) {
     id
+    end_date
     product_type
   }
   financial_summaries (
@@ -673,6 +678,81 @@ fragment CompanyForDebtFacilityReport on companies {
     product_type
     loans_info
   }
+}
+
+fragment CompanyForOpenLoansByDebtFacilityStatuses on companies {
+  id
+  ...DebtFacilityReportCompanyDetails
+  loans(
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { closed_at: { _is_null: true } }
+        { loan_report: { debt_facility_status: { _in: $statuses } } }
+        {
+          _or: [
+            { company: { settings: { is_dummy_account: { _is_null: true } } } }
+            { company: { settings: { is_dummy_account: { _eq: false } } } }
+          ]
+        }
+        { origination_date: { _is_null: false } }
+      ]
+    }
+  ) {
+    id
+    ...OpenLoanForDebtFacility
+  }
+}
+
+fragment CompanyForByDebtFacilityId on companies {
+  id
+  ...DebtFacilityReportCompanyDetails
+  loans(
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { closed_at: { _is_null: true } }
+        { loan_report: { debt_facility_status: { _in: $statuses } } }
+        { loan_report: { debt_facility_id: { _in: $target_facility_ids } } }
+        {
+          _or: [
+            { company: { settings: { is_dummy_account: { _is_null: true } } } }
+            { company: { settings: { is_dummy_account: { _eq: false } } } }
+          ]
+        }
+        { origination_date: { _is_null: false } }
+      ]
+    }
+  ) {
+    id
+    ...OpenLoanForDebtFacility
+  }
+}
+
+fragment CompanyForDebtFacilityLoansById on companies {
+  id
+  ...DebtFacilityReportCompanyDetails
+  loans (
+    where: { id: { _in: $loan_ids } }
+  ) {
+    id
+    ...OpenLoanForDebtFacility
+  }
+}
+
+fragment CompanyForDebtFacilityReport on companies {
+  id
+  ...DebtFacilityReportCompanyDetails 
   loans(
     where: {
       _and: [
@@ -752,10 +832,10 @@ fragment OpenLoanForDebtFacility on loans {
     id
     ...Transaction
   }
-  company {
-    id
-    ...CompanyForDebtFacility
-  }
+  # company {
+  #   id
+  #   ...CompanyForDebtFacility
+  # }
 }
 
 fragment DebtFacilityEvent on debt_facility_events {

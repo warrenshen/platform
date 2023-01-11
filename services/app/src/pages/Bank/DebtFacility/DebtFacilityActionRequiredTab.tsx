@@ -4,7 +4,10 @@ import DebtFacilityLoansDataGrid from "components/DebtFacility/DebtFacilityLoans
 import ResolveDebtFacilityLoanModal from "components/DebtFacility/ResolveDebtFacilityLoanModal";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
-import { OpenLoanForDebtFacilityFragment } from "generated/graphql";
+import {
+  DebtFacilityReportCompanyDetailsFragment,
+  OpenLoanForDebtFacilityFragment,
+} from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useMemo, useState } from "react";
@@ -22,12 +25,14 @@ const Container = styled.div`
 
 interface Props {
   loans: OpenLoanForDebtFacilityFragment[];
+  companyInfoLookup: Record<string, DebtFacilityReportCompanyDetailsFragment>;
   searchQuery: string;
   setSearchQuery: (newQuery: string) => void;
 }
 
 export default function DebtFacilityActionRequiredTab({
   loans,
+  companyInfoLookup,
   searchQuery,
   setSearchQuery,
 }: Props) {
@@ -104,6 +109,7 @@ export default function DebtFacilityActionRequiredTab({
           <DebtFacilityLoansDataGrid
             isMultiSelectEnabled
             loans={loans}
+            companyInfoLookup={companyInfoLookup}
             handleClickCustomer={(customerId) =>
               navigate(
                 getBankCompanyRoute(customerId, BankCompanyRouteEnum.Loans)

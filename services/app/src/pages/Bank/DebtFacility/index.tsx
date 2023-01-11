@@ -9,6 +9,7 @@ import {
   useGetOpenLoansByDebtFacilityStatusesQuery,
 } from "generated/graphql";
 import { useFilterDebtFacilityLoansBySearchQuery } from "hooks/useFilterDebtFacilityLoans";
+import { todayAsDateStringServer } from "lib/date";
 import {
   DebtFacilityStatusEnum,
   DebtFacilityTabLabel,
@@ -90,12 +91,22 @@ function DebtFacilityPage({
   const { data, error } = useGetOpenLoansByDebtFacilityStatusesQuery({
     variables: {
       statuses: [DebtFacilityStatusEnum.UpdateRequired],
+      target_date: todayAsDateStringServer(),
     },
   });
   if (error) {
     console.error({ error });
     alert(`Error in query (details in console): ${error.message}`);
   }
+  const companies = data?.companies || [];
+  const companyInfoLookup = Object.assign(
+    {},
+    ...companies.map((company) => {
+      return {
+        [company.id]: (({ loans, ...c }) => c)(company),
+      };
+    })
+  );
   const loansWithRequiredUpdate = useFilterDebtFacilityLoansBySearchQuery(
     actionRequiredSearchQuery,
     data
@@ -147,6 +158,7 @@ function DebtFacilityPage({
       ) : selectedTabIndex === 1 ? (
         <DebtFacilityActionRequiredTab
           loans={loansWithRequiredUpdate}
+          companyInfoLookup={companyInfoLookup}
           searchQuery={actionRequiredSearchQuery}
           setSearchQuery={setActionRequiredSearchQuery}
         />

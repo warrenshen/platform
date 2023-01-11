@@ -14,6 +14,7 @@ import {
 } from "generated/graphql";
 import { useFilterDebtFacilityLoansBySearchQuery } from "hooks/useFilterDebtFacilityLoans";
 import { Action } from "lib/auth/rbac-rules";
+import { todayAsDateStringServer } from "lib/date";
 import {
   DebtFacilityCompanyStatusEnum,
   DebtFacilityStatusEnum,
@@ -87,6 +88,7 @@ export default function DebtFacilityOpenTab({
         target_facility_ids: !!selectedDebtFacilityId
           ? [selectedDebtFacilityId]
           : allFacilityIds,
+        target_date: todayAsDateStringServer(),
       },
     });
   if (debtFacilityError) {
@@ -98,6 +100,16 @@ export default function DebtFacilityOpenTab({
     debtFacilityData
   );
 
+  const debtFacilityCompanies = debtFacilityData?.companies || [];
+  const debtFacilityCompanyInfoLookup = Object.assign(
+    {},
+    ...debtFacilityCompanies.map((company) => {
+      return {
+        [company.id]: (({ loans, ...c }) => c)(company),
+      };
+    })
+  );
+
   // Get loans currently on bespoke's books (or repurchased)
   const { data: bespokeData, error: bespokeError } =
     useGetOpenLoansByDebtFacilityStatusesQuery({
@@ -106,6 +118,7 @@ export default function DebtFacilityOpenTab({
           DebtFacilityStatusEnum.BespokeBalanceSheet,
           DebtFacilityStatusEnum.Repurchased,
         ],
+        target_date: todayAsDateStringServer(),
       },
     });
   if (bespokeError) {
@@ -115,6 +128,16 @@ export default function DebtFacilityOpenTab({
   const bespokeLoans = useFilterDebtFacilityLoansBySearchQuery(
     bespokeSearchQuery,
     bespokeData
+  );
+
+  const bespokeCompanies = bespokeData?.companies || [];
+  const bespokeCompanyInfoLookup = Object.assign(
+    {},
+    ...bespokeCompanies.map((company) => {
+      return {
+        [company.id]: (({ loans, ...c }) => c)(company),
+      };
+    })
   );
 
   return (
@@ -188,6 +211,7 @@ export default function DebtFacilityOpenTab({
             <DebtFacilityLoansDataGrid
               isMultiSelectEnabled
               loans={debtFacilityLoans}
+              companyInfoLookup={debtFacilityCompanyInfoLookup}
               selectedLoanIds={selectedFacilityLoanIds}
               isDebtFacilityVisible
               handleClickCustomer={(customerId) =>
@@ -248,6 +272,7 @@ export default function DebtFacilityOpenTab({
             isEligibilityVisible
             isMultiSelectEnabled
             loans={bespokeLoans}
+            companyInfoLookup={bespokeCompanyInfoLookup}
             selectedLoanIds={selectedBespokeLoanIds}
             handleClickCustomer={(customerId) =>
               navigate(

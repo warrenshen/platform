@@ -2,6 +2,7 @@ import { Box, TextField } from "@material-ui/core";
 import DebtFacilityLoansDataGrid from "components/DebtFacility/DebtFacilityLoansDataGrid";
 import { useGetOpenLoansByDebtFacilityStatusesQuery } from "generated/graphql";
 import { useFilterDebtFacilityLoansBySearchQuery } from "hooks/useFilterDebtFacilityLoans";
+import { todayAsDateStringServer } from "lib/date";
 import {
   DebtFacilityCompanyStatusEnum,
   DebtFacilityStatusEnum,
@@ -34,6 +35,7 @@ export default function DebtFacilityAllTab() {
         DebtFacilityStatusEnum.Waiver,
         DebtFacilityCompanyStatusEnum.Waiver,
       ],
+      target_date: todayAsDateStringServer(),
     },
   });
   if (error) {
@@ -41,6 +43,15 @@ export default function DebtFacilityAllTab() {
     alert(`Error in query (details in console): ${error.message}`);
   }
   const loans = useFilterDebtFacilityLoansBySearchQuery(searchQuery, data);
+  const companies = data?.companies || [];
+  const companyInfoLookup = Object.assign(
+    {},
+    ...companies.map((company) => {
+      return {
+        [company.id]: (({ loans, ...c }) => c)(company),
+      };
+    })
+  );
 
   return (
     <Container>
@@ -64,6 +75,7 @@ export default function DebtFacilityAllTab() {
         <Box display="flex" flexDirection="column">
           <DebtFacilityLoansDataGrid
             loans={loans}
+            companyInfoLookup={companyInfoLookup}
             handleClickCustomer={(customerId) =>
               navigate(
                 getBankCompanyRoute(customerId, BankCompanyRouteEnum.Loans)

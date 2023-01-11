@@ -92,6 +92,14 @@ export default function DebtFacilityReportTab({
   const loans = companies.flatMap((company) => {
     return company.loans;
   });
+  const companyInfoLookup = Object.assign(
+    {},
+    ...companies.map((company) => {
+      return {
+        [company.id]: (({ loans, ...c }) => c)(company),
+      };
+    })
+  );
   const loansInfoLookup = Object.assign(
     {},
     ...companies.map((company) => {
@@ -160,6 +168,7 @@ export default function DebtFacilityReportTab({
               <DebtFacilityReportDataGrid
                 loans={loans}
                 loansInfoLookup={loansInfoLookup}
+                companyInfoLookup={companyInfoLookup}
                 isAnonymized={isAnonymized}
                 handleClickCustomer={(customerId) =>
                   navigate(

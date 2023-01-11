@@ -6,6 +6,7 @@ import { Loans, useGetDebtFacilityLoansByIdQuery } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { updateDebtFacilityAssignedDate } from "lib/api/debtFacility";
+import { todayAsDateStringServer } from "lib/date";
 import { useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -34,13 +35,25 @@ export default function MoveDebtFacilityLoanModal({
     skip: !selectedLoanIds,
     variables: {
       loan_ids: selectedLoanIds,
+      target_date: todayAsDateStringServer(),
     },
   });
   if (error) {
     console.error({ error });
     alert(`Error in query (details in console): ${error.message}`);
   }
-  const selectedLoans = data?.loans || [];
+  const companies = data?.companies || [];
+  const companyInfoLookup = Object.assign(
+    {},
+    ...companies.map((company) => {
+      return {
+        [company.id]: (({ loans, ...c }) => c)(company),
+      };
+    })
+  );
+  const selectedLoans = companies.flatMap((company) => {
+    return company.loans;
+  });
 
   const [updateAssignedDate, { loading: isUpdateAssignedDateLoading }] =
     useCustomMutation(updateDebtFacilityAssignedDate);
@@ -90,6 +103,7 @@ export default function MoveDebtFacilityLoanModal({
       <Box mt={4}>
         <DebtFacilityLoansDataGrid
           loans={selectedLoans}
+          companyInfoLookup={companyInfoLookup}
           isDebtFacilityVisible
           isExcelExport={false}
         />

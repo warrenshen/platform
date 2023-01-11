@@ -14,6 +14,7 @@ import {
   GetDebtFacilitiesQuery,
   useGetOpenLoansByDebtFacilityIdQuery,
 } from "generated/graphql";
+import { todayAsDateStringServer } from "lib/date";
 import { DebtFacilityStatusEnum, ProductTypeEnum } from "lib/enum";
 import { formatCurrency } from "lib/number";
 import { round } from "lodash";
@@ -73,13 +74,17 @@ function DebtFacilityCapacitySummary({
         target_facility_ids: !!selectedDebtFacilityId
           ? [selectedDebtFacilityId]
           : allFacilityIds,
+        target_date: todayAsDateStringServer(),
       },
     });
   if (debtFacilityError) {
     console.error({ debtFacilityError });
     alert(`Error in query (details in console): ${debtFacilityError.message}`);
   }
-  const debtFacilityLoans = debtFacilityData?.loans || [];
+  const companies = debtFacilityData?.companies || [];
+  const debtFacilityLoans = companies.flatMap((company) => {
+    return company.loans;
+  });
   const currentUsage = debtFacilityLoans
     .map((loan) => {
       return loan.outstanding_principal_balance;

@@ -5,6 +5,7 @@ import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridC
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import {
   Companies,
+  DebtFacilityReportCompanyDetailsFragment,
   LoanFragment,
   Loans,
   OpenLoanForDebtFacilityFragment,
@@ -32,7 +33,7 @@ import {
   getLoansInfoData,
   getMaturityDate,
   getOriginationOrCreatedDate,
-  getProductTypeFromOpenLoanForDebtFacilityFragment,
+  getProductTypeFromDebtFacilityFragment,
   getRepaymentDate,
   getUSState,
   getVendorName,
@@ -54,6 +55,7 @@ interface Props {
   isAnonymized: boolean;
   loans: OpenLoanForDebtFacilityFragment[];
   loansInfoLookup: Record<string, Record<string, Record<string, string>>>;
+  companyInfoLookup: Record<string, DebtFacilityReportCompanyDetailsFragment>;
   selectedLoanIds?: Loans["id"][];
   handleClickCustomer?: (customerId: Companies["id"]) => void;
   handleSelectLoans?: (loans: LoanFragment[]) => void;
@@ -65,6 +67,7 @@ interface Props {
 function getRows(
   loans: OpenLoanForDebtFacilityFragment[],
   loansInfoLookup: Record<string, Record<string, Record<string, string>>>,
+  companyInfoLookup: Record<string, DebtFacilityReportCompanyDetailsFragment>,
   supportedProductTypes: ProductTypeEnum[],
   lastDebtFacilityReportDate: string,
   isAnonymized: boolean,
@@ -80,29 +83,33 @@ function getRows(
   const groupedLoans = groupBy(filteredLoans, (loan) => loan.company_id);
   const reducedLoans =
     Object.keys(groupedLoans).length !== 0
-      ? reduceLineOfCreditLoans(groupedLoans)
+      ? reduceLineOfCreditLoans(groupedLoans, companyInfoLookup)
       : [];
   const { anonymizedCompanyLookup, anonymizedVendorLookup } =
     anonymizeLoanNames(reducedLoans, groupedLoans);
 
   return reducedLoans.map((loan) => {
-    const productType = getProductTypeFromOpenLoanForDebtFacilityFragment(loan);
+    const productType = getProductTypeFromDebtFacilityFragment(
+      companyInfoLookup[loan.company_id]
+    );
 
     return formatRowModel({
       ...loan,
       artifact_name: getLoanArtifactName(loan),
       borrower_eligibility: determineBorrowerEligibility(
         loan,
+        companyInfoLookup[loan.company_id],
         supportedProductTypes,
         productType
       ),
       customer_name: getCustomerName(
-        loan,
+        companyInfoLookup[loan.company_id],
         isAnonymized,
         anonymizedCompanyLookup
       ),
       customer_identifier: getCustomerIdentifier({
         loan,
+        companyInfo: companyInfoLookup[loan.company_id],
         productType,
         isAnonymized,
         anonymizedCompanyLookup,
@@ -129,10 +136,14 @@ function getRows(
       financing_period: getFinancingPeriod(loan, productType),
       gmv_financed: calculateGrossMarginValue(loan, productType),
       invoice_date: getOriginationOrCreatedDate(loan, productType),
-      invoice_due_date: getArtifactDueDate(loan),
-      loan_count: countAdvancesSent(loan),
+      invoice_due_date: getArtifactDueDate(
+        loan,
+        companyInfoLookup[loan.company_id]
+      ),
+      loan_count: countAdvancesSent(loan, productType),
       loan_eligibility: determineLoanEligibility(
         loan,
+        companyInfoLookup[loan.company_id],
         supportedProductTypes,
         productType
       ),
@@ -191,7 +202,7 @@ function getRows(
         currentDebtFacilityReportDate,
         true
       ),
-      us_state: getUSState(loan),
+      us_state: getUSState(companyInfoLookup[loan.company_id]),
       vendor_name: getVendorName(
         loan,
         productType,
@@ -207,6 +218,7 @@ export default function DebtFacilityReportDataGrid({
   isAnonymized,
   loans,
   loansInfoLookup,
+  companyInfoLookup,
   selectedLoanIds,
   handleClickCustomer,
   handleSelectLoans,
@@ -219,6 +231,7 @@ export default function DebtFacilityReportDataGrid({
       getRows(
         loans,
         loansInfoLookup,
+        companyInfoLookup,
         supportedProductTypes,
         lastDebtFacilityReportDate,
         isAnonymized,
@@ -227,6 +240,7 @@ export default function DebtFacilityReportDataGrid({
     [
       loans,
       loansInfoLookup,
+      companyInfoLookup,
       supportedProductTypes,
       lastDebtFacilityReportDate,
       isAnonymized,

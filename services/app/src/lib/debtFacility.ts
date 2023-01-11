@@ -1,4 +1,5 @@
 import {
+  DebtFacilityReportCompanyDetailsFragment,
   Maybe,
   OpenLoanForDebtFacilityFragment,
   Transactions,
@@ -69,10 +70,10 @@ export const calculateGrossMarginValue = (
 };
 
 export const countAdvancesSent = (
-  loan: OpenLoanForDebtFacilityFragment
+  loan: OpenLoanForDebtFacilityFragment,
+  productType: ProductTypeEnum
 ): number => {
   if (!!loan.transactions && !!loan?.company?.contract?.product_type) {
-    const productType = getProductTypeFromOpenLoanForDebtFacilityFragment(loan);
     if (productType === ProductTypeEnum.LineOfCredit) {
       const filteredTransactions = loan.transactions.filter((transaction) => {
         return (
@@ -94,26 +95,25 @@ export const countAdvancesSent = (
 
 export const determineBorrowerEligibility = (
   loan: OpenLoanForDebtFacilityFragment,
+  companyInfo: DebtFacilityReportCompanyDetailsFragment,
   supportedProductTypes: ProductTypeEnum[],
   productType: ProductTypeEnum
-) => {
-  const companyLevelEligibility = !!loan.company?.debt_facility_status
-    ? loan.company.debt_facility_status
+): string => {
+  const companyLevelEligibility = !!companyInfo?.debt_facility_status
+    ? (companyInfo.debt_facility_status as DebtFacilityCompanyStatusEnum)
     : null;
-
   const isProductTypeSupported = supportedProductTypes.includes(productType);
-  const eligible =
-    DebtFacilityCompanyStatusToLabel[DebtFacilityCompanyStatusEnum.Eligible];
-  const ineligible =
-    DebtFacilityCompanyStatusToLabel[DebtFacilityCompanyStatusEnum.Ineligible];
 
   // Company status alone *could* cover the use case here
   // But adding this extra check around future debt facility support will be useful
   // since we don't know a priori what that support will entail
-  return companyLevelEligibility === "Waiver" ||
-    (companyLevelEligibility === "Eligible" && !!isProductTypeSupported)
-    ? eligible
-    : ineligible;
+  return companyLevelEligibility === DebtFacilityCompanyStatusEnum.Waiver ||
+    (companyLevelEligibility === DebtFacilityCompanyStatusEnum.Eligible &&
+      !!isProductTypeSupported)
+    ? DebtFacilityCompanyStatusToLabel[DebtFacilityCompanyStatusEnum.Eligible]
+    : DebtFacilityCompanyStatusToLabel[
+        DebtFacilityCompanyStatusEnum.Ineligible
+      ];
 };
 
 export const determineIfPreviouslyAssigned = (
@@ -130,9 +130,10 @@ export const determineIfPreviouslyAssigned = (
 
 export const determineLoanEligibility = (
   loan: OpenLoanForDebtFacilityFragment,
+  companyInfo: DebtFacilityReportCompanyDetailsFragment,
   supportedProductTypes: ProductTypeEnum[],
   productType: ProductTypeEnum
-) => {
+): string => {
   const eligible =
     DebtFacilityCompanyStatusToLabel[DebtFacilityCompanyStatusEnum.Eligible];
   const ineligible =
@@ -140,11 +141,12 @@ export const determineLoanEligibility = (
 
   if (
     !!loan.loan_report?.debt_facility_status &&
-    !!loan.company?.debt_facility_status &&
-    !!loan?.company?.contract?.product_type
+    !!companyInfo?.debt_facility_status &&
+    supportedProductTypes.includes(productType)
   ) {
-    const companyStatus = loan.company
-      .debt_facility_status as DebtFacilityCompanyStatusEnum;
+    const companyStatus = !!companyInfo?.debt_facility_status
+      ? (companyInfo.debt_facility_status as DebtFacilityCompanyStatusEnum)
+      : null;
     const loanStatus = loan.loan_report
       .debt_facility_status as DebtFacilityStatusEnum;
 
@@ -181,13 +183,17 @@ export const determineLoanEligibility = (
 };
 
 export const getArtifactDueDate = (
-  loan: OpenLoanForDebtFacilityFragment
+  loan: OpenLoanForDebtFacilityFragment,
+  companyInfo: DebtFacilityReportCompanyDetailsFragment
 ): Maybe<Date> => {
-  const productType = getProductTypeFromOpenLoanForDebtFacilityFragment(loan);
+  const productType = getProductTypeFromDebtFacilityFragment(companyInfo);
+  const contractEndDate = companyInfo?.most_recent_contract?.[0]?.end_date
+    ? companyInfo.most_recent_contract[0].end_date
+    : null;
 
   return !!productType && productType === ProductTypeEnum.LineOfCredit
-    ? !!loan?.company?.contract?.end_date
-      ? parseDateStringServer(loan.company.contract.end_date)
+    ? contractEndDate
+      ? parseDateStringServer(contractEndDate)
       : null
     : !!productType && productType === ProductTypeEnum.InvoiceFinancing
     ? !!loan?.invoice?.invoice_due_date
@@ -203,6 +209,7 @@ export const getArtifactDueDate = (
 
 interface getCustomerIdentifierProps {
   loan: OpenLoanForDebtFacilityFragment;
+  companyInfo: DebtFacilityReportCompanyDetailsFragment;
   productType: ProductTypeEnum;
   isAnonymized?: boolean;
   anonymizedCompanyLookup?: Record<string, string>;
@@ -210,6 +217,7 @@ interface getCustomerIdentifierProps {
 
 export const getCustomerIdentifier = ({
   loan,
+  companyInfo,
   productType,
   isAnonymized = false,
   anonymizedCompanyLookup = {},
@@ -219,7 +227,7 @@ export const getCustomerIdentifier = ({
       ? getAnonymizedShortName(
           anonymizedCompanyLookup[loan.company_id.toString()]
         )
-      : loan.company.identifier || null
+      : companyInfo.identifier || null
     : createLoanCustomerIdentifier(
         loan,
         isAnonymized
@@ -229,13 +237,13 @@ export const getCustomerIdentifier = ({
 };
 
 export const getCustomerName = (
-  loan: OpenLoanForDebtFacilityFragment,
+  companyInfo: DebtFacilityReportCompanyDetailsFragment,
   isAnonymized: boolean,
   anonymizedCompanyLookup: Record<string, string>
 ): Maybe<string> => {
   return isAnonymized
-    ? anonymizedCompanyLookup[loan.company_id.toString()]
-    : loan.company.name;
+    ? anonymizedCompanyLookup[companyInfo.id.toString()]
+    : companyInfo.name;
 };
 
 export const getDaysPastDue = (
@@ -532,14 +540,13 @@ export const getPartnerId = (loan: OpenLoanForDebtFacilityFragment): string => {
     : "None";
 };
 
-export const getProductTypeFromOpenLoanForDebtFacilityFragment = (
-  loan: OpenLoanForDebtFacilityFragment
+export const getProductTypeFromDebtFacilityFragment = (
+  companyInfo: DebtFacilityReportCompanyDetailsFragment
 ): ProductTypeEnum => {
-  return !!loan?.company?.most_recent_financial_summary?.[0]?.product_type
-    ? (loan.company.most_recent_financial_summary[0]
-        .product_type as ProductTypeEnum)
-    : !!loan?.company?.most_recent_contract?.[0]?.product_type
-    ? (loan.company.most_recent_contract[0].product_type as ProductTypeEnum)
+  return !!companyInfo?.financial_summaries?.[0]?.product_type
+    ? (companyInfo.financial_summaries[0].product_type as ProductTypeEnum)
+    : !!companyInfo?.most_recent_contract?.[0]?.product_type
+    ? (companyInfo.most_recent_contract[0].product_type as ProductTypeEnum)
     : ProductTypeEnum.None;
 };
 
@@ -567,19 +574,21 @@ export const getVendorName = (
 };
 
 export const getUSState = (
-  loan: OpenLoanForDebtFacilityFragment
+  companyInfo: DebtFacilityReportCompanyDetailsFragment
 ): Maybe<string> => {
-  return !!loan.company?.state ? loan.company.state : null;
+  return !!companyInfo?.state ? companyInfo.state : null;
 };
 
 export const reduceLineOfCreditLoans = (
-  groupedByCompanyIds: Record<string, OpenLoanForDebtFacilityFragment[]>
+  groupedByCompanyIds: Record<string, OpenLoanForDebtFacilityFragment[]>,
+  companyInfoLookup: Record<string, DebtFacilityReportCompanyDetailsFragment>
 ): OpenLoanForDebtFacilityFragment[] => {
   return Object.entries(groupedByCompanyIds)
     .map(([company_id, loans]) => {
       const isLineOfCredit =
-        getProductTypeFromOpenLoanForDebtFacilityFragment(loans[0]) ===
-        ProductTypeEnum.LineOfCredit;
+        getProductTypeFromDebtFacilityFragment(
+          companyInfoLookup[company_id]
+        ) === ProductTypeEnum.LineOfCredit;
       if (isLineOfCredit) {
         return loans.length > 0
           ? [

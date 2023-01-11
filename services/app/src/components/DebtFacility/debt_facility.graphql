@@ -1,60 +1,45 @@
 query GetOpenLoansByDebtFacilityStatuses(
   $statuses: [String!]
+  $target_date: date!
 ) {
-  loans(
-    where: {
+  companies (
+    where: { 
       _and: [
+        { is_customer: { _eq: true } }
         {
           _or: [
-            { is_deleted: { _is_null: true } }
-            { is_deleted: { _eq: false } }
+            { settings: { is_dummy_account: { _is_null: true } } }
+            { settings: { is_dummy_account: { _eq: false } } }
           ]
         }
-        { closed_at: { _is_null: true } }
-        { loan_report: { debt_facility_status: { _in: $statuses } } }
-        {
-          _or: [
-            { company: { settings: { is_dummy_account: { _is_null: true } } } }
-            { company: { settings: { is_dummy_account: { _eq: false } } } }
-          ]
-        }
-        { origination_date: { _is_null: false } }
       ]
     }
   ) {
     id
-    ...OpenLoanForDebtFacility
+    ...CompanyForOpenLoansByDebtFacilityStatuses
   }
 }
 
 query GetOpenLoansByDebtFacilityId(
   $statuses: [String!]
   $target_facility_ids: [uuid!]
+  $target_date: date!
 ) {
-  loans(
-    where: {
+  companies (
+    where: { 
       _and: [
+        { is_customer: { _eq: true } }
         {
           _or: [
-            { is_deleted: { _is_null: true } }
-            { is_deleted: { _eq: false } }
+            { settings: { is_dummy_account: { _is_null: true } } }
+            { settings: { is_dummy_account: { _eq: false } } }
           ]
         }
-        { closed_at: { _is_null: true } }
-        { loan_report: { debt_facility_status: { _in: $statuses } } }
-        { loan_report: { debt_facility_id: { _in: $target_facility_ids } } }
-        {
-          _or: [
-            { company: { settings: { is_dummy_account: { _is_null: true } } } }
-            { company: { settings: { is_dummy_account: { _eq: false } } } }
-          ]
-        }
-        { origination_date: { _is_null: false } }
       ]
     }
   ) {
     id
-    ...OpenLoanForDebtFacility
+    ...CompanyForByDebtFacilityId
   }
 }
 
@@ -82,12 +67,25 @@ query GetReportLoansByDebtFacilityId(
   }
 }
 
-query GetDebtFacilityLoansById($loan_ids: [uuid!]) {
-  loans (
-    where: { id: { _in: $loan_ids } }
+query GetDebtFacilityLoansById(
+  $loan_ids: [uuid!]
+  $target_date: date!
+) {
+  companies (
+    where: { 
+      _and: [
+        { is_customer: { _eq: true } }
+        {
+          _or: [
+            { settings: { is_dummy_account: { _is_null: true } } }
+            { settings: { is_dummy_account: { _eq: false } } }
+          ]
+        }
+      ]
+    }
   ) {
     id
-    ...OpenLoanForDebtFacility
+    ...CompanyForDebtFacilityLoansById
   }
 }
 

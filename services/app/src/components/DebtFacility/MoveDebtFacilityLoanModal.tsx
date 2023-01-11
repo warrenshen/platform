@@ -18,6 +18,7 @@ import {
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { moveLoansForDebtFacility } from "lib/api/debtFacility";
+import { todayAsDateStringServer } from "lib/date";
 import { ProductTypeEnum } from "lib/enum";
 import { useEffect, useState } from "react";
 
@@ -59,13 +60,26 @@ export default function MoveDebtFacilityLoanModal({
     skip: !selectedLoanIds,
     variables: {
       loan_ids: selectedLoanIds,
+      target_date: todayAsDateStringServer(),
     },
   });
   if (error) {
     console.error({ error });
     alert(`Error in query (details in console): ${error.message}`);
   }
-  const selectedLoans = data?.loans || [];
+  const companies = data?.companies || [];
+  const companyInfoLookup = Object.assign(
+    {},
+    ...companies.map((company) => {
+      return {
+        [company.id]: (({ loans, ...c }) => c)(company),
+      };
+    })
+  );
+
+  const selectedLoans = companies.flatMap((company) => {
+    return company.loans;
+  });
 
   useEffect(() => {
     setDebtFacilityId(defaultDebtFacilityId);
@@ -162,6 +176,7 @@ export default function MoveDebtFacilityLoanModal({
           </Box>
           <DebtFacilityLoansDataGrid
             loans={selectedLoans}
+            companyInfoLookup={companyInfoLookup}
             isExcelExport={false}
             supportedProductTypes={supportedProductTypes}
           />
@@ -177,6 +192,7 @@ export default function MoveDebtFacilityLoanModal({
           </Box>
           <DebtFacilityLoansDataGrid
             loans={selectedLoans}
+            companyInfoLookup={companyInfoLookup}
             isExcelExport={false}
             supportedProductTypes={supportedProductTypes}
           />

@@ -30934,19 +30934,23 @@ export type GetSurveillanceResultByIdQuery = {
 
 export type GetOpenLoansByDebtFacilityStatusesQueryVariables = Exact<{
   statuses?: Maybe<Array<Scalars["String"]> | Scalars["String"]>;
+  target_date: Scalars["date"];
 }>;
 
 export type GetOpenLoansByDebtFacilityStatusesQuery = {
-  loans: Array<Pick<Loans, "id"> & OpenLoanForDebtFacilityFragment>;
+  companies: Array<
+    Pick<Companies, "id"> & CompanyForOpenLoansByDebtFacilityStatusesFragment
+  >;
 };
 
 export type GetOpenLoansByDebtFacilityIdQueryVariables = Exact<{
   statuses?: Maybe<Array<Scalars["String"]> | Scalars["String"]>;
   target_facility_ids?: Maybe<Array<Scalars["uuid"]> | Scalars["uuid"]>;
+  target_date: Scalars["date"];
 }>;
 
 export type GetOpenLoansByDebtFacilityIdQuery = {
-  loans: Array<Pick<Loans, "id"> & OpenLoanForDebtFacilityFragment>;
+  companies: Array<Pick<Companies, "id"> & CompanyForByDebtFacilityIdFragment>;
 };
 
 export type GetReportLoansByDebtFacilityIdQueryVariables = Exact<{
@@ -30964,10 +30968,13 @@ export type GetReportLoansByDebtFacilityIdQuery = {
 
 export type GetDebtFacilityLoansByIdQueryVariables = Exact<{
   loan_ids?: Maybe<Array<Scalars["uuid"]> | Scalars["uuid"]>;
+  target_date: Scalars["date"];
 }>;
 
 export type GetDebtFacilityLoansByIdQuery = {
-  loans: Array<Pick<Loans, "id"> & OpenLoanForDebtFacilityFragment>;
+  companies: Array<
+    Pick<Companies, "id"> & CompanyForDebtFacilityLoansByIdFragment
+  >;
 };
 
 export type GetDebtFacilitiesQueryVariables = Exact<{ [key: string]: never }>;
@@ -33690,13 +33697,36 @@ export type DebtFacilityCapacityLimitedFragment = Pick<
   | "debt_facility_id"
 >;
 
-export type CompanyForDebtFacilityReportFragment = Pick<Companies, "id"> & {
-  most_recent_contract: Array<Pick<Contracts, "id" | "product_type">>;
+export type DebtFacilityReportCompanyDetailsFragment = Pick<
+  Companies,
+  "id" | "name" | "debt_facility_status" | "state" | "identifier"
+> & {
+  most_recent_contract: Array<
+    Pick<Contracts, "id" | "end_date" | "product_type">
+  >;
   financial_summaries: Array<
     Pick<FinancialSummaries, "id" | "product_type" | "loans_info">
   >;
-  loans: Array<Pick<Loans, "id"> & OpenLoanForDebtFacilityFragment>;
 };
+
+export type CompanyForOpenLoansByDebtFacilityStatusesFragment = Pick<
+  Companies,
+  "id"
+> & {
+  loans: Array<Pick<Loans, "id"> & OpenLoanForDebtFacilityFragment>;
+} & DebtFacilityReportCompanyDetailsFragment;
+
+export type CompanyForByDebtFacilityIdFragment = Pick<Companies, "id"> & {
+  loans: Array<Pick<Loans, "id"> & OpenLoanForDebtFacilityFragment>;
+} & DebtFacilityReportCompanyDetailsFragment;
+
+export type CompanyForDebtFacilityLoansByIdFragment = Pick<Companies, "id"> & {
+  loans: Array<Pick<Loans, "id"> & OpenLoanForDebtFacilityFragment>;
+} & DebtFacilityReportCompanyDetailsFragment;
+
+export type CompanyForDebtFacilityReportFragment = Pick<Companies, "id"> & {
+  loans: Array<Pick<Loans, "id"> & OpenLoanForDebtFacilityFragment>;
+} & DebtFacilityReportCompanyDetailsFragment;
 
 export type OpenLoanForDebtFacilityFragment = {
   loan_report?: Maybe<
@@ -33711,7 +33741,6 @@ export type OpenLoanForDebtFacilityFragment = {
   line_of_credit?: Maybe<Pick<LineOfCredits, "id"> & LineOfCreditFragment>;
   transactions: Array<Pick<Transactions, "id" | "effective_date">>;
   repayments: Array<Pick<Transactions, "id"> & TransactionFragment>;
-  company: Pick<Companies, "id"> & CompanyForDebtFacilityFragment;
 } & LoanForDebtFacilityFragment;
 
 export type DebtFacilityEventFragment = Pick<
@@ -35696,6 +35725,38 @@ export const MetrcDownloadSummaryFragmentDoc = gql`
   }
   ${MetrcDownloadSummaryLimitedFragmentDoc}
 `;
+export const DebtFacilityReportCompanyDetailsFragmentDoc = gql`
+  fragment DebtFacilityReportCompanyDetails on companies {
+    id
+    name
+    debt_facility_status
+    state
+    identifier
+    most_recent_contract: contracts(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+        ]
+      }
+      order_by: { start_date: desc }
+      limit: 1
+    ) {
+      id
+      end_date
+      product_type
+    }
+    financial_summaries(where: { date: { _eq: $target_date } }) {
+      id
+      product_type
+      loans_info
+    }
+  }
+`;
 export const ContractFragmentDoc = gql`
   fragment Contract on contracts {
     id
@@ -35818,10 +35879,6 @@ export const OpenLoanForDebtFacilityFragmentDoc = gql`
       id
       ...Transaction
     }
-    company {
-      id
-      ...CompanyForDebtFacility
-    }
   }
   ${LoanForDebtFacilityFragmentDoc}
   ${LoanReportFragmentDoc}
@@ -35830,12 +35887,12 @@ export const OpenLoanForDebtFacilityFragmentDoc = gql`
   ${InvoiceFragmentDoc}
   ${LineOfCreditFragmentDoc}
   ${TransactionFragmentDoc}
-  ${CompanyForDebtFacilityFragmentDoc}
 `;
-export const CompanyForDebtFacilityReportFragmentDoc = gql`
-  fragment CompanyForDebtFacilityReport on companies {
+export const CompanyForOpenLoansByDebtFacilityStatusesFragmentDoc = gql`
+  fragment CompanyForOpenLoansByDebtFacilityStatuses on companies {
     id
-    most_recent_contract: contracts(
+    ...DebtFacilityReportCompanyDetails
+    loans(
       where: {
         _and: [
           {
@@ -35844,19 +35901,78 @@ export const CompanyForDebtFacilityReportFragmentDoc = gql`
               { is_deleted: { _eq: false } }
             ]
           }
+          { closed_at: { _is_null: true } }
+          { loan_report: { debt_facility_status: { _in: $statuses } } }
+          {
+            _or: [
+              {
+                company: { settings: { is_dummy_account: { _is_null: true } } }
+              }
+              { company: { settings: { is_dummy_account: { _eq: false } } } }
+            ]
+          }
+          { origination_date: { _is_null: false } }
         ]
       }
-      order_by: { start_date: desc }
-      limit: 1
     ) {
       id
-      product_type
+      ...OpenLoanForDebtFacility
     }
-    financial_summaries(where: { date: { _eq: $target_date } }) {
+  }
+  ${DebtFacilityReportCompanyDetailsFragmentDoc}
+  ${OpenLoanForDebtFacilityFragmentDoc}
+`;
+export const CompanyForByDebtFacilityIdFragmentDoc = gql`
+  fragment CompanyForByDebtFacilityId on companies {
+    id
+    ...DebtFacilityReportCompanyDetails
+    loans(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { closed_at: { _is_null: true } }
+          { loan_report: { debt_facility_status: { _in: $statuses } } }
+          { loan_report: { debt_facility_id: { _in: $target_facility_ids } } }
+          {
+            _or: [
+              {
+                company: { settings: { is_dummy_account: { _is_null: true } } }
+              }
+              { company: { settings: { is_dummy_account: { _eq: false } } } }
+            ]
+          }
+          { origination_date: { _is_null: false } }
+        ]
+      }
+    ) {
       id
-      product_type
-      loans_info
+      ...OpenLoanForDebtFacility
     }
+  }
+  ${DebtFacilityReportCompanyDetailsFragmentDoc}
+  ${OpenLoanForDebtFacilityFragmentDoc}
+`;
+export const CompanyForDebtFacilityLoansByIdFragmentDoc = gql`
+  fragment CompanyForDebtFacilityLoansById on companies {
+    id
+    ...DebtFacilityReportCompanyDetails
+    loans(where: { id: { _in: $loan_ids } }) {
+      id
+      ...OpenLoanForDebtFacility
+    }
+  }
+  ${DebtFacilityReportCompanyDetailsFragmentDoc}
+  ${OpenLoanForDebtFacilityFragmentDoc}
+`;
+export const CompanyForDebtFacilityReportFragmentDoc = gql`
+  fragment CompanyForDebtFacilityReport on companies {
+    id
+    ...DebtFacilityReportCompanyDetails
     loans(
       where: {
         _and: [
@@ -35914,6 +36030,7 @@ export const CompanyForDebtFacilityReportFragmentDoc = gql`
       ...OpenLoanForDebtFacility
     }
   }
+  ${DebtFacilityReportCompanyDetailsFragmentDoc}
   ${OpenLoanForDebtFacilityFragmentDoc}
 `;
 export const DebtFacilityEventFragmentDoc = gql`
@@ -38880,35 +38997,28 @@ export type GetSurveillanceResultByIdQueryResult = Apollo.QueryResult<
   GetSurveillanceResultByIdQueryVariables
 >;
 export const GetOpenLoansByDebtFacilityStatusesDocument = gql`
-  query GetOpenLoansByDebtFacilityStatuses($statuses: [String!]) {
-    loans(
+  query GetOpenLoansByDebtFacilityStatuses(
+    $statuses: [String!]
+    $target_date: date!
+  ) {
+    companies(
       where: {
         _and: [
+          { is_customer: { _eq: true } }
           {
             _or: [
-              { is_deleted: { _is_null: true } }
-              { is_deleted: { _eq: false } }
+              { settings: { is_dummy_account: { _is_null: true } } }
+              { settings: { is_dummy_account: { _eq: false } } }
             ]
           }
-          { closed_at: { _is_null: true } }
-          { loan_report: { debt_facility_status: { _in: $statuses } } }
-          {
-            _or: [
-              {
-                company: { settings: { is_dummy_account: { _is_null: true } } }
-              }
-              { company: { settings: { is_dummy_account: { _eq: false } } } }
-            ]
-          }
-          { origination_date: { _is_null: false } }
         ]
       }
     ) {
       id
-      ...OpenLoanForDebtFacility
+      ...CompanyForOpenLoansByDebtFacilityStatuses
     }
   }
-  ${OpenLoanForDebtFacilityFragmentDoc}
+  ${CompanyForOpenLoansByDebtFacilityStatusesFragmentDoc}
 `;
 
 /**
@@ -38924,11 +39034,12 @@ export const GetOpenLoansByDebtFacilityStatusesDocument = gql`
  * const { data, loading, error } = useGetOpenLoansByDebtFacilityStatusesQuery({
  *   variables: {
  *      statuses: // value for 'statuses'
+ *      target_date: // value for 'target_date'
  *   },
  * });
  */
 export function useGetOpenLoansByDebtFacilityStatusesQuery(
-  baseOptions?: Apollo.QueryHookOptions<
+  baseOptions: Apollo.QueryHookOptions<
     GetOpenLoansByDebtFacilityStatusesQuery,
     GetOpenLoansByDebtFacilityStatusesQueryVariables
   >
@@ -38965,36 +39076,26 @@ export const GetOpenLoansByDebtFacilityIdDocument = gql`
   query GetOpenLoansByDebtFacilityId(
     $statuses: [String!]
     $target_facility_ids: [uuid!]
+    $target_date: date!
   ) {
-    loans(
+    companies(
       where: {
         _and: [
+          { is_customer: { _eq: true } }
           {
             _or: [
-              { is_deleted: { _is_null: true } }
-              { is_deleted: { _eq: false } }
+              { settings: { is_dummy_account: { _is_null: true } } }
+              { settings: { is_dummy_account: { _eq: false } } }
             ]
           }
-          { closed_at: { _is_null: true } }
-          { loan_report: { debt_facility_status: { _in: $statuses } } }
-          { loan_report: { debt_facility_id: { _in: $target_facility_ids } } }
-          {
-            _or: [
-              {
-                company: { settings: { is_dummy_account: { _is_null: true } } }
-              }
-              { company: { settings: { is_dummy_account: { _eq: false } } } }
-            ]
-          }
-          { origination_date: { _is_null: false } }
         ]
       }
     ) {
       id
-      ...OpenLoanForDebtFacility
+      ...CompanyForByDebtFacilityId
     }
   }
-  ${OpenLoanForDebtFacilityFragmentDoc}
+  ${CompanyForByDebtFacilityIdFragmentDoc}
 `;
 
 /**
@@ -39011,11 +39112,12 @@ export const GetOpenLoansByDebtFacilityIdDocument = gql`
  *   variables: {
  *      statuses: // value for 'statuses'
  *      target_facility_ids: // value for 'target_facility_ids'
+ *      target_date: // value for 'target_date'
  *   },
  * });
  */
 export function useGetOpenLoansByDebtFacilityIdQuery(
-  baseOptions?: Apollo.QueryHookOptions<
+  baseOptions: Apollo.QueryHookOptions<
     GetOpenLoansByDebtFacilityIdQuery,
     GetOpenLoansByDebtFacilityIdQueryVariables
   >
@@ -39129,13 +39231,25 @@ export type GetReportLoansByDebtFacilityIdQueryResult = Apollo.QueryResult<
   GetReportLoansByDebtFacilityIdQueryVariables
 >;
 export const GetDebtFacilityLoansByIdDocument = gql`
-  query GetDebtFacilityLoansById($loan_ids: [uuid!]) {
-    loans(where: { id: { _in: $loan_ids } }) {
+  query GetDebtFacilityLoansById($loan_ids: [uuid!], $target_date: date!) {
+    companies(
+      where: {
+        _and: [
+          { is_customer: { _eq: true } }
+          {
+            _or: [
+              { settings: { is_dummy_account: { _is_null: true } } }
+              { settings: { is_dummy_account: { _eq: false } } }
+            ]
+          }
+        ]
+      }
+    ) {
       id
-      ...OpenLoanForDebtFacility
+      ...CompanyForDebtFacilityLoansById
     }
   }
-  ${OpenLoanForDebtFacilityFragmentDoc}
+  ${CompanyForDebtFacilityLoansByIdFragmentDoc}
 `;
 
 /**
@@ -39151,11 +39265,12 @@ export const GetDebtFacilityLoansByIdDocument = gql`
  * const { data, loading, error } = useGetDebtFacilityLoansByIdQuery({
  *   variables: {
  *      loan_ids: // value for 'loan_ids'
+ *      target_date: // value for 'target_date'
  *   },
  * });
  */
 export function useGetDebtFacilityLoansByIdQuery(
-  baseOptions?: Apollo.QueryHookOptions<
+  baseOptions: Apollo.QueryHookOptions<
     GetDebtFacilityLoansByIdQuery,
     GetDebtFacilityLoansByIdQueryVariables
   >
