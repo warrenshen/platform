@@ -1,6 +1,6 @@
 from collections.abc import Generator
 from jinja2.ext import Extension
-from typing import Any, List, TextIO
+from typing import Any, Dict, List, TextIO, Tuple
 from jinja2.utils import Markup
 
 random: Any
@@ -24,4 +24,4 @@ class JinjaSql:
     env: Any
     param_style: Any
     def __init__(self, env: Any | None = ..., param_style: str = ...) -> None: ...
-    def prepare_query(self, source: Any, data: str) -> str: ...
+    def prepare_query(self, source: str, data: Dict[str, Any]) -> Tuple[str, Any]: ...

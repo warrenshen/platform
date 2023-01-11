@@ -1,7 +1,10 @@
 from bespoke import errors
 from bespoke.db import models
 from sqlalchemy.orm.session import Session
-from typing import Dict, List, Tuple, cast
+from typing import Any, Dict, List, Tuple, cast
+
+BQ_DEFAULT_LIMIT = 200
+BQ_MAX_LIMIT = 500
 
 def create_update_bespoke_catalog_brand(
 	session: Session,
@@ -237,3 +240,19 @@ def delete_metrc_to_bespoke_catalog_sku(
 		metrc_to_sku.is_deleted = True
 
 	return True, None
+
+def construct_bq_sql_template_params(
+	args: Dict[str, Any],
+) -> Dict[str, Any]:
+	product_name = args.get('product_name_query', None)
+	limit = int(args.get('limit', BQ_DEFAULT_LIMIT))
+
+	if limit > BQ_MAX_LIMIT:
+		limit = BQ_MAX_LIMIT
+	if limit < 1:
+		limit = 1
+
+	return {
+		'product_name': product_name,
+		'limit': limit,
+	}

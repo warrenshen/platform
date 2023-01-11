@@ -36,7 +36,9 @@ RIGHT JOIN
 		COUNT(sales_transactions.tx_product_name) AS product_name_count
 	FROM
 		dbt_transformation.int__company_sales_transactions AS sales_transactions
-	{}
+	{% if product_name %}
+	WHERE LOWER(sales_transactions.tx_product_name) LIKE LOWER('{{ product_name }}')
+	{% endif %}
 	GROUP BY
 		sales_transactions.tx_product_name,
 		sales_transactions.tx_product_category_name
@@ -44,7 +46,7 @@ RIGHT JOIN
 	ON metrc_to_bespoke_sku.product_name = sales_transactions_grouped.product_name
 WHERE metrc_to_bespoke_sku.product_name IS NULL
 ORDER BY sales_transactions_grouped.product_name_count DESC
-LIMIT 100;
+LIMIT {{ limit }};
 """
 
 INCOMING_TRANSFER_PACKAGE_BY_PRODUCT_NAME_QUERY = """
@@ -71,7 +73,9 @@ RIGHT JOIN
 		COUNT(transfer_packages.product_name) AS product_name_count
 	FROM
 		dbt_transformation.int__company_incoming_transfer_packages AS transfer_packages
-	{}
+	{% if product_name %}
+	WHERE LOWER(transfer_packages.product_name) LIKE LOWER('{{ product_name }}')
+	{% endif %}
 	GROUP BY
 		transfer_packages.product_name,
 		transfer_packages.product_category_name
@@ -80,7 +84,7 @@ RIGHT JOIN
 WHERE metrc_to_bespoke_sku.product_name IS NULL
 ORDER BY
 	transfer_packages_grouped.product_name_count DESC
-LIMIT 100;
+LIMIT {{ limit }};
 """
 
 INVENTORY_PACKAGE_BY_PRODUCT_NAME_QUERY = """
@@ -99,7 +103,9 @@ RIGHT JOIN
 		COUNT(inventory_packages.product_name) AS product_name_count
 	FROM
 		dbt_transformation.int__company_inventory_packages AS inventory_packages
-	{}
+	{% if product_name %}
+	WHERE LOWER(inventory_packages.product_name) LIKE LOWER('{{ product_name }}')
+	{% endif %}
 	GROUP BY
 		inventory_packages.product_name,
 		inventory_packages.product_category_name
@@ -108,7 +114,7 @@ RIGHT JOIN
 WHERE metrc_to_bespoke_sku.product_name IS NULL
 ORDER BY
 	inventory_packages_grouped.product_name_count DESC
-LIMIT 100;
+LIMIT {{ limit }};
 """
 
 
@@ -117,8 +123,11 @@ class SalesTransactions(MethodView):
 
 	@handler_util.catch_bad_json_request
 	def get(self, **kwargs: Any) -> Response:
-		product_name_query = request.args.get('product_name_query', None)
-		where_clause = f"WHERE LOWER(sales_transactions.tx_product_name) like LOWER('{product_name_query}')"
+		params = bespoke_catalog_util.construct_bq_sql_template_params(request.args)
+		bqh = BigQueryHelper()
+		final_sql = bqh.construct_sql(SALES_TRANSACTIONS_BY_PRODUCT_NAME_QUERY, params)
+		results = bqh.execute_sql(final_sql)
+
 		with session_scope(current_app.session_maker) as session:
 			metrc_to_bespoke_catalog_skus = cast(
 				List[models.MetrcToBespokeCatalogSku],
@@ -127,9 +136,6 @@ class SalesTransactions(MethodView):
 				).all())
 			cataloged_product_names = set([sku.product_name for sku in metrc_to_bespoke_catalog_skus])
 
-		bqh = BigQueryHelper()
-		query = SALES_TRANSACTIONS_BY_PRODUCT_NAME_QUERY.format(where_clause) if product_name_query else SALES_TRANSACTIONS_BY_PRODUCT_NAME_QUERY.format('')
-		results = bqh.execute_sql(query)
 		json_results = []
 		for row in results:
 			if row.product_name not in cataloged_product_names:
@@ -155,8 +161,11 @@ class IncomingTransferPackages(MethodView):
 
 	@handler_util.catch_bad_json_request
 	def get(self, **kwargs: Any) -> Response:
-		product_name_query = request.args.get('product_name_query', None)
-		where_clause = f"WHERE LOWER(transfer_packages.product_name) like LOWER('{product_name_query}')"
+		params = bespoke_catalog_util.construct_bq_sql_template_params(request.args)
+		bqh = BigQueryHelper()
+		final_sql = bqh.construct_sql(INCOMING_TRANSFER_PACKAGE_BY_PRODUCT_NAME_QUERY, params)
+		results = bqh.execute_sql(final_sql)
+
 		with session_scope(current_app.session_maker) as session:
 			metrc_to_bespoke_catalog_skus = cast(
 				List[models.MetrcToBespokeCatalogSku],
@@ -165,9 +174,6 @@ class IncomingTransferPackages(MethodView):
 				).all())
 			cataloged_product_names = set([sku.product_name for sku in metrc_to_bespoke_catalog_skus])
 
-		bqh = BigQueryHelper()
-		query = INCOMING_TRANSFER_PACKAGE_BY_PRODUCT_NAME_QUERY.format(where_clause) if product_name_query else INCOMING_TRANSFER_PACKAGE_BY_PRODUCT_NAME_QUERY.format('')
-		results = bqh.execute_sql(query)
 		json_results = []
 		for row in results:
 			if row.product_name not in cataloged_product_names:
@@ -192,8 +198,11 @@ class InventoryPackages(MethodView):
 
 	@handler_util.catch_bad_json_request
 	def get(self, **kwargs: Any) -> Response:
-		product_name_query = request.args.get('product_name_query', None)
-		where_clause = f"WHERE LOWER(inventory_packages.product_name) like LOWER('{product_name_query}')"
+		params = bespoke_catalog_util.construct_bq_sql_template_params(request.args)
+		bqh = BigQueryHelper()
+		final_sql = bqh.construct_sql(INVENTORY_PACKAGE_BY_PRODUCT_NAME_QUERY, params)
+		results = bqh.execute_sql(final_sql)
+
 		with session_scope(current_app.session_maker) as session:
 			metrc_to_bespoke_catalog_skus = cast(
 				List[models.MetrcToBespokeCatalogSku],
@@ -202,9 +211,6 @@ class InventoryPackages(MethodView):
 				).all())
 			cataloged_product_names = set([sku.product_name for sku in metrc_to_bespoke_catalog_skus])
 
-		bqh = BigQueryHelper()
-		query = INVENTORY_PACKAGE_BY_PRODUCT_NAME_QUERY.format(where_clause) if product_name_query else INVENTORY_PACKAGE_BY_PRODUCT_NAME_QUERY.format('')
-		results = bqh.execute_sql(query)
 		json_results = []
 		# TODO: discuss with Spencer if additional columns would be useful
 		for row in results:

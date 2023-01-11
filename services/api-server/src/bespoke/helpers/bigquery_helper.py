@@ -4,6 +4,7 @@ import os
 
 from google.cloud import bigquery
 from jinjasql import JinjaSql
+from typing import Any, Dict
 
 log = logging.getLogger(__name__)
 
@@ -51,3 +52,10 @@ class BigQueryHelper(object):
         results = query_job.result()
         log.info(f"execute sql results - {results}")
         return results
+
+    def construct_sql(self, query_template: str, params: Dict[str, Any] = {}) -> str:
+        query, bind_params = self.jinja_sql.prepare_query(query_template, params)
+
+        final_sql = query % bind_params
+        log.info(f'sql -- {final_sql}')
+        return final_sql

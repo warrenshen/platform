@@ -4,6 +4,7 @@ import {
   LinearProgress,
   TextField,
 } from "@material-ui/core";
+import { DEFAULT_BESPOKE_CATALOG_QUERY_SIZE } from "components/BespokeCatalog/constants";
 import CreateBespokeCatalogEntryCompleteModal from "components/BespokeCatalog/CreateBespokeCatalogEntryCompleteModal";
 import MetrcTransferPackagesDataGrid from "components/BespokeCatalog/MetrcTransferPackageDataGrid";
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
@@ -38,6 +39,9 @@ const IncomingTransferPackagesTab = () => {
   const snackbar = useSnackbar();
 
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [limit, setLimit] = useState<number | null>(
+    DEFAULT_BESPOKE_CATALOG_QUERY_SIZE
+  );
   const [metrcTransferPackages, setMetrcTransferPackages] = useState<
     MetrcTransferPackageFragment[]
   >([]);
@@ -69,6 +73,7 @@ const IncomingTransferPackagesTab = () => {
     const response = await getIncomingTransferPackages({
       params: {
         product_name_query,
+        limit,
       },
     });
     if (response.status === "OK" && response.data) {
@@ -204,20 +209,32 @@ const IncomingTransferPackagesTab = () => {
         />
       )}
       <Box display="flex" mb={2} justifyContent="space-between">
-        <TextField
-          autoFocus
-          label="Search"
-          value={searchQuery}
-          onChange={({ target: { value } }) => setSearchQuery(value)}
-          style={{ width: 430 }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
-          }}
-        />
+        <Box display="flex">
+          <TextField
+            autoFocus
+            label="Search"
+            value={searchQuery}
+            onChange={({ target: { value } }) => setSearchQuery(value)}
+            style={{ width: 430 }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <Box ml={3} />
+          <TextField
+            value={limit}
+            label={"Number of Results"}
+            type={"number"}
+            inputProps={{ min: 1 }}
+            onChange={({ target: { value } }) => {
+              setLimit(value ? Number(value) : null);
+            }}
+          />
+        </Box>
         <PrimaryButton text={"Refetch Results"} onClick={handleClickSearch} />
       </Box>
       <Box width="100%" minHeight={12}>
