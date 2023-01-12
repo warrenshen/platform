@@ -285,6 +285,16 @@ export const BankVendorsTabLabels = [
   BankVendorsTabLabel.Approved,
 ];
 
+export enum BankCompanyLabel {
+  ParentCompany = "Parent Company",
+  Company = "Company",
+}
+
+export const BankCompanyLabels = [
+  BankCompanyLabel.ParentCompany,
+  BankCompanyLabel.Company,
+];
+
 export enum BespokeCatalogTabLabel {
   SalesTransactions = "Sales Transactions",
   IncomingTransferPackages = "Incoming Transfer Packages",

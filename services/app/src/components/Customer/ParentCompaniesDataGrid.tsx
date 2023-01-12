@@ -2,7 +2,10 @@ import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridC
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import { ReactComponent as ParentCompanyIcon } from "components/Shared/Layout/Icons/ParentCompanyGreen.svg";
 import { ParentCompanyFragment } from "generated/graphql";
-import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
+import {
+  BankParentCompanyRouteEnum,
+  getBankParentCompanyRoute,
+} from "lib/routes";
 import { ColumnWidths, formatRowModel } from "lib/tables";
 import { useMemo } from "react";
 
@@ -14,9 +17,9 @@ function getRows(parentCompanies: ParentCompanyFragment[]) {
   return parentCompanies.map((company) => {
     return formatRowModel({
       ...company,
-      company_url: getBankCompanyRoute(
-        company?.name || "",
-        BankCompanyRouteEnum.Overview
+      company_url: getBankParentCompanyRoute(
+        company?.id || "",
+        BankParentCompanyRouteEnum.Details
       ),
       cy_identifier:
         `parent-companies-data-grid-view-customer-button-${company.name}`

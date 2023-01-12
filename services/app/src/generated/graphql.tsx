@@ -8251,6 +8251,8 @@ export type CustomerSurveillanceResultsBoolExp = {
 /** unique or primary key constraints on table "customer_surveillance_results" */
 export enum CustomerSurveillanceResultsConstraint {
   /** unique or primary key constraint */
+  CompanyProductQualificationsCompanyIdQualifyingDateKey = "company_product_qualifications_company_id_qualifying_date_key",
+  /** unique or primary key constraint */
   CompanyProductQualificationsPkey = "company_product_qualifications_pkey",
 }
 
@@ -30819,6 +30821,19 @@ export type GetCompanyForBankCompanyPageQuery = {
   >;
 };
 
+export type GetParentCompanyForBankParentCompanyPageQueryVariables = Exact<{
+  id: Scalars["uuid"];
+}>;
+
+export type GetParentCompanyForBankParentCompanyPageQuery = {
+  parent_companies_by_pk?: Maybe<
+    Pick<ParentCompanies, "id" | "name"> & {
+      companies: Array<Pick<Companies, "id"> & CompanyFragment>;
+      users: Array<Pick<Users, "id"> & UserFragment>;
+    }
+  >;
+};
+
 export type GetCompanyForVendorOnboardingQueryVariables = Exact<{
   id: Scalars["uuid"];
 }>;
@@ -38315,6 +38330,74 @@ export type GetCompanyForBankCompanyPageQueryResult = Apollo.QueryResult<
   GetCompanyForBankCompanyPageQuery,
   GetCompanyForBankCompanyPageQueryVariables
 >;
+export const GetParentCompanyForBankParentCompanyPageDocument = gql`
+  query GetParentCompanyForBankParentCompanyPage($id: uuid!) {
+    parent_companies_by_pk(id: $id) {
+      id
+      name
+      companies {
+        id
+        ...Company
+      }
+      users {
+        id
+        ...User
+      }
+    }
+  }
+  ${CompanyFragmentDoc}
+  ${UserFragmentDoc}
+`;
+
+/**
+ * __useGetParentCompanyForBankParentCompanyPageQuery__
+ *
+ * To run a query within a React component, call `useGetParentCompanyForBankParentCompanyPageQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetParentCompanyForBankParentCompanyPageQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetParentCompanyForBankParentCompanyPageQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetParentCompanyForBankParentCompanyPageQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetParentCompanyForBankParentCompanyPageQuery,
+    GetParentCompanyForBankParentCompanyPageQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetParentCompanyForBankParentCompanyPageQuery,
+    GetParentCompanyForBankParentCompanyPageQueryVariables
+  >(GetParentCompanyForBankParentCompanyPageDocument, options);
+}
+export function useGetParentCompanyForBankParentCompanyPageLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetParentCompanyForBankParentCompanyPageQuery,
+    GetParentCompanyForBankParentCompanyPageQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetParentCompanyForBankParentCompanyPageQuery,
+    GetParentCompanyForBankParentCompanyPageQueryVariables
+  >(GetParentCompanyForBankParentCompanyPageDocument, options);
+}
+export type GetParentCompanyForBankParentCompanyPageQueryHookResult =
+  ReturnType<typeof useGetParentCompanyForBankParentCompanyPageQuery>;
+export type GetParentCompanyForBankParentCompanyPageLazyQueryHookResult =
+  ReturnType<typeof useGetParentCompanyForBankParentCompanyPageLazyQuery>;
+export type GetParentCompanyForBankParentCompanyPageQueryResult =
+  Apollo.QueryResult<
+    GetParentCompanyForBankParentCompanyPageQuery,
+    GetParentCompanyForBankParentCompanyPageQueryVariables
+  >;
 export const GetCompanyForVendorOnboardingDocument = gql`
   query GetCompanyForVendorOnboarding($id: uuid!) {
     companies_by_pk(id: $id) {

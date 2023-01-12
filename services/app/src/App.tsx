@@ -45,6 +45,10 @@ import BankCompanyCustomerRepaymentsPage from "pages/Bank/Company/Customer/Repay
 import BankCompanyCustomerReportsPage from "pages/Bank/Company/Customer/Reports";
 import BankCompanyCustomerSettingsPage from "pages/Bank/Company/Customer/Settings";
 import BankCompanyCustomerVendorsPage from "pages/Bank/Company/Customer/Vendors";
+import BankParentCompaniesCompanyDetailsPage from "pages/Bank/Company/ParentCompany/CompanyDetails";
+import BankParentCompaniesDetailsPage from "pages/Bank/Company/ParentCompany/Details";
+import BankParentCompaniesSettingsPage from "pages/Bank/Company/ParentCompany/Settings";
+import BankParentCompaniesUsersPage from "pages/Bank/Company/ParentCompany/Users";
 import BankCompanyPayorPartnershipsPage from "pages/Bank/Company/Payor/PayorPartnerships";
 import BankCompanyVendorPartnershipsPage from "pages/Bank/Company/Vendor/VendorPartnerships";
 import BankCustomersPage from "pages/Bank/Customers";
@@ -353,6 +357,19 @@ export default function App() {
               ]}
             >
               <CustomerPayorsPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={customerRoutes.settings}
+          element={
+            <PrivateRoute
+              requiredRoles={[
+                UserRolesEnum.CompanyAdmin,
+                UserRolesEnum.CompanyReadOnly,
+              ]}
+            >
+              <CustomerSettingsPage />
             </PrivateRoute>
           }
         />
@@ -725,7 +742,58 @@ export default function App() {
             </PrivateRoute>
           }
         />
-
+        <Route
+          path={"parent-companies/:parentCompanyId/details"}
+          element={
+            <PrivateRoute
+              requiredRoles={[
+                UserRolesEnum.BankAdmin,
+                UserRolesEnum.BankReadOnly,
+              ]}
+            >
+              <BankParentCompaniesDetailsPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={"parent-companies/:parentCompanyId/users"}
+          element={
+            <PrivateRoute
+              requiredRoles={[
+                UserRolesEnum.BankAdmin,
+                UserRolesEnum.BankReadOnly,
+              ]}
+            >
+              <BankParentCompaniesUsersPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={"parent-companies/:parentCompanyId/settings"}
+          element={
+            <PrivateRoute
+              requiredRoles={[
+                UserRolesEnum.BankAdmin,
+                UserRolesEnum.BankReadOnly,
+              ]}
+            >
+              <BankParentCompaniesSettingsPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={"parent-companies/:parentCompanyId/company-details"}
+          element={
+            <PrivateRoute
+              requiredRoles={[
+                UserRolesEnum.BankAdmin,
+                UserRolesEnum.BankReadOnly,
+              ]}
+            >
+              <BankParentCompaniesCompanyDetailsPage />
+            </PrivateRoute>
+          }
+        />
         <Route
           path={bankRoutes.ebbaApplications}
           element={

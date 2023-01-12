@@ -70,13 +70,13 @@ const SidebarItems = styled.div`
   overflow-y: scroll;
 `;
 
-const Content = styled.main`
+const Content = styled.main<{ backgroundColor: string }>`
   display: flex;
   flex-direction: column;
   align-items: stretch;
 
   width: calc(100% - 270px);
-  background-color: #f6f5f3;
+  background-color: ${(props) => props.backgroundColor};
   overflow-y: scroll;
 `;
 
@@ -378,12 +378,14 @@ interface Props {
   isLocationsPage?: boolean;
   appBarTitle: string;
   children: ReactNode;
+  backgroundColor?: string;
 }
 
 export default function Layout({
   isLocationsPage = false,
   appBarTitle,
   children,
+  backgroundColor = "#f6f5f3",
 }: Props) {
   useTitle(`${appBarTitle} | Bespoke`);
 
@@ -538,7 +540,7 @@ export default function Layout({
           </Box>
         </Footer>
       </Drawer>
-      <Content>{children}</Content>
+      <Content backgroundColor={backgroundColor}>{children}</Content>
     </Wrapper>
   );
 }

@@ -5,7 +5,12 @@ import { ReactComponent as ParentCompanyIcon } from "components/Shared/Layout/Ic
 import VerificationChip from "components/Vendors/v2/VerificationChip";
 import { CustomersWithMetadataFragment } from "generated/graphql";
 import { ProductTypeEnum, ProductTypeToLabel } from "lib/enum";
-import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
+import {
+  BankCompanyRouteEnum,
+  BankParentCompanyRouteEnum,
+  getBankCompanyRoute,
+  getBankParentCompanyRoute,
+} from "lib/routes";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
 
@@ -28,9 +33,9 @@ function getRows(companies: CustomersWithMetadataFragment[]) {
       is_payor: company?.is_payor || false,
       is_customer: company?.is_customer || false,
       parent_company_name: company?.parent_company?.name || "",
-      parent_company_url: getBankCompanyRoute(
-        company?.parent_company?.name || "",
-        BankCompanyRouteEnum.Overview
+      parent_company_url: getBankParentCompanyRoute(
+        company?.parent_company?.id || "",
+        BankParentCompanyRouteEnum.Details
       ),
       product_type: !!company?.financial_summaries?.[0]?.product_type
         ? ProductTypeToLabel[
@@ -87,7 +92,7 @@ export default function CompaniesCompaniesDataGrid({ companies }: Props) {
         cellRender: ({ value, data }: { value: string; data: any }) => (
           <ClickableDataGridCell
             dataCy={data.cy_identifier}
-            url={data.company_url}
+            url={data.parent_company_url}
             label={value}
             Icon={ParentCompanyIcon}
           />

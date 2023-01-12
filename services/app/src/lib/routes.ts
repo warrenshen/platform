@@ -63,12 +63,26 @@ export enum BankCompanyRouteEnum {
   VendorPartnerships = "/vendor-partnerships",
 }
 
+export enum BankParentCompanyRouteEnum {
+  Details = "/details",
+  Users = "/users",
+  Settings = "/settings",
+  CompanyDetails = "/company-details",
+}
+
 // Bank user routes are not prefixed.
 export const bankRoutes = {
   advances: "/advances",
   async: "/async",
   companies: "/companies",
   companyRoot: "/companies/:companyId",
+  parentCompanyRoot: "/parent-companies/:parentCompanyId",
+  parentCompany: {
+    details: BankParentCompanyRouteEnum.Details,
+    users: BankParentCompanyRouteEnum.Users,
+    settings: BankParentCompanyRouteEnum.Settings,
+    companyDetails: BankParentCompanyRouteEnum.CompanyDetails,
+  },
   company: {
     accountFeesCredits: BankCompanyRouteEnum.AccountFeesCredits,
     borrowingBase: BankCompanyRouteEnum.BorrowingBase,
@@ -115,4 +129,11 @@ export function getBankCompanyRoute(
   bankCompanyRoute: BankCompanyRouteEnum
 ) {
   return `/companies/${companyId}${bankCompanyRoute}`;
+}
+
+export function getBankParentCompanyRoute(
+  companyId: Companies["id"],
+  bankParentCompanyRoute: BankParentCompanyRouteEnum
+) {
+  return `/parent-companies/${companyId}${bankParentCompanyRoute}`;
 }

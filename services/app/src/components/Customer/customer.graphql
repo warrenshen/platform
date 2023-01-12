@@ -168,6 +168,21 @@ query GetCompanyForBankCompanyPage($id: uuid!) {
   }
 }
 
+query GetParentCompanyForBankParentCompanyPage($id: uuid!) {
+  parent_companies_by_pk(id: $id) {
+    id
+    name
+    companies {
+      id
+      ...Company
+    }
+    users {
+      id
+      ...User
+    }
+  }
+}
+
 query GetCompanyForVendorOnboarding($id: uuid!) {
   companies_by_pk(id: $id) {
     id

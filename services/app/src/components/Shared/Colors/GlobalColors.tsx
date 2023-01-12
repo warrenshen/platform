@@ -32,3 +32,7 @@ export const SuggestedRecomputeDatesSalmon = "#f6e8e8";
 export const ApproveBlueBackground = "#d2ecf8";
 export const UnverifiedRed = "#e75d5d";
 export const UnverifiedRedBackground = "#f7e8e8";
+
+export const CompanyChipOrange = "#cba679";
+
+export const CompanyBackgroundColor = "#f6f5f3";
