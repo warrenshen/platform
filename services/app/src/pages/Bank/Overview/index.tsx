@@ -116,6 +116,12 @@ export default function BankOverviewPage() {
     );
   }
 
+  const mostRecentSummary = !!filteredBankFinancialSummaries?.[0]
+    ? filteredBankFinancialSummaries.reduce((a, b) =>
+        a.updated_at > b.updated_at ? a : b
+      )
+    : null;
+
   return (
     <Page appBarTitle={"Overview"}>
       <PageContent title={"Overview"}>
@@ -126,9 +132,9 @@ export default function BankOverviewPage() {
             </Typography>
             <Typography variant="body2" gutterBottom={true}>
               {`Note: dashboard is updated on an hourly cadence (last update: ${
-                formatDatetimeString(
-                  filteredBankFinancialSummaries[0]?.updated_at
-                ) || "TBD"
+                !!mostRecentSummary
+                  ? formatDatetimeString(mostRecentSummary.updated_at) || "TBD"
+                  : "TBD"
               }).`}
             </Typography>
             <BankFinancialSummariesDataGrid
