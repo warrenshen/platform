@@ -41,12 +41,6 @@ export default function MetrcTransferManifestCard({ metrcTransfer }: Props) {
           formatDatetimeString(transferPayload.EstimatedArrivalDateTime) || "-"
         }
       />
-      <CardLine
-        labelText={"Received date time"}
-        valueText={
-          formatDatetimeString(transferPayload.ReceivedDateTime) || "-"
-        }
-      />
     </CardContainer>
   );
 }

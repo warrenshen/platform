@@ -10,7 +10,6 @@ import {
   Companies,
   PurchaseOrderMetrcTransferWithRelationshipsFragment,
 } from "generated/graphql";
-import { formatDatetimeString } from "lib/date";
 import { useContext, useState } from "react";
 
 interface Props {
@@ -42,10 +41,6 @@ export default function PurchaseOrderViewModalCard({
     ?.transfer_payload?.ShipperFacilityLicenseNumber
     ? metrcTransfer.metrc_transfer.transfer_payload.ShipperFacilityLicenseNumber
     : "";
-  const receivedDateTime = !!metrcTransfer?.metrc_transfer?.transfer_payload
-    ?.ReceivedDateTime
-    ? metrcTransfer.metrc_transfer.transfer_payload.ReceivedDateTime
-    : "";
   const packageCount = !!metrcTransfer?.metrc_transfer?.transfer_payload
     ?.PackageCount
     ? metrcTransfer.metrc_transfer.transfer_payload.PackageCount
@@ -76,10 +71,6 @@ export default function PurchaseOrderViewModalCard({
         <ModalDataPoint
           subtitle={"License from / to"}
           text={`${shipperFacilityLicenseNumber} -> ${recipientFacilityLicenseNumber}`}
-        />
-        <ModalDataPoint
-          subtitle={"Received at"}
-          text={formatDatetimeString(receivedDateTime, true)}
         />
         <ModalDataPoint subtitle={"Package(s) count"} text={packageCount} />
         <ModalDataPoint subtitle={"Lab result"} text={labResult} />
