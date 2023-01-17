@@ -335,7 +335,7 @@ def main(is_test_run: bool) -> None:
 	session_maker = models.new_sessionmaker(engine)
 
 	for metrc_sales_receipt_tuple in METRC_SALES_RECEIPT_TUPLES:
-		BATCH_SIZE = 50
+		BATCH_SIZE = 10
 		current_page = 0
 		is_done = False
 
