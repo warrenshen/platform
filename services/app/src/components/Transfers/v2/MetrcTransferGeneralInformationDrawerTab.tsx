@@ -23,16 +23,16 @@ const MetrcTransferGeneralInformationDrawerTab = ({
       <Box width={600} ml={25} mb={3}>
         <MetrcTransferManifestCard metrcTransfer={metrcTransfer} />
       </Box>
-      <Box>
+      <>
         {metrcDeliveries.length > 0 && (
-          <>
+          <Box mb={2}>
             <Text textVariant={TextVariants.ParagraphLead} bottomMargin={2}>
               {`Deliveries (${metrcDeliveries.length})`}
             </Text>
             <MetrcDeliveriesDataGrid metrcDeliveries={metrcDeliveries} />
-          </>
+          </Box>
         )}
-      </Box>
+      </>
       <Box>
         {metrcTransferPackages.length > 0 && (
           <>

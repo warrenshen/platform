@@ -21,12 +21,12 @@ export default function MetrcTransferManifestCard({ metrcTransfer }: Props) {
         valueText={transferPayload.LastModified}
       />
       <CardLine
-        labelText={"Shipper facility name"}
-        valueText={transferPayload.ShipperFacilityName}
+        labelText={"Shipper facility license number"}
+        valueText={transferPayload.ShipperFacilityLicenseNumber}
       />
       <CardLine
-        labelText={"Recipient facility name"}
-        valueText={transferPayload.RecipientFacilityName}
+        labelText={"Shipper facility name"}
+        valueText={transferPayload.ShipperFacilityName}
       />
       <CardLine
         labelText={"Estimated departure time"}
