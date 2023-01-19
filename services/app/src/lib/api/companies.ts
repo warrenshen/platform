@@ -510,8 +510,8 @@ export type CreateChangeVendorContactsRequestMutationReq = {
   variables: {
     requested_vendor_id: string;
     requesting_company_id: Companies["id"];
-    new_users: string[];
-    delete_users: string[];
+    active_user_ids: string[];
+    inactive_user_ids: string[];
   };
 };
 

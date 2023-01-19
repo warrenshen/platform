@@ -99,6 +99,7 @@ query GetVendorPartnershipForContacts($id: uuid!) {
     }
     vendor_contacts {
       id
+      is_active
       ...CompanyVendorContact
     }
   }

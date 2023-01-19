@@ -7356,6 +7356,7 @@ export enum CompanyTypeUpdateColumn {
 export type CompanyVendorContacts = {
   created_at: Scalars["timestamptz"];
   id: Scalars["uuid"];
+  is_active?: Maybe<Scalars["Boolean"]>;
   partnership_id: Scalars["uuid"];
   updated_at: Scalars["timestamptz"];
   /** An object relationship */
@@ -7403,6 +7404,7 @@ export type CompanyVendorContactsBoolExp = {
   _or?: Maybe<Array<CompanyVendorContactsBoolExp>>;
   created_at?: Maybe<TimestamptzComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
+  is_active?: Maybe<BooleanComparisonExp>;
   partnership_id?: Maybe<UuidComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
   user?: Maybe<UsersBoolExp>;
@@ -7419,6 +7421,7 @@ export enum CompanyVendorContactsConstraint {
 export type CompanyVendorContactsInsertInput = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
+  is_active?: Maybe<Scalars["Boolean"]>;
   partnership_id?: Maybe<Scalars["uuid"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   user?: Maybe<UsersObjRelInsertInput>;
@@ -7480,6 +7483,7 @@ export type CompanyVendorContactsOnConflict = {
 export type CompanyVendorContactsOrderBy = {
   created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  is_active?: Maybe<OrderBy>;
   partnership_id?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   user?: Maybe<UsersOrderBy>;
@@ -7498,6 +7502,8 @@ export enum CompanyVendorContactsSelectColumn {
   /** column name */
   Id = "id",
   /** column name */
+  IsActive = "is_active",
+  /** column name */
   PartnershipId = "partnership_id",
   /** column name */
   UpdatedAt = "updated_at",
@@ -7509,6 +7515,7 @@ export enum CompanyVendorContactsSelectColumn {
 export type CompanyVendorContactsSetInput = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
+  is_active?: Maybe<Scalars["Boolean"]>;
   partnership_id?: Maybe<Scalars["uuid"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   vendor_user_id?: Maybe<Scalars["uuid"]>;
@@ -7520,6 +7527,8 @@ export enum CompanyVendorContactsUpdateColumn {
   CreatedAt = "created_at",
   /** column name */
   Id = "id",
+  /** column name */
+  IsActive = "is_active",
   /** column name */
   PartnershipId = "partnership_id",
   /** column name */
@@ -33214,7 +33223,8 @@ export type GetVendorPartnershipForContactsQuery = {
         }
       >;
       vendor_contacts: Array<
-        Pick<CompanyVendorContacts, "id"> & CompanyVendorContactFragment
+        Pick<CompanyVendorContacts, "id" | "is_active"> &
+          CompanyVendorContactFragment
       >;
     } & VendorPartnershipFragment
   >;
@@ -33420,7 +33430,7 @@ export type CompanyVendorPartnershipForCustomerQuery = {
         }
       >;
       vendor_contacts: Array<
-        Pick<CompanyVendorContacts, "id"> & {
+        Pick<CompanyVendorContacts, "id" | "is_active"> & {
           user: Pick<Users, "id"> & UserFragment;
         }
       >;
@@ -33434,7 +33444,7 @@ export type GetVendorPartnershipForContactsForCustomersQueryVariables = Exact<{
 
 export type GetVendorPartnershipForContactsForCustomersQuery = {
   company_vendor_contacts: Array<
-    Pick<CompanyVendorContacts, "id" | "vendor_user_id"> & {
+    Pick<CompanyVendorContacts, "id" | "vendor_user_id" | "is_active"> & {
       user: Pick<Users, "id"> & UserFragment;
     }
   >;
@@ -33496,7 +33506,7 @@ export type CompanyPayorContactFragment = Pick<
 
 export type CompanyVendorContactFragment = Pick<
   CompanyVendorContacts,
-  "id" | "vendor_user_id"
+  "id" | "vendor_user_id" | "is_active"
 > & { user: Pick<Users, "id"> & ContactFragment };
 
 export type CompanyDealOwnersFragment = {
@@ -35295,6 +35305,7 @@ export const CompanyVendorContactFragmentDoc = gql`
   fragment CompanyVendorContact on company_vendor_contacts {
     id
     vendor_user_id
+    is_active
     user {
       id
       ...Contact
@@ -48975,6 +48986,7 @@ export const GetVendorPartnershipForContactsDocument = gql`
       }
       vendor_contacts {
         id
+        is_active
         ...CompanyVendorContact
       }
     }
@@ -49935,6 +49947,7 @@ export const CompanyVendorPartnershipForCustomerDocument = gql`
       }
       vendor_contacts {
         id
+        is_active
         user {
           id
           ...User
@@ -50013,6 +50026,7 @@ export const GetVendorPartnershipForContactsForCustomersDocument = gql`
     ) {
       id
       vendor_user_id
+      is_active
       user {
         id
         ...User

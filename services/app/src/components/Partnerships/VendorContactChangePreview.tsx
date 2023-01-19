@@ -27,27 +27,37 @@ export default function VendorContactChangePreview({ previewData }: Props) {
 
   const customer = data?.company_vendor_partnerships_by_pk?.company;
   const vendor = data?.company_vendor_partnerships_by_pk?.vendor;
+  const companyVendorPartnership =
+    data?.company_vendor_partnerships_by_pk || null;
 
-  const users: UserFragment[] = useMemo(
-    () => data?.company_vendor_partnerships_by_pk?.vendor?.users || [],
-    [data?.company_vendor_partnerships_by_pk]
-  );
+  const { activeContactUsers, inactiveContactUsers } = useMemo(() => {
+    const active = !!companyVendorPartnership?.vendor_contacts
+      ? companyVendorPartnership.vendor_contacts
+          .filter(
+            (contact) =>
+              previewData.proposedUsersSelected.indexOf(contact.user.id) > -1
+          )
+          .map((contact) => contact.user)
+      : ([] as UserFragment[]);
 
-  const activeContacts = useMemo(
-    () =>
-      users.filter(
-        (user) => previewData.proposedUsersSelected.indexOf(user.id) >= 0
-      ),
-    [previewData.proposedUsersSelected, users]
-  );
+    const inactive = !!companyVendorPartnership?.vendor_contacts
+      ? companyVendorPartnership.vendor_contacts
+          .filter(
+            (contact) =>
+              previewData.proposedUsersUnselected.indexOf(contact.user.id) > -1
+          )
+          .map((contact) => contact.user)
+      : ([] as UserFragment[]);
 
-  const inactiveContacts = useMemo(
-    () =>
-      users.filter(
-        (user) => previewData.proposedUsersSelected.indexOf(user.id) < 0
-      ),
-    [previewData.proposedUsersSelected, users]
-  );
+    return {
+      activeContactUsers: active,
+      inactiveContactUsers: inactive,
+    };
+  }, [
+    companyVendorPartnership,
+    previewData.proposedUsersSelected,
+    previewData.proposedUsersUnselected,
+  ]);
 
   if (!customer || !vendor) {
     return null;
@@ -63,7 +73,7 @@ export default function VendorContactChangePreview({ previewData }: Props) {
         <UsersDataGrid
           isExcelExport={false}
           pager={false}
-          users={activeContacts}
+          users={activeContactUsers}
         />
       </Box>
       <Box mt={4}>
@@ -73,7 +83,7 @@ export default function VendorContactChangePreview({ previewData }: Props) {
         <UsersDataGrid
           isExcelExport={false}
           pager={false}
-          users={inactiveContacts}
+          users={inactiveContactUsers}
         />
       </Box>
     </Box>

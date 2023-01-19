@@ -6,8 +6,6 @@ import {
   Companies,
   CompanyVendorPartnerships,
   UserFragment,
-  Users,
-  useGetVendorPartnershipForContactsForCustomersQuery,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -20,7 +18,8 @@ interface Props {
   customerName: string;
   vendorName: string;
   handleClose: () => void;
-  vendorContactUsers: UserFragment[];
+  activeContactUsers: UserFragment[];
+  inactiveContactUsers: UserFragment[];
   requestingCompanyId: Companies["id"];
 }
 
@@ -30,64 +29,37 @@ export default function UpdateCustomerVendorContactsModal({
   customerName,
   vendorName,
   handleClose,
-  vendorContactUsers,
+  activeContactUsers,
+  inactiveContactUsers,
   requestingCompanyId,
 }: Props) {
   const snackbar = useSnackbar();
 
-  const [selectedUserIds, setSelectedUserIds] = useState<Users["id"]>([]);
+  const [activeUsers, setActiveUsers] = useState<UserFragment[]>([]);
+  const [inactiveUsers, setInactiveUsers] = useState<UserFragment[]>([]);
 
-  const { error } = useGetVendorPartnershipForContactsForCustomersQuery({
-    fetchPolicy: "network-only",
-    variables: {
-      id: vendorPartnershipId,
-    },
-    onCompleted: (data) => {
-      const existingSelectedUserIds = (data?.company_vendor_contacts || []).map(
-        (vendorContact) => vendorContact.vendor_user_id
-      );
-      setSelectedUserIds(existingSelectedUserIds);
-    },
-  });
-
-  if (error) {
-    console.error({ error });
-    alert(`Error in query (details in console): ${error.message}`);
-  }
-
-  const selectedContacts = useMemo(
-    () =>
-      vendorContactUsers.filter(
-        (user) => selectedUserIds.indexOf(user.id) >= 0
-      ),
-    [selectedUserIds, vendorContactUsers]
-  );
-
-  const notSelectedContacts = useMemo(
-    () =>
-      vendorContactUsers.filter((user) => selectedUserIds.indexOf(user.id) < 0),
-    [selectedUserIds, vendorContactUsers]
-  );
-
-  const notSelectedUserIds = useMemo(
-    () => notSelectedContacts.map((user) => user.id),
-    [notSelectedContacts]
-  );
+  useMemo(() => {
+    setActiveUsers(activeContactUsers);
+    setInactiveUsers(inactiveContactUsers);
+  }, [activeContactUsers, inactiveContactUsers]);
 
   const selectedUsersActionItems = useMemo(
     () => [
       {
         key: "deselect-user",
         label: "Remove",
-        handleClick: (params: GridValueFormatterParams) =>
-          setSelectedUserIds(
-            selectedUserIds.filter(
-              (userId: Users["id"]) => userId !== params.row.data.id
-            )
-          ),
+        handleClick: (params: GridValueFormatterParams) => {
+          const targetUser = activeUsers.filter(
+            (user) => user.id === params.row.data.id
+          )[0];
+          setInactiveUsers([...inactiveUsers, targetUser]);
+          setActiveUsers(
+            activeUsers.filter((user) => user.id !== params.row.data.id)
+          );
+        },
       },
     ],
-    [selectedUserIds, setSelectedUserIds]
+    [activeUsers, inactiveUsers]
   );
 
   const notSelectedUsersActionItems = useMemo(
@@ -95,11 +67,18 @@ export default function UpdateCustomerVendorContactsModal({
       {
         key: "select-user",
         label: "Add",
-        handleClick: (params: GridValueFormatterParams) =>
-          setSelectedUserIds([...selectedUserIds, params.row.data.id]),
+        handleClick: (params: GridValueFormatterParams) => {
+          const targetUser = inactiveUsers.filter(
+            (user) => user.id === params.row.data.id
+          )[0];
+          setActiveUsers([...activeUsers, targetUser]);
+          setInactiveUsers(
+            inactiveUsers.filter((user) => user.id !== params.row.data.id)
+          );
+        },
       },
     ],
-    [selectedUserIds, setSelectedUserIds]
+    [activeUsers, inactiveUsers]
   );
 
   const [
@@ -111,8 +90,8 @@ export default function UpdateCustomerVendorContactsModal({
     const response = await updatePartnershipContacts({
       variables: {
         requested_vendor_id: vendorId,
-        new_users: selectedUserIds,
-        delete_users: notSelectedUserIds,
+        active_user_ids: activeUsers.map((user) => user.id),
+        inactive_user_ids: inactiveUsers.map((user) => user.id),
         requesting_company_id: requestingCompanyId,
       },
     });
@@ -128,7 +107,7 @@ export default function UpdateCustomerVendorContactsModal({
   };
 
   const isSubmitDisabled =
-    isUpdatePartnershipContactsLoading || selectedUserIds.length <= 0;
+    isUpdatePartnershipContactsLoading || activeUsers.length <= 0;
 
   return (
     <Modal
@@ -154,7 +133,7 @@ export default function UpdateCustomerVendorContactsModal({
             </Typography>
             <UsersDataGrid
               pager={false}
-              users={selectedContacts}
+              users={activeUsers}
               actionItems={selectedUsersActionItems}
             />
           </Box>
@@ -164,7 +143,7 @@ export default function UpdateCustomerVendorContactsModal({
             </Typography>
             <UsersDataGrid
               pager={false}
-              users={notSelectedContacts}
+              users={inactiveUsers}
               actionItems={notSelectedUsersActionItems}
             />
           </Box>

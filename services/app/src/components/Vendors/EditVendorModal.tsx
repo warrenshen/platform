@@ -6,6 +6,7 @@ import UsersDataGrid from "components/Users/UsersDataGrid";
 import UpdateCustomerVendorContactsModal from "components/Vendors/UpdateCustomerVendorContactsModal";
 import {
   CompanyVendorPartnerships,
+  UserFragment,
   useCompanyVendorPartnershipForCustomerQuery,
 } from "generated/graphql";
 import { useMemo, useState } from "react";
@@ -37,13 +38,25 @@ export default function VendorPartnershipDrawer({
   const customer = companyVendorPartnership?.company;
 
   const vendor = companyVendorPartnership?.vendor;
-  const vendorContactUsers = useMemo(
-    () =>
-      companyVendorPartnership?.vendor_contacts.map(
-        (vendorContact) => vendorContact.user
-      ) || [],
-    [companyVendorPartnership]
-  );
+
+  const { activeContactUsers, inactiveContactUsers } = useMemo(() => {
+    const active = !!companyVendorPartnership?.vendor_contacts
+      ? companyVendorPartnership.vendor_contacts
+          .filter((contact) => contact.is_active === true)
+          .map((contact) => contact.user)
+      : ([] as UserFragment[]);
+
+    const inactive = !!companyVendorPartnership?.vendor_contacts
+      ? companyVendorPartnership.vendor_contacts
+          .filter((contact) => contact.is_active !== true)
+          .map((contact) => contact.user)
+      : ([] as UserFragment[]);
+
+    return {
+      activeContactUsers: active,
+      inactiveContactUsers: inactive,
+    };
+  }, [companyVendorPartnership]);
 
   if (!companyVendorPartnership || !customer || !vendor) {
     return null;
@@ -83,7 +96,8 @@ export default function VendorPartnershipDrawer({
                 requestingCompanyId={customer.id}
                 customerName={customer.name}
                 vendorName={vendor.name || ""}
-                vendorContactUsers={vendorContactUsers}
+                activeContactUsers={activeContactUsers}
+                inactiveContactUsers={inactiveContactUsers}
                 handleClose={() => {
                   refetch();
                   handleClose();
@@ -94,7 +108,7 @@ export default function VendorPartnershipDrawer({
         </Box>
         <UsersDataGrid
           isEditIconVisible={true}
-          users={vendorContactUsers}
+          users={activeContactUsers}
           setSelectedUserProfile={setSelectedUserProfile}
         />
       </Box>

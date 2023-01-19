@@ -404,6 +404,7 @@ class CompanyVendorContact(Base):
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
 	partnership_id = cast(GUID, Column(GUID, ForeignKey('company_vendor_partnerships.id')))
 	vendor_user_id = cast(GUID, Column(GUID, ForeignKey('users.id')))
+	is_active = Column(Boolean)
 
 	vendor_user = relationship(
 		'User',

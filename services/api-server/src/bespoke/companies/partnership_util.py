@@ -177,29 +177,10 @@ def update_partnership_contacts(
 				models.CompanyVendorContact.partnership_id == partnership_id
 			).all())
 
-		company_vendor_contacts_to_delete = []
-		for existing_vendor_contact in existing_vendor_contacts:
-			is_vendor_contact_deleted = str(existing_vendor_contact.vendor_user_id) not in user_ids
-			if is_vendor_contact_deleted:
-				company_vendor_contacts_to_delete.append(existing_vendor_contact)
-
-		for company_vendor_contact_to_delete in company_vendor_contacts_to_delete:
-			cast(Callable, session.delete)(company_vendor_contact_to_delete)
-
-		session.flush()
-
-		for user_id in user_ids:
-			existing_vendor_contact = cast(
-				models.CompanyVendorContact,
-				session.query(models.CompanyVendorContact).filter_by(
-					partnership_id=partnership_id,
-					vendor_user_id=user_id,
-				).first())
-			if not existing_vendor_contact:
-				new_company_vendor_contact = models.CompanyVendorContact( # type: ignore
-					partnership_id=partnership_id,
-					vendor_user_id=user_id,
-				)
-				session.add(new_company_vendor_contact)
+		for contact in existing_vendor_contacts:
+			if str(contact.vendor_user_id) in user_ids:
+				contact.is_active = True
+			else:
+				contact.is_active = False
 
 	return True, None

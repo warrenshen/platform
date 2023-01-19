@@ -12,6 +12,7 @@ import SendVendorAgreements from "components/Vendors/VendorDrawer/Notifications/
 import {
   CompanyAgreementsInsertInput,
   CompanyVendorPartnerships,
+  UserFragment,
   useAddCompanyVendorAgreementMutation,
   useGetVendorPartnershipForBankQuery,
   useUpdateVendorAgreementIdMutation,
@@ -50,6 +51,25 @@ export default function VendorPartnershipDrawer({
   const [addCompanyVendorAgreement] = useAddCompanyVendorAgreementMutation();
 
   const companyVendorPartnership = data?.company_vendor_partnerships_by_pk;
+  const { activeContactUsers, inactiveContactUsers } = useMemo(() => {
+    const active = !!companyVendorPartnership?.vendor_contacts
+      ? companyVendorPartnership.vendor_contacts
+          .filter((contact) => contact.is_active === true)
+          .map((contact) => contact.user)
+      : ([] as UserFragment[]);
+
+    const inactive = !!companyVendorPartnership?.vendor_contacts
+      ? companyVendorPartnership.vendor_contacts
+          .filter((contact) => contact.is_active !== true)
+          .map((contact) => contact.user)
+      : ([] as UserFragment[]);
+
+    return {
+      activeContactUsers: active,
+      inactiveContactUsers: inactive,
+    };
+  }, [companyVendorPartnership]);
+
   const customer = companyVendorPartnership?.company;
   const customerUsers = consolidateCompanyUsers(
     customer?.users || [],
@@ -61,16 +81,6 @@ export default function VendorPartnershipDrawer({
   const agreementFileIds = useMemo(() => {
     return agreementFileId ? [agreementFileId] : [];
   }, [agreementFileId]);
-
-  const vendorContacts = useMemo(
-    () =>
-      (companyVendorPartnership?.vendor_contacts || []).length > 0
-        ? companyVendorPartnership?.vendor_contacts.map(
-            (vendorContact) => vendorContact.user
-          ) || []
-        : [],
-    [companyVendorPartnership]
-  );
 
   if (!companyVendorPartnership || !customer || !vendor) {
     return null;
@@ -106,6 +116,8 @@ export default function VendorPartnershipDrawer({
             modal={({ handleClose }) => (
               <UpdateVendorContactsModal
                 vendorPartnershipId={vendorPartnershipId}
+                activeContactUsers={activeContactUsers}
+                inactiveContactUsers={inactiveContactUsers}
                 handleClose={() => {
                   refetch();
                   handleClose();
@@ -114,7 +126,7 @@ export default function VendorPartnershipDrawer({
             )}
           />
         </Box>
-        <UsersDataGrid users={vendorContacts} />
+        <UsersDataGrid users={activeContactUsers} />
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
         <Typography variant="h6">Bank Information</Typography>

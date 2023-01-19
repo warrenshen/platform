@@ -169,6 +169,7 @@ fragment CompanyPayorContact on company_payor_contacts {
 fragment CompanyVendorContact on company_vendor_contacts {
   id
   vendor_user_id
+  is_active
   user {
     id
     ...Contact

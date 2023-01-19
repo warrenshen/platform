@@ -105,6 +105,7 @@ query CompanyVendorPartnershipForCustomer($id: uuid!) {
     }
     vendor_contacts {
       id
+      is_active
       user {
         id
         ...User
@@ -129,7 +130,8 @@ query GetVendorPartnershipForContactsForCustomers($id: uuid!) {
     }
   ) { 
     id
-    vendor_user_id 
+    vendor_user_id
+    is_active 
     user {
       id
       ...User

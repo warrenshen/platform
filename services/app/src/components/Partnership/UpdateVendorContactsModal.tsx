@@ -16,16 +16,27 @@ import { useMemo, useState } from "react";
 
 interface Props {
   vendorPartnershipId: CompanyVendorPartnerships["id"];
+  activeContactUsers: UserFragment[];
+  inactiveContactUsers: UserFragment[];
   handleClose: () => void;
 }
 
 export default function UpdateVendorContactsModal({
   vendorPartnershipId,
+  activeContactUsers,
+  inactiveContactUsers,
   handleClose,
 }: Props) {
   const snackbar = useSnackbar();
 
   const [selectedUserIds, setSelectedUserIds] = useState<Users["id"]>([]);
+  const [activeUsers, setActiveUsers] = useState<UserFragment[]>([]);
+  const [inactiveUsers, setInactiveUsers] = useState<UserFragment[]>([]);
+
+  useMemo(() => {
+    setActiveUsers(activeContactUsers);
+    setInactiveUsers(inactiveContactUsers);
+  }, [activeContactUsers, inactiveContactUsers]);
 
   const { data, error } = useGetVendorPartnershipForContactsQuery({
     fetchPolicy: "network-only",
@@ -51,47 +62,42 @@ export default function UpdateVendorContactsModal({
   const customer = data?.company_vendor_partnerships_by_pk?.company;
   const vendor = data?.company_vendor_partnerships_by_pk?.vendor;
 
-  const users: UserFragment[] = useMemo(
-    () => data?.company_vendor_partnerships_by_pk?.vendor?.users || [],
-    [data?.company_vendor_partnerships_by_pk]
-  );
-
-  const selectedContacts = useMemo(
-    () => users.filter((user) => selectedUserIds.indexOf(user.id) >= 0),
-    [selectedUserIds, users]
-  );
-
-  const notSelectedContacts = useMemo(
-    () => users.filter((user) => selectedUserIds.indexOf(user.id) < 0),
-    [selectedUserIds, users]
-  );
-
-  const selectedLoansActionItems = useMemo(
+  const selectedUsersActionItems = useMemo(
     () => [
       {
         key: "deselect-user",
         label: "Remove",
-        handleClick: (params: GridValueFormatterParams) =>
-          setSelectedUserIds(
-            selectedUserIds.filter(
-              (userId: Users["id"]) => userId !== params.row.data.id
-            )
-          ),
+        handleClick: (params: GridValueFormatterParams) => {
+          const targetUser = activeUsers.filter(
+            (user) => user.id === params.row.data.id
+          )[0];
+          setInactiveUsers([...inactiveUsers, targetUser]);
+          setActiveUsers(
+            activeUsers.filter((user) => user.id !== params.row.data.id)
+          );
+        },
       },
     ],
-    [selectedUserIds, setSelectedUserIds]
+    [activeUsers, inactiveUsers]
   );
 
-  const notSelectedLoansActionItems = useMemo(
+  const notSelectedUsersActionItems = useMemo(
     () => [
       {
         key: "select-user",
         label: "Add",
-        handleClick: (params: GridValueFormatterParams) =>
-          setSelectedUserIds([...selectedUserIds, params.row.data.id]),
+        handleClick: (params: GridValueFormatterParams) => {
+          const targetUser = inactiveUsers.filter(
+            (user) => user.id === params.row.data.id
+          )[0];
+          setActiveUsers([...activeUsers, targetUser]);
+          setInactiveUsers(
+            inactiveUsers.filter((user) => user.id !== params.row.data.id)
+          );
+        },
       },
     ],
-    [selectedUserIds, setSelectedUserIds]
+    [activeUsers, inactiveUsers]
   );
 
   const handleClickSubmit = async () => {
@@ -99,7 +105,7 @@ export default function UpdateVendorContactsModal({
       variables: {
         is_payor: false,
         partnership_id: vendorPartnershipId,
-        user_ids: selectedUserIds,
+        user_ids: activeUsers.map((user) => user.id),
       },
     });
 
@@ -147,8 +153,8 @@ export default function UpdateVendorContactsModal({
           </Typography>
           <UsersDataGrid
             pager={false}
-            users={selectedContacts}
-            actionItems={selectedLoansActionItems}
+            users={activeUsers}
+            actionItems={selectedUsersActionItems}
           />
         </Box>
         <Box mt={4}>
@@ -157,8 +163,8 @@ export default function UpdateVendorContactsModal({
           </Typography>
           <UsersDataGrid
             pager={false}
-            users={notSelectedContacts}
-            actionItems={notSelectedLoansActionItems}
+            users={inactiveUsers}
+            actionItems={notSelectedUsersActionItems}
           />
         </Box>
       </Box>

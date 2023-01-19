@@ -6,7 +6,7 @@ import os
 import sys
 import time
 from os import path
-from typing import Dict, List, cast
+from typing import Callable, Dict, List, cast
 
 # Path hack before we try to import bespoke
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
@@ -44,39 +44,41 @@ def main(is_test_run: bool = True) -> None:
 					is_done = True
 					continue
 
-				partnership_lookup:Dict[String, models.CompanyVendorPartnership] = {}
 				for partnership in partnerships:
-					partnership_lookup[str(partnership.id)] = partnership
-
-				all_partnerships = partnership_lookup.keys()
-				partnerships_with_all_contacts = []
-				for existing_partnership in all_partnerships:
-					partnership_has_contacts = cast(
-						models.CompanyVendorContact,
+					partnership_contacts = cast(
+						List[models.CompanyVendorContact],
 						session.query(models.CompanyVendorContact).filter(
-							models.CompanyVendorContact.partnership_id == existing_partnership
-						).count()) > 0
-
-					if not partnership_has_contacts:
-						partnerships_with_all_contacts.append(existing_partnership)
-
-				for partnership in partnerships_with_all_contacts:
-					users = cast(
-						List[models.User],
-						session.query(models.User).filter(
-							models.User.company_id == partnership_lookup[partnership].vendor_id
-						).filter(
-							models.User.is_deleted != True
+							models.CompanyVendorContact.partnership_id == partnership.id
 						).all())
 
-					for user in users:
-						new_company_vendor_contact = models.CompanyVendorContact( # type: ignore
-							partnership_id=partnership,
-							vendor_user_id=user.id,
-						)
-						if not is_test_run:
-							session.add(new_company_vendor_contact)
-						print(f"added {user.id} to vendor contacts for {partnership}")
+					active_contact_user_ids: List[str] = []
+					inactive_contact_user_ids: List[str] = []
+					for contact in partnership_contacts:
+						if contact.is_active is None or contact.is_active is True:
+							contact.is_active = True
+							active_contact_user_ids.append(str(contact.vendor_user_id))
+						else:
+							inactive_contact_user_ids.append(str(contact.vendor_user_id))
+
+					inactive_vendor_users = cast(
+						List[models.User],
+						session.query(models.User).filter(
+							~models.User.id.in_(active_contact_user_ids)
+						).filter(
+							cast(Callable, models.User.is_deleted.isnot)(True)
+						).filter(
+							models.User.company_id == partnership.vendor_id
+						).all())
+
+					for user in inactive_vendor_users:
+						if not is_test_run and str(user.id) not in inactive_contact_user_ids:
+							session.add(models.CompanyVendorContact( # type: ignore
+								partnership_id = str(partnership.id),
+								vendor_user_id = str(user.id),
+								is_active = False,
+							))
+
+							print(f"added {user.id} to vendor contacts for {partnership.id}")
 
 			except Exception as e:
 				print(e)

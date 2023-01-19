@@ -10,6 +10,7 @@ select_permissions:
     permission:
       columns:
         - id
+        - is_active
         - partnership_id
         - vendor_user_id
       filter: {}
@@ -17,6 +18,7 @@ select_permissions:
     permission:
       columns:
         - id
+        - is_active
         - partnership_id
         - vendor_user_id
       filter: {}
@@ -24,6 +26,7 @@ select_permissions:
     permission:
       columns:
         - id
+        - is_active
         - partnership_id
         - vendor_user_id
       filter:
@@ -48,6 +51,7 @@ select_permissions:
     permission:
       columns:
         - id
+        - is_active
         - partnership_id
         - vendor_user_id
       filter:

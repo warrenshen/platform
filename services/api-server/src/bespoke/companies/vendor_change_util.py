@@ -59,58 +59,48 @@ def approve_vendor_change_request(
 		requested_vendor_contact.email = request_info["email"].lower()
 
 	else:
-		new_users = request_info['new_users']
-		delete_users = request_info['delete_users']
+		# new vs active and delete vs inactive is a historical artifact
+		# We used to delete the CompanyVendorContact entry, now we set an `is_active` flag
+		# The if statement is to cover the transition period since there are active request in prod
+		# TODO(JR): clean up once the old new/delete requests are processed in prod/staging
+		active_user_ids = request_info['new_users'] if 'new_users' in request_info else request_info['active_user_ids']
+		inactive_user_ids = request_info['delete_users'] if 'delete_users' in request_info else request_info['inactive_user_ids']
 
 		# finds partnerships
-		company_vendor_partnership = cast(
-			models.CompanyVendorPartnership,
-			session.query(models.CompanyVendorPartnership).filter(
-					models.CompanyVendorPartnership.vendor_id == vendor_change_request.requested_vendor_id
-				).filter(
-					models.CompanyVendorPartnership.company_id == vendor_change_request.requesting_company_id
-				).first())
-		if not company_vendor_partnership:
+		company_vendor_partnerships, err = queries.get_company_vendor_partnerships(
+			session,
+			[( 
+				str(vendor_change_request.requesting_company_id),
+				str(vendor_change_request.requested_vendor_id),
+			)]
+		)
+		if not company_vendor_partnerships:
 			return None, errors.Error('Company vendor partnership not found')
+		
+		company_vendor_partnership = company_vendor_partnerships[0]
 
-
-		partnership_id = company_vendor_partnership.id
-		# find all the existing vendor contact
-		existing_vendor_contacts = cast(
+		# find all the vendor contacts to make active
+		active_vendor_contacts = cast(
 			List[models.CompanyVendorContact],
 			session.query(models.CompanyVendorContact).filter(
-				models.CompanyVendorContact.partnership_id == partnership_id
+				models.CompanyVendorContact.partnership_id == company_vendor_partnership.id
+			).filter(
+				models.CompanyVendorContact.vendor_user_id.in_(active_user_ids)
 			).all())
 
-		# deletes users in company vendor contacts that are not contacts
-		company_vendor_contacts_to_delete = []
-		for existing_vendor_contact in existing_vendor_contacts:
-			if str(existing_vendor_contact.vendor_user_id) in delete_users:
-				company_vendor_contacts_to_delete.append(existing_vendor_contact)
+		for contact in active_vendor_contacts:
+			contact.is_active = True
 
-		for company_vendor_contact_to_delete in company_vendor_contacts_to_delete:
-			cast(Callable, session.delete)(company_vendor_contact_to_delete)
-
-		session.flush()
-
-
-		existing_vendor_contacts = cast(
+		inactive_vendor_contacts = cast(
 			List[models.CompanyVendorContact],
 			session.query(models.CompanyVendorContact).filter(
-				models.CompanyVendorContact.partnership_id == partnership_id
+				models.CompanyVendorContact.partnership_id == company_vendor_partnership.id
+			).filter(
+				models.CompanyVendorContact.vendor_user_id.in_(inactive_user_ids)
 			).all())
 
-		existing_vendor_contact_ids = []
-		for contact in existing_vendor_contacts:
-			existing_vendor_contact_ids.append(str(contact.vendor_user_id))
-
-		for user_id in new_users:			
-			if user_id not in existing_vendor_contact_ids:
-				new_company_vendor_contact = models.CompanyVendorContact( # type: ignore
-					partnership_id = partnership_id,
-					vendor_user_id = user_id,
-				)
-				session.add(new_company_vendor_contact)
+		for contact in inactive_vendor_contacts:
+			contact.is_active = False
 
 	vendor_change_request.status = VendorChangeRequestsStatusEnum.APPROVED
 	vendor_change_request.approved_at = date_util.now()
@@ -207,8 +197,8 @@ def create_change_vendor_change_request(
 	session: Session,
 	requested_vendor_id: str,
 	requesting_user_id: str,
-	new_users: List[str],
-	delete_users: List[str],
+	active_user_ids: List[str],
+	inactive_user_ids: List[str],
 	requesting_company_id: str,
 ) -> Tuple[bool, errors.Error]:
 
@@ -219,8 +209,8 @@ def create_change_vendor_change_request(
 		status = VendorChangeRequestsStatusEnum.APPROVAL_REQUESTED,
 		category = VendorChangeRequestsCategoryEnum.PARTNERSHIP_CONTACT_CHANGE,
 		request_info = { 
-			'new_users' : new_users, 
-			'delete_users' : delete_users,
+			'active_user_ids' : active_user_ids, 
+			'inactive_user_ids' : inactive_user_ids,
 		}
 	)
 

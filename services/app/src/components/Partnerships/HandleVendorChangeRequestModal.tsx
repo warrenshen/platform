@@ -132,13 +132,30 @@ export default function HandleVendorChangeRequestModal({
   );
 
   const changeContactPreviewData = useMemo(
+    /*
+      Please note that we switched from
+        new_users -> active_user_ids
+        delete_users -> inactive_users_ids
+      as part of a paradigm shift away from deleting a db entry to setting a flag
+
+      We are currently keeping both since there are open requests in prod with the old
+      TODO(JR): cleanup once the old style requests are done
+    */
     () =>
       ({
         vendorPartnershipId: vendorPartnership?.id || "",
-        proposedUsersSelected: requestInfo?.new_users || [],
-        proposedUsersUnselected: requestInfo?.delete_users || [],
+        proposedUsersSelected:
+          requestInfo?.new_users || requestInfo?.active_user_ids || [],
+        proposedUsersUnselected:
+          requestInfo?.delete_users || requestInfo?.inactive_user_ids || [],
       } as ChangeContactPreviewInformation),
-    [vendorPartnership, requestInfo?.new_users, requestInfo?.delete_users]
+    [
+      vendorPartnership,
+      requestInfo?.new_users,
+      requestInfo?.delete_users,
+      requestInfo?.active_user_ids,
+      requestInfo?.inactive_user_ids,
+    ]
   );
 
   return (

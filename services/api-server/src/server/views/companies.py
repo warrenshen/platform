@@ -1120,8 +1120,8 @@ class CreateChangeVendorContactsView(MethodView):
 		required_keys = [
 			'requested_vendor_id',
 			'requesting_company_id',
-			'new_users',
-			'delete_users'
+			'active_user_ids',
+			'inactive_user_ids'
 		]
 
 		for key in required_keys:
@@ -1134,8 +1134,8 @@ class CreateChangeVendorContactsView(MethodView):
 				session=session,
 				requested_vendor_id=form['requested_vendor_id'],
 				requesting_user_id=user_session.get_user_id(),
-				new_users=form['new_users'],
-				delete_users=form['delete_users'],
+				active_user_ids=form['active_user_ids'],
+				inactive_user_ids=form['inactive_user_ids'],
 				requesting_company_id=form['requesting_company_id']
 			)
 			if err:
