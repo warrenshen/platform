@@ -30,7 +30,7 @@ def get_opt_in_customers(
 	for customer in customers:
 		all_customer_ids.append(str(customer.id))
 
-	financial_summaries, err = queries.get_financial_summaries_for_target_customers(
+	financial_summaries, err = queries.get_financial_summaries_for_target_customers_for_date(
 		session,
 		all_customer_ids,
 		today_date
@@ -90,9 +90,9 @@ def get_opt_in_customer(
 	supported_product_types: List[str],
 	today_date: datetime.date
 ) -> Tuple[ Dict[str, models.Company], List[str], Dict[str, models.CompanySettings], errors.Error ]:
-	financial_summaries, err = queries.get_financial_summaries_for_target_customer(
+	financial_summaries, err = queries.get_financial_summaries_for_target_customers_for_date(
 		session,
-		str(customer.id),
+		[str(customer.id)],
 		today_date
 	)
 	if err:

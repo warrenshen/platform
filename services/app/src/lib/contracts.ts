@@ -25,6 +25,7 @@ export enum ContractTermNames {
   FactoringFeeThreshold = "factoring_fee_threshold",
   FactoringFeeThresholdStartingValue = "factoring_fee_threshold_starting_value",
   AdjustedFactoringFeePercentage = "adjusted_factoring_fee_percentage",
+  DefaultInterestRate = "default_interest_rate",
   LateFeeStructure = "late_fee_structure",
   WireFee = "wire_fee",
   PrecedingBusinessDay = "preceeding_business_day",
@@ -132,6 +133,12 @@ const ContractTermNameToConfigs = {
     [ContractTermConfigs.DataCy]: null,
     [ContractTermConfigs.BankDescription]:
       "If customer meets the Volume Discount Threshold, this interest rate will be used",
+    [ContractTermConfigs.CustomerDescription]: "",
+    [ContractTermConfigs.IsHiddenIfNull]: true,
+  },
+  [ContractTermNames.DefaultInterestRate]: {
+    [ContractTermConfigs.DataCy]: "default-interest-rate",
+    [ContractTermConfigs.BankDescription]: "",
     [ContractTermConfigs.CustomerDescription]: "",
     [ContractTermConfigs.IsHiddenIfNull]: true,
   },

@@ -59,6 +59,20 @@ function getRows(customers: CustomersWithMetadataFragment[]) {
   return customers.map((company) => {
     return formatRowModel({
       ...company,
+      // 0 is valid for `accounting_date_*` so instead of !!, we check for null
+      accounting_outstanding_interest:
+        !!company?.financial_summaries?.[0] &&
+        company.financial_summaries[0].accounting_total_outstanding_interest !==
+          null
+          ? company.financial_summaries[0].accounting_total_outstanding_interest
+          : null,
+      accounting_outstanding_late_fees:
+        !!company?.financial_summaries?.[0] &&
+        company.financial_summaries[0]
+          .accounting_total_outstanding_late_fees !== null
+          ? company.financial_summaries[0]
+              .accounting_total_outstanding_late_fees
+          : null,
       adjusted_total_limit: !!company?.financial_summaries?.[0]
         ? company.financial_summaries[0].adjusted_total_limit
         : null,
@@ -103,9 +117,11 @@ function getRows(customers: CustomersWithMetadataFragment[]) {
         ? company.most_recent_surveillance_result[0].surveillance_status
         : null,
       total_outstanding_interest: !!company?.financial_summaries?.[0]
+        ?.total_outstanding_interest
         ? company.financial_summaries[0].total_outstanding_interest
         : null,
       total_outstanding_fees: !!company?.financial_summaries?.[0]
+        ?.total_outstanding_fees
         ? company.financial_summaries[0].total_outstanding_fees
         : null,
       total_outstanding_principal: !!company?.financial_summaries?.[0]
@@ -305,6 +321,28 @@ export default function CustomersDataGrid({
           precision: CurrencyPrecision,
         },
         caption: "Holding Account Balance",
+        width: ColumnWidths.Currency,
+        alignment: "right",
+      },
+      {
+        visible: isDebtFacilityVisible,
+        dataField: "accounting_outstanding_interest",
+        caption: "Accounting Outstanding Interest",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
+        width: ColumnWidths.Currency,
+        alignment: "right",
+      },
+      {
+        visible: isDebtFacilityVisible,
+        dataField: "accounting_outstanding_late_fees",
+        caption: "Outstanding Late Fees After End Date",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
         width: ColumnWidths.Currency,
         alignment: "right",
       },

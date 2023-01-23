@@ -62,7 +62,7 @@ select_permissions:
         - late_fees_end_date
         - metrc_api_key_id
         - payor_agreement_docusign_template
-        - revenue_end_date
+        - interest_end_date
         - two_factor_message_method
         - underwriter_user_id
         - updated_at
@@ -93,7 +93,7 @@ select_permissions:
         - late_fees_end_date
         - metrc_api_key_id
         - payor_agreement_docusign_template
-        - revenue_end_date
+        - interest_end_date
         - two_factor_message_method
         - underwriter_user_id
         - updated_at

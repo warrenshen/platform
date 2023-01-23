@@ -51,7 +51,7 @@ def get_all_customers(
 
     if is_active:
         customer_ids = [customer.id for customer in customers]
-        financial_summaries, err = get_financial_summaries_for_target_customers(
+        financial_summaries, err = get_financial_summaries_for_target_customers_for_date(
             session,
             customer_ids,
             date_util.now_as_date(),
@@ -120,11 +120,11 @@ def get_company_settings_by_id(
 
 def get_company_settings_by_company_id(
     session: Session,
-    company_settings_id: str,
+    company_id: str,
 ) -> Tuple[ models.CompanySettings, errors.Error ]:
     # fmt: off
     filters = [
-        models.CompanySettings.company_id == company_settings_id
+        models.CompanySettings.company_id == company_id
     ]
 
     company_settings = cast(
@@ -336,7 +336,9 @@ def get_most_recent_ebba_applications_by_company_id(
 # Financial Summaries
 # ###############################
 
-def get_financial_summaries_for_target_customers(
+# This function is intended to get a financial summary for
+# a single date for 1 or more customers
+def get_financial_summaries_for_target_customers_for_date(
     session: Session,
     company_ids: List[str],
     date: datetime.date = None,
@@ -364,17 +366,23 @@ def get_financial_summaries_for_target_customers(
 
     return financial_summaries, None
 
-def get_financial_summaries_for_target_customer(
+# This function is intended to get 1 or more financial summaries for
+# a range of dates for just one customer
+def get_financial_summaries_for_target_customer_for_date_range(
     session: Session,
     company_id: str,
-    date: datetime.date = None,
+    start_date: datetime.date,
+    end_date: datetime.date = None,
 ) -> Tuple[ List[models.FinancialSummary], errors.Error ]:
     filters = [
-        models.FinancialSummary.company_id == company_id
+        models.FinancialSummary.company_id == company_id,
+        models.FinancialSummary.date >= start_date,
     ]
 
-    if date is not None:
-        filters.append(models.FinancialSummary.date == date)
+    if end_date is not None:
+        filters.append(models.FinancialSummary.date <= end_date)
+    else:
+        filters.append(models.FinancialSummary.date <= start_date)
 
     # fmt: off
     financial_summaries = cast(
@@ -385,10 +393,7 @@ def get_financial_summaries_for_target_customer(
     # fmt: on
 
     if not financial_summaries:
-        return None, errors.Error(
-            f"""No financial summaries have been found for the provided companiy on {
-                date_util.human_readable_yearmonthday_from_date(date) if date is not None else "any date"
-            }""")
+        return None, errors.Error("No financial summaries have been found for the provided company")
 
     return financial_summaries, None
 
@@ -512,6 +517,40 @@ def get_payments(
     filters = [
         cast(Callable, models.Payment.is_deleted.isnot)(True),
         models.Payment.id.in_(payment_ids)
+    ]
+
+    if is_unsettled:
+        filters.append(models.Payment.settled_at == None)
+
+    # fmt: off
+    payments = cast(
+        List[models.Payment],
+        session.query(models.Payment).filter(
+            *filters
+        ).all())
+    # fmt: on
+
+    # Since not finding payments isn't inherently a sign
+    # of anything wrong, we do not do an error check
+    # for if not payments. We keep the return signature
+    # to keep a consistent signature, though.
+
+    return payments, None
+
+def get_company_payments_by_date_range(
+    session: Session,
+    company_id: str,
+    start_date: datetime.date,
+    end_date: datetime.date,
+    payment_type: str,
+    is_unsettled: bool = False,
+) -> Tuple[ List[models.Payment], errors.Error ]:
+    filters = [
+        cast(Callable, models.Payment.is_deleted.isnot)(True),
+        models.Payment.company_id == company_id,
+        models.Payment.settlement_date >= start_date,
+        models.Payment.settlement_date <= end_date,
+        models.Payment.type == payment_type,
     ]
 
     if is_unsettled:
@@ -697,12 +736,16 @@ def get_purchase_order_metrc_transfers(
 def get_transactions(
     session: Session,
     loan_ids: List[str] = None,
+    payment_ids: List[str] = None,
     is_repayment: bool = False,
 ) -> Tuple[ List[models.Transaction], errors.Error ]:
     filters = []
 
     if loan_ids is not None:
         filters.append(models.Transaction.loan_id.in_(loan_ids))
+
+    if payment_ids is not None:
+        filters.append(models.Transaction.payment_id.in_(payment_ids))
 
     if is_repayment:
         filters.append(models.Transaction.type == PaymentType.REPAYMENT)

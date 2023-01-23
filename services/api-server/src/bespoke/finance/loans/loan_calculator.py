@@ -50,6 +50,16 @@ LoanUpdateDict = TypedDict('LoanUpdateDict', {
 	'financing_day_limit': int,
 	# used during client surveillance to determine status by the *most* overdue loan, should be 0 if not late
 	'days_overdue': int,
+	# accounting_* is used for when a client is no longer on the happy path and 
+	# we've determined that we likely won't collect interest, late fees, or both.
+	# This should be considered separate from the regular columns which will track
+	# what the value would have been. If the client is on the happy path, then these
+	# columns and the the non accounting_* columns should match
+	'accounting_total_outstanding_principal': float,
+	'accounting_total_outstanding_interest': float,
+	'accounting_total_outstanding_late_fees': float,
+	'accounting_interest_accrued_today': float,
+	'accounting_late_fees_accrued_today': float,
 })
 
 ThresholdInfoDict = TypedDict('ThresholdInfoDict', {
@@ -75,6 +85,8 @@ CalculatorBalances = TypedDict('CalculatorBalances', {
 	'outstanding_principal_for_interest': float, # Amount of principal used for calculating interest and fees off of
 	'outstanding_interest': float,
 	'outstanding_fees': float,
+	'accounting_outstanding_interest': float,
+	'accounting_outstanding_late_fees': float,
 	'has_been_funded': bool,
 	'amount_paid_back_on_loan': float,
 	'loan_paid_by_maturity_date': bool,
@@ -781,6 +793,7 @@ class LoanCalculator(object):
 		threshold_info: ThresholdInfoDict,
 		loan: models.LoanDict,
 		invoice: models.InvoiceDict, # Filled in if this loan is related to invoice financing
+		company_settings: models.CompanySettingsDict,
 		augmented_transactions: List[models.AugmentedTransactionDict],
 		today: datetime.date,
 		should_round_output: bool = True,
@@ -802,6 +815,8 @@ class LoanCalculator(object):
 			outstanding_principal_for_interest = 0.0, # Amount of principal used for calculating interest and fees off of
 			outstanding_interest = 0.0,
 			outstanding_fees = 0.0,
+			accounting_outstanding_interest = 0.0,
+			accounting_outstanding_late_fees = 0.0,
 			has_been_funded = False,
 			amount_paid_back_on_loan = 0.0,
 			loan_paid_by_maturity_date = False,
@@ -853,6 +868,14 @@ class LoanCalculator(object):
 			outstanding_principal_for_interest = _format_output_value(balances['outstanding_principal_for_interest'], should_round_output)
 			outstanding_interest = _format_output_value(balances['outstanding_interest'], should_round_output)
 			outstanding_fees = _format_output_value(balances['outstanding_fees'], should_round_output)
+
+			accounting_total_outstanding_principal = outstanding_principal
+			accounting_total_outstanding_interest = _format_output_value(balances['accounting_outstanding_interest'], should_round_output)
+			accounting_total_outstanding_late_fees = _format_output_value(balances['accounting_outstanding_late_fees'], should_round_output)
+			accounting_interest_accrued_today = 0.0 if company_settings['interest_end_date'] is not None and \
+				result_today > company_settings['interest_end_date'] else interest_accrued_today
+			accounting_late_fees_accrued_today = 0.0 if company_settings['late_fees_end_date'] is not None and \
+				result_today > company_settings['late_fees_end_date'] else fees_accrued_today
 
 			if not loan['closed_at'] and balances['has_been_funded']:
 				# If the loan hasn't been closed yet and is funded, then
@@ -923,7 +946,12 @@ class LoanCalculator(object):
 				total_principal_paid=_format_output_value(balances['total_principal_paid'], should_round_output),
 				total_interest_paid=_format_output_value(balances['total_interest_paid'], should_round_output),
 				total_fees_paid=_format_output_value(balances['total_fees_paid'], should_round_output),
-				days_overdue=days_overdue
+				days_overdue=days_overdue,
+				accounting_total_outstanding_principal=accounting_total_outstanding_principal,
+				accounting_total_outstanding_interest=accounting_total_outstanding_interest,
+				accounting_total_outstanding_late_fees=accounting_total_outstanding_late_fees,
+				accounting_interest_accrued_today=accounting_interest_accrued_today,
+				accounting_late_fees_accrued_today=accounting_late_fees_accrued_today,
 			)
 
 			return CalculateResultDict(
@@ -991,6 +1019,7 @@ class LoanCalculator(object):
 			# be the same as deposit date)
 
 			_update_at_beginning_of_day(transactions_by_settlement_date, balances)
+			
 
 			interest_fee_info, err = _get_interest_and_fees_due_on_day(
 				self._contract_helper,
@@ -1008,6 +1037,12 @@ class LoanCalculator(object):
 			# Update outstanding interest and fee state
 			balances['outstanding_interest'] += interest_due_for_day
 			balances['outstanding_fees'] += fee_due_for_day
+
+			# Update accounting balances, in which balances are increased 
+			# if customer is on happy path but are not increased if after 
+			# the interest or late fees end dates.
+			balances['accounting_outstanding_interest'] += interest_due_for_day if company_settings['interest_end_date'] is None or cur_date <= company_settings['interest_end_date'] else 0
+			balances['accounting_outstanding_late_fees'] += fee_due_for_day if company_settings['late_fees_end_date'] is None or cur_date <= company_settings['late_fees_end_date'] else 0
 
 			interest_accrued_today = interest_due_for_day
 			fees_accrued_today = fee_due_for_day
@@ -1066,7 +1101,7 @@ class LoanCalculator(object):
 
 			transactions_by_deposit_date = txs_helper.get_transactions_on_deposit_date(cur_date)
 			_update_end_of_day_repayment_deposits(transactions_by_deposit_date, balances, cur_date, loan)
-
+			
 			if payment_to_include and payment_to_include['deposit_date'] == cur_date:
 				# Incorporate this payment and snapshot what the state of the balance was
 				# before this payment was incorporated
@@ -1140,6 +1175,10 @@ class LoanCalculator(object):
 				balances['outstanding_principal'] -= inserted_repayment_transaction['to_principal']
 				balances['outstanding_interest'] -= inserted_repayment_transaction['to_interest']
 				balances['outstanding_fees'] -= inserted_repayment_transaction['to_fees']
+
+				balances['accounting_outstanding_interest'] -= inserted_repayment_transaction['to_interest']
+				balances['accounting_outstanding_late_fees'] -= inserted_repayment_transaction['to_fees']
+
 				if (
 					number_util.float_lte(number_util.round_currency(balances['outstanding_principal']), 0.0) and
 					cur_date <= loan['adjusted_maturity_date']
@@ -1187,6 +1226,7 @@ class LoanCalculator(object):
 		threshold_info: ThresholdInfoDict,
 		loan: models.LoanDict,
 		invoice: models.InvoiceDict, # Filled in if this loan is related to invoice financing
+		company_settings: models.CompanySettingsDict,
 		augmented_transactions: List[models.AugmentedTransactionDict],
 		today: datetime.date,
 		should_round_output: bool = True,
@@ -1199,6 +1239,7 @@ class LoanCalculator(object):
 			threshold_info=threshold_info,
 			loan=loan,
 			invoice=invoice,
+			company_settings=company_settings,
 			augmented_transactions=augmented_transactions,
 			today=today,
 			should_round_output=should_round_output,

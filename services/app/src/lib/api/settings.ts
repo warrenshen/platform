@@ -30,7 +30,7 @@ export async function updateCustomerSettingsMutation(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not update company settings",
@@ -59,7 +59,7 @@ export async function upsertFeatureFlagsMutation(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not update company features",
@@ -86,10 +86,36 @@ export async function upsertDealOwnerMutation(
     .then(
       (response) => response,
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not update company deal owner",
+        };
+      }
+    );
+}
+
+export type EditEndDatesMutationReq = {
+  variables: {
+    company_settings_id: CompanySettings["id"];
+    interest_end_date: string;
+    late_fees_end_date: string;
+  };
+};
+
+export async function editEndDatesMutation(
+  req: EditEndDatesMutationReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(companySettingsRoutes.editEndDates, req.variables)
+    .then((res) => res.data)
+    .then(
+      (response) => response,
+      (error) => {
+        console.error({ error });
+        return {
+          status: "ERROR",
+          msg: "Could not update company's end dates",
         };
       }
     );

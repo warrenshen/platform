@@ -10,12 +10,14 @@ import CompanyLicensesDataGrid from "components/CompanyLicenses/CompanyLicensesD
 import DeleteLicenseModal from "components/CompanyLicenses/DeleteLicenseModal";
 import UpdateCompanyLicensesModal from "components/CompanyLicenses/UpdateCompanyLicensesModal";
 import ChangeIsDummyAccountModal from "components/Settings/Bank/ChangeIsDummyAccountModal";
+import EditEndDatesModal from "components/Settings/Bank/EditEndDatesModal";
 import UpsertCustomMessagesModal from "components/Settings/Bank/UpsertCustomMessagesModal";
 import UpsertDealOwnersModal from "components/Settings/Bank/UpsertDealOwnersModal";
 import UpsertFeatureFlagsModal from "components/Settings/Bank/UpsertFeatureFlagsModal";
 import CustomerSettings from "components/Settings/CustomerSettings";
 import AssignAdvancesBespokeBankAccount from "components/Shared/BankAssignment/AssignAdvancesBespokeBankAccount";
 import AssignCollectionsBespokeBankAccount from "components/Shared/BankAssignment/AssignCollectionsBespokeBankAccount";
+import PrimaryButton from "components/Shared/Button/PrimaryButton";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import PageContent from "components/Shared/Page/PageContent";
 import UpdateThirdPartyCompanySettingsModal from "components/ThirdParties/UpdateThirdPartyCompanySettingsModal";
@@ -31,10 +33,12 @@ import {
   getFeatureFlagDescription,
   getFeatureFlagName,
 } from "lib/companies";
+import { dateAsDateStringClient, parseDateStringServer } from "lib/date";
 import {
   AllCustomMessages,
   AllFeatureFlags,
   FeatureFlagEnum,
+  ProductTypeEnum,
   ReportingRequirementsCategoryEnum,
   ReportingRequirementsCategoryToDescription,
   TwoFactorMessageMethodEnum,
@@ -50,6 +54,8 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
   const [selectedLicensesId, setSelectedLicensesId] = useState<
     CompanyLicenses["id"][]
   >([]);
+  const [isEditEndDatesModalOpen, setIsEditEndDatesModalOpen] =
+    useState<boolean>(false);
 
   const { data, refetch, error } = useGetCompanyForBankQuery({
     fetchPolicy: "network-only",
@@ -72,6 +78,8 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
 
   const company = data?.companies_by_pk;
   const settings = company?.settings;
+  const productType =
+    company?.most_recent_financial_summary?.[0]?.product_type || null;
   const clientSuccessTeamMember = settings?.client_success_user;
   const businessDevelopmentTeamMember = settings?.business_development_user;
   const underwritingTeamMember = settings?.underwriter_user;
@@ -281,6 +289,53 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
                 </Box>
               </Box>
             </>
+          </Box>
+        </Box>
+        {isEditEndDatesModalOpen && (
+          <EditEndDatesModal
+            companySettingsId={settings.id}
+            productType={productType as ProductTypeEnum}
+            handleClose={() => {
+              setIsEditEndDatesModalOpen(false);
+              refetch();
+            }}
+          />
+        )}
+        <Box mt={4}>
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            mb={2}
+          >
+            <Typography variant="h6">
+              <strong>Bank Administered End Dates</strong>
+            </Typography>
+            <PrimaryButton
+              dataCy={"edit-end-dates-modal-button"}
+              text={"Edit End Dates"}
+              onClick={() => setIsEditEndDatesModalOpen(true)}
+            />
+          </Box>
+          <Box mb={1}>
+            <Typography variant="subtitle2" color="textSecondary">
+              Interest end date is currently
+              {!!settings?.interest_end_date
+                ? ` set to ${dateAsDateStringClient(
+                    parseDateStringServer(settings.interest_end_date)
+                  )}`
+                : " not set"}
+            </Typography>
+          </Box>
+          <Box mb={1}>
+            <Typography variant="subtitle2" color="textSecondary">
+              Late fee end date is currently
+              {!!settings?.late_fees_end_date
+                ? ` set to ${dateAsDateStringClient(
+                    parseDateStringServer(settings.late_fees_end_date)
+                  )}`
+                : " not set"}
+            </Typography>
           </Box>
         </Box>
         <Box mt={4}>

@@ -625,3 +625,37 @@ export const reduceLineOfCreditLoans = (
       return a.concat(b);
     });
 };
+
+export const getInterestAfterEndDate = (
+  loan: OpenLoanForDebtFacilityFragment,
+  loansInfoLookup: Record<string, Record<string, Record<string, string>>>
+): Maybe<number> => {
+  const companyLookup = loansInfoLookup.hasOwnProperty(loan.company_id)
+    ? loansInfoLookup[loan.company_id]
+    : {};
+
+  const loanInfo = companyLookup.hasOwnProperty(loan.id)
+    ? companyLookup[loan.id]
+    : {};
+
+  return !!loanInfo.hasOwnProperty("interest_after_end_date")
+    ? Number(loanInfo.interest_after_end_date)
+    : null;
+};
+
+export const getLateFeesAfterEndDate = (
+  loan: OpenLoanForDebtFacilityFragment,
+  loansInfoLookup: Record<string, Record<string, Record<string, string>>>
+): Maybe<number> => {
+  const companyLookup = loansInfoLookup.hasOwnProperty(loan.company_id)
+    ? loansInfoLookup[loan.company_id]
+    : {};
+
+  const loanInfo = companyLookup.hasOwnProperty(loan.id)
+    ? companyLookup[loan.id]
+    : {};
+
+  return !!loanInfo.hasOwnProperty("late_fees_after_end_date")
+    ? Number(loanInfo.late_fees_after_end_date)
+    : null;
+};

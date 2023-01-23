@@ -4,7 +4,7 @@ from typing import Callable, List, Optional, Tuple, cast
 
 from bespoke import errors
 from bespoke.date import date_util
-from bespoke.db import db_constants, models, models_util
+from bespoke.db import db_constants, models, models_util, queries
 from bespoke.db.db_constants import PaymentMethodEnum, PaymentStatusEnum, ProductType
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util, financial_summary_util, number_util
@@ -343,6 +343,14 @@ def calculate_repayment_effect(
 		should_pay_principal_first=should_pay_principal_first,
 	)
 
+	company_settings, err = queries.get_company_settings_by_company_id(
+		session,
+		company_id,
+	)
+	if err:
+		return None, err
+	company_settings_dict = company_settings.as_dict()
+
 	for loan_dict in loan_dicts:
 		calculator = loan_calculator.LoanCalculator(contract_helper, fee_accumulator)
 		transactions_for_loan = loan_calculator.get_transactions_for_loan(
@@ -352,6 +360,7 @@ def calculate_repayment_effect(
 			threshold_info,
 			loan_dict,
 			invoice_dict,
+			company_settings_dict,
 			transactions_for_loan,
 			report_date,
 			payment_to_include=payment_to_include
@@ -406,6 +415,7 @@ def calculate_repayment_effect(
 			threshold_info,
 			loan_past_due_dict,
 			invoice_dict,
+			company_settings_dict,
 			transactions_for_loan,
 			report_date
 		)
@@ -903,6 +913,14 @@ def settle_repayment(
 		if not active_contract:
 			raise errors.Error('No active contract on settlement date')
 
+		company_settings, err = queries.get_company_settings_by_company_id(
+			session,
+			company_id,
+		)
+		if err:
+			raise err
+		company_settings_dict = company_settings.as_dict()
+
 		loan_ids = []
 		loans = []
 		if is_line_of_credit:
@@ -1093,6 +1111,7 @@ def settle_repayment(
 					threshold_info,
 					loan_dict,
 					invoice_dict,
+					company_settings_dict,
 					transactions_for_loan,
 					today=settlement_date,
 					payment_to_include=payment_to_include,
@@ -1186,6 +1205,7 @@ def settle_repayment(
 					threshold_info,
 					loan_dict,
 					invoice_dict,
+					company_settings_dict,
 					transactions_for_loan,
 					today=settlement_date,
 					payment_to_include=payment_to_include,

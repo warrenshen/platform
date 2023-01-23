@@ -27,6 +27,8 @@ import {
   getDebtFacilityStatus,
   getFinancingDayLimit,
   getFinancingPeriod,
+  getInterestAfterEndDate,
+  getLateFeesAfterEndDate,
   getLoanIdentifier,
   getLoanMonth,
   getLoanYear,
@@ -135,11 +137,13 @@ function getRows(
       financing_day_limit: getFinancingDayLimit(loan, productType),
       financing_period: getFinancingPeriod(loan, productType),
       gmv_financed: calculateGrossMarginValue(loan, productType),
+      interest_after_end_date: getInterestAfterEndDate(loan, loansInfoLookup),
       invoice_date: getOriginationOrCreatedDate(loan, productType),
       invoice_due_date: getArtifactDueDate(
         loan,
         companyInfoLookup[loan.company_id]
       ),
+      late_fees_after_end_date: getLateFeesAfterEndDate(loan, loansInfoLookup),
       loan_count: countAdvancesSent(loan, productType),
       loan_eligibility: determineLoanEligibility(
         loan,
@@ -541,6 +545,26 @@ export default function DebtFacilityReportDataGrid({
         dataField: "loan_count",
         width: ColumnWidths.Type,
         alignment: "left",
+      },
+      {
+        dataField: "interest_after_end_date",
+        caption: "Interest After End Date",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
+        width: ColumnWidths.Currency,
+        alignment: "right",
+      },
+      {
+        dataField: "late_fees_after_end_date",
+        caption: "Late Fees After End Date",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
+        width: ColumnWidths.Currency,
+        alignment: "right",
       },
     ],
     [handleClickCustomer]

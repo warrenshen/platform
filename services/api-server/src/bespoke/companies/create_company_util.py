@@ -1501,6 +1501,55 @@ def delete_customer_surveillance_result(
 	
 	return True, None
 
+def edit_end_dates(
+	session: Session,
+	company_settings_id: str,
+	interest_end_date: str,
+	late_fees_end_date: str,
+) -> Tuple[bool, errors.Error]:
+	company_settings, err = queries.get_company_settings_by_id(
+		session,
+		company_settings_id,
+	)
+	if err:
+		return None, err
+
+	company_id = str(company_settings.company_id)
+
+	# We want to recompute the the financial summaries from the earliest
+	# end date onwards. This *can* include a date that was cleared out
+	# because we don't want to keep erroneous data in the accounting_* fields
+	# if the date was set incorrectly in the first place
+	old_interest_end_date = company_settings.interest_end_date
+	company_settings.interest_end_date = date_util.load_date_str(interest_end_date) if interest_end_date is not None else None
+	old_late_fee_end_date = company_settings.late_fees_end_date
+	company_settings.late_fees_end_date = date_util.load_date_str(late_fees_end_date) if late_fees_end_date is not None else None
+
+	all_dates = [
+		old_interest_end_date,
+		company_settings.interest_end_date,
+		old_late_fee_end_date,
+		company_settings.late_fees_end_date,
+	]
+	filtered_dates = filter(lambda d: d is not None, all_dates)
+	earliest_end_date = min(filtered_dates)
+
+	if earliest_end_date is not None:
+		financial_summaries, err = queries.get_financial_summaries_for_target_customer_for_date_range(
+			session,
+			company_id,
+			earliest_end_date,
+			date_util.now_as_date(),
+		)
+		if err:
+			return None, err
+
+		for financial_summary in financial_summaries:
+			financial_summary.needs_recompute = True
+			financial_summary.days_to_compute_back = 14
+
+	return True, None		
+
 @errors.return_error_tuple
 def edit_parent_company(
 	req: EditParentCompanyInputDict,

@@ -119,6 +119,7 @@ export default function BankReportsFinancialsByDateTab() {
         </Box>
         <Box display="flex" flexDirection="column">
           <FinancialSummariesDataGrid
+            isAllCustomers
             isCustomerNameFixed
             isFilteringEnabled
             isProductTypeVisible

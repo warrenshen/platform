@@ -235,6 +235,11 @@ fragment FinancialSummary on financial_summaries {
   minimum_interest_amount
   minimum_interest_remaining
   most_overdue_loan_days
+  accounting_total_outstanding_principal
+	accounting_total_outstanding_interest
+	accounting_total_outstanding_late_fees
+	accounting_interest_accrued_today
+	accounting_late_fees_accrued_today
 }
 
 fragment FinancialSummaryWithLoansInfo on financial_summaries {

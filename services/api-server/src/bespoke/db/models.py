@@ -263,6 +263,9 @@ CompanySettingsDict = TypedDict('CompanySettingsDict', {
 	'payor_agreement_docusign_template': str,
 	'active_borrowing_base_id': str,
 	'active_financial_report_id': str,
+	'interest_end_date': datetime.date,
+	'late_fees_end_date': datetime.date,
+	'write_off_date': datetime.date,
 })
 
 class CompanySettings(Base):
@@ -299,6 +302,12 @@ class CompanySettings(Base):
 	underwriter_user_id = cast(GUID, Column(GUID, ForeignKey('users.id')))
 	is_autogenerate_repayments_enabled = Column(Boolean, default=False)
 
+	# These dates are used to track alternate profit calculations based
+	# off a customer no longer operating in the happy path
+	interest_end_date = Column(Date)
+	late_fees_end_date = Column(Date)
+	write_off_date = Column(Date)
+
 	def as_dict(self) -> CompanySettingsDict:
 		return CompanySettingsDict(
 			id=str(self.id),
@@ -306,6 +315,9 @@ class CompanySettings(Base):
 			payor_agreement_docusign_template=self.payor_agreement_docusign_template,
 			active_borrowing_base_id=str(self.active_borrowing_base_id) if self.active_borrowing_base_id else None,
 			active_financial_report_id=str(self.active_financial_report_id) if self.active_financial_report_id else None,
+			interest_end_date=self.interest_end_date,
+			late_fees_end_date=self.late_fees_end_date,
+			write_off_date=self.write_off_date,
 		)
 
 class CompanyFacility(Base):
@@ -1238,6 +1250,16 @@ class FinancialSummary(Base):
 	most_overdue_loan_days = Column(Integer) # used in Client Surveillance dashboard, the highest number of late days determines the bank status
 
 	loans_info = Column(JSON, nullable=True) # snapshot of customer's open loans on a given day
+
+	# If the interest end date, tax writeoff date, late fees end date,
+	# or LoC default interest date are set, then we track the altered
+	# values in these sets of fields. If they're not set, then the 
+	# values should be the same as the regular fields
+	accounting_total_outstanding_principal = Column(Numeric, nullable=True)
+	accounting_total_outstanding_interest = Column(Numeric, nullable=True)
+	accounting_total_outstanding_late_fees = Column(Numeric, nullable=True)
+	accounting_interest_accrued_today = Column(Numeric, nullable=True)
+	accounting_late_fees_accrued_today = Column(Numeric, nullable=True)
 
 ### End of financial tables
 

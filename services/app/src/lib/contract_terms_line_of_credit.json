@@ -122,6 +122,15 @@
       {
         "section": "Financing Terms",
         "type": "float",
+        "format": "percentage",
+        "internal_name": "default_interest_rate",
+        "display_name": "Default Daily Interest Rate",
+        "value": null,
+        "nullable": true
+      },
+      {
+        "section": "Financing Terms",
+        "type": "float",
         "format": "currency",
         "internal_name": "factoring_fee_threshold",
         "display_name": "Volume Discount Threshold",

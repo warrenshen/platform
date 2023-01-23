@@ -1182,6 +1182,40 @@ class CreateChangeVendorContactsView(MethodView):
 		return make_response(json.dumps({
 			'status': 'OK',
 		}))
+class EditEndDatesView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		form = json.loads(request.data)
+		user_session = UserSession.from_session()
+
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'company_settings_id',
+			'interest_end_date',
+			'late_fees_end_date',
+		]
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in request')
+
+		with session_scope(current_app.session_maker) as session:
+			_, err = create_company_util.edit_end_dates(
+				session = session,
+				company_settings_id = form['company_settings_id'],
+				interest_end_date = form['interest_end_date'],
+				late_fees_end_date = form['late_fees_end_date'],
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK',
+		}))
 
 class EditParentCompanyView(MethodView):
 	decorators = [auth_util.login_required]
@@ -1279,6 +1313,9 @@ handler.add_url_rule(
 
 handler.add_url_rule(
 	'/create_change_vendor_contacts', view_func=CreateChangeVendorContactsView.as_view(name='create_change_vendor_contacts_view'))
+
+handler.add_url_rule(
+	'/edit_end_dates', view_func=EditEndDatesView.as_view(name='edit_end_dates_view'))
 
 handler.add_url_rule(
 	'/edit_parent_company', view_func=EditParentCompanyView.as_view(name='edit_parent_company_view'))

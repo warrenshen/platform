@@ -224,6 +224,8 @@ fragment CompanySettings on company_settings {
   client_success_user_id
   business_development_user_id
   underwriter_user_id
+  interest_end_date
+  late_fees_end_date
   ...CompanySettingsLimited
 }
 

@@ -18,7 +18,8 @@ import datetime
 import decimal
 import logging
 from datetime import timedelta
-from typing import Callable, Dict, List, Tuple, cast
+from flask import current_app
+from typing import Any, Callable, Dict, List, Tuple, cast
 
 from bespoke import errors
 from bespoke.date import date_util
@@ -57,7 +58,11 @@ SummaryUpdateDict = TypedDict('SummaryUpdateDict', {
 	'account_level_balance_payload': finance_types.AccountBalanceDict,
 	'day_volume_threshold_met': datetime.date,
 	'most_overdue_loan_days': int,
-
+	'accounting_total_outstanding_principal': float,
+	'accounting_total_outstanding_interest': float,
+	'accounting_total_outstanding_late_fees': float,
+	'accounting_interest_accrued_today': float,
+	'accounting_late_fees_accrued_today': float,
 })
 
 LoansInfoEntryDict = TypedDict('LoansInfoEntryDict', {
@@ -73,6 +78,8 @@ LoansInfoEntryDict = TypedDict('LoansInfoEntryDict', {
 	'total_interest_paid': float, 
 	'total_late_fees_paid': float, 
 	'days_overdue': int,
+	'interest_after_end_date': float,
+	'late_fees_after_end_date': float,
 })
 
 EbbaApplicationUpdateDict = TypedDict('EbbaApplicationUpdateDict', {
@@ -237,6 +244,11 @@ def _get_summary_update(
 	total_interest_paid_adjustment_today = 0.0
 	total_late_fees_accrued_today = 0.0
 	total_fees_paid_adjustment_today = 0.0
+	total_accounting_total_outstanding_principal = 0.0
+	total_accounting_total_outstanding_interest = 0.0
+	total_accounting_total_outstanding_late_fees = 0.0
+	total_accounting_interest_accrued_today = 0.0
+	total_accounting_late_fees_accrued_today = 0.0
 
 	most_overdue_loan_days = 0
 
@@ -251,6 +263,11 @@ def _get_summary_update(
 		total_interest_paid_adjustment_today += l['interest_paid_daily_adjustment']
 		total_late_fees_accrued_today += l['fees_accrued_today']
 		total_fees_paid_adjustment_today += l['fees_paid_daily_adjustment']
+		total_accounting_total_outstanding_principal += l['accounting_total_outstanding_principal']
+		total_accounting_total_outstanding_interest += l['accounting_total_outstanding_interest']
+		total_accounting_total_outstanding_late_fees += l['accounting_total_outstanding_late_fees']
+		total_accounting_interest_accrued_today += l['accounting_interest_accrued_today']
+		total_accounting_late_fees_accrued_today += l['accounting_late_fees_accrued_today']
 
 		days_overdue_candidate = int(l['days_overdue'])
 		most_overdue_loan_days = days_overdue_candidate if days_overdue_candidate > most_overdue_loan_days else most_overdue_loan_days
@@ -284,6 +301,11 @@ def _get_summary_update(
 		account_level_balance_payload=account_level_balance,
 		day_volume_threshold_met=None,
 		most_overdue_loan_days=most_overdue_loan_days,
+		accounting_total_outstanding_principal=total_accounting_total_outstanding_principal,
+		accounting_total_outstanding_interest=total_accounting_total_outstanding_interest,
+		accounting_total_outstanding_late_fees=total_accounting_total_outstanding_late_fees,
+		accounting_interest_accrued_today=total_accounting_interest_accrued_today,
+		accounting_late_fees_accrued_today=total_accounting_late_fees_accrued_today,
 	), None
 
 class CustomerBalance(object):
@@ -305,6 +327,7 @@ class CustomerBalance(object):
 		is_past_date: bool) -> Tuple[CustomerUpdateDict, errors.Error]:
 
 		financials = customer_info['financials']
+		company_settings = customer_info['company_settings']
 
 		if not financials['contracts']:
 			return None, None
@@ -401,6 +424,7 @@ class CustomerBalance(object):
 				threshold_info,
 				loan,
 				invoice,
+				company_settings,
 				transactions_for_loan,
 				today,
 				should_round_output=False,
@@ -640,6 +664,7 @@ class CustomerBalance(object):
 		for loan in open_loans:
 			loan_id = str(loan.id)
 			update = loan_id_to_update_lookup[loan_id]
+
 			# NOTE(JR): update's fees should eventually become late_fees, where applicable
 			# We're setting it up in loans_info to get us incrementally to the correct place
 			loans_info[loan_id] = {
@@ -655,6 +680,8 @@ class CustomerBalance(object):
 				'total_interest_paid': update['total_interest_paid'], 
 				'total_late_fees_paid': update['total_fees_paid'], 
 				'days_overdue': update['days_overdue'],
+				'interest_after_end_date': update['accounting_total_outstanding_interest'],
+				'late_fees_after_end_date': update['accounting_total_outstanding_late_fees'],
 			}
 
 		summary_update = customer_update['summary_update']
@@ -685,6 +712,11 @@ class CustomerBalance(object):
 		financial_summary.daily_interest_rate = decimal.Decimal(summary_update['daily_interest_rate'])
 		financial_summary.most_overdue_loan_days = summary_update['most_overdue_loan_days']
 		financial_summary.loans_info = loans_info
+		financial_summary.accounting_total_outstanding_principal = decimal.Decimal(number_util.round_currency(summary_update['accounting_total_outstanding_principal'])) if summary_update['accounting_total_outstanding_principal'] is not None else None
+		financial_summary.accounting_total_outstanding_interest = decimal.Decimal(number_util.round_currency(summary_update['accounting_total_outstanding_interest'])) if summary_update['accounting_total_outstanding_interest'] is not None else None
+		financial_summary.accounting_total_outstanding_late_fees = decimal.Decimal(number_util.round_currency(summary_update['accounting_total_outstanding_late_fees'])) if summary_update['accounting_total_outstanding_late_fees'] is not None else None
+		financial_summary.accounting_interest_accrued_today = decimal.Decimal(number_util.round_currency(summary_update['accounting_interest_accrued_today'])) if summary_update['accounting_interest_accrued_today'] is not None else None
+		financial_summary.accounting_late_fees_accrued_today = decimal.Decimal(number_util.round_currency(summary_update['accounting_late_fees_accrued_today'])) if summary_update['accounting_late_fees_accrued_today'] is not None else None
 
 		if should_add_summary:
 			session.add(financial_summary)

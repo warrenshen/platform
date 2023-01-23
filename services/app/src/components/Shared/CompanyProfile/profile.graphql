@@ -33,6 +33,13 @@ query GetCompanyForBank($companyId: uuid!) {
       }
       ...CompanyLicense
     }
+    most_recent_financial_summary: financial_summaries(
+      limit: 1
+      order_by: { date: desc }
+    ) {
+      id
+      ...FinancialSummary
+    }
     settings {
       ...CompanyDealOwners
       ...CompanySettings

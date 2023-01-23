@@ -133,6 +133,12 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 				self.assertAlmostEqual(expected['total_late_fees_accrued_today'], number_util.round_currency(actual['total_late_fees_accrued_today']))
 				self.assertAlmostEqual(expected.get('total_fees_paid_adjustment_today', 0.0), number_util.round_currency(actual['total_fees_paid_adjustment_today']))
 
+				self.assertAlmostEqual(expected.get('accounting_total_outstanding_principal', 0.0), number_util.round_currency(actual['accounting_total_outstanding_principal']))
+				self.assertAlmostEqual(expected.get('accounting_total_outstanding_interest', 0.0), number_util.round_currency(actual['accounting_total_outstanding_interest']))
+				self.assertAlmostEqual(expected.get('accounting_total_outstanding_late_fees', 0.0), number_util.round_currency(actual['accounting_total_outstanding_late_fees']))
+				self.assertAlmostEqual(expected.get('accounting_interest_accrued_today', 0.0), number_util.round_currency(actual['accounting_interest_accrued_today']))
+				self.assertAlmostEqual(expected.get('accounting_late_fees_accrued_today', 0.0), number_util.round_currency(actual['accounting_late_fees_accrued_today']))
+
 				if expected['minimum_interest_info']['duration']:
 					self.assertEqual(expected['minimum_interest_info']['duration'], actual['minimum_interest_info']['duration'])
 					self.assertAlmostEqual(expected['minimum_interest_info']['minimum_amount'], actual['minimum_interest_info']['minimum_amount'])
@@ -330,7 +336,12 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'credits_total': 0.0
 					},
 					'day_volume_threshold_met': None,
-					'most_overdue_loan_days': 0
+					'most_overdue_loan_days': 0,
+					'accounting_total_outstanding_principal': 0.0,
+					'accounting_total_outstanding_interest': 0.0,
+					'accounting_total_outstanding_late_fees': 0.0,
+					'accounting_interest_accrued_today': 0.0,
+					'accounting_late_fees_accrued_today': 0.0,
 				},
 			}
 		]
@@ -451,7 +462,12 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 							'credits_total': 0.0
 					},
 					'day_volume_threshold_met': None,
-					'most_overdue_loan_days': 0
+					'most_overdue_loan_days': 0,
+					'accounting_total_outstanding_principal': 600.06,
+					'accounting_total_outstanding_interest': 85.01,
+					'accounting_total_outstanding_late_fees': 0.0,
+					'accounting_interest_accrued_today': 30.0,
+					'accounting_late_fees_accrued_today': 0.0,
 				},
 			}
 		]
@@ -583,7 +599,12 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'credits_total': 0.0
 					},
 					'day_volume_threshold_met': None,
-					'most_overdue_loan_days': 0
+					'most_overdue_loan_days': 0,
+					'accounting_total_outstanding_principal': 1000.0,
+					'accounting_total_outstanding_interest': 250.0,
+					'accounting_total_outstanding_late_fees': 0.0,
+					'accounting_interest_accrued_today': 50.0,
+					'accounting_late_fees_accrued_today': 0.0,
 				},
 			},
 			{
@@ -647,7 +668,12 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'credits_total': 0.0
 					},
 					'day_volume_threshold_met': None,
-					'most_overdue_loan_days': 6
+					'most_overdue_loan_days': 6,
+					'accounting_total_outstanding_principal': 2000.0,
+					'accounting_total_outstanding_interest': 5100.0,
+					'accounting_total_outstanding_late_fees': 75.0,
+					'accounting_interest_accrued_today': 100.0,
+					'accounting_late_fees_accrued_today': 12.5,
 				},
 			},
 			{
@@ -711,7 +737,12 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'credits_total': 0.0
 					},
 					'day_volume_threshold_met': None,
-					'most_overdue_loan_days': 36
+					'most_overdue_loan_days': 36,
+					'accounting_total_outstanding_principal': 2000.0,
+					'accounting_total_outstanding_interest': 8100.0,
+					'accounting_total_outstanding_late_fees': 975.0,
+					'accounting_interest_accrued_today': 100.0,
+					'accounting_late_fees_accrued_today': 62.5,
 				},
 			},
 		]
@@ -841,7 +872,12 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 							'credits_total': 0.0
 					},
 					'day_volume_threshold_met': None,
-					'most_overdue_loan_days': 0
+					'most_overdue_loan_days': 0,
+					'accounting_total_outstanding_principal': 500.03,
+					'accounting_total_outstanding_interest': 75.0,
+					'accounting_total_outstanding_late_fees': 0.0,
+					'accounting_interest_accrued_today': 2.5,
+					'accounting_late_fees_accrued_today': 0.0,
 				},
 			},
 			{
@@ -975,7 +1011,12 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 							'credits_total': 0.0
 					},
 					'day_volume_threshold_met': None,
-					'most_overdue_loan_days': 0
+					'most_overdue_loan_days': 0,
+					'accounting_total_outstanding_principal': 500.03,
+					'accounting_total_outstanding_interest': 87.51,
+					'accounting_total_outstanding_late_fees': 0.0,
+					'accounting_interest_accrued_today': 2.5,
+					'accounting_late_fees_accrued_today': 0.0,
 				},
 			}
 		]
@@ -1851,7 +1892,12 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'minimum_interest_info': {'minimum_amount': 200.03, 'amount_accrued': 155.01, 'amount_short': 45.02, 'duration': 'monthly', 'prorated_info': {'numerator': 31, 'denom': 31, 'fraction': 1.0, 'day_to_pay': '12/31/2020'}},
 					'account_level_balance_payload': {'fees_total': 0.0, 'credits_total': 0.0},
 					'day_volume_threshold_met': None,
-					'most_overdue_loan_days': 1
+					'most_overdue_loan_days': 1,
+					'accounting_total_outstanding_principal': 0.0,
+					'accounting_total_outstanding_interest': 155.01,
+					'accounting_total_outstanding_late_fees': 0.0,
+					'accounting_interest_accrued_today': 5.0,
+					'accounting_late_fees_accrued_today': 0.0,
 				},
 				'expected_day_volume_threshold_met': None
 			},
@@ -2196,7 +2242,12 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'minimum_interest_info': {'minimum_amount': 200.03, 'amount_accrued': 155.01, 'amount_short': 45.02, 'duration': 'monthly', 'prorated_info': {'numerator': 31, 'denom': 31, 'fraction': 1.0, 'day_to_pay': '10/31/2020'}},
 					'account_level_balance_payload': {'fees_total': 0.0, 'credits_total': 0.0},
 					'day_volume_threshold_met': None,
-					'most_overdue_loan_days': 1
+					'most_overdue_loan_days': 1,
+					'accounting_total_outstanding_principal': 20.0,
+					'accounting_total_outstanding_interest': 155.01,
+					'accounting_total_outstanding_late_fees': 1.25,
+					'accounting_interest_accrued_today': 5.0,
+					'accounting_late_fees_accrued_today': 1.25,
 				},
 				'expected_day_volume_threshold_met': None
 			},
@@ -2386,7 +2437,12 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'credits_total': 0.0,
 					},
 					'day_volume_threshold_met': None,
-					'most_overdue_loan_days': 0
+					'most_overdue_loan_days': 0,
+					'accounting_total_outstanding_principal': 0.0,
+					'accounting_total_outstanding_interest': 0.0,
+					'accounting_total_outstanding_late_fees': 0.0,
+					'accounting_interest_accrued_today': 0.0,
+					'accounting_late_fees_accrued_today': 0.0,
 				}
 			},
 			{
@@ -2419,7 +2475,12 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'credits_total': 0.0,
 					},
 					'day_volume_threshold_met': None,
-					'most_overdue_loan_days': 0
+					'most_overdue_loan_days': 0,
+					'accounting_total_outstanding_principal': 0.0,
+					'accounting_total_outstanding_interest': 0.0,
+					'accounting_total_outstanding_late_fees': 0.0,
+					'accounting_interest_accrued_today': 0.0,
+					'accounting_late_fees_accrued_today': 0.0,
 				}
 			},
 		]
@@ -2570,7 +2631,12 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'credits_total': 0.0,
 					},
 					'day_volume_threshold_met': None,
-					'most_overdue_loan_days': 0
+					'most_overdue_loan_days': 0,
+					'accounting_total_outstanding_principal': 500.0,
+					'accounting_total_outstanding_interest': 2 * (500.0 * 0.002),
+					'accounting_total_outstanding_late_fees': 0.0,
+					'accounting_interest_accrued_today': 500.0 * 0.002,
+					'accounting_late_fees_accrued_today': 0.0,
 				},
 			},
 			{
@@ -2619,7 +2685,12 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'credits_total': 0.0,
 					},
 					'day_volume_threshold_met': None,
-					'most_overdue_loan_days': 0
+					'most_overdue_loan_days': 0,
+					'accounting_total_outstanding_principal': 0.0,
+					'accounting_total_outstanding_interest': 3.0,
+					'accounting_total_outstanding_late_fees': 0.0,
+					'accounting_interest_accrued_today': 500.0 * 0.002,
+					'accounting_late_fees_accrued_today': 0.0,
 				},
 			},
 			{
@@ -2668,7 +2739,12 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'credits_total': 0.0,
 					},
 					'day_volume_threshold_met': None,
-					'most_overdue_loan_days': 0
+					'most_overdue_loan_days': 0,
+					'accounting_total_outstanding_principal': 0.0,
+					'accounting_total_outstanding_interest': 4.0,
+					'accounting_total_outstanding_late_fees': 0.0,
+					'accounting_interest_accrued_today': 500.0 * 0.002,
+					'accounting_late_fees_accrued_today': 0.0,
 				},
 			},
 			{
@@ -2717,7 +2793,12 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'credits_total': 0.0,
 					},
 					'day_volume_threshold_met': None,
-					'most_overdue_loan_days': 0
+					'most_overdue_loan_days': 0,
+					'accounting_total_outstanding_principal': 0.0,
+					'accounting_total_outstanding_interest': 4.0,
+					'accounting_total_outstanding_late_fees': 0.0,
+					'accounting_interest_accrued_today': 0.0,
+					'accounting_late_fees_accrued_today': 0.0,
 				},
 			},
 		]
@@ -3039,7 +3120,12 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 							'credits_total': 3000.02 + 4000.02 +  - 2.01 - 850.06
 					},
 					'day_volume_threshold_met': None,
-					'most_overdue_loan_days': 0
+					'most_overdue_loan_days': 0,
+					'accounting_total_outstanding_principal': 450.03,
+					'accounting_total_outstanding_interest': 2.0,
+					'accounting_total_outstanding_late_fees': 0.0,
+					'accounting_interest_accrued_today': number_util.round_currency(0.002 * 500.03),
+					'accounting_late_fees_accrued_today': 0.0,
 				}
 			},
 			{
@@ -3245,7 +3331,12 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 							'credits_total': 0.0
 					},
 					'day_volume_threshold_met': None,
-					'most_overdue_loan_days': 0
+					'most_overdue_loan_days': 0,
+					'accounting_total_outstanding_principal': 450.03,
+					'accounting_total_outstanding_interest': 1.72,
+					'accounting_total_outstanding_late_fees': 0.0,
+					'accounting_interest_accrued_today': number_util.round_currency(430.02 * 0.002),
+					'accounting_late_fees_accrued_today': 0.0,
 				}
 			},
 			{
@@ -3388,7 +3479,12 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'credits_total': 0.0
 				},
 				'day_volume_threshold_met': None,
-				'most_overdue_loan_days': 0
+				'most_overdue_loan_days': 0,
+				'accounting_total_outstanding_principal': 0.0,
+				'accounting_total_outstanding_interest': 0.0,
+				'accounting_total_outstanding_late_fees': 0.0,
+				'accounting_interest_accrued_today': 0.0,
+				'accounting_late_fees_accrued_today': 0.0,
 			}
 		}, loan_ids)
 
@@ -3557,7 +3653,12 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'credits_total': 0.0
 					},
 					'day_volume_threshold_met': None,
-					'most_overdue_loan_days': 0
+					'most_overdue_loan_days': 0,
+					'accounting_total_outstanding_principal': 0.0,
+					'accounting_total_outstanding_interest': 0.0,
+					'accounting_total_outstanding_late_fees': 0.0,
+					'accounting_interest_accrued_today': 0.0,
+					'accounting_late_fees_accrued_today': 0.0,
 				},
 				'account_level_balance_payload': {
 						'fees_total': 0.0,
@@ -3595,7 +3696,12 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'credits_total': 0.0
 					},
 					'day_volume_threshold_met': None,
-					'most_overdue_loan_days': 0
+					'most_overdue_loan_days': 0,
+					'accounting_total_outstanding_principal': 0.0,
+					'accounting_total_outstanding_interest': 0.0,
+					'accounting_total_outstanding_late_fees': 0.0,
+					'accounting_interest_accrued_today': 0.0,
+					'accounting_late_fees_accrued_today': 0.0,
 				},
 				'account_level_balance_payload': {
 						'fees_total': 0.0,
@@ -3633,7 +3739,12 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 						'credits_total': 0.0
 					},
 					'day_volume_threshold_met': None,
-					'most_overdue_loan_days': 0
+					'most_overdue_loan_days': 0,
+					'accounting_total_outstanding_principal': 0.0,
+					'accounting_total_outstanding_interest': 0.0,
+					'accounting_total_outstanding_late_fees': 0.0,
+					'accounting_interest_accrued_today': 0.0,
+					'accounting_late_fees_accrued_today': 0.0,
 				},
 				'account_level_balance_payload': {
 						'fees_total': 0.0,
@@ -3729,7 +3840,12 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'credits_total': 0.0
 				},
 				'day_volume_threshold_met': None,
-				'most_overdue_loan_days': 0
+				'most_overdue_loan_days': 0,
+				'accounting_total_outstanding_principal': 0.0,
+				'accounting_total_outstanding_interest': 0.0,
+				'accounting_total_outstanding_late_fees': 0.0,
+				'accounting_interest_accrued_today': 0.0,
+				'accounting_late_fees_accrued_today': 0.0,
 			}
 		}, loan_ids)
 
@@ -3798,7 +3914,12 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'credits_total': 0.0
 				},
 				'day_volume_threshold_met': None,
-				'most_overdue_loan_days': 0
+				'most_overdue_loan_days': 0,
+				'accounting_total_outstanding_principal': 0.0,
+				'accounting_total_outstanding_interest': 0.0,
+				'accounting_total_outstanding_late_fees': 0.0,
+				'accounting_interest_accrued_today': 0.0,
+				'accounting_late_fees_accrued_today': 0.0,
 			}
 		}, loan_ids)
 
@@ -3883,6 +4004,844 @@ class TestCalculateLoanBalance(db_unittest.TestCase):
 					'credits_total': 0.0
 				},
 				'day_volume_threshold_met': None,
-				'most_overdue_loan_days': 0
+				'most_overdue_loan_days': 0,
+				'accounting_total_outstanding_principal': 0.0,
+				'accounting_total_outstanding_interest': 0.0,
+				'accounting_total_outstanding_late_fees': 0.0,
+				'accounting_interest_accrued_today': 0.0,
+				'accounting_late_fees_accrued_today': 0.0,
 			}
 		}, loan_ids)
+
+	def test_accounting_field_interest_calculations_no_repayments(self) -> None:
+
+		def populate_fn(
+			session: Session, 
+			seed: test_helper.BasicSeed, 
+			company_id: str,
+			loan_ids: List[str],
+		) -> None:
+			session.add(models.Contract(
+				company_id=company_id,
+				product_type=ProductType.INVOICE_FINANCING,
+				product_config=contract_test_helper.create_contract_config(
+					product_type=ProductType.INVOICE_FINANCING,
+					input_dict=ContractInputDict(
+						interest_rate=0.001,
+						maximum_principal_amount=120000.0,
+						minimum_monthly_amount=1.03,
+						max_days_until_repayment=0, # unused
+						late_fee_structure=_get_late_fee_structure(),
+					)
+				),
+				start_date=date_util.load_date_str('1/1/2020'),
+				adjusted_end_date=date_util.load_date_str('12/1/2020')
+			))
+			financial_summary = finance_test_helper.get_default_financial_summary(
+				total_limit=100.0,
+				available_limit=100.0,
+				product_type=ProductType.INVOICE_FINANCING
+			)
+			financial_summary.date = date_util.load_date_str('01/01/1960')
+			financial_summary.company_id = company_id
+			session.add(financial_summary)
+
+			financial_summary2 = finance_test_helper.get_default_financial_summary(
+				total_limit=120000.0,
+				available_limit=100.0,
+				product_type=ProductType.INVOICE_FINANCING
+			)
+			financial_summary2.date = date_util.load_date_str('10/07/2020')
+			financial_summary2.company_id = company_id
+			financial_summary2.total_outstanding_interest = decimal.Decimal(7.13)
+			session.add(financial_summary2)
+
+			invoice = models.Invoice()
+			invoice.company_id = cast(Any, company_id)
+			# TODO(JR): we are concerned that there is a bug when someone makes
+			# a partial invoice advance, the loan update appears to be based off
+			# the subtotal_amount instead of the advance
+			invoice.subtotal_amount = decimal.Decimal(500.0)
+			session.add(invoice)
+			session.flush()
+			artifact_id = str(invoice.id)
+
+			loan = models.Loan(
+				id=loan_ids[0],
+				company_id=company_id,
+				origination_date=date_util.load_date_str('10/01/2020'),
+				adjusted_maturity_date=date_util.load_date_str('12/31/2020'),
+				amount=decimal.Decimal(500.0),
+				artifact_id=artifact_id
+			)
+			session.add(loan)
+			advance_transaction = payment_test_helper.make_advance(
+				session, loan, amount=500.0,  payment_date='09/30/2020', effective_date='10/01/2020'
+			)
+
+			company_settings = session \
+				.query(models.CompanySettings) \
+				.filter(models.CompanySettings.company_id == company_id) \
+				.first()
+
+			company_settings.interest_end_date = date_util.load_date_str('10/07/2020')
+			company_settings.late_fees_end_date = date_util.load_date_str('10/07/2020')
+
+		loan_ids: List[str] = [
+			str(uuid.uuid4()),
+		]
+		tests: List[Dict] = [
+			{
+				'today': '10/07/2020',
+				'populate_fn': populate_fn,
+				'expected_loan_updates': [
+					{
+						'adjusted_maturity_date': date_util.load_date_str('12/31/2020'),
+						'outstanding_principal': 500.0,
+						'outstanding_principal_for_interest': 500.0,
+						'outstanding_principal_past_due': 0.0,
+						'outstanding_interest': 500 * 0.001 * 7,
+						'outstanding_fees': 0.0,
+						'amount_to_pay_interest_on': 500.00,
+						'interest_accrued_today': 500 * 0.001,
+						'fees_accrued_today': 0.0,
+						'day_last_repayment_settles': None,
+						'financing_period': 7,
+						'should_close_loan': False,
+						'days_overdue': 0
+					}
+				],
+				'expected_summary_update': {
+					'product_type': 'invoice_financing',
+					'daily_interest_rate': 0.001,
+					'total_limit': 120000.0,
+					'adjusted_total_limit': 120000.0,
+					'total_outstanding_principal': 500.0,
+					'total_outstanding_principal_for_interest': 500.0,
+					'total_outstanding_principal_past_due': 0.0,
+					'total_outstanding_interest': 500 * 0.001 * 7,
+					'total_outstanding_fees': 0.0,
+					'total_principal_in_requested_state': 0.0,
+					'total_amount_to_pay_interest_on': 500.00,
+					'total_interest_accrued_today': 500 * 0.001,
+					'total_late_fees_accrued_today': 0.0,
+					'available_limit': 120000.0 - (500.0),
+					'minimum_interest_info': {
+							'minimum_amount': 1.03,
+							'amount_accrued': number_util.round_currency(7 * 0.001 * 500.0),
+							'amount_short': 0.0,
+							'duration': 'monthly',
+							'prorated_info': {'numerator': 31, 'denom': 31, 'fraction': 1.0, 'day_to_pay': '12/31/2020'},
+					},
+					'account_level_balance_payload': {
+							'fees_total': 0.0,
+							'credits_total': 0.0
+					},
+					'day_volume_threshold_met': None,
+					'most_overdue_loan_days': 0,
+					'accounting_total_outstanding_principal': 500.00,
+					'accounting_total_outstanding_interest': 500 * 0.001 * 7,
+					'accounting_total_outstanding_late_fees': 0.0,
+					'accounting_interest_accrued_today': 500 * 0.001,
+					'accounting_late_fees_accrued_today': 0.0,
+				}
+			},
+			{
+				'today': '10/09/2020',
+				'populate_fn': populate_fn,
+				'expected_loan_updates': [
+					{
+						'adjusted_maturity_date': date_util.load_date_str('12/31/2020'),
+						'outstanding_principal': 500.0,
+						'outstanding_principal_for_interest': 500.0,
+						'outstanding_principal_past_due': 0.0,
+						'outstanding_interest': 500 * 0.001 * 9,
+						'outstanding_fees': 0.0,
+						'amount_to_pay_interest_on': 500.00,
+						'interest_accrued_today': 500 * 0.001,
+						'fees_accrued_today': 0.0,
+						'day_last_repayment_settles': None,
+						'financing_period': 9,
+						'should_close_loan': False,
+						'days_overdue': 0
+					}
+				],
+				'expected_summary_update': {
+					'product_type': 'invoice_financing',
+					'daily_interest_rate': 0.001,
+					'total_limit': 120000.0,
+					'adjusted_total_limit': 120000.0,
+					'total_outstanding_principal': 500.0,
+					'total_outstanding_principal_for_interest': 500.0,
+					'total_outstanding_principal_past_due': 0.0,
+					'total_outstanding_interest': 500 * 0.001 * 9,
+					'total_outstanding_fees': 0.0,
+					'total_principal_in_requested_state': 0.0,
+					'total_amount_to_pay_interest_on': 500.00,
+					'total_interest_accrued_today': 500 * 0.001,
+					'total_late_fees_accrued_today': 0.0,
+					'available_limit': 120000.0 - (500.0),
+					'minimum_interest_info': {
+							'minimum_amount': 1.03,
+							'amount_accrued': number_util.round_currency(9 * 0.001 * 500.0),
+							'amount_short': 0.0,
+							'duration': 'monthly',
+							'prorated_info': {'numerator': 31, 'denom': 31, 'fraction': 1.0, 'day_to_pay': '12/31/2020'},
+					},
+					'account_level_balance_payload': {
+							'fees_total': 0.0,
+							'credits_total': 0.0
+					},
+					'day_volume_threshold_met': None,
+					'most_overdue_loan_days': 0,
+					'accounting_total_outstanding_principal': 500.00,
+					# This should be 7 because that's when the end date happens
+					'accounting_total_outstanding_interest': 500 * 0.001 * 7,
+					'accounting_total_outstanding_late_fees': 0.0,
+					'accounting_interest_accrued_today': 0.0,
+					'accounting_late_fees_accrued_today': 0.0,
+				}
+			},
+		]
+
+		i = 0
+		for test in tests:
+			self._run_test(test, loan_ids)
+			i += 1	
+
+
+	def test_accounting_field_interest_calculations_with_repayment_before_end_date(self) -> None:
+
+		def populate_fn(
+			session: Session, 
+			seed: test_helper.BasicSeed, 
+			company_id: str,
+			loan_ids: List[str],
+		) -> None:
+			session.add(models.Contract(
+				company_id=company_id,
+				product_type=ProductType.INVOICE_FINANCING,
+				product_config=contract_test_helper.create_contract_config(
+					product_type=ProductType.INVOICE_FINANCING,
+					input_dict=ContractInputDict(
+						interest_rate=0.001,
+						maximum_principal_amount=120000.0,
+						minimum_monthly_amount=1.03,
+						max_days_until_repayment=0, # unused
+						late_fee_structure=_get_late_fee_structure(),
+					)
+				),
+				start_date=date_util.load_date_str('1/1/2020'),
+				adjusted_end_date=date_util.load_date_str('12/1/2020')
+			))
+			financial_summary = finance_test_helper.get_default_financial_summary(
+				total_limit=100.0,
+				available_limit=100.0,
+				product_type=ProductType.INVOICE_FINANCING
+			)
+			financial_summary.date = date_util.load_date_str('01/01/1960')
+			financial_summary.company_id = company_id
+			session.add(financial_summary)
+
+			financial_summary2 = finance_test_helper.get_default_financial_summary(
+				total_limit=120000.0,
+				available_limit=100.0,
+				product_type=ProductType.INVOICE_FINANCING
+			)
+			financial_summary2.date = date_util.load_date_str('10/03/2020')
+			financial_summary2.company_id = company_id
+			financial_summary2.total_outstanding_interest = decimal.Decimal(7.13)
+			session.add(financial_summary2)
+
+			invoice = models.Invoice()
+			invoice.company_id = cast(Any, company_id)
+			invoice.subtotal_amount = decimal.Decimal(500.0)
+			session.add(invoice)
+			session.flush()
+			artifact_id = str(invoice.id)
+
+			loan = models.Loan(
+				id=loan_ids[0],
+				company_id=company_id,
+				origination_date=date_util.load_date_str('10/01/2020'),
+				adjusted_maturity_date=date_util.load_date_str('12/31/2020'),
+				amount=decimal.Decimal(500.0),
+				artifact_id=artifact_id
+			)
+			session.add(loan)
+			advance_transaction = payment_test_helper.make_advance(
+				session, loan, amount=500.0,  payment_date='09/30/2020', effective_date='10/01/2020'
+			)
+
+			payment_test_helper.make_repayment(
+				session=session,
+				company_id=company_id,
+				loan=loan,
+				payment_date='10/02/2020',
+				effective_date='10/03/2020',
+				to_principal=100.0,
+				to_interest=0.0, # they pay off some portion of the interest
+				to_late_fees=0.0,
+				to_account_balance=0.0,
+			)
+
+			company_settings = session \
+				.query(models.CompanySettings) \
+				.filter(models.CompanySettings.company_id == company_id) \
+				.first()
+
+			company_settings.interest_end_date = date_util.load_date_str('10/07/2020')
+			company_settings.late_fees_end_date = date_util.load_date_str('10/07/2020')
+
+		loan_ids: List[str] = [
+			str(uuid.uuid4()),
+		]
+		tests: List[Dict] = [
+			{
+				'today': '10/03/2020',
+				'populate_fn': populate_fn,
+				'expected_loan_updates': [
+					{
+						'adjusted_maturity_date': date_util.load_date_str('12/31/2020'),
+						'outstanding_principal': 400.0,
+						'outstanding_principal_for_interest': 400.0,
+						'outstanding_principal_past_due': 0.0,
+						'outstanding_interest': 500 * 0.001 * 3,
+						'outstanding_fees': 0.0,
+						'amount_to_pay_interest_on': 500.00,
+						'interest_accrued_today': 500 * 0.001,
+						'fees_accrued_today': 0.0,
+						'day_last_repayment_settles': date_util.load_date_str('10/03/2020'),
+						'financing_period': 3,
+						'should_close_loan': False,
+						'days_overdue': 0
+					}
+				],
+				'expected_summary_update': {
+					'product_type': 'invoice_financing',
+					'daily_interest_rate': 0.001,
+					'total_limit': 120000.0,
+					'adjusted_total_limit': 120000.0,
+					'total_outstanding_principal': 400.0,
+					'total_outstanding_principal_for_interest': 400.0,
+					'total_outstanding_principal_past_due': 0.0,
+					'total_outstanding_interest': 500 * 0.001 * 3,
+					'total_outstanding_fees': 0.0,
+					'total_principal_in_requested_state': 0.0,
+					'total_amount_to_pay_interest_on': 500.0,
+					'total_interest_accrued_today': 500 * 0.001,
+					'total_late_fees_accrued_today': 0.0,
+					'available_limit': 120000.0 - (400.0),
+					'minimum_interest_info': {
+							'minimum_amount': 1.03,
+							'amount_accrued': number_util.round_currency(3 * 0.001 * 500.0),
+							'amount_short': 0.0,
+							'duration': 'monthly',
+							'prorated_info': {'numerator': 31, 'denom': 31, 'fraction': 1.0, 'day_to_pay': '12/31/2020'},
+					},
+					'account_level_balance_payload': {
+							'fees_total': 0.0,
+							'credits_total': 0.0
+					},
+					'day_volume_threshold_met': None,
+					'most_overdue_loan_days': 0,
+					'accounting_total_outstanding_principal': 400.0,
+					'accounting_total_outstanding_interest': 500 * 0.001 * 3,
+					'accounting_total_outstanding_late_fees': 0.0,
+					'accounting_interest_accrued_today': 500 * 0.001,
+					'accounting_late_fees_accrued_today': 0.0,
+				}
+			},
+		]
+
+		i = 0
+		for test in tests:
+			self._run_test(test, loan_ids)
+			i += 1	
+
+	def test_accounting_field_interest_calculations_with_repayment_on_end_date(self) -> None:
+
+		def populate_fn(
+			session: Session, 
+			seed: test_helper.BasicSeed, 
+			company_id: str,
+			loan_ids: List[str],
+		) -> None:
+			session.add(models.Contract(
+				company_id=company_id,
+				product_type=ProductType.INVOICE_FINANCING,
+				product_config=contract_test_helper.create_contract_config(
+					product_type=ProductType.INVOICE_FINANCING,
+					input_dict=ContractInputDict(
+						interest_rate=0.001,
+						maximum_principal_amount=120000.0,
+						minimum_monthly_amount=1.03,
+						max_days_until_repayment=0, # unused
+						late_fee_structure=_get_late_fee_structure(),
+					)
+				),
+				start_date=date_util.load_date_str('1/1/2020'),
+				adjusted_end_date=date_util.load_date_str('12/1/2020')
+			))
+			financial_summary = finance_test_helper.get_default_financial_summary(
+				total_limit=100.0,
+				available_limit=100.0,
+				product_type=ProductType.INVOICE_FINANCING
+			)
+			financial_summary.date = date_util.load_date_str('01/01/1960')
+			financial_summary.company_id = company_id
+			session.add(financial_summary)
+
+			financial_summary2 = finance_test_helper.get_default_financial_summary(
+				total_limit=120000.0,
+				available_limit=100.0,
+				product_type=ProductType.INVOICE_FINANCING
+			)
+			financial_summary2.date = date_util.load_date_str('10/07/2020')
+			financial_summary2.company_id = company_id
+			session.add(financial_summary2)
+
+			invoice = models.Invoice()
+			invoice.company_id = cast(Any, company_id)
+			invoice.subtotal_amount = decimal.Decimal(500.0)
+			session.add(invoice)
+			session.flush()
+			artifact_id = str(invoice.id)
+
+			loan = models.Loan(
+				id=loan_ids[0],
+				company_id=company_id,
+				origination_date=date_util.load_date_str('10/01/2020'),
+				adjusted_maturity_date=date_util.load_date_str('12/31/2020'),
+				amount=decimal.Decimal(500.0),
+				artifact_id=artifact_id
+			)
+			session.add(loan)
+			advance_transaction = payment_test_helper.make_advance(
+				session, loan, amount=500.0,  payment_date='09/30/2020', effective_date='10/01/2020'
+			)
+
+			payment_test_helper.make_repayment(
+				session=session,
+				company_id=company_id,
+				loan=loan,
+				payment_date='10/02/2020',
+				effective_date='10/03/2020',
+				to_principal=100.0,
+				to_interest=0.0, # they pay off some portion of the interest
+				to_late_fees=0.0,
+				to_account_balance=0.0,
+			)
+
+			company_settings = session \
+				.query(models.CompanySettings) \
+				.filter(models.CompanySettings.company_id == company_id) \
+				.first()
+
+			company_settings.interest_end_date = date_util.load_date_str('10/07/2020')
+			company_settings.late_fees_end_date = date_util.load_date_str('10/07/2020')
+
+		loan_ids: List[str] = [
+			str(uuid.uuid4()),
+		]
+		tests: List[Dict] = [
+			{
+				'today': '10/07/2020',
+				'populate_fn': populate_fn,
+				'expected_loan_updates': [
+					{
+						'adjusted_maturity_date': date_util.load_date_str('12/31/2020'),
+						'outstanding_principal': 400.0,
+						'outstanding_principal_for_interest': 400.0,
+						'outstanding_principal_past_due': 0.0,
+						'outstanding_interest': (500 * 0.001 * 3) + (400 * 0.001 * 4),
+						'outstanding_fees': 0.0,
+						'amount_to_pay_interest_on': 400.00,
+						'interest_accrued_today': 400 * 0.001,
+						'fees_accrued_today': 0.0,
+						'day_last_repayment_settles': date_util.load_date_str('10/03/2020'),
+						'financing_period': 7,
+						'should_close_loan': False,
+						'days_overdue': 0
+					}
+				],
+				'expected_summary_update': {
+					'product_type': 'invoice_financing',
+					'daily_interest_rate': 0.001,
+					'total_limit': 120000.0,
+					'adjusted_total_limit': 120000.0,
+					'total_outstanding_principal': 400.0,
+					'total_outstanding_principal_for_interest': 400.0,
+					'total_outstanding_principal_past_due': 0.0,
+					'total_outstanding_interest': (500 * 0.001 * 3) + (400 * 0.001 * 4),
+					'total_outstanding_fees': 0.0,
+					'total_principal_in_requested_state': 0.0,
+					'total_amount_to_pay_interest_on': 400.0,
+					'total_interest_accrued_today': 400 * 0.001,
+					'total_late_fees_accrued_today': 0.0,
+					'available_limit': 120000.0 - (400.0),
+					'minimum_interest_info': {
+							'minimum_amount': 1.03,
+							'amount_accrued': number_util.round_currency((500 * 0.001 * 3) + (400 * 0.001 * 4)),
+							'amount_short': 0.0,
+							'duration': 'monthly',
+							'prorated_info': {'numerator': 31, 'denom': 31, 'fraction': 1.0, 'day_to_pay': '12/31/2020'},
+					},
+					'account_level_balance_payload': {
+							'fees_total': 0.0,
+							'credits_total': 0.0
+					},
+					'day_volume_threshold_met': None,
+					'most_overdue_loan_days': 0,
+					'accounting_total_outstanding_principal': 400.0,
+					'accounting_total_outstanding_interest': (500 * 0.001 * 3) + (400 * 0.001 * 4),
+					'accounting_total_outstanding_late_fees': 0.0,
+					'accounting_interest_accrued_today': 400 * 0.001,
+					'accounting_late_fees_accrued_today': 0.0,
+				}
+			},
+		]
+
+		i = 0
+		for test in tests:
+			self._run_test(test, loan_ids)
+			i += 1	
+
+	def test_accounting_field_interest_calculations_with_repayment_after_end_date(self) -> None:
+
+		def populate_fn(
+			session: Session, 
+			seed: test_helper.BasicSeed, 
+			company_id: str,
+			loan_ids: List[str],
+		) -> None:
+			session.add(models.Contract(
+				company_id=company_id,
+				product_type=ProductType.INVOICE_FINANCING,
+				product_config=contract_test_helper.create_contract_config(
+					product_type=ProductType.INVOICE_FINANCING,
+					input_dict=ContractInputDict(
+						interest_rate=0.001,
+						maximum_principal_amount=120000.0,
+						minimum_monthly_amount=1.03,
+						max_days_until_repayment=0, # unused
+						late_fee_structure=_get_late_fee_structure(),
+					)
+				),
+				start_date=date_util.load_date_str('1/1/2020'),
+				adjusted_end_date=date_util.load_date_str('12/1/2020')
+			))
+			financial_summary = finance_test_helper.get_default_financial_summary(
+				total_limit=100.0,
+				available_limit=100.0,
+				product_type=ProductType.INVOICE_FINANCING
+			)
+			financial_summary.date = date_util.load_date_str('01/01/1960')
+			financial_summary.company_id = company_id
+			session.add(financial_summary)
+
+			financial_summary2 = finance_test_helper.get_default_financial_summary(
+				total_limit=120000.0,
+				available_limit=100.0,
+				product_type=ProductType.INVOICE_FINANCING
+			)
+			financial_summary2.date = date_util.load_date_str('10/09/2020')
+			financial_summary2.company_id = company_id
+			session.add(financial_summary2)
+
+			invoice = models.Invoice()
+			invoice.company_id = cast(Any, company_id)
+			invoice.subtotal_amount = decimal.Decimal(500.0)
+			session.add(invoice)
+			session.flush()
+			artifact_id = str(invoice.id)
+
+			loan = models.Loan(
+				id=loan_ids[0],
+				company_id=company_id,
+				origination_date=date_util.load_date_str('10/01/2020'),
+				adjusted_maturity_date=date_util.load_date_str('10/07/2020'),
+				amount=decimal.Decimal(500.0),
+				artifact_id=artifact_id
+			)
+			session.add(loan)
+			advance_transaction = payment_test_helper.make_advance(
+				session, loan, amount=500.0,  payment_date='09/30/2020', effective_date='10/01/2020'
+			)
+
+			payment_test_helper.make_repayment(
+				session=session,
+				company_id=company_id,
+				loan=loan,
+				payment_date='10/02/2020',
+				effective_date='10/03/2020',
+				to_principal=100.0,
+				to_interest=0.0, # they pay off some portion of the interest
+				to_late_fees=0.0,
+				to_account_balance=0.0,
+			)
+
+			company_settings = session \
+				.query(models.CompanySettings) \
+				.filter(models.CompanySettings.company_id == company_id) \
+				.first()
+
+			company_settings.interest_end_date = date_util.load_date_str('10/07/2020')
+			company_settings.late_fees_end_date = date_util.load_date_str('10/07/2020')
+
+		loan_ids: List[str] = [
+			str(uuid.uuid4()),
+		]
+		tests: List[Dict] = [
+			{
+				'today': '10/09/2020',
+				'populate_fn': populate_fn,
+				'expected_loan_updates': [
+					{
+						'adjusted_maturity_date': date_util.load_date_str('10/07/2020'),
+						'outstanding_principal': 400.0,
+						'outstanding_principal_for_interest': 400.0,
+						'outstanding_principal_past_due': 400.0,
+						'outstanding_interest': (500 * 0.001 * 3) + (400 * 0.001 * 6),
+						'outstanding_fees': 2 * 0.001 * 400.0 * 0.25,
+						'amount_to_pay_interest_on': 400.00,
+						'interest_accrued_today': 400 * 0.001,
+						'fees_accrued_today': 0.001 * 400.0 * 0.25,
+						'day_last_repayment_settles': date_util.load_date_str('10/03/2020'),
+						'financing_period': 9,
+						'should_close_loan': False,
+						'days_overdue': 2
+					}
+				],
+				'expected_summary_update': {
+					'product_type': 'invoice_financing',
+					'daily_interest_rate': 0.001,
+					'total_limit': 120000.0,
+					'adjusted_total_limit': 120000.0,
+					'total_outstanding_principal': 400.0,
+					'total_outstanding_principal_for_interest': 400.0,
+					'total_outstanding_principal_past_due': 400.0,
+					'total_outstanding_interest': (500 * 0.001 * 3) + (400 * 0.001 * 6),
+					'total_outstanding_fees': 2 * 0.001 * 400.0 * 0.25,
+					'total_principal_in_requested_state': 0.0,
+					'total_amount_to_pay_interest_on': 400.0,
+					'total_interest_accrued_today': 400 * 0.001,
+					'total_late_fees_accrued_today': 0.001 * 400.0 * 0.25,
+					'available_limit': 120000.0 - (400.0),
+					'minimum_interest_info': {
+							'minimum_amount': 1.03,
+							'amount_accrued': number_util.round_currency((500 * 0.001 * 3) + (400 * 0.001 * 6)),
+							'amount_short': 0.0,
+							'duration': 'monthly',
+							'prorated_info': {'numerator': 31, 'denom': 31, 'fraction': 1.0, 'day_to_pay': '12/31/2020'},
+					},
+					'account_level_balance_payload': {
+							'fees_total': 0.0,
+							'credits_total': 0.0
+					},
+					'day_volume_threshold_met': None,
+					'most_overdue_loan_days': 2,
+					'accounting_total_outstanding_principal': 400.0,
+					'accounting_total_outstanding_interest': (500 * 0.001 * 3) + (400 * 0.001 * 4),
+					'accounting_total_outstanding_late_fees': 0.0,
+					'accounting_interest_accrued_today': 0.0,
+					'accounting_late_fees_accrued_today': 0.0,
+				}
+			},
+		]
+
+		i = 0
+		for test in tests:
+			self._run_test(test, loan_ids)
+			i += 1
+
+	def test_accounting_field_late_fees_calculations_no_repayments(self) -> None:
+
+		def populate_fn(
+			session: Session, 
+			seed: test_helper.BasicSeed, 
+			company_id: str,
+			loan_ids: List[str],
+		) -> None:
+			session.add(models.Contract(
+				company_id=company_id,
+				product_type=ProductType.INVOICE_FINANCING,
+				product_config=contract_test_helper.create_contract_config(
+					product_type=ProductType.INVOICE_FINANCING,
+					input_dict=ContractInputDict(
+						interest_rate=0.001,
+						maximum_principal_amount=120000.0,
+						minimum_monthly_amount=1.03,
+						max_days_until_repayment=0, # unused
+						late_fee_structure=_get_late_fee_structure(),
+					)
+				),
+				start_date=date_util.load_date_str('1/1/2020'),
+				adjusted_end_date=date_util.load_date_str('12/31/2020')
+			))
+			financial_summary = finance_test_helper.get_default_financial_summary(
+				total_limit=100.0,
+				available_limit=100.0,
+				product_type=ProductType.INVOICE_FINANCING
+			)
+			financial_summary.date = date_util.load_date_str('01/01/1960')
+			financial_summary.company_id = company_id
+			session.add(financial_summary)
+
+			financial_summary2 = finance_test_helper.get_default_financial_summary(
+				total_limit=120000.0,
+				available_limit=100.0,
+				product_type=ProductType.INVOICE_FINANCING
+			)
+			financial_summary2.date = date_util.load_date_str('10/07/2020')
+			financial_summary2.company_id = company_id
+			financial_summary2.total_outstanding_interest = decimal.Decimal(7.13)
+			session.add(financial_summary2)
+
+			invoice = models.Invoice()
+			invoice.company_id = cast(Any, company_id)
+			invoice.subtotal_amount = decimal.Decimal(500.0)
+			session.add(invoice)
+			session.flush()
+			artifact_id = str(invoice.id)
+
+			loan = models.Loan(
+				id=loan_ids[0],
+				company_id=company_id,
+				origination_date=date_util.load_date_str('10/01/2020'),
+				adjusted_maturity_date=date_util.load_date_str('10/3/2020'),
+				amount=decimal.Decimal(500.0),
+				artifact_id=artifact_id
+			)
+			session.add(loan)
+			advance_transaction = payment_test_helper.make_advance(
+				session, loan, amount=500.0,  payment_date='09/30/2020', effective_date='10/01/2020'
+			)
+
+			company_settings = session \
+				.query(models.CompanySettings) \
+				.filter(models.CompanySettings.company_id == company_id) \
+				.first()
+
+			company_settings.late_fees_end_date = date_util.load_date_str('10/07/2020')
+
+		loan_ids: List[str] = [
+			str(uuid.uuid4()),
+		]
+		tests: List[Dict] = [
+			{
+				'today': '10/07/2020',
+				'populate_fn': populate_fn,
+				'expected_loan_updates': [
+					{
+						'adjusted_maturity_date': date_util.load_date_str('10/3/2020'),
+						'outstanding_principal': 500.0,
+						'outstanding_principal_for_interest': 500.0,
+						'outstanding_principal_past_due': 500.0,
+						'outstanding_interest': 500 * 0.001 * 7,
+						'outstanding_fees': 4 * 0.001 * 500.0 * 0.25,
+						'amount_to_pay_interest_on': 500.00,
+						'interest_accrued_today': 500 * 0.001,
+						'fees_accrued_today': number_util.round_currency(0.001 * 500.0 * 0.25),
+						'day_last_repayment_settles': None,
+						'financing_period': 7,
+						'should_close_loan': False,
+						'days_overdue': 4
+					}
+				],
+				'expected_summary_update': {
+					'product_type': 'invoice_financing',
+					'daily_interest_rate': 0.001,
+					'total_limit': 120000.0,
+					'adjusted_total_limit': 120000.0,
+					'total_outstanding_principal': 500.0,
+					'total_outstanding_principal_for_interest': 500.0,
+					'total_outstanding_principal_past_due': 500.0,
+					'total_outstanding_interest': 500 * 0.001 * 7,
+					'total_outstanding_fees': 4 * 0.001 * 500.0 * 0.25,
+					'total_principal_in_requested_state': 0.0,
+					'total_amount_to_pay_interest_on': 500.00,
+					'total_interest_accrued_today': 500 * 0.001,
+					'total_late_fees_accrued_today': number_util.round_currency(0.001 * 500.0 * 0.25),
+					'available_limit': 120000.0 - (500.0),
+					'minimum_interest_info': {
+							'minimum_amount': 1.03,
+							'amount_accrued': number_util.round_currency(7 * 0.001 * 500.0),
+							'amount_short': 0.0,
+							'duration': 'monthly',
+							'prorated_info': {'numerator': 31, 'denom': 31, 'fraction': 1.0, 'day_to_pay': '12/31/2020'},
+					},
+					'account_level_balance_payload': {
+							'fees_total': 0.0,
+							'credits_total': 0.0
+					},
+					'day_volume_threshold_met': None,
+					'most_overdue_loan_days': 4,
+					'accounting_total_outstanding_principal': 500.00,
+					'accounting_total_outstanding_interest': 500 * 0.001 * 7,
+					'accounting_total_outstanding_late_fees': 4 * 0.001 * 500.0 * 0.25,
+					'accounting_interest_accrued_today': 500 * 0.001,
+					'accounting_late_fees_accrued_today': number_util.round_currency(0.001 * 500.0 * 0.25),
+				}
+			},
+			{
+				'today': '10/09/2020',
+				'populate_fn': populate_fn,
+				'expected_loan_updates': [
+					{
+						'adjusted_maturity_date': date_util.load_date_str('10/3/2020'),
+						'outstanding_principal': 500.0,
+						'outstanding_principal_for_interest': 500.0,
+						'outstanding_principal_past_due': 500.0,
+						'outstanding_interest': 500 * 0.001 * 9,
+						'outstanding_fees': 6 * 0.001 * 500.0 * 0.25,
+						'amount_to_pay_interest_on': 500.00,
+						'interest_accrued_today': 500 * 0.001,
+						'fees_accrued_today': number_util.round_currency(0.001 * 500.0 * 0.25),
+						'day_last_repayment_settles': None,
+						'financing_period': 9,
+						'should_close_loan': False,
+						'days_overdue': 6
+					}
+				],
+				'expected_summary_update': {
+					'product_type': 'invoice_financing',
+					'daily_interest_rate': 0.001,
+					'total_limit': 120000.0,
+					'adjusted_total_limit': 120000.0,
+					'total_outstanding_principal': 500.0,
+					'total_outstanding_principal_for_interest': 500.0,
+					'total_outstanding_principal_past_due': 500.0,
+					'total_outstanding_interest': 500 * 0.001 * 9,
+					'total_outstanding_fees': 6 * 0.001 * 500.0 * 0.25,
+					'total_principal_in_requested_state': 0.0,
+					'total_amount_to_pay_interest_on': 500.00,
+					'total_interest_accrued_today': 500 * 0.001,
+					'total_late_fees_accrued_today': number_util.round_currency(0.001 * 500.0 * 0.25),
+					'available_limit': 120000.0 - (500.0),
+					'minimum_interest_info': {
+							'minimum_amount': 1.03,
+							'amount_accrued': number_util.round_currency(9 * 0.001 * 500.0),
+							'amount_short': 0.0,
+							'duration': 'monthly',
+							'prorated_info': {'numerator': 31, 'denom': 31, 'fraction': 1.0, 'day_to_pay': '12/31/2020'},
+					},
+					'account_level_balance_payload': {
+							'fees_total': 0.0,
+							'credits_total': 0.0
+					},
+					'day_volume_threshold_met': None,
+					'most_overdue_loan_days': 6,
+					'accounting_total_outstanding_principal': 500.00,
+					'accounting_total_outstanding_interest': 500 * 0.001 * 9,
+					'accounting_total_outstanding_late_fees': 4 * 0.001 * 500.0 * 0.25,
+					'accounting_interest_accrued_today': 500 * 0.001,
+					'accounting_late_fees_accrued_today': 0.0,
+				}
+			},
+		]
+
+		i = 0
+		for test in tests:
+			self._run_test(test, loan_ids)
+			i += 1	
