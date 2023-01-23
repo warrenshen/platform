@@ -32,6 +32,11 @@ CompanyInsertInputDict = TypedDict('CompanyInsertInputDict', {
 	'us_state': str,
 }, total=False)
 
+ParentCompanyInsertInputDict = TypedDict('ParentCompanyInsertInputDict', {
+	'id': str,
+	'name': str,
+}, total=False)
+
 CompanySettingsInsertInputDict = TypedDict('CompanySettingsInsertInputDict', {
 })
 
@@ -50,6 +55,10 @@ CreateCustomerInputDict = TypedDict('CreateCustomerInputDict', {
 
 CreateProspectiveCustomerInputDict = TypedDict('CreateProspectiveCustomerInputDict', {
 	'company': CompanyInsertInputDict
+})
+
+EditParentCompanyInputDict = TypedDict('EditParentCompanyInputDict', {
+	'company': ParentCompanyInsertInputDict
 })
 
 CreateCustomerRespDict = TypedDict('CreateCustomerRespDict', {
@@ -1490,4 +1499,24 @@ def delete_customer_surveillance_result(
 	# Shared across create and update flow
 	customer_surveillance_result.is_deleted = True
 	
+	return True, None
+
+@errors.return_error_tuple
+def edit_parent_company(
+	req: EditParentCompanyInputDict,
+	session: Session
+) -> Tuple[bool, errors.Error]:
+	company_name = req['company']['name']
+	company_id = req['company']['id']
+
+	parent_company = cast(models.ParentCompany, 
+		session.query(models.ParentCompany).filter(
+			models.ParentCompany.id == company_id
+		).first())
+
+	if not parent_company:
+		return None, errors.Error("Could not find parent company")
+
+	parent_company.name = company_name
+
 	return True, None

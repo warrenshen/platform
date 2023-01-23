@@ -1183,6 +1183,37 @@ class CreateChangeVendorContactsView(MethodView):
 			'status': 'OK',
 		}))
 
+class EditParentCompanyView(MethodView):
+	decorators = [auth_util.login_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		form = json.loads(request.data)
+
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'company',
+		]
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in request')
+
+		with session_scope(current_app.session_maker) as session:
+
+			_, err = create_company_util.edit_parent_company(
+				req=form,
+				session=session,
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK',
+		}))
+
 handler.add_url_rule(
 	'/create_customer', view_func=CreateCustomerView.as_view(name='create_customer_view'))
 
@@ -1248,3 +1279,6 @@ handler.add_url_rule(
 
 handler.add_url_rule(
 	'/create_change_vendor_contacts', view_func=CreateChangeVendorContactsView.as_view(name='create_change_vendor_contacts_view'))
+
+handler.add_url_rule(
+	'/edit_parent_company', view_func=EditParentCompanyView.as_view(name='edit_parent_company_view'))

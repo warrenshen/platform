@@ -6,6 +6,7 @@ import {
   CompanySettings,
   CompanySettingsInsertInput,
   ContractsInsertInput,
+  ParentCompaniesInsertInput,
   UsersInsertInput,
   VendorChangeRequests,
 } from "generated/graphql";
@@ -24,6 +25,10 @@ export type CreateCustomerReq = {
 
 export type CreateProspectiveCustomerReq = {
   company: CompaniesInsertInput;
+};
+
+export type EditParentCompanyReq = {
+  company: ParentCompaniesInsertInput;
 };
 
 export async function createCustomer(
@@ -65,6 +70,28 @@ export async function createProspectiveCustomer(
         return {
           status: "ERROR",
           msg: "Could not create prospective company",
+        };
+      }
+    );
+}
+
+export async function editParentCompany(
+  req: EditParentCompanyReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(companyRoutes.editParentCompany, req)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.error({ error });
+        return {
+          status: "ERROR",
+          msg: "Could not edit parent company",
         };
       }
     );
