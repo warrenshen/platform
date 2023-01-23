@@ -295,7 +295,7 @@ def calculate_vendor_churn_short(
 
     # rolling_4m_sum
     rolling_4m_sum = vc_full.groupby("shipper_parent_name").apply(
-        lambda df: df.set_index("year_month").sort_index().rolling(4).sum()
+        lambda df: df.set_index("year_month").sort_index().rolling(2).sum()
     )
     rolling_4m_sum.columns = ["rolling_4m_total_price"]
 
@@ -612,7 +612,7 @@ def cogs_analysis(
     df_summary_simp.index = df_summary_simp.date
     df_summary_simp = df_summary_simp.round(2)
 
-    return df_summary_simp, df_cogs_average_product
+    return df_summary_simp, df_cogs_average_product,df_cogs_package_id
 
 
 ################################################

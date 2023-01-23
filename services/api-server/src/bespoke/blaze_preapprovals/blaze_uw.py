@@ -185,7 +185,7 @@ from blaze_data.inventory where state = "{State}"
 and last_day(Date) = "{uw_date}"
 """
 
-def create_blaze_inventory_query(State:str,Date:tuple
+def create_blaze_inventory_query(State:str,Date:tuple,Uw_date:str
 ) -> str:
     return f"""with base as (
     select *,
@@ -224,7 +224,7 @@ shopid,
 companyid,
 inventory_group,
 avg(inventory) inventory,
-last_day('2022-10-31') year_month
+last_day("{Uw_date}") year_month
 from weekly_inv
 group by 1,2,3"""
 
