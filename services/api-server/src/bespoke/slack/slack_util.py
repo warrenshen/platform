@@ -167,18 +167,21 @@ def send_job_slack_message(
 		payload = create_failure_message(job, is_dev)
 	else:
 		return None, None
-	response = requests.post(
-		url = cfg.ASYNC_JOB_SLACK_URL, 
-		data = json.dumps(payload), 
-		headers = headers,
-	)
+	
+	if not is_dev:
+		response = requests.post(
+			url = cfg.ASYNC_JOB_SLACK_URL, 
+			data = json.dumps(payload), 
+			headers = headers,
+		)
 
-	if response.status_code != 200:
-		return response.status_code, errors.Error(
-			'Request to slack returned an error %s, the response is:\n%s'
-			% (response.status_code, response.text))
+		if response.status_code != 200:
+			return response.status_code, errors.Error(
+				'Request to slack returned an error %s, the response is:\n%s'
+				% (response.status_code, response.text))
 
-	return response.status_code, None
+		return response.status_code, None
+	return None, None
 
 def create_success_message(job: models.AsyncJob) -> Dict:
 	job_name = AsyncJobNameEnumToLabel[job.name]
@@ -213,7 +216,7 @@ def create_failure_message(job: models.AsyncJob, is_dev: bool) -> Dict:
 	ended_at = date_util.human_readable_datetime(job.ended_at)
 	job_payload = job.job_payload
 	err_details = job.err_details
-	notify_at_here = "DEV" if is_dev else "@here"
+	notify_at_here = "DEV" if is_dev else "STAGING"
 	return {
 		"blocks": [
 			{
