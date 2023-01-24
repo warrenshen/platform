@@ -282,6 +282,32 @@ export const PlusIcon = ({
   </StyledSVG>
 );
 
+export const WhitePlusIcon = ({
+  fillColor = PlainWhite,
+  width = "24",
+  height = "24",
+  isChecked = false,
+  isDisabled = false,
+}: SVGProps): JSX.Element => (
+  <StyledSVG
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    preserveAspectRatio="none"
+    $width2={width}
+    $height2={height}
+  >
+    <StyledPath
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M13 4.77419C13 4.34662 12.6642 4 12.25 4C11.8358 4 11.5 4.34662 11.5 4.77419L11.5 11.2506L5 11.2506C4.58579 11.2506 4.25 11.5864 4.25 12.0006C4.25 12.4148 4.58579 12.7506 5 12.7506L11.5 12.7506L11.5 19.2258C11.5 19.6534 11.8358 20 12.25 20C12.6642 20 13 19.6534 13 19.2258L13 12.7506L19 12.7506C19.4142 12.7506 19.75 12.4148 19.75 12.0006C19.75 11.5864 19.4142 11.2506 19 11.2506L13 11.2506L13 4.77419Z"
+      $fillColor={fillColor}
+    />
+  </StyledSVG>
+);
+
 export const ExcelIcon = ({
   fillColor = SecondaryTextColor,
   width = "24",

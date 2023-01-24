@@ -41,6 +41,18 @@ query GetParentCompanyWithCustomerCompanies(
   }
 }
 
+query GetParentCompanyWithChildCompanies(
+  $parent_company_id: uuid!,
+) {
+  parent_companies_by_pk(id: $parent_company_id) {
+    id
+    child_companies: companies {
+      id
+      ...Company
+    }
+  }
+}
+
 query GetAllCompaniesWithMetadata($date: date) {
   companies: companies(
     order_by: { name: asc }

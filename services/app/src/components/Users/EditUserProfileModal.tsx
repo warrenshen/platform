@@ -1,6 +1,5 @@
 import {
   Box,
-  Button,
   Checkbox,
   Dialog,
   DialogActions,
@@ -19,6 +18,8 @@ import {
   createStyles,
   makeStyles,
 } from "@material-ui/core";
+import PrimaryButton from "components/Shared/Button/PrimaryButton";
+import SecondaryButton from "components/Shared/Button/SecondaryButton";
 import PhoneInput from "components/Shared/FormInputs/PhoneInput";
 import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { UserRolesEnum, UserWrapperFragment } from "generated/graphql";
@@ -214,6 +215,7 @@ function EditUserProfileModal({
 
           <Box display="flex" flexDirection="column" mt={4}>
             <TextField
+              data-cy="edit-user-modal-first-name"
               label="First Name"
               value={userProfile.first_name}
               onChange={({ target: { value } }) =>
@@ -226,6 +228,7 @@ function EditUserProfileModal({
           </Box>
           <Box display="flex" flexDirection="column" mt={4}>
             <TextField
+              data-cy="edit-user-modal-last-name"
               label="Last Name"
               value={userProfile.last_name}
               onChange={({ target: { value } }) =>
@@ -238,6 +241,7 @@ function EditUserProfileModal({
           </Box>
           <Box display="flex" flexDirection="column" mt={4}>
             <TextField
+              data-cy="edit-user-modal-email"
               label="Email"
               value={userProfile.email}
               onChange={({ target: { value } }) =>
@@ -250,6 +254,7 @@ function EditUserProfileModal({
           </Box>
           <Box display="flex" flexDirection="column" mt={4}>
             <PhoneInput
+              dataCy="edit-user-modal-phone-number"
               value={userProfile.phone_number || null}
               handleChange={(value) =>
                 setUserProfile({
@@ -309,17 +314,14 @@ function EditUserProfileModal({
         </Box>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>
-        <Box>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button
-            className={classes.submitButton}
-            disabled={updateButtonDisabled}
+        <Box display={"flex"}>
+          <SecondaryButton onClick={handleClose} text="Cancel" />
+          <PrimaryButton
+            dataCy="edit-user-modal-submit-button"
+            isDisabled={updateButtonDisabled}
             onClick={handleSubmit}
-            variant="contained"
-            color="primary"
-          >
-            Update
-          </Button>
+            text="Update"
+          />
         </Box>
       </DialogActions>
     </Dialog>

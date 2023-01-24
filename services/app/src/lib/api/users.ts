@@ -14,6 +14,13 @@ type CreateBankCustomerUserRequest = {
   };
 };
 
+type CreateParentCompanyUserRequest = {
+  variables: {
+    parent_company_id: Companies["id"];
+    user: UsersInsertInput;
+  };
+};
+
 export type UpdateUserReq = {
   variables: {
     id: UserFragment["id"];
@@ -37,6 +44,24 @@ export async function createBankCustomerUserMutation(
       (res) => res,
       (error) => {
         console.log("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not create user",
+        };
+      }
+    );
+}
+
+export async function createParentCompanyUserMutation(
+  req: CreateParentCompanyUserRequest
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(userRoutes.createParentCompanyUser, req.variables)
+    .then((res) => res.data)
+    .then(
+      (res) => res,
+      (error) => {
+        console.error(error);
         return {
           status: "ERROR",
           msg: "Could not create user",

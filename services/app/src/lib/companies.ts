@@ -36,6 +36,19 @@ export function getCompanyUserRolesForCompany(company: CompanyFragment) {
   ];
 }
 
+export function getCompanyUserRolesFromChildCompanies(
+  companies: CompanyFragment[]
+) {
+  const customers = companies.filter((company) => company.is_customer) || [];
+  const partners =
+    companies.filter((company) => company.is_payor || company.is_vendor) || [];
+
+  const customerRoles = !!customers?.[0] ? CustomerUserRoles : [];
+  const partnerUserRoles = !!partners?.[0] ? PartnerCompanyUserRoles : [];
+
+  return partnerUserRoles.concat(customerRoles);
+}
+
 export enum FeatureFlagConfigs {
   Name = "name",
   Description = "description",

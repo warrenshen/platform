@@ -32373,6 +32373,23 @@ export type GetUsersForCompanyQueryVariables = Exact<{
 
 export type GetUsersForCompanyQuery = { users: Array<UserWrapperFragment> };
 
+export type GetUsersForParentCompanyQueryVariables = Exact<{
+  parent_company_id: Scalars["uuid"];
+  isBankUser?: Maybe<Scalars["Boolean"]>;
+}>;
+
+export type GetUsersForParentCompanyQuery = {
+  users: Array<UserWrapperFragment>;
+};
+
+export type GetDeactivatedUsersForParentCompanyQueryVariables = Exact<{
+  parent_company_id: Scalars["uuid"];
+}>;
+
+export type GetDeactivatedUsersForParentCompanyQuery = {
+  users: Array<UserFragment>;
+};
+
 export type GetDeactivatedUsersForCompanyQueryVariables = Exact<{
   parent_company_id: Scalars["uuid"];
   company_id: Scalars["uuid"];
@@ -32460,6 +32477,18 @@ export type GetParentCompanyWithCustomerCompaniesQuery = {
           >;
         }
       >;
+    }
+  >;
+};
+
+export type GetParentCompanyWithChildCompaniesQueryVariables = Exact<{
+  parent_company_id: Scalars["uuid"];
+}>;
+
+export type GetParentCompanyWithChildCompaniesQuery = {
+  parent_companies_by_pk?: Maybe<
+    Pick<ParentCompanies, "id"> & {
+      child_companies: Array<Pick<Companies, "id"> & CompanyFragment>;
     }
   >;
 };
@@ -46354,6 +46383,149 @@ export type GetUsersForCompanyQueryResult = Apollo.QueryResult<
   GetUsersForCompanyQuery,
   GetUsersForCompanyQueryVariables
 >;
+export const GetUsersForParentCompanyDocument = gql`
+  query GetUsersForParentCompany(
+    $parent_company_id: uuid!
+    $isBankUser: Boolean = false
+  ) {
+    users(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { parent_company_id: { _eq: $parent_company_id } }
+        ]
+      }
+      order_by: { full_name: asc }
+    ) {
+      ...UserWrapper
+    }
+  }
+  ${UserWrapperFragmentDoc}
+`;
+
+/**
+ * __useGetUsersForParentCompanyQuery__
+ *
+ * To run a query within a React component, call `useGetUsersForParentCompanyQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUsersForParentCompanyQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetUsersForParentCompanyQuery({
+ *   variables: {
+ *      parent_company_id: // value for 'parent_company_id'
+ *      isBankUser: // value for 'isBankUser'
+ *   },
+ * });
+ */
+export function useGetUsersForParentCompanyQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetUsersForParentCompanyQuery,
+    GetUsersForParentCompanyQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetUsersForParentCompanyQuery,
+    GetUsersForParentCompanyQueryVariables
+  >(GetUsersForParentCompanyDocument, options);
+}
+export function useGetUsersForParentCompanyLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetUsersForParentCompanyQuery,
+    GetUsersForParentCompanyQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetUsersForParentCompanyQuery,
+    GetUsersForParentCompanyQueryVariables
+  >(GetUsersForParentCompanyDocument, options);
+}
+export type GetUsersForParentCompanyQueryHookResult = ReturnType<
+  typeof useGetUsersForParentCompanyQuery
+>;
+export type GetUsersForParentCompanyLazyQueryHookResult = ReturnType<
+  typeof useGetUsersForParentCompanyLazyQuery
+>;
+export type GetUsersForParentCompanyQueryResult = Apollo.QueryResult<
+  GetUsersForParentCompanyQuery,
+  GetUsersForParentCompanyQueryVariables
+>;
+export const GetDeactivatedUsersForParentCompanyDocument = gql`
+  query GetDeactivatedUsersForParentCompany($parent_company_id: uuid!) {
+    users(
+      where: {
+        _and: [
+          { is_deleted: { _eq: true } }
+          { parent_company_id: { _eq: $parent_company_id } }
+        ]
+      }
+      order_by: { full_name: asc }
+    ) {
+      ...User
+    }
+  }
+  ${UserFragmentDoc}
+`;
+
+/**
+ * __useGetDeactivatedUsersForParentCompanyQuery__
+ *
+ * To run a query within a React component, call `useGetDeactivatedUsersForParentCompanyQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetDeactivatedUsersForParentCompanyQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetDeactivatedUsersForParentCompanyQuery({
+ *   variables: {
+ *      parent_company_id: // value for 'parent_company_id'
+ *   },
+ * });
+ */
+export function useGetDeactivatedUsersForParentCompanyQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetDeactivatedUsersForParentCompanyQuery,
+    GetDeactivatedUsersForParentCompanyQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetDeactivatedUsersForParentCompanyQuery,
+    GetDeactivatedUsersForParentCompanyQueryVariables
+  >(GetDeactivatedUsersForParentCompanyDocument, options);
+}
+export function useGetDeactivatedUsersForParentCompanyLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetDeactivatedUsersForParentCompanyQuery,
+    GetDeactivatedUsersForParentCompanyQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetDeactivatedUsersForParentCompanyQuery,
+    GetDeactivatedUsersForParentCompanyQueryVariables
+  >(GetDeactivatedUsersForParentCompanyDocument, options);
+}
+export type GetDeactivatedUsersForParentCompanyQueryHookResult = ReturnType<
+  typeof useGetDeactivatedUsersForParentCompanyQuery
+>;
+export type GetDeactivatedUsersForParentCompanyLazyQueryHookResult = ReturnType<
+  typeof useGetDeactivatedUsersForParentCompanyLazyQuery
+>;
+export type GetDeactivatedUsersForParentCompanyQueryResult = Apollo.QueryResult<
+  GetDeactivatedUsersForParentCompanyQuery,
+  GetDeactivatedUsersForParentCompanyQueryVariables
+>;
 export const GetDeactivatedUsersForCompanyDocument = gql`
   query GetDeactivatedUsersForCompany(
     $parent_company_id: uuid!
@@ -46829,6 +47001,69 @@ export type GetParentCompanyWithCustomerCompaniesQueryResult =
     GetParentCompanyWithCustomerCompaniesQuery,
     GetParentCompanyWithCustomerCompaniesQueryVariables
   >;
+export const GetParentCompanyWithChildCompaniesDocument = gql`
+  query GetParentCompanyWithChildCompanies($parent_company_id: uuid!) {
+    parent_companies_by_pk(id: $parent_company_id) {
+      id
+      child_companies: companies {
+        id
+        ...Company
+      }
+    }
+  }
+  ${CompanyFragmentDoc}
+`;
+
+/**
+ * __useGetParentCompanyWithChildCompaniesQuery__
+ *
+ * To run a query within a React component, call `useGetParentCompanyWithChildCompaniesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetParentCompanyWithChildCompaniesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetParentCompanyWithChildCompaniesQuery({
+ *   variables: {
+ *      parent_company_id: // value for 'parent_company_id'
+ *   },
+ * });
+ */
+export function useGetParentCompanyWithChildCompaniesQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetParentCompanyWithChildCompaniesQuery,
+    GetParentCompanyWithChildCompaniesQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetParentCompanyWithChildCompaniesQuery,
+    GetParentCompanyWithChildCompaniesQueryVariables
+  >(GetParentCompanyWithChildCompaniesDocument, options);
+}
+export function useGetParentCompanyWithChildCompaniesLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetParentCompanyWithChildCompaniesQuery,
+    GetParentCompanyWithChildCompaniesQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetParentCompanyWithChildCompaniesQuery,
+    GetParentCompanyWithChildCompaniesQueryVariables
+  >(GetParentCompanyWithChildCompaniesDocument, options);
+}
+export type GetParentCompanyWithChildCompaniesQueryHookResult = ReturnType<
+  typeof useGetParentCompanyWithChildCompaniesQuery
+>;
+export type GetParentCompanyWithChildCompaniesLazyQueryHookResult = ReturnType<
+  typeof useGetParentCompanyWithChildCompaniesLazyQuery
+>;
+export type GetParentCompanyWithChildCompaniesQueryResult = Apollo.QueryResult<
+  GetParentCompanyWithChildCompaniesQuery,
+  GetParentCompanyWithChildCompaniesQueryVariables
+>;
 export const GetAllCompaniesWithMetadataDocument = gql`
   query GetAllCompaniesWithMetadata($date: date) {
     companies: companies(order_by: { name: asc }) {

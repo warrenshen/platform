@@ -1,6 +1,5 @@
 import {
   Box,
-  Button,
   Dialog,
   DialogActions,
   DialogContent,
@@ -10,6 +9,8 @@ import {
   createStyles,
   makeStyles,
 } from "@material-ui/core";
+import PrimaryWarningButton from "components/Shared/Button/PrimaryWarningButton";
+import SecondaryButton from "components/Shared/Button/SecondaryButton";
 import { Users } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -98,17 +99,14 @@ function ReactivateUserModal({ companyId, user, handleClose }: Props) {
         </Box>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>
-        <Box>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button
-            disabled={isReactivateCustomerUserLoading}
-            className={classes.submitButton}
+        <Box display={"flex"}>
+          <SecondaryButton onClick={handleClose} text="Cancel" />
+          <PrimaryWarningButton
+            dataCy="reactivate-user-modal-submit-button"
+            isDisabled={isReactivateCustomerUserLoading}
             onClick={handleClickSubmit}
-            variant="contained"
-            color="secondary"
-          >
-            Reactivate
-          </Button>
+            text="Reactivate"
+          />
         </Box>
       </DialogActions>
     </Dialog>

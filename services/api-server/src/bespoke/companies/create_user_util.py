@@ -1,10 +1,10 @@
 """
 Logic to create users.
 """
-from typing import Callable, Tuple
+from typing import Callable, Tuple, cast
 
 from bespoke import errors
-from bespoke.db import db_constants, models
+from bespoke.db import db_constants, models, queries
 from bespoke.db.db_constants import LoginMethod
 from bespoke.db.models import session_scope
 from mypy_extensions import TypedDict
@@ -17,10 +17,16 @@ UserInsertInputDict = TypedDict('UserInsertInputDict', {
 	'last_name': str,
 	'email': str,
 	'phone_number': str,
+	'parent_company_id': str,
 }, total=False)
 
 CreateBankOrCustomerUserInputDict = TypedDict('CreateBankOrCustomerUserInputDict', {
 	'company_id': str,
+	'user': UserInsertInputDict,
+})
+
+CreateParentCompanyUserInputDict = TypedDict('CreateParentCompanyUserInputDict', {
+	'parent_company_id': str,
 	'user': UserInsertInputDict,
 })
 
@@ -125,6 +131,75 @@ def create_bank_or_customer_user(
 		return create_bank_or_customer_user_with_session(req, session, created_by_user_id)
 
 	raise errors.Error("Could not create session")
+
+@errors.return_error_tuple
+def create_parent_company_user(
+	session: Session,
+	req: CreateParentCompanyUserInputDict,
+	created_by_user_id: str,
+) -> Tuple[str, errors.Error]:
+	user_input = req['user']
+	role = user_input['role']
+	first_name = user_input['first_name']
+	last_name = user_input['last_name']
+	email = user_input['email']
+	phone_number = user_input['phone_number']
+	parent_company_id = user_input['parent_company_id']
+
+	if not role:
+		raise errors.Error('Role must be specified')
+
+	if not first_name or not last_name:
+		raise errors.Error('Full name must be specified')
+
+	if not email:
+		raise errors.Error('Email must be specified')
+
+	user_id = None
+	
+	parent_company, err = queries.get_parent_company_by_id(
+		session,
+		parent_company_id
+	)
+	if err:
+		return None, err
+
+	# adding a company id for now so users can still access the site
+	child_companies, err = queries.get_companies_by_parent_company_id(
+		session,
+		parent_company_id
+	)
+	if err:
+		return None, err
+	child_company = child_companies[0]
+
+	# Since an existing user would actually be an error
+	# for this flow, we mark err with _
+	existing_user, _ = queries.get_user_by_email(
+		session,
+		email.lower()
+	)
+	if existing_user:
+		return None, errors.Error('Email is already taken')
+
+	user = models.User()
+	user.parent_company_id = parent_company_id
+	user.company_id = child_company.id
+	user.role = role
+	user.first_name = first_name
+	user.last_name = last_name
+	user.email = email.lower()
+	user.phone_number = phone_number
+	user.login_method = LoginMethod.SIMPLE
+	if "company_role" in user_input:
+		user.company_role = user_input["company_role"]
+	user.created_by_user_id = created_by_user_id # type: ignore
+
+	session.add(user)
+	session.flush()
+	user_id = str(user.id)
+
+	return user_id, None
 
 # This method is deprecated and is no longer used.
 @errors.return_error_tuple

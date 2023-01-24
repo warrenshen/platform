@@ -144,6 +144,74 @@ class CreateBankCustomerUserView(MethodView):
 			'status': 'OK'
 		}), 200)
 
+class CreateParentCompanyUserView(MethodView):
+	"""
+	Creates a user under parent company.
+	"""
+	decorators = [auth_util.login_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'parent_company_id',
+			'user',
+		]
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in request')
+
+		user_session = UserSession.from_session()
+
+		with session_scope(current_app.session_maker) as session:
+			user_id, err = create_user_util.create_parent_company_user(
+				session=session,
+				req=cast(create_user_util.CreateParentCompanyUserInputDict, form),
+				created_by_user_id=user_session.get_user_id()
+			)
+
+			if err:
+				return handler_util.make_error_response(err)
+
+		with session_scope(current_app.session_maker) as session:
+			existing_user = session.query(models.User).filter(
+				models.User.id == user_id).first()
+			if not existing_user:
+				return handler_util.make_error_response('No user id found')
+
+			if not existing_user.role == db_constants.UserRoles.COMPANY_CONTACT_ONLY:
+				password = security_util.generate_temp_password()
+				user_email = ''
+
+				sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
+				cfg = cast(Config, current_app.app_config)
+
+				existing_user.password = security_util.hash_password(
+					cfg.PASSWORD_SALT, password)
+				user_email = existing_user.email.strip()
+
+				template_data = {
+					'email': user_email,
+					'password': password,
+					'app_link': cfg.BESPOKE_DOMAIN,
+				}
+				_, err = sendgrid_client.send(
+					template_name=sendgrid_util.TemplateNames.USER_INVITED_TO_PLATFORM,
+					template_data=template_data,
+					recipients=[user_email],
+				)
+				if err:
+					raise err
+
+
+		return make_response(json.dumps({
+			'status': 'OK'
+		}), 200)
+
 # This view is deprecated and is no longer used.
 class CreatePayorVendorUserView(MethodView):
 	"""
@@ -417,6 +485,9 @@ handler.add_url_rule(
 
 handler.add_url_rule(
 	'/create_bank_customer_user', view_func=CreateBankCustomerUserView.as_view(name='create_bank_customer_user_view'))
+
+handler.add_url_rule(
+	'/create_parent_company_user', view_func=CreateParentCompanyUserView.as_view(name='create_parent_company_user_view'))
 
 handler.add_url_rule(
 	'/create_payor_vendor_user', view_func=CreatePayorVendorUserView.as_view(name='create_payor_vendor_user_view'))

@@ -1,6 +1,5 @@
 import {
   Box,
-  Button,
   Dialog,
   DialogActions,
   DialogContent,
@@ -10,6 +9,8 @@ import {
   createStyles,
   makeStyles,
 } from "@material-ui/core";
+import PrimaryWarningButton from "components/Shared/Button/PrimaryWarningButton";
+import SecondaryButton from "components/Shared/Button/SecondaryButton";
 import { Users } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -74,7 +75,7 @@ function DeactivateUserModal({ companyId, user, handleClose }: Props) {
       <DialogContent>
         <div>
           Deactivating this user will make it so this user can no longer access
-          the platform. This can be undone in the Deactivate Users section.
+          the platform. This can be undone by re-activate action.
         </div>
         <Box display="flex" flexDirection="column">
           <Box display="flex" flexDirection="column" mt={4}>
@@ -97,17 +98,14 @@ function DeactivateUserModal({ companyId, user, handleClose }: Props) {
         </Box>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>
-        <Box>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button
-            disabled={isDeactivateCustomerUserLoading}
-            className={classes.submitButton}
+        <Box display={"flex"}>
+          <SecondaryButton onClick={handleClose} text="Cancel" />
+          <PrimaryWarningButton
+            dataCy="deactivate-user-modal-submit-button"
+            isDisabled={isDeactivateCustomerUserLoading}
             onClick={handleClickSubmit}
-            variant="contained"
-            color="secondary"
-          >
-            Deactivate
-          </Button>
+            text="Deactivate"
+          />
         </Box>
       </DialogActions>
     </Dialog>

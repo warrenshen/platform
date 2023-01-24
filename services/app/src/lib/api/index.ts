@@ -85,6 +85,7 @@ export const userRoutes = {
   createBankCustomerUser: "/users/create_bank_customer_user",
   deactivateCustomerUser: "/users/deactivate_customer_user",
   reactivateCustomerUser: "/users/reactivate_customer_user",
+  createParentCompanyUser: "/users/create_parent_company_user",
   updateUser: "/users/update_user",
 };
 

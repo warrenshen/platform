@@ -93,6 +93,27 @@ def get_company_by_id(
 
     return company, None
 
+def get_companies_by_parent_company_id(
+    session: Session,
+    parent_company_id: str,
+) -> Tuple[ List[models.Company], errors.Error ]:
+    filters = [
+        models.Company.parent_company_id == parent_company_id
+    ]
+
+    # fmt: off
+    companies = cast(
+        List[models.Company],
+        session.query(models.Company).filter(
+            *filters
+        ).all())
+    # fmt: on
+
+    if not companies:
+        return None, errors.Error("No companies with the specified parent_company_id exists in the system")
+
+    return companies, None
+
 # ###############################
 # Company Settings
 # ###############################
@@ -785,6 +806,25 @@ def get_user_by_id(
 
     if not user:
         return None, errors.Error('Could not find user with the provided id of {user_id}')
+
+    return user, None
+
+def get_user_by_email(
+    session: Session,
+    email: str,
+) -> Tuple[ models.User, errors.Error ]:
+    filters = [
+        models.User.email == email
+    ]
+
+    user = cast(
+        models.User,
+        session.query(models.User).filter(
+            *filters
+        ).first())
+
+    if not user:
+        return None, errors.Error('Could not find user with the provided email of {email}')
 
     return user, None
 
