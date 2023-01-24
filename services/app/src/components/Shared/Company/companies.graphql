@@ -48,7 +48,7 @@ query GetParentCompanyWithChildCompanies(
     id
     child_companies: companies {
       id
-      ...Company
+      ...CompanyWithSettings
     }
   }
 }

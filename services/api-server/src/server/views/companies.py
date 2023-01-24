@@ -962,6 +962,36 @@ class UpsertDealOwnerView(MethodView):
 			'status': 'OK'
 		}), 200)
 
+class UpdateDummyAccountSettingsView(MethodView):
+	decorators = [auth_util.bank_admin_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self, **kwargs: Any) -> Response:
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+		
+		required_keys = [
+			'parent_company_id',
+			'is_dummy_account',
+		]
+
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(f'Missing {key} in request')
+
+		with session_scope(current_app.session_maker) as session:
+			_, err = create_company_util.edit_dummy_account_status(
+				session = session,
+				parent_company_id = form['parent_company_id'],
+				is_dummy_account = form['is_dummy_account'],
+			)
+			if err:
+				raise err
+
+		return make_response(json.dumps({
+			'status': 'OK'
+		}), 200)
 
 class ApproveVendorChangeView(MethodView):
 	decorators = [auth_util.bank_admin_required]
@@ -1265,6 +1295,9 @@ handler.add_url_rule(
 
 handler.add_url_rule(
 	'/upsert_deal_owner', view_func=UpsertDealOwnerView.as_view(name='upsert_deal_owner_view'))
+
+handler.add_url_rule(
+	'/update_dummy_account_settings', view_func=UpdateDummyAccountSettingsView.as_view(name='update_dummy_account_settings_view'))
 
 handler.add_url_rule(
 	'/upsert_feature_flags', view_func=UpsertFeatureFlagsView.as_view(name='upsert_feature_flags_view'))

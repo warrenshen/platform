@@ -1,10 +1,8 @@
+import { Box } from "@material-ui/core";
 import PageContent from "components/Shared/Page/PageContent";
 import { ParentCompanies } from "generated/graphql";
-import styled from "styled-components";
 
-const SectionSpace = styled.div`
-  height: 24px;
-`;
+import ManageParentCompanyUsersArea from "./ManageParentCompanySettingsArea";
 
 interface Props {
   companyId: ParentCompanies["id"];
@@ -13,7 +11,9 @@ interface Props {
 export default function BankParentCompanySettingsContent({ companyId }: Props) {
   return (
     <PageContent title={"Settings"}>
-      <SectionSpace>settings</SectionSpace>
+      <Box mr={6}>
+        <ManageParentCompanyUsersArea parentCompanyId={companyId} />
+      </Box>
     </PageContent>
   );
 }

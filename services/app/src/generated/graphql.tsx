@@ -32488,7 +32488,9 @@ export type GetParentCompanyWithChildCompaniesQueryVariables = Exact<{
 export type GetParentCompanyWithChildCompaniesQuery = {
   parent_companies_by_pk?: Maybe<
     Pick<ParentCompanies, "id"> & {
-      child_companies: Array<Pick<Companies, "id"> & CompanyFragment>;
+      child_companies: Array<
+        Pick<Companies, "id"> & CompanyWithSettingsFragment
+      >;
     }
   >;
 };
@@ -32759,6 +32761,21 @@ export type CompanyFragment = Pick<
   | "phone_number"
 > &
   CompanyLimitedFragment;
+
+export type CompanyWithSettingsFragment = Pick<
+  Companies,
+  | "id"
+  | "identifier"
+  | "is_customer"
+  | "is_payor"
+  | "is_vendor"
+  | "contract_name"
+  | "employer_identification_number"
+  | "address"
+  | "phone_number"
+> & {
+  settings?: Maybe<Pick<CompanySettings, "id"> & CompanySettingsFragment>;
+} & CompanyLimitedFragment;
 
 export type ParentCompanyFragment = Pick<ParentCompanies, "id" | "name">;
 
@@ -34608,6 +34625,57 @@ export const CompanyFragmentDoc = gql`
   }
   ${CompanyLimitedFragmentDoc}
 `;
+export const CompanySettingsLimitedFragmentDoc = gql`
+  fragment CompanySettingsLimited on company_settings {
+    id
+    company_id
+    advances_bank_account_id
+    collections_bank_account_id
+    vendor_agreement_docusign_template
+    vendor_onboarding_link
+    payor_agreement_docusign_template
+    feature_flags_payload
+    custom_messages_payload
+    has_autofinancing
+    is_autogenerate_repayments_enabled
+  }
+`;
+export const CompanySettingsFragmentDoc = gql`
+  fragment CompanySettings on company_settings {
+    id
+    advances_bespoke_bank_account_id
+    collections_bespoke_bank_account_id
+    two_factor_message_method
+    is_dummy_account
+    client_success_user_id
+    business_development_user_id
+    underwriter_user_id
+    interest_end_date
+    late_fees_end_date
+    ...CompanySettingsLimited
+  }
+  ${CompanySettingsLimitedFragmentDoc}
+`;
+export const CompanyWithSettingsFragmentDoc = gql`
+  fragment CompanyWithSettings on companies {
+    id
+    identifier
+    is_customer
+    is_payor
+    is_vendor
+    contract_name
+    employer_identification_number
+    address
+    phone_number
+    ...CompanyLimited
+    settings {
+      id
+      ...CompanySettings
+    }
+  }
+  ${CompanyLimitedFragmentDoc}
+  ${CompanySettingsFragmentDoc}
+`;
 export const FileFragmentDoc = gql`
   fragment File on files {
     id
@@ -35117,37 +35185,6 @@ export const CustomerForBankFragmentDoc = gql`
     is_vendor
     is_customer
   }
-`;
-export const CompanySettingsLimitedFragmentDoc = gql`
-  fragment CompanySettingsLimited on company_settings {
-    id
-    company_id
-    advances_bank_account_id
-    collections_bank_account_id
-    vendor_agreement_docusign_template
-    vendor_onboarding_link
-    payor_agreement_docusign_template
-    feature_flags_payload
-    custom_messages_payload
-    has_autofinancing
-    is_autogenerate_repayments_enabled
-  }
-`;
-export const CompanySettingsFragmentDoc = gql`
-  fragment CompanySettings on company_settings {
-    id
-    advances_bespoke_bank_account_id
-    collections_bespoke_bank_account_id
-    two_factor_message_method
-    is_dummy_account
-    client_success_user_id
-    business_development_user_id
-    underwriter_user_id
-    interest_end_date
-    late_fees_end_date
-    ...CompanySettingsLimited
-  }
-  ${CompanySettingsLimitedFragmentDoc}
 `;
 export const EbbaApplicationFragmentDoc = gql`
   fragment EbbaApplication on ebba_applications {
@@ -47007,11 +47044,11 @@ export const GetParentCompanyWithChildCompaniesDocument = gql`
       id
       child_companies: companies {
         id
-        ...Company
+        ...CompanyWithSettings
       }
     }
   }
-  ${CompanyFragmentDoc}
+  ${CompanyWithSettingsFragmentDoc}
 `;
 
 /**

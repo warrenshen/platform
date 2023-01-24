@@ -79,6 +79,23 @@ fragment Company on companies {
   ...CompanyLimited
 }
 
+fragment CompanyWithSettings on companies {
+  id
+  identifier
+  is_customer
+  is_payor
+  is_vendor
+  contract_name
+  employer_identification_number
+  address
+  phone_number
+  ...CompanyLimited
+  settings {
+    id
+    ...CompanySettings
+  }
+}
+
 fragment ParentCompany on parent_companies {
   id
   name

@@ -50,6 +50,7 @@ export const companySettingsRoutes = {
   updateCustomerSettings: "/companies/update_customer_settings",
   upsertFeatureFlags: "/companies/upsert_feature_flags",
   upsertDealOwner: "/companies/upsert_deal_owner",
+  updateDummyStatus: "/companies/update_dummy_account_settings",
 };
 
 export const companyFacilitiesRoutes = {

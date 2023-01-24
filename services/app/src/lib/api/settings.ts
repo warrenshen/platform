@@ -1,4 +1,4 @@
-import { CompanySettings, Users } from "generated/graphql";
+import { CompanySettings, ParentCompanies, Users } from "generated/graphql";
 import {
   CustomMutationResponse,
   authenticatedApi,
@@ -116,6 +116,31 @@ export async function editEndDatesMutation(
         return {
           status: "ERROR",
           msg: "Could not update company's end dates",
+        };
+      }
+    );
+}
+
+export type UpdateParentAccountDummyStatusMutationReq = {
+  variables: {
+    parent_company_id: ParentCompanies["id"];
+    is_dummy_account: boolean;
+  };
+};
+
+export async function updateParentAccountDummyStatusMutation(
+  req: UpdateParentAccountDummyStatusMutationReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(companySettingsRoutes.updateDummyStatus, req.variables)
+    .then((res) => res.data)
+    .then(
+      (response) => response,
+      (error) => {
+        console.error({ error });
+        return {
+          status: "ERROR",
+          msg: "Could not update dummy account status",
         };
       }
     );

@@ -1569,3 +1569,34 @@ def edit_parent_company(
 	parent_company.name = company_name
 
 	return True, None
+
+@errors.return_error_tuple
+def edit_dummy_account_status(
+	session: Session,
+	parent_company_id: str,
+	is_dummy_account: bool,
+) -> Tuple[bool, errors.Error]:
+	child_companies = cast(
+		List[models.Company],
+		session.query(models.Company).filter(
+			models.Company.parent_company_id == parent_company_id
+		).all())
+
+	if not child_companies or len(child_companies) == 0:
+		return None, errors.Error('No child companies found')
+
+	child_settings = [company.company_settings_id for company in child_companies]
+
+	child_company_settings = cast(
+		List[models.CompanySettings],
+		session.query(models.CompanySettings).filter(
+			models.CompanySettings.id.in_(child_settings)
+		).all())
+
+	if not child_company_settings or len(child_company_settings) == 0:
+		return None, errors.Error('No settings found')
+
+	for settings in child_company_settings:
+		settings.is_dummy_account = is_dummy_account
+
+	return True, None
