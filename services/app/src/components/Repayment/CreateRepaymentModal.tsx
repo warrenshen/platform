@@ -259,18 +259,30 @@ export default function CreateRepaymentModal({
             requested_to_account_fees:
               payment.items_covered.requested_to_account_fees || 0.0, // If user leaves this blank, coerce to zero.
             payment_option: paymentOption,
-            forecasted_principal: repaymentEffectData?.loans_to_show.reduce(
-              (acc, { transaction }) => acc + (transaction.to_principal || 0.0),
-              0.0
-            ),
-            forecasted_interest: repaymentEffectData?.loans_to_show.reduce(
-              (acc, { transaction }) => acc + (transaction.to_interest || 0.0),
-              0.0
-            ),
-            forecasted_late_fees: repaymentEffectData?.loans_to_show.reduce(
-              (acc, { transaction }) => acc + (transaction.to_fees || 0.0),
-              0.0
-            ),
+            forecasted_principal:
+              productType !== ProductTypeEnum.LineOfCredit
+                ? repaymentEffectData?.loans_to_show.reduce(
+                    (acc, { transaction }) =>
+                      acc + (transaction.to_principal || 0.0),
+                    0.0
+                  )
+                : payment.items_covered.requested_to_principal,
+            forecasted_interest:
+              productType !== ProductTypeEnum.LineOfCredit
+                ? repaymentEffectData?.loans_to_show.reduce(
+                    (acc, { transaction }) =>
+                      acc + (transaction.to_interest || 0.0),
+                    0.0
+                  )
+                : payment.items_covered.requested_to_interest,
+            forecasted_late_fees:
+              productType !== ProductTypeEnum.LineOfCredit
+                ? repaymentEffectData?.loans_to_show.reduce(
+                    (acc, { transaction }) =>
+                      acc + (transaction.to_fees || 0.0),
+                    0.0
+                  )
+                : 0,
             forecasted_holding_account: payment.items_covered.to_user_credit,
           },
           company_bank_account_id: payment.company_bank_account_id,
