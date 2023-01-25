@@ -57,15 +57,7 @@ function getRows(
         amount: repayment.amount,
       };
     });
-    const allPayments = paymentsCopy.concat(reverseRepayments).sort((a, b) => {
-      if (Number(a.settlement_identifier) === Number(b.settlement_identifier)) {
-        return Number(a.amount) - Number(b.amount);
-      } else {
-        return (
-          Number(a.settlement_identifier) - Number(b.settlement_identifier)
-        );
-      }
-    });
+    const allPayments = paymentsCopy.concat(reverseRepayments);
     return allPayments.map((payment) => {
       return formatRowModel({
         adjusted_maturity_date: !!payment.transactions?.[0]?.loan
@@ -207,7 +199,7 @@ interface Props {
 export default function CustomerRepaymentTransactionsDataGrid({
   isCompanyVisible = false,
   isExcelExport = true,
-  isFilteringEnabled = false,
+  isFilteringEnabled = true,
   isLineOfCredit = false,
   isMultiSelectEnabled = false,
   payments,
@@ -239,6 +231,11 @@ export default function CustomerRepaymentTransactionsDataGrid({
         dataField: "payment.settlement_identifier",
         caption: "Repayment #",
         minWidth: ColumnWidths.MinWidth,
+        calculateSortValue: (rowData: any) => {
+          return Number(rowData.payment.settlement_identifier);
+        },
+        defaultSortIndex: 0,
+        defaultSortOrder: "desc",
         cellRender: (params: GridValueFormatterParams) => (
           <ClickableDataGridCell
             label={
@@ -275,6 +272,24 @@ export default function CustomerRepaymentTransactionsDataGrid({
         dataField: "status",
         caption: "Repayment Status",
         width: ColumnWidths.Status,
+        calculateSortValue: (rowData: any) => {
+          return rowData.status;
+        },
+        defaultSortIndex: 1,
+        defaultSortOrder: "asc",
+      },
+      {
+        // This is meant to enforce consistent ordering
+        // It should *NEVER* be visible
+        visible: false,
+        dataField: "created_at",
+        caption: "Created At",
+        width: ColumnWidths.Status,
+        calculateSortValue: (rowData: any) => {
+          return rowData.created_at;
+        },
+        defaultSortIndex: 2,
+        defaultSortOrder: "asc",
       },
       {
         dataField: "payment.method",

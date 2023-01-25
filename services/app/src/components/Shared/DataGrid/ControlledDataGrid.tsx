@@ -197,6 +197,8 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
               calculateCellValue,
               calculateSortValue,
               calculateDisplayValue,
+              defaultSortIndex,
+              defaultSortOrder,
               format,
             },
             index
@@ -215,6 +217,8 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
               calculateCellValue={calculateCellValue}
               calculateSortValue={calculateSortValue}
               calculateDisplayValue={calculateDisplayValue}
+              defaultSortIndex={defaultSortIndex}
+              defaultSortOrder={defaultSortOrder}
               format={format}
               lookup={lookup}
               {...(sortBy &&
