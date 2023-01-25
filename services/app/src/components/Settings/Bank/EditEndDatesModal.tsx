@@ -20,7 +20,6 @@ import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { DateInputIcon } from "icons";
 import { editEndDatesMutation } from "lib/api/settings";
-import { ProductTypeEnum } from "lib/enum";
 import { useEffect, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -36,13 +35,11 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {
   companySettingsId: CompanySettings["id"];
-  productType: ProductTypeEnum;
   handleClose: () => void;
 }
 
 export default function EditEndDatesModal({
   companySettingsId,
-  productType,
   handleClose,
 }: Props) {
   const classes = useStyles();

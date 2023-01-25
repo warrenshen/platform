@@ -6,6 +6,7 @@ import {
   BankReportsTabLabel,
   BankReportsTabLabelType,
 } from "lib/enum";
+import BorrowersEndDatesTab from "pages/Bank/Reports/BorrowersEndDatesTab";
 import BankReportFinancialsByCustomerTab from "pages/Bank/Reports/FinancialsByCustomerTab";
 import BankReportFinancialsByDateTab from "pages/Bank/Reports/FinancialsByDateTab";
 import BankReportFinancialsByLoanTab from "pages/Bank/Reports/FinancialsByLoanTab";
@@ -23,6 +24,7 @@ const BankReportsComponentMap: { [key in BankReportsTabLabel]: JSX.Element } = {
     <BankReportPredictedFinancialsByCustomerTab />
   ),
   [BankReportsTabLabel.Transactions]: <BankReportTransactionsTab />,
+  [BankReportsTabLabel.BorrowersEndDates]: <BorrowersEndDatesTab />,
 };
 
 export default function BankReportsPage() {

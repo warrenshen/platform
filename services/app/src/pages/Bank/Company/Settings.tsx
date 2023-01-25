@@ -38,7 +38,6 @@ import {
   AllCustomMessages,
   AllFeatureFlags,
   FeatureFlagEnum,
-  ProductTypeEnum,
   ReportingRequirementsCategoryEnum,
   ReportingRequirementsCategoryToDescription,
   TwoFactorMessageMethodEnum,
@@ -78,8 +77,6 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
 
   const company = data?.companies_by_pk;
   const settings = company?.settings;
-  const productType =
-    company?.most_recent_financial_summary?.[0]?.product_type || null;
   const clientSuccessTeamMember = settings?.client_success_user;
   const businessDevelopmentTeamMember = settings?.business_development_user;
   const underwritingTeamMember = settings?.underwriter_user;
@@ -294,7 +291,6 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
         {isEditEndDatesModalOpen && (
           <EditEndDatesModal
             companySettingsId={settings.id}
-            productType={productType as ProductTypeEnum}
             handleClose={() => {
               setIsEditEndDatesModalOpen(false);
               refetch();

@@ -1174,6 +1174,7 @@ export enum BankReportsTabLabel {
   FinancialsForLoan = "Financials - For Loan",
   PredictedFinancialsForCustomer = "Predicted Financials - For Customer",
   Transactions = "Transactions",
+  BorrowersEndDates = "Borrowers - End Dates",
 }
 
 export type BankReportsTabLabelType =
@@ -1181,7 +1182,8 @@ export type BankReportsTabLabelType =
   | typeof BankReportsTabLabel.FinancialsForDate
   | typeof BankReportsTabLabel.FinancialsForLoan
   | typeof BankReportsTabLabel.PredictedFinancialsForCustomer
-  | typeof BankReportsTabLabel.Transactions;
+  | typeof BankReportsTabLabel.Transactions
+  | typeof BankReportsTabLabel.BorrowersEndDates;
 
 export const BankReportTabLabels: BankReportsTabLabelType[] = [
   BankReportsTabLabel.FinancialsForCustomer,
@@ -1189,6 +1191,7 @@ export const BankReportTabLabels: BankReportsTabLabelType[] = [
   BankReportsTabLabel.FinancialsForLoan,
   BankReportsTabLabel.PredictedFinancialsForCustomer,
   BankReportsTabLabel.Transactions,
+  BankReportsTabLabel.BorrowersEndDates,
 ];
 
 export enum AsyncJobStatusEnum {
