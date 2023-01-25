@@ -74,7 +74,7 @@ export default function BorrowersEndDatesDataGrid({
       {
         dataField: "late_fees_end_date",
         format: "shortDate",
-        caption: "Account Late Fees End Date",
+        caption: "Accounting Late Fees End Date",
         minWidth: ColumnWidths.Date,
         alignment: "right",
       },

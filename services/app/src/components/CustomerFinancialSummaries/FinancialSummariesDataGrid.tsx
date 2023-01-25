@@ -32,14 +32,18 @@ function getRows(financialSummaries: FinancialSummaryFragment[]) {
         financialSummary.accounting_late_fees_accrued_today !== null
           ? financialSummary.accounting_late_fees_accrued_today
           : financialSummary.late_fees_accrued_today,
-      accounting_outstanding_interest:
+      accounting_total_outstanding_interest:
         financialSummary.accounting_total_outstanding_interest !== null
           ? financialSummary.accounting_total_outstanding_interest
           : financialSummary.total_outstanding_interest,
-      accounting_outstanding_late_fees:
+      accounting_total_outstanding_late_fees:
         financialSummary.accounting_total_outstanding_late_fees !== null
           ? financialSummary.accounting_total_outstanding_late_fees
           : financialSummary.total_outstanding_fees,
+      accounting_total_outstanding_principal:
+        financialSummary.accounting_total_outstanding_principal !== null
+          ? financialSummary.accounting_total_outstanding_principal
+          : financialSummary.total_outstanding_interest,
       adjusted_total_limit: financialSummary.adjusted_total_limit,
       available_limit: financialSummary.available_limit,
       daily_interest_rate: financialSummary.daily_interest_rate,
@@ -89,7 +93,6 @@ function getRows(financialSummaries: FinancialSummaryFragment[]) {
 }
 
 interface Props {
-  isAllCustomers?: boolean;
   isCustomerNameFixed?: boolean;
   isExcelExport?: boolean;
   isFilteringEnabled?: boolean;
@@ -100,7 +103,6 @@ interface Props {
 }
 
 export default function FinancialSummariesDataGrid({
-  isAllCustomers = false,
   isCustomerNameFixed = false,
   isExcelExport = true,
   isFilteringEnabled = false,
@@ -343,9 +345,8 @@ export default function FinancialSummariesDataGrid({
         alignment: "right",
       },
       {
-        visible: !isAllCustomers,
         dataField: "accounting_interest_accrued_today",
-        caption: "Accounting Interest Accrued",
+        caption: "Accounting Interest Accrued Today",
         format: {
           type: "currency",
           precision: CurrencyPrecision,
@@ -354,9 +355,8 @@ export default function FinancialSummariesDataGrid({
         alignment: "right",
       },
       {
-        visible: !isAllCustomers,
         dataField: "accounting_late_fees_accrued_today",
-        caption: "Accounting Late Fees Accrued",
+        caption: "Accounting Late Fees Accrued Today",
         format: {
           type: "currency",
           precision: CurrencyPrecision,
@@ -365,9 +365,8 @@ export default function FinancialSummariesDataGrid({
         alignment: "right",
       },
       {
-        visible: isAllCustomers,
-        dataField: "accounting_outstanding_interest",
-        caption: "Accounting Outstanding Interest",
+        dataField: "accounting_total_outstanding_principal",
+        caption: "Accounting Total Outstanding Principal",
         format: {
           type: "currency",
           precision: CurrencyPrecision,
@@ -376,9 +375,18 @@ export default function FinancialSummariesDataGrid({
         alignment: "right",
       },
       {
-        visible: isAllCustomers,
-        dataField: "accounting_outstanding_late_fees",
-        caption: "Accounting Outstanding Late Fees",
+        dataField: "accounting_total_outstanding_interest",
+        caption: "Accounting Total Outstanding Interest",
+        format: {
+          type: "currency",
+          precision: CurrencyPrecision,
+        },
+        width: ColumnWidths.Currency,
+        alignment: "right",
+      },
+      {
+        dataField: "accounting_total_outstanding_late_fees",
+        caption: "Accounting Total Outstanding Late Fees",
         format: {
           type: "currency",
           precision: CurrencyPrecision,
@@ -387,12 +395,7 @@ export default function FinancialSummariesDataGrid({
         alignment: "right",
       },
     ],
-    [
-      isAllCustomers,
-      isCustomerNameFixed,
-      isProductTypeVisible,
-      handleClickCustomer,
-    ]
+    [isCustomerNameFixed, isProductTypeVisible, handleClickCustomer]
   );
 
   const filtering = useMemo(

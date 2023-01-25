@@ -54,6 +54,7 @@ export default function BorrowersEndDatesTab() {
           companySettingsId={selectedCompanySettingsId}
           handleClose={() => {
             setIsEditEndDatesModalOpen(false);
+            setSelectedCompanyIds([]);
           }}
         />
       )}
@@ -67,6 +68,7 @@ export default function BorrowersEndDatesTab() {
           Borrowers - End Dates
         </Text>
         <PrimaryButton
+          isDisabled={selectedCompanyIds.length !== 1}
           dataCy={"edit-end-dates-button"}
           text={"Edit End Dates"}
           height={"40px"}
