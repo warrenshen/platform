@@ -90,6 +90,11 @@ select_permissions:
     permission:
       columns:
         - account_level_balance_payload
+        - accounting_interest_accrued_today
+        - accounting_late_fees_accrued_today
+        - accounting_total_outstanding_interest
+        - accounting_total_outstanding_late_fees
+        - accounting_total_outstanding_principal
         - adjusted_total_limit
         - available_limit
         - company_id
@@ -132,6 +137,11 @@ select_permissions:
     permission:
       columns:
         - account_level_balance_payload
+        - accounting_interest_accrued_today
+        - accounting_late_fees_accrued_today
+        - accounting_total_outstanding_interest
+        - accounting_total_outstanding_late_fees
+        - accounting_total_outstanding_principal
         - adjusted_total_limit
         - available_limit
         - company_id
