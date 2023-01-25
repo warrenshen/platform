@@ -19,7 +19,6 @@ function getRows(companies: CustomersWithMetadataFragment[]) {
     return {
       ...company,
       company_name: company?.name || "",
-      company_state: company?.state || "",
       company_url: getBankCompanyRoute(
         company.id,
         BankCompanyRouteEnum.Overview
@@ -42,6 +41,7 @@ function getRows(companies: CustomersWithMetadataFragment[]) {
             company.financial_summaries[0].product_type as ProductTypeEnum
           ]
         : "None",
+      us_state: company?.state || "",
     };
   });
 }
@@ -86,6 +86,11 @@ export default function CompaniesCompaniesDataGrid({ companies }: Props) {
         minWidth: ColumnWidths.MinWidth,
       },
       {
+        dataField: "us_state",
+        caption: "US State",
+        minWidth: ColumnWidths.UsState,
+      },
+      {
         dataField: "parent_company_name",
         caption: "Parent Company",
         minWidth: ColumnWidths.CompanyName,
@@ -124,11 +129,6 @@ export default function CompaniesCompaniesDataGrid({ companies }: Props) {
       {
         dataField: "product_type",
         caption: "Product Type",
-        minWidth: ColumnWidths.MinWidth,
-      },
-      {
-        dataField: "company_state",
-        caption: "Company Location",
         minWidth: ColumnWidths.MinWidth,
       },
     ],

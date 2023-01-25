@@ -23,6 +23,7 @@ function getRows(vendors: CustomersWithMetadataFragment[]) {
       ),
       dba_name: vendor?.dba_name || "",
       is_verified_license: getIsVerifiedLicenseValue(vendor),
+      us_state: vendor?.state || "",
       vendor_name: vendor?.name || "",
     };
   });
@@ -66,6 +67,11 @@ export default function CompaniesVendorsDataGrid({ vendors }: Props) {
         dataField: "dba_name",
         caption: "DBA",
         minWidth: ColumnWidths.MinWidth,
+      },
+      {
+        dataField: "us_state",
+        caption: "US State",
+        minWidth: ColumnWidths.UsState,
       },
       {
         dataField: "is_verified_license",

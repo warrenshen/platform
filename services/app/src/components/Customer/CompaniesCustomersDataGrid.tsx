@@ -97,6 +97,7 @@ function getRows(customers: CustomersWithMetadataFragment[]) {
       total_outstanding_principal: !!company?.financial_summaries?.[0]
         ? company.financial_summaries[0].total_outstanding_principal
         : null,
+      us_state: company?.state || "",
     });
   });
 }
@@ -127,6 +128,11 @@ export default function CompaniesCustomersDataGrid({ customers }: Props) {
         dataField: "dba_name",
         caption: "DBA",
         minWidth: ColumnWidths.MinWidth,
+      },
+      {
+        dataField: "us_state",
+        caption: "US State",
+        minWidth: ColumnWidths.UsState,
       },
       {
         dataField: "product_type",
