@@ -1,6 +1,6 @@
 import { Box } from "@material-ui/core";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
-import MetrcTransferModal from "components/Transfers/MetrcTransferModal";
+import MetrcTransferDrawer from "components/Transfers/v2/MetrcTransferDrawer";
 import { MetrcTransfers } from "generated/graphql";
 import { useState } from "react";
 
@@ -18,7 +18,7 @@ export default function MetrcTransferDrawerLauncher({
   return (
     <Box>
       {isOpen && (
-        <MetrcTransferModal
+        <MetrcTransferDrawer
           metrcTransferId={metrcTransferId}
           handleClose={() => setIsOpen(false)}
         />

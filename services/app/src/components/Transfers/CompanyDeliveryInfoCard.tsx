@@ -1,7 +1,7 @@
 import { Box, Button, Typography } from "@material-ui/core";
 import { ReactComponent as CloseIcon } from "components/Shared/Layout/Icons/Close.svg";
 import ModalButton from "components/Shared/Modal/ModalButton";
-import MetrcTransferModal from "components/Transfers/MetrcTransferModal";
+import MetrcTransferDrawer from "components/Transfers/v2/MetrcTransferDrawer";
 import {
   Companies,
   CompanyDeliveries,
@@ -109,7 +109,7 @@ export default function CompanyDeliveryInfoCard({
           size="small"
           variant="outlined"
           modal={({ handleClose }) => (
-            <MetrcTransferModal
+            <MetrcTransferDrawer
               metrcTransferId={metrcTransfer.id}
               handleClose={handleClose}
             />

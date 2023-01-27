@@ -2,21 +2,25 @@ import { Tab, Tabs } from "@material-ui/core";
 import Modal from "components/Shared/Modal/Modal";
 import MetrcTransferGeneralInformationDrawerTab from "components/Transfers/v2/MetrcTransferGeneralInformationDrawerTab";
 import MetrcTransferOnlyForBankDrawerTab from "components/Transfers/v2/MetrcTransferOnlyForBankDrawerTab";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
 import { MetrcTransfers, useGetMetrcTransferQuery } from "generated/graphql";
 import { MetrcTransferDrawerTabLabel } from "lib/enum";
-import { useState } from "react";
+import { useContext, useState } from "react";
 
 interface Props {
   metrcTransferId: MetrcTransfers["id"];
-  isBankUser: boolean;
   handleClose: () => void;
 }
 
-const MetrcTransferDrawer = ({
-  metrcTransferId,
-  isBankUser,
-  handleClose,
-}: Props) => {
+const MetrcTransferDrawer = ({ metrcTransferId, handleClose }: Props) => {
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
+  const isBankUser = isRoleBankUser(role);
+
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const { data, error } = useGetMetrcTransferQuery({
     fetchPolicy: "network-only",

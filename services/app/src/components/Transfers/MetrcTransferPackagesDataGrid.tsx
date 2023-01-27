@@ -29,6 +29,7 @@ export default function MetrcTransferPackagesDataGrid({
         return {
           ...metrcTransferPackage,
           manifest_number: metrcTransferPackage.metrc_transfer?.manifest_number,
+          transfer_id: metrcTransferPackage.metrc_transfer?.id,
           source_harvest_names: packagePayload["SourceHarvestNames"],
           source_package_labels: packagePayload["SourcePackageLabels"],
           lab_testing_state: packagePayload["LabTestingState"],

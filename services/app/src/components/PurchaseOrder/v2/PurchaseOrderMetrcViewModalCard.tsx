@@ -3,14 +3,10 @@ import ModalDataPoint from "components/Shared/Modal/ModalDataPoint";
 import Text, { TextVariants } from "components/Shared/Text/Text";
 import MetrcTransferDrawer from "components/Transfers/v2/MetrcTransferDrawer";
 import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
-import {
   Companies,
   PurchaseOrderMetrcTransferWithRelationshipsFragment,
 } from "generated/graphql";
-import { useContext, useState } from "react";
+import { useState } from "react";
 
 interface Props {
   companyId: Companies["id"];
@@ -21,11 +17,6 @@ export default function PurchaseOrderViewModalCard({
   companyId,
   metrcTransfer,
 }: Props) {
-  const {
-    user: { role },
-  } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
-
   const [isMetrcTransferDrawerOpen, setIsMetrcTransferDrawerOpen] =
     useState<boolean>(false);
 
@@ -54,7 +45,6 @@ export default function PurchaseOrderViewModalCard({
       {isMetrcTransferDrawerOpen && (
         <MetrcTransferDrawer
           metrcTransferId={metrcTransfer.metrc_transfer.id}
-          isBankUser={isBankUser}
           handleClose={() => setIsMetrcTransferDrawerOpen(false)}
         />
       )}
