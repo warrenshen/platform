@@ -1,5 +1,5 @@
 import { Box, TextField } from "@material-ui/core";
-import MetrcTransferPackagesDataGrid from "components/Transfers/MetrcTransferPackagesDataGrid";
+import MetrcTransferPackagesDataGrid from "components/Transfers/v2/MetrcTransferPackagesDataGrid";
 import {
   Companies,
   useGetMetrcTransferPackagesByCompanyIdQuery,

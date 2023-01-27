@@ -1,5 +1,8 @@
 import { GridValueFormatterParams } from "@material-ui/data-grid";
+import MetrcPackageModal from "components/Packages/MetrcPackageModal";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
+import ModalButton from "components/Shared/Modal/ModalButton";
+import MetrcTransferDrawerLauncher from "components/Transfers/MetrcTransferDrawerLauncher";
 import MetrcPackageDrawerLauncher from "components/Transfers/v2/MetrcPackageDrawerLauncher";
 import { MetrcTransferPackageFragment } from "generated/graphql";
 import { MetrcPackagePayload } from "lib/api/metrc";
@@ -10,12 +13,14 @@ import { useMemo } from "react";
 interface Props {
   isExcelExport?: boolean;
   isViewActionAvailable?: boolean;
+  isManifestNumberVisible?: boolean;
   metrcTransferPackages: MetrcTransferPackageFragment[];
 }
 
 export default function MetrcTransferPackagesDataGrid({
   isExcelExport = true,
   isViewActionAvailable = false,
+  isManifestNumberVisible = true,
   metrcTransferPackages,
 }: Props) {
   const rows = useMemo(
@@ -26,6 +31,7 @@ export default function MetrcTransferPackagesDataGrid({
         return {
           ...metrcTransferPackage,
           manifest_number: metrcTransferPackage.metrc_transfer?.manifest_number,
+          transfer_id: metrcTransferPackage.metrc_transfer?.id,
           source_harvest_names: packagePayload["SourceHarvestNames"],
           source_package_labels: packagePayload["SourcePackageLabels"],
           lab_testing_state: packagePayload["LabTestingState"],
@@ -59,18 +65,44 @@ export default function MetrcTransferPackagesDataGrid({
           />
         ),
       },
-      //   {
-      //     fixed: true,
-      //     dataField: "manifest_number",
-      //     caption: "Manifest #",
-      //     width: ColumnWidths.MetrcId,
-      //     cellRender: (params: GridValueFormatterParams) => (
-      //       <MetrcTransferDrawerLauncher
-      //         label={params.row.data.manifest_number}
-      //         metrcTransferId={params.row.data.transfer_id}
-      //       />
-      //     ),
-      //   },
+      {
+        visible: isManifestNumberVisible,
+        fixed: true,
+        dataField: "manifest_number",
+        caption: "Manifest #",
+        width: ColumnWidths.MetrcId,
+        cellRender: (params: GridValueFormatterParams) => (
+          <MetrcTransferDrawerLauncher
+            label={params.row.data.manifest_number}
+            metrcTransferId={params.row.data.transfer_id}
+          />
+        ),
+      },
+      {
+        visible: isViewActionAvailable,
+        dataField: undefined,
+        caption: "",
+        width: 90,
+        cellRender: (params: GridValueFormatterParams) => (
+          <ModalButton
+            label={"View"}
+            color="default"
+            size="small"
+            variant="outlined"
+            modal={({ handleClose }) => (
+              <MetrcPackageModal
+                metrcPackageId={params.row.data.id}
+                handleClose={handleClose}
+              />
+            )}
+          />
+        ),
+      },
+      {
+        dataField: "product_category_name",
+        caption: "Product Category Name",
+        minWidth: ColumnWidths.MinWidth,
+      },
       {
         dataField: "product_name",
         caption: "Product Name",
@@ -104,11 +136,6 @@ export default function MetrcTransferPackagesDataGrid({
       {
         dataField: "package_type",
         caption: "Package Type",
-        minWidth: ColumnWidths.MinWidth,
-      },
-      {
-        dataField: "product_category_name",
-        caption: "Product Category Name",
         minWidth: ColumnWidths.MinWidth,
       },
       {
@@ -162,7 +189,7 @@ export default function MetrcTransferPackagesDataGrid({
         minWidth: ColumnWidths.MinWidth,
       },
     ],
-    [isViewActionAvailable]
+    [isViewActionAvailable, isManifestNumberVisible]
   );
 
   return (

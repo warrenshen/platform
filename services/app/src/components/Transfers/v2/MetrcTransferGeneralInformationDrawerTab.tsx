@@ -40,8 +40,9 @@ const MetrcTransferGeneralInformationDrawerTab = ({
               {`Packages (${metrcTransferPackages.length})`}
             </Text>
             <MetrcTransferPackagesDataGrid
-              isViewActionAvailable={isBankUser}
               metrcTransferPackages={metrcTransferPackages}
+              isManifestNumberVisible={false}
+              isViewActionAvailable={false}
             />
           </>
         )}
