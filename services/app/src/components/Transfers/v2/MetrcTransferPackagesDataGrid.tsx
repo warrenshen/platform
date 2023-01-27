@@ -97,8 +97,8 @@ export default function MetrcTransferPackagesDataGrid({
         minWidth: ColumnWidths.MinWidth,
       },
       {
-        dataField: "lab_results_status",
-        caption: "Lab Results Status",
+        dataField: "lab_testing_state",
+        caption: "Lab Testing State",
         minWidth: ColumnWidths.MinWidth,
       },
       {
