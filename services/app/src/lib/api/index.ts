@@ -26,13 +26,15 @@ export const fileRoutes = {
 export const companyRoutes = {
   createCustomer: "/companies/create_customer",
   createProspectiveCustomer: "/companies/create_prospective_customer",
-  createPartnershipRequest: "/companies/create_partnership_request",
-  createPartnershipRequestNew: "/companies/create_partnership_request_new",
-  updatePartnershipRequestNew: "/companies/update_partnership_request_new",
+  createPartnershipRequestPayor: "/companies/create_partnership_request_payor",
+  createPartnershipRequestVendor:
+    "/companies/create_partnership_request_vendor",
+  updatePartnershipRequestVendor:
+    "/companies/update_partnership_request_vendor",
   addVendorNew: "/companies/add_vendor_new",
   deletePartnershipRequest: "/companies/delete_partnership_request",
-  createPartnership: "/companies/create_partnership",
-  createPartnershipNew: "/companies/create_partnership_new",
+  createPartnershipPayor: "/companies/create_partnership_payor",
+  createPartnershipVendor: "/companies/create_partnership_vendor",
   approvePartnership: "/companies/approve_partnership",
   markPartnershipInviteAsComplete:
     "/companies/mark_company_partnership_complete",

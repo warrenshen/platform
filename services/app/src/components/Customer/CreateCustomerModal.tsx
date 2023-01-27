@@ -5,7 +5,6 @@ import AutocompleteCompany from "components/Shared/Company/AutocompleteCompany";
 import Modal from "components/Shared/Modal/Modal";
 import Text, { TextVariants } from "components/Shared/Text/Text";
 import {
-  CompaniesInsertInput,
   CompanySettingsInsertInput,
   ContractsInsertInput,
 } from "generated/graphql";
@@ -31,13 +30,7 @@ export default function CreateCustomerModal({
 }: Props) {
   const snackbar = useSnackbar();
 
-  const [customer, setCustomer] = useState<CompaniesInsertInput>({
-    id: null,
-    name: null,
-    identifier: null,
-    contract_name: null,
-    dba_name: null,
-  });
+  const [companyId, setCompanyId] = useState(null);
   const [companySetting] = useState<CompanySettingsInsertInput>({});
   const [contract, setContract] = useState<ContractsInsertInput>({
     product_type: null,
@@ -80,8 +73,13 @@ export default function CreateCustomerModal({
     }
     setErrMsg("");
 
+    if (!companyId) {
+      setErrMsg("Please select an existing company");
+      return;
+    }
+
     const response = await createCustomer({
-      company: customer,
+      company_id: companyId,
       settings: companySetting,
       contract: {
         product_type: contract.product_type,
@@ -102,12 +100,8 @@ export default function CreateCustomerModal({
     }
   };
 
-  const hasCustomerFieldsSet =
-    customer.id ||
-    (customer.name && customer.identifier && customer.contract_name);
-
   const isSubmitDisabled =
-    !hasCustomerFieldsSet || !contract.product_type || !contract.start_date;
+    !companyId || !contract.product_type || !contract.start_date;
 
   return (
     <Modal
@@ -133,9 +127,7 @@ export default function CreateCustomerModal({
           <Box mt={2}>
             <AutocompleteCompany
               textFieldLabel="Select existing company (search by name or license)"
-              onChange={(selectedCompanyId) =>
-                setCustomer({ ...customer, id: selectedCompanyId })
-              }
+              onChange={(selectedCompanyId) => setCompanyId(selectedCompanyId)}
             />
           </Box>
           <Box mt={2} mb={-1}>

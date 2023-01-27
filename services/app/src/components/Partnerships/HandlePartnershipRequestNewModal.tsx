@@ -21,7 +21,7 @@ import {
   useGetUserByEmailQuery,
 } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
-import { createPartnershipNewMutation } from "lib/api/companies";
+import { createPartnershipVendorMutation } from "lib/api/companies";
 import { FileTypeEnum } from "lib/enum";
 import { useMemo, useState } from "react";
 
@@ -34,11 +34,12 @@ export type LicenseInfo = {
   license_ids: Array<string>;
 };
 
-export default function HandlePartnershipRequestNewModal({
+export default function HandlePartnershipRequestVendorModal({
   partnerRequest,
   handleClose,
 }: Props) {
   const snackbar = useSnackbar();
+  console.log("vendor");
 
   const [selectedCompanyId, setSelectedCompanyId] =
     useState<Companies["id"]>(null);
@@ -75,7 +76,7 @@ export default function HandlePartnershipRequestNewModal({
   }, [partnerRequest.company_name, data, selectedCompanyId]);
 
   const handleSubmit = async () => {
-    const response = await createPartnershipNewMutation({
+    const response = await createPartnershipVendorMutation({
       variables: {
         partnership_request_id: partnerRequest.id,
         should_create_company: selectedCompanyId === null,

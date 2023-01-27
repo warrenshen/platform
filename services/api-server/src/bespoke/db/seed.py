@@ -117,11 +117,11 @@ def setup_db_test(app: Any) -> None:
 
 				if not existing_customer:
 					customer = create_company_util.create_customer_company(
+						session=session,
 						name=name,
 						identifier=identifier,
 						contract_name=contract_name,
 						dba_name='',
-						session=session,
 					)
 
 					# For the multilocation company, set the first company as the parent company

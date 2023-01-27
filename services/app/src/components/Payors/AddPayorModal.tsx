@@ -26,7 +26,7 @@ import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import {
   LicenseInfo,
-  createPartnershipRequestMutation,
+  createPartnershipRequestPayorMutation,
 } from "lib/api/companies";
 import { useContext, useState } from "react";
 
@@ -60,6 +60,8 @@ export default function AddPayorModal({ customerId, handleClose }: Props) {
   const [payor, setPayor] = useState<CompaniesInsertInput>({
     name: "",
     is_cannabis: true,
+    state: null,
+    timezone: null,
   });
   const [contact, setContact] = useState<UsersInsertInput>({
     first_name: "",
@@ -72,12 +74,11 @@ export default function AddPayorModal({ customerId, handleClose }: Props) {
   });
 
   const [createPayorVendor, { loading: isCreatePayorVendorLoading }] =
-    useCustomMutation(createPartnershipRequestMutation);
+    useCustomMutation(createPartnershipRequestPayorMutation);
 
   const handleRegisterClick = async () => {
     const response = await createPayorVendor({
       variables: {
-        is_payor: true,
         customer_id: customerId,
         company: payor,
         user: contact,

@@ -30,6 +30,7 @@ CompanyInsertInputDict = TypedDict('CompanyInsertInputDict', {
 	'is_cannabis': bool,
 	'metrc_api_key': str,
 	'us_state': str,
+	'timezone': str,
 }, total=False)
 
 ParentCompanyInsertInputDict = TypedDict('ParentCompanyInsertInputDict', {
@@ -48,7 +49,7 @@ ContractInsertInputDict = TypedDict('ContractInsertInputDict', {
 })
 
 CreateCustomerInputDict = TypedDict('CreateCustomerInputDict', {
-	'company': CompanyInsertInputDict,
+	'company_id': str,
 	'settings': CompanySettingsInsertInputDict,
 	'contract': ContractInsertInputDict
 })
@@ -102,6 +103,7 @@ PartnershipRequestRequestInfoDict = TypedDict('PartnershipRequestRequestInfoDict
 	'type': db_constants.PartnershipRequestType,
 	'metrc_api_key': str,
 	'us_state': str,
+	'timezone': str,
 })
 
 CreatePartnershipRequestInputDict = TypedDict('CreatePartnershipRequestInputDict', {
@@ -160,11 +162,13 @@ def _check_is_company_name_already_used(company_name: str, company_identifier: s
 	return True, None
 
 def _create_company(
+	session: Session,
 	name: str,
 	identifier: Optional[str],
 	dba_name: Optional[str],
 	two_factor_message_method: Optional[str],
-	session: Session,
+	state: str = None,
+	timezone: str = None,
 ) -> models.Company:
 	parent_company = models.ParentCompany(name=name)
 	session.add(parent_company)
@@ -190,6 +194,8 @@ def _create_company(
 		dba_name=dba_name,
 		company_settings_id=company_settings_id,
 		debt_facility_status=CompanyDebtFacilityStatus.ELIGIBLE,
+		state=state,
+		timezone=timezone,
 	)
 
 	session.add(company)
@@ -201,35 +207,43 @@ def _create_company(
 	return company
 
 def create_customer_company(
+	session: Session,
 	name: str,
 	identifier: str,
 	contract_name: str,
 	dba_name: str,
-	session: Session,
+	state: str = None,
+	timezone: str = None,
 ) -> models.Company:
 	company = _create_company(
+		session=session,
 		name=name,
 		identifier=identifier,
 		dba_name=dba_name,
 		two_factor_message_method=None,
-		session=session,
+		state=state,
+		timezone=timezone,
 	)
 	company.is_customer = True
 	company.contract_name = contract_name
 	return company
 
 def create_prospective_company(
+	session: Session,
 	name: str,
 	identifier: str,
 	dba_name: str,
-	session: Session,
+	state: str,
+	timezone: str,
 ) -> models.Company:
 	company = _create_company(
+		session=session,
 		name=name,
 		identifier=identifier,
 		dba_name=dba_name,
 		two_factor_message_method=None,
-		session=session,
+		state=state,
+		timezone=timezone,
 	)
 	return company
 
@@ -244,17 +258,25 @@ def create_prospective_customer(
 		company_name = req['company']['name']
 		company_identifier = req['company']['identifier']
 		company_dba_name = req['company']['dba_name']
+		# CompaniesInsertInput has state but CompanyPartnershipRequests.request_info has us_state
+		# We could write a backfill script to change request_info.us_state to request_info.state
+		# But just type ignoring for now
+		company_state = req['company']['state'] # type: ignore
+		company_timezone = req['company']['timezone']
 
-		success, err = _check_is_company_name_already_used(
+		_, err = _check_is_company_name_already_used(
 			company_name, company_identifier, session)
 		if err:
 			raise err
 
 		create_prospective_company(
+			session=session,
 			name=company_name,
 			identifier=company_identifier,
 			dba_name=company_dba_name,
-			session=session)
+			state=company_state,
+			timezone=company_timezone,
+		)
 
 	return CreateCustomerRespDict(
 		status='OK'
@@ -268,19 +290,10 @@ def create_customer(
 ) -> Tuple[CreateCustomerRespDict, errors.Error]:
 
 	with session_scope(session_maker) as session:
-		company_name = req['company']['name']
-		company_identifier = req['company']['identifier']
-		company_contract_name = req['company']['contract_name']
-		company_dba_name = req['company']['dba_name']
-		company_id = req['company']['id']
+		company_id = req['company_id']
 
-		should_create_company = company_id is None
-
-		if should_create_company:
-			success, err = _check_is_company_name_already_used(
-				company_name, company_identifier, session)
-			if err:
-				raise err
+		if not company_id:
+			raise errors.Error('No company_id provided')
 
 		if not req['contract']['product_config']:
 			raise errors.Error('No product config specified')
@@ -304,22 +317,11 @@ def create_customer(
 		session.flush()
 		contract_id = str(contract.id)
 
-		if should_create_company:
-			company = create_customer_company(
-				name=company_name,
-				identifier=company_identifier,
-				contract_name=company_contract_name,
-				dba_name=company_dba_name,
-				session=session,
-			)
-		else:
-			company = session.query(models.Company).filter(
-				models.Company.id == company_id
-			).first()
-			if not company:
-				raise errors.Error('Company ID provided does not exist')
+		company, err = queries.get_company_by_id(session, company_id)
+		if err:
+			raise errors.Error(f'Company ID provided does not exist. Error: {err}')
 
-			company.is_customer = True
+		company.is_customer = True
 
 		company_id = str(company.id)
 		company.contract_id = contract_id
@@ -499,20 +501,26 @@ def _create_user(
 	return str(user.id)
 
 def _create_partner_company_and_its_first_user(
-	partnership_req: models.CompanyPartnershipRequest,
 	session: Session,
+	partnership_req: models.CompanyPartnershipRequest,
 ) -> str:
 	user_input = cast(Dict, partnership_req.user_info)
 
 	if not user_input.get('email'):
 		raise errors.Error('User email must be specified')
 
+	request_info = cast(PartnershipRequestRequestInfoDict, partnership_req.request_info) or {} # type: ignore
+	state = request_info.get('us_state', None)
+	timezone = request_info.get('timezone', None)
+
 	company = _create_company(
+		session=session,
 		name=partnership_req.company_name,
 		identifier=None,
 		dba_name=None,
 		two_factor_message_method=partnership_req.two_factor_message_method,
-		session=session,
+		state=state,
+		timezone=timezone,
 	)
 	company.is_customer = False
 	company.is_payor = partnership_req.company_type == CompanyType.Payor
@@ -573,13 +581,17 @@ def _create_partner_company_and_its_first_user_new(
 	
 	license_info = cast(LicenseInfoNewDict, partnership_req.license_info)
 	request_info = cast(PartnershipRequestRequestInfoDict, partnership_req.request_info)
+	state = request_info.get('us_state', None)
+	timezone = request_info.get('timezone', None)
 
 	company = _create_company(
+		session=session,
 		name=partnership_req.company_name,
 		identifier=None,
 		dba_name=request_info.get('dba_name', None),
 		two_factor_message_method=partnership_req.two_factor_message_method,
-		session=session,
+		state=state,
+		timezone=timezone,
 	)
 	company.is_customer = False
 	company.is_payor = partnership_req.company_type == CompanyType.Payor
@@ -682,7 +694,7 @@ def _setup_users_for_existing_company(
 	return user_id
 
 @errors.return_error_tuple
-def create_partnership(
+def create_partnership_payor(
 	req: CreatePartnershipInputDict,
 	session: Session,
 	bank_admin_user_id: str,
@@ -704,7 +716,7 @@ def create_partnership(
 
 	if should_create_company:
 		company_id = _create_partner_company_and_its_first_user(
-			partnership_req, session
+			session, partnership_req,
 		)
 	else:
 		company_id = req.get('partner_company_id')
@@ -846,7 +858,7 @@ def create_partnership(
 	), None
 
 @errors.return_error_tuple
-def create_partnership_new(
+def create_partnership_vendor(
 	session: Session,
 	req: CreatePartnershipInputDict,
 	bank_admin_user_id: str,
@@ -1098,17 +1110,18 @@ def delete_partnership_request(
 	return True, None
 
 @errors.return_error_tuple
-def create_partnership_request(
+def create_partnership_request_payor(
+	session: Session,
 	req: CreatePartnershipRequestInputDict,
 	requested_user_id: str,
-	session: Session,
-	is_payor: bool,
 ) -> Tuple[str, errors.Error]:
 	customer_id = req['customer_id']
 
 	company_input = req['company']
 	company_name = company_input['name']
 	is_cannabis = company_input['is_cannabis']
+	state = company_input['state'] # type: ignore
+	timezone = company_input['timezone']
 
 	if not company_name:
 		raise errors.Error('Name must be specified')
@@ -1131,7 +1144,7 @@ def create_partnership_request(
 	partnership_req = models.CompanyPartnershipRequest()
 	partnership_req.requesting_company_id = customer_id
 	partnership_req.two_factor_message_method = TwoFactorMessageMethod.PHONE
-	partnership_req.company_type = CompanyType.Payor if is_payor else CompanyType.Vendor
+	partnership_req.company_type = CompanyType.Payor
 	partnership_req.company_name = company_name
 	partnership_req.is_cannabis = is_cannabis
 	partnership_req.requested_by_user_id = requested_user_id
@@ -1142,6 +1155,10 @@ def create_partnership_request(
 		'last_name': user_last_name,
 		'email': user_email,
 		'phone_number': user_phone_number
+	}
+	partnership_req.request_info = {
+		'us_state': state,
+		'timezone': timezone,
 	}
 	session.add(partnership_req)
 	session.flush()
@@ -1157,6 +1174,14 @@ def _validate_partnership_request_new(
 	company_input = req['company']
 	company_name = company_input['name']
 	is_cannabis = company_input['is_cannabis']
+	us_state = company_input['us_state']
+	timezone = company_input['timezone']
+
+	if not us_state:
+		return errors.Error('US state must be specified')
+
+	if not timezone:
+		return errors.Error('Timezone must be specified')
 
 	user_input = req['user']
 	user_first_name = user_input['first_name']
@@ -1222,6 +1247,7 @@ def _create_or_update_partnership_request_new(
 	is_cannabis = company_input['is_cannabis']
 	us_state = company_input['us_state']
 	metrc_api_key = company_input['metrc_api_key']
+	timezone = company_input['timezone']
 
 
 	user_input = req['user']
@@ -1284,7 +1310,8 @@ def _create_or_update_partnership_request_new(
 		'bank_instructions_attachment_id': request_info_bank_instructions_attachment_id,
 		'type': request_type,
 		'metrc_api_key': metrc_api_key,
-		'us_state': us_state
+		'us_state': us_state,
+		'timezone': timezone
 	}
 
 	# Set the submitted_by_user_id from partnership invite

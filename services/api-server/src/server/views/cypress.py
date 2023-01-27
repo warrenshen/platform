@@ -608,8 +608,6 @@ class AddContractView(MethodView):
 		adjusted_factoring_fee_percentage = get_field_or_default(form, 'adjusted_factoring_fee_percentage', None)
 		wire_fee = get_field_or_default(form, 'wire_fee', 25)
 		repayment_type_settlement_timeline = get_field_or_default(form, 'repayment_type_settlement_timeline', "{\"Wire\":1,\"ACH\":1,\"Reverse Draft ACH\":1,\"Check\":1,\"Cash\":1}")
-		timezone = get_field_or_default(form, 'timezone', 'America/New York')
-		us_state = get_field_or_default(form, 'us_state', 'MD')
 		borrowing_base_accounts_receivable_percentage = get_field_or_default(form, 'borrowing_base_accounts_receivable_percentage', 1.0)
 		borrowing_base_inventory_percentage = get_field_or_default(form, 'borrowing_base_inventory_percentage', 1.0)
 		borrowing_base_cash_percentage = get_field_or_default(form, 'borrowing_base_cash_percentage', 1.0)
@@ -647,8 +645,6 @@ class AddContractView(MethodView):
 				adjusted_factoring_fee_percentage,
 				wire_fee,
 				repayment_type_settlement_timeline,
-				timezone,
-				us_state,
 				borrowing_base_accounts_receivable_percentage,
 				borrowing_base_inventory_percentage,
 				borrowing_base_cash_percentage,

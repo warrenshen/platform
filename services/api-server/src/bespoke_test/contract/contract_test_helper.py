@@ -64,14 +64,6 @@ def create_contract_config(
 			'value': input_dict.get('minimum_annual_amount', None)
 		},
 		{
-			'internal_name': 'timezone',
-			'value': input_dict.get('timezone', None)
-		},
-		{
-			'internal_name': 'us_state',
-			'value': input_dict.get('us_state', None)
-		},
-		{
 			'internal_name': 'advance_rate',
 			'value': input_dict.get('advance_rate', 1.0)
 		},

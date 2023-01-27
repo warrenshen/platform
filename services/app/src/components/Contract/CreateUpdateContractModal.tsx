@@ -143,7 +143,11 @@ export default function CreateUpdateContractModal({
 
   const isDialogReady = !isExistingContractLoading;
   const isSubmitDisabled =
-    !isDialogReady || isAddContractLoading || isUpdateContractLoading;
+    !isDialogReady ||
+    isAddContractLoading ||
+    isUpdateContractLoading ||
+    !contract.start_date ||
+    !contract.end_date;
 
   return isDialogReady ? (
     <Modal

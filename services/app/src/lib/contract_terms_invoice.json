@@ -157,22 +157,6 @@
         "is_hidden": true
       },
       {
-        "section": "Location",
-        "type": "timezone",
-        "internal_name": "timezone",
-        "display_name": "Timezone",
-        "value": null,
-        "nullable": false
-      },
-      {
-        "section": "Location",
-        "type": "us_state",
-        "internal_name": "us_state",
-        "display_name": "US State:",
-        "value": null,
-        "nullable": false
-      },
-      {
         "section": "Settlement",
         "type": "json",
         "fields": [

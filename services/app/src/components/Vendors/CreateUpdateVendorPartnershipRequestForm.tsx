@@ -27,6 +27,7 @@ import { isEmailValid } from "lib/validation";
 import { DebouncedFunc } from "lodash";
 import { CreateVendorInput } from "pages/Anonymous/VendorForm";
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
+import SelectTimezoneMaterialUi from "select-timezone-material-ui";
 
 import AutocompleteLicenseNumbers, {
   LicenseNumberOptionType,
@@ -170,6 +171,17 @@ export default function CreateUpdateVendorPartnershipRequestForm({
           value={vendorInput?.usState || ""}
           setValue={(value) =>
             setVendorInput({ ...vendorInput, usState: value })
+          }
+        />
+      </Box>
+      <Box display="flex" flexDirection="column" mt={4}>
+        <SelectTimezoneMaterialUi
+          showTimezoneOffset
+          label="Timezone"
+          helperText="Please select a timezone from the list"
+          timezoneName={vendorInput.timezone || undefined}
+          onChange={(timezone) =>
+            setVendorInput({ ...vendorInput, timezone: timezone })
           }
         />
       </Box>

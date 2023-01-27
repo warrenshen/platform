@@ -33,7 +33,7 @@ class CreateCustomerView(MethodView):
 		user_session = auth_util.UserSession.from_session()
 		bank_admin_user_id = user_session.get_user_id()
 
-		required_keys = ['company', 'settings', 'contract']
+		required_keys = ['company_id', 'settings', 'contract']
 
 		for key in required_keys:
 			if key not in form:
@@ -188,7 +188,7 @@ class UpdateCustomerSettingsView(MethodView):
 		}), 200)
 
 
-class CreatePartnershipRequestView(MethodView):
+class CreatePartnershipRequestPayorView(MethodView):
 	decorators = [auth_util.login_required]
 
 	@handler_util.catch_bad_json_request
@@ -198,7 +198,6 @@ class CreatePartnershipRequestView(MethodView):
 			return handler_util.make_error_response('No data provided')
 
 		required_keys = [
-			'is_payor',
 			'customer_id',
 			'company',
 			'user',
@@ -214,19 +213,15 @@ class CreatePartnershipRequestView(MethodView):
 			return handler_util.make_error_response('Access Denied')
 
 		customer_id = form['customer_id']
-		is_payor = form['is_payor']
-
-		partnership_type = 'payor' if is_payor else 'vendor'
 
 		req = cast(create_company_util.CreatePartnershipRequestInputDict, form)
 
 		with session_scope(current_app.session_maker) as session:
 
-			partnership_req_id, err = create_company_util.create_partnership_request(
+			partnership_req_id, err = create_company_util.create_partnership_request_payor(
+				session=session,
 				req=req,
 				requested_user_id=user_session.get_user_id(),
-				session=session,
-				is_payor=is_payor,
 			)
 			if err:
 				raise err
@@ -248,7 +243,7 @@ class CreatePartnershipRequestView(MethodView):
 			template_data = {
 				'customer_name': customer.get_display_name(),
 				'partner_name': partner_name,
-				'partnership_type': partnership_type
+				'partnership_type': 'payor'
 			}
 
 			recipients = sendgrid_client.get_bank_notify_email_addresses()
@@ -263,7 +258,7 @@ class CreatePartnershipRequestView(MethodView):
 			'partnership_request_id': partnership_req_id,
 		}))
 
-class CreatePartnershipRequestNewView(MethodView):
+class CreatePartnershipRequestVendorView(MethodView):
 
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
@@ -289,8 +284,6 @@ class CreatePartnershipRequestNewView(MethodView):
 
 		partner_name = req['company']['name']
 		user_email = req['user']['email']
-		metrc_api_key = req['company']['metrc_api_key']
-		us_state = req['company']['us_state']
 
 		with session_scope(current_app.session_maker) as session:
 
@@ -377,7 +370,7 @@ class DeletePartnershipRequestView(MethodView):
 			'status': 'OK'
 		}))
 
-class CreatePartnershipView(MethodView):
+class CreatePartnershipPayorView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
 	@handler_util.catch_bad_json_request
@@ -399,7 +392,7 @@ class CreatePartnershipView(MethodView):
 
 		with session_scope(current_app.session_maker) as session:
 
-			resp, err = create_company_util.create_partnership(
+			resp, err = create_company_util.create_partnership_payor(
 				req=cast(create_company_util.CreatePartnershipInputDict, form),
 				session=session,
 				bank_admin_user_id=user_session.get_user_id()
@@ -510,7 +503,7 @@ class CreatePartnershipView(MethodView):
 		}))
 
 
-class CreatePartnershipNewView(MethodView):
+class CreatePartnershipVendorView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
 	@handler_util.catch_bad_json_request
@@ -535,7 +528,7 @@ class CreatePartnershipNewView(MethodView):
 
 		with session_scope(current_app.session_maker) as session:
 
-			resp, err = create_company_util.create_partnership_new(
+			resp, err = create_company_util.create_partnership_vendor(
 				session = session,
 				req = cast(create_company_util.CreatePartnershipInputDict, form),
 				bank_admin_user_id = user_session.get_user_id(),
@@ -679,7 +672,7 @@ class AddVendorNewView(MethodView):
 		}))
 
 
-class UpdatePartnershipRequestNewView(MethodView):
+class UpdatePartnershipRequestVendorView(MethodView):
 	decorators = [auth_util.bank_admin_required]
 
 	@handler_util.catch_bad_json_request
@@ -1306,22 +1299,22 @@ handler.add_url_rule(
 	'/update_customer_settings', view_func=UpdateCustomerSettingsView.as_view(name='update_customer_settings_view'))
 
 handler.add_url_rule(
-	'/create_partnership_request', view_func=CreatePartnershipRequestView.as_view(name='create_partnership_request_view'))
+	'/create_partnership_request_payor', view_func=CreatePartnershipRequestPayorView.as_view(name='create_partnership_request_payor_view'))
 
 handler.add_url_rule(
-	'/create_partnership_request_new', view_func=CreatePartnershipRequestNewView.as_view(name='create_partnership_request_new_view'))
+	'/create_partnership_request_vendor', view_func=CreatePartnershipRequestVendorView.as_view(name='create_partnership_request_vendor_view'))
 
 handler.add_url_rule(
-	'/update_partnership_request_new', view_func=UpdatePartnershipRequestNewView.as_view(name='update_partnership_request_new_view'))
+	'/update_partnership_request_vendor', view_func=UpdatePartnershipRequestVendorView.as_view(name='update_partnership_request_vendor_view'))
 
 handler.add_url_rule(
 	'/delete_partnership_request', view_func=DeletePartnershipRequestView.as_view(name='delete_partnership_request_view'))
 
 handler.add_url_rule(
-	'/create_partnership', view_func=CreatePartnershipView.as_view(name='create_partnership_view'))
+	'/create_partnership_payor', view_func=CreatePartnershipPayorView.as_view(name='create_partnership_payor_view'))
 
 handler.add_url_rule(
-	'/create_partnership_new', view_func=CreatePartnershipNewView.as_view(name='create_partnership_new_view'))
+	'/create_partnership_vendor', view_func=CreatePartnershipVendorView.as_view(name='create_partnership_vendor_view'))
 
 handler.add_url_rule(
 	'/mark_company_partnership_complete', view_func=MarkPartnershipInviteAsComplete.as_view(name='mark_company_partnership_complete_view'))

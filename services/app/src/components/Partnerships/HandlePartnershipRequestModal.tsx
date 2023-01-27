@@ -13,7 +13,7 @@ import {
   GetPartnershipRequestsForBankSubscription,
 } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
-import { createPartnershipMutation } from "lib/api/companies";
+import { createPartnershipPayorMutation } from "lib/api/companies";
 import { useState } from "react";
 
 interface Props {
@@ -21,12 +21,13 @@ interface Props {
   handleClose: () => void;
 }
 
-export default function HandlePartnershipRequestModal({
+export default function HandlePartnershipRequestPayorModal({
   partnerRequest,
   handleClose,
 }: Props) {
   const snackbar = useSnackbar();
 
+  console.log("payor");
   const [selectedCompanyId, setSelectedCompanyId] =
     useState<Companies["id"]>(null);
 
@@ -34,7 +35,7 @@ export default function HandlePartnershipRequestModal({
     !partnerRequest?.user_info?.first_name && !selectedCompanyId ? true : false;
 
   const handleSubmit = async () => {
-    const response = await createPartnershipMutation({
+    const response = await createPartnershipPayorMutation({
       variables: {
         partnership_request_id: partnerRequest.id,
         should_create_company: selectedCompanyId === null,

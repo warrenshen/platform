@@ -14,7 +14,7 @@ import {
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { createPartnershipRequestNewMutation } from "lib/api/companies";
+import { createPartnershipRequestVendorMutation } from "lib/api/companies";
 import { BankAccountType, PartnershipRequestType } from "lib/enum";
 import { anonymousRoutes, routes } from "lib/routes";
 import { isEmailValid } from "lib/validation";
@@ -47,7 +47,8 @@ export type CreateVendorInput = {
   selected_user_id?: string;
   selected_bank_account_id?: string;
   metrcApiKey?: string;
-  usState?: string;
+  usState: string;
+  timezone: string;
 };
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -92,7 +93,7 @@ export default function VendorFormPage() {
   const [
     createNewVendorPartnershipRequest,
     { loading: isCreateNewVendorPartnershipLoading },
-  ] = useCustomMutation(createPartnershipRequestNewMutation);
+  ] = useCustomMutation(createPartnershipRequestVendorMutation);
 
   const [vendorInput, setVendorInput] = useState<CreateVendorInput>({
     name: "",
@@ -116,6 +117,7 @@ export default function VendorFormPage() {
     selected_bank_account_id: "",
     metrcApiKey: "",
     usState: "",
+    timezone: "",
   });
 
   const [errorMessage, setErrorMessage] = useState("");
@@ -175,6 +177,7 @@ export default function VendorFormPage() {
           is_cannabis: vendorInput.isCannabis,
           us_state: vendorInput.usState,
           metrc_api_key: vendorInput.metrcApiKey,
+          timezone: vendorInput.timezone,
         },
         user: {
           first_name: vendorInput.contactFirstName,
@@ -230,6 +233,8 @@ export default function VendorFormPage() {
     !vendorInput.bankWireRoutingNumber ||
     !vendorInput.beneficiaryAddress ||
     !vendorInput.bankInstructionsAttachmentId ||
+    !vendorInput.usState ||
+    !vendorInput.timezone ||
     (vendorInput.isCannabis &&
       !vendorInput.cannabisLicenseNumber.license_ids.length);
 

@@ -1,13 +1,14 @@
 import { Box } from "@material-ui/core";
 import DeletePartnershipRequestModal from "components/Partnerships/DeletePartnershipRequestModal";
 import EditPartnershipRequestModal from "components/Partnerships/EditPartnershipRequestModal";
-import HandlePartnershipRequestModal from "components/Partnerships/HandlePartnershipRequestModal";
-import HandlePartnershipRequestNewModal from "components/Partnerships/HandlePartnershipRequestNewModal";
+import HandlePartnershipRequestPayorModal from "components/Partnerships/HandlePartnershipRequestModal";
+import HandlePartnershipRequestVendorModal from "components/Partnerships/HandlePartnershipRequestNewModal";
 import PartnershipsDataGrid from "components/Partnerships/PartnershipsDataGrid";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import {
   CompanyPartnershipRequests,
+  CompanyTypeEnum,
   useGetPartnershipRequestsForBankSubscription,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
@@ -57,8 +58,8 @@ function ActionRequiredTab() {
   );
 
   const triageRequestModal = (handleClose: () => void) => {
-    return selectedRequests[0]?.request_info ? (
-      <HandlePartnershipRequestNewModal
+    return selectedRequests[0]?.company_type === CompanyTypeEnum.Vendor ? (
+      <HandlePartnershipRequestVendorModal
         partnerRequest={selectedRequests[0]}
         handleClose={() => {
           handleClose();
@@ -66,7 +67,7 @@ function ActionRequiredTab() {
         }}
       />
     ) : (
-      <HandlePartnershipRequestModal
+      <HandlePartnershipRequestPayorModal
         partnerRequest={selectedRequests[0]}
         handleClose={() => {
           handleClose();

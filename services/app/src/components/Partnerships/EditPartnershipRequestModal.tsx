@@ -86,6 +86,7 @@ export default function EditPartnershipRequestModal({
       : { license_ids: [] },
     metrcApiKey: partnerRequest?.request_info?.metrc_api_key || "",
     usState: partnerRequest?.request_info?.us_state || "",
+    timezone: partnerRequest?.request_info?.timezone || "",
   });
 
   const isSubmitDisabled =
@@ -103,6 +104,8 @@ export default function EditPartnershipRequestModal({
     (!vendorInput.bankACHRoutingNumber && !vendorInput.bankWireRoutingNumber) ||
     !vendorInput.beneficiaryAddress ||
     !vendorInput.bankInstructionsAttachmentId ||
+    !vendorInput.usState ||
+    !vendorInput.timezone ||
     (vendorInput.isCannabis &&
       !vendorInput.cannabisLicenseNumber.license_ids.length);
 
@@ -115,6 +118,7 @@ export default function EditPartnershipRequestModal({
           is_cannabis: vendorInput.isCannabis,
           us_state: vendorInput.usState,
           metrc_api_key: vendorInput.metrcApiKey,
+          timezone: vendorInput.timezone,
         },
         user: {
           first_name: vendorInput.contactFirstName,

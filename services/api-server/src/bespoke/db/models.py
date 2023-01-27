@@ -188,6 +188,7 @@ class Company(Base):
 	state = Column(String)
 	city = Column(String)
 	zip_code = Column(String)
+	timezone = Column(String)
 	# We need to track debt facility waivers at both a company and loan level
 	# This also entails tracking waiver dates at each level as each scenario is different
 	debt_facility_status = Column(String)

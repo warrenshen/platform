@@ -332,15 +332,7 @@ def submit_for_approval(
 	if loan.amount > financial_summary.available_limit:
 		raise errors.Error('Loan amount requested exceeds the maximum limit for this account', details=err_details)
 
-	company_id = str(loan.company_id)
-	company_id_to_obj, err = contract_util.get_active_contracts_by_company_ids(session, [company_id], err_details={'method': 'request loan for approval'})
-	if err:
-		raise err
-
-	contract_obj = company_id_to_obj[company_id]
-	timezone, err = contract_obj.get_timezone_str()
-	if err:
-		raise err
+	timezone = date_util.DEFAULT_TIMEZONE
 
 	meets_noon_cutoff, meets_noon_cutoff_err = date_util.meets_noon_cutoff(loan.requested_payment_date, timezone, now=now_for_test)
 
@@ -521,13 +513,7 @@ def submit_for_approval_if_has_autofinancing(
 	if not loan_type:
 		raise errors.Error(f'No loan type associated with product type {loan_type}')
 
-	contract_obj, err = contract_util.Contract.build(contract.as_dict(), validate=False)
-	if err:
-		raise err
-
-	timezone, err = contract_obj.get_timezone_str()
-	if err:
-		raise err
+	timezone = date_util.DEFAULT_TIMEZONE
 
 	requested_payment_date = date_util.get_earliest_requested_payment_date(timezone)
 

@@ -547,13 +547,7 @@ def create_repayment(
 	company_bank_account_id = payment_insert_input['company_bank_account_id']
 	loan_ids = None
 
-	contract_obj, err = contract_util.get_active_contract_by_company_id(session, company_id)
-	if err:
-		raise err
-
-	timezone, err = contract_obj.get_timezone_str()
-	if err:
-		raise err
+	timezone = date_util.DEFAULT_TIMEZONE
 
 	# This if statement handles the edge case where a user starts a repayment while meeting the cutoff
 	# but clicks submit while no longer hitting the cutoff. This was born from actual user activity.

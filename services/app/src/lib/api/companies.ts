@@ -18,7 +18,7 @@ import {
 import { CustomMessageEnum, PartnershipRequestType } from "lib/enum";
 
 export type CreateCustomerReq = {
-  company: CompaniesInsertInput;
+  company_id: string;
   settings: CompanySettingsInsertInput;
   contract: ContractsInsertInput;
 };
@@ -164,11 +164,11 @@ export async function deletePartnershipRequestMutation(req: {
     );
 }
 
-export async function createPartnershipRequestMutation(
+export async function createPartnershipRequestPayorMutation(
   req: CreatePartnershipRequestMutationReq
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(companyRoutes.createPartnershipRequest, req.variables)
+    .post(companyRoutes.createPartnershipRequestPayor, req.variables)
     .then((res) => {
       return res.data;
     })
@@ -222,7 +222,8 @@ export type LicenseInfoNew = {
 export type CompanyInfo = {
   name: string;
   is_cannabis: boolean;
-  us_state?: string;
+  us_state: string;
+  timezone: string;
   metrc_api_key?: string;
 };
 
@@ -246,7 +247,7 @@ export type PartnershipRequestRequestInfo = {
   type: PartnershipRequestType;
 };
 
-type CreatePartnershipRequestNewMutationReq = {
+type CreatePartnershipRequestVendorMutationReq = {
   variables: {
     customer_id: Companies["id"];
     company: CompanyInfo;
@@ -256,11 +257,11 @@ type CreatePartnershipRequestNewMutationReq = {
   };
 };
 
-export async function createPartnershipRequestNewMutation(
-  req: CreatePartnershipRequestNewMutationReq
+export async function createPartnershipRequestVendorMutation(
+  req: CreatePartnershipRequestVendorMutationReq
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(companyRoutes.createPartnershipRequestNew, req.variables)
+    .post(companyRoutes.createPartnershipRequestVendor, req.variables)
     .then((res) => {
       return res.data;
     })
@@ -278,7 +279,7 @@ export async function createPartnershipRequestNewMutation(
     );
 }
 
-type UpdatePartnershipRequestNewMutationReq = {
+type UpdatePartnershipRequestVendorMutationReq = {
   variables: {
     partnership_request_id: CompanyPartnershipRequests["id"];
     company: CompanyInfo;
@@ -289,10 +290,10 @@ type UpdatePartnershipRequestNewMutationReq = {
 };
 
 export async function updatePartnershipRequestNewMutation(
-  req: UpdatePartnershipRequestNewMutationReq
+  req: UpdatePartnershipRequestVendorMutationReq
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(companyRoutes.updatePartnershipRequestNew, req.variables)
+    .post(companyRoutes.updatePartnershipRequestVendor, req.variables)
     .then((res) => {
       return res.data;
     })
@@ -320,11 +321,11 @@ type CreatePartnershipMutationReq = {
   };
 };
 
-export async function createPartnershipMutation(
+export async function createPartnershipPayorMutation(
   req: CreatePartnershipMutationReq
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(companyRoutes.createPartnership, req.variables)
+    .post(companyRoutes.createPartnershipPayor, req.variables)
     .then((res) => {
       return res.data;
     })
@@ -342,11 +343,11 @@ export async function createPartnershipMutation(
     );
 }
 
-export async function createPartnershipNewMutation(
+export async function createPartnershipVendorMutation(
   req: CreatePartnershipMutationReq
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(companyRoutes.createPartnershipNew, req.variables)
+    .post(companyRoutes.createPartnershipVendor, req.variables)
     .then((res) => {
       return res.data;
     })

@@ -8,6 +8,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import PhoneInput from "components/Shared/FormInputs/PhoneInput";
+import USStateDropdown from "components/Shared/FormInputs/USStateDropdown";
 import {
   CompaniesInsertInput,
   CompanyTypeEnum,
@@ -17,6 +18,7 @@ import {
 import { LicenseInfo } from "lib/api/companies";
 import { CompanyTypeToDisplayLower, CompanyTypeToDisplayUpper } from "lib/enum";
 import { ChangeEvent } from "react";
+import SelectTimezoneMaterialUi from "select-timezone-material-ui";
 
 interface Props {
   companyType: CompanyTypeEnum;
@@ -45,6 +47,8 @@ export default function RegisterThirdPartyForm({
   const companyTypeLower = CompanyTypeToDisplayLower[companyType];
   const companyTypeUpper = CompanyTypeToDisplayUpper[companyType];
 
+  console.log({ company });
+
   return (
     <DialogContent>
       <DialogContentText>
@@ -65,6 +69,24 @@ export default function RegisterThirdPartyForm({
             }}
           />
         </Box>
+        <Box display="flex" flexDirection="column" mt={4}>
+          <USStateDropdown
+            value={company?.state || ""}
+            setValue={(value) => setCompany({ ...company, state: value })}
+          />
+        </Box>
+        <Box display="flex" flexDirection="column" mt={4}>
+          <SelectTimezoneMaterialUi
+            showTimezoneOffset
+            label="Timezone"
+            helperText="Please select a timezone from the list"
+            timezoneName={company.timezone || undefined}
+            onChange={(timezone) =>
+              setCompany({ ...company, timezone: timezone })
+            }
+          />
+        </Box>
+
         <Box display="flex" flexDirection="column" mt={4}>
           <FormControlLabel
             control={

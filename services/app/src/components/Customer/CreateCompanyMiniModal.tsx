@@ -3,16 +3,19 @@ import {
   Button,
   DialogActions,
   DialogContent,
+  FormControl,
   TextField,
 } from "@material-ui/core";
 import { SecondaryTextColor } from "components/Shared/Colors/GlobalColors";
 import AutocompleteParentCompany from "components/Shared/Company/AutocompleteParentCompany";
+import USStateDropdown from "components/Shared/FormInputs/USStateDropdown";
 import ModalDialog from "components/Shared/Modal/ModalDialog";
 import Text, { TextVariants } from "components/Shared/Text/Text";
 import { CompaniesInsertInput } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
 import { createProspectiveCustomer } from "lib/api/companies";
 import { useState } from "react";
+import SelectTimezoneMaterialUi from "select-timezone-material-ui";
 
 interface Props {
   handleClose: () => void;
@@ -27,6 +30,8 @@ export default function CreateCompanyMiniModal({ handleClose }: Props) {
     identifier: null,
     dba_name: null,
     parent_company_id: null,
+    state: null,
+    timezone: null,
   });
 
   const handleClickCreate = async () => {
@@ -42,7 +47,8 @@ export default function CreateCompanyMiniModal({ handleClose }: Props) {
     }
   };
 
-  const isSubmitDisabled = !company.name || !company.identifier;
+  const isSubmitDisabled =
+    !company.name || !company.identifier || !company.state || !company.timezone;
 
   return (
     <ModalDialog handleClose={handleClose} title={"Create Company"}>
@@ -102,6 +108,32 @@ export default function CreateCompanyMiniModal({ handleClose }: Props) {
               setCompany({ ...company, dba_name: value })
             }
           />
+        </Box>
+        <Box mt={3}>
+          <Text textVariant={TextVariants.Paragraph} bottomMargin={8}>
+            Location
+          </Text>
+        </Box>
+        <Box>
+          <SelectTimezoneMaterialUi
+            showTimezoneOffset
+            label="Timezone"
+            helperText="Please select a timezone from the list"
+            timezoneName={company.timezone || undefined}
+            onChange={(timezone) =>
+              setCompany({ ...company, timezone: timezone })
+            }
+          />
+        </Box>
+        <Box mt={2}>
+          <FormControl fullWidth>
+            <USStateDropdown
+              dataCy={"us-state-dropdown"}
+              helperText={"Please select a US state from the list"}
+              value={company.state || null}
+              setValue={(state) => setCompany({ ...company, state: state })}
+            />
+          </FormControl>
         </Box>
       </DialogContent>
       <DialogActions>

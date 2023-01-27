@@ -447,8 +447,6 @@ class TestContractMethods(unittest.TestCase):
 		# dont have any minimums.
 		contract_obj, err = contract_util.Contract.build(contract.as_dict(), validate=True)
 		self.assertIsNone(err)
-		self.assertEqual(('OR', None), contract_obj.get_us_state())
-		#self.assertEqual(('America/New York', None), contract_obj.get_timezone_str())
 
 	def test_getters_unset_values(self) -> None:
 		late_fee_structure = json.dumps({
@@ -477,9 +475,6 @@ class TestContractMethods(unittest.TestCase):
 		# dont have any minimums.
 		contract_obj, err = contract_util.Contract.build(contract.as_dict(), validate=True)
 		self.assertIsNone(err)
-		# Defaults to CA
-		self.assertEqual(('CA', None), contract_obj.get_us_state())
-		self.assertEqual(('US/Pacific', None), contract_obj.get_timezone_str())
 
 	def test_validate_no_errors(self) -> None:
 		late_fee_structure = json.dumps({

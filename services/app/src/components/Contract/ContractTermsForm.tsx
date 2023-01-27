@@ -14,7 +14,6 @@ import {
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import JsonFormInput from "components/Shared/FormInputs/JsonFormInput";
-import USStateDropdown from "components/Shared/FormInputs/USStateDropdown";
 import { ContractsInsertInput } from "generated/graphql";
 import {
   ContractTermNames,
@@ -29,7 +28,6 @@ import { dateAsDateStringServer, parseDateStringServer } from "lib/date";
 import { AllProductTypes, ProductTypeEnum, ProductTypeToLabel } from "lib/enum";
 import { groupBy } from "lodash";
 import { ChangeEvent, useMemo } from "react";
-import SelectTimezoneMaterialUi from "select-timezone-material-ui";
 
 const useStyles = makeStyles({
   section: {
@@ -224,28 +222,6 @@ export default function ContractTermsForm({
           required={!item.nullable}
           value={item.value || null}
           onChange={(value: any) => findAndReplaceInJSON(item, value)}
-        />
-      );
-    } else if (item.type === "us_state") {
-      return (
-        <USStateDropdown
-          dataCy={"us-state-dropdown"}
-          helperText={"Please select a US state from the list"}
-          id={item.internal_name}
-          value={item.value || null}
-          setValue={(value) => findAndReplaceInJSON(item, value)}
-        />
-      );
-    } else if (item.type === "timezone") {
-      return (
-        <SelectTimezoneMaterialUi
-          data-cy={dataCy}
-          showTimezoneOffset
-          id={item.internal_name}
-          label="Timezone"
-          helperText="Please select a timezone from the list"
-          timezoneName={item.value || null}
-          onChange={(timezoneName) => findAndReplaceInJSON(item, timezoneName)}
         />
       );
     } else if (item.type === "float") {
