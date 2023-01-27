@@ -79,6 +79,7 @@ def create_bank_or_customer_user_with_session(
 
 	
 	parent_company_id = None
+	company = None
 	if company_id:
 		company = session.query(models.Company) \
 			.filter(models.Company.id == company_id) \
@@ -117,6 +118,25 @@ def create_bank_or_customer_user_with_session(
 	session.add(user)
 	session.flush()
 	user_id = str(user.id)
+
+	if company_id and company.is_vendor:
+		partnerships, err = queries.get_company_vendor_partnerships_by_vendor_id(
+			session,
+			company_id
+		)
+		if err:
+			# Not having a partnership for a vendor isn't inherently bad in this scenario
+			# as someone may be setting up a vendor ahead of time
+			pass
+
+		if partnerships is not None:
+			for partnership in partnerships:
+				contact = models.CompanyVendorContact( # type:ignore
+					partnership_id = str(partnership.id),
+					vendor_user_id = user_id,
+					is_active = False,
+				)
+				session.add(contact)
 
 	return user_id, None
 
