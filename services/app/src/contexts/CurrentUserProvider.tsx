@@ -1,5 +1,4 @@
 import { ThemeProvider, createTheme } from "@material-ui/core/styles";
-import { GridColumnHeadersItemCollection } from "@material-ui/data-grid";
 import * as Sentry from "@sentry/react";
 import axios from "axios";
 import BlazePreapprovalPage from "components/Blaze/BlazePreapprovalPage";

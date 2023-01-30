@@ -26,7 +26,7 @@ jobs:
           node-version: '${{ steps.nvm.outputs.NVMRC }}'
 
       - name: Cypress install
-        uses: cypress-io/github-action@v2
+        uses: cypress-io/github-action@v5
         with:
           working-directory: services/app
           runTests: false
@@ -83,7 +83,7 @@ jobs:
           path: services/app/build
 
       - name: Cypress run
-        uses: cypress-io/github-action@v2
+        uses: cypress-io/github-action@v5
         with:
           working-directory: services/app
           browser: chrome
@@ -93,7 +93,7 @@ jobs:
           wait-on-timeout: 300
           record: true
           parallel: true
-          spec: cypress/integration/**/*.spec.ts
+          spec: cypress/e2e/**/*.spec.ts
         env:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           # Recommended: pass the GitHub token lets this action correctly
