@@ -116,6 +116,7 @@ export default function CreateCompanyMiniModal({ handleClose }: Props) {
         </Box>
         <Box>
           <SelectTimezoneMaterialUi
+            data-cy={"create-company-modal-timezone"}
             showTimezoneOffset
             label="Timezone"
             helperText="Please select a timezone from the list"

@@ -579,9 +579,6 @@ function persistentClick(selector: string) {
 }
 
 function uploadFileSynchronously(inputName: string, isFirst: boolean = false) {
-  // Start watching requests.
-  cy.server({ method: "POST" });
-
   cy.intercept("POST", "**/put_signed_url/", {
     status: "OK",
     url: "https://bespoke-platform-for-dev.s3.amazonaws.com/files/customers/0e42f66d-45c4-4a0d-bb8e-ba65b1c57222/ebba_application/20220728-201733-728175/Screen%20Shot%202022-06-22%20at%209.02.34%20AM.png?AWSAccessKeyId=AKIAWKEGJY6TMC7TLZXD&Signature=%2BBussnv6e7XWex38LCSvVcskLA4%3D&content-type=image%2Fpng&Expires=1659040053",
@@ -599,9 +596,6 @@ function uploadFileSynchronously(inputName: string, isFirst: boolean = false) {
 
   cy.wait("@uploadSignedUrl").its("response.statusCode").should("equal", 200);
   cy.wait("@downloadSignedUrl").its("response.statusCode").should("equal", 200);
-
-  // Stop watching requests.
-  cy.server({ enable: false });
 }
 
 Cypress.Commands.add("persistentClick", persistentClick);

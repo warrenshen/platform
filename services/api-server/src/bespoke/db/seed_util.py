@@ -146,6 +146,7 @@ def create_company(
     state: str,
     surveillance_status: Optional[str],
     surveillance_status_note: str,
+    timezone: str,
     zip_code: str,
 ) -> Tuple[models.Company, models.CompanySettings, models.ParentCompany, errors.Error]:
     company_id = str(uuid.uuid4()) if id is None else id
@@ -191,6 +192,7 @@ def create_company(
         state = state,
         surveillance_status = surveillance_status,
         surveillance_status_note = surveillance_status_note,
+        timezone = timezone,
         zip_code = zip_code,
     )
     session.add(company)

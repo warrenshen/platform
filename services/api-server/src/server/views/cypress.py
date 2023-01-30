@@ -200,6 +200,7 @@ class AddCompanyView(MethodView):
 		state = get_field_or_default(form, 'state', 'MD')
 		surveillance_status = get_field_or_default(form, 'surveillance_status', None)
 		surveillance_status_note = get_field_or_default(form, 'surveillance_status_note', None)
+		timezone = get_field_or_default(form, 'timezone', 'America/New York')
 		zip_code = get_field_or_default(form, 'zip_code', '21037')
 
 		export_company_id = ''
@@ -236,6 +237,7 @@ class AddCompanyView(MethodView):
 				state,
 				surveillance_status,
 				surveillance_status_note,
+				timezone,
 				zip_code,
 			)
 			if err:
