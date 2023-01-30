@@ -161,10 +161,11 @@ def send_job_slack_message(
 
 	headers = {'Content-Type': 'application/json'}
 	is_dev = cfg.is_development_env()
+	is_prod = cfg.is_prod_env()
 	if job.status == AsyncJobStatusEnum.COMPLETED:
 		payload = create_success_message(job)
 	elif job.status == AsyncJobStatusEnum.FAILED:
-		payload = create_failure_message(job, is_dev)
+		payload = create_failure_message(job, is_dev, is_prod)
 	else:
 		return None, None
 	
@@ -210,13 +211,13 @@ def create_success_message(job: models.AsyncJob) -> Dict:
 		]
 	}
 
-def create_failure_message(job: models.AsyncJob, is_dev: bool) -> Dict:
+def create_failure_message(job: models.AsyncJob, is_dev: bool, is_prod: bool) -> Dict:
 	job_name = AsyncJobNameEnumToLabel[job.name]
 	started_at = date_util.human_readable_datetime(job.started_at)
 	ended_at = date_util.human_readable_datetime(job.ended_at)
 	job_payload = job.job_payload
 	err_details = job.err_details
-	notify_at_here = "DEV" if is_dev else "STAGING"
+	notify_at_here = "DEV" if is_dev else ("@here" if is_prod else "STAGING")
 	return {
 		"blocks": [
 			{
