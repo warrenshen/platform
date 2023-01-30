@@ -27,7 +27,7 @@ select_permissions:
         - unit_quantity
         - updated_at
       filter: {}
-  - role: bank_contractor
+  - role: bespoke_catalog_data_entry
     permission:
       columns:
         - is_deleted

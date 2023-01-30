@@ -1,12 +1,18 @@
 import { UserRolesEnum, Users } from "generated/graphql";
-import { ProductTypeEnum } from "lib/enum";
+import { InheritedRolesToBaseRoles, ProductTypeEnum } from "lib/enum";
 import { createContext } from "react";
 
 export function isRoleBankUser(role?: UserRolesEnum | null) {
-  return (
-    !!role &&
-    [UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly].includes(role)
-  );
+  if (!!role && role in InheritedRolesToBaseRoles) {
+    return [UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly].some(
+      (bankRole) => bankRole.includes(bankRole)
+    );
+  } else {
+    return (
+      !!role &&
+      [UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly].includes(role)
+    );
+  }
 }
 
 export type User = {
@@ -14,6 +20,7 @@ export type User = {
   parentCompanyId: Users["parent_company_id"] | null;
   companyId: Users["company_id"] | null;
   role: UserRolesEnum | null;
+  allowedRoles: UserRolesEnum[] | null;
   impersonatorUserId: Users["id"] | null;
   productType: ProductTypeEnum | null;
   isEmbeddedModule: boolean | null; // Whether app is open in an iframe element.
@@ -41,6 +48,7 @@ export const BlankUser = {
   parentCompanyId: null,
   companyId: null,
   role: null,
+  allowedRoles: null,
   impersonatorUserId: null,
   productType: null,
   isEmbeddedModule: null,

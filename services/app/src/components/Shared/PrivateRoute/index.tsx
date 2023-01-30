@@ -20,14 +20,18 @@ interface Props {
 export default function PrivateRoute(props: Props) {
   const { children } = props;
   const {
-    user: { companyId, role },
+    user: { companyId, role, allowedRoles },
     setUserProductType,
     setUserIsActiveContract,
     isSignedIn,
   } = useContext(CurrentUserContext);
 
   const canVisitRoute =
-    props.requiredRoles && !!role ? props.requiredRoles.includes(role) : false;
+    props.requiredRoles && allowedRoles
+      ? props.requiredRoles.some((requiredRole) =>
+          allowedRoles?.includes(requiredRole)
+        )
+      : false;
 
   const shouldRender = isSignedIn && canVisitRoute;
 

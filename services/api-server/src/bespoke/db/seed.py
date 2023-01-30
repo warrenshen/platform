@@ -6,7 +6,7 @@ from typing import Any, Callable, cast
 import sqlalchemy
 from bespoke.companies import create_company_util, create_user_util
 from bespoke.db import models
-from bespoke.db.db_constants import ALL_USER_ROLES, UserRoles
+from bespoke.db.db_constants import ALL_USER_BASE_ROLES, UserRoles
 from bespoke.db.models import session_scope
 from bespoke.db.seed_util import create_partnership_req, create_company_settings_and_company, create_user_inside_a_company, create_company_license, create_company_vendor_partnership
 from server.config import is_test_env
@@ -98,7 +98,7 @@ def setup_db_test(app: Any) -> None:
 	# Populate rows of tables.
 	with app.app_context():
 		with session_scope(session_maker) as session:
-			for user_role in ALL_USER_ROLES:
+			for user_role in ALL_USER_BASE_ROLES:
 				new_user_role = models.UserRole(
 					value=user_role,
 					display_name=user_role,

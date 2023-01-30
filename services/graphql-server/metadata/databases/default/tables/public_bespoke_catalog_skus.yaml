@@ -27,7 +27,7 @@ select_permissions:
         - sku
         - updated_at
       filter: {}
-  - role: bank_contractor
+  - role: bespoke_catalog_data_entry
     permission:
       columns:
         - bespoke_catalog_sku_group_id

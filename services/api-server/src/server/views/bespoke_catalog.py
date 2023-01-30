@@ -119,7 +119,7 @@ LIMIT {{ limit }};
 
 
 class SalesTransactions(MethodView):
-	decorators = [auth_util.bank_admin_or_bank_contractor_required]
+	decorators = [auth_util.bank_admin_or_bespoke_catalog_data_entry_required]
 
 	@handler_util.catch_bad_json_request
 	def get(self, **kwargs: Any) -> Response:
@@ -157,7 +157,7 @@ class SalesTransactions(MethodView):
 
 
 class IncomingTransferPackages(MethodView):
-	decorators = [auth_util.bank_admin_or_bank_contractor_required]
+	decorators = [auth_util.bank_admin_or_bespoke_catalog_data_entry_required]
 
 	@handler_util.catch_bad_json_request
 	def get(self, **kwargs: Any) -> Response:
@@ -194,7 +194,7 @@ class IncomingTransferPackages(MethodView):
 
 
 class InventoryPackages(MethodView):
-	decorators = [auth_util.bank_admin_or_bank_contractor_required]
+	decorators = [auth_util.bank_admin_or_bespoke_catalog_data_entry_required]
 
 	@handler_util.catch_bad_json_request
 	def get(self, **kwargs: Any) -> Response:
@@ -230,7 +230,7 @@ class InventoryPackages(MethodView):
 
 
 class CreateUpdateBespokeCatalogBrandView(MethodView):
-	decorators = [auth_util.bank_admin_or_bank_contractor_required]
+	decorators = [auth_util.bank_admin_or_bespoke_catalog_data_entry_required]
 
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
@@ -268,7 +268,7 @@ class CreateUpdateBespokeCatalogBrandView(MethodView):
 
 
 class DeleteBespokeCatalogBrandView(MethodView):
-	decorators = [auth_util.bank_admin_or_bank_contractor_required]
+	decorators = [auth_util.bank_admin_or_bespoke_catalog_data_entry_required]
 
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
@@ -296,7 +296,7 @@ class DeleteBespokeCatalogBrandView(MethodView):
 
 
 class CreateUpdateBespokeCatalogSkuGroupView(MethodView):
-	decorators = [auth_util.bank_admin_or_bank_contractor_required]
+	decorators = [auth_util.bank_admin_or_bespoke_catalog_data_entry_required]
 
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
@@ -340,7 +340,7 @@ class CreateUpdateBespokeCatalogSkuGroupView(MethodView):
 
 
 class DeleteBespokeCatalogSkuGroupView(MethodView):
-	decorators = [auth_util.bank_admin_or_bank_contractor_required]
+	decorators = [auth_util.bank_admin_or_bespoke_catalog_data_entry_required]
 
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
@@ -368,7 +368,7 @@ class DeleteBespokeCatalogSkuGroupView(MethodView):
 
 
 class CreateUpdateBespokeCatalogSkuView(MethodView):
-	decorators = [auth_util.bank_admin_or_bank_contractor_required]
+	decorators = [auth_util.bank_admin_or_bespoke_catalog_data_entry_required]
 
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
@@ -406,7 +406,7 @@ class CreateUpdateBespokeCatalogSkuView(MethodView):
 
 
 class DeleteBespokeCatalogSkuView(MethodView):
-	decorators = [auth_util.bank_admin_or_bank_contractor_required]
+	decorators = [auth_util.bank_admin_or_bespoke_catalog_data_entry_required]
 
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
@@ -434,7 +434,7 @@ class DeleteBespokeCatalogSkuView(MethodView):
 
 
 class CreateMetrcToBespokeCatalogSkuView(MethodView):
-	decorators = [auth_util.bank_admin_or_bank_contractor_required]
+	decorators = [auth_util.bank_admin_or_bespoke_catalog_data_entry_required]
 
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
@@ -542,7 +542,7 @@ class CreateMetrcToBespokeCatalogSkuView(MethodView):
 
 
 class UpdateMetrcToBespokeCatalogSkuView(MethodView):
-	decorators = [auth_util.bank_admin_or_bank_contractor_required]
+	decorators = [auth_util.bank_admin_or_bespoke_catalog_data_entry_required]
 
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
@@ -596,7 +596,7 @@ class UpdateMetrcToBespokeCatalogSkuView(MethodView):
 
 
 class DeleteMetrcToBespokeCatalogSkuView(MethodView):
-	decorators = [auth_util.bank_admin_or_bank_contractor_required]
+	decorators = [auth_util.bank_admin_or_bespoke_catalog_data_entry_required]
 
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
@@ -624,7 +624,7 @@ class DeleteMetrcToBespokeCatalogSkuView(MethodView):
 
 
 class CreateInvalidMetrcToBespokeCatalogSkusView(MethodView):
-	decorators = [auth_util.bank_admin_or_bank_contractor_required]
+	decorators = [auth_util.bank_admin_or_bespoke_catalog_data_entry_required]
 
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
@@ -650,7 +650,7 @@ class CreateInvalidMetrcToBespokeCatalogSkusView(MethodView):
 
 
 class CreateSampleMetrcToBespokeCatalogSkusView(MethodView):
-	decorators = [auth_util.bank_admin_or_bank_contractor_required]
+	decorators = [auth_util.bank_admin_or_bespoke_catalog_data_entry_required]
 
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:

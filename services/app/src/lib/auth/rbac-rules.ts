@@ -138,7 +138,8 @@ export interface Rule {
 export interface Rules {
   [UserRolesEnum.BankAdmin]: Rule;
   [UserRolesEnum.BankReadOnly]: Rule;
-  [UserRolesEnum.BankContractor]: Rule;
+  [UserRolesEnum.BespokeCatalogDataEntry]: Rule;
+  [UserRolesEnum.BespokeCatalogDataEntryInherited]: Rule;
   [UserRolesEnum.CompanyAdmin]: Rule;
   [UserRolesEnum.CompanyReadOnly]: Rule;
   [UserRolesEnum.CompanyContactOnly]: Rule;
@@ -280,7 +281,11 @@ const rules: Rules = {
     static: [Action.ViewLoanInternalNote],
     dynamic: [],
   },
-  [UserRolesEnum.BankContractor]: {
+  [UserRolesEnum.BespokeCatalogDataEntry]: {
+    static: [Action.EditBespokeCatalog],
+    dynamic: [],
+  },
+  [UserRolesEnum.BespokeCatalogDataEntryInherited]: {
     static: [Action.EditBespokeCatalog],
     dynamic: [],
   },

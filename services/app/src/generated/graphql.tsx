@@ -29443,10 +29443,12 @@ export enum UserRolesEnum {
   Anonymous = "anonymous",
   /** Bank Admin */
   BankAdmin = "bank_admin",
-  /** Bank Contractor */
-  BankContractor = "bank_contractor",
   /** Bank Read Only */
   BankReadOnly = "bank_read_only",
+  /** Bespoke Catalog Data Entry */
+  BespokeCatalogDataEntry = "bespoke_catalog_data_entry",
+  /** Bespoke Catalog Data Entry Inherited */
+  BespokeCatalogDataEntryInherited = "bespoke_catalog_data_entry_inherited",
   /** Company Admin */
   CompanyAdmin = "company_admin",
   /** Company Contact Only */

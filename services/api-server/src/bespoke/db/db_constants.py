@@ -13,6 +13,7 @@ class UserRoles(object):
 	COMPANY_CONTACT_ONLY = 'company_contact_only'
 	PURCHASE_ORDER_REVIEWER = 'purchase_order_reviewer'
 	INVOICE_REVIEWER = 'invoice_reviewer'
+	BESPOKE_CATALOG_DATA_ENTRY = 'bespoke_catalog_data_entry'
 
 class BespokeCompanyRole(object):
   CLIENT_SUCCESS = "client_success",
@@ -27,7 +28,7 @@ class CustomerRoles(object):
 	SALES_REP = 'sales_rep'
 	OTHER = 'other'
 
-ALL_USER_ROLES = [
+ALL_USER_BASE_ROLES = [
 	UserRoles.BANK_ADMIN,
 	UserRoles.BANK_READ_ONLY,
 	UserRoles.COMPANY_ADMIN,
@@ -36,6 +37,13 @@ ALL_USER_ROLES = [
 	UserRoles.PURCHASE_ORDER_REVIEWER,
 	UserRoles.INVOICE_REVIEWER,
 ]
+
+class InheritedRoles(object):
+	BESPOKE_CATALOG_DATA_ENTRY_INHERITED = 'bespoke_catalog_data_entry_inherited'
+
+INHERITED_ROLES_TO_BASE_ROLES = {
+	InheritedRoles.BESPOKE_CATALOG_DATA_ENTRY_INHERITED: [UserRoles.BESPOKE_CATALOG_DATA_ENTRY],
+}
 
 _ALL_BANK_READER_ROLES = [
 	UserRoles.BANK_ADMIN,

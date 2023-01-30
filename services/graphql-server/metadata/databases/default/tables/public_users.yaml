@@ -28,7 +28,7 @@ select_permissions:
         - role
         - updated_at
       filter: {}
-  - role: bank_contractor
+  - role: bespoke_catalog_data_entry
     permission:
       columns:
         - full_name

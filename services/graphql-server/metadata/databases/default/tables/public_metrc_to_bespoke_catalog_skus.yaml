@@ -25,7 +25,7 @@ select_permissions:
         - updated_at
         - wholesale_quantity
       filter: {}
-  - role: bank_contractor
+  - role: bespoke_catalog_data_entry
     permission:
       columns:
         - bespoke_catalog_sku_id

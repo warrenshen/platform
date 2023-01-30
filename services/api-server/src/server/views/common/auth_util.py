@@ -2,7 +2,7 @@ from functools import wraps
 from typing import Any, Callable, Optional, cast
 
 from bespoke import errors
-from bespoke.db import models
+from bespoke.db import models, db_constants
 from bespoke.security import security_util
 from flask import Response, abort, current_app, request
 from flask_jwt_extended import jwt_required
@@ -23,11 +23,12 @@ def get_claims_payload(
 	user_id = str(user.id) if user.id else ''
 	parent_company_id = str(user.parent_company_id) if user.parent_company_id else ''
 	company_id = company_id if company_id else ''
+	allowed_roles = db_constants.INHERITED_ROLES_TO_BASE_ROLES.get(role, [])
 
 	claims_payload: UserPayloadDict = {
 		'X-Hasura-User-Id': user_id,
 		'X-Hasura-Default-Role': role,
-		'X-Hasura-Allowed-Roles': [role],
+		'X-Hasura-Allowed-Roles': [role, *allowed_roles],
 		'X-Hasura-Parent-Company-Id': parent_company_id,
 		'X-Hasura-Company-Id': company_id,
 	}
@@ -47,11 +48,12 @@ def get_impersonator_claims_payload(
 	parent_company_id = str(user.parent_company_id) if user.parent_company_id else ''
 	company_id = company_id if company_id else ''
 	impersonator_user_id = str(impersonator_user_id) if impersonator_user_id else ''
+	allowed_roles = db_constants.INHERITED_ROLES_TO_BASE_ROLES.get(role, [])
 
 	claims_payload: UserImpersonatorPayloadDict = {
 		'X-Hasura-User-Id': user_id,
 		'X-Hasura-Default-Role': role,
-		'X-Hasura-Allowed-Roles': [role],
+		'X-Hasura-Allowed-Roles': [role, *allowed_roles],
 		'X-Hasura-Parent-Company-Id': parent_company_id,
 		'X-Hasura-Company-Id': company_id,
 		'X-Hasura-Impersonator-User-Id': impersonator_user_id,
@@ -71,12 +73,12 @@ def bank_admin_required(f: Callable[..., Response]) -> Response:
 
 	return inner_func
 
-def bank_admin_or_bank_contractor_required(f: Callable[..., Response]) -> Response:
+def bank_admin_or_bespoke_catalog_data_entry_required(f: Callable[..., Response]) -> Response:
 
 	@jwt_required
 	def inner_func(*args: Any, **kwargs: Any) -> Response:
 		user_session = UserSession.from_session()
-		if not user_session.is_bank_admin() and not user_session.is_bank_contractor():
+		if not user_session.is_bank_admin() and not user_session.is_bespoke_catalog_data_entry():
 			return handler_util.make_error_response(errors.Error('Access Denied'))
 
 		return f(*args, **kwargs)

@@ -29,7 +29,7 @@ function ActiveUsersTab() {
       roles: [
         UserRolesEnum.BankAdmin,
         UserRolesEnum.BankReadOnly,
-        UserRolesEnum.BankContractor,
+        UserRolesEnum.BespokeCatalogDataEntryInherited,
       ],
       isBankUser: isBankUser,
     },
@@ -54,7 +54,7 @@ function ActiveUsersTab() {
   const bankUserRoles = [
     UserRolesEnum.BankAdmin,
     UserRolesEnum.BankReadOnly,
-    UserRolesEnum.BankContractor,
+    UserRolesEnum.BespokeCatalogDataEntryInherited,
   ];
 
   return (
@@ -142,7 +142,7 @@ function DeactivatedUsersTab() {
       roles: [
         UserRolesEnum.BankAdmin,
         UserRolesEnum.BankReadOnly,
-        UserRolesEnum.BankContractor,
+        UserRolesEnum.BespokeCatalogDataEntryInherited,
       ],
     },
   });

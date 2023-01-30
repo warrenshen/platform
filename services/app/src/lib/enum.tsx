@@ -834,11 +834,19 @@ export const EbbaApplicationStatusToLabel = {
 export const UserRoleToLabel = {
   [UserRolesEnum.BankAdmin]: "Bank Admin",
   [UserRolesEnum.BankReadOnly]: "Bank User (View Only)",
-  [UserRolesEnum.BankContractor]: "Bank Contractor",
+  [UserRolesEnum.BespokeCatalogDataEntry]: "Bespoke Catalog Data Entry",
+  [UserRolesEnum.BespokeCatalogDataEntryInherited]:
+    "Bespoke Catalog Data Entry",
   [UserRolesEnum.CompanyAdmin]: "Company Admin",
   [UserRolesEnum.CompanyReadOnly]: "Company User (View Only)",
   [UserRolesEnum.CompanyContactOnly]: "Company Contact (No Account)",
   [UserRolesEnum.Anonymous]: "Anonymous",
+};
+
+export const InheritedRolesToBaseRoles = {
+  [UserRolesEnum.BespokeCatalogDataEntryInherited]: [
+    UserRolesEnum.BespokeCatalogDataEntry,
+  ],
 };
 
 export const BankUserRoles = [

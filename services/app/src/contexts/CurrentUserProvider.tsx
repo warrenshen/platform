@@ -1,4 +1,5 @@
 import { ThemeProvider, createTheme } from "@material-ui/core/styles";
+import { GridColumnHeadersItemCollection } from "@material-ui/data-grid";
 import * as Sentry from "@sentry/react";
 import axios from "axios";
 import BlazePreapprovalPage from "components/Blaze/BlazePreapprovalPage";
@@ -73,6 +74,7 @@ function userFieldsFromToken(token: string) {
     parentCompanyId: validUUIDOrDefault(claims["X-Hasura-Parent-Company-Id"]),
     companyId: validUUIDOrDefault(claims["X-Hasura-Company-Id"]),
     role: claims["X-Hasura-Default-Role"],
+    allowedRoles: claims["X-Hasura-Allowed-Roles"],
     impersonatorUserId: validUUIDOrDefault(
       claims["X-Hasura-Impersonator-User-Id"]
     ),
@@ -182,7 +184,9 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
         ) {
           setUserFromAccessToken(data.access_token, data.refresh_token);
           const userFields = userFieldsFromToken(data.access_token);
-          if (userFields?.role === UserRolesEnum.BankContractor) {
+          if (
+            userFields?.role === UserRolesEnum.BespokeCatalogDataEntryInherited
+          ) {
             handleSuccess(bankRoutes.bespokeCatalog);
           } else {
             handleSuccess(routes.root);
