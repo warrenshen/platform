@@ -78,14 +78,22 @@ def main(is_test_run: bool = True) -> None:
 
 			if not is_test_run:
 				for user in users:
-					user.company_role_new = {}
+					user.company_role_new = {
+						"bespoke_roles": user.company_role_new["bespoke_roles"] if user.company_role_new is not None and "bespoke_roles" in user.company_role_new else [],
+						"customer_roles": [],
+						"other_role": "",
+					}
 					
-					user.company_role_new[CustomerRoles.FINANCIALS] = role_dict[user.email].financials
-					user.company_role_new[CustomerRoles.PURCHASE_ORDER_EDITS] = role_dict[user.email].po_edits
-					user.company_role_new[CustomerRoles.REPAYMENTS] = role_dict[user.email].repayments
-					user.company_role_new[CustomerRoles.EXECUTIVE] = role_dict[user.email].executive
-					user.company_role_new[CustomerRoles.SALES_REP] = role_dict[user.email].sales_rep
-					user.company_role_new[CustomerRoles.OTHER] = role_dict[user.email].other
+					if role_dict[user.email].financials is True:
+						user.company_role_new["customer_roles"].append(CustomerRoles.FINANCIALS)
+					if role_dict[user.email].po_edits is True:
+						user.company_role_new["customer_roles"].append(CustomerRoles.PURCHASE_ORDER_EDITS)
+					if role_dict[user.email].repayments is True:
+						user.company_role_new["customer_roles"].append(CustomerRoles.REPAYMENTS)
+					if role_dict[user.email].executive is True:
+						user.company_role_new["customer_roles"].append(CustomerRoles.EXECUTIVE)
+					if role_dict[user.email].sales_rep is True:
+						user.company_role_new["customer_roles"].append(CustomerRoles.SALES_REP)
 
 			current_page += 1
 
