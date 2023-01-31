@@ -276,10 +276,9 @@ class GenerateFinancialStatementAlertView(MethodView):
 			return handler_util.make_error_response('No data provided')
 		
 		variables = form.get("variables", None)
-		is_test = variables.get("isTest", False) if variables else False
+		is_test = variables.get("isTest", True) if variables else True
 		test_email = variables.get("email", None) if variables else None
 		companies = variables.get("companies", None) if variables else None
-
 		with session_scope(current_app.session_maker) as session:
 			_, err = async_jobs_util.generate_manual_financial_reports_coming_due_alerts(
 				session=session,

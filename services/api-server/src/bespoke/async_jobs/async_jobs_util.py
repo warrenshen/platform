@@ -1692,28 +1692,70 @@ def generate_manual_financial_reports_coming_due_alerts(
 	companies: List[str] = []
 ) -> Tuple[bool, errors.Error]:
 	cfg = cast(Config, current_app.app_config)
-	if len(companies) == 0 or companies is None:
-		return generate_financial_reports_coming_due_alerts(session)
+	if companies is not None and len(companies) > 0:
+		for company_id in companies:
+			payload = {
+				"company_id" : str(company_id), 
+				"is_test_run" : is_test_run,
+				"test_email" : test_email
+				}
+			add_job_to_queue(
+				session=session,
+				job_name=AsyncJobNameEnum.FINANCIAL_REPORTS_COMING_DUE_ALERTS,
+				submitted_by_user_id=cfg.BOT_USER_ID,
+				is_high_priority=True,
+				job_payload=payload
+			)
+	else:
+		current_page = 0
+		BATCH_SIZE = 50
+		is_done = False
+		
+		while not is_done:
 
-	for company_id in companies:
-		# cron generated runs are never test runs
-		payload = {
-			"company_id" : str(company_id), 
-			"is_test_run" : is_test_run,
-			"test_email" : test_email
-			}
-		add_job_to_queue(
-			session=session,
-			job_name=AsyncJobNameEnum.FINANCIAL_REPORTS_COMING_DUE_ALERTS,
-			submitted_by_user_id=cfg.BOT_USER_ID,
-			is_high_priority=True,
-			job_payload=payload
-		)
+			try:
+				batched_companies, has_more_customers, err = queries.get_all_customers(
+					session,
+					is_active = True,
+					offset = current_page * BATCH_SIZE,
+					batch_size = BATCH_SIZE,
+				)
+
+				# Normally, we would check for the length of companies here
+				# However, we set up `get_all_customers` to filter for active customers
+				# One nice thing about that function is that it returns an error before
+				# filtering if no customers are found. This error based exit
+				# plays nicely with our offset approach used here
+				if not has_more_customers:
+					is_done = True
+					continue
+				
+				for company in batched_companies:
+					company_id = str(company.id)
+					# cron generated runs are never test runs
+					payload = {
+						"company_id" : str(company_id), 
+						"is_test_run" : is_test_run,
+						"test_email" : test_email,
+						}
+					add_job_to_queue(
+						session=session,
+						job_name=AsyncJobNameEnum.FINANCIAL_REPORTS_COMING_DUE_ALERTS,
+						submitted_by_user_id=cfg.BOT_USER_ID,
+						is_high_priority=True,
+						job_payload=payload
+					)
+
+			except Exception as e:
+				return False, errors.Error(str(e))
+
+			current_page += 1
 
 	add_job_summary(session, AsyncJobNameEnum.FINANCIAL_REPORTS_COMING_DUE_ALERTS)
 
 	return True, None
 
+# while not currently used, is being kept for the future cron job
 @errors.return_error_tuple
 def generate_financial_reports_coming_due_alerts(
 	session: Session,
