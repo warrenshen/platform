@@ -52,6 +52,16 @@ describe("On Settings: Delete License button should", () => {
       retries: 5,
     },
     () => {
+      cy.loginBankAdmin();
+
+      cy.dataCy("sidebar-item-companies").click();
+      cy.url().should("include", "companies");
+
+      cy.dataCy("customers-data-grid-view-customer-button-CC")
+        .first()
+        .click({ force: true });
+      cy.dataCy("company-sidebar-item-general-settings").click();
+
       cy.persistentClick(
         ".MuiBox-root[data-cy='company-license-table-container'] tr[aria-rowindex='1'] td[aria-colindex='1'] .dx-select-checkbox"
       );
@@ -66,6 +76,16 @@ describe("On Settings: Delete License button should", () => {
       retries: 5,
     },
     () => {
+      cy.loginBankAdmin();
+
+      cy.dataCy("sidebar-item-companies").click();
+      cy.url().should("include", "companies");
+
+      cy.dataCy("customers-data-grid-view-customer-button-CC")
+        .first()
+        .click({ force: true });
+      cy.dataCy("company-sidebar-item-general-settings").click();
+
       cy.persistentClick(
         ".MuiBox-root[data-cy='company-license-table-container'] .dx-header-row .dx-select-checkbox"
       );

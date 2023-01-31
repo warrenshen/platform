@@ -1,6 +1,10 @@
+import { dateAsDateStringClient } from "lib/date";
+
 export const bankAdminCreatePurchaseOrderFlowNew = (
   purchaseOrderNumber: string
 ) => {
+  const todayString = dateAsDateStringClient(new Date());
+
   cy.loginBankAdmin();
 
   // Go to Bank > Companies
@@ -29,7 +33,7 @@ export const bankAdminCreatePurchaseOrderFlowNew = (
     purchaseOrderNumber
   );
   cy.dataCySelector("purchase-order-form-input-order-date", "input").type(
-    "10/31/2022"
+    todayString
   );
   cy.get("[data-cy='purchase-order-form-input-net-terms'] input")
     .type("30")

@@ -27,6 +27,13 @@ describe("Bank creates a new company", () => {
 
       cy.dataCy("company-form-input-dba").clear().type("NPC1");
 
+      cy.dataCySelector("create-company-modal-timezone", "input").type(
+        "-7.00{enter}"
+      );
+
+      cy.get("[data-cy=us-state-dropdown]").click();
+      cy.get("[data-cy*=us-state-dropdown-item]").eq(21).click();
+
       cy.contains("Submit").click();
 
       // successfully created
