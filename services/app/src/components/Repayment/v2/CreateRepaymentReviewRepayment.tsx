@@ -1,6 +1,9 @@
-import { Box, Divider, Typography } from "@material-ui/core";
+import { Box, Divider } from "@material-ui/core";
 import BankAccountInfoCardContent from "components/BankAccount/BankAccountInfoCardContent";
-import LoansBeforeAfterPaymentPreview from "components/Repayment/LoansBeforeAfterPaymentPreview";
+import BeforeAfterRepaymentDetails from "components/Repayment/v2/BeforeAfterRepaymentDetails";
+import LoansBeforeAfterPaymentPreviewNew from "components/Repayment/v2/LoansBeforeAfterPaymentPreviewNew";
+import PaymentDetailsRow from "components/Repayment/v2/PaymentDetailsRow";
+import VerticalValueAndLabel from "components/Repayment/v2/VerticalValueAndLabel";
 import FullWidthAlert from "components/Shared/Alert/FullWidthAlert";
 import CardContainer from "components/Shared/Card/CardContainer";
 import CardDivider from "components/Shared/Card/CardDivider";
@@ -11,6 +14,7 @@ import {
   PaymentsInsertInput,
   useBankAccountsForTransferQuery,
 } from "generated/graphql";
+import { ArrowRightIcon } from "icons";
 import {
   ProductTypeEnum,
   RepaymentMethodEnum,
@@ -18,9 +22,6 @@ import {
 } from "lib/enum";
 import { LoanBeforeAfterPayment } from "lib/finance/payments/repayment";
 import { formatCurrency } from "lib/number";
-
-import BeforeAfterRepaymentDetails from "./BeforeAfterRepaymentDetails";
-import PaymentDetailsRow from "./PaymentDetailsRow";
 
 interface Props {
   companyId: Companies["id"];
@@ -30,7 +31,7 @@ interface Props {
   payableAmountAccountFee: number;
   payment: PaymentsInsertInput;
   loansBeforeAfterPayment: LoanBeforeAfterPayment[];
-  isPayAccountFeesVisible: boolean;
+  isPayAccountFeesChecked: boolean;
   showAddress?: boolean;
 }
 
@@ -83,7 +84,7 @@ export default function CreateRepaymentReviewRepayment({
   payableAmountAccountFee,
   loansBeforeAfterPayment,
   payment,
-  isPayAccountFeesVisible,
+  isPayAccountFeesChecked,
   showAddress = false,
 }: Props) {
   const {
@@ -111,7 +112,7 @@ export default function CreateRepaymentReviewRepayment({
       </Text>
       <PaymentDetailsRow
         depositDate={payment.settlement_date}
-        repaymentMethod={payment.method as string}
+        repaymentMethod={payment.method as RepaymentMethodEnum}
         repaymentAmount={payment.requested_amount}
         amountFromHoldingAccount={requestedFromHoldingAccount}
       />
@@ -130,24 +131,16 @@ export default function CreateRepaymentReviewRepayment({
           />
         ) : (
           <>
-            <Box>
-              <Box mb={2}>
-                <Typography variant="body1">
-                  {`Total Loan Amount: ${formatCurrency(
-                    payment.requested_amount
-                  )}`}
-                </Typography>
-                {isPayAccountFeesVisible && (
-                  <Typography variant="body1">
-                    {`Account Fees Amount: ${formatCurrency(
-                      payment.items_covered.requested_to_account_fees,
-                      "$0.00"
-                    )}`}
-                  </Typography>
-                )}
-              </Box>
+            <Box display="flex">
+              <Text textVariant={TextVariants.ParagraphLead}>
+                Before Repayment
+              </Text>
+              <Box mr={70} />
+              <Text textVariant={TextVariants.ParagraphLead}>
+                After Repayment
+              </Text>
             </Box>
-            <LoansBeforeAfterPaymentPreview
+            <LoansBeforeAfterPaymentPreviewNew
               isSettlePayment={false}
               loansBeforeAfterPayment={loansBeforeAfterPayment}
             />
@@ -157,6 +150,24 @@ export default function CreateRepaymentReviewRepayment({
       <Box my={6}>
         <Divider light />
       </Box>
+      {isPayAccountFeesChecked && (
+        <Box display="flex" mb={5}>
+          <VerticalValueAndLabel
+            label="Account fees amount"
+            value={formatCurrency(payableAmountAccountFee)}
+          />
+          <Box mt={3} ml={55.5} mr={13}>
+            <ArrowRightIcon />
+          </Box>
+          <VerticalValueAndLabel
+            label="Account fees amount"
+            value={formatCurrency(
+              payableAmountAccountFee -
+                (payment.items_covered?.requested_to_account_fees || 0)
+            )}
+          />
+        </Box>
+      )}
       <Box>
         {payment.requested_amount <= 0 ? (
           <Box>No amount is currently due. No further action is required</Box>
@@ -190,7 +201,6 @@ export default function CreateRepaymentReviewRepayment({
               </>
             )}
 
-            {/* TODO: update alert text */}
             <FullWidthAlert severity="info">
               <Text textVariant={TextVariants.Paragraph} bottomMargin={0}>
                 {getAlertText(payment)}

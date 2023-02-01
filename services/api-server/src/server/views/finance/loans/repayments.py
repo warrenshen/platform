@@ -148,6 +148,63 @@ class CalculateRepaymentEffectView(MethodView):
 			effect_resp['status'] = 'OK'
 			return make_response(json.dumps(effect_resp))
 
+class CalculateRepaymentEffectNewView(MethodView):
+	decorators = [auth_util.login_required]
+
+	@handler_util.catch_bad_json_request
+	def post(self) -> Response:
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		required_keys = [
+			'company_id',
+			'payment_option',
+			'amount',
+			'deposit_date',
+			'settlement_date',
+			'items_covered',
+			'should_pay_principal_first',
+		]
+		for key in required_keys:
+			if key not in form:
+				return handler_util.make_error_response(
+					'Missing key {} from calculate effect of payment request'.format(key))
+
+		user_session = auth_util.UserSession.from_session()
+
+		if not user_session.is_bank_or_this_company_admin(form['company_id']):
+			return handler_util.make_error_response('Access Denied')
+
+		company_id = form['company_id']
+		payment_option = form['payment_option']
+		amount = form['amount']
+		deposit_date = form['deposit_date']
+		settlement_date = form['settlement_date']
+		items_covered = form['items_covered']
+		should_pay_principal_first = form.get('should_pay_principal_first')
+		should_use_holding_account_credits = form.get('should_use_holding_account_credits')
+
+		with models.session_scope(current_app.session_maker) as session:
+			# NOTE: Fetching information is likely a slow task, so we probably want to
+			# turn this into an async operation.
+			effect_resp, err = repayment_util.calculate_repayment_effect_new(
+				session,
+				company_id,
+				payment_option,
+				amount,
+				deposit_date,
+				settlement_date,
+				items_covered,
+				should_pay_principal_first,
+				should_use_holding_account_credits
+			)
+			if err:
+				return handler_util.make_error_response(err)
+
+			effect_resp['status'] = 'OK'
+			return make_response(json.dumps(effect_resp))
+
 class CreateRepaymentView(MethodView):
 	decorators = [auth_util.login_required]
 
@@ -499,6 +556,9 @@ class DeleteRepaymentView(MethodView):
 
 handler.add_url_rule(
 	'/calculate_effect_of_payment', view_func=CalculateRepaymentEffectView.as_view(name='calculate_effect_of_repayment_view'))
+
+handler.add_url_rule(
+	'/calculate_effect_of_payment_new', view_func=CalculateRepaymentEffectNewView.as_view(name='calculate_effect_of_repayment_new_view'))
 
 handler.add_url_rule(
 	'/create_repayment', view_func=CreateRepaymentView.as_view(name='create_payment_view'))

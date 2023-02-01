@@ -1,5 +1,7 @@
 import { Box, Step, StepLabel, Stepper, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
+import CreateRepaymentConfigureRepayment from "components/Repayment/v2/CreateRepaymentConfigureRepayment";
+import CreateRepaymentReviewRepayment from "components/Repayment/v2/CreateRepaymentReviewRepayment";
 import { ApproveBlue } from "components/Shared/Colors/GlobalColors";
 import Modal from "components/Shared/Modal/Modal";
 import { CurrentCustomerContext } from "contexts/CurrentCustomerContext";
@@ -22,6 +24,7 @@ import {
   todayAsDateStringServer,
 } from "lib/date";
 import {
+  PaymentOptionEnum,
   PaymentTypeEnum,
   ProductTypeEnum,
   RepaymentMethodEnum,
@@ -34,15 +37,12 @@ import {
   CalculateRepaymentEffectResp,
   LoanBeforeAfterPayment,
   LoanToShow,
-  calculateRepaymentEffectMutation,
+  calculateRepaymentEffectNewMutation,
   createRepaymentMutation,
   getLoansBeforeAfterPayment,
 } from "lib/finance/payments/repayment";
 import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
-
-import CreateRepaymentConfigureRepayment from "./CreateRepaymentConfigureRepayment";
-import CreateRepaymentReviewRepayment from "./CreateRepaymentReviewRepayment";
 
 const StyledStep = styled(Step)<{}>`
   .MuiStepIcon-root.MuiStepIcon-active {
@@ -112,7 +112,7 @@ const CreateRepaymentModalNew = ({
     },
     company_bank_account_id: null,
   });
-  const [isPayAccountFeesVisible, setIsPayAccountFeesVisible] =
+  const [isPayAccountFeesChecked, setIsPayAccountFeesChecked] =
     useState<boolean>(false);
   const [repaymentEffectData, setRepaymentEffectData] = useState<
     CalculateRepaymentEffectResp["data"] | null
@@ -145,13 +145,11 @@ const CreateRepaymentModalNew = ({
 
   const paymentOption = payment.items_covered.payment_option;
 
+  // FOR LOC
   const amountLeftoverForAccountFees =
     payment.requested_amount -
     ((financialSummary?.total_outstanding_principal || 0) +
       (financialSummary?.total_outstanding_interest || 0));
-
-  const accountCredits =
-    financialSummary?.account_level_balance_payload?.credits_total || 0;
 
   useEffect(() => {
     if (payment.method && payment.requested_payment_date) {
@@ -176,6 +174,23 @@ const CreateRepaymentModalNew = ({
   ]);
 
   useEffect(() => {
+    let requestedToAccountFees = 0;
+    if (productType === ProductTypeEnum.LineOfCredit && payEntireBalance) {
+      requestedToAccountFees = accountFeeTotal;
+    } else if (
+      productType === ProductTypeEnum.LineOfCredit &&
+      !payEntireBalance
+    ) {
+      requestedToAccountFees =
+        amountLeftoverForAccountFees > 0 ? amountLeftoverForAccountFees : 0;
+    } else if (
+      productType !== ProductTypeEnum.LineOfCredit &&
+      isPayAccountFeesChecked
+    ) {
+      requestedToAccountFees =
+        payment.items_covered?.requested_to_account_fees || 0;
+    }
+
     if (payEntireBalance) {
       setPayment((payment) => ({
         ...payment,
@@ -188,8 +203,8 @@ const CreateRepaymentModalNew = ({
             accountFeeTotal,
         items_covered: {
           ...payment.items_covered,
-          payment_option: "pay_in_full",
-          requested_to_account_fees: accountFeeTotal,
+          payment_option: PaymentOptionEnum.InFull,
+          requested_to_account_fees: requestedToAccountFees,
         },
       }));
     } else {
@@ -197,9 +212,8 @@ const CreateRepaymentModalNew = ({
         ...payment,
         items_covered: {
           ...payment.items_covered,
-          payment_option: "custom_amount",
-          requested_to_account_fees:
-            amountLeftoverForAccountFees > 0 ? amountLeftoverForAccountFees : 0,
+          payment_option: PaymentOptionEnum.CustomAmount,
+          requested_to_account_fees: requestedToAccountFees,
         },
       }));
     }
@@ -208,31 +222,15 @@ const CreateRepaymentModalNew = ({
     financialSummary,
     payEntireBalance,
     amountLeftoverForAccountFees,
-  ]);
-
-  useEffect(() => {
-    const requestedFromHoldingAccount = isHoldingAccountCreditsChecked
-      ? payment.items_covered?.requested_from_holding_account
-        ? payment.items_covered.requested_from_holding_account
-        : accountCredits
-      : 0;
-    setPayment((payment) => ({
-      ...payment,
-      items_covered: {
-        ...payment.items_covered,
-        requested_from_holding_account: requestedFromHoldingAccount,
-      },
-    }));
-  }, [
-    isHoldingAccountCreditsChecked,
-    accountCredits,
-    payment.items_covered?.requested_from_holding_account,
+    productType,
+    isPayAccountFeesChecked,
+    payment.items_covered?.requested_to_account_fees,
   ]);
 
   const [
     calculateRepaymentEffect,
     { loading: isCalculateRepaymentEffectLoading },
-  ] = useCustomMutation(calculateRepaymentEffectMutation);
+  ] = useCustomMutation(calculateRepaymentEffectNewMutation);
 
   const [createRepayment, { loading: isCreateRepaymentLoading }] =
     useCustomMutation(createRepaymentMutation);
@@ -269,6 +267,7 @@ const CreateRepaymentModalNew = ({
           to_account_fees: payment.items_covered.requested_to_account_fees || 0,
         },
         should_pay_principal_first: false, // Always false for "create repayment".
+        should_use_holding_account_credits: isHoldingAccountCreditsChecked,
       },
     });
 
@@ -285,42 +284,63 @@ const CreateRepaymentModalNew = ({
       const repaymentEffectData = response.data;
       setRepaymentEffectData(repaymentEffectData);
 
-      const {
-        amount_to_pay,
-        payable_amount_principal,
-        payable_amount_interest,
-      } = repaymentEffectData;
-      let amountTowardsPrincipal = 0;
-      let amountTowardsInterest = 0;
-      let amountTowardsAccountFees = 0;
-      if (amount_to_pay <= payable_amount_interest) {
-        amountTowardsInterest = amount_to_pay;
-      } else if (
-        amount_to_pay <=
-        payable_amount_interest + payable_amount_principal
-      ) {
-        amountTowardsInterest = payable_amount_interest;
-        amountTowardsPrincipal = amount_to_pay - payable_amount_interest;
+      if (productType === ProductTypeEnum.LineOfCredit) {
+        const {
+          amount_to_pay,
+          payable_amount_principal,
+          payable_amount_interest,
+          amount_from_holding_account,
+        } = repaymentEffectData;
+        let amountTowardsPrincipal = 0;
+        let amountTowardsInterest = 0;
+        let amountTowardsAccountFees = 0;
+        if (amount_to_pay <= payable_amount_interest) {
+          amountTowardsInterest = amount_to_pay;
+        } else if (
+          amount_to_pay <=
+          payable_amount_interest + payable_amount_principal
+        ) {
+          amountTowardsInterest = payable_amount_interest;
+          amountTowardsPrincipal = amount_to_pay - payable_amount_interest;
+        } else {
+          amountTowardsInterest = payable_amount_interest;
+          amountTowardsPrincipal = payable_amount_principal;
+          amountTowardsAccountFees =
+            amount_to_pay - payable_amount_interest - payable_amount_principal;
+        }
+        setPayment({
+          ...payment,
+          requested_amount: repaymentEffectData.amount_to_pay || null,
+          items_covered: {
+            ...payment.items_covered,
+            requested_from_holding_account: amount_from_holding_account,
+            requested_to_principal: amountTowardsPrincipal,
+            requested_to_interest: amountTowardsInterest,
+            requested_to_account_fees: amountTowardsAccountFees,
+            loan_ids: repaymentEffectData.loans_to_show.map(
+              (loanToShow: LoanToShow) => loanToShow.loan_id
+            ),
+          },
+        });
       } else {
-        amountTowardsInterest = payable_amount_interest;
-        amountTowardsPrincipal = payable_amount_principal;
-        amountTowardsAccountFees =
-          amount_to_pay - payable_amount_interest - payable_amount_principal;
+        const {
+          amount_to_pay,
+          amount_to_account_fees,
+          amount_from_holding_account,
+        } = repaymentEffectData;
+        setPayment({
+          ...payment,
+          requested_amount: amount_to_pay || null,
+          items_covered: {
+            ...payment.items_covered,
+            requested_from_holding_account: amount_from_holding_account,
+            requested_to_account_fees: amount_to_account_fees,
+            loan_ids: repaymentEffectData.loans_to_show.map(
+              (loanToShow: LoanToShow) => loanToShow.loan_id
+            ),
+          },
+        });
       }
-
-      setPayment({
-        ...payment,
-        requested_amount: repaymentEffectData.amount_to_pay || null,
-        items_covered: {
-          ...payment.items_covered,
-          requested_to_principal: amountTowardsPrincipal,
-          requested_to_interest: amountTowardsInterest,
-          requested_to_account_fees: amountTowardsAccountFees,
-          loan_ids: repaymentEffectData.loans_to_show.map(
-            (loanToShow: LoanToShow) => loanToShow.loan_id
-          ),
-        },
-      });
       setLoansBeforeAfterPayment(
         getLoansBeforeAfterPayment(repaymentEffectData)
       );
@@ -335,7 +355,7 @@ const CreateRepaymentModalNew = ({
     }
 
     // Double check to make sure selected account fee payment is not greater than amount owed
-    if (isPayAccountFeesVisible) {
+    if (isPayAccountFeesChecked) {
       const accountFeePayment =
         payment.items_covered["requested_to_account_fees"];
 
@@ -412,9 +432,9 @@ const CreateRepaymentModalNew = ({
     (paymentOption === "custom_amount" && !payment.requested_amount) ||
     (payment.method === RepaymentMethodEnum.ReverseDraftACH &&
       !payment.company_bank_account_id) ||
-    (isPayAccountFeesVisible &&
+    (isPayAccountFeesChecked &&
       !payment.items_covered["requested_to_account_fees"]) ||
-    (isPayAccountFeesVisible &&
+    (isPayAccountFeesChecked &&
       payment.items_covered["requested_to_account_fees"] &&
       payment.items_covered["requested_to_account_fees"] > accountFeeTotal) ||
     payment.items_covered["requested_from_holding_account"] >
@@ -474,11 +494,11 @@ const CreateRepaymentModalNew = ({
             financialSummary={financialSummary}
             payment={payment}
             setPayment={setPayment}
-            isPayAccountFeesVisible={isPayAccountFeesVisible}
-            setIsPayAccountFeesVisible={setIsPayAccountFeesVisible}
             accountFeeTotal={accountFeeTotal}
             payEntireBalance={payEntireBalance}
             setPayEntireBalance={setPayEntireBalance}
+            isPayAccountFeesChecked={isPayAccountFeesChecked}
+            setIsPayAccountFeesChecked={setIsPayAccountFeesChecked}
             isHoldingAccountCreditsChecked={isHoldingAccountCreditsChecked}
             setIsHoldingAccountCreditsChecked={
               setIsHoldingAccountCreditsChecked
@@ -497,7 +517,7 @@ const CreateRepaymentModalNew = ({
             payableAmountAccountFee={accountFeeTotal}
             payment={payment}
             loansBeforeAfterPayment={loansBeforeAfterPayment}
-            isPayAccountFeesVisible={isPayAccountFeesVisible}
+            isPayAccountFeesChecked={isPayAccountFeesChecked}
             showAddress={true}
           />
         )}

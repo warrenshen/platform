@@ -2,6 +2,7 @@ import { FormControl, MenuItem, TextField } from "@material-ui/core";
 
 interface Props {
   value: any;
+  defaultValue?: any;
   label: string;
   options: any[];
   optionDisplayMapper?: Record<string, string>;
@@ -13,6 +14,7 @@ interface Props {
 
 export default function SelectDropdown({
   value,
+  defaultValue,
   label,
   options,
   optionDisplayMapper,
@@ -27,6 +29,7 @@ export default function SelectDropdown({
         id={id}
         data-cy={dataCy}
         value={value}
+        defaultValue={defaultValue}
         label={label}
         select
         variant={variant}

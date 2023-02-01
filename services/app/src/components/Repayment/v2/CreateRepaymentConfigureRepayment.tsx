@@ -1,6 +1,6 @@
 import { Box, Divider, Typography } from "@material-ui/core";
-import CreateRepaymentDefaultSection from "components/Repayment/CreateRepaymentDefaultSection";
 import CreateRepaymentLineofCreditSectionNew from "components/Repayment/v2/CreateRepaymentLineOfCreditSectionNew";
+import CreateRepaymentNonLOCSection from "components/Repayment/v2/CreateRepaymentNonLOCSection";
 import ExpectedDatePreview from "components/Repayment/v2/ExpectedDatePreviewNew";
 import CompanyBank from "components/Shared/BankToBankTransfer/CompanyBank";
 import { SecondaryTextColor } from "components/Shared/Colors/GlobalColors";
@@ -27,11 +27,11 @@ interface Props {
   financialSummary: FinancialSummaryFragment | null;
   payment: PaymentsInsertInput;
   setPayment: (payment: PaymentsInsertInput) => void;
-  isPayAccountFeesVisible: boolean;
-  setIsPayAccountFeesVisible: Dispatch<SetStateAction<boolean>>;
   accountFeeTotal: number;
   payEntireBalance: boolean;
   setPayEntireBalance: Dispatch<SetStateAction<boolean>>;
+  isPayAccountFeesChecked: boolean;
+  setIsPayAccountFeesChecked: Dispatch<SetStateAction<boolean>>;
   isHoldingAccountCreditsChecked: boolean;
   setIsHoldingAccountCreditsChecked: Dispatch<SetStateAction<boolean>>;
 }
@@ -41,11 +41,11 @@ export default function CreateRepaymentConfigureRepayment({
   financialSummary,
   payment,
   setPayment,
-  isPayAccountFeesVisible,
-  setIsPayAccountFeesVisible,
   accountFeeTotal,
   payEntireBalance,
   setPayEntireBalance,
+  isPayAccountFeesChecked,
+  setIsPayAccountFeesChecked,
   isHoldingAccountCreditsChecked,
   setIsHoldingAccountCreditsChecked,
 }: Props) {
@@ -88,12 +88,17 @@ export default function CreateRepaymentConfigureRepayment({
             }
           />
         ) : (
-          <CreateRepaymentDefaultSection
+          <CreateRepaymentNonLOCSection
             productType={productType}
+            financialSummary={financialSummary}
             payment={payment}
             setPayment={setPayment}
-            isPayAccountFeesVisible={isPayAccountFeesVisible}
-            setIsPayAccountFeesVisible={setIsPayAccountFeesVisible}
+            isPayAccountFeesChecked={isPayAccountFeesChecked}
+            setIsPayAccountFeesChecked={setIsPayAccountFeesChecked}
+            isHoldingAccountCreditsChecked={isHoldingAccountCreditsChecked}
+            setIsHoldingAccountCreditsChecked={
+              setIsHoldingAccountCreditsChecked
+            }
             accountFeeTotal={accountFeeTotal}
           />
         )}

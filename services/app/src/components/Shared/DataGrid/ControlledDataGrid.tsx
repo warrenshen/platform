@@ -44,6 +44,7 @@ interface DataGridProps {
   singleSelect?: boolean;
   selectedRowKeys?: any[]; // can be controlled
   editing?: Record<any, any>;
+  showColumnHeaders?: boolean;
   onSaved?: (e: any) => void;
   onInitNewRow?: (e: any) => void;
   onSelectionChanged?: (params: {}) => void; // callback
@@ -72,6 +73,7 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
       sortBy,
       selectedRowKeys,
       editing = {},
+      showColumnHeaders = true,
       onSaved,
       onInitNewRow,
       onSelectionChanged,
@@ -177,6 +179,7 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
         editing={editing}
         onSaved={onSaved}
         onInitNewRow={onInitNewRow}
+        showColumnHeaders={showColumnHeaders}
       >
         <ColumnFixing enabled={true} />
         <Export enabled={isExcelExport} />

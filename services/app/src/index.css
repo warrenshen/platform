@@ -82,6 +82,16 @@ code {
   border-radius: 4px;
 }
 
+.repayments-loans-data-grid-selected .dx-checkbox-icon {
+  content: url("./components/Shared/Layout/Icons/DataGridXIcon.svg");
+  border: none
+}
+
+.repayments-loans-data-grid-not-selected .dx-checkbox-icon {
+  content: url("./components/Shared/Layout/Icons/DataGridPlusIcon.svg");
+  border: none
+}
+
 #root {
   height: 100%;
 }

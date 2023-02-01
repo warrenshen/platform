@@ -1,10 +1,12 @@
 import { Box } from "@material-ui/core";
 import VerticalValueAndLabel from "components/Repayment/v2/VerticalValueAndLabel";
+import { formatDateString } from "lib/date";
+import { RepaymentMethodEnum, RepaymentMethodToLabel } from "lib/enum";
 import { formatCurrency } from "lib/number";
 
 interface Props {
   depositDate: string;
-  repaymentMethod: string;
+  repaymentMethod: RepaymentMethodEnum;
   repaymentAmount: number;
   amountFromHoldingAccount: number;
 }
@@ -17,10 +19,16 @@ const PaymentDetailsRow = ({
 }: Props) => {
   return (
     <Box display="flex" justifyContent="space-between">
-      <VerticalValueAndLabel value={depositDate} label="Deposit date" />
-      <VerticalValueAndLabel value={repaymentMethod} label="Repayment method" />
       <VerticalValueAndLabel
-        value={formatCurrency(repaymentAmount)}
+        value={formatDateString(depositDate) || ""}
+        label="Deposit date"
+      />
+      <VerticalValueAndLabel
+        value={RepaymentMethodToLabel[repaymentMethod]}
+        label="Repayment method"
+      />
+      <VerticalValueAndLabel
+        value={formatCurrency(repaymentAmount - amountFromHoldingAccount)}
         label="Amount from repayment method"
       />
       <VerticalValueAndLabel

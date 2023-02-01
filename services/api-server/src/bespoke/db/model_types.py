@@ -12,6 +12,7 @@ FeeItemsCoveredDict = TypedDict('FeeItemsCoveredDict', {
 PaymentItemsCoveredDict = TypedDict('PaymentItemsCoveredDict', {
 	'loan_ids': List[str],
 	'invoice_ids': List[str],
+	'requested_from_holding_account': float,
 	'requested_to_principal': float,
 	'requested_to_interest': float,
 	'requested_to_late_fees': float,

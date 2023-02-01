@@ -16,6 +16,7 @@ export const SecondaryBorderColor = "#939393";
 export const SecondaryTextColor = "#605f5c";
 export const SecondaryHoverColor = "#e6e4e1";
 export const SecondaryActiveColor = "#d5d3d0";
+export const SecondarySurfaceBackgroundColor = "#f6f5f3";
 
 export const PrimaryDefaultColor = "#769362";
 export const PrimaryHoverColor = "#5c7648";

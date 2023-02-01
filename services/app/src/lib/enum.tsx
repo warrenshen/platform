@@ -712,6 +712,11 @@ export const CustomerPaymentOptions = [
   PaymentOptionEnum.CustomAmount,
 ];
 
+export const NonLOCCustomerPaymentOptions = [
+  PaymentOptionEnum.InFull,
+  PaymentOptionEnum.CustomAmount,
+];
+
 export const PaymentOptionToLabel = {
   [PaymentOptionEnum.InFull]: "Pay in full",
   [PaymentOptionEnum.MinimumDue]: "Pay minimum due",

@@ -155,6 +155,8 @@ export const loansRoutes = {
   // Payments related.
   calculateRepaymentEffect:
     "finance/loans/repayments/calculate_effect_of_payment",
+  calculateRepaymentEffectNew:
+    "finance/loans/repayments/calculate_effect_of_payment_new",
   createAdjustment: "/finance/loans/adjustments/make_adjustment",
   createAdvance: "/finance/loans/advances/handle_advance",
   createRepayment: "/finance/loans/repayments/create_repayment",

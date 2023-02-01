@@ -100,6 +100,7 @@ export async function calculateRepaymentEffectMutation(req: {
     settlement_date: string;
     items_covered: any;
     should_pay_principal_first: boolean;
+    should_use_holding_account_credits?: boolean;
   };
 }): Promise<CalculateRepaymentEffectResp> {
   return authenticatedApi
@@ -112,7 +113,38 @@ export async function calculateRepaymentEffectMutation(req: {
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error("error", error);
+        return {
+          status: "ERROR",
+          msg: "Could not calculate effect of payment",
+        };
+      }
+    );
+}
+
+export async function calculateRepaymentEffectNewMutation(req: {
+  variables: {
+    company_id: string;
+    payment_option: string;
+    amount: number;
+    deposit_date: string;
+    settlement_date: string;
+    items_covered: any;
+    should_pay_principal_first: boolean;
+    should_use_holding_account_credits?: boolean;
+  };
+}): Promise<CalculateRepaymentEffectResp> {
+  return authenticatedApi
+    .post(loansRoutes.calculateRepaymentEffectNew, req.variables)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.error("error", error);
         return {
           status: "ERROR",
           msg: "Could not calculate effect of payment",
@@ -138,7 +170,7 @@ export async function createRepaymentMutation(req: {
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error("error", error);
         return {
           status: "ERROR",
           msg: "Could not make payment for the loan(s)",
@@ -167,7 +199,7 @@ export async function editRepaymentDateMutation(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error("error", error);
         return {
           status: "ERROR",
           msg: "Could not edit repayment date for the loan(s)",
@@ -197,7 +229,7 @@ export async function editRepaymentBankNoteMutation(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error("error", error);
         return {
           status: "ERROR",
           msg: "Could not edit repayment bank note for the loan",
@@ -228,7 +260,7 @@ export async function scheduleRepaymentMutation(
     .then(
       (response) => response,
       (error) => {
-        console.log("error", error);
+        console.error("error", error);
         return {
           status: "ERROR",
           msg: "Could not schedule repayment",
@@ -261,7 +293,7 @@ export async function settleRepaymentMutation(
     .then(
       (response) => response,
       (error) => {
-        console.log("error", error);
+        console.error("error", error);
         return {
           status: "ERROR",
           msg: "Could not settle repayment",
@@ -288,7 +320,7 @@ export async function reverseRepaymentMutation(
     .then(
       (response) => response,
       (error) => {
-        console.log("error", error);
+        console.error("error", error);
         return {
           status: "ERROR",
           msg: "Could not reverse payment",
@@ -315,7 +347,7 @@ export async function undoRepaymentMutation(
     .then(
       (response) => response,
       (error) => {
-        console.log("error", error);
+        console.error("error", error);
         return {
           status: "ERROR",
           msg: "Could not undo payment",
