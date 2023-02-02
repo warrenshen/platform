@@ -102,7 +102,7 @@ def _update_license(
 		existing.is_underwriting_enabled = l['is_underwriting_enabled']
 
 	existing.file_id = cast(Any, l.get('file_id')) if l.get('file_id') else None
-	existing.license_number = l['license_number']
+	existing.license_number = l['license_number'].strip()
 
 	return str(existing.id)
 
@@ -112,7 +112,7 @@ def _add_license(license_input: CompanyLicenseInputDict, session: Session) -> st
 	license = models.CompanyLicense()
 	license.company_id = cast(Any, l.get('company_id'))
 	license.file_id = cast(Any, l.get('file_id'))
-	license.license_number = cast(Any, l['license_number'])
+	license.license_number = cast(Any, l['license_number'].strip())
 	license.rollup_id = l.get('rollup_id')
 	license.legal_name = l.get('legal_name')
 	license.is_current = l.get('is_current')
@@ -138,8 +138,8 @@ def _add_license(license_input: CompanyLicenseInputDict, session: Session) -> st
 
 @errors.return_error_tuple
 def create_update_license(
-	company_license_input: CompanyLicenseInputDict,
 	session: Session,
+	company_license_input: CompanyLicenseInputDict,
 ) -> Tuple[str, errors.Error]:
 	company_license_id = company_license_input['id']
 	license_number = company_license_input['license_number']
@@ -154,6 +154,7 @@ def create_update_license(
 
 		license_id = _update_license(company_license, company_license_input)
 	else:
+		license_number = license_number.strip()
 		company_license = cast(
 			models.CompanyLicense,
 			session.query(models.CompanyLicense).filter(models.CompanyLicense.license_number == license_number).first()

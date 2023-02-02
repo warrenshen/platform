@@ -1,5 +1,13 @@
-import { Box, Button, Divider, TextField, Typography } from "@material-ui/core";
+import {
+  Box,
+  Button,
+  Divider,
+  FormControl,
+  TextField,
+  Typography,
+} from "@material-ui/core";
 import FileUploader from "components/Shared/File/FileUploader";
+import USStateDropdown from "components/Shared/FormInputs/USStateDropdown";
 import Modal from "components/Shared/Modal/Modal";
 import CompanyLicenseAutocomplete from "components/ThirdParties/CompanyLicenseAutocomplete";
 import {
@@ -97,7 +105,7 @@ function CompanyLicenseForm({
               ...companyLicenses.slice(0, licenseIndex),
               {
                 ...companyLicenses[licenseIndex],
-                license_number: value,
+                license_number: value.trim(),
               },
               ...companyLicenses.slice(licenseIndex + 1),
             ])
@@ -115,6 +123,25 @@ function CompanyLicenseForm({
             </Button>
           </Box>
         )}
+      </Box>
+      <Box mt={2}>
+        <FormControl fullWidth>
+          <USStateDropdown
+            dataCy={"us-state-dropdown"}
+            helperText={"Please select a US state from the list"}
+            value={companyLicense.us_state || null}
+            setValue={(state) =>
+              setCompanyLicenses((companyLicenses) => [
+                ...companyLicenses.slice(0, licenseIndex),
+                {
+                  ...companyLicenses[licenseIndex],
+                  us_state: state,
+                },
+                ...companyLicenses.slice(licenseIndex + 1),
+              ])
+            }
+          />
+        </FormControl>
       </Box>
       <FileUploader
         isCountVisible={false}

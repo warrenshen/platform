@@ -10,6 +10,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import FileUploader from "components/Shared/File/FileUploader";
+import USStateDropdown from "components/Shared/FormInputs/USStateDropdown";
 import Modal from "components/Shared/Modal/Modal";
 import CompanyLicenseAutocomplete from "components/ThirdParties/CompanyLicenseAutocomplete";
 import {
@@ -51,6 +52,7 @@ export default function CreateUpdateCompanyLicenseModal({
     license_number: "",
     facility_row_id: null,
     is_underwriting_enabled: false,
+    us_state: null,
   };
 
   const [companyLicense, setCompanyLicense] = useState(newCompanyLicense);
@@ -112,6 +114,7 @@ export default function CreateUpdateCompanyLicenseModal({
         file_id: companyLicense.file_id,
         facility_row_id: companyLicense.facility_row_id,
         is_underwriting_enabled: companyLicense.is_underwriting_enabled,
+        us_state: companyLicense.us_state,
       },
     });
 
@@ -193,10 +196,22 @@ export default function CreateUpdateCompanyLicenseModal({
           onChange={({ target: { value } }) =>
             setCompanyLicense({
               ...companyLicense,
-              license_number: value,
+              license_number: value.trim(),
             })
           }
         />
+      </Box>
+      <Box mt={2}>
+        <FormControl fullWidth>
+          <USStateDropdown
+            dataCy={"us-state-dropdown"}
+            helperText={"Please select a US state from the list"}
+            value={companyLicense.us_state || null}
+            setValue={(state) =>
+              setCompanyLicense({ ...companyLicense, us_state: state })
+            }
+          />
+        </FormControl>
       </Box>
       <Box display="flex" flexDirection="column" mt={2}>
         <Typography variant="subtitle2" color="textSecondary">

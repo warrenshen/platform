@@ -17,6 +17,7 @@ export type CreateUpdateCompanyLicenseReq = {
     file_id: CompanyLicenses["file_id"];
     facility_row_id: CompanyLicenses["facility_row_id"];
     is_underwriting_enabled: CompanyLicenses["is_underwriting_enabled"];
+    us_state: CompanyLicenses["us_state"];
   };
 };
 

@@ -56,6 +56,7 @@ class CreateUpdateLicenseView(MethodView):
 			'license_number',
 			'facility_row_id',
 			'is_underwriting_enabled',
+			'us_state',
 		]
 
 		for key in required_keys:
@@ -64,12 +65,12 @@ class CreateUpdateLicenseView(MethodView):
 					'Missing key {} in request'.format(key))
 
 		with session_scope(current_app.session_maker) as session:
-			company_license_id, err = licenses_util.create_update_license(
+			_, err = licenses_util.create_update_license(
+				session=session,
 				company_license_input=cast(
 					licenses_util.CompanyLicenseInputDict,
 					form,
 				),
-				session=session,
 			)
 			if err:
 				raise err
