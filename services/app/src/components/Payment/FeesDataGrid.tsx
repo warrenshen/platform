@@ -13,6 +13,7 @@ import { parseDateStringServer } from "lib/date";
 import {
   PaymentTypeEnum,
   PaymentTypeToLabel,
+  RepaymentTypeEnum,
   TransactionSubTypeEnum,
   TransactionSubTypeToLabel,
 } from "lib/enum";
@@ -20,13 +21,6 @@ import { createLoanCustomerIdentifier } from "lib/loans";
 import { CurrencyPrecision } from "lib/number";
 import { ColumnWidths, formatRowModel } from "lib/tables";
 import { useMemo, useState } from "react";
-
-export enum RepaymentTypeEnum {
-  Closed = "closed",
-  RequestedReverseDraftACH = "requested-reverse-draft-ach",
-  ReverseDraftACH = "reverse-draft-ach",
-  Other = "other",
-}
 
 interface Props {
   isCompanyVisible?: boolean;

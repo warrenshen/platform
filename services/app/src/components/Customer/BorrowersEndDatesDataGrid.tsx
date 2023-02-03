@@ -2,6 +2,7 @@ import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridC
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import { Companies, CustomersWithMetadataFragment } from "generated/graphql";
 import { parseDateStringServer } from "lib/date";
+import { ProductTypeEnum, ProductTypeToLabel } from "lib/enum";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { ColumnWidths, formatRowModel } from "lib/tables";
 import { Dispatch, SetStateAction, useMemo } from "react";
@@ -28,6 +29,9 @@ function getRows(customers: CustomersWithMetadataFragment[]) {
         : null,
       late_fees_end_date: !!company?.settings?.late_fees_end_date
         ? parseDateStringServer(company.settings.late_fees_end_date)
+        : null,
+      product_type: !!company?.financial_summaries?.[0]?.product_type
+        ? company.financial_summaries[0].product_type
         : null,
     });
   });
@@ -63,6 +67,26 @@ export default function BorrowersEndDatesDataGrid({
         caption: "Identifier",
         minWidth: ColumnWidths.Identifier,
         width: ColumnWidths.Type,
+      },
+      {
+        dataField: "product_type",
+        caption: "Current Product",
+        alignment: "center",
+        width: ColumnWidths.Status,
+        lookup: {
+          dataSource: {
+            store: {
+              type: "array",
+              data: Object.values(ProductTypeEnum).map((product) => ({
+                product_type: product,
+                label: ProductTypeToLabel[product],
+              })),
+              key: "product_type",
+            },
+          },
+          valueExpr: "product_type",
+          displayExpr: "label",
+        },
       },
       {
         dataField: "interest_end_date",

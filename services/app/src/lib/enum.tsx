@@ -131,6 +131,13 @@ export enum PaymentTypeEnum {
   RepaymentOfAccountFee = "repayment_account_fee",
 }
 
+export enum RepaymentTypeEnum {
+  Closed = "closed",
+  RequestedReverseDraftACH = "requested-reverse-draft-ach",
+  ReverseDraftACH = "reverse-draft-ach",
+  Other = "other",
+}
+
 export enum BankRepaymentsTabLabel {
   ActionRequired = "Action Required",
   ByDepositDate = "By Deposit Date",

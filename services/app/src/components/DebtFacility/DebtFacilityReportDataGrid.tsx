@@ -1,5 +1,6 @@
 import { GridValueFormatterParams } from "@material-ui/data-grid";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
+import DebtFacilityStatusChip from "components/Shared/Chip/DebtFacilityStatusChip";
 import LoanPaymentStatusChip from "components/Shared/Chip/LoanPaymentStatusChip";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
@@ -42,6 +43,8 @@ import {
   reduceLineOfCreditLoans,
 } from "lib/debtFacility";
 import {
+  DebtFacilityStatusEnum,
+  DebtFacilityStatusToLabel,
   LoanPaymentStatusEnum,
   LoanPaymentStatusToLabel,
   ProductTypeEnum,
@@ -328,6 +331,35 @@ export default function DebtFacilityReportDataGrid({
         format: "shortDate",
         width: ColumnWidths.Type,
         alignment: "right",
+      },
+      {
+        dataField: "debt_facility_status",
+        caption: "Debt Facility Status",
+        width: ColumnWidths.Status,
+        alignment: "center",
+        cellRender: (params: GridValueFormatterParams) => (
+          <DebtFacilityStatusChip
+            debtFacilityStatus={
+              params.row.data.debt_facility_status as DebtFacilityStatusEnum
+            }
+          />
+        ),
+        lookup: {
+          dataSource: {
+            store: {
+              type: "array",
+              data: Object.values(DebtFacilityStatusEnum).map(
+                (debtFacilityStatus) => ({
+                  debt_facility_status: debtFacilityStatus,
+                  label: DebtFacilityStatusToLabel[debtFacilityStatus],
+                })
+              ),
+              key: "debt_facility_status",
+            },
+          },
+          valueExpr: "debt_facility_status",
+          displayExpr: "label",
+        },
       },
       {
         caption: "Borrower Eligibility",

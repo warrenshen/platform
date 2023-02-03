@@ -40,9 +40,9 @@ import { useContext, useMemo, useState } from "react";
 function getRows(payments: NonNullable<GetRepaymentsSubscription>["payments"]) {
   return flatten(
     payments.map((payment) => {
-      const productType = !!payment?.company?.financial_summaries?.[0]
+      const productType = !!payment?.company?.most_recent_financial_summary?.[0]
         ?.product_type
-        ? payment.company.financial_summaries[0].product_type
+        ? payment.company.most_recent_financial_summary[0].product_type
         : null;
 
       return !!payment.reversed_at

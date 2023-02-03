@@ -5,7 +5,7 @@ import {
   DateRange,
   DateRangePicker,
 } from "@mui/x-date-pickers-pro/DateRangePicker";
-import RepaymentsDataGrid from "components/Repayment/RepaymentsDataGrid";
+import BankRepaymentsDataGrid from "components/Repayment/BankRepaymentsDataGrid";
 import { Dayjs } from "dayjs";
 import { useGetRepaymentsByDepositDateRangeQuery } from "generated/graphql";
 import {
@@ -24,7 +24,7 @@ const Container = styled.div`
   width: 100%;
 `;
 
-export default function BankRepaymentsAllTab() {
+export default function BankRepaymentsByDepositDateTab() {
   const [startDate, setStartDate] = useState<string | null>(
     previousBizDayAsDateStringServer()
   );
@@ -86,7 +86,7 @@ export default function BankRepaymentsAllTab() {
             </Typography>
           </Alert>
         </Box>
-        <RepaymentsDataGrid
+        <BankRepaymentsDataGrid
           isCompanyVisible
           isAppliedToVisible
           payments={payments}

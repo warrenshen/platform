@@ -35,7 +35,7 @@ subscription GetRepayments {
     }
     company {
       id
-      financial_summaries (
+      most_recent_financial_summary: financial_summaries (
         order_by: { date: desc }
         limit: 1
       ) {
@@ -67,15 +67,7 @@ query GetRepaymentsByDepositDateRange($start_date: date!, $end_date: date!) {
     order_by: [{ settlement_date: asc }, { created_at: asc }]
   ) {
     id
-    ...PaymentWithTransactions
-    company {
-      id
-      name
-    }
-    settled_by_user {
-      id
-      full_name
-    }
+    ...RepaymentForBankDataGrid
   }
 }
 
@@ -98,18 +90,7 @@ subscription GetSubmittedPayments {
       order_by: [{ requested_payment_date: asc }]
   ) {
     id
-    ...Payment
-    company {
-      id
-      name
-    }
-    invoice {
-      id
-      payor {
-        id
-        name
-      }
-    }
+    ...RepaymentForBankDataGrid
   }
 }
 

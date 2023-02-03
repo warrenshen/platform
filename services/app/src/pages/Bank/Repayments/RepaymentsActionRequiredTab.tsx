@@ -6,9 +6,7 @@ import {
   makeStyles,
 } from "@material-ui/core";
 import DeletePaymentModal from "components/Payment/DeletePaymentModal";
-import RepaymentsDataGrid, {
-  RepaymentTypeEnum,
-} from "components/Repayment/RepaymentsDataGrid";
+import BankRepaymentsDataGrid from "components/Repayment/BankRepaymentsDataGrid";
 import ScheduleRepaymentModal from "components/Repayment/ScheduleRepaymentModal";
 import SettleRepaymentModal from "components/Repayment/SettleRepaymentModal";
 import UpdateRepaymentBankNoteModal from "components/Repayment/UpdateRepaymentBankNoteModal";
@@ -20,6 +18,7 @@ import {
   useGetSubmittedPaymentsSubscription,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
+import { RepaymentTypeEnum } from "lib/enum";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -174,7 +173,7 @@ export default function BankRepaymentsActionRequiredTab() {
               </Can>
             )}
           </Box>
-          <RepaymentsDataGrid
+          <BankRepaymentsDataGrid
             isCompanyVisible
             isMultiSelectEnabled
             repaymentType={RepaymentTypeEnum.RequestedReverseDraftACH}
@@ -235,7 +234,7 @@ export default function BankRepaymentsActionRequiredTab() {
               </Can>
             )}
           </Box>
-          <RepaymentsDataGrid
+          <BankRepaymentsDataGrid
             isCompanyVisible
             isMultiSelectEnabled
             repaymentType={RepaymentTypeEnum.ReverseDraftACH}
@@ -293,7 +292,7 @@ export default function BankRepaymentsActionRequiredTab() {
               </Can>
             )}
           </Box>
-          <RepaymentsDataGrid
+          <BankRepaymentsDataGrid
             isCompanyVisible
             isMultiSelectEnabled
             repaymentType={RepaymentTypeEnum.Other}

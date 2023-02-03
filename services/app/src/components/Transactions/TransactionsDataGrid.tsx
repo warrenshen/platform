@@ -5,7 +5,12 @@ import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridC
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import { TransactionExtendedFragment } from "generated/graphql";
 import { parseDateStringServer } from "lib/date";
-import { PaymentTypeEnum, PaymentTypeToLabel } from "lib/enum";
+import {
+  PaymentTypeEnum,
+  PaymentTypeToLabel,
+  ProductTypeEnum,
+  ProductTypeToLabel,
+} from "lib/enum";
 import { CurrencyPrecision } from "lib/number";
 import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { ColumnWidths, formatRowModel } from "lib/tables";
@@ -78,6 +83,11 @@ const getRows = (transactions: TransactionExtendedFragment[]) => {
       effective_date: !!transaction?.effective_date
         ? parseDateStringServer(transaction.effective_date)
         : null,
+      product_type: !!transaction?.payment?.company
+        ?.most_recent_financial_summary?.[0]?.product_type
+        ? transaction.payment.company.most_recent_financial_summary[0]
+            .product_type
+        : null,
       to_account_fees: accountFees,
       to_account_fees_display: accountFeesDisplay,
       to_holding_account: 0, // to be completed when repayment flow has been refactored
@@ -141,6 +151,26 @@ function TransactionsDataGrid({
             label={value}
           />
         ),
+      },
+      {
+        dataField: "product_type",
+        caption: "Current Product",
+        alignment: "center",
+        width: ColumnWidths.Status,
+        lookup: {
+          dataSource: {
+            store: {
+              type: "array",
+              data: Object.values(ProductTypeEnum).map((product) => ({
+                product_type: product,
+                label: ProductTypeToLabel[product],
+              })),
+              key: "product_type",
+            },
+          },
+          valueExpr: "product_type",
+          displayExpr: "label",
+        },
       },
       {
         dataField: "loan_id",

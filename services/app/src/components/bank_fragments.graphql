@@ -558,6 +558,13 @@ fragment TransactionExtended on transactions {
         id
         product_type
       }
+      most_recent_financial_summary: financial_summaries(
+        limit: 1
+        order_by: { date: desc }
+      ) {
+        id
+        product_type
+      }
     }
   }
   loan {
@@ -951,6 +958,51 @@ fragment MetrcToBespokeCatalogSku on metrc_to_bespoke_catalog_skus {
     ...BespokeCatalogSku
   }
   user {
+    id
+    full_name
+  }
+}
+
+fragment RepaymentForBankDataGrid on payments {
+  id
+  ...Payment
+  requested_amount
+  transactions(
+    order_by: [
+      { payment: { deposit_date: desc } }
+      { payment: { created_at: desc } }
+    ]
+  ) {
+    id
+    ...Transaction
+    loan {
+      id
+      ...LoanLimited
+      ...LoanArtifactLimited
+    }
+    payment {
+      id
+      ...PaymentLimited
+    }
+  }
+  company {
+    id
+    most_recent_financial_summary: financial_summaries (
+      order_by: { date: desc }
+      limit: 1
+    ) {
+      id
+      product_type
+    }
+  }
+  invoice {
+    id
+    payor {
+      id
+      name
+    }
+  }
+  settled_by_user {
     id
     full_name
   }
