@@ -43,6 +43,8 @@ def _get_vendor_contacts(partnership_id: str, session: Session) -> Tuple[List[Co
 		List[models.CompanyVendorContact],
 		session.query(models.CompanyVendorContact).filter(
 			models.CompanyVendorContact.partnership_id == partnership_id
+		).filter(
+			cast(Callable, models.CompanyVendorContact.is_active.is_)(True)
 		).all())
 
 	if contacts:
