@@ -46,6 +46,7 @@ describe("Create purchase order", () => {
               cy.addCompanyVendorContact({
                 partnership_id: partnershipResults.companyVendorPartnershipId,
                 vendor_user_id: vendorUserResults.userId,
+                is_active: true,
               });
             });
           });

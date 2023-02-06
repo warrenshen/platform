@@ -1055,6 +1055,7 @@ def create_partnership_vendor(
 		company_vendor_contact = models.CompanyVendorContact()
 		company_vendor_contact.partnership_id = company_vendor_partnership.id
 		company_vendor_contact.vendor_user_id = contact_user_id
+		company_vendor_contact.is_active = True
 		session.add(company_vendor_contact)
 		session.flush()
 

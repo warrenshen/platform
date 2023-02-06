@@ -365,11 +365,13 @@ def create_company_vendor_contact(
     id: str,
 	partnership_id: str,
 	vendor_user_id: str,
+    is_active: bool,
 ) -> Tuple[models.CompanyVendorContact, errors.Error]:
 
     company_vendor_contact = models.CompanyVendorContact( # type: ignore
         partnership_id = partnership_id,
-        vendor_user_id = vendor_user_id
+        vendor_user_id = vendor_user_id,
+        is_active = is_active,
     )
 
     session.add(company_vendor_contact)

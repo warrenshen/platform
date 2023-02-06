@@ -498,6 +498,7 @@ class AddCompanyVendorContactView(MethodView):
 		id = get_field_or_default(form, 'id', None)
 		partnership_id = get_field_or_default(form, 'partnership_id', None)
 		vendor_user_id = get_field_or_default(form, 'vendor_user_id', None)
+		is_active = get_field_or_default(form, 'is_active', False)
 		
 		company_vendor_partnership_id = ''
 		with session_scope(session_maker) as session:
@@ -508,6 +509,7 @@ class AddCompanyVendorContactView(MethodView):
 				id,
 				partnership_id,
 				vendor_user_id,
+				is_active,
 			)
 			if err:
 				raise err
