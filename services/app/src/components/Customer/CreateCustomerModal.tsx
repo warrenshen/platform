@@ -55,7 +55,7 @@ export default function CreateCustomerModal({
 
   const handleClickCreate = async () => {
     if (!contract || !contract.product_type) {
-      console.log("Developer error");
+      console.error("Developer error");
       return;
     }
 
@@ -68,7 +68,7 @@ export default function CreateCustomerModal({
     }
 
     if (!contract || !contract.product_type) {
-      console.log("Developer error");
+      console.error("Developer error");
       return;
     }
     setErrMsg("");

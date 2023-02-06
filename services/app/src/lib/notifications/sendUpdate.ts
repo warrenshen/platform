@@ -28,7 +28,7 @@ export async function sendNotification(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return { status: "ERROR", msg: "Could not send notification" };
       }
     );

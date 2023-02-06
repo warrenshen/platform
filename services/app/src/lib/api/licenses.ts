@@ -32,7 +32,7 @@ export async function createUpdateCompanyLicenseMutation(
     .then(
       (response) => response,
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not save license",
@@ -59,7 +59,7 @@ export async function createUpdateLicensesMutation(
     .then(
       (response) => response,
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not update licenses",
@@ -79,7 +79,7 @@ export async function deleteLicenseMutation(req: {
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not delete license",

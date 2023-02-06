@@ -25,7 +25,7 @@ export async function addContractMutation(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not add contract",
@@ -54,7 +54,7 @@ export async function updateContractMutation(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not update contract",
@@ -83,7 +83,7 @@ export async function terminateContractMutation(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not terminate contract",
@@ -111,7 +111,7 @@ export async function deleteContractMutation(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not delete contract",

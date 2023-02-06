@@ -135,7 +135,7 @@ export default function VendorFormPage() {
   const debouncedLoadCompanyLicenses = debounce(loadCompanyLicenses, 1000);
 
   if (error) {
-    console.log({ error });
+    console.error({ error });
   }
 
   // Wait until we're done fetching the company details

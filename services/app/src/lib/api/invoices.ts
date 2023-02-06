@@ -86,7 +86,7 @@ export async function deleteInvoiceMutation(
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not delete invoice",
@@ -167,7 +167,7 @@ export async function respondToInvoiceApprovalRequestMutation(
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not respond to invoice approval request",

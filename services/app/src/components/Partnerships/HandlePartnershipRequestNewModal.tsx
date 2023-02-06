@@ -39,7 +39,6 @@ export default function HandlePartnershipRequestVendorModal({
   handleClose,
 }: Props) {
   const snackbar = useSnackbar();
-  console.log("vendor");
 
   const [selectedCompanyId, setSelectedCompanyId] =
     useState<Companies["id"]>(null);

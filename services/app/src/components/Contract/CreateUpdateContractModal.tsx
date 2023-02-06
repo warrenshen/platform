@@ -102,7 +102,7 @@ export default function CreateUpdateContractModal({
     }
 
     if (!contract || !contract.product_type) {
-      console.log("Developer error");
+      console.error("Developer error");
       return;
     }
     setErrMsg("");

@@ -63,7 +63,6 @@ export default function RepaymentsDataGrid({
   const rows = useMemo(
     () =>
       payments.map((payment) => {
-        console.log(payment);
         return formatRowModel({
           ...payment,
           amount: isOther ? payment.requested_amount : payment.amount,

@@ -47,8 +47,6 @@ export default function RegisterThirdPartyForm({
   const companyTypeLower = CompanyTypeToDisplayLower[companyType];
   const companyTypeUpper = CompanyTypeToDisplayUpper[companyType];
 
-  console.log({ company });
-
   return (
     <DialogContent>
       <DialogContentText>

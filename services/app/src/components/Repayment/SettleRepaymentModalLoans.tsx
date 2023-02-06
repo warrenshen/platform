@@ -195,10 +195,12 @@ export default function SettleRepaymentModalLoans({
         (loanBeforeAfterPayment) => loanBeforeAfterPayment.loan_id === loanId
       );
       if (!loanBeforeAfterPayment) {
-        console.log("Developer error! Could not find loanBeforeAfterPayment.");
+        console.error(
+          "Developer error! Could not find loanBeforeAfterPayment."
+        );
       } else {
         if (!["to_principal", "to_interest", "to_fees"].includes(field)) {
-          console.log("Developer error! Invalid field given.");
+          console.error("Developer error! Invalid field given.");
         } else {
           const {
             loan_balance_before: loanBalanceBefore,

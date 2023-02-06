@@ -28,7 +28,7 @@ export async function authenticateBlazeUserMutation(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not authenticate Blaze user",
@@ -60,7 +60,7 @@ export async function switchLocationMutation(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not switch location",

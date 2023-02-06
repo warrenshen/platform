@@ -27,7 +27,7 @@ export async function createUpdateCompanyFacilityMutation(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not save the company facility",
@@ -55,7 +55,7 @@ export async function deleteCompanyFacilityMutation(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not delete the company facility",

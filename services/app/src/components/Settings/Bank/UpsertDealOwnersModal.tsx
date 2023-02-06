@@ -72,7 +72,6 @@ export default function UpsertDealOwnersModal({
   const [errorMessage, setErrorMessage] = useState("");
 
   const handleClickSubmit = async () => {
-    console.log(underwriterTeamMemberId);
     const response = await upsertDealOwner({
       variables: {
         company_settings_id: companySettingsId,
@@ -114,7 +113,6 @@ export default function UpsertDealOwnersModal({
           selectedUserId={underwriterTeamMemberId}
           users={underwritingTeamMembers}
           onChange={(event: ChangeEvent<{}>, user: Users) => {
-            console.log("USER:", user);
             setUnderwriterTeamMemberId(user?.id || null);
           }}
         />

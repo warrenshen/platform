@@ -9,7 +9,7 @@ export async function getAllMonthlyInterestFeesDueQuery(req: {
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not get all monthly minimum fees due",
@@ -27,7 +27,7 @@ export async function submitMinimumInterestFeesDueMutation(req: {
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not submit all monthly minimum fees due",
@@ -45,7 +45,7 @@ export async function getAllMonthEndPaymentsQuery(req: {
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not get all monthly LOC fees due",
@@ -63,7 +63,7 @@ export async function submitMonthEndPaymentsMutation(req: {
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not submit all monthly LOC fees due",

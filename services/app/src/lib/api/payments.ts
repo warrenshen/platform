@@ -29,7 +29,7 @@ export async function createAdvanceMutation(
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not create advance",
@@ -53,7 +53,7 @@ export async function deleteRepaymentMutation(
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not delete repayment",
@@ -78,7 +78,7 @@ export async function editAccountLevelFeeMutation(
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not edit account fee",
@@ -105,7 +105,7 @@ export async function createAccountLevelFeeMutation(
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not create account fee",
@@ -131,7 +131,7 @@ export async function createAccountLevelFeeWaiverMutation(
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not create account fee waiver",
@@ -156,7 +156,7 @@ export async function createAccountLevelFeeRepaymentMutation(
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not create account fee repayment",
@@ -187,7 +187,7 @@ export async function scheduleAccountLevelFeeRepaymentMutation(
     .then(
       (response) => response,
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not schedule account fee repayment",
@@ -217,7 +217,7 @@ export async function settleAccountLevelFeeRepaymentMutation(
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not settle account fee repayment",
@@ -244,7 +244,7 @@ export async function createHoldingAccountCreditMutation(
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not create holding account credit for customer",
@@ -272,7 +272,7 @@ export async function disburseCreditToCustomerMutation(
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not disburse holding account credit to customer",

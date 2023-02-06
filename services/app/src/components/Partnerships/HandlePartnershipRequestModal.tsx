@@ -27,7 +27,6 @@ export default function HandlePartnershipRequestPayorModal({
 }: Props) {
   const snackbar = useSnackbar();
 
-  console.log("payor");
   const [selectedCompanyId, setSelectedCompanyId] =
     useState<Companies["id"]>(null);
 

@@ -83,7 +83,7 @@ async function getPutSignedUrl(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return { status: "ERROR", msg: "Could not get upload url" };
       }
     );

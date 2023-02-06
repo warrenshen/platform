@@ -30,7 +30,7 @@ export async function certifyCustomerSurveillanceResultMutation(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not certify surveillance status",
@@ -58,7 +58,7 @@ export async function deleteCustomerSurveillanceResultMutation(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not delete surveillance result",

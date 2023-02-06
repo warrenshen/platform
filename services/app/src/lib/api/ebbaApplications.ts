@@ -25,7 +25,7 @@ export async function submitEbbaApplicationMutation(
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not submit ebba application",
@@ -49,7 +49,7 @@ export async function deleteEbbaApplicationMutation(
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not delete borrowing base",
@@ -76,7 +76,7 @@ export async function addFinancialReportMutation(
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not add financial report",
@@ -104,7 +104,7 @@ export async function updateFinancialReportMutation(
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not update financial report",
@@ -139,7 +139,7 @@ export async function addBorrowingBaseMutation(
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not add borrowing base",
@@ -175,7 +175,7 @@ export async function updateBorrowingBaseMutation(
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not update borrowing base",
@@ -205,7 +205,7 @@ export async function updateBorrowingBaseBankNoteMutation(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not edit repayment bank note for the loan",

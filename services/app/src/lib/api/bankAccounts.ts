@@ -28,7 +28,7 @@ export async function deleteBankAccountMutation(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not delete the bank account",
@@ -56,7 +56,7 @@ export async function createBankAccountMutation(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not create the bank account",
@@ -85,7 +85,7 @@ export async function updateBankAccountMutation(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not update the bank account",

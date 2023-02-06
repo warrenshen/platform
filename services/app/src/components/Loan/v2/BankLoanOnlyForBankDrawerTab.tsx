@@ -31,7 +31,6 @@ const BankLoanOnlyForBankDrawerTab = ({
         loan_report_id: loanReportId,
       },
     });
-  console.log({ loan });
 
   if (debtFacilityEventsError) {
     console.error({ error: debtFacilityEventsError });

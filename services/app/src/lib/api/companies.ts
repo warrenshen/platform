@@ -302,7 +302,7 @@ export async function updatePartnershipRequestNewMutation(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not update partnership request",
@@ -334,7 +334,7 @@ export async function createPartnershipPayorMutation(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not create partner company",
@@ -356,7 +356,7 @@ export async function createPartnershipVendorMutation(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not create partner company",
@@ -385,7 +385,7 @@ export async function approvePartnershipMutation(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not approve partnership",
@@ -413,7 +413,7 @@ export async function markPartnershipInvitationAsCompleteMutation(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not mark invite as complete",
@@ -435,7 +435,7 @@ export async function moveToActionRequiredMutation(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not move to action required",
@@ -463,7 +463,7 @@ export async function approveVendorContactChangeMutation(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not change vendor contact",
@@ -491,7 +491,7 @@ export async function deleteVendorChangeRequestMutation(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not create delete vendor change request",
@@ -525,7 +525,7 @@ export async function createEditVendorContactsRequestMutation(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not create a request to edit vendor contact information",
@@ -556,7 +556,7 @@ export async function createChangeVendorContactsRequestMutation(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not create a request to change vendor contacts",

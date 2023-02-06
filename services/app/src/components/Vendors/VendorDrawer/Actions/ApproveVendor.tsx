@@ -45,7 +45,7 @@ export default function ApproveVendor(props: Props) {
   if (!data?.company_vendor_partnerships_by_pk) {
     if (!isBankVendorPartnershipLoading) {
       let msg = `Error querying for the bank vendor partner ${vendorPartnershipId}. Error: ${error}`;
-      window.console.log(msg);
+      window.console.error(msg);
       Sentry.captureMessage(msg);
     }
     return null;

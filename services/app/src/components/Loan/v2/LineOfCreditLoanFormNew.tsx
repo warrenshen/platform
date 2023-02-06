@@ -32,8 +32,6 @@ const LineOfCreditLoanFormNew = ({
   setLineOfCredit,
   setLoan,
 }: Props) => {
-  console.log({ loan });
-
   const selectedVendor = vendors.find(
     (v) => v.id === lineOfCredit.recipient_vendor_id
   ) as Vendors;

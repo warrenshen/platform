@@ -24,7 +24,7 @@ export async function createAdjustmentMutation(
     .then(
       (response) => response,
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not make adjustment",

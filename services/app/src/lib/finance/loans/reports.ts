@@ -22,7 +22,7 @@ export async function runCustomerBalancesMutation(
     .then(
       (response) => response,
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not run customer balances for an unexpected reason",

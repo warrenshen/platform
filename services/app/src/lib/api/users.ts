@@ -43,7 +43,7 @@ export async function createBankCustomerUserMutation(
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not create user",
@@ -81,7 +81,7 @@ export async function deactivateCustomerUserMutation(req: {
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not deactivate user",
@@ -101,7 +101,7 @@ export async function reactivateCustomerUserMutation(req: {
     .then(
       (res) => res,
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not re-activate user",
@@ -123,7 +123,7 @@ export async function updateUser(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not update the user",

@@ -32,7 +32,7 @@ export async function updatePartnershipContactsMutation(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not update partnership contacts",

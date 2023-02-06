@@ -27,7 +27,7 @@ export async function sendMonthlySummaryLOCReport(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not send off monthly LOC customer summary emails",
@@ -49,7 +49,7 @@ export async function sendMonthlySummaryNonLOCReport(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not send off monthly non-LOC customer summary emails",

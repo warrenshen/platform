@@ -28,7 +28,7 @@ export async function createUpdateDebtFacility(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not create/update the debt facility",
@@ -60,7 +60,7 @@ export async function updateCompanyDebtFacilityStatus(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not update the company's debt facility status",
@@ -92,7 +92,7 @@ export async function moveLoansForDebtFacility(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not move the loans for the debt facility",
@@ -124,7 +124,7 @@ export async function resolveLoansForDebtFacility(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not resolve the debt facility action required for this loan",
@@ -153,7 +153,7 @@ export async function updateDebtFacilityAssignedDate(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not resolve the debt facility action required for this loan",
@@ -179,7 +179,7 @@ export async function checkForDebtFacilityPastDueLoans(
         return response;
       },
       (error) => {
-        console.log("error", error);
+        console.error({ error });
         return {
           status: "ERROR",
           msg: "Could not check for past due loans in the debt facility",
