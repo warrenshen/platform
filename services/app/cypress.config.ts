@@ -4,8 +4,9 @@ export default defineConfig({
   projectId: "nt8kaf",
   chromeWebSecurity: false,
   includeShadowDom: true,
-  numTestsKeptInMemory: 5, // We cap to 5 to prevent Chromium from crashing when running all specs at once.
-  // Experimental.
+  // We cap to 5 to prevent Chromium from crashing when we run all specs at once.
+  numTestsKeptInMemory: 5,
+  // We enable this experimental feature to prevent Chromium from chrashing when we run all specs at once.
   experimentalMemoryManagement: true,
 
   env: {
@@ -29,7 +30,7 @@ export default defineConfig({
     },
     baseUrl: "http://localhost:3006",
     specPattern: "cypress/e2e/**/*.{js,jsx,ts,tsx}",
-    // Experimental.
+    // We enable this experimental feature to allow us to run all specs at once.
     experimentalRunAllSpecs: true,
   },
 
