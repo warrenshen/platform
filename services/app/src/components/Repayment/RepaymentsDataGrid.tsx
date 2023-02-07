@@ -140,38 +140,6 @@ export default function RepaymentsDataGrid({
         minWidth: ColumnWidths.MinWidth,
       },
       {
-        dataField: "applied_to_principal",
-        caption: "Applied to Principal",
-        minWidth: ColumnWidths.MinWidth,
-        format: {
-          type: "currency",
-          precision: CurrencyPrecision,
-        },
-        width: ColumnWidths.Currency,
-        alignment: "right",
-      },
-      {
-        dataField: "applied_to_interest",
-        caption: "Applied to Interest",
-        format: {
-          type: "currency",
-          precision: CurrencyPrecision,
-        },
-        width: ColumnWidths.Currency,
-        alignment: "right",
-      },
-      {
-        dataField: "applied_to_late_fees",
-        caption: "Applied to Late Fees",
-        minWidth: ColumnWidths.MinWidth,
-        format: {
-          type: "currency",
-          precision: CurrencyPrecision,
-        },
-        width: ColumnWidths.Currency,
-        alignment: "right",
-      },
-      {
         dataField: "forecasted_principal",
         caption: "Applied to Principal",
         minWidth: ColumnWidths.MinWidth,

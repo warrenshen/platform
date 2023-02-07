@@ -1,6 +1,6 @@
 import { GridValueFormatterParams } from "@material-ui/data-grid";
 import LoanDrawerLauncher from "components/Loan/LoanDrawerLauncher";
-import DebtFacilityStatusChip from "components/Shared/Chip/DebtFacilityStatusChip";
+import DebtFacilityCompanyStatusChip from "components/Shared/Chip/DebtFacilityCompanyStatusChip";
 import LoanPaymentStatusChip from "components/Shared/Chip/LoanPaymentStatusChip";
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
@@ -25,7 +25,6 @@ import {
   getDaysPastDue,
   getDaysPastDueBucket,
   getDebtFacilityAddedDate,
-  getDebtFacilityStatus,
   getFinancingDayLimit,
   getFinancingPeriod,
   getInterestAfterEndDate,
@@ -43,8 +42,8 @@ import {
   reduceLineOfCreditLoans,
 } from "lib/debtFacility";
 import {
-  DebtFacilityStatusEnum,
-  DebtFacilityStatusToLabel,
+  DebtFacilityCompanyStatusEnum,
+  DebtFacilityCompanyStatusToLabel,
   LoanPaymentStatusEnum,
   LoanPaymentStatusToLabel,
   ProductTypeEnum,
@@ -130,7 +129,9 @@ function getRows(
         currentDebtFacilityReportDate
       ),
       debt_facility_added_date: getDebtFacilityAddedDate(loan),
-      debt_facility_status: getDebtFacilityStatus(loan),
+      debt_facility_status: !!loan?.company?.debt_facility_status
+        ? (loan.company.debt_facility_status as DebtFacilityCompanyStatusEnum)
+        : null,
       disbursement_identifier: getLoanIdentifier({
         loan,
         productType,
@@ -335,23 +336,15 @@ export default function DebtFacilityReportDataGrid({
       {
         dataField: "debt_facility_status",
         caption: "Debt Facility Status",
-        width: ColumnWidths.Status,
-        alignment: "center",
-        cellRender: (params: GridValueFormatterParams) => (
-          <DebtFacilityStatusChip
-            debtFacilityStatus={
-              params.row.data.debt_facility_status as DebtFacilityStatusEnum
-            }
-          />
-        ),
+        width: ColumnWidths.ProductType,
         lookup: {
           dataSource: {
             store: {
               type: "array",
-              data: Object.values(DebtFacilityStatusEnum).map(
+              data: Object.values(DebtFacilityCompanyStatusEnum).map(
                 (debtFacilityStatus) => ({
                   debt_facility_status: debtFacilityStatus,
-                  label: DebtFacilityStatusToLabel[debtFacilityStatus],
+                  label: DebtFacilityCompanyStatusToLabel[debtFacilityStatus],
                 })
               ),
               key: "debt_facility_status",
@@ -360,6 +353,11 @@ export default function DebtFacilityReportDataGrid({
           valueExpr: "debt_facility_status",
           displayExpr: "label",
         },
+        cellRender: (params: GridValueFormatterParams) => (
+          <DebtFacilityCompanyStatusChip
+            debtFacilityCompanyStatus={params.row.data.debt_facility_status}
+          />
+        ),
       },
       {
         caption: "Borrower Eligibility",
