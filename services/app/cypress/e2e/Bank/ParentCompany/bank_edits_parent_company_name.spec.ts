@@ -6,7 +6,7 @@ describe("Bank creates a new company", () => {
   });
 
   it(
-    "Bank user can create a new company with no existing parent company",
+    "Bank user can edit parent company details",
     {
       retries: 5,
     },

@@ -178,6 +178,7 @@ class Company(Base):
 	identifier = Column(String)
 	contract_name = Column(String)
 	dba_name = Column(String)
+	employer_identification_number = Column(String)
 	is_cannabis = Column(Boolean)
 	is_customer = Column(Boolean)
 	is_vendor = Column(Boolean)

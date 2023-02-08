@@ -23,14 +23,6 @@ export type CreateCustomerReq = {
   contract: ContractsInsertInput;
 };
 
-export type CreateProspectiveCustomerReq = {
-  company: CompaniesInsertInput;
-};
-
-export type EditParentCompanyReq = {
-  company: ParentCompaniesInsertInput;
-};
-
 export async function createCustomer(
   req: CreateCustomerReq
 ): Promise<CustomMutationResponse> {
@@ -52,6 +44,10 @@ export async function createCustomer(
       }
     );
 }
+
+export type CreateProspectiveCustomerReq = {
+  company: CompaniesInsertInput;
+};
 
 export async function createProspectiveCustomer(
   req: CreateProspectiveCustomerReq
@@ -75,6 +71,10 @@ export async function createProspectiveCustomer(
     );
 }
 
+export type EditParentCompanyReq = {
+  company: ParentCompaniesInsertInput;
+};
+
 export async function editParentCompany(
   req: EditParentCompanyReq
 ): Promise<CustomMutationResponse> {
@@ -92,6 +92,32 @@ export async function editParentCompany(
         return {
           status: "ERROR",
           msg: "Could not edit parent company",
+        };
+      }
+    );
+}
+
+export type EditChildCompanyReq = {
+  company: CompaniesInsertInput;
+};
+
+export async function editChildCompany(
+  req: EditChildCompanyReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(companyRoutes.editChildCompany, req)
+    .then((res) => {
+      return res.data;
+    })
+    .then(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        console.error({ error });
+        return {
+          status: "ERROR",
+          msg: "Could not edit child company",
         };
       }
     );

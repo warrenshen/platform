@@ -45,6 +45,7 @@ export const companyRoutes = {
   createEditVendorContacts: "/companies/create_edit_vendor_contacts",
   createChangeVendorContacts: "/companies/create_change_vendor_contacts",
   editParentCompany: "/companies/edit_parent_company",
+  editChildCompany: "/companies/edit_child_company",
 };
 
 export const companySettingsRoutes = {

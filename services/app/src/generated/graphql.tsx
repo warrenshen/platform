@@ -8273,6 +8273,8 @@ export type CustomerSurveillanceResultsBoolExp = {
 /** unique or primary key constraints on table "customer_surveillance_results" */
 export enum CustomerSurveillanceResultsConstraint {
   /** unique or primary key constraint */
+  CompanyProductQualificationsCompanyIdQualifyingDateKey = "company_product_qualifications_company_id_qualifying_date_key",
+  /** unique or primary key constraint */
   CompanyProductQualificationsPkey = "company_product_qualifications_pkey",
 }
 
@@ -32776,6 +32778,9 @@ export type CompanyWithSettingsFragment = Pick<
   | "employer_identification_number"
   | "address"
   | "phone_number"
+  | "state"
+  | "timezone"
+  | "created_at"
 > & {
   settings?: Maybe<Pick<CompanySettings, "id"> & CompanySettingsFragment>;
 } & CompanyLimitedFragment;
@@ -34696,6 +34701,9 @@ export const CompanyWithSettingsFragmentDoc = gql`
     employer_identification_number
     address
     phone_number
+    state
+    timezone
+    created_at
     ...CompanyLimited
     settings {
       id
@@ -47113,7 +47121,7 @@ export const GetParentCompanyWithChildCompaniesDocument = gql`
   query GetParentCompanyWithChildCompanies($parent_company_id: uuid!) {
     parent_companies_by_pk(id: $parent_company_id) {
       id
-      child_companies: companies {
+      child_companies: companies(order_by: { name: asc }) {
         id
         ...CompanyWithSettings
       }

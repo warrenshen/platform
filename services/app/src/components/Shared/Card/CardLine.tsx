@@ -17,6 +17,7 @@ interface Props {
   labelWidth?: string;
   valueAlignment?: string;
   isValueObfuscated?: boolean;
+  dataCy?: string;
 }
 
 export default function CardLine({
@@ -27,6 +28,7 @@ export default function CardLine({
   labelWidth,
   valueAlignment = "right",
   isValueObfuscated = false,
+  dataCy = "",
 }: Props) {
   const [currentlyObfuscated, setCurrentlyObfuscated] =
     useState<boolean>(isValueObfuscated);
@@ -46,6 +48,7 @@ export default function CardLine({
     >
       <Box width={"40%"}>
         <Text
+          dataCy={dataCy}
           materialVariant={"p"}
           textVariant={TextVariants.Label}
           color={DisabledSecondaryTextColor}
@@ -62,6 +65,7 @@ export default function CardLine({
         justifyContent={valueAlignment === "right" ? "flex-end" : "flex-start"}
       >
         <Text
+          dataCy={dataCy}
           materialVariant={"p"}
           textVariant={valueTextVariant}
           isBold={valueIsBold}

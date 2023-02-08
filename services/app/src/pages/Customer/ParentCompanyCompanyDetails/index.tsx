@@ -11,7 +11,7 @@ export default function BankParentCompanyCompanyDetailsPage() {
   return (
     <Page appBarTitle={"Company Details"}>
       {companyId && (
-        <BankParentCompaniesCompanyDetailsContent companyId={companyId} />
+        <BankParentCompaniesCompanyDetailsContent parentCompanyId={companyId} />
       )}
     </Page>
   );

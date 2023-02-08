@@ -89,6 +89,9 @@ fragment CompanyWithSettings on companies {
   employer_identification_number
   address
   phone_number
+  state
+  timezone
+  created_at
   ...CompanyLimited
   settings {
     id

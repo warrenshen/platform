@@ -38,6 +38,21 @@ ParentCompanyInsertInputDict = TypedDict('ParentCompanyInsertInputDict', {
 	'name': str,
 }, total=False)
 
+ChildCompanyInsertInputDict = TypedDict('ChildCompanyInsertInputDict', {
+	'id': str,
+	'name': str,
+	'identifier': str,
+	'contract_name': str,
+	'dba_name': str,
+	'is_cannabis': bool,
+	'metrc_api_key': str,
+	'state': str,
+	"employer_identification_number": str,
+	"address": str,
+	"phone_number": str,
+	'timezone': str,
+}, total=False)
+
 CompanySettingsInsertInputDict = TypedDict('CompanySettingsInsertInputDict', {
 })
 
@@ -60,6 +75,10 @@ CreateProspectiveCustomerInputDict = TypedDict('CreateProspectiveCustomerInputDi
 
 EditParentCompanyInputDict = TypedDict('EditParentCompanyInputDict', {
 	'company': ParentCompanyInsertInputDict
+})
+
+EditChildCompanyInputDict = TypedDict('EditChildCompanyInputDict', {
+	'company': ChildCompanyInsertInputDict
 })
 
 CreateCustomerRespDict = TypedDict('CreateCustomerRespDict', {
@@ -1595,6 +1614,37 @@ def edit_parent_company(
 		return None, errors.Error("Could not find parent company")
 
 	parent_company.name = company_name
+
+	return True, None
+
+@errors.return_error_tuple
+def edit_child_company(
+	req: EditChildCompanyInputDict,
+	session: Session
+) -> Tuple[bool, errors.Error]:
+	company_name = req['company']['name']
+	company_id = req['company']['id']
+	identifer = req['company']['identifier']
+	dba_name = req['company']['dba_name']
+	us_state = req['company']['state']
+	ein = req['company']['employer_identification_number']
+	address = req['company']['address']
+	phone_number = req['company']['phone_number']
+	timezone = req['company']['timezone']
+
+	child_company, err = queries.get_company_by_id(session, company_id)
+
+	if not child_company:
+		return None, err
+
+	child_company.name = company_name
+	child_company.identifier = identifer
+	child_company.dba_name = dba_name
+	child_company.state = us_state
+	child_company.employer_identification_number = ein
+	child_company.address = address
+	child_company.phone_number = phone_number
+	child_company.timezone = timezone
 
 	return True, None
 

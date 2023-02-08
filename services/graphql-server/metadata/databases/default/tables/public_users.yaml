@@ -28,12 +28,6 @@ select_permissions:
         - role
         - updated_at
       filter: {}
-  - role: bespoke_catalog_data_entry
-    permission:
-      columns:
-        - full_name
-        - id
-      filter: {}
   - role: bank_read_only
     permission:
       columns:
@@ -52,6 +46,12 @@ select_permissions:
         - phone_number
         - role
         - updated_at
+      filter: {}
+  - role: bespoke_catalog_data_entry
+    permission:
+      columns:
+        - full_name
+        - id
       filter: {}
   - role: company_admin
     permission:

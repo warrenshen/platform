@@ -179,8 +179,6 @@ select_permissions:
     permission:
       columns:
         - address
-        - surveillance_status
-        - surveillance_status_note
         - city
         - company_settings_id
         - contract_id
@@ -204,6 +202,9 @@ select_permissions:
         - phone_number
         - qualify_for
         - state
+        - surveillance_status
+        - surveillance_status_note
+        - timezone
         - updated_at
         - zip_code
       filter: {}

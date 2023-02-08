@@ -25,13 +25,6 @@ select_permissions:
         - updated_at
         - name
       filter: {}
-  - role: bespoke_catalog_data_entry
-    permission:
-      columns:
-        - created_at
-        - id
-        - name
-      filter: {}
   - role: bank_read_only
     permission:
       columns:
@@ -39,6 +32,13 @@ select_permissions:
         - created_at
         - updated_at
         - id
+      filter: {}
+  - role: bespoke_catalog_data_entry
+    permission:
+      columns:
+        - created_at
+        - id
+        - name
       filter: {}
   - role: company_admin
     permission:

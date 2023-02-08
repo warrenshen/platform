@@ -5,7 +5,7 @@ export default function BankParentCompaniesCompanyDetailsPage() {
   return (
     <BankParentCompanyPage>
       {({ companyId }) => (
-        <BankParentCompanyCompanyDetailsContent companyId={companyId} />
+        <BankParentCompanyCompanyDetailsContent parentCompanyId={companyId} />
       )}
     </BankParentCompanyPage>
   );

@@ -46,7 +46,9 @@ query GetParentCompanyWithChildCompanies(
 ) {
   parent_companies_by_pk(id: $parent_company_id) {
     id
-    child_companies: companies {
+    child_companies: companies(
+      order_by: { name: asc }
+    ) {
       id
       ...CompanyWithSettings
     }
