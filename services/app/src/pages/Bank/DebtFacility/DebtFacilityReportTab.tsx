@@ -63,6 +63,7 @@ export default function DebtFacilityReportTab({
   const [currentDebtFacilityReportDate, setCurrentDebtFacilityReportDate] =
     useState(todayAsDateStringServer());
   const [isAnonymized, setIsAnonymized] = useState(false);
+  const [isLoCGrouped, setIsLoCGrouped] = useState(true);
 
   const { data, error } = useGetReportLoansByDebtFacilityIdQuery({
     skip: currentDebtFacilityReportDate === "",
@@ -157,6 +158,20 @@ export default function DebtFacilityReportTab({
                   label={"Anonymize Report?"}
                 />
               </Box>
+              <Box pt={1.5} ml={3}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={isLoCGrouped}
+                      onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                        setIsLoCGrouped(event.target.checked)
+                      }
+                      color="primary"
+                    />
+                  }
+                  label={"Group LoC Loans?"}
+                />
+              </Box>
             </Box>
             {!!isDateWarningShown && (
               <Alert severity="info">
@@ -170,6 +185,7 @@ export default function DebtFacilityReportTab({
                 loansInfoLookup={loansInfoLookup}
                 companyInfoLookup={companyInfoLookup}
                 isAnonymized={isAnonymized}
+                isLoCGrouped={isLoCGrouped}
                 handleClickCustomer={(customerId) =>
                   navigate(
                     getBankCompanyRoute(customerId, BankCompanyRouteEnum.Loans)

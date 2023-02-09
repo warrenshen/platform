@@ -57,6 +57,7 @@ import { useMemo } from "react";
 
 interface Props {
   isAnonymized: boolean;
+  isLoCGrouped: boolean;
   loans: OpenLoanForDebtFacilityFragment[];
   loansInfoLookup: Record<string, Record<string, Record<string, string>>>;
   companyInfoLookup: Record<string, DebtFacilityReportCompanyDetailsFragment>;
@@ -75,6 +76,7 @@ function getRows(
   supportedProductTypes: ProductTypeEnum[],
   lastDebtFacilityReportDate: string,
   isAnonymized: boolean,
+  isLoCGrouped: boolean,
   currentDebtFacilityReportDate: string
 ) {
   const filteredLoans = loans.filter((loan) => {
@@ -85,10 +87,11 @@ function getRows(
     );
   });
   const groupedLoans = groupBy(filteredLoans, (loan) => loan.company_id);
-  const reducedLoans =
-    Object.keys(groupedLoans).length !== 0
+  const reducedLoans = isLoCGrouped
+    ? Object.keys(groupedLoans).length !== 0
       ? reduceLineOfCreditLoans(groupedLoans, companyInfoLookup)
-      : [];
+      : []
+    : filteredLoans;
   const { anonymizedCompanyLookup, anonymizedVendorLookup } =
     anonymizeLoanNames(reducedLoans, groupedLoans);
 
@@ -224,6 +227,7 @@ function getRows(
 
 export default function DebtFacilityReportDataGrid({
   isAnonymized,
+  isLoCGrouped,
   loans,
   loansInfoLookup,
   companyInfoLookup,
@@ -243,6 +247,7 @@ export default function DebtFacilityReportDataGrid({
         supportedProductTypes,
         lastDebtFacilityReportDate,
         isAnonymized,
+        isLoCGrouped,
         currentDebtFacilityReportDate
       ),
     [
@@ -252,6 +257,7 @@ export default function DebtFacilityReportDataGrid({
       supportedProductTypes,
       lastDebtFacilityReportDate,
       isAnonymized,
+      isLoCGrouped,
       currentDebtFacilityReportDate,
     ]
   );
