@@ -32169,6 +32169,8 @@ export type GetRepaymentsSubscription = {
 export type GetRepaymentsByDepositDateRangeQueryVariables = Exact<{
   start_date: Scalars["date"];
   end_date: Scalars["date"];
+  start_datetime: Scalars["timestamptz"];
+  end_datetime: Scalars["timestamptz"];
 }>;
 
 export type GetRepaymentsByDepositDateRangeQuery = {
@@ -45123,7 +45125,12 @@ export type GetRepaymentsSubscriptionHookResult = ReturnType<
 export type GetRepaymentsSubscriptionResult =
   Apollo.SubscriptionResult<GetRepaymentsSubscription>;
 export const GetRepaymentsByDepositDateRangeDocument = gql`
-  query GetRepaymentsByDepositDateRange($start_date: date!, $end_date: date!) {
+  query GetRepaymentsByDepositDateRange(
+    $start_date: date!
+    $end_date: date!
+    $start_datetime: timestamptz!
+    $end_datetime: timestamptz!
+  ) {
     payments(
       where: {
         _and: [
@@ -45134,7 +45141,12 @@ export const GetRepaymentsByDepositDateRangeDocument = gql`
             ]
           }
           { type: { _in: ["repayment", "repayment_account_fee"] } }
-          { deposit_date: { _gte: $start_date, _lte: $end_date } }
+          {
+            _or: [
+              { deposit_date: { _gte: $start_date, _lte: $end_date } }
+              { reversed_at: { _gte: $start_datetime, _lte: $end_datetime } }
+            ]
+          }
         ]
       }
       order_by: [{ settlement_date: asc }, { created_at: asc }]
@@ -45160,6 +45172,8 @@ export const GetRepaymentsByDepositDateRangeDocument = gql`
  *   variables: {
  *      start_date: // value for 'start_date'
  *      end_date: // value for 'end_date'
+ *      start_datetime: // value for 'start_datetime'
+ *      end_datetime: // value for 'end_datetime'
  *   },
  * });
  */

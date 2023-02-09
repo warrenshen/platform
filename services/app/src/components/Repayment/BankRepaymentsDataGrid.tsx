@@ -32,6 +32,7 @@ interface Props {
   isMultiSelectEnabled?: boolean;
   isHoldingAccountVisible?: boolean;
   isAppliedToVisible?: boolean;
+  isReversedDateShown?: boolean;
   repaymentType?: RepaymentTypeEnum;
   payments: RepaymentForBankDataGridFragment[];
   selectedPaymentIds?: Payments["id"][];
@@ -47,6 +48,7 @@ export default function RepaymentsDataGrid({
   isMethodVisible = true,
   isMultiSelectEnabled = false,
   isAppliedToVisible = false,
+  isReversedDateShown = false,
   repaymentType = RepaymentTypeEnum.Other,
   payments,
   selectedPaymentIds,
@@ -118,6 +120,9 @@ export default function RepaymentsDataGrid({
           requested_payment_date: !!payment.requested_payment_date
             ? parseDateStringServer(payment.requested_payment_date)
             : null,
+          reversed_at: !!payment?.reversed_at
+            ? parseDateStringServer(payment.reversed_at, true)
+            : null,
           settlement_date: !!payment.settlement_date
             ? parseDateStringServer(payment.settlement_date)
             : null,
@@ -176,6 +181,14 @@ export default function RepaymentsDataGrid({
         visible: isReverseDraftACH || isOther,
         dataField: "expected_deposit_date",
         caption: "Expected Deposit Date",
+        format: "shortDate",
+        width: ColumnWidths.Date,
+        alignment: "right",
+      },
+      {
+        visible: isReversedDateShown,
+        dataField: "reversed_at",
+        caption: "Reversed Date",
         format: "shortDate",
         width: ColumnWidths.Date,
         alignment: "right",
@@ -394,6 +407,7 @@ export default function RepaymentsDataGrid({
       isMethodVisible,
       isClosed,
       isRequestedReverseDraftACH,
+      isReversedDateShown,
       isReverseDraftACH,
       isOther,
       handleClickCustomer,
