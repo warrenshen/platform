@@ -28,8 +28,11 @@ function getRows(payments: GetAdvancesByMethodAndPaymentDateQuery["payments"]) {
         ? recipientBankAccount?.intermediary_account_number
         : recipientBankAccount?.account_number,
       recipient_account_name: isIntermediaryBankAccount
-        ? recipientBankAccount?.intermediary_account_name
-        : recipientBankAccount?.account_title,
+        ? (recipientBankAccount?.intermediary_account_name || "").substring(
+            0,
+            35
+          )
+        : (recipientBankAccount?.account_title || "").substring(0, 35),
       recipient_address: recipientBankAccount?.recipient_address,
       recipient_address_2: recipientBankAccount?.recipient_address_2,
       wire_memo: `${payment.company.identifier}-${payment.settlement_identifier}`,
