@@ -1076,7 +1076,23 @@ def create_partnership_vendor(
 		company_vendor_contact.vendor_user_id = contact_user_id
 		company_vendor_contact.is_active = True
 		session.add(company_vendor_contact)
-		session.flush()
+		session.flush()		
+
+		# Adds the rest of the vendor users as inactive users on the partnership
+		vendor_users, err = queries.get_all_users_by_company_id(session, company_id)
+
+		if err:
+			raise err
+
+		for user in vendor_users:
+			if user.id != contact_user_id:
+				company_vendor_contact = models.CompanyVendorContact()
+				company_vendor_contact.partnership_id = company_vendor_partnership.id
+				company_vendor_contact.vendor_user_id = user.id
+				company_vendor_contact.is_active = False
+				session.add(company_vendor_contact)
+		session.flush()	
+
 
 		request_info = cast(PartnershipRequestRequestInfoDict, partnership_req.request_info)
 		metrc_api_key = request_info.get('metrc_api_key', '')

@@ -809,6 +809,25 @@ def get_user_by_id(
 
     return user, None
 
+def get_all_users_by_company_id(
+    session: Session,
+    company_id: str,
+) -> Tuple[ List[models.User], errors.Error ]:
+    filters = [
+        models.User.company_id == company_id
+    ]
+
+    users = cast(
+        List[models.User],
+        session.query(models.User).filter(
+            *filters
+        ).all())
+
+    if not users:
+        return None, errors.Error('Could not find any users with the provided company id of {company_id}')
+
+    return users, None
+
 def get_user_by_email(
     session: Session,
     email: str,
