@@ -24,7 +24,6 @@ def _delete_db(db_url: str) -> None:
 	if not database_exists(db_url):
 		return
 
-	print('Deleting all tables with engine url: {}'.format(db_url))
 	engine = sqlalchemy.create_engine(db_url)
 
 	models.Base.metadata.drop_all(engine)

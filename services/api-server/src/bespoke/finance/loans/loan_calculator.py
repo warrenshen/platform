@@ -55,9 +55,9 @@ LoanUpdateDict = TypedDict('LoanUpdateDict', {
 	# This should be considered separate from the regular columns which will track
 	# what the value would have been. If the client is on the happy path, then these
 	# columns and the the non accounting_* columns should match
-	'accounting_total_outstanding_principal': float,
-	'accounting_total_outstanding_interest': float,
-	'accounting_total_outstanding_late_fees': float,
+	'accounting_outstanding_principal': float,
+	'accounting_outstanding_interest': float,
+	'accounting_outstanding_late_fees': float,
 	'accounting_interest_accrued_today': float,
 	'accounting_late_fees_accrued_today': float,
 })
@@ -85,6 +85,7 @@ CalculatorBalances = TypedDict('CalculatorBalances', {
 	'outstanding_principal_for_interest': float, # Amount of principal used for calculating interest and fees off of
 	'outstanding_interest': float,
 	'outstanding_fees': float,
+	'accounting_outstanding_principal': float,
 	'accounting_outstanding_interest': float,
 	'accounting_outstanding_late_fees': float,
 	'has_been_funded': bool,
@@ -586,6 +587,10 @@ def _update_at_beginning_of_day(
 			balances['outstanding_interest'] += tx['to_interest']
 			balances['outstanding_fees'] += tx['to_fees']
 
+			balances['accounting_outstanding_principal'] += tx['to_principal']
+			balances['accounting_outstanding_interest'] += tx['to_interest']
+			balances['accounting_outstanding_late_fees'] += tx['to_fees']
+
 		if payment_util.is_advance(tx):
 			balances['has_been_funded'] = True
 
@@ -598,10 +603,15 @@ def _update_end_of_day_repayment_deposits(
 	for aug_tx in transactions_by_deposit_date:
 		tx = aug_tx['transaction']
 		if payment_util.is_repayment(tx):
-			# The outstanding principal for a payment gets reduced on the deposit date
+			# The outstanding principal for a loan gets reduced on the deposit date
 			balances['outstanding_principal'] -= tx['to_principal']
 			balances['outstanding_interest'] -= tx['to_interest']
 			balances['outstanding_fees'] -= tx['to_fees']
+
+			balances['accounting_outstanding_principal'] -= tx['to_principal']
+			balances['accounting_outstanding_interest'] -= tx['to_interest']
+			balances['accounting_outstanding_late_fees'] -= tx['to_fees']
+
 			if (
 				number_util.float_lte(number_util.round_currency(balances['outstanding_principal']), 0.0) and 
 				cur_date <= loan['adjusted_maturity_date']
@@ -815,6 +825,7 @@ class LoanCalculator(object):
 			outstanding_principal_for_interest = 0.0, # Amount of principal used for calculating interest and fees off of
 			outstanding_interest = 0.0,
 			outstanding_fees = 0.0,
+			accounting_outstanding_principal = 0.0,
 			accounting_outstanding_interest = 0.0,
 			accounting_outstanding_late_fees = 0.0,
 			has_been_funded = False,
@@ -869,9 +880,9 @@ class LoanCalculator(object):
 			outstanding_interest = _format_output_value(balances['outstanding_interest'], should_round_output)
 			outstanding_fees = _format_output_value(balances['outstanding_fees'], should_round_output)
 
-			accounting_total_outstanding_principal = outstanding_principal
-			accounting_total_outstanding_interest = _format_output_value(balances['accounting_outstanding_interest'], should_round_output)
-			accounting_total_outstanding_late_fees = _format_output_value(balances['accounting_outstanding_late_fees'], should_round_output)
+			accounting_outstanding_principal = _format_output_value(balances['accounting_outstanding_principal'], should_round_output)
+			accounting_outstanding_interest = _format_output_value(balances['accounting_outstanding_interest'], should_round_output)
+			accounting_outstanding_late_fees = _format_output_value(balances['accounting_outstanding_late_fees'], should_round_output)
 			accounting_interest_accrued_today = 0.0 if company_settings['interest_end_date'] is not None and \
 				result_today > company_settings['interest_end_date'] else interest_accrued_today
 			accounting_late_fees_accrued_today = 0.0 if company_settings['late_fees_end_date'] is not None and \
@@ -947,9 +958,9 @@ class LoanCalculator(object):
 				total_interest_paid=_format_output_value(balances['total_interest_paid'], should_round_output),
 				total_fees_paid=_format_output_value(balances['total_fees_paid'], should_round_output),
 				days_overdue=days_overdue,
-				accounting_total_outstanding_principal=accounting_total_outstanding_principal,
-				accounting_total_outstanding_interest=accounting_total_outstanding_interest,
-				accounting_total_outstanding_late_fees=accounting_total_outstanding_late_fees,
+				accounting_outstanding_principal=accounting_outstanding_principal,
+				accounting_outstanding_interest=accounting_outstanding_interest,
+				accounting_outstanding_late_fees=accounting_outstanding_late_fees,
 				accounting_interest_accrued_today=accounting_interest_accrued_today,
 				accounting_late_fees_accrued_today=accounting_late_fees_accrued_today,
 			)

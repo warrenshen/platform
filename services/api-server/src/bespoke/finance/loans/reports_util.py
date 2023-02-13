@@ -600,21 +600,21 @@ def run_customer_balances_for_financial_summaries_that_need_recompute(
 	dates_updated = set([])
 
 	descriptive_errors = []
-	for req in compute_requests:
+	for compute_request in compute_requests:
 		day_to_customer_update_dict, descriptive_error = update_company_balance(
 			session, 
-			req['company'], 
-			req['report_date'],
-			update_days_back=req['update_days_back'],
+			compute_request['company'],
+			compute_request['report_date'],
+			update_days_back=compute_request['update_days_back'],
 			include_debug_info=False,
 			is_past_date_default_val=False
 		)
 		if descriptive_error:
 			descriptive_errors.append(descriptive_error)
 
-		if req['update_days_back'] == None:
-			req['update_days_back'] = 0
-		dates_updated.update(get_dates_updated(req['report_date'], req['update_days_back']))
+		if compute_request['update_days_back'] == None:
+			compute_request['update_days_back'] = 0
+		dates_updated.update(get_dates_updated(compute_request['report_date'], compute_request['update_days_back']))
 
 	if len(descriptive_errors) == len(compute_requests) and len(compute_requests) != 0:
 		return None, descriptive_errors, errors.Error('No companies balances could be computed successfully. Errors: {}'.format(

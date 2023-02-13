@@ -78,8 +78,8 @@ LoansInfoEntryDict = TypedDict('LoansInfoEntryDict', {
 	'total_interest_paid': float, 
 	'total_late_fees_paid': float, 
 	'days_overdue': int,
-	'interest_after_end_date': float,
-	'late_fees_after_end_date': float,
+	'accounting_outstanding_interest': float,
+	'accounting_outstanding_late_fees': float,
 })
 
 EbbaApplicationUpdateDict = TypedDict('EbbaApplicationUpdateDict', {
@@ -244,11 +244,11 @@ def _get_summary_update(
 	total_interest_paid_adjustment_today = 0.0
 	total_late_fees_accrued_today = 0.0
 	total_fees_paid_adjustment_today = 0.0
-	total_accounting_total_outstanding_principal = 0.0
-	total_accounting_total_outstanding_interest = 0.0
-	total_accounting_total_outstanding_late_fees = 0.0
-	total_accounting_interest_accrued_today = 0.0
-	total_accounting_late_fees_accrued_today = 0.0
+	accounting_total_outstanding_principal = 0.0
+	accounting_total_outstanding_interest = 0.0
+	accounting_total_outstanding_late_fees = 0.0
+	accounting_total_interest_accrued_today = 0.0
+	accounting_total_late_fees_accrued_today = 0.0
 
 	most_overdue_loan_days = 0
 
@@ -263,11 +263,11 @@ def _get_summary_update(
 		total_interest_paid_adjustment_today += l['interest_paid_daily_adjustment']
 		total_late_fees_accrued_today += l['fees_accrued_today']
 		total_fees_paid_adjustment_today += l['fees_paid_daily_adjustment']
-		total_accounting_total_outstanding_principal += l['accounting_total_outstanding_principal']
-		total_accounting_total_outstanding_interest += l['accounting_total_outstanding_interest']
-		total_accounting_total_outstanding_late_fees += l['accounting_total_outstanding_late_fees']
-		total_accounting_interest_accrued_today += l['accounting_interest_accrued_today']
-		total_accounting_late_fees_accrued_today += l['accounting_late_fees_accrued_today']
+		accounting_total_outstanding_principal += l['accounting_outstanding_principal']
+		accounting_total_outstanding_interest += l['accounting_outstanding_interest']
+		accounting_total_outstanding_late_fees += l['accounting_outstanding_late_fees']
+		accounting_total_interest_accrued_today += l['accounting_interest_accrued_today']
+		accounting_total_late_fees_accrued_today += l['accounting_late_fees_accrued_today']
 
 		days_overdue_candidate = int(l['days_overdue'])
 		most_overdue_loan_days = days_overdue_candidate if days_overdue_candidate > most_overdue_loan_days else most_overdue_loan_days
@@ -301,11 +301,11 @@ def _get_summary_update(
 		account_level_balance_payload=account_level_balance,
 		day_volume_threshold_met=None,
 		most_overdue_loan_days=most_overdue_loan_days,
-		accounting_total_outstanding_principal=total_accounting_total_outstanding_principal,
-		accounting_total_outstanding_interest=total_accounting_total_outstanding_interest,
-		accounting_total_outstanding_late_fees=total_accounting_total_outstanding_late_fees,
-		accounting_interest_accrued_today=total_accounting_interest_accrued_today,
-		accounting_late_fees_accrued_today=total_accounting_late_fees_accrued_today,
+		accounting_total_outstanding_principal=accounting_total_outstanding_principal,
+		accounting_total_outstanding_interest=accounting_total_outstanding_interest,
+		accounting_total_outstanding_late_fees=accounting_total_outstanding_late_fees,
+		accounting_interest_accrued_today=accounting_total_interest_accrued_today,
+		accounting_late_fees_accrued_today=accounting_total_late_fees_accrued_today,
 	), None
 
 class CustomerBalance(object):
@@ -680,8 +680,8 @@ class CustomerBalance(object):
 				'total_interest_paid': update['total_interest_paid'], 
 				'total_late_fees_paid': update['total_fees_paid'], 
 				'days_overdue': update['days_overdue'],
-				'interest_after_end_date': update['accounting_total_outstanding_interest'],
-				'late_fees_after_end_date': update['accounting_total_outstanding_late_fees'],
+				'accounting_outstanding_interest': update['accounting_outstanding_interest'],
+				'accounting_outstanding_late_fees': update['accounting_outstanding_late_fees'],
 			}
 
 		summary_update = customer_update['summary_update']
