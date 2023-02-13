@@ -1889,9 +1889,8 @@ def financial_reports_coming_due_alerts(
 			return False, err
 
 		missing_borrowing_base_months_as_string = ""
-		
+		missing_borrowing_base_months = []
 		if borrowing_base != None:
-			missing_borrowing_base_months = []
 			borrowing_base_last_date = date_util.get_last_day_of_month_date(str(borrowing_base.application_date))
 			while borrowing_base_last_date < get_last_month_due_date:
 				next_month = str(date_util.add_days(borrowing_base_last_date, 1))
