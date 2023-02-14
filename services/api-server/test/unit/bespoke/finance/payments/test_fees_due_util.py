@@ -464,6 +464,11 @@ class TestMonthEndRepayments(db_unittest.TestCase):
 					'requested_to_principal': 0.0,
 					'requested_to_interest': 0.0,
 					'requested_to_account_fees': 4.0,
+					'requested_to_late_fees': 0.0,
+					'forecasted_principal': 0.0,
+					'forecasted_interest': 0.0,
+					'forecasted_account_fees': 4.0,
+					'forecasted_late_fees': 0.0,
 				}
 			},
 			{
@@ -473,6 +478,11 @@ class TestMonthEndRepayments(db_unittest.TestCase):
 					'requested_to_principal': 0.0,
 					'requested_to_interest': 15.0,
 					'requested_to_account_fees': 5.0,
+					'requested_to_late_fees': 0.0,
+					'forecasted_principal': 0.0,
+					'forecasted_interest': 15.0,
+					'forecasted_account_fees': 5.0,
+					'forecasted_late_fees': 0.0,
 				}
 			}
 		]

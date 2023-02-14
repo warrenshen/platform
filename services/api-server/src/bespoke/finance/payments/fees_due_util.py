@@ -385,6 +385,11 @@ def create_month_end_payments_for_customers(
 					requested_to_principal=0.0,
 					requested_to_interest=val_info['total_outstanding_interest'],
 					requested_to_account_fees=amount_due,
+					requested_to_late_fees=0.0,
+					forecasted_principal=0.0,
+					forecasted_interest=val_info['total_outstanding_interest'],
+					forecasted_account_fees=amount_due,
+					forecasted_late_fees=0.0,
 				),
 				customer_note='',
 				bank_note=''

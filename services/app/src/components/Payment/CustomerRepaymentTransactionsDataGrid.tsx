@@ -70,6 +70,7 @@ function getRows(
         company_identifier: payment.company.identifier,
         company_name: payment.company.name,
         id: payment.id,
+        repayment_id: payment.id,
         payment: payment,
         payment_deposit_date: !!payment?.deposit_date
           ? parseDateStringServer(payment.deposit_date)
@@ -125,6 +126,7 @@ function getRows(
                 company_identifier: payment.company.identifier,
                 company_name: payment.company.name,
                 id: `${payment.id}-0`,
+                repayment_id: payment.id,
                 payment: payment,
                 status: "Reversed",
               }),
@@ -374,7 +376,6 @@ export default function CustomerRepaymentTransactionsDataGrid({
           ) : null,
       },
       {
-        visible: !isLineOfCredit,
         dataField: "payment.amount",
         caption: "Total Repayment Amount",
         format: {
@@ -393,17 +394,6 @@ export default function CustomerRepaymentTransactionsDataGrid({
           precision: CurrencyPrecision,
         },
         width: ColumnWidths.Currency,
-        alignment: "right",
-      },
-      {
-        visible: isLineOfCredit,
-        dataField: "payment.amount",
-        caption: "Total Repayment Amount",
-        format: {
-          type: "currency",
-          precision: CurrencyPrecision,
-        },
-        minWidth: ColumnWidths.Currency,
         alignment: "right",
       },
       {

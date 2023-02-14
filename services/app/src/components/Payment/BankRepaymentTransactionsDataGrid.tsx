@@ -60,6 +60,7 @@ function getRows(payments: NonNullable<GetRepaymentsSubscription>["payments"]) {
               payment_settlement_date: !!payment?.settlement_date
                 ? parseDateStringServer(payment.settlement_date)
                 : null,
+              repayment_id: payment.id,
               status: "Reversed",
             }),
           ]
