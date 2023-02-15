@@ -809,7 +809,10 @@ class MoveToActionRequired(MethodView):
 
 			if not company_partnership_invite:
 				return handler_util.make_error_response('Invalid data')
-			
+
+			# For Ops workflow purposes, invite is considered closed if moved to action required
+			company_partnership_invite.closed_at = date_util.now()
+
 			# Create Partnership request
 			partnership_req = models.CompanyPartnershipRequest()
 			partnership_req.requesting_company_id = company_partnership_invite.requesting_company_id
