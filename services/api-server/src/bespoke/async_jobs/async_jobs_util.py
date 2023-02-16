@@ -883,7 +883,6 @@ def generate_daily_company_balances_run(
 		session,
 		company_ids, 
 		cur_date, 
-		create_if_missing=True,
 		days_to_compute_back=reports_util.DAYS_TO_COMPUTE_BACK, 
 	)
 

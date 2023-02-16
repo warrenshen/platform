@@ -104,28 +104,12 @@ class RunCustomerBalancesView(MethodView):
 		else:
 			# Trigger an async job when there's no debug info requested.
 			company_ids = [company_dict['id'] for company_dict in company_dicts]
-			cur_date = report_date
-			date_range_tuples = reports_util.date_ranges_for_needs_balance_recomputed(start_date, report_date)
-
-			for i in range(len(date_range_tuples)):
-				cur_date, days_to_compute_back = date_range_tuples[i]
-				with session_scope(current_app.session_maker) as session:
-					reports_util.set_needs_balance_recomputed(
-						session,
-						company_ids,
-						cur_date, 
-						create_if_missing=True, 
-						days_to_compute_back=days_to_compute_back)
-
-			# with session_scope(current_app.session_maker) as session:
-			# 	for company_id in company_ids:
-			# 		payload = {"company_id": str(company_id)}
-			# 		_, err = async_jobs_util.add_job_to_queue(
-			# 			session=session,
-			# 			job_name=AsyncJobNameEnum.UPDATE_COMPANY_BALANCES,
-			# 			submitted_by_user_id=cfg.BOT_USER_ID,
-			# 			is_high_priority=True,
-			# 			job_payload=payload)
+			reports_util.set_companies_needs_recompute_by_date_range(
+				session=session,
+				company_ids=company_ids,
+				start_date=start_date,
+				end_date=report_date,
+			)
 
 			return make_response({
 				'status': 'OK',

@@ -38,8 +38,10 @@ def get_dates_updated(report_date: datetime.date, days_back: int) -> List[dateti
 
 	return dates_updated
 
-def date_ranges_for_needs_balance_recomputed(
-	start_date: datetime.date, end_date: datetime.date) -> List[Tuple[datetime.date, int]]:
+def _compute_date_ranges_for_needs_recompute(
+	start_date: datetime.date,
+	end_date: datetime.date,
+) -> List[Tuple[datetime.date, int]]:
 	"""
 		Given the user wants customer balances run from start_date to end_date, produce the corresponding
 		set of (report_date, days_to_compute_back) tuples to eventually send to the server
@@ -63,7 +65,6 @@ def set_needs_balance_recomputed(
 	session: Session,
 	company_ids: List[str], 
 	cur_date: datetime.date, 
-	create_if_missing: bool, 
 	days_to_compute_back: int, 
 ) -> Tuple[bool, errors.Error]:
 	# Case 1: existing financial_summary.needs_recompute = False -> update is necessary
@@ -93,44 +94,35 @@ def set_needs_balance_recomputed(
 			models.FinancialSummary.date == cur_date
 		).all())
 
-	# if want to create because no financial summaries exist
-	if create_if_missing:
-		company_id_to_financial_summary = {}
-		# add financial summaries by company id to a lookup
-		for financial_summary in financial_summaries:
-			company_id_to_financial_summary[str(financial_summary.company_id)] = financial_summary
+	company_id_to_financial_summary = {}
+	# add financial summaries by company id to a lookup
+	for financial_summary in financial_summaries:
+		company_id_to_financial_summary[str(financial_summary.company_id)] = financial_summary
 
-		# if the company id is not in the lookup add a new blank financial summary
-		for company_id in company_ids:
-			if company_id not in company_id_to_financial_summary:
-				# create an empty one
-				financial_summary = models.FinancialSummary(
-					date=cur_date,
-					company_id=company_id,
-					needs_recompute=True,
-					days_to_compute_back=days_to_compute_back,
-					total_limit=decimal.Decimal(0.0),
-					adjusted_total_limit=decimal.Decimal(0.0),
-					total_outstanding_principal=decimal.Decimal(0.0),
-					total_outstanding_principal_for_interest=decimal.Decimal(0.0),
-					total_outstanding_principal_past_due=decimal.Decimal(0.0),
-					total_outstanding_interest=decimal.Decimal(0.0),
-					total_outstanding_fees=decimal.Decimal(0.0),
-					total_principal_in_requested_state=decimal.Decimal(0.0),
-					available_limit=decimal.Decimal(0.0),
-					interest_accrued_today=decimal.Decimal(0.0),
-					late_fees_accrued_today=decimal.Decimal(0.0),
-					minimum_monthly_payload={},
-					account_level_balance_payload={},
-				)
-				session.add(financial_summary)
-	else:	
-		if not financial_summaries:
-			return False, errors.Error(
-				"Failed to find any companys associated with company_ids {}".format(company_ids))
-
-		if len(financial_summaries) != len(company_ids):
-			return False, errors.Error('Failed to find all financial summaries associated with company_ids {} on {}'.format(company_ids, cur_date))
+	# if the company id is not in the lookup add a new blank financial summary
+	for company_id in company_ids:
+		if company_id not in company_id_to_financial_summary:
+			# create an empty one
+			financial_summary = models.FinancialSummary(
+				date=cur_date,
+				company_id=company_id,
+				needs_recompute=True,
+				days_to_compute_back=days_to_compute_back,
+				total_limit=decimal.Decimal(0.0),
+				adjusted_total_limit=decimal.Decimal(0.0),
+				total_outstanding_principal=decimal.Decimal(0.0),
+				total_outstanding_principal_for_interest=decimal.Decimal(0.0),
+				total_outstanding_principal_past_due=decimal.Decimal(0.0),
+				total_outstanding_interest=decimal.Decimal(0.0),
+				total_outstanding_fees=decimal.Decimal(0.0),
+				total_principal_in_requested_state=decimal.Decimal(0.0),
+				available_limit=decimal.Decimal(0.0),
+				interest_accrued_today=decimal.Decimal(0.0),
+				late_fees_accrued_today=decimal.Decimal(0.0),
+				minimum_monthly_payload={},
+				account_level_balance_payload={},
+			)
+			session.add(financial_summary)
 
 	for financial_summary in financial_summaries:
 		if (
@@ -140,6 +132,28 @@ def set_needs_balance_recomputed(
 			financial_summary.needs_recompute = True
 			financial_summary.days_to_compute_back = days_to_compute_back
 
+	return True, None
+
+def set_companies_needs_recompute_by_date_range(
+	session: Session,
+	company_ids: List[str],
+	start_date: datetime.date,
+	end_date: datetime.date,
+) -> Tuple[bool, errors.Error]:
+	date_range_tuples = _compute_date_ranges_for_needs_recompute(
+		start_date=start_date,
+		end_date=end_date,
+	)
+	for date_range_tuple in date_range_tuples:
+		start_date, days_to_compute_back = date_range_tuple
+		success, err = set_needs_balance_recomputed(
+			session=session,
+			company_ids=company_ids,
+			cur_date=start_date,
+			days_to_compute_back=days_to_compute_back,
+		)
+		if err:
+			return False, err
 	return True, None
 
 def _set_financial_summary_no_longer_needs_recompute(
@@ -634,20 +648,18 @@ def list_all_companies(
 
 def _set_needs_balance_recomputed(
 	session: Session,
-	company_ids: List[str], 
-	cur_date: datetime.date, 
-	create_if_missing: bool, 
-	days_to_compute_back: int, 
+	company_ids: List[str],
+	cur_date: datetime.date,
+	days_to_compute_back: int,
 ) -> Tuple[bool, errors.Error]:
 
 	if not company_ids:
 		raise errors.Error("Failed to find company_ids in set_needs_balance_recomputed")
 
 	_, err = set_needs_balance_recomputed(
-			session,
-			company_ids, 
-			cur_date, 
-			create_if_missing, 
+			session=session,
+			company_ids=company_ids,
+			cur_date=cur_date,
 			days_to_compute_back=days_to_compute_back,
 		)
 	if err:

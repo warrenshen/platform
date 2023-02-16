@@ -48,8 +48,8 @@ class TestHelperFns(db_unittest.TestCase):
 			date_util.load_date_str('10/5/2020')
 		], days_updated)
 
-	def test_date_ranges_for_needs_balance_recomputed(self) -> None:
-		date_range_tuples = reports_util.date_ranges_for_needs_balance_recomputed(
+	def test_compute_date_ranges_for_needs_recompute(self) -> None:
+		date_range_tuples = reports_util._compute_date_ranges_for_needs_recompute(
 			date_util.load_date_str('10/10/2020'),
 			date_util.load_date_str('10/30/2020'))
 
@@ -58,7 +58,7 @@ class TestHelperFns(db_unittest.TestCase):
 			('10/15/2020', 5)
 		], _to_date_range_strs(date_range_tuples))
 
-		date_range_tuples = reports_util.date_ranges_for_needs_balance_recomputed(
+		date_range_tuples = reports_util._compute_date_ranges_for_needs_recompute(
 			date_util.load_date_str('10/10/2020'),
 			date_util.load_date_str('10/15/2020'))
 
@@ -66,7 +66,7 @@ class TestHelperFns(db_unittest.TestCase):
 			('10/15/2020', 5)
 		], _to_date_range_strs(date_range_tuples))
 
-		date_range_tuples = reports_util.date_ranges_for_needs_balance_recomputed(
+		date_range_tuples = reports_util._compute_date_ranges_for_needs_recompute(
 			date_util.load_date_str('10/15/2020'),
 			date_util.load_date_str('10/15/2020'))
 
@@ -470,12 +470,12 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 			self.assertEqual(count, 0)
 
 		company_one_id = seed.get_company_id('company_admin', index=0)
+		company_two_id = seed.get_company_id('company_admin', index=1)
 
 		with session_scope(self.session_maker) as session:
 			reports_util.set_needs_balance_recomputed(
 				company_ids=[company_one_id],
 				cur_date=TODAY,
-				create_if_missing=True,
 				days_to_compute_back=14,
 				session=session
 			)
@@ -491,24 +491,20 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 			reports_util.set_needs_balance_recomputed(
 				company_ids=[company_one_id],
 				cur_date=TODAY + timedelta(days=1),
-				create_if_missing=True,
 				days_to_compute_back=14,
 				session=session
 			)
-			# One more FinancialSummary gets created because of create_if_missing
 			count = session.query(models.FinancialSummary).filter(models.FinancialSummary.needs_recompute == True).count()
 			self.assertEqual(2, count)
 
 		with session_scope(self.session_maker) as session:
 			# We already created TODAY + 1day for company index=0, so one more gets added for index=1
 			reports_util.set_needs_balance_recomputed(
-				company_ids=[company_one_id, seed.get_company_id('company_admin', index=1)],
+				company_ids=[company_one_id, company_two_id],
 				cur_date=TODAY + timedelta(days=1),
-				create_if_missing=True,
 				days_to_compute_back=14,
 				session=session
 			)
-			# One more FinancialSummary gets created because of create_if_missing
 			count = session.query(models.FinancialSummary).filter(models.FinancialSummary.needs_recompute == True).count()
 			self.assertEqual(3, count)
 
@@ -516,7 +512,7 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 			compute_requests = reports_util.list_financial_summaries_that_need_balances_recomputed(session, today=TODAY, amount_to_fetch=2)
 		self.assertEqual(company_one_id, compute_requests[0]['company_id'])
 		self.assertEqual(company_one_id, compute_requests[0]['company']['id'])
-		
+
 	def test_set_needs_balance_recomputed_skips_correct_financial_summaries(self) -> None:
 		self.reset()
 		seed = test_helper.BasicSeed.create(self.session_maker, self)
@@ -540,7 +536,6 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 			reports_util.set_needs_balance_recomputed(
 				company_ids=[company_one_id],
 				cur_date=TODAY,
-				create_if_missing=True,
 				days_to_compute_back=7,
 				session=session
 			)
@@ -556,7 +551,6 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 			reports_util.set_needs_balance_recomputed(
 				company_ids=[company_one_id],
 				cur_date=TODAY,
-				create_if_missing=True,
 				days_to_compute_back=0,
 				session=session
 			)
@@ -572,7 +566,6 @@ class TestComputeAndUpdateBankFinancialSummaries(db_unittest.TestCase):
 			reports_util.set_needs_balance_recomputed(
 				company_ids=[company_one_id],
 				cur_date=TODAY,
-				create_if_missing=True,
 				days_to_compute_back=14,
 				session=session
 			)

@@ -29,7 +29,6 @@ def _set_needs_balance_recomputed(
 	session: Session,
 	company_ids: List[str], 
 	cur_date: datetime.date, 
-	create_if_missing: bool, 
 	days_to_compute_back: int, 
 ) -> Tuple[bool, errors.Error]:
 
@@ -38,9 +37,8 @@ def _set_needs_balance_recomputed(
 
 	_, err = reports_util.set_needs_balance_recomputed(
 			session,
-			company_ids, 
-			cur_date, 
-			create_if_missing, 
+			company_ids,
+			cur_date,
 			days_to_compute_back=days_to_compute_back,
 		)
 	if err:
@@ -121,7 +119,6 @@ class UpdateAllCompanyBalancesView(MethodView):
 				session,
 				company_ids, 
 				cur_date, 
-				create_if_missing=True,
 				days_to_compute_back=reports_util.DAYS_TO_COMPUTE_BACK)
 
 		logging.info("Submitted that all customers need their company balances updated")
@@ -226,7 +223,6 @@ class SetDirtyCompanyBalancesView(MethodView):
 				session,
 				[company_id], 
 				cur_date, 
-				create_if_missing=True, 
 				days_to_compute_back=reports_util.DAYS_TO_COMPUTE_BACK)
 			if err:
 				raise errors.Error('{}'.format(err), http_code=500)
