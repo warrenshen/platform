@@ -170,6 +170,7 @@ export default function HandlePartnershipRequestVendorModal({
           Partner Company Identifier
         </Typography>
         <TextField
+          data-cy={"company-identifier-input"}
           value={companyIdentifier}
           onChange={({ target: { value } }) => {
             setCompanyIdentifier(value.trim());

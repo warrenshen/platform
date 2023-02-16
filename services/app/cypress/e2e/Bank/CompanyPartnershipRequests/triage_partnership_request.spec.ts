@@ -40,6 +40,7 @@ describe("Accepting a company partnership request", () => {
       );
 
       cy.dataCy("triage-request-button").click();
+      cy.dataCy("company-identifier-input").clear().type("XYZ");
       cy.get("button").last().click();
 
       cy.get(".MuiAlert-standardSuccess").should("exist");

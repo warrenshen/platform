@@ -39,6 +39,7 @@ describe("Creating a new partnership request", () => {
 
     cy.dataCy("triage-partnership-request-modal").should("be.visible");
 
+    cy.dataCy("company-identifier-input").clear().type("XYZ");
     cy.dataCy("triage-partnership-request-modal-primary-button").click();
 
     cy.get(".MuiAlert-standardSuccess").should("exist");
