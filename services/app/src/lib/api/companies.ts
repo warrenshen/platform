@@ -343,7 +343,7 @@ type CreatePartnershipMutationReq = {
     should_create_company: boolean;
     partner_company_id: Companies["id"];
     license_info?: LicenseInfo;
-    can_use_existing_user?: boolean;
+    company_identifier?: string;
   };
 };
 

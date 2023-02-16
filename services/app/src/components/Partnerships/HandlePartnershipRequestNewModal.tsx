@@ -49,6 +49,8 @@ export default function HandlePartnershipRequestVendorModal({
       : [],
   });
 
+  const [companyIdentifier, setCompanyIdentifier] = useState<string>("");
+
   const [isCompanyLicenseFileViewerOpen, setIsCompanyLicenseFileViewerOpen] =
     useState(false);
 
@@ -81,6 +83,7 @@ export default function HandlePartnershipRequestVendorModal({
         should_create_company: selectedCompanyId === null,
         partner_company_id: selectedCompanyId,
         license_info: licenseIds,
+        company_identifier: companyIdentifier,
       },
     });
     if (response.status !== "OK") {
@@ -124,7 +127,9 @@ export default function HandlePartnershipRequestVendorModal({
   return (
     <Modal
       dataCy={"triage-partnership-request-modal"}
-      isPrimaryActionDisabled={hasExistingUserInDifferentCompany}
+      isPrimaryActionDisabled={
+        hasExistingUserInDifferentCompany || !companyIdentifier
+      }
       title={"Triage Partnership Request"}
       primaryActionText={"Submit"}
       contentWidth={600}
@@ -159,6 +164,17 @@ export default function HandlePartnershipRequestVendorModal({
           Partner Company Name
         </Typography>
         <Typography variant={"body1"}>{partnerRequest.company_name}</Typography>
+      </Box>
+      <Box display="flex" flexDirection="column" mt={4}>
+        <Typography variant="subtitle2" color="textSecondary">
+          Partner Company Identifier
+        </Typography>
+        <TextField
+          value={companyIdentifier}
+          onChange={({ target: { value } }) => {
+            setCompanyIdentifier(value.trim());
+          }}
+        />
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
         <FormControlLabel

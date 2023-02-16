@@ -90,6 +90,7 @@ CreatePartnershipInputDict = TypedDict('CreatePartnershipInputDict', {
 	'should_create_company': bool,
 	'partner_company_id': str, # the company ID of the partner who might already exist in the DB
 	'license_info': List[str],
+	'company_identifier': str,
 })
 
 CreatePartnershipRespDict = TypedDict('CreatePartnershipRespDict', {
@@ -592,6 +593,7 @@ def _create_partner_company_and_its_first_user(
 def _create_partner_company_and_its_first_user_new(
 	session: Session,
 	partnership_req: models.CompanyPartnershipRequest,
+	company_identifier: str,
 ) -> str:
 	user_input = cast(Dict, partnership_req.user_info)
 
@@ -603,10 +605,14 @@ def _create_partner_company_and_its_first_user_new(
 	state = request_info.get('us_state', None)
 	timezone = request_info.get('timezone', None)
 
+	_, err = _check_is_company_name_already_used(
+		partnership_req.company_name, company_identifier, session)
+	if err:
+		raise err
 	company = _create_company(
 		session=session,
 		name=partnership_req.company_name,
-		identifier=None,
+		identifier=company_identifier,
 		dba_name=request_info.get('dba_name', None),
 		two_factor_message_method=partnership_req.two_factor_message_method,
 		state=state,
@@ -916,6 +922,7 @@ def create_partnership_vendor(
 		company_id = _create_partner_company_and_its_first_user_new(
 			session,
 			partnership_req,
+			req.get('company_identifier'),
 		)
 	else:
 		company_id = req.get('partner_company_id')

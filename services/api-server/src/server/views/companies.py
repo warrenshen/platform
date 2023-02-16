@@ -514,7 +514,7 @@ class CreatePartnershipVendorView(MethodView):
 
 		required_keys = [
 			'partnership_request_id',
-			'should_create_company'
+			'should_create_company',
 		]
 
 		for key in required_keys:
@@ -522,9 +522,6 @@ class CreatePartnershipVendorView(MethodView):
 				return handler_util.make_error_response(f'Missing {key} in request')
 
 		user_session = UserSession.from_session()
-
-		can_use_existing_user = form['can_use_existing_user'] if \
-			'can_use_existing_user' in form else False
 
 		with session_scope(current_app.session_maker) as session:
 
