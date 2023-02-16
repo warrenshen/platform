@@ -53,6 +53,7 @@ describe("Creating a new partnership request", () => {
 
     cy.dataCy("triage-partnership-request-modal").should("be.visible");
 
+    cy.dataCy("company-identifier-input").clear().type("XYZ");
     cy.get("[data-cy=vendor-dropdown]").click();
     cy.contains("Vendor2").click();
 
