@@ -14,7 +14,9 @@ import {
   parseDateStringServer,
   previousBizDayAsDateStringServer,
 } from "lib/date";
+import { BankCompanyRouteEnum, getBankCompanyRoute } from "lib/routes";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -27,6 +29,7 @@ const Container = styled.div`
 `;
 
 export default function BankRepaymentsByDepositDateTab() {
+  const navigate = useNavigate();
   const [startDate, setStartDate] = useState<string | null>(
     previousBizDayAsDateStringServer()
   );
@@ -188,7 +191,11 @@ export default function BankRepaymentsByDepositDateTab() {
           isAppliedToVisible
           isReversedDateShown
           payments={payments}
-          handleClickCustomer={() => {}}
+          handleClickCustomer={(customerId) => {
+            navigate(
+              getBankCompanyRoute(customerId, BankCompanyRouteEnum.Overview)
+            );
+          }}
         />
       </Box>
     </Container>
