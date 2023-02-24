@@ -73,7 +73,7 @@ subscription GetNotFundedLoansForBank {
     id
     ...Loan
     ...LoanArtifact
-    company{
+    company {
       most_recent_surveillance_result: customer_surveillance_results(
         limit: 1
         order_by: { qualifying_date: desc }
@@ -86,6 +86,13 @@ subscription GetNotFundedLoansForBank {
       ) {
         id
         ...CustomerSurveillanceResult
+      }
+      most_recent_financial_summary: financial_summaries(
+        order_by: { date: desc }
+        limit: 1
+      ) {
+        id
+        product_type
       }
     }
   }

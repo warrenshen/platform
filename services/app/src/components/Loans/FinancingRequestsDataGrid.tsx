@@ -14,6 +14,7 @@ import {
 } from "contexts/CurrentUserContext";
 import {
   Companies,
+  FinancialSummaries,
   Invoices,
   LoanArtifactFragment,
   LoanFragment,
@@ -27,6 +28,8 @@ import {
   AllLoanStatuses,
   LoanStatusEnum,
   LoanStatusToLabel,
+  ProductTypeEnum,
+  ProductTypeToLabel,
   SurveillanceStatusEnum,
   SurveillanceStatusToLabel,
 } from "lib/enum";
@@ -39,6 +42,15 @@ import {
 import { CurrencyPrecision } from "lib/number";
 import { ColumnWidths, formatRowModel, truncateString } from "lib/tables";
 import { useContext, useMemo, useState } from "react";
+
+type PaymentWithMostRecentFinancialSummary = LoanLimitedFragment & {
+  company: Pick<Companies, "id"> & {
+    most_recent_financial_summary: Pick<
+      FinancialSummaries,
+      "id" | "product_type"
+    >[];
+  };
+};
 
 interface Props {
   financingRequests: LoanLimitedFragment[];
@@ -91,6 +103,16 @@ function getRows(financingRequests: LoanLimitedFragment[]) {
       disbursement_identifier:
         createLoanDisbursementIdentifier(financingRequest),
       most_recent_surveillance_status: getSurveillanceResult(financingRequest),
+
+      product_type:
+        ProductTypeToLabel[
+          (financingRequest as PaymentWithMostRecentFinancialSummary).company
+            .most_recent_financial_summary
+            ? ((financingRequest as PaymentWithMostRecentFinancialSummary)
+                .company.most_recent_financial_summary[0]
+                ?.product_type as ProductTypeEnum) || ProductTypeEnum.None
+            : ProductTypeEnum.None
+        ],
       requested_payment_date: parseDateStringServer(
         financingRequest.requested_payment_date
       ),
@@ -307,6 +329,11 @@ const FinancialRequestsDataGrid = ({
           ) : (
             params.row.data.artifact_bank_note
           ),
+      },
+      {
+        caption: "Product Type",
+        dataField: "product_type",
+        width: ColumnWidths.ProductType,
       },
     ],
     [

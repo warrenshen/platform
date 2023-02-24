@@ -31558,6 +31558,9 @@ export type GetNotFundedLoansForBankSubscription = {
           Pick<CustomerSurveillanceResults, "id"> &
             CustomerSurveillanceResultFragment
         >;
+        most_recent_financial_summary: Array<
+          Pick<FinancialSummaries, "id" | "product_type">
+        >;
       };
     } & LoanFragment &
       LoanArtifactFragment
@@ -42005,6 +42008,13 @@ export const GetNotFundedLoansForBankDocument = gql`
         ) {
           id
           ...CustomerSurveillanceResult
+        }
+        most_recent_financial_summary: financial_summaries(
+          order_by: { date: desc }
+          limit: 1
+        ) {
+          id
+          product_type
         }
       }
     }
