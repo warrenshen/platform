@@ -2777,10 +2777,12 @@ export type BigintComparisonExp = {
 export type BlazePreapprovals = {
   annual_interest_rate: Scalars["numeric"];
   created_at: Scalars["timestamptz"];
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
   expiration_date: Scalars["date"];
   external_blaze_company_id: Scalars["String"];
   external_blaze_shop_id: Scalars["String"];
   id: Scalars["uuid"];
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   max_credit_limit: Scalars["numeric"];
   updated_at: Scalars["timestamptz"];
 };
@@ -2825,10 +2827,12 @@ export type BlazePreapprovalsBoolExp = {
   _or?: Maybe<Array<BlazePreapprovalsBoolExp>>;
   annual_interest_rate?: Maybe<NumericComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
+  deleted_at?: Maybe<TimestamptzComparisonExp>;
   expiration_date?: Maybe<DateComparisonExp>;
   external_blaze_company_id?: Maybe<StringComparisonExp>;
   external_blaze_shop_id?: Maybe<StringComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
+  is_deleted?: Maybe<BooleanComparisonExp>;
   max_credit_limit?: Maybe<NumericComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
 };
@@ -2851,10 +2855,12 @@ export type BlazePreapprovalsIncInput = {
 export type BlazePreapprovalsInsertInput = {
   annual_interest_rate?: Maybe<Scalars["numeric"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
   expiration_date?: Maybe<Scalars["date"]>;
   external_blaze_company_id?: Maybe<Scalars["String"]>;
   external_blaze_shop_id?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   max_credit_limit?: Maybe<Scalars["numeric"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
@@ -2863,6 +2869,7 @@ export type BlazePreapprovalsInsertInput = {
 export type BlazePreapprovalsMaxFields = {
   annual_interest_rate?: Maybe<Scalars["numeric"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
   expiration_date?: Maybe<Scalars["date"]>;
   external_blaze_company_id?: Maybe<Scalars["String"]>;
   external_blaze_shop_id?: Maybe<Scalars["String"]>;
@@ -2875,6 +2882,7 @@ export type BlazePreapprovalsMaxFields = {
 export type BlazePreapprovalsMinFields = {
   annual_interest_rate?: Maybe<Scalars["numeric"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
   expiration_date?: Maybe<Scalars["date"]>;
   external_blaze_company_id?: Maybe<Scalars["String"]>;
   external_blaze_shop_id?: Maybe<Scalars["String"]>;
@@ -2902,10 +2910,12 @@ export type BlazePreapprovalsOnConflict = {
 export type BlazePreapprovalsOrderBy = {
   annual_interest_rate?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
+  deleted_at?: Maybe<OrderBy>;
   expiration_date?: Maybe<OrderBy>;
   external_blaze_company_id?: Maybe<OrderBy>;
   external_blaze_shop_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
+  is_deleted?: Maybe<OrderBy>;
   max_credit_limit?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
 };
@@ -2922,6 +2932,8 @@ export enum BlazePreapprovalsSelectColumn {
   /** column name */
   CreatedAt = "created_at",
   /** column name */
+  DeletedAt = "deleted_at",
+  /** column name */
   ExpirationDate = "expiration_date",
   /** column name */
   ExternalBlazeCompanyId = "external_blaze_company_id",
@@ -2929,6 +2941,8 @@ export enum BlazePreapprovalsSelectColumn {
   ExternalBlazeShopId = "external_blaze_shop_id",
   /** column name */
   Id = "id",
+  /** column name */
+  IsDeleted = "is_deleted",
   /** column name */
   MaxCreditLimit = "max_credit_limit",
   /** column name */
@@ -2939,10 +2953,12 @@ export enum BlazePreapprovalsSelectColumn {
 export type BlazePreapprovalsSetInput = {
   annual_interest_rate?: Maybe<Scalars["numeric"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  deleted_at?: Maybe<Scalars["timestamptz"]>;
   expiration_date?: Maybe<Scalars["date"]>;
   external_blaze_company_id?: Maybe<Scalars["String"]>;
   external_blaze_shop_id?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
+  is_deleted?: Maybe<Scalars["Boolean"]>;
   max_credit_limit?: Maybe<Scalars["numeric"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
@@ -2978,6 +2994,8 @@ export enum BlazePreapprovalsUpdateColumn {
   /** column name */
   CreatedAt = "created_at",
   /** column name */
+  DeletedAt = "deleted_at",
+  /** column name */
   ExpirationDate = "expiration_date",
   /** column name */
   ExternalBlazeCompanyId = "external_blaze_company_id",
@@ -2985,6 +3003,8 @@ export enum BlazePreapprovalsUpdateColumn {
   ExternalBlazeShopId = "external_blaze_shop_id",
   /** column name */
   Id = "id",
+  /** column name */
+  IsDeleted = "is_deleted",
   /** column name */
   MaxCreditLimit = "max_credit_limit",
   /** column name */
@@ -5054,6 +5074,7 @@ export type CompanyFacilities = {
   id: Scalars["uuid"];
   is_deleted: Scalars["Boolean"];
   name: Scalars["String"];
+  underwriting_mode?: Maybe<Scalars["String"]>;
   updated_at: Scalars["timestamptz"];
 };
 
@@ -5101,6 +5122,7 @@ export type CompanyFacilitiesBoolExp = {
   id?: Maybe<UuidComparisonExp>;
   is_deleted?: Maybe<BooleanComparisonExp>;
   name?: Maybe<StringComparisonExp>;
+  underwriting_mode?: Maybe<StringComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
 };
 
@@ -5120,6 +5142,7 @@ export type CompanyFacilitiesInsertInput = {
   id?: Maybe<Scalars["uuid"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
   name?: Maybe<Scalars["String"]>;
+  underwriting_mode?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
@@ -5130,6 +5153,7 @@ export type CompanyFacilitiesMaxFields = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   name?: Maybe<Scalars["String"]>;
+  underwriting_mode?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
@@ -5140,6 +5164,7 @@ export type CompanyFacilitiesMaxOrderBy = {
   created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   name?: Maybe<OrderBy>;
+  underwriting_mode?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
 };
 
@@ -5150,6 +5175,7 @@ export type CompanyFacilitiesMinFields = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   name?: Maybe<Scalars["String"]>;
+  underwriting_mode?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
@@ -5160,6 +5186,7 @@ export type CompanyFacilitiesMinOrderBy = {
   created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   name?: Maybe<OrderBy>;
+  underwriting_mode?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
 };
 
@@ -5193,6 +5220,7 @@ export type CompanyFacilitiesOrderBy = {
   id?: Maybe<OrderBy>;
   is_deleted?: Maybe<OrderBy>;
   name?: Maybe<OrderBy>;
+  underwriting_mode?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
 };
 
@@ -5216,6 +5244,8 @@ export enum CompanyFacilitiesSelectColumn {
   /** column name */
   Name = "name",
   /** column name */
+  UnderwritingMode = "underwriting_mode",
+  /** column name */
   UpdatedAt = "updated_at",
 }
 
@@ -5227,6 +5257,7 @@ export type CompanyFacilitiesSetInput = {
   id?: Maybe<Scalars["uuid"]>;
   is_deleted?: Maybe<Scalars["Boolean"]>;
   name?: Maybe<Scalars["String"]>;
+  underwriting_mode?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
@@ -5245,6 +5276,8 @@ export enum CompanyFacilitiesUpdateColumn {
   /** column name */
   Name = "name",
   /** column name */
+  UnderwritingMode = "underwriting_mode",
+  /** column name */
   UpdatedAt = "updated_at",
 }
 
@@ -5256,6 +5289,7 @@ export type CompanyLicenses = {
   company_facility?: Maybe<CompanyFacilities>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at: Scalars["timestamptz"];
+  dba_name?: Maybe<Scalars["String"]>;
   estimate_latitude?: Maybe<Scalars["numeric"]>;
   estimate_longitude?: Maybe<Scalars["numeric"]>;
   estimate_zip?: Maybe<Scalars["String"]>;
@@ -5348,6 +5382,7 @@ export type CompanyLicensesBoolExp = {
   company_facility?: Maybe<CompanyFacilitiesBoolExp>;
   company_id?: Maybe<UuidComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
+  dba_name?: Maybe<StringComparisonExp>;
   estimate_latitude?: Maybe<NumericComparisonExp>;
   estimate_longitude?: Maybe<NumericComparisonExp>;
   estimate_zip?: Maybe<StringComparisonExp>;
@@ -5389,6 +5424,7 @@ export type CompanyLicensesInsertInput = {
   company_facility?: Maybe<CompanyFacilitiesObjRelInsertInput>;
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  dba_name?: Maybe<Scalars["String"]>;
   estimate_latitude?: Maybe<Scalars["numeric"]>;
   estimate_longitude?: Maybe<Scalars["numeric"]>;
   estimate_zip?: Maybe<Scalars["String"]>;
@@ -5414,6 +5450,7 @@ export type CompanyLicensesInsertInput = {
 export type CompanyLicensesMaxFields = {
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  dba_name?: Maybe<Scalars["String"]>;
   estimate_latitude?: Maybe<Scalars["numeric"]>;
   estimate_longitude?: Maybe<Scalars["numeric"]>;
   estimate_zip?: Maybe<Scalars["String"]>;
@@ -5435,6 +5472,7 @@ export type CompanyLicensesMaxFields = {
 export type CompanyLicensesMaxOrderBy = {
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
+  dba_name?: Maybe<OrderBy>;
   estimate_latitude?: Maybe<OrderBy>;
   estimate_longitude?: Maybe<OrderBy>;
   estimate_zip?: Maybe<OrderBy>;
@@ -5456,6 +5494,7 @@ export type CompanyLicensesMaxOrderBy = {
 export type CompanyLicensesMinFields = {
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  dba_name?: Maybe<Scalars["String"]>;
   estimate_latitude?: Maybe<Scalars["numeric"]>;
   estimate_longitude?: Maybe<Scalars["numeric"]>;
   estimate_zip?: Maybe<Scalars["String"]>;
@@ -5477,6 +5516,7 @@ export type CompanyLicensesMinFields = {
 export type CompanyLicensesMinOrderBy = {
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
+  dba_name?: Maybe<OrderBy>;
   estimate_latitude?: Maybe<OrderBy>;
   estimate_longitude?: Maybe<OrderBy>;
   estimate_zip?: Maybe<OrderBy>;
@@ -5515,6 +5555,7 @@ export type CompanyLicensesOrderBy = {
   company_facility?: Maybe<CompanyFacilitiesOrderBy>;
   company_id?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
+  dba_name?: Maybe<OrderBy>;
   estimate_latitude?: Maybe<OrderBy>;
   estimate_longitude?: Maybe<OrderBy>;
   estimate_zip?: Maybe<OrderBy>;
@@ -5547,6 +5588,8 @@ export enum CompanyLicensesSelectColumn {
   CompanyId = "company_id",
   /** column name */
   CreatedAt = "created_at",
+  /** column name */
+  DbaName = "dba_name",
   /** column name */
   EstimateLatitude = "estimate_latitude",
   /** column name */
@@ -5589,6 +5632,7 @@ export enum CompanyLicensesSelectColumn {
 export type CompanyLicensesSetInput = {
   company_id?: Maybe<Scalars["uuid"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
+  dba_name?: Maybe<Scalars["String"]>;
   estimate_latitude?: Maybe<Scalars["numeric"]>;
   estimate_longitude?: Maybe<Scalars["numeric"]>;
   estimate_zip?: Maybe<Scalars["String"]>;
@@ -5663,6 +5707,8 @@ export enum CompanyLicensesUpdateColumn {
   CompanyId = "company_id",
   /** column name */
   CreatedAt = "created_at",
+  /** column name */
+  DbaName = "dba_name",
   /** column name */
   EstimateLatitude = "estimate_latitude",
   /** column name */
@@ -7371,7 +7417,7 @@ export type CompanyVendorContacts = {
   id: Scalars["uuid"];
   is_active?: Maybe<Scalars["Boolean"]>;
   partnership_id: Scalars["uuid"];
-  updated_at: Scalars["timestamptz"];
+  updated_at?: Maybe<Scalars["timestamptz"]>;
   /** An object relationship */
   user: Users;
   vendor_user_id: Scalars["uuid"];
@@ -14734,7 +14780,7 @@ export enum MetrcDeliveriesUpdateColumn {
 
 /** Structured results of how a download  */
 export type MetrcDownloadSummaries = {
-  company_id: Scalars["uuid"];
+  company_id?: Maybe<Scalars["uuid"]>;
   created_at: Scalars["timestamptz"];
   date: Scalars["date"];
   err_details: Scalars["json"];
@@ -23828,7 +23874,6 @@ export type PurchaseOrders = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
-  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   /** An object relationship */
@@ -24033,7 +24078,6 @@ export type PurchaseOrdersBoolExp = {
   all_customer_notes?: Maybe<JsonComparisonExp>;
   amount?: Maybe<NumericComparisonExp>;
   amount_funded?: Maybe<NumericComparisonExp>;
-  amount_updated_at?: Maybe<TimestamptzComparisonExp>;
   approved_at?: Maybe<TimestamptzComparisonExp>;
   approved_by_user_id?: Maybe<UuidComparisonExp>;
   approving_user_id?: Maybe<UsersBoolExp>;
@@ -24107,7 +24151,6 @@ export type PurchaseOrdersInsertInput = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
-  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   approving_user_id?: Maybe<UsersObjRelInsertInput>;
@@ -24156,7 +24199,6 @@ export type PurchaseOrdersMaxFields = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
-  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -24191,7 +24233,6 @@ export type PurchaseOrdersMaxOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
-  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   bank_incomplete_note?: Maybe<OrderBy>;
@@ -24226,7 +24267,6 @@ export type PurchaseOrdersMinFields = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
-  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -24261,7 +24301,6 @@ export type PurchaseOrdersMinOrderBy = {
   amount?: Maybe<OrderBy>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<OrderBy>;
-  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   bank_incomplete_note?: Maybe<OrderBy>;
@@ -24319,7 +24358,6 @@ export type PurchaseOrdersOrderBy = {
   all_customer_notes?: Maybe<OrderBy>;
   amount?: Maybe<OrderBy>;
   amount_funded?: Maybe<OrderBy>;
-  amount_updated_at?: Maybe<OrderBy>;
   approved_at?: Maybe<OrderBy>;
   approved_by_user_id?: Maybe<OrderBy>;
   approving_user_id?: Maybe<UsersOrderBy>;
@@ -24377,8 +24415,6 @@ export enum PurchaseOrdersSelectColumn {
   Amount = "amount",
   /** column name */
   AmountFunded = "amount_funded",
-  /** column name */
-  AmountUpdatedAt = "amount_updated_at",
   /** column name */
   ApprovedAt = "approved_at",
   /** column name */
@@ -24444,7 +24480,6 @@ export type PurchaseOrdersSetInput = {
   amount?: Maybe<Scalars["numeric"]>;
   /** How much in dollars that this Purchase Order has been funded */
   amount_funded?: Maybe<Scalars["numeric"]>;
-  amount_updated_at?: Maybe<Scalars["timestamptz"]>;
   approved_at?: Maybe<Scalars["timestamptz"]>;
   approved_by_user_id?: Maybe<Scalars["uuid"]>;
   bank_incomplete_note?: Maybe<Scalars["String"]>;
@@ -24555,8 +24590,6 @@ export enum PurchaseOrdersUpdateColumn {
   Amount = "amount",
   /** column name */
   AmountFunded = "amount_funded",
-  /** column name */
-  AmountUpdatedAt = "amount_updated_at",
   /** column name */
   ApprovedAt = "approved_at",
   /** column name */
@@ -32743,6 +32776,7 @@ export type CompanyLicenseFragment = Pick<
   CompanyLicenses,
   | "id"
   | "legal_name"
+  | "dba_name"
   | "license_category"
   | "license_description"
   | "license_status"
@@ -34630,6 +34664,7 @@ export const CompanyLicenseFragmentDoc = gql`
   fragment CompanyLicense on company_licenses {
     id
     legal_name
+    dba_name
     license_category
     license_description
     license_status

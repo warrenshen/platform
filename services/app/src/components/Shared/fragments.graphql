@@ -49,6 +49,7 @@ fragment CompanyFacility on company_facilities {
 fragment CompanyLicense on company_licenses {
   id
   legal_name
+  dba_name
   license_category
   license_description
   license_status

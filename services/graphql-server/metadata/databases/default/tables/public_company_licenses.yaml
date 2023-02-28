@@ -25,50 +25,52 @@ select_permissions:
   - role: bank_admin
     permission:
       columns:
+        - id
         - company_id
+        - file_id
+        - license_number
+        - is_deleted
+        - rollup_id
+        - legal_name
+        - license_status
+        - is_current
+        - license_description
+        - us_state
+        - expiration_date
         - created_at
+        - updated_at
+        - license_category
+        - facility_row_id
+        - estimate_zip
         - estimate_latitude
         - estimate_longitude
-        - estimate_zip
-        - expiration_date
-        - facility_row_id
-        - file_id
-        - id
-        - is_current
-        - is_deleted
         - is_underwriting_enabled
-        - legal_name
-        - license_category
-        - license_description
-        - license_number
-        - license_status
-        - rollup_id
-        - updated_at
-        - us_state
+        - dba_name
       filter: {}
   - role: bank_read_only
     permission:
       columns:
-        - company_id
-        - created_at
-        - estimate_latitude
-        - estimate_longitude
-        - estimate_zip
-        - expiration_date
-        - facility_row_id
-        - file_id
-        - id
         - is_current
         - is_deleted
         - is_underwriting_enabled
+        - expiration_date
+        - estimate_latitude
+        - estimate_longitude
+        - dba_name
+        - estimate_zip
         - legal_name
         - license_category
         - license_description
         - license_number
         - license_status
         - rollup_id
-        - updated_at
         - us_state
+        - created_at
+        - updated_at
+        - company_id
+        - facility_row_id
+        - file_id
+        - id
       filter: {}
   - role: company_admin
     permission:

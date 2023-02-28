@@ -66,6 +66,13 @@ export default function CompanyLicenseDrawer({
 
         <Box display="flex" flexDirection="column" mt={2}>
           <Typography variant="subtitle2" color="textSecondary">
+            DBA Name
+          </Typography>
+          <Typography variant={"body1"}>{companyLicense.dba_name}</Typography>
+        </Box>
+
+        <Box display="flex" flexDirection="column" mt={2}>
+          <Typography variant="subtitle2" color="textSecondary">
             License Category
           </Typography>
           <Typography variant={"body1"}>

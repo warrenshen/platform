@@ -3,14 +3,32 @@ import CompanyLicenseDrawerLauncher from "components/CompanyLicenses/CompanyLice
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import DateDataGridCell from "components/Shared/DataGrid/DateDataGridCell";
 import TextDataGridCell from "components/Shared/DataGrid/TextDataGridCell";
-import { CompanyLicenseFragment, CompanyLicenses } from "generated/graphql";
+import {
+  CompanyFacilities,
+  CompanyLicenseFragment,
+  CompanyLicenses,
+} from "generated/graphql";
+import { Maybe } from "graphql/jsutils/Maybe";
 import { ColumnWidths } from "lib/tables";
 import { useMemo } from "react";
+
+type CompanyLicenseWithFacilityFragment = CompanyLicenseFragment & {
+  company_facility?: Maybe<Pick<CompanyFacilities, "id" | "name">> | undefined;
+};
 
 function getRows(companyLicenses: CompanyLicenseFragment[]) {
   return companyLicenses.map((companyLicense) => {
     return {
       ...companyLicense,
+      us_state: companyLicense.us_state || "-",
+      facility_name:
+        (companyLicense as CompanyLicenseWithFacilityFragment)?.company_facility
+          ?.name || "-",
+      license_category: companyLicense.license_category || "-",
+      license_description: companyLicense.license_description || "-",
+      license_status: companyLicense.license_status || "-",
+      legal_name: companyLicense.legal_name || "-",
+      dba_name: companyLicense.dba_name || "-",
       is_file_attached: !!companyLicense.file_id,
       is_underwriting_enabled: !!companyLicense.is_underwriting_enabled,
     };
@@ -65,15 +83,6 @@ export default function CompanyLicensesDataGrid({
         caption: "Facility Name",
         dataField: "facility_name",
         width: ColumnWidths.MinWidth,
-        cellRender: (params: GridValueFormatterParams) => (
-          <TextDataGridCell
-            label={
-              params.row.data.company_facility?.name
-                ? params.row.data.company_facility.name
-                : "-"
-            }
-          />
-        ),
       },
       {
         visible: isUnderwritingInfoVisible,
@@ -85,43 +94,16 @@ export default function CompanyLicensesDataGrid({
         dataField: "license_category",
         caption: "License Category",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: GridValueFormatterParams) => (
-          <TextDataGridCell
-            label={
-              params.row.data.license_category
-                ? params.row.data.license_category
-                : "-"
-            }
-          />
-        ),
       },
       {
         dataField: "license_description",
         caption: "License Description",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: GridValueFormatterParams) => (
-          <TextDataGridCell
-            label={
-              params.row.data.license_description
-                ? params.row.data.license_description
-                : "-"
-            }
-          />
-        ),
       },
       {
         dataField: "license_status",
         caption: "License Status",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: GridValueFormatterParams) => (
-          <TextDataGridCell
-            label={
-              params.row.data.license_status
-                ? params.row.data.license_status
-                : "-"
-            }
-          />
-        ),
       },
       {
         caption: "Expiration Date",
@@ -136,13 +118,11 @@ export default function CompanyLicensesDataGrid({
         caption: "Legal Name",
         dataField: "legal_name",
         minWidth: ColumnWidths.MinWidth,
-        cellRender: (params: GridValueFormatterParams) => (
-          <TextDataGridCell
-            label={
-              params.row.data.legal_name ? params.row.data.legal_name : "-"
-            }
-          />
-        ),
+      },
+      {
+        caption: "DBA Name",
+        dataField: "dba_name",
+        minWidth: ColumnWidths.MinWidth,
       },
       {
         caption: "File Attachment?",

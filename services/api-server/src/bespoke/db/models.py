@@ -232,13 +232,17 @@ class CompanyLicense(Base):
 	__tablename__ = 'company_licenses'
 
 	id = cast(GUID, Column(GUID, nullable=False, primary_key=True, default=GUID_DEFAULT, unique=True))
+	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	is_deleted = Column(Boolean, nullable=False, default=False)
+
 	company_id = cast(GUID, Column(GUID, ForeignKey('companies.id')))
 	file_id = cast(GUID, Column(GUID, ForeignKey('files.id')))
 	facility_row_id = cast(GUID, Column(GUID, ForeignKey('company_facilities.id')))
 	license_number = Column(Text)
-	is_deleted = Column(Boolean, nullable=False, default=False)
 	rollup_id = Column(Text)
 	legal_name = Column(Text)
+	dba_name = Column(Text)
 	is_current = Column(Boolean)
 	license_status = Column(Text)
 	license_category = Column(Text)
@@ -249,9 +253,6 @@ class CompanyLicense(Base):
 	estimate_latitude = Column(Numeric(precision=9, scale=7))
 	estimate_longitude = Column(Numeric(precision=10, scale=7))
 	is_underwriting_enabled = Column(Boolean)
-
-	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
-	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	
 	def as_dict(self) -> CompanyLicenseDict:
 		return CompanyLicenseDict(
@@ -326,10 +327,14 @@ class CompanyFacility(Base):
 	__tablename__ = 'company_facilities'
 
 	id = Column(GUID, primary_key=True, default=GUID_DEFAULT, unique=True)
+	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+	is_deleted = Column(Boolean, nullable=False, default=False)
+
 	company_id = Column(GUID)
 	name = Column(String)
 	address = Column(String)
-	is_deleted = Column(Boolean, nullable=False, default=False)
+	underwriting_mode = Column(String) # db_constants.CompanyFacilityUnderwritingMode
 
 ContractDict = TypedDict('ContractDict', {
 	'id': str,

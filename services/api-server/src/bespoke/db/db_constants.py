@@ -450,3 +450,12 @@ class VendorChangeRequestsCategoryEnum(object):
 class PurchaseOrderActions(object):
 	DRAFT = 'draft'
 	SUBMIT = 'submit'
+
+class CompanyFacilityUnderwritingMode(object):
+	"""
+	Enum for company facility underwriting mode
+	"""
+	APPLICANT_ACTIVE = 'applicant_active' # Applicant is active, requires frequent underwriting
+	APPLICANT_INACTIVE = 'applicant_inactive' # Applicant is inactive, requires infrequent underwriting
+	BORROWER_ACTIVE = 'borrower_active' # Borrower is active, requires most frequent underwriting
+	BORROWER_INACTIVE = 'borrower_inactive' # Borrower is inactive, requires less frequent underwriting

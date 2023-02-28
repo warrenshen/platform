@@ -197,9 +197,9 @@ export default function BankCustomerSettingsSubpage({ companyId }: Props) {
           </Box>
           <Box display="flex" mt={3} data-cy="company-license-table-container">
             <CompanyLicensesDataGrid
+              companyLicenses={companyLicenses}
               selectedCompanyLicensesIds={selectedLicensesId}
               handleSelectCompanyLicenses={handleSelectLicenses}
-              companyLicenses={companyLicenses}
             />
           </Box>
         </Box>
