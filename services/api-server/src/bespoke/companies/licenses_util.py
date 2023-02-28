@@ -1,7 +1,7 @@
 import decimal
 import logging
 
-from typing import Any, Callable, Dict, List, Tuple, cast
+from typing import Any, Callable, Dict, List, Optional, Tuple, cast
 from mypy_extensions import TypedDict
 from sqlalchemy.orm.session import Session
 
@@ -18,11 +18,12 @@ from bespoke.db.metrc_models_util import (
 
 CompanyLicenseInputDict = TypedDict('CompanyLicenseInputDict', {
 	'id': str,
+	'license_number': str,
 	'company_id': str,
 	'file_id': str,
-	'license_number': str,
 	'rollup_id': str,
 	'legal_name': str,
+	'dba_name': str,
 	'is_current': bool,
 	'license_status': str,
 	'license_category': str,
@@ -67,73 +68,58 @@ def add_licenses(
 
 	return new_license_ids, None
 
-def _update_license(
-	existing: models.CompanyLicense, 
+def _update_company_license(
+	company_license: models.CompanyLicense,
+	license_input: CompanyLicenseInputDict,
+) -> Optional[str]:
+	l = license_input
+
+	company_license.license_number = l['license_number'].strip()
+
+	if l.get('company_id'):
+		company_license.company_id = cast(Any, l['company_id'])
+	if l.get('us_state'):
+		company_license.us_state = l['us_state']
+	if l.get('rollup_id'):
+		company_license.rollup_id = l['rollup_id']
+	if l.get('legal_name'):
+		company_license.legal_name = l['legal_name']
+	if l.get('dba_name'):
+		company_license.dba_name = l['dba_name']
+	if l.get('is_current') is not None:
+		company_license.is_current = l['is_current']
+	if l.get('license_status'):
+		company_license.license_status = l['license_status']
+	if l.get('license_category'):
+		company_license.license_category = l['license_category']
+	if l.get('license_description'):
+		company_license.license_description = l['license_description']
+	if l.get('expiration_date'):
+		company_license.expiration_date = date_util.load_date_str(l['expiration_date'])
+	if l.get('estimate_zip'):
+		company_license.estimate_zip = l['estimate_zip']
+	if l.get('estimate_latitude'):
+		company_license.estimate_latitude = decimal.Decimal(l['estimate_latitude'])
+	if l.get('estimate_longitude'):
+		company_license.estimate_longitude = decimal.Decimal(l['estimate_longitude'])
+	if l.get('facility_row_id'):
+		company_license.facility_row_id = cast(Any, l.get('facility_row_id'))
+	if l.get('is_underwriting_enabled') is not None:
+		company_license.is_underwriting_enabled = l['is_underwriting_enabled']
+
+	company_license.file_id = cast(Any, l.get('file_id')) if l.get('file_id') else None
+
+	return str(company_license.id) if company_license.id else None
+
+def _add_company_license(
+	session: Session,
 	license_input: CompanyLicenseInputDict,
 ) -> str:
-	l = license_input
-	if l.get('company_id'):
-		existing.company_id = cast(Any, l['company_id'])
-	if l.get('rollup_id'):
-		existing.rollup_id = l['rollup_id']
-	if l.get('legal_name'):
-		existing.legal_name = l['legal_name']
-	if l.get('is_current') is not None:
-		existing.is_current = l['is_current']
-	if l.get('license_status'):
-		existing.license_status = l['license_status']
-	if l.get('license_category'):
-		existing.license_category = l['license_category']
-	if l.get('license_description'):
-		existing.license_description = l['license_description']
-	if l.get('expiration_date'):
-		existing.expiration_date = date_util.load_date_str(l['expiration_date'])
-	if l.get('us_state'):
-		existing.us_state = l['us_state']
-	if l.get('estimate_zip'):
-		existing.estimate_zip = l['estimate_zip']
-	if l.get('estimate_latitude'):
-		existing.estimate_latitude = decimal.Decimal(l['estimate_latitude'])
-	if l.get('estimate_longitude'):
-		existing.estimate_longitude = decimal.Decimal(l['estimate_longitude'])
-	if l.get('facility_row_id'):
-		existing.facility_row_id = cast(Any, l.get('facility_row_id'))
-	if l.get('is_underwriting_enabled') is not None:
-		existing.is_underwriting_enabled = l['is_underwriting_enabled']
-
-	existing.file_id = cast(Any, l.get('file_id')) if l.get('file_id') else None
-	existing.license_number = l['license_number'].strip()
-
-	return str(existing.id)
-
-def _add_license(license_input: CompanyLicenseInputDict, session: Session) -> str:
-	l = license_input
-
-	license = models.CompanyLicense()
-	license.company_id = cast(Any, l.get('company_id'))
-	license.file_id = cast(Any, l.get('file_id'))
-	license.license_number = cast(Any, l['license_number'].strip())
-	license.rollup_id = l.get('rollup_id')
-	license.legal_name = l.get('legal_name')
-	license.is_current = l.get('is_current')
-	license.license_status = l.get('license_status')
-	license.license_category = l.get('license_category')
-	license.license_description = l.get('license_description')
-	if l.get('expiration_date'):
-		license.expiration_date = date_util.load_date_str(l['expiration_date'])
-	license.us_state = l.get('us_state')
-	if l.get('estimate_zip'):
-		license.estimate_zip = l.get('estimate_zip')
-	if l.get('estimate_latitude'):
-		license.estimate_latitude = decimal.Decimal(l.get('estimate_latitude'))
-	if l.get('estimate_longitude'):
-		license.estimate_longitude = decimal.Decimal(l.get('estimate_longitude'))
-	license.facility_row_id = cast(Any, l.get('facility_row_id'))
-	license.is_underwriting_enabled = l.get('is_underwriting_enabled')
-
-	session.add(license)
+	company_license = models.CompanyLicense()
+	_update_company_license(company_license, license_input)
+	session.add(company_license)
 	session.flush()
-	return str(license.id)
+	return str(company_license.id)
 
 
 @errors.return_error_tuple
@@ -152,7 +138,7 @@ def create_update_license(
 		if not company_license:
 			raise errors.Error('Could not find company license')
 
-		license_id = _update_license(company_license, company_license_input)
+		license_id = _update_company_license(company_license, company_license_input)
 	else:
 		license_number = license_number.strip()
 		company_license = cast(
@@ -163,7 +149,7 @@ def create_update_license(
 		if company_license:
 			return None, errors.Error(f"This license could not be added because it's already assigned to: {company_license.legal_name}")
 
-		license_id = _add_license(company_license_input, session)
+		license_id = _add_company_license(session, company_license_input)
 
 	return license_id, None
 
@@ -222,7 +208,7 @@ def create_update_licenses(
 			if not existing_company_license:
 				raise errors.Error('Could not find company license')
 
-			license_id = _update_license(existing_company_license, company_license_input)
+			license_id = _update_company_license(existing_company_license, company_license_input)
 			license_ids.append(license_id)
 		else:
 			company_license = cast(
@@ -234,15 +220,15 @@ def create_update_licenses(
 				existing_license_numbers.append(company_license.license_number)
 
 			else:
-				license_id = _add_license(company_license_input, session)
+				license_id = _add_company_license(session, company_license_input)
 				license_ids.append(license_id)
 
 	return license_ids, existing_license_numbers, None
 
 @errors.return_error_tuple
 def bulk_update_licenses(
-	company_license_inputs: List[CompanyLicenseInputDict],
 	session: Session,
+	company_license_inputs: List[CompanyLicenseInputDict],
 ) -> Tuple[List[str], errors.Error]:
 
 	license_numbers = []
@@ -269,10 +255,10 @@ def bulk_update_licenses(
 
 		if license_number in license_number_to_license:
 			existing_company_license = license_number_to_license[license_number]
-			license_id = _update_license(existing_company_license, company_license_input)
+			license_id = _update_company_license(existing_company_license, company_license_input)
 			license_ids.append(license_id)
 		else:
-			license_id = _add_license(company_license_input, session)
+			license_id = _add_company_license(session, company_license_input)
 			license_ids.append(license_id)
 
 	return license_ids, None

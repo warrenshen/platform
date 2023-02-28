@@ -313,6 +313,7 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 
 		with session_scope(session_maker) as session:
 			_, err = licenses_util.bulk_update_licenses(
+				session=session,
 				company_license_inputs=[
 					CompanyLicenseInputDict(
 						company_id=company_id2,
@@ -323,7 +324,6 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 						license_number='efgh',
 					)
 				],
-				session=session
 			)
 			self.assertIsNone(err)
 
@@ -367,12 +367,14 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 
 		with session_scope(session_maker) as session:
 			_, err = licenses_util.bulk_update_licenses(
+				session=session,
 				company_license_inputs=[
 					CompanyLicenseInputDict(
 						company_id=company_id2,
 						license_number='abcd',
 						rollup_id='id1',
 						legal_name='legal1',
+						dba_name='dba1',
 						is_current=False,
 						license_status='status1',
 						license_category='processor',
@@ -386,6 +388,7 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 						license_number='efgh',
 						rollup_id='id2',
 						legal_name='legal2',
+						dba_name='dba2',
 						is_current=False,
 						license_status='status2',
 						license_category='retailer',
@@ -398,6 +401,7 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 						license_number='ijkl',
 						rollup_id='id3',
 						legal_name='legal3',
+						dba_name='dba3',
 						is_current=False,
 						license_status='status3',
 						license_category='retailer',
@@ -409,7 +413,6 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 						estimate_longitude=-122.181725,
 					)
 				],
-				session=session
 			)
 			self.assertIsNone(err)
 
@@ -419,6 +422,7 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 				license_number='abcd',
 				rollup_id='id1',
 				legal_name='legal1',
+				dba_name='dba1',
 				is_current=False,
 				license_status='status1',
 				license_category='processor',
@@ -432,6 +436,7 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 				license_number='efgh',
 				rollup_id='id2',
 				legal_name='legal2',
+				dba_name='dba2',
 				is_current=False,
 				license_status='status2',
 				license_category='retailer',
@@ -444,6 +449,7 @@ class TestUpdateBulkLicenses(db_unittest.TestCase):
 				license_number='ijkl',
 				rollup_id='id3',
 				legal_name='legal3',
+				dba_name='dba3',
 				is_current=False,
 				license_status='status3',
 				license_category='retailer',

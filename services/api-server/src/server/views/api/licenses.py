@@ -36,8 +36,8 @@ class BulkUpdateLicensesView(MethodView):
 		for cur_license_inputs in input_chunks:
 			with session_scope(current_app.session_maker) as session:
 				company_license_ids, err = licenses_util.bulk_update_licenses(
+					session=session,
 					company_license_inputs=cur_license_inputs,
-					session=session
 				)
 				if err:
 					raise err
