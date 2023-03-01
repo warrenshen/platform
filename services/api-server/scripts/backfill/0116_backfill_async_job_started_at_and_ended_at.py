@@ -20,6 +20,7 @@ sys.path.append(path.realpath(path.join(path.dirname(__file__), "../")))
 
 
 from bespoke.db import models
+from bespoke.db.db_constants import AsyncJobStatusEnum
 
 
 def main(is_test_run: bool = True) -> None:
@@ -39,6 +40,10 @@ def main(is_test_run: bool = True) -> None:
 					List[models.AsyncJob],
 					session.query(models.AsyncJob).filter(
 						(models.AsyncJob.started_at == None) | (models.AsyncJob.ended_at == None)
+					).filter(
+						(models.AsyncJob.status == AsyncJobStatusEnum.COMPLETED) | (models.AsyncJob.status == AsyncJobStatusEnum.FAILED) 
+					).order_by(
+						models.AsyncJob.created_at.asc()
 					).offset(
 						current_page * BATCH_SIZE
 					).limit(BATCH_SIZE).all())
