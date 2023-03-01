@@ -2,14 +2,12 @@ import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import InvoiceInfoCard from "components/Invoices/InvoiceInfoCard";
 import Modal from "components/Shared/Modal/Modal";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { Invoices, useGetInvoiceByIdQuery } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { deleteInvoiceMutation } from "lib/api/invoices";
+import { PlatformModeEnum } from "lib/enum";
 import { useContext } from "react";
 
 interface Props {
@@ -21,9 +19,9 @@ export default function DeleteInvoiceModal({ invoiceId, handleClose }: Props) {
   const snackbar = useSnackbar();
 
   const {
-    user: { role },
+    user: { platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
 
   const { data, loading: isExistingPurchaseOrderLoading } =
     useGetInvoiceByIdQuery({

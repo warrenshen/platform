@@ -1,15 +1,13 @@
 import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import Modal from "components/Shared/Modal/Modal";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { Contracts, useGetContractQuery } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { deleteContractMutation } from "lib/api/contracts";
 import { formatDateString } from "lib/date";
+import { PlatformModeEnum } from "lib/enum";
 import { useContext } from "react";
 
 interface Props {
@@ -24,9 +22,9 @@ export default function DeleteContractModal({
   const snackbar = useSnackbar();
 
   const {
-    user: { role },
+    user: { platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
 
   const { data, loading: isExistingContractLoading } = useGetContractQuery({
     fetchPolicy: "network-only",

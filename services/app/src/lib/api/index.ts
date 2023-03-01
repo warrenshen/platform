@@ -86,7 +86,7 @@ export const contractRoutes = {
 
 export const userRoutes = {
   createLogin: "/users/create_login",
-  createBankCustomerUser: "/users/create_bank_customer_user",
+  createUser: "/users/create_user",
   deactivateCustomerUser: "/users/deactivate_customer_user",
   reactivateCustomerUser: "/users/reactivate_customer_user",
   createParentCompanyUser: "/users/create_parent_company_user",

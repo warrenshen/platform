@@ -59,6 +59,19 @@ select_permissions:
         purchase_order:
           vendor_id:
             _eq: X-Hasura-Company-Id
+  - role: vendor_admin
+    permission:
+      columns:
+        - file_id
+        - file_type
+        - purchase_order_id
+      filter:
+        purchase_order:
+          _or:
+            - company_id:
+                _eq: X-Hasura-Company-Id
+            - vendor_id:
+                _eq: X-Hasura-Company-Id
 delete_permissions:
   - role: bank_admin
     permission:

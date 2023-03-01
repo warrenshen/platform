@@ -4,10 +4,7 @@ import CreateRepaymentConfirmEffect from "components/Repayment/CreateRepaymentCo
 import CreateRepaymentSelectLoans from "components/Repayment/CreateRepaymentSelectLoans";
 import Modal from "components/Shared/Modal/Modal";
 import { CurrentCustomerContext } from "contexts/CurrentCustomerContext";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Companies,
   Loans,
@@ -24,6 +21,7 @@ import {
 } from "lib/date";
 import {
   PaymentTypeEnum,
+  PlatformModeEnum,
   ProductTypeEnum,
   RepaymentMethodEnum,
 } from "lib/enum";
@@ -57,9 +55,9 @@ export default function CreateRepaymentModal({
   const snackbar = useSnackbar();
 
   const {
-    user: { role },
+    user: { platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
 
   const { financialSummary } = useContext(CurrentCustomerContext);
 

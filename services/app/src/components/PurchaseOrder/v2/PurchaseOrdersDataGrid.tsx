@@ -10,10 +10,7 @@ import DataGridActionMenu, {
 import ProgressBarDataGridCell from "components/Shared/DataGrid/ProgressBarDataGridCell";
 import ClickableDataGridCell from "components/Shared/DataGrid/v2/ClickableDataGridCell";
 import MetrcLogo from "components/Shared/Images/MetrcLogo.png";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Companies,
   PurchaseOrderFragment,
@@ -26,6 +23,7 @@ import { parseDateStringServer } from "lib/date";
 import {
   NewPurchaseOrderStatus,
   NewPurchaseOrderStatusToLabel,
+  PlatformModeEnum,
 } from "lib/enum";
 import { CurrencyPrecision, formatCurrency } from "lib/number";
 import { computePurchaseOrderDueDateDateStringClientNew } from "lib/purchaseOrders";
@@ -74,6 +72,7 @@ interface Props {
   isExcelExport?: boolean;
   isMultiSelectEnabled?: boolean;
   isFilteringEnabled?: boolean;
+  isVendorVisible?: boolean;
   dataCy?: string;
   purchaseOrders: PurchaseOrderFragment[];
   actionItems?: DataGridActionItem[];
@@ -97,6 +96,7 @@ export default function PurchaseOrdersDataGrid({
   isExcelExport = true,
   isFilteringEnabled = false,
   isMultiSelectEnabled = true,
+  isVendorVisible = true,
   dataCy = "",
   purchaseOrders,
   actionItems,
@@ -108,9 +108,9 @@ export default function PurchaseOrdersDataGrid({
 }: Props) {
   const [selectedPurchaseOrderId, setSelectedPurchaseOrderId] = useState(null);
   const {
-    user: { role },
+    user: { platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
   const rows = getRows(purchaseOrders);
   const columns = useMemo(
     () => [
@@ -205,6 +205,7 @@ export default function PurchaseOrdersDataGrid({
           ),
       },
       {
+        visible: isVendorVisible,
         dataField: "vendor_name",
         caption: "Vendor Name",
         minWidth: ColumnWidths.MinWidth,
@@ -303,6 +304,7 @@ export default function PurchaseOrdersDataGrid({
       isApprovedByVendor,
       isCustomerNoteVisible,
       isStatusVisible,
+      isVendorVisible,
       actionItems,
       selectablePurchaseOrderStatuses,
       handleClickCustomer,

@@ -1,14 +1,12 @@
 import { Box, Typography } from "@material-ui/core";
 import Modal from "components/Shared/Modal/Modal";
 import RawJsonToggle from "components/Shared/RawJsonToggle";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   MetrcTransferPackages,
   useGetMetrcTransferPackageQuery,
 } from "generated/graphql";
+import { PlatformModeEnum } from "lib/enum";
 import { useContext } from "react";
 
 interface Props {
@@ -21,9 +19,9 @@ export default function MetrcTransferPackageModal({
   handleClose,
 }: Props) {
   const {
-    user: { role },
+    user: { platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
 
   const { data } = useGetMetrcTransferPackageQuery({
     fetchPolicy: "network-only",

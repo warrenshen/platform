@@ -8,15 +8,12 @@ import { ReactComponent as CompanyIcon } from "components/Shared/Layout/Icons/Co
 import { ReactComponent as ParentCompanyIcon } from "components/Shared/Layout/Icons/ParentCompanyGreen.svg";
 import Page from "components/Shared/Page";
 import Text, { TextVariants } from "components/Shared/Text/Text";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   ParentCompanies,
   useGetParentCompanyForBankParentCompanyPageQuery,
 } from "generated/graphql";
-import { BankCompanyLabel } from "lib/enum";
+import { BankCompanyLabel, PlatformModeEnum } from "lib/enum";
 import {
   BankParentCompanyRouteEnum,
   getBankParentCompanyRoute,
@@ -90,8 +87,9 @@ interface Props {
 
 export default function BankParentCompanyPage({ children }: Props) {
   const {
-    user: { role },
+    user: { platformMode },
   } = useContext(CurrentUserContext);
+  const isRoleBankUser = platformMode === PlatformModeEnum.Bank;
   const { parentCompanyId: companyId } = useParams<{
     parentCompanyId: ParentCompanies["id"];
   }>();
@@ -124,7 +122,7 @@ export default function BankParentCompanyPage({ children }: Props) {
       <Box display="flex" alignSelf="stretch">
         <Box className={classes.drawer}>
           <TitleText>{companyName || ""}</TitleText>
-          {isRoleBankUser(role)}
+          {isRoleBankUser}
           <Box mt={1} mb={1}>
             <CompanyChip companyType={BankCompanyLabel.ParentCompany} />
           </Box>

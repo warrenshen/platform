@@ -18,7 +18,7 @@ import PhoneInput from "components/Shared/FormInputs/PhoneInput";
 import { UserRolesEnum, UsersInsertInput } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { createBankCustomerUserMutation } from "lib/api/users";
+import { createUserMutation } from "lib/api/users";
 import {
   BespokeCompanyRole,
   BespokeCompanyRoleToLabel,
@@ -71,11 +71,11 @@ export default function InviteUserModal({
     phone_number: "",
   });
 
-  const [createBankCustomerUser, { loading: isCreateBankCustomerUserLoading }] =
-    useCustomMutation(createBankCustomerUserMutation);
+  const [createUser, { loading: isCreateBankCustomerUserLoading }] =
+    useCustomMutation(createUserMutation);
 
   const handleClickSubmit = async () => {
-    const response = await createBankCustomerUser({
+    const response = await createUser({
       variables: {
         company_id: companyId,
         user: {
@@ -125,6 +125,7 @@ export default function InviteUserModal({
             <FormControl>
               <InputLabel id="user-role-select-label">User Role</InputLabel>
               <Select
+                data-cy="invite-user-modal-user-role-select"
                 required
                 labelId="user-role-select-label"
                 value={user.role || ""}
@@ -133,7 +134,14 @@ export default function InviteUserModal({
                 }}
               >
                 {userRoles.map((userRole) => (
-                  <MenuItem key={userRole} value={userRole}>
+                  <MenuItem
+                    key={userRole}
+                    value={userRole}
+                    data-cy={`user-role-select-item-${UserRoleToLabel[userRole]}`
+                      .replace(/\s+/g, "-")
+                      .replace(/(\(|\))/g, "")
+                      .toLocaleLowerCase()}
+                  >
                     {UserRoleToLabel[userRole]}
                   </MenuItem>
                 ))}
@@ -147,6 +155,7 @@ export default function InviteUserModal({
                   Company Role
                 </InputLabel>
                 <Select
+                  data-cy="invite-user-modal-company-role-select"
                   required
                   labelId="company-role-select-label"
                   value={user.company_role || ""}
@@ -158,7 +167,13 @@ export default function InviteUserModal({
                   }}
                 >
                   {BespokeCompanyRoles.map((companyRole) => (
-                    <MenuItem key={companyRole} value={companyRole}>
+                    <MenuItem
+                      key={companyRole}
+                      value={companyRole}
+                      data-cy={`company-role-select-item-${BespokeCompanyRoleToLabel[companyRole]}`
+                        .replace(/\s+/g, "-")
+                        .toLocaleLowerCase()}
+                    >
                       {BespokeCompanyRoleToLabel[companyRole]}
                     </MenuItem>
                   ))}
@@ -168,6 +183,7 @@ export default function InviteUserModal({
           )}
           <Box display="flex" flexDirection="column" mt={4}>
             <TextField
+              data-cy="invite-user-modal-first-name"
               required
               label="First Name"
               value={user.first_name}
@@ -181,6 +197,7 @@ export default function InviteUserModal({
           </Box>
           <Box display="flex" flexDirection="column" mt={4}>
             <TextField
+              data-cy="invite-user-modal-last-name"
               required
               label="Last Name"
               value={user.last_name}
@@ -194,6 +211,7 @@ export default function InviteUserModal({
           </Box>
           <Box display="flex" flexDirection="column" mt={4}>
             <TextField
+              data-cy="invite-user-modal-email"
               required
               label="Email"
               error={!!user.email && !isEmailValid(user.email)}
@@ -208,6 +226,7 @@ export default function InviteUserModal({
           </Box>
           <Box display="flex" flexDirection="column" mt={4}>
             <PhoneInput
+              dataCy="invite-user-modal-phone-number"
               isRequired
               value={user.phone_number || null}
               handleChange={(value) =>
@@ -224,6 +243,7 @@ export default function InviteUserModal({
         <Box>
           <Button onClick={handleClose}>Cancel</Button>
           <Button
+            data-cy="invite-user-modal-submit"
             disabled={isSubmitDisabled}
             className={classes.submitButton}
             onClick={handleClickSubmit}

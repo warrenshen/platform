@@ -6,7 +6,7 @@ from typing import Any, Callable, cast
 import sqlalchemy
 from bespoke.companies import create_company_util, create_user_util
 from bespoke.db import models
-from bespoke.db.db_constants import ALL_USER_BASE_ROLES, UserRoles
+from bespoke.db.db_constants import ALL_USER_BASE_ROLES, ALL_INHERITED_ROLES, UserRoles
 from bespoke.db.models import session_scope
 from bespoke.db.seed_util import create_partnership_req, create_company_settings_and_company, create_user_inside_a_company, create_company_license, create_company_vendor_partnership
 from server.config import is_test_env
@@ -21,6 +21,10 @@ SEED_CUSTOMER_TUPLES = [
 	('Multilocation Customer', 'C3-MULTI-LOC', 'LINE OF CREDIT, INC.'),
 ]
 
+SEED_VENDOR_TUPLES = [
+	('Vendor Only', 'V1-ONLY'),
+]
+
 # Users
 # company_identifier
 # role
@@ -31,6 +35,7 @@ SEED_USER_TUPLES = [
 	('C1-IF', UserRoles.COMPANY_ADMIN, 'inventoryfinancing@customer.com', SEED_USER_PASSWORD),
 	('C2-LOC', UserRoles.COMPANY_ADMIN, 'lineofcredit@customer.com', SEED_USER_PASSWORD),
 	('C3-MULTI-LOC', UserRoles.COMPANY_ADMIN, 'multilocation@customer.com', SEED_USER_PASSWORD),
+	('V1-ONLY', UserRoles.VENDOR_ADMIN, 'vendoradmin@vendor.com', SEED_USER_PASSWORD),
 ]
 
 CUSTOMER_IDENTIFIER_INVENTORY_FINANCING = 'C1-IF'
@@ -98,7 +103,7 @@ def setup_db_test(app: Any) -> None:
 	# Populate rows of tables.
 	with app.app_context():
 		with session_scope(session_maker) as session:
-			for user_role in ALL_USER_BASE_ROLES:
+			for user_role in ALL_USER_BASE_ROLES + ALL_INHERITED_ROLES:
 				new_user_role = models.UserRole(
 					value=user_role,
 					display_name=user_role,
@@ -128,6 +133,28 @@ def setup_db_test(app: Any) -> None:
 					if identifier == "C3-MULTI-LOC":
 						customer.parent_company_id = session.query(models.Company).first().parent_company_id
 
+			for seed_vendor_tuple in SEED_VENDOR_TUPLES:
+				name, identifier = seed_vendor_tuple
+
+				existing_vendor = session.query(models.Company).filter_by(
+					is_vendor=True,
+					identifier=identifier,
+				).first()
+
+				if not existing_vendor:
+					parent_company = models.ParentCompany(name=name)
+					session.add(parent_company)
+					session.flush()
+					parent_company_id = str(parent_company.id)
+					company = models.Company(
+						parent_company_id=parent_company_id,
+						name=name,
+						identifier=identifier,
+						is_vendor=True,
+					)
+					session.add(company)
+					session.flush()
+
 		with session_scope(session_maker) as session:
 			for seed_user_tuple in SEED_USER_TUPLES:
 				company_identifier, role, email, password = seed_user_tuple
@@ -145,7 +172,7 @@ def setup_db_test(app: Any) -> None:
 				).first()
 
 				if not existing_user:
-					user_id, err = create_user_util.create_bank_or_customer_user(
+					user_id, err = create_user_util.create_user(
 						req=create_user_util.CreateBankOrCustomerUserInputDict(
 							company_id=company_id,
 							user=create_user_util.UserInsertInputDict(

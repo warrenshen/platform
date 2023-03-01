@@ -8,10 +8,7 @@ import FinancingRequestStatusChipNew from "components/Shared/Chip/FinancingReque
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import PurchaseOrderIdentifierDataGridCell from "components/Shared/DataGrid/PurchaseOrderIdentifierDataGridCell";
 import ClickableDataGridCell from "components/Shared/DataGrid/v2/ClickableDataGridCell";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Companies,
   FinancialSummaries,
@@ -28,6 +25,7 @@ import {
   AllLoanStatuses,
   LoanStatusEnum,
   LoanStatusToLabel,
+  PlatformModeEnum,
   ProductTypeEnum,
   ProductTypeToLabel,
   SurveillanceStatusEnum,
@@ -140,9 +138,9 @@ const FinancialRequestsDataGrid = ({
   handleSelectFinancingRequests,
 }: Props) => {
   const {
-    user: { role },
+    user: { platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
   const [selectedPurchaseOrderId, setSelectedPurchaseOrderId] =
     useState<PurchaseOrders["id"]>(null);
   const [selectedInvoiceId, setSelectedInvoiceId] =

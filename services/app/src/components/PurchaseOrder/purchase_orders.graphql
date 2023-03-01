@@ -156,3 +156,23 @@ query GetPurchaseOrdersChangesRequestedCountForCustomer($company_id: uuid!) {
     id
   }
 }
+
+# Vendor users
+query GetVendorPurchaseOrdersByStatus($vendor_id: uuid!, $statuses: [String!]) {
+  purchase_orders(
+    where: {
+      _and: [
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _eq: false } }
+          ]
+        }
+        { vendor_id: { _eq: $vendor_id } }
+        { new_purchase_order_status: { _in: $statuses } }
+      ]
+    }
+  ) {
+    ...PurchaseOrderLimitedNew
+  }
+}

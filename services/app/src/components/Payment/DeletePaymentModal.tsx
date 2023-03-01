@@ -1,10 +1,7 @@
 import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import Modal from "components/Shared/Modal/Modal";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { PurchaseOrders, useGetPaymentQuery } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -12,6 +9,7 @@ import { deleteRepaymentMutation } from "lib/api/payments";
 import { formatDateString } from "lib/date";
 import {
   PaymentTypeEnum,
+  PlatformModeEnum,
   RepaymentMethodEnum,
   RepaymentMethodToLabel,
 } from "lib/enum";
@@ -27,9 +25,9 @@ function DeletePaymentModal({ paymentId, handleClose }: Props) {
   const snackbar = useSnackbar();
 
   const {
-    user: { role },
+    user: { platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
 
   const { data, loading: isExistingPaymentLoading } = useGetPaymentQuery({
     fetchPolicy: "network-only",

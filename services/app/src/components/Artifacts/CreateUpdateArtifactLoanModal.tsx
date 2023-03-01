@@ -2,10 +2,7 @@ import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import ArtifactLoanForm from "components/Artifacts/ArtifactLoanForm";
 import Modal from "components/Shared/Modal/Modal";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Companies,
   LoanTypeEnum,
@@ -20,6 +17,7 @@ import { saveLoanMutation, submitLoanMutation } from "lib/api/loans";
 import {
   ActionType,
   LoanStatusEnum,
+  PlatformModeEnum,
   ProductTypeEnum,
   ProductTypeToArtifactType,
 } from "lib/enum";
@@ -57,9 +55,9 @@ export default function CreateUpdateArtifactLoanModal({
   const snackbar = useSnackbar();
 
   const {
-    user: { role },
+    user: { platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
 
   const selectedArtifact = artifacts.find(
     (artifact) => artifact.id === artifactId

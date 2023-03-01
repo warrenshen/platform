@@ -14,10 +14,7 @@ import DeactivateUserModal from "components/Users/DeactivateUserModal";
 import EditUserProfileModal from "components/Users/EditUserProfileModal";
 import ReactivateUserModal from "components/Users/ReactivateUserModal";
 import UsersDataGrid from "components/Users/UsersDataGrid";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   ParentCompanies,
   Users,
@@ -29,6 +26,7 @@ import { useFilterUserByCompanyName } from "hooks/useFilterUsers";
 import { SearchIcon, WhitePlusIcon } from "icons";
 import { Action } from "lib/auth/rbac-rules";
 import { getCompanyUserRolesFromChildCompanies } from "lib/companies";
+import { PlatformModeEnum } from "lib/enum";
 import { useContext, useMemo, useState } from "react";
 
 import CreateParentCompanyUserModal from "./CreateParentCompanyUserModal";
@@ -47,9 +45,9 @@ interface DeactivatedUsersTabProps {
 
 function ActiveUsersTab({ parentCompanyId }: ActiveUsersTabProps) {
   const {
-    user: { role },
+    user: { platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
 
   const { data, refetch } = useGetUsersForParentCompanyQuery({
     variables: {

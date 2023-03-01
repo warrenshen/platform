@@ -8,10 +8,7 @@ import BankPurchaseOrderDrawer from "components/PurchaseOrder/v2/BankPurchaseOrd
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import PurchaseOrderIdentifierDataGridCell from "components/Shared/DataGrid/PurchaseOrderIdentifierDataGridCell";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Companies,
   GetRepaymentsSubscription,
@@ -24,6 +21,7 @@ import {
 import { parseDateStringServer } from "lib/date";
 import {
   PaymentTypeEnum,
+  PlatformModeEnum,
   ProductTypeEnum,
   RepaymentMethodEnum,
   RepaymentMethodToLabel,
@@ -153,9 +151,9 @@ export default function BankRepaymentTransactionsDataGrid({
   handleClickPaymentBankNote,
 }: Props) {
   const {
-    user: { role },
+    user: { platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
   const [selectedPurchaseOrderId, setSelectedPurchaseOrderId] =
     useState<PurchaseOrders["id"]>(null);
   const [selectedInvoiceId, setSelectedInvoiceId] =

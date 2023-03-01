@@ -1,6 +1,6 @@
 export {};
 
-describe("Impersonate user", () => {
+describe("Impersonate Customer user", () => {
   before(() => {
     cy.resetDatabase();
     cy.addCompany({

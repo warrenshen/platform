@@ -1,7 +1,9 @@
 import { Box, Button, TextField, Typography } from "@material-ui/core";
 import UsersDataGrid from "components/Users/UsersDataGrid";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
-import { isRoleBankUser } from "contexts/CurrentUserContext";
+import {
+  CurrentUserContext,
+  ImpersonateUserResponse,
+} from "contexts/CurrentUserContext";
 import {
   UserRolesEnum,
   Users,
@@ -9,7 +11,8 @@ import {
 } from "generated/graphql";
 import { useFilterUserByCompanyName } from "hooks/useFilterUsers";
 import useSnackbar from "hooks/useSnackbar";
-import { customerRoutes } from "lib/routes";
+import { PlatformModeEnum } from "lib/enum";
+import { customerRoutes, vendorRoutes } from "lib/routes";
 import { useContext, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -19,12 +22,16 @@ const ImpersonateBankUserArea = () => {
   const navigate = useNavigate();
   const { impersonateUser } = useContext(CurrentUserContext);
   const {
-    user: { role },
+    user: { platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
   const { data } = useGetActiveUsersByRolesQuery({
     variables: {
-      roles: [UserRolesEnum.CompanyAdmin],
+      roles: [
+        UserRolesEnum.CompanyAdmin,
+        UserRolesEnum.CompanyAdminVendorAdminInherited,
+        UserRolesEnum.VendorAdmin,
+      ],
       isBankUser: isBankUser,
     },
   });
@@ -54,18 +61,26 @@ const ImpersonateBankUserArea = () => {
       return;
     }
 
-    const errorMsg = await impersonateUser(selectedUserIds[0]);
+    const impersonateUserResponse = (await impersonateUser(
+      selectedUserIds[0]
+    )) as ImpersonateUserResponse;
 
-    if (errorMsg) {
-      return snackbar.showError("Could not impersonate user: ", errorMsg);
+    if (!!impersonateUserResponse.errorMsg) {
+      return snackbar.showError(
+        "Could not impersonate user: ",
+        impersonateUserResponse.errorMsg
+      );
     }
-    navigate(customerRoutes.overview);
+
+    impersonateUserResponse.platformMode === PlatformModeEnum.Customer
+      ? navigate(customerRoutes.overview)
+      : navigate(vendorRoutes.overview);
   };
 
   return (
     <Box>
       <Typography variant="h6">
-        <strong>Customer Users</strong>
+        <strong>Customer and Vendor Users</strong>
       </Typography>
       <Box display="flex" justifyContent="space-between" mb={3}>
         <Box display="flex">

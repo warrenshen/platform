@@ -12,14 +12,12 @@ import {
   makeStyles,
 } from "@material-ui/core";
 import PhoneInput from "components/Shared/FormInputs/PhoneInput";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   CompanyFragment,
   useUpdateCompanyProfileMutation,
 } from "generated/graphql";
+import { PlatformModeEnum } from "lib/enum";
 import { useContext, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -43,9 +41,9 @@ export default function EditCompanyProfileModal({
   const classes = useStyles();
 
   const {
-    user: { role },
+    user: { platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
 
   const [company, setCompany] = useState(companyToEdit);
 

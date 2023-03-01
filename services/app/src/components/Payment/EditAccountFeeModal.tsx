@@ -2,15 +2,13 @@ import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import Modal from "components/Shared/Modal/Modal";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { Transactions, useGetPaymentQuery } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { editAccountLevelFeeMutation } from "lib/api/payments";
 import { formatDateString } from "lib/date";
+import { PlatformModeEnum } from "lib/enum";
 import { formatCurrency } from "lib/number";
 import { useContext, useEffect, useState } from "react";
 
@@ -23,9 +21,9 @@ function EditAccountFeeModal({ paymentId, handleClose }: Props) {
   const snackbar = useSnackbar();
 
   const {
-    user: { role },
+    user: { platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
 
   const { data, loading: isExistingPaymentLoading } = useGetPaymentQuery({
     fetchPolicy: "network-only",

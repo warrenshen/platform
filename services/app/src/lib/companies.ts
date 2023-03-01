@@ -7,9 +7,11 @@ import {
 } from "generated/graphql";
 import {
   CustomMessageEnum,
+  CustomerAndVendorCompanyUserRoles,
   CustomerUserRoles,
   FeatureFlagEnum,
   PartnerCompanyUserRoles,
+  VendorCompanyUserRoles,
 } from "lib/enum";
 
 export function getCompanyDisplayName(
@@ -32,7 +34,13 @@ export function getCompanyDisplayName(
 export function getCompanyUserRolesForCompany(company: CompanyFragment) {
   return [
     ...(company.is_customer ? CustomerUserRoles : []),
-    ...(company.is_payor || company.is_vendor ? PartnerCompanyUserRoles : []),
+    ...(company.is_payor ? PartnerCompanyUserRoles : []),
+    ...(company.is_vendor
+      ? [...PartnerCompanyUserRoles, ...VendorCompanyUserRoles]
+      : []),
+    ...(company.is_vendor && company.is_customer
+      ? CustomerAndVendorCompanyUserRoles
+      : []),
   ];
 }
 

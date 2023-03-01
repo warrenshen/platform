@@ -55,19 +55,12 @@ export const getTestSetupDates = () => {
 
   const orderDate = new Date();
   orderDate.setDate(orderDate.getDate() - 3);
-  const orderDateString = dateAsDateStringServer(orderDate);
 
   const requestedAt = getNextDayOfWeek(now, 5);
   requestedAt.setHours(20, 14, 0);
-  const requestedAtString = requestedAt.toLocaleString("en-US", {
-    timeZone: "Europe/London",
-  });
 
   const approvedAt = getNextDayOfWeek(now, 5);
   approvedAt.setHours(21, 2, 8);
-  const approvedAtString = approvedAt.toLocaleString("en-US", {
-    timeZone: "Europe/London",
-  });
 
   const maturityDate = new Date(
     now.getFullYear() + 1,
@@ -76,9 +69,9 @@ export const getTestSetupDates = () => {
   );
 
   return {
-    orderDate: orderDateString,
-    requestedAt: requestedAtString,
-    approvedAt: approvedAtString,
+    orderDate,
+    requestedAt,
+    approvedAt,
     maturityDate,
   };
 };

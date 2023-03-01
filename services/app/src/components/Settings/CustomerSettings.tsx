@@ -11,10 +11,7 @@ import AssignCollectionsBankAccount from "components/Shared/BankAssignment/Assig
 import Can from "components/Shared/Can";
 import CompanyInfo from "components/Shared/CompanyProfile/CompanyInfo";
 import ModalButton from "components/Shared/Modal/ModalButton";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   BankAccountFragment,
   BankAccounts,
@@ -22,6 +19,7 @@ import {
   GetCompanyForCustomerQuery,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
+import { PlatformModeEnum } from "lib/enum";
 import { useContext, useMemo, useState } from "react";
 
 interface Props {
@@ -44,9 +42,9 @@ export default function CustomerSettings({
   handleDataChange,
 }: Props) {
   const {
-    user: { role },
+    user: { role, platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
 
   const [accountSettingsOpen, setAccountSettingsOpen] = useState(false);
 

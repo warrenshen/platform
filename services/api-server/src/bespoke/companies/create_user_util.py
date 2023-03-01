@@ -52,9 +52,9 @@ UpdateThirdPartyUserRespDict = TypedDict('UpdateThirdPartyUserRespDict', {
 })
 
 @errors.return_error_tuple
-def create_bank_or_customer_user_with_session(
-	req: CreateBankOrCustomerUserInputDict,
+def create_user_with_session(
 	session: Session,
+	req: CreateBankOrCustomerUserInputDict,
 	created_by_user_id: str,
 ) -> Tuple[str, errors.Error]:
 	company_id = req['company_id'] 
@@ -90,6 +90,12 @@ def create_bank_or_customer_user_with_session(
 		if role == db_constants.UserRoles.COMPANY_CONTACT_ONLY:
 			if not company.is_payor and not company.is_vendor:
 				raise errors.Error('Company is neither Payor or Vendor company type')
+		elif role == db_constants.UserRoles.VENDOR_ADMIN:
+			if not company.is_vendor:
+				raise errors.Error('Company is not Vendor company type')
+		elif role == db_constants.InheritedRoles.COMPANY_ADMIN_VENDOR_ADMIN_INHERITED:
+			if not company.is_vendor and not company.is_customer:
+				raise errors.Error('Company is not both Customer and Vendor company type')
 		else:
 			if not company.is_customer:
 				raise errors.Error('Company is not Customer company type')
@@ -142,13 +148,13 @@ def create_bank_or_customer_user_with_session(
 
 # Note: this method name is misleading, we use this for vendor / payor users too.
 @errors.return_error_tuple
-def create_bank_or_customer_user(
-	req: CreateBankOrCustomerUserInputDict,
+def create_user(
 	session_maker: Callable,
+	req: CreateBankOrCustomerUserInputDict,
 	created_by_user_id: str,
 ) -> Tuple[str, errors.Error]:
 	with session_scope(session_maker) as session:
-		return create_bank_or_customer_user_with_session(req, session, created_by_user_id)
+		return create_user_with_session(session, req, created_by_user_id)
 
 	raise errors.Error("Could not create session")
 

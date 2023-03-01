@@ -5,10 +5,7 @@ import CreateRepaymentReviewRepayment from "components/Repayment/v2/CreateRepaym
 import { ApproveBlue } from "components/Shared/Colors/GlobalColors";
 import Modal from "components/Shared/Modal/Modal";
 import { CurrentCustomerContext } from "contexts/CurrentCustomerContext";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Companies,
   Loans,
@@ -26,6 +23,7 @@ import {
 import {
   PaymentOptionEnum,
   PaymentTypeEnum,
+  PlatformModeEnum,
   ProductTypeEnum,
   RepaymentMethodEnum,
 } from "lib/enum";
@@ -71,9 +69,9 @@ const CreateRepaymentModalNew = ({
   const snackbar = useSnackbar();
 
   const {
-    user: { role },
+    user: { platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
 
   const { financialSummary } = useContext(CurrentCustomerContext);
 

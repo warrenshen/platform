@@ -243,6 +243,45 @@ select_permissions:
       filter:
         vendor_id:
           _eq: X-Hasura-Company-Id
+  - role: vendor_admin
+    permission:
+      columns:
+        - all_customer_notes
+        - amount
+        - amount_funded
+        - approved_at
+        - approved_by_user_id
+        - bank_incomplete_note
+        - bank_rejection_note
+        - closed_at
+        - company_id
+        - created_at
+        - customer_note
+        - delivery_date
+        - funded_at
+        - history
+        - id
+        - incompleted_at
+        - is_cannabis
+        - is_deleted
+        - is_metrc_based
+        - net_terms
+        - new_purchase_order_status
+        - order_date
+        - order_number
+        - rejected_at
+        - rejected_by_user_id
+        - rejection_note
+        - requested_at
+        - status
+        - updated_at
+        - vendor_id
+      filter:
+        _or:
+          - company_id:
+              _eq: X-Hasura-Company-Id
+          - vendor_id:
+              _eq: X-Hasura-Company-Id
 update_permissions:
   - role: bank_admin
     permission:

@@ -18,6 +18,7 @@ import {
   UUIDEnum,
 } from "lib/enum";
 import { createLoanCustomerIdentifier } from "lib/loans";
+import { getDataCyForTabLabel } from "lib/utils/utils";
 import { useState } from "react";
 import styled from "styled-components";
 
@@ -94,7 +95,7 @@ const BankLoanDrawer = ({ loanId, isBankUser, handleClose }: Props) => {
             <Tab
               // Replace space with underscore and change to lower case
               // eg:- Not Confirmed Pos to not-confirmed-pos
-              data-cy={label.replace(/\s+/g, "-").toLowerCase()}
+              data-cy={getDataCyForTabLabel(label)}
               key={label}
               label={label}
               style={{ width: "250px" }}

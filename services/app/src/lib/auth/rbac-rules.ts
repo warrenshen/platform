@@ -144,6 +144,8 @@ export interface Rules {
   [UserRolesEnum.CompanyReadOnly]: Rule;
   [UserRolesEnum.CompanyContactOnly]: Rule;
   [UserRolesEnum.Anonymous]: Rule;
+  [UserRolesEnum.VendorAdmin]: Rule;
+  [UserRolesEnum.CompanyAdminVendorAdminInherited]: Rule;
 }
 
 export const check = (
@@ -175,6 +177,51 @@ export const check = (
   }
   return false;
 };
+
+const COMPANY_ADMIN_STATIC_ACTIONS = [
+  Action.AddBankAccount,
+  Action.EditBankAccount,
+
+  Action.AddPayor,
+  Action.AddVendor,
+
+  Action.AddBorrowingBase,
+
+  Action.AddPurchaseOrders,
+  Action.ArchivePurchaseOrders,
+  Action.EditPurchaseOrders,
+  Action.DeletePurchaseOrders,
+  Action.FundPurchaseOrders,
+  Action.ClosePurchaseOrders,
+  Action.ReopenPurchaseOrders,
+
+  Action.AddInvoices,
+  Action.EditInvoices,
+  Action.FundInvoices,
+  Action.RequestPaymentOnInvoices,
+
+  Action.AddPurchaseOrderLoan,
+  Action.EditPurchaseOrderLoan,
+  Action.RepayPurchaseOrderLoans,
+  Action.DeleteLoans,
+
+  Action.SelectLoan,
+  Action.DeselectLoan,
+
+  Action.ManipulateUser,
+  Action.ViewPurchaseOrdersActionMenu,
+  Action.EditLineOfCredit,
+
+  Action.EditUserAccountSettings,
+  Action.EditVendor,
+];
+
+const VENDOR_ADMIN_STATIC_ACTIONS = [
+  Action.ApprovePurchaseOrders,
+  Action.ManipulateUser,
+  Action.EditUserAccountSettings,
+  Action.EditVendor,
+];
 
 const rules: Rules = {
   [UserRolesEnum.BankAdmin]: {
@@ -290,43 +337,7 @@ const rules: Rules = {
     dynamic: [],
   },
   [UserRolesEnum.CompanyAdmin]: {
-    static: [
-      Action.AddBankAccount,
-      Action.EditBankAccount,
-
-      Action.AddPayor,
-      Action.AddVendor,
-
-      Action.AddBorrowingBase,
-
-      Action.AddPurchaseOrders,
-      Action.ArchivePurchaseOrders,
-      Action.EditPurchaseOrders,
-      Action.DeletePurchaseOrders,
-      Action.FundPurchaseOrders,
-      Action.ClosePurchaseOrders,
-      Action.ReopenPurchaseOrders,
-
-      Action.AddInvoices,
-      Action.EditInvoices,
-      Action.FundInvoices,
-      Action.RequestPaymentOnInvoices,
-
-      Action.AddPurchaseOrderLoan,
-      Action.EditPurchaseOrderLoan,
-      Action.RepayPurchaseOrderLoans,
-      Action.DeleteLoans,
-
-      Action.SelectLoan,
-      Action.DeselectLoan,
-
-      Action.ManipulateUser,
-      Action.ViewPurchaseOrdersActionMenu,
-      Action.EditLineOfCredit,
-
-      Action.EditUserAccountSettings,
-      Action.EditVendor,
-    ],
+    static: COMPANY_ADMIN_STATIC_ACTIONS,
     dynamic: [],
   },
   [UserRolesEnum.CompanyReadOnly]: {
@@ -339,6 +350,14 @@ const rules: Rules = {
   },
   [UserRolesEnum.Anonymous]: {
     static: [],
+    dynamic: [],
+  },
+  [UserRolesEnum.VendorAdmin]: {
+    static: VENDOR_ADMIN_STATIC_ACTIONS,
+    dynamic: [],
+  },
+  [UserRolesEnum.CompanyAdminVendorAdminInherited]: {
+    static: [...COMPANY_ADMIN_STATIC_ACTIONS, ...VENDOR_ADMIN_STATIC_ACTIONS],
     dynamic: [],
   },
 };

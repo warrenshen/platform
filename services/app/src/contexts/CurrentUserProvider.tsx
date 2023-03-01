@@ -5,8 +5,8 @@ import BlazePreapprovalPage from "components/Blaze/BlazePreapprovalPage";
 import {
   BlankUser,
   CurrentUserContext,
+  ImpersonateUserResponse,
   User,
-  isRoleBankUser,
 } from "contexts/CurrentUserContext";
 import { BlazePreapprovalFragment, UserRolesEnum } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
@@ -15,13 +15,22 @@ import { authRoutes, authenticatedApi, unAuthenticatedApi } from "lib/api";
 import { authenticateBlazeUserMutation } from "lib/api/auth";
 import {
   getAccessToken,
+  getPlatformMode,
   getRefreshToken,
   removeAccessToken,
+  removePlatformMode,
   removeRefreshToken,
   setAccessToken,
+  setPlatformMode,
   setRefreshToken,
 } from "lib/auth/tokenStorage";
-import { ProductTypeEnum } from "lib/enum";
+import {
+  BankUserBaseRoles,
+  CustomerUserBaseRoles,
+  PlatformModeEnum,
+  ProductTypeEnum,
+  VendorUserBaseRoles,
+} from "lib/enum";
 import { bankRoutes, routes } from "lib/routes";
 import { validUUIDOrDefault } from "lib/uuid";
 import { ReactNode, useCallback, useEffect, useState } from "react";
@@ -80,6 +89,48 @@ function userFieldsFromToken(token: string) {
   };
 }
 
+export const doesUserHaveBankBaseRole = (allowedRoles: UserRolesEnum[]) =>
+  BankUserBaseRoles.some((bankBaseRole) => allowedRoles.includes(bankBaseRole));
+
+export const doesUserHaveCustomerBaseRole = (allowedRoles: UserRolesEnum[]) =>
+  CustomerUserBaseRoles.some((customerBaseRole) =>
+    allowedRoles.includes(customerBaseRole)
+  );
+
+export const doesUserHaveVendorBaseRole = (allowedRoles: UserRolesEnum[]) =>
+  VendorUserBaseRoles.some((vendorBaseRole) =>
+    allowedRoles.includes(vendorBaseRole)
+  );
+
+export const getDefaultPlatformModeFromAllowedRoles = (
+  allowedRoles: UserRolesEnum[]
+) => {
+  if (doesUserHaveBankBaseRole(allowedRoles)) {
+    return PlatformModeEnum.Bank;
+  } else if (doesUserHaveCustomerBaseRole(allowedRoles)) {
+    return PlatformModeEnum.Customer;
+  } else if (doesUserHaveVendorBaseRole(allowedRoles)) {
+    return PlatformModeEnum.Vendor;
+  } else {
+    return PlatformModeEnum.Anonymous;
+  }
+};
+
+export const isPlatformModeAllowedGivenAllowedRoles = (
+  platformMode: PlatformModeEnum | null,
+  allowedRoles: UserRolesEnum[]
+) => {
+  if (platformMode === PlatformModeEnum.Bank) {
+    return doesUserHaveBankBaseRole(allowedRoles);
+  } else if (platformMode === PlatformModeEnum.Customer) {
+    return doesUserHaveCustomerBaseRole(allowedRoles);
+  } else if (platformMode === PlatformModeEnum.Vendor) {
+    return doesUserHaveVendorBaseRole(allowedRoles);
+  } else {
+    return false;
+  }
+};
+
 export default function CurrentUserProvider(props: { children: ReactNode }) {
   // Whether auth token is loading (if true, do not show UI to viewer).
   const [isTokenLoading, setIsTokenLoading] = useState(true);
@@ -132,6 +183,7 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
     } finally {
       removeAccessToken();
       removeRefreshToken();
+      removePlatformMode();
       // Note: the following line forces a hard refresh, which does two things:
       // 1. Resets the state of the App so the user is not signed in.
       // 2. Guarantees that the user gets the latest version of the App.
@@ -150,10 +202,15 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
         } else {
           setAccessToken(accessToken);
           setRefreshToken(refreshToken);
+          const platformMode =
+            getPlatformMode() ||
+            getDefaultPlatformModeFromAllowedRoles(userFields.allowedRoles);
           setUser((user) => ({
             ...user,
             ...userFields,
+            platformMode: platformMode as PlatformModeEnum,
           }));
+          setPlatformMode(platformMode);
         }
       }
       setIsTokenLoading(false);
@@ -202,9 +259,17 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
     [setUserFromAccessToken]
   );
 
-  const impersonateUser = async (userId: User["id"]) => {
-    if (!isRoleBankUser(user?.role)) {
-      return "Access Denied";
+  const impersonateUser = async (
+    userId: User["id"]
+  ): Promise<ImpersonateUserResponse> => {
+    if (
+      !user.allowedRoles.includes(UserRolesEnum.BankAdmin) &&
+      !user.allowedRoles.includes(UserRolesEnum.BankReadOnly)
+    ) {
+      return {
+        platformMode: null,
+        errorMsg: "Access Denied",
+      };
     }
 
     const token = await getAccessToken();
@@ -221,12 +286,28 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
       }
     );
     if (response.data?.status === "ERROR") {
-      return response.data.msg;
+      return {
+        platformMode: null,
+        errorMsg: response.data.msg,
+      };
     } else {
       setUserFromAccessToken(
         response.data.access_token,
         response.data.refresh_token
       );
+      const userFields = userFieldsFromToken(response.data.access_token);
+      const platformMode = getDefaultPlatformModeFromAllowedRoles(
+        userFields.allowedRoles
+      );
+      setPlatformMode(platformMode);
+      setUser((user) => ({
+        ...user,
+        platformMode,
+      }));
+      return {
+        platformMode,
+        errorMsg: null,
+      };
     }
   };
 
@@ -252,6 +333,21 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
       response.data.access_token,
       response.data.refresh_token
     );
+    setPlatformMode(PlatformModeEnum.Bank);
+    setUser((user) => ({
+      ...user,
+      platformMode: PlatformModeEnum.Bank,
+    }));
+  };
+
+  const switchPlatformMode = async (
+    platformMode: PlatformModeEnum
+  ): Promise<string | void> => {
+    setPlatformMode(platformMode);
+    setUser((user) => ({
+      ...user,
+      platformMode,
+    }));
   };
 
   useEffect(() => {
@@ -487,6 +583,7 @@ export default function CurrentUserProvider(props: { children: ReactNode }) {
         resetUser,
         setUserProductType,
         setUserIsActiveContract,
+        switchPlatformMode,
         undoImpersonation,
         impersonateUser,
         signIn,

@@ -7,17 +7,14 @@ import {
   makeStyles,
 } from "@material-ui/core";
 import GaugeProgressBar from "components/Shared/ProgressBar/GaugeProgressBar";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Companies,
   ContractFragment,
   FinancialSummaryFragment,
 } from "generated/graphql";
 import { isMinimumInterestFeeActive } from "lib/contracts";
-import { ProductTypeEnum } from "lib/enum";
+import { PlatformModeEnum, ProductTypeEnum } from "lib/enum";
 import { formatCurrency } from "lib/number";
 import {
   BankCompanyRouteEnum,
@@ -55,9 +52,9 @@ export default function CustomerFinancialSummaryOverview({
   const classes = useStyles();
 
   const {
-    user: { role },
+    user: { platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
 
   const isMinimumInterestFeeDueVisible = useMemo(
     () => (contract ? isMinimumInterestFeeActive(contract) : false),

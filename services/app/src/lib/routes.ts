@@ -27,7 +27,11 @@ export const anonymousRoutes = {
 };
 
 // Vendor user routes are prefixed with "/2".
-export const vendorRoutes = {};
+export const vendorRoutes = {
+  overview: "/2/overview",
+  purchaseOrders: "/2/purchase-orders",
+  settings: "/2/settings",
+};
 
 // Customer user routes are prefixed with "/1".
 export const customerRoutes = {

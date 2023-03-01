@@ -3388,6 +3388,7 @@ export type Companies = {
   is_cannabis?: Maybe<Scalars["Boolean"]>;
   is_customer?: Maybe<Scalars["Boolean"]>;
   is_payor?: Maybe<Scalars["Boolean"]>;
+  is_super_vendor: Scalars["Boolean"];
   is_vendor?: Maybe<Scalars["Boolean"]>;
   /** The latest disbursement (payment) identifier assigned to loans belonging to this company when an advance is made; increment this value to get a new disbursement identifier for a new payment */
   latest_disbursement_identifier: Scalars["Int"];
@@ -3943,6 +3944,7 @@ export type CompaniesBoolExp = {
   is_cannabis?: Maybe<BooleanComparisonExp>;
   is_customer?: Maybe<BooleanComparisonExp>;
   is_payor?: Maybe<BooleanComparisonExp>;
+  is_super_vendor?: Maybe<BooleanComparisonExp>;
   is_vendor?: Maybe<BooleanComparisonExp>;
   latest_disbursement_identifier?: Maybe<IntComparisonExp>;
   latest_loan_identifier?: Maybe<IntComparisonExp>;
@@ -4021,6 +4023,7 @@ export type CompaniesInsertInput = {
   is_cannabis?: Maybe<Scalars["Boolean"]>;
   is_customer?: Maybe<Scalars["Boolean"]>;
   is_payor?: Maybe<Scalars["Boolean"]>;
+  is_super_vendor?: Maybe<Scalars["Boolean"]>;
   is_vendor?: Maybe<Scalars["Boolean"]>;
   /** The latest disbursement (payment) identifier assigned to loans belonging to this company when an advance is made; increment this value to get a new disbursement identifier for a new payment */
   latest_disbursement_identifier?: Maybe<Scalars["Int"]>;
@@ -4238,6 +4241,7 @@ export type CompaniesOrderBy = {
   is_cannabis?: Maybe<OrderBy>;
   is_customer?: Maybe<OrderBy>;
   is_payor?: Maybe<OrderBy>;
+  is_super_vendor?: Maybe<OrderBy>;
   is_vendor?: Maybe<OrderBy>;
   latest_disbursement_identifier?: Maybe<OrderBy>;
   latest_loan_identifier?: Maybe<OrderBy>;
@@ -4307,6 +4311,8 @@ export enum CompaniesSelectColumn {
   /** column name */
   IsPayor = "is_payor",
   /** column name */
+  IsSuperVendor = "is_super_vendor",
+  /** column name */
   IsVendor = "is_vendor",
   /** column name */
   LatestDisbursementIdentifier = "latest_disbursement_identifier",
@@ -4357,6 +4363,7 @@ export type CompaniesSetInput = {
   is_cannabis?: Maybe<Scalars["Boolean"]>;
   is_customer?: Maybe<Scalars["Boolean"]>;
   is_payor?: Maybe<Scalars["Boolean"]>;
+  is_super_vendor?: Maybe<Scalars["Boolean"]>;
   is_vendor?: Maybe<Scalars["Boolean"]>;
   /** The latest disbursement (payment) identifier assigned to loans belonging to this company when an advance is made; increment this value to get a new disbursement identifier for a new payment */
   latest_disbursement_identifier?: Maybe<Scalars["Int"]>;
@@ -4484,6 +4491,8 @@ export enum CompaniesUpdateColumn {
   IsCustomer = "is_customer",
   /** column name */
   IsPayor = "is_payor",
+  /** column name */
+  IsSuperVendor = "is_super_vendor",
   /** column name */
   IsVendor = "is_vendor",
   /** column name */
@@ -8319,8 +8328,6 @@ export type CustomerSurveillanceResultsBoolExp = {
 /** unique or primary key constraints on table "customer_surveillance_results" */
 export enum CustomerSurveillanceResultsConstraint {
   /** unique or primary key constraint */
-  CompanyProductQualificationsCompanyIdQualifyingDateKey = "company_product_qualifications_company_id_qualifying_date_key",
-  /** unique or primary key constraint */
   CompanyProductQualificationsPkey = "company_product_qualifications_pkey",
 }
 
@@ -9398,7 +9405,7 @@ export type EbbaApplications = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamp"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   /** An object relationship */
   rejected_by_user?: Maybe<Users>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
@@ -9523,7 +9530,7 @@ export type EbbaApplicationsBoolExp = {
   monthly_accounts_receivable?: Maybe<NumericComparisonExp>;
   monthly_cash?: Maybe<NumericComparisonExp>;
   monthly_inventory?: Maybe<NumericComparisonExp>;
-  rejected_at?: Maybe<TimestampComparisonExp>;
+  rejected_at?: Maybe<TimestamptzComparisonExp>;
   rejected_by_user?: Maybe<UsersBoolExp>;
   rejected_by_user_id?: Maybe<UuidComparisonExp>;
   rejection_note?: Maybe<StringComparisonExp>;
@@ -9572,7 +9579,7 @@ export type EbbaApplicationsInsertInput = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamp"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejected_by_user?: Maybe<UsersObjRelInsertInput>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
@@ -9601,7 +9608,7 @@ export type EbbaApplicationsMaxFields = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamp"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -9653,7 +9660,7 @@ export type EbbaApplicationsMinFields = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamp"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -9818,7 +9825,7 @@ export type EbbaApplicationsSetInput = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamp"]>;
+  rejected_at?: Maybe<Scalars["timestamptz"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -17161,9 +17168,7 @@ export type MetrcToBespokeCatalogSkusBoolExp = {
 /** unique or primary key constraints on table "metrc_to_bespoke_catalog_skus" */
 export enum MetrcToBespokeCatalogSkusConstraint {
   /** unique or primary key constraint */
-  MetrcToBespokeCatalogSkusPkey = "metrc_to_bespoke_catalog_skus_pkey",
-  /** unique or primary key constraint */
-  MetrcToBespokeCatalogSkusProductCategoryNameProductNam = "metrc_to_bespoke_catalog_skus_product_category_name_product_nam",
+  MetrcToBespokeCatalogSkusPkey1 = "metrc_to_bespoke_catalog_skus_pkey1",
 }
 
 /** input type for incrementing numeric columns in table "metrc_to_bespoke_catalog_skus" */
@@ -29501,10 +29506,14 @@ export enum UserRolesEnum {
   BespokeCatalogDataEntryInherited = "bespoke_catalog_data_entry_inherited",
   /** Company Admin */
   CompanyAdmin = "company_admin",
+  /** Company Admin Vendor Admin Inherited */
+  CompanyAdminVendorAdminInherited = "company_admin_vendor_admin_inherited",
   /** Company Contact Only */
   CompanyContactOnly = "company_contact_only",
   /** Company Read Only */
   CompanyReadOnly = "company_read_only",
+  /** Vendor Admin */
+  VendorAdmin = "vendor_admin",
 }
 
 /** Boolean expression to compare columns of type "user_roles_enum". All fields are combined with logical 'AND'. */
@@ -32121,6 +32130,15 @@ export type GetPurchaseOrdersChangesRequestedCountForCustomerQuery = {
   purchase_orders: Array<Pick<PurchaseOrders, "id">>;
 };
 
+export type GetVendorPurchaseOrdersByStatusQueryVariables = Exact<{
+  vendor_id: Scalars["uuid"];
+  statuses?: Maybe<Array<Scalars["String"]> | Scalars["String"]>;
+}>;
+
+export type GetVendorPurchaseOrdersByStatusQuery = {
+  purchase_orders: Array<PurchaseOrderLimitedNewFragment>;
+};
+
 export type GetPaymentQueryVariables = Exact<{
   id: Scalars["uuid"];
 }>;
@@ -32734,6 +32752,31 @@ export type GetCompanyForCustomerQuery = {
   >;
 };
 
+export type GetCompanyForVendorQueryVariables = Exact<{
+  companyId: Scalars["uuid"];
+}>;
+
+export type GetCompanyForVendorQuery = {
+  companies_by_pk?: Maybe<
+    Pick<Companies, "id"> & {
+      bank_accounts: Array<
+        Pick<BankAccounts, "id"> & BankAccountLimitedFragment
+      >;
+      settings?: Maybe<
+        Pick<CompanySettings, "id"> & {
+          advances_bank_account?: Maybe<
+            Pick<BankAccounts, "id"> & BankAccountLimitedFragment
+          >;
+          collections_bank_account?: Maybe<
+            Pick<BankAccounts, "id"> & BankAccountLimitedFragment
+          >;
+        } & CompanySettingsLimitedFragment
+      >;
+      users: Array<Pick<Users, "id"> & UserFragment>;
+    } & CompanyFragment
+  >;
+};
+
 export type UpdateCompanyProfileMutationVariables = Exact<{
   id: Scalars["uuid"];
   company: CompaniesSetInput;
@@ -32799,6 +32842,7 @@ export type CompanyFragment = Pick<
   | "is_customer"
   | "is_payor"
   | "is_vendor"
+  | "is_super_vendor"
   | "contract_name"
   | "employer_identification_number"
   | "address"
@@ -32813,6 +32857,7 @@ export type CompanyWithSettingsFragment = Pick<
   | "is_customer"
   | "is_payor"
   | "is_vendor"
+  | "is_super_vendor"
   | "contract_name"
   | "employer_identification_number"
   | "address"
@@ -34691,6 +34736,7 @@ export const CompanyFragmentDoc = gql`
     is_customer
     is_payor
     is_vendor
+    is_super_vendor
     contract_name
     employer_identification_number
     address
@@ -34737,6 +34783,7 @@ export const CompanyWithSettingsFragmentDoc = gql`
     is_customer
     is_payor
     is_vendor
+    is_super_vendor
     contract_name
     employer_identification_number
     address
@@ -44847,6 +44894,82 @@ export type GetPurchaseOrdersChangesRequestedCountForCustomerQueryResult =
     GetPurchaseOrdersChangesRequestedCountForCustomerQuery,
     GetPurchaseOrdersChangesRequestedCountForCustomerQueryVariables
   >;
+export const GetVendorPurchaseOrdersByStatusDocument = gql`
+  query GetVendorPurchaseOrdersByStatus(
+    $vendor_id: uuid!
+    $statuses: [String!]
+  ) {
+    purchase_orders(
+      where: {
+        _and: [
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _eq: false } }
+            ]
+          }
+          { vendor_id: { _eq: $vendor_id } }
+          { new_purchase_order_status: { _in: $statuses } }
+        ]
+      }
+    ) {
+      ...PurchaseOrderLimitedNew
+    }
+  }
+  ${PurchaseOrderLimitedNewFragmentDoc}
+`;
+
+/**
+ * __useGetVendorPurchaseOrdersByStatusQuery__
+ *
+ * To run a query within a React component, call `useGetVendorPurchaseOrdersByStatusQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetVendorPurchaseOrdersByStatusQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetVendorPurchaseOrdersByStatusQuery({
+ *   variables: {
+ *      vendor_id: // value for 'vendor_id'
+ *      statuses: // value for 'statuses'
+ *   },
+ * });
+ */
+export function useGetVendorPurchaseOrdersByStatusQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetVendorPurchaseOrdersByStatusQuery,
+    GetVendorPurchaseOrdersByStatusQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetVendorPurchaseOrdersByStatusQuery,
+    GetVendorPurchaseOrdersByStatusQueryVariables
+  >(GetVendorPurchaseOrdersByStatusDocument, options);
+}
+export function useGetVendorPurchaseOrdersByStatusLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetVendorPurchaseOrdersByStatusQuery,
+    GetVendorPurchaseOrdersByStatusQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetVendorPurchaseOrdersByStatusQuery,
+    GetVendorPurchaseOrdersByStatusQueryVariables
+  >(GetVendorPurchaseOrdersByStatusDocument, options);
+}
+export type GetVendorPurchaseOrdersByStatusQueryHookResult = ReturnType<
+  typeof useGetVendorPurchaseOrdersByStatusQuery
+>;
+export type GetVendorPurchaseOrdersByStatusLazyQueryHookResult = ReturnType<
+  typeof useGetVendorPurchaseOrdersByStatusLazyQuery
+>;
+export type GetVendorPurchaseOrdersByStatusQueryResult = Apollo.QueryResult<
+  GetVendorPurchaseOrdersByStatusQuery,
+  GetVendorPurchaseOrdersByStatusQueryVariables
+>;
 export const GetPaymentDocument = gql`
   query GetPayment($id: uuid!) {
     payments_by_pk(id: $id) {
@@ -48138,6 +48261,89 @@ export type GetCompanyForCustomerLazyQueryHookResult = ReturnType<
 export type GetCompanyForCustomerQueryResult = Apollo.QueryResult<
   GetCompanyForCustomerQuery,
   GetCompanyForCustomerQueryVariables
+>;
+export const GetCompanyForVendorDocument = gql`
+  query GetCompanyForVendor($companyId: uuid!) {
+    companies_by_pk(id: $companyId) {
+      id
+      ...Company
+      bank_accounts {
+        id
+        ...BankAccountLimited
+      }
+      settings {
+        id
+        ...CompanySettingsLimited
+        advances_bank_account {
+          id
+          ...BankAccountLimited
+        }
+        collections_bank_account {
+          id
+          ...BankAccountLimited
+        }
+      }
+      users {
+        id
+        ...User
+      }
+    }
+  }
+  ${CompanyFragmentDoc}
+  ${BankAccountLimitedFragmentDoc}
+  ${CompanySettingsLimitedFragmentDoc}
+  ${UserFragmentDoc}
+`;
+
+/**
+ * __useGetCompanyForVendorQuery__
+ *
+ * To run a query within a React component, call `useGetCompanyForVendorQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCompanyForVendorQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCompanyForVendorQuery({
+ *   variables: {
+ *      companyId: // value for 'companyId'
+ *   },
+ * });
+ */
+export function useGetCompanyForVendorQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetCompanyForVendorQuery,
+    GetCompanyForVendorQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetCompanyForVendorQuery,
+    GetCompanyForVendorQueryVariables
+  >(GetCompanyForVendorDocument, options);
+}
+export function useGetCompanyForVendorLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetCompanyForVendorQuery,
+    GetCompanyForVendorQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetCompanyForVendorQuery,
+    GetCompanyForVendorQueryVariables
+  >(GetCompanyForVendorDocument, options);
+}
+export type GetCompanyForVendorQueryHookResult = ReturnType<
+  typeof useGetCompanyForVendorQuery
+>;
+export type GetCompanyForVendorLazyQueryHookResult = ReturnType<
+  typeof useGetCompanyForVendorLazyQuery
+>;
+export type GetCompanyForVendorQueryResult = Apollo.QueryResult<
+  GetCompanyForVendorQuery,
+  GetCompanyForVendorQueryVariables
 >;
 export const UpdateCompanyProfileDocument = gql`
   mutation UpdateCompanyProfile($id: uuid!, $company: companies_set_input!) {

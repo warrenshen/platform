@@ -4,7 +4,7 @@ from typing import Callable, Dict, List, cast
 from bespoke import errors
 from bespoke.companies import create_user_util
 from bespoke.date import date_util
-from bespoke.db import db_constants, models
+from bespoke.db import db_constants, models, queries
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from bespoke.security import security_util, two_factor_util
@@ -32,6 +32,8 @@ class SignInView(MethodView):
 		data = json.loads(request.data)
 		email = data["email"]
 		password_guess = data['password']
+		# TODO: If a joint Customer/Vendor user logs in from PO email, show Vendor Platform Mode
+		# platform_mode = data.get('platform_mode', None)
 
 		if not email or not password_guess:
 			return handler_util.make_error_response('No email or password provided', 401)
@@ -69,7 +71,7 @@ class SignInView(MethodView):
 					'msg': 'Logged in as {}'.format(email),
 					'login_method': login_method,
 					'access_token': access_token,
-					'refresh_token': refresh_token
+					'refresh_token': refresh_token,
 				}), 200)
 			elif login_method == db_constants.LoginMethod.TWO_FA:
 				link_id = two_factor_util.add_two_factor_link_to_db(
@@ -472,7 +474,8 @@ class AuthenticateBlazeUserView(MethodView):
 					).first())
 				else:
 					# TODO(warrenshen): Use external_blaze_user_role to determine role of new user.
-					user_id, err = create_user_util.create_bank_or_customer_user_with_session(
+					user_id, err = create_user_util.create_user_with_session(
+						session,
 						create_user_util.CreateBankOrCustomerUserInputDict(
 							company_id=str(existing_blaze_shop_entry.company_id),
 							user=create_user_util.UserInsertInputDict(
@@ -483,7 +486,6 @@ class AuthenticateBlazeUserView(MethodView):
 								phone_number=None,
 							),
 						),
-						session=session,
 						created_by_user_id=None
 					)
 

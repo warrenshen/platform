@@ -12,14 +12,12 @@ import {
 } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import AddVendorForm from "components/Vendors/AddVendorForm";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { Companies } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { addNewVendorMutation } from "lib/api/companies";
+import { PlatformModeEnum } from "lib/enum";
 import { isEmailValid } from "lib/validation";
 import { useContext, useState } from "react";
 
@@ -49,9 +47,9 @@ export default function AddVendorNewModal({ customerId, handleClose }: Props) {
   const snackbar = useSnackbar();
 
   const {
-    user: { role },
+    user: { platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
 
   const [errorMessage, setErrorMessage] = useState("");
 

@@ -1,13 +1,11 @@
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
+import { isPlatformModeAllowedGivenAllowedRoles } from "contexts/CurrentUserProvider";
 import {
   UserRolesEnum,
   useGetCompanyWithDetailsByCompanyIdQuery,
   useGetMostRecentFinancialSummaryAndContractByCompanyIdQuery,
 } from "generated/graphql";
-import { ProductTypeEnum } from "lib/enum";
+import { PlatformModeEnum, ProductTypeEnum } from "lib/enum";
 import { routes } from "lib/routes";
 import { useContext, useEffect } from "react";
 import { Navigate } from "react-router-dom";
@@ -20,7 +18,7 @@ interface Props {
 export default function PrivateRoute(props: Props) {
   const { children } = props;
   const {
-    user: { companyId, role, allowedRoles },
+    user: { companyId, allowedRoles, platformMode },
     setUserProductType,
     setUserIsActiveContract,
     isSignedIn,
@@ -33,10 +31,15 @@ export default function PrivateRoute(props: Props) {
         )
       : false;
 
-  const shouldRender = isSignedIn && canVisitRoute;
+  const isPlatformModeAllowed = isPlatformModeAllowedGivenAllowedRoles(
+    platformMode,
+    allowedRoles
+  );
+
+  const shouldRender = isSignedIn && canVisitRoute && isPlatformModeAllowed;
 
   const { data, error } = useGetCompanyWithDetailsByCompanyIdQuery({
-    skip: companyId === null,
+    skip: companyId === null || platformMode === PlatformModeEnum.Vendor,
     variables: {
       companyId,
     },
@@ -53,7 +56,7 @@ export default function PrivateRoute(props: Props) {
     data: financialSummaryAndContractData,
     error: financialSummaryAndContractError,
   } = useGetMostRecentFinancialSummaryAndContractByCompanyIdQuery({
-    skip: companyId === null,
+    skip: companyId === null || platformMode === PlatformModeEnum.Vendor,
     variables: {
       companyId,
     },
@@ -75,12 +78,12 @@ export default function PrivateRoute(props: Props) {
   const isActiveContract = !!company?.contract;
 
   useEffect(() => {
-    if (!isRoleBankUser(role) && productType) {
+    if (platformMode !== PlatformModeEnum.Bank && productType) {
       setUserProductType(productType as ProductTypeEnum);
       setUserIsActiveContract(isActiveContract);
     }
   }, [
-    role,
+    platformMode,
     isActiveContract,
     productType,
     setUserProductType,

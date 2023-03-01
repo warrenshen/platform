@@ -195,6 +195,7 @@ select_permissions:
         - is_cannabis
         - is_customer
         - is_payor
+        - is_super_vendor
         - is_vendor
         - latest_loan_identifier
         - name
@@ -212,8 +213,6 @@ select_permissions:
     permission:
       columns:
         - address
-        - surveillance_status
-        - surveillance_status_note
         - city
         - company_settings_id
         - contract_id
@@ -230,6 +229,7 @@ select_permissions:
         - is_cannabis
         - is_customer
         - is_payor
+        - is_super_vendor
         - is_vendor
         - latest_loan_identifier
         - name
@@ -237,6 +237,8 @@ select_permissions:
         - phone_number
         - qualify_for
         - state
+        - surveillance_status
+        - surveillance_status_note
         - updated_at
         - zip_code
       filter: {}
@@ -244,7 +246,6 @@ select_permissions:
     permission:
       columns:
         - address
-        - surveillance_status
         - city
         - company_settings_id
         - contract_id
@@ -258,12 +259,14 @@ select_permissions:
         - is_cannabis
         - is_customer
         - is_payor
+        - is_super_vendor
         - is_vendor
         - latest_loan_identifier
         - name
         - parent_company_id
         - phone_number
         - state
+        - surveillance_status
         - updated_at
         - zip_code
       filter:
@@ -283,7 +286,6 @@ select_permissions:
     permission:
       columns:
         - address
-        - surveillance_status
         - city
         - company_settings_id
         - contract_id
@@ -297,12 +299,14 @@ select_permissions:
         - is_cannabis
         - is_customer
         - is_payor
+        - is_super_vendor
         - is_vendor
         - latest_loan_identifier
         - name
         - parent_company_id
         - phone_number
         - state
+        - surveillance_status
         - updated_at
         - zip_code
       filter:
@@ -348,6 +352,47 @@ select_permissions:
         purchase_orders:
           vendor_id:
             _eq: X-Hasura-Company-Id
+  - role: vendor_admin
+    permission:
+      columns:
+        - address
+        - city
+        - company_settings_id
+        - contract_name
+        - country
+        - created_at
+        - dba_name
+        - employer_identification_number
+        - id
+        - identifier
+        - is_cannabis
+        - is_customer
+        - is_payor
+        - is_super_vendor
+        - is_vendor
+        - latest_loan_identifier
+        - name
+        - parent_company_id
+        - phone_number
+        - state
+        - updated_at
+        - zip_code
+      filter:
+        _or:
+          - id:
+              _eq: X-Hasura-Company-Id
+          - parent_company:
+              id:
+                _eq: X-Hasura-Parent-Company-Id
+          - company_vendor_partnerships_by_vendor:
+              company_id:
+                _eq: X-Hasura-Company-Id
+          - company_payor_partnerships_by_payor:
+              company_id:
+                _eq: X-Hasura-Company-Id
+          - purchase_orders:
+              vendor_id:
+                _eq: X-Hasura-Company-Id
 update_permissions:
   - role: bank_admin
     permission:

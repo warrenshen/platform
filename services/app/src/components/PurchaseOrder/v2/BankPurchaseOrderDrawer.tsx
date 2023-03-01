@@ -13,6 +13,7 @@ import {
   BankPurchaseOrdersDrawerTabLabelNew,
   BankPurchaseOrdersDrawerTabLabelsNew,
 } from "lib/enum";
+import { getDataCyForTabLabel } from "lib/utils/utils";
 import { useState } from "react";
 
 export interface PurchaseOrderViewModalProps {
@@ -95,7 +96,7 @@ const BankPurchaseOrderDrawer = ({
             <Tab
               // Replace space with underscore and change to lower case
               // eg:- Not Confirmed Pos to not-confirmed-pos
-              data-cy={label.replace(/\s+/g, "-").toLowerCase()}
+              data-cy={getDataCyForTabLabel(label)}
               key={label}
               label={label}
               style={{ width: "200px" }}

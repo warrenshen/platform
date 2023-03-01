@@ -8,10 +8,8 @@ import {
 import { grey } from "@material-ui/core/colors";
 import Page from "components/Shared/Page";
 import PageContent from "components/Shared/Page/PageContent";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
+import { doesUserHaveBankBaseRole } from "contexts/CurrentUserProvider";
 import { useGetUserByIdQuery } from "generated/graphql";
 import { useContext } from "react";
 
@@ -63,7 +61,7 @@ export default function UserProfile() {
                 <Box display="flex" pb={0.25}>
                   <Box className={classes.label}>Company</Box>
                   <Box>
-                    {isRoleBankUser(user?.role)
+                    {doesUserHaveBankBaseRole(currentUser.allowedRoles)
                       ? "Bespoke (Bank)"
                       : user?.company?.name}
                   </Box>

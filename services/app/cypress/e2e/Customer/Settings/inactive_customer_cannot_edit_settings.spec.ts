@@ -18,7 +18,7 @@ describe("Inactive customer cannot edit settings", () => {
         parent_company_id: results.parentCompanyId,
         role: "company_admin",
       }).then((companyUserResults) => {
-        cy.loginCustomerAdminNew(
+        cy.loginCustomerAdmin(
           companyUserResults.userEmail,
           companyUserResults.userPassword
         );

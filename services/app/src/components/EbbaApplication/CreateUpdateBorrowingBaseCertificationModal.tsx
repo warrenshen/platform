@@ -2,10 +2,7 @@ import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import EbbaApplicationBorrowingBaseForm from "components/EbbaApplication/EbbaApplicationBorrowingBaseForm";
 import Modal from "components/Shared/Modal/Modal";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Companies,
   EbbaApplicationFilesInsertInput,
@@ -23,7 +20,11 @@ import {
 } from "lib/api/ebbaApplications";
 import { calculateBorrowingBaseAmount } from "lib/borrowingBase";
 import { computeEbbaApplicationExpiresDate } from "lib/date";
-import { ActionType, CustomerSurveillanceCategoryEnum } from "lib/enum";
+import {
+  ActionType,
+  CustomerSurveillanceCategoryEnum,
+  PlatformModeEnum,
+} from "lib/enum";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useMemo, useState } from "react";
 interface Props {
@@ -44,10 +45,10 @@ export default function CreateUpdateBorrowingBaseCertificationModal({
   const isActionTypeUpdate = actionType === ActionType.Update;
 
   const {
-    user: { role },
+    user: { platformMode },
   } = useContext(CurrentUserContext);
 
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
 
   const { data } = useGetCompanyWithActiveContractQuery({
     variables: {

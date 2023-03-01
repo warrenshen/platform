@@ -7,12 +7,10 @@ import {
   Typography,
 } from "@material-ui/core";
 import { AccountCircle } from "@material-ui/icons";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { useGetUserMenuInfoQuery } from "generated/graphql";
 import useSnackbar from "hooks/useSnackbar";
+import { PlatformModeEnum } from "lib/enum";
 import { bankRoutes, customerRoutes, routes } from "lib/routes";
 import { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -53,7 +51,13 @@ interface Props {
 export default function UserMenu({ isLocationsPage }: Props) {
   const snackbar = useSnackbar();
   const {
-    user: { id: userId, companyId, impersonatorUserId, isEmbeddedModule },
+    user: {
+      id: userId,
+      companyId,
+      impersonatorUserId,
+      isEmbeddedModule,
+      platformMode,
+    },
     signOut,
     undoImpersonation,
   } = useContext(CurrentUserContext);
@@ -130,7 +134,7 @@ export default function UserMenu({ isLocationsPage }: Props) {
           overflow="hidden"
         >
           <Typography variant="button">
-            {isRoleBankUser(user?.role)
+            {platformMode === PlatformModeEnum.Bank
               ? "Bespoke (Bank)"
               : isMultiLocation
               ? `${parentCompany?.name} (${customerCompanies.length} locations)`
@@ -153,7 +157,8 @@ export default function UserMenu({ isLocationsPage }: Props) {
         >
           Profile
         </MenuItem>
-        {!isRoleBankUser(user?.role) && !!impersonatorUserId && (
+        {/* TODO: fix this */}
+        {true && !!impersonatorUserId && (
           <MenuItem
             data-cy={"undo-impersonation-button"}
             onClick={handleUndoImpersonationClick}

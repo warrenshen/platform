@@ -19,7 +19,7 @@ describe("Setup borrowing base", () => {
         parent_company_id: results.parentCompanyId,
         role: "company_admin",
       }).then((results) => {
-        cy.loginCustomerAdminNew(results.userEmail, results.userPassword);
+        cy.loginCustomerAdmin(results.userEmail, results.userPassword);
       });
     });
   });

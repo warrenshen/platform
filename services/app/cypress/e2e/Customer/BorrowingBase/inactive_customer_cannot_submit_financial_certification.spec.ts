@@ -29,8 +29,7 @@ describe("Create purchase order", () => {
           expires_date: maturityDate,
           is_deleted: false,
         }).then((ebbaResults) => {
-          console.log({ ebbaResults });
-          cy.loginCustomerAdminNew(
+          cy.loginCustomerAdmin(
             companyUserResults.userEmail,
             companyUserResults.userPassword
           );

@@ -22,7 +22,7 @@ import SelectTimezoneMaterialUi from "select-timezone-material-ui";
 
 interface Props {
   companyType: CompanyTypeEnum;
-  role: UserRolesEnum;
+  allowedRoles: UserRolesEnum[];
   contact: UsersInsertInput;
   setContact: (contact: UsersInsertInput) => void;
   company: CompaniesInsertInput;
@@ -34,7 +34,7 @@ interface Props {
 
 export default function RegisterThirdPartyForm({
   companyType,
-  role,
+  allowedRoles,
   contact,
   setContact,
   company,
@@ -50,7 +50,7 @@ export default function RegisterThirdPartyForm({
   return (
     <DialogContent>
       <DialogContentText>
-        {role !== UserRolesEnum.BankAdmin
+        {!allowedRoles.includes(UserRolesEnum.BankAdmin)
           ? `Please provide details about the ${companyTypeLower} you are working with. After you register this ${companyTypeLower}, Bespoke will email the ${companyTypeLower} a ${companyTypeUpper} Agreement via DocuSign. Once the ${companyTypeLower} signs the agreement, Bespoke will verify the ${companyTypeLower}'s information and licenses.`
           : `Please provide details about the ${companyTypeLower} you want to create.`}
       </DialogContentText>

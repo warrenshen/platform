@@ -10,10 +10,7 @@ import {
 } from "@material-ui/core";
 import RequestStatusChip from "components/Shared/Chip/RequestStatusChip";
 import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   InvoiceFileTypeEnum,
   Invoices,
@@ -22,7 +19,7 @@ import {
 import { Action, check } from "lib/auth/rbac-rules";
 import { getCompanyDisplayName } from "lib/companies";
 import { formatDateString } from "lib/date";
-import { FileTypeEnum, ProductTypeEnum } from "lib/enum";
+import { FileTypeEnum, PlatformModeEnum, ProductTypeEnum } from "lib/enum";
 import { formatCurrency } from "lib/number";
 import { isPurchaseMoneyFinancingProductType } from "lib/settings";
 import { useContext, useMemo } from "react";
@@ -50,9 +47,9 @@ export default function InvoiceDrawer({ invoiceId, handleClose }: Props) {
   const classes = useStyles();
 
   const {
-    user: { role },
+    user: { role, platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
 
   const { data, error } = useGetInvoiceByIdQuery({
     variables: {

@@ -20,11 +20,13 @@ import { ReactComponent as SettingsIcon } from "components/Shared/Layout/Icons/S
 import { ReactComponent as VendorsIcon } from "components/Shared/Layout/Icons/Vendors.svg";
 import NestedListItem from "components/Shared/Layout/NestedListItem";
 import SidebarItem from "components/Shared/Layout/SidebarItem";
+import SwitchPlatformModeSection from "components/Shared/Layout/SwitchPlatformModeSection";
 import UserMenu from "components/Shared/User/UserMenu";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+  doesUserHaveCustomerBaseRole,
+  doesUserHaveVendorBaseRole,
+} from "contexts/CurrentUserProvider";
 import {
   useGetCompanySettingsByCompanyIdForCustomerQuery,
   useGetEbbaApplicationsCountForBankSubscription,
@@ -37,14 +39,15 @@ import {
 import { todayAsDateStringServer } from "lib/date";
 import {
   FeatureFlagEnum,
+  PlatformModeEnum,
   ProductTypeEnum,
   ReportingRequirementsCategoryEnum,
 } from "lib/enum";
 import { useGetMissingReportsInfo } from "lib/finance/reports/reports";
-import { bankRoutes, customerRoutes, routes } from "lib/routes";
+import { bankRoutes, customerRoutes, routes, vendorRoutes } from "lib/routes";
 import { isPayorsTabVisible, isVendorsTabVisible } from "lib/settings";
 import { ReactNode, useContext } from "react";
-import { matchPath, useLocation } from "react-router-dom";
+import { matchPath, useLocation, useNavigate } from "react-router-dom";
 import { useTitle } from "react-use";
 import styled from "styled-components";
 
@@ -245,6 +248,25 @@ const getCustomerNavItems = (
   ];
 };
 
+const getVendorNavItems = (): NavItem[] => {
+  return [
+    {
+      dataCy: "purchase-orders",
+      iconNode: PurchaseOrdersIcon,
+      text: "Purchase Orders",
+      link: vendorRoutes.purchaseOrders,
+      counterColor: "rgb(230, 126, 34)",
+      // counter: purchaseOrdersChangesRequestedCount,
+    },
+    {
+      dataCy: "settings",
+      iconNode: SettingsIcon,
+      text: "Settings",
+      link: vendorRoutes.settings,
+    },
+  ];
+};
+
 const getBankNavItems = (
   loansCount: number,
   repaymentsCount: number,
@@ -390,12 +412,20 @@ export default function Layout({
   useTitle(`${appBarTitle} | Bespoke`);
 
   const classes = useStyles();
+  const navigate = useNavigate();
   const location = useLocation();
 
   const {
-    user: { role, productType, companyId, isEmbeddedModule },
+    user: {
+      allowedRoles,
+      productType,
+      platformMode,
+      companyId,
+      isEmbeddedModule,
+    },
+    switchPlatformMode,
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
 
   const { data: loansCountData } = useGetLoansCountForBankSubscription({
     skip: !isBankUser,
@@ -449,7 +479,7 @@ export default function Layout({
     purchaseOrdersChangesRequestedCountData?.purchase_orders?.length || 0;
 
   const { missingFinancialReportCount, isLatestBorrowingBaseMissing } =
-    useGetMissingReportsInfo(companyId);
+    useGetMissingReportsInfo(companyId, platformMode);
 
   const { data: companySettingsData } =
     useGetCompanySettingsByCompanyIdForCustomerQuery({
@@ -468,21 +498,26 @@ export default function Layout({
         ReportingRequirementsCategoryEnum.Four
       : false;
 
-  const navItems = isBankUser
-    ? getBankNavItems(
-        loansCount,
-        repaymentsCount,
-        ebbaApplicationsCount,
-        partnershipRequestsCount,
-        debtFacilityUpdateCount
-      )
-    : getCustomerNavItems(
-        productType,
-        missingFinancialReportCount,
-        isLatestBorrowingBaseMissing,
-        isMetrcBased,
-        purchaseOrdersChangesRequestedCount
-      );
+  const navItems =
+    platformMode === PlatformModeEnum.Bank
+      ? getBankNavItems(
+          loansCount,
+          repaymentsCount,
+          ebbaApplicationsCount,
+          partnershipRequestsCount,
+          debtFacilityUpdateCount
+        )
+      : platformMode === PlatformModeEnum.Customer
+      ? getCustomerNavItems(
+          productType,
+          missingFinancialReportCount,
+          isLatestBorrowingBaseMissing,
+          isMetrcBased,
+          purchaseOrdersChangesRequestedCount
+        )
+      : platformMode === PlatformModeEnum.Vendor
+      ? getVendorNavItems()
+      : [];
 
   return (
     <Wrapper>
@@ -504,6 +539,28 @@ export default function Layout({
             />
           </Logo>
         )}
+        {platformMode === PlatformModeEnum.Customer &&
+          doesUserHaveVendorBaseRole(allowedRoles) && (
+            <SwitchPlatformModeSection
+              label={"Currently in Borrower mode"}
+              buttonText={"Switch to Vendor Mode"}
+              onClick={() => {
+                switchPlatformMode(PlatformModeEnum.Vendor);
+                navigate(vendorRoutes.overview);
+              }}
+            />
+          )}
+        {platformMode === PlatformModeEnum.Vendor &&
+          doesUserHaveCustomerBaseRole(allowedRoles) && (
+            <SwitchPlatformModeSection
+              label={"Currently in Vendor mode"}
+              buttonText={"Switch to Borrower Mode"}
+              onClick={() => {
+                switchPlatformMode(PlatformModeEnum.Customer);
+                navigate(customerRoutes.overview);
+              }}
+            />
+          )}
         <SidebarItems>
           {!isLocationsPage && (
             <List className={classes.list}>

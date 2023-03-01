@@ -5,15 +5,13 @@ import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { UserRolesEnum, UserWrapperFragment, Users } from "generated/graphql";
 import {
   BespokeCompanyRole,
   CustomerRoleEnum,
   CustomerRoleToLabel,
+  PlatformModeEnum,
   UserRoleToLabel,
 } from "lib/enum";
 import { ColumnWidths, formatRowModel } from "lib/tables";
@@ -69,9 +67,10 @@ export default function UsersDataGrid({
   isCustomerUserGrid = false,
 }: Props) {
   const {
-    user: { role },
+    user: { platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
+
   const rows = useMemo(() => getRows(users), [users]);
   const columns = useMemo(
     () => [

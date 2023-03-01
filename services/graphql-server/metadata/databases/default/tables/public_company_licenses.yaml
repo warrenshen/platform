@@ -146,6 +146,22 @@ select_permissions:
               company_vendor_partnerships:
                 vendor_id:
                   _eq: X-Hasura-Company-Id
+  - role: vendor_admin
+    permission:
+      columns:
+        - is_deleted
+        - license_number
+        - company_id
+        - file_id
+        - id
+      filter:
+        _or:
+          - company_id:
+              _eq: X-Hasura-Company-Id
+          - company:
+              company_vendor_partnerships:
+                vendor_id:
+                  _eq: X-Hasura-Company-Id
 event_triggers:
   - name: company_licenses_changed
     definition:

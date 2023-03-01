@@ -14,7 +14,11 @@ import {
   previousXMonthsCertificationDates,
   withinNMonthsOfNow,
 } from "lib/date";
-import { FinancialReportsMaxMonthsAmount, ProductTypeEnum } from "lib/enum";
+import {
+  FinancialReportsMaxMonthsAmount,
+  PlatformModeEnum,
+  ProductTypeEnum,
+} from "lib/enum";
 
 const getMissingFinancialReportsDates = (
   financialReports: EbbaApplications[]
@@ -109,7 +113,10 @@ function calculateFinancialReportsAmount(
   );
 }
 
-export const useGetMissingReportsInfo = (companyId: string) => {
+export const useGetMissingReportsInfo = (
+  companyId: string,
+  platformMode?: PlatformModeEnum | null
+) => {
   const defaultResult = {
     missingFinancialReportCount: 0,
     isThereAnyFinancialReportOlderThanFourMonth: false,
@@ -126,7 +133,10 @@ export const useGetMissingReportsInfo = (companyId: string) => {
     loading: customersOldestContractLoading,
     error: customersOldestContractError,
   } = useGetCustomerOldestContractQuery({
-    skip: !companyId,
+    skip:
+      !companyId ||
+      (platformMode !== PlatformModeEnum.Customer &&
+        platformMode !== PlatformModeEnum.Bank),
     fetchPolicy: "cache-and-network",
     variables: {
       company_id: companyId,

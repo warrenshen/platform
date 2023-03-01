@@ -7,10 +7,7 @@ import ContractsDataGrid from "components/Contracts/ContractsDataGrid";
 import Can from "components/Shared/Can";
 import ModalButton from "components/Shared/Modal/ModalButton";
 import PageContent from "components/Shared/Page/PageContent";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Companies,
   ContractFragment,
@@ -18,7 +15,7 @@ import {
   useGetCompanyForCustomerContractPageQuery,
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
-import { ActionType } from "lib/enum";
+import { ActionType, PlatformModeEnum } from "lib/enum";
 import { useContext, useMemo, useState } from "react";
 
 interface Props {
@@ -27,9 +24,9 @@ interface Props {
 
 export default function ContractPageContent({ companyId }: Props) {
   const {
-    user: { role },
+    user: { platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
 
   const { data, error, refetch } = useGetCompanyForCustomerContractPageQuery({
     fetchPolicy: "network-only",

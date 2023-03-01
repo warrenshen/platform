@@ -35,7 +35,7 @@ describe("Sign in: multilocation customer user", () => {
           parent_company_id: parentCompanyId,
           role: "company_admin",
         }).then((results) => {
-          cy.loginCustomerAdminNew(results.userEmail, results.userPassword);
+          cy.loginCustomerAdmin(results.userEmail, results.userPassword);
         });
       });
     });

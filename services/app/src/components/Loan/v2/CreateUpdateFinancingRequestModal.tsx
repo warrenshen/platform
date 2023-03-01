@@ -2,10 +2,7 @@ import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import LineOfCreditLoanFormNew from "components/Loan/v2/LineOfCreditLoanFormNew";
 import Modal from "components/Shared/Modal/Modal";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Companies,
   LineOfCreditsInsertInput,
@@ -22,7 +19,7 @@ import {
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { submitLoCLoanMutation } from "lib/api/loans";
-import { ActionType, LoanStatusEnum } from "lib/enum";
+import { ActionType, LoanStatusEnum, PlatformModeEnum } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useState } from "react";
 
@@ -46,9 +43,9 @@ const CreateUpdateFinancingRequestModal = ({
   const snackbar = useSnackbar();
 
   const {
-    user: { role },
+    user: { platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
 
   const newLineOfCredit: LineOfCreditsInsertInput = {
     company_id: companyId,

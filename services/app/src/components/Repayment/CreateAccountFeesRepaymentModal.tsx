@@ -3,15 +3,12 @@ import { Alert } from "@material-ui/lab";
 import AccountFeesRepaymentForm from "components/Repayment/AccountFeesRepaymentForm";
 import Modal from "components/Shared/Modal/Modal";
 import { CurrentCustomerContext } from "contexts/CurrentCustomerContext";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { Companies, PaymentsInsertInput } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { createAccountLevelFeeRepaymentMutation } from "lib/api/payments";
-import { PaymentTypeEnum, ProductTypeEnum } from "lib/enum";
+import { PaymentTypeEnum, PlatformModeEnum, ProductTypeEnum } from "lib/enum";
 import { useContext, useState } from "react";
 
 interface Props {
@@ -28,9 +25,9 @@ export default function CreateAccountFeesRepaymentModal({
   const snackbar = useSnackbar();
 
   const {
-    user: { role },
+    user: { platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
 
   const { financialSummary } = useContext(CurrentCustomerContext);
 

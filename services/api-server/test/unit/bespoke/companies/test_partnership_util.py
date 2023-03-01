@@ -24,7 +24,7 @@ class TestGetPartnerContacts(db_unittest.TestCase):
 			payor = session.query(models.Company).get(payor_id)
 			payor.is_payor = True
 
-		payor_user_id, err = create_user_util.create_bank_or_customer_user(
+		payor_user_id, err = create_user_util.create_user(
 			req=CreateBankOrCustomerUserInputDict(
 				company_id=payor_id,
 				user=UserInsertInputDict(
@@ -88,7 +88,7 @@ class TestGetPartnerContacts(db_unittest.TestCase):
 			vendor = session.query(models.Company).get(vendor_id)
 			vendor.is_vendor = True
 
-		vendor_user_id, err = create_user_util.create_bank_or_customer_user(
+		vendor_user_id, err = create_user_util.create_user(
 			req=CreateBankOrCustomerUserInputDict(
 				company_id=vendor_id,
 				user=UserInsertInputDict(
@@ -153,7 +153,7 @@ class TestGetPartnerContacts(db_unittest.TestCase):
 			vendor = session.query(models.Company).get(vendor_id)
 			vendor.is_vendor = True
 
-		vendor_user_id1, err = create_user_util.create_bank_or_customer_user(
+		vendor_user_id1, err = create_user_util.create_user(
 			req=CreateBankOrCustomerUserInputDict(
 				company_id=vendor_id,
 				user=UserInsertInputDict(
@@ -169,7 +169,7 @@ class TestGetPartnerContacts(db_unittest.TestCase):
 		)
 		self.assertIsNone(err)
 
-		vendor_user_id2, err = create_user_util.create_bank_or_customer_user(
+		vendor_user_id2, err = create_user_util.create_user(
 			req=CreateBankOrCustomerUserInputDict(
 				company_id=vendor_id,
 				user=UserInsertInputDict(
@@ -242,7 +242,7 @@ class TestGetPartnerContacts(db_unittest.TestCase):
 			vendor = session.query(models.Company).get(vendor_id)
 			vendor.is_vendor = True
 
-		vendor_user_id, err = create_user_util.create_bank_or_customer_user(
+		vendor_user_id, err = create_user_util.create_user(
 			req=CreateBankOrCustomerUserInputDict(
 				company_id=vendor_id,
 				user=UserInsertInputDict(

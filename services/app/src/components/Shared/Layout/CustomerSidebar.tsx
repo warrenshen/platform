@@ -21,10 +21,7 @@ import { ReactComponent as VendorsIcon } from "components/Shared/Layout/Icons/Ve
 import NestedListItem from "components/Shared/Layout/NestedListItem";
 import SidebarItem from "components/Shared/Layout/SidebarItem";
 import UserMenu from "components/Shared/User/UserMenu";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   useGetCompanySettingsByCompanyIdForCustomerQuery,
   useGetEbbaApplicationsCountForBankSubscription,
@@ -37,6 +34,7 @@ import {
 import { todayAsDateStringServer } from "lib/date";
 import {
   FeatureFlagEnum,
+  PlatformModeEnum,
   ProductTypeEnum,
   ReportingRequirementsCategoryEnum,
 } from "lib/enum";
@@ -391,9 +389,9 @@ export default function Layout({
   const location = useLocation();
 
   const {
-    user: { role, productType, companyId, isEmbeddedModule },
+    user: { role, platformMode, productType, companyId, isEmbeddedModule },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
 
   const { data: loansCountData } = useGetLoansCountForBankSubscription({
     skip: !isBankUser,

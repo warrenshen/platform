@@ -23,12 +23,12 @@ def get_claims_payload(
 	user_id = str(user.id) if user.id else ''
 	parent_company_id = str(user.parent_company_id) if user.parent_company_id else ''
 	company_id = company_id if company_id else ''
-	allowed_roles = db_constants.INHERITED_ROLES_TO_BASE_ROLES.get(role, [])
+	allowed_roles = [role, *db_constants.INHERITED_ROLES_TO_BASE_ROLES.get(role, [])]
 
 	claims_payload: UserPayloadDict = {
 		'X-Hasura-User-Id': user_id,
 		'X-Hasura-Default-Role': role,
-		'X-Hasura-Allowed-Roles': [role, *allowed_roles],
+		'X-Hasura-Allowed-Roles': allowed_roles,
 		'X-Hasura-Parent-Company-Id': parent_company_id,
 		'X-Hasura-Company-Id': company_id,
 	}
@@ -48,18 +48,17 @@ def get_impersonator_claims_payload(
 	parent_company_id = str(user.parent_company_id) if user.parent_company_id else ''
 	company_id = company_id if company_id else ''
 	impersonator_user_id = str(impersonator_user_id) if impersonator_user_id else ''
-	allowed_roles = db_constants.INHERITED_ROLES_TO_BASE_ROLES.get(role, [])
+	allowed_roles = [role, *db_constants.INHERITED_ROLES_TO_BASE_ROLES.get(role, [])]
 
 	claims_payload: UserImpersonatorPayloadDict = {
 		'X-Hasura-User-Id': user_id,
 		'X-Hasura-Default-Role': role,
-		'X-Hasura-Allowed-Roles': [role, *allowed_roles],
+		'X-Hasura-Allowed-Roles': allowed_roles,
 		'X-Hasura-Parent-Company-Id': parent_company_id,
 		'X-Hasura-Company-Id': company_id,
 		'X-Hasura-Impersonator-User-Id': impersonator_user_id,
 	}
 	return claims_payload
-
 
 def bank_admin_required(f: Callable[..., Response]) -> Response:
 

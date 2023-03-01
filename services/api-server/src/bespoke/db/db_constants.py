@@ -14,6 +14,7 @@ class UserRoles(object):
 	PURCHASE_ORDER_REVIEWER = 'purchase_order_reviewer'
 	INVOICE_REVIEWER = 'invoice_reviewer'
 	BESPOKE_CATALOG_DATA_ENTRY = 'bespoke_catalog_data_entry'
+	VENDOR_ADMIN = 'vendor_admin'
 
 class BespokeCompanyRole(object):
   CLIENT_SUCCESS = "client_success",
@@ -36,14 +37,47 @@ ALL_USER_BASE_ROLES = [
 	UserRoles.COMPANY_CONTACT_ONLY,
 	UserRoles.PURCHASE_ORDER_REVIEWER,
 	UserRoles.INVOICE_REVIEWER,
+	UserRoles.VENDOR_ADMIN,
 ]
+
+BANK_USER_BASE_ROLES = [
+	UserRoles.BANK_ADMIN,
+	UserRoles.BANK_READ_ONLY,
+]
+
+CUSTOMER_USER_BASE_ROLES = [
+	UserRoles.COMPANY_ADMIN,
+	UserRoles.COMPANY_READ_ONLY,
+]
+
+VENDOR_USER_BASE_ROLES = [
+	UserRoles.VENDOR_ADMIN
+]
+
+class PlatformModeEnum(object):
+	BANK = 'bank'
+	CUSTOMER = 'customer'
+	VENDOR = 'vendor'
+	ANONYMOUS = 'anonymous'
 
 class InheritedRoles(object):
 	BESPOKE_CATALOG_DATA_ENTRY_INHERITED = 'bespoke_catalog_data_entry_inherited'
+	COMPANY_ADMIN_VENDOR_ADMIN_INHERITED = 'company_admin_vendor_admin_inherited'
 
 INHERITED_ROLES_TO_BASE_ROLES = {
-	InheritedRoles.BESPOKE_CATALOG_DATA_ENTRY_INHERITED: [UserRoles.BESPOKE_CATALOG_DATA_ENTRY],
+	InheritedRoles.BESPOKE_CATALOG_DATA_ENTRY_INHERITED: [
+		UserRoles.BESPOKE_CATALOG_DATA_ENTRY
+	],
+	InheritedRoles.COMPANY_ADMIN_VENDOR_ADMIN_INHERITED: [
+		UserRoles.COMPANY_ADMIN,
+		UserRoles.VENDOR_ADMIN,
+	],
 }
+
+ALL_INHERITED_ROLES = [
+	InheritedRoles.BESPOKE_CATALOG_DATA_ENTRY_INHERITED,
+	InheritedRoles.COMPANY_ADMIN_VENDOR_ADMIN_INHERITED,
+]
 
 _ALL_BANK_READER_ROLES = [
 	UserRoles.BANK_ADMIN,

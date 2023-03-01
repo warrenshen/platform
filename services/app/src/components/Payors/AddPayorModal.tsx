@@ -11,15 +11,11 @@ import {
 } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import RegisterThirdPartyForm from "components/ThirdParties/RegisterThirdPartyForm";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Companies,
   CompaniesInsertInput,
   CompanyTypeEnum,
-  UserRolesEnum,
   UsersInsertInput,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
@@ -28,6 +24,7 @@ import {
   LicenseInfo,
   createPartnershipRequestPayorMutation,
 } from "lib/api/companies";
+import { PlatformModeEnum } from "lib/enum";
 import { useContext, useState } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -51,9 +48,9 @@ export default function AddPayorModal({ customerId, handleClose }: Props) {
   const snackbar = useSnackbar();
 
   const {
-    user: { role },
+    user: { allowedRoles, platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
 
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -128,7 +125,7 @@ export default function AddPayorModal({ customerId, handleClose }: Props) {
       )}
       <RegisterThirdPartyForm
         companyType={CompanyTypeEnum.Payor}
-        role={role as UserRolesEnum}
+        allowedRoles={allowedRoles}
         contact={contact}
         setContact={setContact}
         company={payor}

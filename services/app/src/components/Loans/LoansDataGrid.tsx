@@ -14,10 +14,7 @@ import DataGridActionMenu, {
   DataGridActionItem,
 } from "components/Shared/DataGrid/DataGridActionMenu";
 import PurchaseOrderIdentifierDataGridCell from "components/Shared/DataGrid/PurchaseOrderIdentifierDataGridCell";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Companies,
   Invoices,
@@ -40,6 +37,7 @@ import {
   LoanStatusEnum,
   LoanStatusToLabel,
   PartnerEnum,
+  PlatformModeEnum,
   SurveillanceStatusEnum,
   SurveillanceStatusToLabel,
 } from "lib/enum";
@@ -182,9 +180,9 @@ export default function LoansDataGrid({
   handleSelectLoans,
 }: Props) {
   const {
-    user: { role },
+    user: { platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
   const [dataGrid, setDataGrid] = useState<any>(null);
   const rows = useMemo(() => getRows(loans), [loans]);
 

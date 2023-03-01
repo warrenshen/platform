@@ -67,3 +67,18 @@ select_permissions:
         purchase_order:
           vendor_id:
             _eq: X-Hasura-Company-Id
+  - role: vendor_admin
+    permission:
+      columns:
+        - created_at
+        - updated_at
+        - id
+        - metrc_transfer_id
+        - purchase_order_id
+      filter:
+        purchase_order:
+          _or:
+            - company_id:
+                _eq: X-Hasura-Company-Id
+            - vendor_id:
+                _eq: X-Hasura-Company-Id

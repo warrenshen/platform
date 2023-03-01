@@ -64,7 +64,7 @@ describe("Create financing requests", () => {
               vendor_bank_id: vendorBankAccountResults.bankAccountId,
               vendor_id: vendorResults.companyId,
             });
-            cy.loginCustomerAdminNew(
+            cy.loginCustomerAdmin(
               companyUserResults.userEmail,
               companyUserResults.userPassword
             );

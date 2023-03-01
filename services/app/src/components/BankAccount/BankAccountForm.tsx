@@ -18,16 +18,16 @@ const useStyles = makeStyles({
 });
 
 interface Props {
-  role: UserRolesEnum;
+  allowedRoles: UserRolesEnum[];
   bankAccount: BankAccountsInsertInput;
   setBankAccount: (update: BankAccountsInsertInput) => void;
   isFormDisabled?: boolean;
 }
 
 export default function BankAccountForm({
+  allowedRoles,
   bankAccount,
   setBankAccount,
-  role,
   isFormDisabled = false,
 }: Props) {
   const classes = useStyles();
@@ -307,7 +307,7 @@ export default function BankAccountForm({
               disabled={isFormDisabled}
             />
           </Box>
-          {role === UserRolesEnum.BankAdmin && (
+          {allowedRoles.includes(UserRolesEnum.BankAdmin) && (
             <Box display="flex" flexDirection="column" mt={2}>
               <TextField
                 label="Bank Address (Deprecated)"
@@ -325,8 +325,8 @@ export default function BankAccountForm({
           )}
         </Box>
       )}
-      {(role === UserRolesEnum.BankAdmin ||
-        role === UserRolesEnum.CompanyAdmin) && (
+      {(allowedRoles.includes(UserRolesEnum.BankAdmin) ||
+        allowedRoles.includes(UserRolesEnum.CompanyAdmin)) && (
         <Box display="flex" flexDirection="column" mt={2}>
           <FormControlLabel
             control={
@@ -347,8 +347,8 @@ export default function BankAccountForm({
           />
         </Box>
       )}
-      {(role === UserRolesEnum.BankAdmin ||
-        role === UserRolesEnum.CompanyAdmin) && (
+      {(allowedRoles.includes(UserRolesEnum.BankAdmin) ||
+        allowedRoles.includes(UserRolesEnum.CompanyAdmin)) && (
         <Box display="flex" flexDirection="column" mt={2}>
           <FormControlLabel
             control={
@@ -369,7 +369,7 @@ export default function BankAccountForm({
           />
         </Box>
       )}
-      {role === UserRolesEnum.BankAdmin && (
+      {allowedRoles.includes(UserRolesEnum.BankAdmin) && (
         <Box display="flex" flexDirection="column" mt={2}>
           <FormControlLabel
             control={
@@ -392,7 +392,7 @@ export default function BankAccountForm({
           />
         </Box>
       )}
-      {role === UserRolesEnum.BankAdmin && isVerified && (
+      {allowedRoles.includes(UserRolesEnum.BankAdmin) && isVerified && (
         <Box ml={4}>
           <Box display="flex" flexDirection="column" mt={2}>
             <DateInput

@@ -21,10 +21,7 @@ import ModalButton from "components/Shared/Modal/ModalButton";
 import { NotificationBubble } from "components/Shared/NotificationBubble/NotificationBubble";
 import PageContent from "components/Shared/Page/PageContent";
 import { CurrentCustomerContext } from "contexts/CurrentCustomerContext";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Companies,
   LoanFragment,
@@ -38,6 +35,7 @@ import {
   ActionType,
   CustomMessageEnum,
   FeatureFlagEnum,
+  PlatformModeEnum,
   ProductTypeEnum,
   ProductTypeToLoanType,
   ReportingRequirementsCategoryEnum,
@@ -83,9 +81,9 @@ export default function CustomerOverviewPageContent({
   const classes = useStyles();
 
   const {
-    user: { role },
+    user: { role, platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
 
   const { financialSummary } = useContext(CurrentCustomerContext);
   // We default to LoanTypeEnum.PurchaseOrder in the case where

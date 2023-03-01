@@ -5,10 +5,7 @@ import PurchaseOrderFormMetrc from "components/PurchaseOrder/v2/PurchaseOrderFor
 import MetrcLogo from "components/Shared/Images/MetrcLogo.png";
 import { ReactComponent as KeyboardIcon } from "components/Shared/Layout/Icons/Keyboard.svg";
 import Modal from "components/Shared/Modal/Modal";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Companies,
   Files,
@@ -32,6 +29,7 @@ import {
   ActionType,
   FeatureFlagEnum,
   NewPurchaseOrderStatus,
+  PlatformModeEnum,
   ProductTypeEnum,
 } from "lib/enum";
 import { isPurchaseOrderDueDateValid } from "lib/purchaseOrders";
@@ -89,9 +87,9 @@ export default function CreateUpdatePurchaseOrderModal({
   const isActionTypeUpdate = actionType === ActionType.Update;
 
   const {
-    user: { role },
+    user: { platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
 
   // Default PurchaseOrder for CREATE case.
   const newPurchaseOrder: PurchaseOrdersInsertInput = {

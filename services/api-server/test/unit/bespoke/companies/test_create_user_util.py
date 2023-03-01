@@ -18,7 +18,7 @@ class TestCreateUser(db_unittest.TestCase):
 
 		USER_EMAIL = 'warren@cannabisbusiness.com'
 
-		_, err = create_user_util.create_bank_or_customer_user(
+		_, err = create_user_util.create_user(
 			req=CreateBankOrCustomerUserInputDict(
 				company_id=company_id,
 				user=UserInsertInputDict(

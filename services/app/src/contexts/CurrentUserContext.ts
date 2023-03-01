@@ -1,30 +1,23 @@
 import { UserRolesEnum, Users } from "generated/graphql";
-import { InheritedRolesToBaseRoles, ProductTypeEnum } from "lib/enum";
+import { PlatformModeEnum, ProductTypeEnum } from "lib/enum";
 import { createContext } from "react";
-
-export function isRoleBankUser(role?: UserRolesEnum | null) {
-  if (!!role && role in InheritedRolesToBaseRoles) {
-    return [UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly].some(
-      (bankRole) => bankRole.includes(bankRole)
-    );
-  } else {
-    return (
-      !!role &&
-      [UserRolesEnum.BankAdmin, UserRolesEnum.BankReadOnly].includes(role)
-    );
-  }
-}
 
 export type User = {
   id: Users["id"] | null;
   parentCompanyId: Users["parent_company_id"] | null;
   companyId: Users["company_id"] | null;
   role: UserRolesEnum | null;
-  allowedRoles: UserRolesEnum[] | null;
+  allowedRoles: UserRolesEnum[];
   impersonatorUserId: Users["id"] | null;
+  platformMode: PlatformModeEnum | null;
   productType: ProductTypeEnum | null;
   isEmbeddedModule: boolean | null; // Whether app is open in an iframe element.
   isActiveContract: boolean | null;
+};
+
+export type ImpersonateUserResponse = {
+  platformMode: PlatformModeEnum | null;
+  errorMsg: string | null;
 };
 
 export type CurrentUserContextType = {
@@ -33,13 +26,18 @@ export type CurrentUserContextType = {
   resetUser: () => void; // A function that resets state of CurrentUserProvider component.
   setUserProductType: (productType: ProductTypeEnum) => void; // A function that sets productType state of CurrentUserProvider component.
   setUserIsActiveContract: (isActiveContract: boolean) => void; // A function that sets isActiveContract state of CurrentUserProvider component.
+  switchPlatformMode: (
+    platformMode: PlatformModeEnum
+  ) => Promise<string | void>;
   signIn: (
     email: string,
     password: string,
     handleSuccess: (successUrl: string) => void
   ) => void;
   undoImpersonation: () => Promise<string | void>;
-  impersonateUser: (userId: User["id"]) => Promise<string | void>;
+  impersonateUser: (
+    userId: User["id"]
+  ) => Promise<ImpersonateUserResponse | void>;
   signOut: () => void;
 };
 
@@ -48,8 +46,9 @@ export const BlankUser = {
   parentCompanyId: null,
   companyId: null,
   role: null,
-  allowedRoles: null,
+  allowedRoles: [],
   impersonatorUserId: null,
+  platformMode: null,
   productType: null,
   isEmbeddedModule: null,
   isActiveContract: null,
@@ -61,6 +60,7 @@ export const CurrentUserContext = createContext<CurrentUserContextType>({
   resetUser: () => {},
   setUserProductType: () => {},
   setUserIsActiveContract: () => {},
+  switchPlatformMode: () => Promise.resolve(),
   undoImpersonation: () => Promise.resolve(),
   impersonateUser: () => Promise.resolve(),
   signIn: () => {},

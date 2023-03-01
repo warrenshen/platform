@@ -190,6 +190,16 @@ export const BankLoansMaturingInTimeWindowList = [
   BankLoansMaturingInTimeWindow.PastDue,
 ];
 
+export enum VendorPurchaseOrdersTabLabel {
+  Active = "Active",
+  Archived = "Archived",
+}
+
+export const VendorPurchaseOrdersTabLabels = [
+  VendorPurchaseOrdersTabLabel.Active,
+  VendorPurchaseOrdersTabLabel.Archived,
+];
+
 export enum BankPurchaseOrdersTabLabel {
   DraftedPOs = "Draft POs",
   IncompletePOs = "Incomplete POs",
@@ -401,6 +411,21 @@ export const ReadyNewPurchaseOrderStatuses = [
 ];
 
 export const ClosedNewPurchaseOrderStatuses = [
+  NewPurchaseOrderStatus.Archived,
+  NewPurchaseOrderStatus.RejectedByVendor,
+  NewPurchaseOrderStatus.RejectedByBespoke,
+];
+
+export const VendorActivePurchaseOrderStatuses = [
+  NewPurchaseOrderStatus.PendingApprovalByVendor,
+  NewPurchaseOrderStatus.ChangesRequestedByVendor,
+  NewPurchaseOrderStatus.ChangesRequestedByBespoke,
+  NewPurchaseOrderStatus.ReadyToRequestFinancing,
+  NewPurchaseOrderStatus.FinancingPendingApproval,
+  NewPurchaseOrderStatus.FinancingRequestApproved,
+];
+
+export const VendorArchivedPurchaseOrderStatuses = [
   NewPurchaseOrderStatus.Archived,
   NewPurchaseOrderStatus.RejectedByVendor,
   NewPurchaseOrderStatus.RejectedByBespoke,
@@ -853,11 +878,17 @@ export const UserRoleToLabel = {
   [UserRolesEnum.CompanyReadOnly]: "Company User (View Only)",
   [UserRolesEnum.CompanyContactOnly]: "Company Contact (No Account)",
   [UserRolesEnum.Anonymous]: "Anonymous",
+  [UserRolesEnum.VendorAdmin]: "Vendor Admin",
+  [UserRolesEnum.CompanyAdminVendorAdminInherited]: "Company and Vendor Admin",
 };
 
 export const InheritedRolesToBaseRoles = {
   [UserRolesEnum.BespokeCatalogDataEntryInherited]: [
     UserRolesEnum.BespokeCatalogDataEntry,
+  ],
+  [UserRolesEnum.CompanyAdminVendorAdminInherited]: [
+    UserRolesEnum.CompanyAdmin,
+    UserRolesEnum.VendorAdmin,
   ],
 };
 
@@ -878,6 +909,10 @@ export const CustomerUserRoles = [
 ];
 
 export const PartnerCompanyUserRoles = [UserRolesEnum.CompanyContactOnly];
+export const VendorCompanyUserRoles = [UserRolesEnum.VendorAdmin];
+export const CustomerAndVendorCompanyUserRoles = [
+  UserRolesEnum.CompanyAdminVendorAdminInherited,
+];
 
 // Mapping for when we look up loans based on ProductType
 export const ProductTypeToLoanType = {
@@ -1316,3 +1351,22 @@ export const VendorChangeRequestsCategoryToLabel = {
     "Partnership Contact Change",
   [VendorChangeRequestsCategoryEnum.ContactInfoChange]: "Contact Info Change",
 };
+
+export enum PlatformModeEnum {
+  Bank = "bank",
+  Customer = "customer",
+  Vendor = "vendor",
+  Anonymous = "anonymous",
+}
+
+export const BankUserBaseRoles = [
+  UserRolesEnum.BankAdmin,
+  UserRolesEnum.BankReadOnly,
+];
+
+export const CustomerUserBaseRoles = [
+  UserRolesEnum.CompanyAdmin,
+  UserRolesEnum.CompanyReadOnly,
+];
+
+export const VendorUserBaseRoles = [UserRolesEnum.VendorAdmin];

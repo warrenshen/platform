@@ -5,10 +5,7 @@ import DownloadThumbnail from "components/Shared/File/DownloadThumbnail";
 import FileViewer from "components/Shared/File/FileViewer";
 import Modal from "components/Shared/Modal/Modal";
 import ModalButton from "components/Shared/Modal/ModalButton";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   EbbaApplications,
   RequestStatusEnum,
@@ -17,7 +14,11 @@ import {
 import useSnackbar from "hooks/useSnackbar";
 import { authenticatedApi, ebbaApplicationsRoutes } from "lib/api";
 import { formatDateString, formatDatetimeString } from "lib/date";
-import { CustomerSurveillanceCategoryEnum, FileTypeEnum } from "lib/enum";
+import {
+  CustomerSurveillanceCategoryEnum,
+  FileTypeEnum,
+  PlatformModeEnum,
+} from "lib/enum";
 import { formatCurrency } from "lib/number";
 import { useContext, useMemo, useState } from "react";
 
@@ -33,10 +34,10 @@ export default function EbbaApplicationDrawer({
   const snackbar = useSnackbar();
 
   const {
-    user: { role },
+    user: { platformMode },
   } = useContext(CurrentUserContext);
 
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
 
   const [isFileViewerOpen, setIsFileViewerOpen] = useState(false);
 

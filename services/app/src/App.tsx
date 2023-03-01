@@ -2,16 +2,15 @@ import "devextreme/dist/css/dx.common.css";
 import "devextreme/dist/css/dx.material.blue.light.css";
 
 import PrivateRoute from "components/Shared/PrivateRoute";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { UserRolesEnum } from "generated/graphql";
+import { PlatformModeEnum } from "lib/enum";
 import {
   anonymousRoutes,
   bankRoutes,
   customerRoutes,
   routes,
+  vendorRoutes,
 } from "lib/routes";
 import AnonymousCompletePage from "pages/Anonymous/AnonymousCompletePage";
 import ForgotPasswordPage from "pages/Anonymous/ForgotPassword";
@@ -81,12 +80,15 @@ import CustomerReportsPage from "pages/Customer/Reports";
 import CustomerSettingsPage from "pages/Customer/Settings";
 import CustomerVendorsPage from "pages/Customer/Vendors";
 import UserProfile from "pages/UserProfile";
+import VendorOverviewPage from "pages/Vendor/Overview";
+import VendorPurchaseOrdersPage from "pages/Vendor/PurchaseOrders";
+import VendorSettingsPage from "pages/Vendor/Settings";
 import { useContext } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 export default function App() {
   const {
-    user: { role },
+    user: { platformMode },
   } = useContext(CurrentUserContext);
   return (
     <BrowserRouter>
@@ -141,7 +143,7 @@ export default function App() {
           path={anonymousRoutes.createVendorComplete}
           element={<AnonymousCompletePage />}
         />
-        {/* Bank and Company user routes */}
+        {/* Bank, Company (Customer), and Vendor user routes */}
         <Route
           path={routes.root}
           element={
@@ -151,12 +153,17 @@ export default function App() {
                 UserRolesEnum.BankReadOnly,
                 UserRolesEnum.CompanyAdmin,
                 UserRolesEnum.CompanyReadOnly,
+                UserRolesEnum.VendorAdmin,
               ]}
             >
-              {isRoleBankUser(role) ? (
+              {platformMode === PlatformModeEnum.Bank ? (
                 <Navigate replace to={bankRoutes.overview} />
-              ) : (
+              ) : platformMode === PlatformModeEnum.Customer ? (
                 <Navigate replace to={customerRoutes.overview} />
+              ) : platformMode === PlatformModeEnum.Vendor ? (
+                <Navigate replace to={vendorRoutes.overview} />
+              ) : (
+                <Navigate replace to={routes.signIn} />
               )}
             </PrivateRoute>
           }
@@ -383,6 +390,32 @@ export default function App() {
               ]}
             >
               <CustomerAccountPage />
+            </PrivateRoute>
+          }
+        />
+
+        {/* Vendor user routes */}
+        <Route
+          path={vendorRoutes.overview}
+          element={
+            <PrivateRoute requiredRoles={[UserRolesEnum.VendorAdmin]}>
+              <VendorOverviewPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={vendorRoutes.purchaseOrders}
+          element={
+            <PrivateRoute requiredRoles={[UserRolesEnum.VendorAdmin]}>
+              <VendorPurchaseOrdersPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={vendorRoutes.settings}
+          element={
+            <PrivateRoute requiredRoles={[UserRolesEnum.VendorAdmin]}>
+              <VendorSettingsPage />
             </PrivateRoute>
           }
         />

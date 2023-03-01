@@ -3,6 +3,8 @@ services:
   bespoke-postgres-cypress:
     image: postgres:11
     container_name: bespoke-postgres-cypress
+    ports:
+      - 5433:5432
     restart: always
     volumes:
       - bespoke_db_data_cypress:/var/lib/postgresql/data

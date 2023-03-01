@@ -11,10 +11,7 @@ import EditRepaymentDatesModal from "components/Payment/EditRepaymentDatesModal"
 import ReverseRepaymentModal from "components/Payment/ReverseRepaymentModal";
 import PaymentStatusChip from "components/Shared/Chip/PaymentStatusChip";
 import ModalButton from "components/Shared/Modal/ModalButton";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   BankAccounts,
   Payments,
@@ -22,7 +19,11 @@ import {
 } from "generated/graphql";
 import { formatDateString, formatDatetimeString } from "lib/date";
 import { todayAsDateStringServer } from "lib/date";
-import { RepaymentMethodEnum, RepaymentMethodToLabel } from "lib/enum";
+import {
+  PlatformModeEnum,
+  RepaymentMethodEnum,
+  RepaymentMethodToLabel,
+} from "lib/enum";
 import { getPaymentStatus } from "lib/finance/payments/repayment";
 import { formatCurrency } from "lib/number";
 import { useContext } from "react";
@@ -50,9 +51,9 @@ export default function PaymentDrawer({
   const classes = useStyles();
 
   const {
-    user: { role },
+    user: { platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
   const { data, refetch } = useGetPaymentForSettlementQuery({
     variables: {
       id: paymentId,

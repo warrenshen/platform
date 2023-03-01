@@ -71,7 +71,7 @@ describe("Create purchase order", () => {
               vendor_bank_id: vendorBankResults.bankAccountId,
               vendor_id: vendorResults.companyId,
             });
-            cy.loginCustomerAdminNew(
+            cy.loginCustomerAdmin(
               companyUserResults.userEmail,
               companyUserResults.userPassword
             );

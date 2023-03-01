@@ -49,7 +49,7 @@ describe("Request financing", () => {
             is_metrc_based: false,
             net_terms: 30,
           }).then((purchaseOrderesults) => {
-            cy.loginCustomerAdminNew(
+            cy.loginCustomerAdmin(
               userResults.userEmail,
               userResults.userPassword
             );

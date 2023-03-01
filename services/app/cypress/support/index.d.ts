@@ -185,18 +185,21 @@ declare global {
       loginBankAdmin(): Chainable<Element>;
 
       /**
-       * Have the test log in as a customer admin
-       * Intended to be used with a customer admin setup by seed.py
-       * @example cy.loginCustomerAdmin()
+       * Have the test log in as a vendor admin
+       * Intended to be used with a vendor admin setup by seed.py
+       * @example cy.loginVendorAdmin()
        */
-      loginCustomerAdmin(): Chainable<Element>;
+      loginVendorAdmin(
+        userEmail: string,
+        userPassword: string
+      ): Chainable<Element>;
 
       /**
        * Have the test log in as a customer admin
        * Intended to be used with a customer admin setup by cy.addUser
        * @example cy.loginCustomerAdminNeew()
        */
-      loginCustomerAdminNew(
+      loginCustomerAdmin(
         userEmail: string,
         userPassword: string
       ): Chainable<Element>;

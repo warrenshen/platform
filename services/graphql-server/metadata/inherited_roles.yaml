@@ -1,3 +1,7 @@
 - role_name: bespoke_catalog_data_entry_inherited
   role_set:
     - bespoke_catalog_data_entry
+- role_name: company_admin_vendor_admin_inherited
+  role_set:
+    - vendor_admin
+    - company_admin

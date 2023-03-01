@@ -1,13 +1,11 @@
 import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import Modal from "components/Shared/Modal/Modal";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
 import { deleteLicenseMutation } from "lib/api/licenses";
+import { PlatformModeEnum } from "lib/enum";
 import { useContext } from "react";
 
 interface Props {
@@ -22,9 +20,9 @@ export default function DeleteLicenseModal({ licenseId, handleClose }: Props) {
     useCustomMutation(deleteLicenseMutation);
 
   const {
-    user: { role },
+    user: { platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
 
   const handleSubmit = async () => {
     const response = await deleteLicense({

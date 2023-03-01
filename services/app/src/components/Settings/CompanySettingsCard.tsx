@@ -11,10 +11,7 @@ import {
 } from "@material-ui/core";
 import { grey } from "@material-ui/core/colors";
 import Can from "components/Shared/Can";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   CompanySettingsFragment,
   CompanySettingsLimitedFragment,
@@ -23,7 +20,11 @@ import {
 import useSnackbar from "hooks/useSnackbar";
 import { CopyIcon } from "icons";
 import { Action } from "lib/auth/rbac-rules";
-import { ProductTypeEnum, ProductTypeToLabel } from "lib/enum";
+import {
+  PlatformModeEnum,
+  ProductTypeEnum,
+  ProductTypeToLabel,
+} from "lib/enum";
 import { SettingsHelper } from "lib/settings";
 import { useContext } from "react";
 
@@ -51,9 +52,9 @@ function CompanySettingsCard({ contract, settings, handleClick }: Props) {
   const snackbar = useSnackbar();
 
   const {
-    user: { role },
+    user: { platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
 
   if (contract === null) {
     return null;

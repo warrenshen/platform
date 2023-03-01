@@ -73,6 +73,7 @@ fragment Company on companies {
   is_customer
   is_payor
   is_vendor
+  is_super_vendor
   contract_name
   employer_identification_number
   address
@@ -80,12 +81,23 @@ fragment Company on companies {
   ...CompanyLimited
 }
 
+# fragment VendorCompany on companies {
+#   id
+#   is_customer
+#   is_vendor
+#   is_super_vendor
+#   parent_company_id
+#   name
+#   dba_name
+# }
+
 fragment CompanyWithSettings on companies {
   id
   identifier
   is_customer
   is_payor
   is_vendor
+  is_super_vendor
   contract_name
   employer_identification_number
   address

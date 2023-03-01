@@ -6,10 +6,7 @@ import EditUserProfileModal from "components/Users/EditUserProfileModal";
 import InviteUserModal from "components/Users/InviteUserModal";
 import ReactivateUserModal from "components/Users/ReactivateUserModal";
 import UsersDataGrid from "components/Users/UsersDataGrid";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   GetCompanyForCustomerQuery,
   Users,
@@ -18,6 +15,7 @@ import {
 } from "generated/graphql";
 import { Action } from "lib/auth/rbac-rules";
 import { getCompanyUserRolesForCompany } from "lib/companies";
+import { PlatformModeEnum } from "lib/enum";
 import { useContext, useMemo, useState } from "react";
 
 interface Props {
@@ -40,9 +38,9 @@ function ActiveUsersTab({
   isVendorOrActiveCustomer,
 }: ActiveUsersTabProps) {
   const {
-    user: { role },
+    user: { platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
 
   const { data, refetch } = useGetUsersForCompanyQuery({
     variables: {

@@ -88,19 +88,17 @@ function loginBankAdmin() {
   cy.url().should("include", "overview");
 }
 
-function loginCustomerAdmin() {
+function loginCustomerAdmin(userEmail: string, userPassword: string) {
   cy.visit("/", { timeout: 5 * 60 * 1000 });
 
-  cy.dataCySelector("sign-in-input-email", "input").type(
-    users.customer.inventoryFinancing.admin
-  );
-  cy.dataCySelector("sign-in-input-password", "input").type(password);
+  cy.dataCySelector("sign-in-input-email", "input").type(userEmail);
+  cy.dataCySelector("sign-in-input-password", "input").type(userPassword);
   cy.dataCy("sign-in-button").click();
 
   cy.url().should("include", "overview");
 }
 
-function loginCustomerAdminNew(userEmail: string, userPassword: string) {
+function loginVendorAdmin(userEmail: string, userPassword: string) {
   cy.visit("/", { timeout: 5 * 60 * 1000 });
 
   cy.dataCySelector("sign-in-input-email", "input").type(userEmail);
@@ -121,7 +119,7 @@ function logout() {
 
 Cypress.Commands.add("loginBankAdmin", loginBankAdmin);
 Cypress.Commands.add("loginCustomerAdmin", loginCustomerAdmin);
-Cypress.Commands.add("loginCustomerAdminNew", loginCustomerAdminNew);
+Cypress.Commands.add("loginVendorAdmin", loginVendorAdmin);
 Cypress.Commands.add("logout", logout);
 
 // ///////////////////////////////

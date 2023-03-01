@@ -1,9 +1,7 @@
 import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
+import { PlatformModeEnum } from "lib/enum";
 import { ReactNode, useContext } from "react";
 import styled from "styled-components";
 
@@ -75,9 +73,9 @@ export default function PageContent({
   children,
 }: Props) {
   const {
-    user: { role },
+    user: { platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
 
   return (
     <Container>

@@ -5,10 +5,7 @@ import CustomerSurveillanceStatusChip from "components/CustomerSurveillance/Cust
 import CustomerSurveillanceStatusNoteModal from "components/CustomerSurveillance/CustomerSurveillanceStatusNoteModal";
 import MetrcLogo from "components/Shared/Images/MetrcLogo.png";
 import Modal from "components/Shared/Modal/Modal";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   CustomerSurveillanceFragment,
   useGetCustomersSurveillanceByCompanyIdQuery,
@@ -28,6 +25,7 @@ import {
   isCustomerFinancialsMetrcBased,
 } from "lib/customerSurveillance";
 import {
+  PlatformModeEnum,
   ProductTypeEnum,
   ProductTypeToLabel,
   QualifyForEnum,
@@ -53,7 +51,7 @@ export default function CustomerSurveillanceDrawer({
   const [selectedBankNote, setSelectedBankNote] = useState(null);
   const [showSurveillanceDetails, setShowSurveillanceDetails] = useState(true);
   const { user } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(user.role);
+  const isBankUser = user.platformMode === PlatformModeEnum.Bank;
 
   const { data, error } = useGetCustomersSurveillanceByCompanyIdQuery({
     fetchPolicy: "network-only",

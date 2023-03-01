@@ -2,10 +2,7 @@ import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import InvoiceForm from "components/Invoices/InvoiceForm";
 import Modal from "components/Shared/Modal/Modal";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Companies,
   Files,
@@ -24,7 +21,7 @@ import {
   submitInvoiceForApproval,
   submitNewInvoiceForPaymentMutation,
 } from "lib/api/invoices";
-import { ActionType, ProductTypeEnum } from "lib/enum";
+import { ActionType, PlatformModeEnum, ProductTypeEnum } from "lib/enum";
 import { isInvoiceFinancingProductType } from "lib/settings";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useState } from "react";
@@ -54,9 +51,9 @@ export default function CreateUpdateInvoiceModal({
   const snackbar = useSnackbar();
 
   const {
-    user: { role },
+    user: { platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
 
   const newInvoice = {
     company_id: companyId,

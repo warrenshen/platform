@@ -13,6 +13,9 @@ export const users = {
       admin: "multilocation@customer.com",
     },
   },
+  vendor: {
+    admin: "vendoradmin@vendor.com",
+  },
 };
 
 export const password = "password123";

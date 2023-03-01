@@ -2,12 +2,9 @@ import { Tab, Tabs } from "@material-ui/core";
 import Modal from "components/Shared/Modal/Modal";
 import MetrcTransferGeneralInformationDrawerTab from "components/Transfers/v2/MetrcTransferGeneralInformationDrawerTab";
 import MetrcTransferOnlyForBankDrawerTab from "components/Transfers/v2/MetrcTransferOnlyForBankDrawerTab";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import { MetrcTransfers, useGetMetrcTransferQuery } from "generated/graphql";
-import { MetrcTransferDrawerTabLabel } from "lib/enum";
+import { MetrcTransferDrawerTabLabel, PlatformModeEnum } from "lib/enum";
 import { useContext, useState } from "react";
 
 interface Props {
@@ -17,9 +14,9 @@ interface Props {
 
 const MetrcTransferDrawer = ({ metrcTransferId, handleClose }: Props) => {
   const {
-    user: { role },
+    user: { platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
 
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const { data, error } = useGetMetrcTransferQuery({

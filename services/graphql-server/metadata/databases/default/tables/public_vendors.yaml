@@ -164,6 +164,25 @@ select_permissions:
       filter:
         id:
           _eq: X-Hasura-Company-Id
+  - role: vendor_admin
+    permission:
+      columns:
+        - address
+        - dba_name
+        - id
+        - identifier
+        - is_cannabis
+        - name
+        - parent_company_id
+        - phone_number
+      filter:
+        _or:
+          - company_vendor_partnerships:
+              company_id:
+                _eq: X-Hasura-Company-Id
+          - company_deliveries:
+              company_id:
+                _eq: X-Hasura-Company-Id
 update_permissions:
   - role: bank_admin
     permission:

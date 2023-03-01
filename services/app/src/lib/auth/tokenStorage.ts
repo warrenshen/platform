@@ -4,6 +4,7 @@ import { authRoutes, unAuthenticatedApi } from "lib/api";
 
 const LOCAL_STORAGE_ACCESS_TOKEN_KEY = "access_token";
 const LOCAL_STORAGE_REFRESH_TOKEN_KEY = "refresh_token";
+const LOCAL_STORAGE_PLATFORM_MODE_KEY = "platform_mode";
 
 function isTokenExpired(token: string | null) {
   if (!token) {
@@ -31,6 +32,18 @@ export const getRefreshToken = () => {
 
 export const setAccessToken = (token: string) => {
   localStorage.setItem(LOCAL_STORAGE_ACCESS_TOKEN_KEY, token);
+};
+
+export const getPlatformMode = () => {
+  return localStorage.getItem(LOCAL_STORAGE_PLATFORM_MODE_KEY) || null;
+};
+
+export const setPlatformMode = (platform_mode: string) => {
+  localStorage.setItem(LOCAL_STORAGE_PLATFORM_MODE_KEY, platform_mode);
+};
+
+export const removePlatformMode = () => {
+  localStorage.removeItem(LOCAL_STORAGE_PLATFORM_MODE_KEY);
 };
 
 export const getAccessToken = async (): Promise<string | null> => {

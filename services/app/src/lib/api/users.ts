@@ -34,11 +34,11 @@ export type UpdateUserReq = {
   };
 };
 
-export async function createBankCustomerUserMutation(
+export async function createUserMutation(
   req: CreateBankCustomerUserRequest
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(userRoutes.createBankCustomerUser, req.variables)
+    .post(userRoutes.createUser, req.variables)
     .then((res) => res.data)
     .then(
       (res) => res,

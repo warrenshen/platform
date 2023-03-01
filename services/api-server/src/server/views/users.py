@@ -75,9 +75,9 @@ class CreateLoginView(MethodView):
 			'status': 'OK'
 		}), 200)
 
-class CreateBankCustomerUserView(MethodView):
+class CreateUserView(MethodView):
 	"""
-	Creates a user under a Bank or a Customer account.
+	Creates a user under a Bank, Customer, or Vendor account.
 	"""
 	decorators = [auth_util.login_required]
 
@@ -101,9 +101,9 @@ class CreateBankCustomerUserView(MethodView):
 		if not user_session.is_bank_or_this_company_admin(form['company_id']):
 			return handler_util.make_error_response('Access Denied')
 
-		user_id, err = create_user_util.create_bank_or_customer_user(
-			cast(create_user_util.CreateBankOrCustomerUserInputDict, form),
+		user_id, err = create_user_util.create_user(
 			current_app.session_maker,
+			cast(create_user_util.CreateBankOrCustomerUserInputDict, form),
 			user_session.get_user_id()
 		)
 
@@ -484,7 +484,7 @@ handler.add_url_rule(
 	'/create_login', view_func=CreateLoginView.as_view(name='create_login_view'))
 
 handler.add_url_rule(
-	'/create_bank_customer_user', view_func=CreateBankCustomerUserView.as_view(name='create_bank_customer_user_view'))
+	'/create_user', view_func=CreateUserView.as_view(name='create_user_view'))
 
 handler.add_url_rule(
 	'/create_parent_company_user', view_func=CreateParentCompanyUserView.as_view(name='create_parent_company_user_view'))

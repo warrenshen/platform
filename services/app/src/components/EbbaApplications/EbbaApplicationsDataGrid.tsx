@@ -6,10 +6,7 @@ import EbbaApplicationStatusChip from "components/EbbaApplication/EbbaApplicatio
 import ClickableDataGridCell from "components/Shared/DataGrid/ClickableDataGridCell";
 import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import CurrencyDataGridCell from "components/Shared/DataGrid/CurrencyDataGridCell";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   EbbaApplicationFragment,
   EbbaApplications,
@@ -20,6 +17,7 @@ import { parseDateStringServer } from "lib/date";
 import {
   BankEbbaTabLabel,
   CustomerSurveillanceCategoryEnum,
+  PlatformModeEnum,
   ProductTypeEnum,
   ProductTypeToLabel,
 } from "lib/enum";
@@ -76,9 +74,9 @@ export default function EbbaApplicationsDataGrid({
   >(null);
 
   const {
-    user: { role },
+    user: { platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
 
   const rows = useMemo(
     () =>

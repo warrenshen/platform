@@ -98,6 +98,34 @@ query GetCompanyForCustomer($companyId: uuid!) {
   }
 }
 
+query GetCompanyForVendor($companyId: uuid!) {
+  companies_by_pk(id: $companyId) {
+    id
+    ...Company
+    bank_accounts {
+      id
+      ...BankAccountLimited
+    }
+    settings {
+      id
+      ...CompanySettingsLimited
+      advances_bank_account {
+        id
+        ...BankAccountLimited
+      }
+      collections_bank_account {
+        id
+        ...BankAccountLimited
+      }
+    }
+    users {
+      id
+      ...User
+    }
+  }
+}
+
+
 mutation UpdateCompanyProfile($id: uuid!, $company: companies_set_input!) {
   update_companies_by_pk(pk_columns: { id: $id }, _set: $company) {
     ...Company

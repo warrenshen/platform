@@ -106,6 +106,33 @@ select_permissions:
               company_vendor_partnerships_by_vendor:
                 company_id:
                   _eq: X-Hasura-Company-Id
+  - role: vendor_admin
+    permission:
+      columns:
+        - company_id
+        - company_role
+        - created_at
+        - email
+        - first_name
+        - full_name
+        - id
+        - is_deleted
+        - last_name
+        - parent_company_id
+        - phone_number
+        - role
+        - updated_at
+      filter:
+        _or:
+          - company_id:
+              _eq: X-Hasura-Company-Id
+          - parent_company_id:
+              _eq: X-Hasura-Parent-Company-Id
+          - company:
+              company_vendor_partnerships_by_vendor:
+                company:
+                  parent_company_id:
+                    _eq: X-Hasura-Parent-Company-Id
 update_permissions:
   - role: bank_admin
     permission:

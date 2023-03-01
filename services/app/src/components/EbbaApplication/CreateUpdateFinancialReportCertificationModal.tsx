@@ -2,10 +2,7 @@ import { Box, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import EbbaApplicationFinancialReportsForm from "components/EbbaApplication/EbbaApplicationFinancialReportsForm";
 import Modal from "components/Shared/Modal/Modal";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Companies,
   EbbaApplicationFilesInsertInput,
@@ -21,7 +18,7 @@ import {
   updateFinancialReportMutation,
 } from "lib/api/ebbaApplications";
 import { computeEbbaApplicationExpiresDate } from "lib/date";
-import { ActionType, ProductTypeEnum } from "lib/enum";
+import { ActionType, PlatformModeEnum, ProductTypeEnum } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useState } from "react";
 
@@ -45,9 +42,9 @@ export default function CreateUpdateFinancialReportCertificationModal({
   const isActionTypeUpdate = actionType === ActionType.Update;
 
   const {
-    user: { role },
+    user: { platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
 
   // Default EbbaApplication for CREATE case.
   const newEbbaApplication = {

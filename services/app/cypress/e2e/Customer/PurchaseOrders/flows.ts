@@ -114,7 +114,7 @@ export const setupDataForTest = ({
               });
 
               if (shouldLogin) {
-                cy.loginCustomerAdminNew(
+                cy.loginCustomerAdmin(
                   companyUserResults.userEmail,
                   companyUserResults.userPassword
                 );

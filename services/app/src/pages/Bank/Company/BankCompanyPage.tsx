@@ -6,10 +6,7 @@ import { Color } from "@material-ui/lab/Alert";
 import CounterChip from "components/Shared/Chip/CounterChip";
 import Page from "components/Shared/Page";
 import CurrentCustomerProvider from "contexts/CurrentCustomerProvider";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Companies,
   GetCompanyForBankCompanyPageQuery,
@@ -20,6 +17,7 @@ import {
 } from "generated/graphql";
 import {
   FeatureFlagEnum,
+  PlatformModeEnum,
   ProductTypeEnum,
   ReportingRequirementsCategoryEnum,
   SurveillanceStatusEnum,
@@ -321,8 +319,9 @@ interface Props {
 
 export default function BankCompanyPage({ children }: Props) {
   const {
-    user: { role },
+    user: { platformMode },
   } = useContext(CurrentUserContext);
+  const isRoleBankUser = platformMode === PlatformModeEnum.Bank;
   const { companyId } = useParams<{
     companyId: Companies["id"];
   }>();
@@ -410,7 +409,7 @@ export default function BankCompanyPage({ children }: Props) {
         <Box display="flex" alignSelf="stretch">
           <Box className={classes.drawer}>
             <TitleText>{companyName || ""}</TitleText>
-            {isRoleBankUser(role) && renderSurveillanceStatus()}
+            {isRoleBankUser && renderSurveillanceStatus()}
             <List className={classes.list}>
               {getCustomerPaths(
                 company,
@@ -419,7 +418,7 @@ export default function BankCompanyPage({ children }: Props) {
                 productType,
                 isActiveContract,
                 isMetrcBased,
-                isRoleBankUser(role),
+                isRoleBankUser,
                 purchaseOrdersChangesRequestedCount
               )
                 .filter(

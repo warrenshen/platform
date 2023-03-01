@@ -12,10 +12,7 @@ import ControlledDataGrid from "components/Shared/DataGrid/ControlledDataGrid";
 import ClickableDataGridCell from "components/Shared/DataGrid/v2/ClickableDataGridCell";
 import DateInput from "components/Shared/FormInputs/DateInput";
 import Modal from "components/Shared/Modal/Modal";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Companies,
   GetPurchaseOrdersForIdsQuery,
@@ -31,7 +28,7 @@ import useSnackbar from "hooks/useSnackbar";
 import { DateInputIcon } from "icons";
 import { getCompanyDisplayName } from "lib/companies";
 import { parseDateStringServer } from "lib/date";
-import { LoanStatusEnum, ProductTypeEnum } from "lib/enum";
+import { LoanStatusEnum, PlatformModeEnum, ProductTypeEnum } from "lib/enum";
 import {
   PurchaseOrderLoanUpsert,
   upsertPurchaseOrdersLoansMutation,
@@ -143,9 +140,9 @@ function ManagePurchaseOrderFinancingModalMultiple({
   const snackbar = useSnackbar();
 
   const {
-    user: { productType, role },
+    user: { productType, platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
 
   const { data: customerData } = useGetCustomerOverviewQuery({
     variables: {

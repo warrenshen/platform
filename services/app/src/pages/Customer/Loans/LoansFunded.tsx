@@ -4,10 +4,7 @@ import CreateRepaymentModal from "components/Repayment/CreateRepaymentModal";
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
 import Can from "components/Shared/Can";
 import Text, { TextVariants } from "components/Shared/Text/Text";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   Companies,
   GetActiveLoansForCompanyQuery,
@@ -15,7 +12,7 @@ import {
   Loans,
 } from "generated/graphql";
 import { Action, check } from "lib/auth/rbac-rules";
-import { ProductTypeEnum } from "lib/enum";
+import { PlatformModeEnum, ProductTypeEnum } from "lib/enum";
 import { useContext, useMemo, useState } from "react";
 import styled from "styled-components";
 
@@ -41,9 +38,9 @@ const LoansFunded = ({
   handleDataChange,
 }: Props) => {
   const {
-    user: { role },
+    user: { role, platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
 
   const company = data?.companies_by_pk;
   const loans = useMemo(

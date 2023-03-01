@@ -783,7 +783,8 @@ def create_partnership_payor(
 	).first())
 
 	if existing_user is None:
-		user_id, err = create_user_util.create_bank_or_customer_user_with_session(
+		user_id, err = create_user_util.create_user_with_session(
+			session = session,
 			req = create_user_util.CreateBankOrCustomerUserInputDict(
 				company_id = company_id,
 				user = create_user_util.UserInsertInputDict(
@@ -794,7 +795,6 @@ def create_partnership_payor(
 					phone_number = cast(Dict[str, Any], user_info).get("phone_number", "")
 				),
 			),
-			session = session,
 			created_by_user_id = bank_admin_user_id
 		)
 
@@ -1000,7 +1000,8 @@ def create_partnership_vendor(
 	).first())
 
 	if existing_user is None:
-		user_id, err = create_user_util.create_bank_or_customer_user_with_session(
+		user_id, err = create_user_util.create_user_with_session(
+			session = session,
 			req = create_user_util.CreateBankOrCustomerUserInputDict(
 				company_id = company_id,
 				user = create_user_util.UserInsertInputDict(
@@ -1011,7 +1012,6 @@ def create_partnership_vendor(
 					phone_number = cast(Dict[str, Any], user_info).get("phone_number", "")
 				),
 			),
-			session = session,
 			created_by_user_id = bank_admin_user_id,
 		)
 

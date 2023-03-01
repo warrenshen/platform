@@ -33,6 +33,14 @@ def _get_company_admin_user(parent_company_id: str, company_id: Optional[str]) -
 		company_id=company_id,
 	))
 
+def _get_vendor_admin_user(parent_company_id: str, company_id: Optional[str]) -> auth_util.UserSession:
+	return auth_util.UserSession(_get_user(
+		user_id='vendor-admin1',
+		roles=['vendor_admin'],
+		parent_company_id=parent_company_id,
+		company_id=company_id,
+	))
+
 def _get_guest_user() -> auth_util.UserSession:
 	return auth_util.UserSession(_get_user(
 		user_id='guest',
@@ -47,6 +55,7 @@ class TestUserSession(unittest.TestCase):
 		tests: List[Dict] = [
 			dict(expected=True, user_session=_get_bank_user(parent_company_id=None, company_id=None), company_id=None),
 			dict(expected=True, user_session=_get_company_admin_user(parent_company_id='id1234', company_id='id1234'), company_id='id1234'),
+			dict(expected=True, user_session=_get_vendor_admin_user(parent_company_id='id1234', company_id='id1234'), company_id='id1234'),
 			dict(expected=False, user_session=_get_company_admin_user(parent_company_id='id987', company_id='id987'), company_id='id1234'),
 			dict(expected=False, user_session=_get_guest_user(), company_id='id1234'),
 		]

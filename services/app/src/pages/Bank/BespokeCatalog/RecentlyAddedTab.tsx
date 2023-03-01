@@ -5,16 +5,14 @@ import MetrcToBespokeCatalogSkusDataGrid from "components/BespokeCatalog/MetrcTo
 import PrimaryButton from "components/Shared/Button/PrimaryButton";
 import Can from "components/Shared/Can";
 import Text, { TextVariants } from "components/Shared/Text/Text";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   MetrcToBespokeCatalogSkuFragment,
   useGetMetrcToBespokeCatalogSkusByProductNameLazyQuery,
 } from "generated/graphql";
 import { SearchIcon } from "icons";
 import { Action } from "lib/auth/rbac-rules";
+import { PlatformModeEnum } from "lib/enum";
 import { useContext, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 
@@ -28,9 +26,9 @@ const Container = styled.div`
 
 const RecentlyAddedTab = () => {
   const {
-    user: { role },
+    user: { platformMode },
   } = useContext(CurrentUserContext);
-  const isBankAdminOrReadOnlyUser = isRoleBankUser(role);
+  const isBankAdminOrReadOnlyUser = platformMode === PlatformModeEnum.Bank;
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [
     loadBespokeCatalogEntriesByProductName,

@@ -19,6 +19,7 @@ import {
   ProductTypeEnum,
 } from "lib/enum";
 import { floatEq } from "lib/number";
+import { getDataCyForTabLabel } from "lib/utils/utils";
 import { partition } from "lodash";
 import CustomerPurchaseOrdersActiveTab from "pages/Customer/PurchaseOrders/PurchaseOrdersActiveTab";
 import CustomerPurchaseOrdersArchivedTab from "pages/Customer/PurchaseOrders/PurchaseOrdersArchivedTab";
@@ -157,7 +158,7 @@ export default function CustomerPurchaseOrdersPageContentNew({
           {CustomerPurchaseOrdersTabLabelsNew.map(
             (label: CustomerPurchaseOrdersTabLabelNew) => (
               <Tab
-                data-cy={`${label.replace(/\s+/g, "-").toLowerCase()}-tab`}
+                data-cy={`${getDataCyForTabLabel(label)}-tab`}
                 key={label}
                 label={label}
               />

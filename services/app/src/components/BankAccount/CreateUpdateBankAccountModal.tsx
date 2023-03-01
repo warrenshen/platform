@@ -10,15 +10,11 @@ import {
 } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import BankAccountForm from "components/BankAccount/BankAccountForm";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   BankAccountFragment,
   BankAccountsInsertInput,
   Companies,
-  UserRolesEnum,
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
@@ -27,6 +23,7 @@ import {
   updateBankAccountMutation,
 } from "lib/api/bankAccounts";
 import { formatDateString } from "lib/date";
+import { PlatformModeEnum } from "lib/enum";
 import { isNull, mergeWith } from "lodash";
 import { useContext, useMemo, useState } from "react";
 
@@ -55,9 +52,9 @@ export default function CreateUpdateBankAccountModal({
   const classes = useStyles();
 
   const {
-    user: { role },
+    user: { allowedRoles, platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
 
   const snackbar = useSnackbar();
 
@@ -243,7 +240,7 @@ export default function CreateUpdateBankAccountModal({
           </Alert>
         )}
         <BankAccountForm
-          role={role as UserRolesEnum}
+          allowedRoles={allowedRoles}
           bankAccount={bankAccount}
           setBankAccount={setBankAccount}
           isFormDisabled={isExistingVerifiedBankEditingDisabled}
