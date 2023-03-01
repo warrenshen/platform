@@ -31,7 +31,7 @@ class BulkUpdateLicensesView(MethodView):
 		company_license_inputs = form['company_licenses']
 		input_chunks = cast(
 			Iterable[List[CompanyLicenseInputDict]], 
-			models_util.chunker(company_license_inputs, size=20))
+			models_util.chunker(company_license_inputs, size=50))
 
 		for cur_license_inputs in input_chunks:
 			with session_scope(current_app.session_maker) as session:
