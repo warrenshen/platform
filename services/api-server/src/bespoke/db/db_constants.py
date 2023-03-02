@@ -453,6 +453,7 @@ class AsyncJobNameEnum(object):
 	REFRESH_METRC_API_KEY_PERMISSIONS = "refresh_metrc_api_key_permissions"
 	DAILY_COMPANY_BALANCES_RUN = "daily_company_balances_run"
 	UPDATE_COMPANY_BALANCES = "update_company_balances"
+	ASYNC_MONITORING = "async_monitoring"
 
 AsyncJobNameEnumToLabel = {
 	AsyncJobNameEnum.AUTOGENERATE_REPAYMENTS: 'Autogenerate repayments',
@@ -468,6 +469,7 @@ AsyncJobNameEnumToLabel = {
 	AsyncJobNameEnum.REFRESH_METRC_API_KEY_PERMISSIONS: 'Refresh Metrc API key permissions',
 	AsyncJobNameEnum.DAILY_COMPANY_BALANCES_RUN: 'Daily Company Balances Run',
 	AsyncJobNameEnum.UPDATE_COMPANY_BALANCES: 'Update company balances',
+	AsyncJobNameEnum.ASYNC_MONITORING: 'Async monitoring',
 }
 
 # Vendor Change Requests

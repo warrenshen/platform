@@ -28,6 +28,10 @@ from server.config import Config
 from sqlalchemy import or_
 from sqlalchemy.orm.session import Session
 
+ASYNC_JOB_NAME_TO_CUSTOM_DELAY_TOLERANCE_HOURS = {
+	AsyncJobNameEnum.DOWNLOAD_DATA_FOR_METRC_API_KEY_LICENSE: 4,
+}
+
 @errors.return_error_tuple
 def generate_jobs(
 	session: Session,
@@ -327,7 +331,7 @@ def create_job_summary(
 	session: Session,
 ) -> Tuple[bool, errors.Error]:
 	cfg = cast(Config, current_app.app_config)
-	async_jobs = cast(
+	queued_async_jobs = cast(
 		List[models.AsyncJob],
 		session.query(models.AsyncJob).filter(
 			or_(
@@ -359,12 +363,12 @@ def create_job_summary(
 		).all())
 
 	async_job_summaries += async_job_loans
-	slack_util.send_job_summary(cfg, async_jobs, async_job_summaries)
+	slack_util.send_job_summary(cfg, queued_async_jobs, async_job_summaries)
 
 	return True, None
 
 @errors.return_error_tuple
-def loans_coming_due_job(
+def orchestrate_loans_coming_due(
 	session: Session,
 	cfg: Config,
 	sendgrid_client: sendgrid_util.Client,
@@ -387,7 +391,7 @@ def loans_coming_due_job(
 	return True, None
 
 @errors.return_error_tuple
-def generate_companies_loans_coming_due_job(
+def generate_companies_loans_coming_due(
 	session: Session,
 ) -> Tuple[bool, errors.Error]:
 	current_page = 0
@@ -441,7 +445,7 @@ def generate_companies_loans_coming_due_job(
 	return True, None
 
 @errors.return_error_tuple
-def generate_companies_loans_past_due_job(
+def generate_companies_loans_past_due(
 	session: Session,
 ) -> Tuple[bool, errors.Error]:
 	current_page = 0
@@ -494,7 +498,7 @@ def generate_companies_loans_past_due_job(
 	return True, None
 
 @errors.return_error_tuple
-def loans_past_due_job(
+def orchestrate_loans_past_due(
 	session: Session,
 	cfg: Config,
 	sendgrid_client: sendgrid_util.Client,
@@ -514,7 +518,7 @@ def loans_past_due_job(
 			return False, errors.Error("unable to send")		
 	return True, None
 
-def autogenerate_repayment_customers(
+def generate_autogenerate_repayments(
 	session: Session,
 ) -> Tuple[bool, errors.Error]:
 	cfg = cast(Config, current_app.app_config)
@@ -543,7 +547,7 @@ def autogenerate_repayment_customers(
 
 	return True, None
 
-def autogenerate_repayments(
+def orchestrate_autogenerate_repayments(
 	session: Session,
 	cfg: Config,
 	sendgrid_client: sendgrid_util.Client,
@@ -695,7 +699,7 @@ def autogenerate_repayments(
 
 	return True, None
 
-def autogenerate_repayment_alerts_customers(
+def generate_autogenerate_repayment_alerts(
 	session: Session,
 ) -> Tuple[bool, errors.Error]:
 	cfg = cast(Config, current_app.app_config)
@@ -724,7 +728,7 @@ def autogenerate_repayment_alerts_customers(
 	
 	return True, None
 
-def autogenerate_repayment_alerts(
+def orchestrate_autogenerate_repayment_alerts(
 	session: Session,
 	cfg: Config,
 	sendgrid_client: sendgrid_util.Client,
@@ -902,7 +906,7 @@ def generate_daily_company_balances_run(
 	return True, None
 
 @errors.return_error_tuple
-def update_company_balances_job(
+def generate_update_company_balances(
 	session: Session
 ) -> Tuple[bool, errors.Error]:
 	logging.info("Received request to update all company balances")
@@ -960,7 +964,7 @@ def update_company_balances_job(
 	return True, None
 
 @errors.return_error_tuple
-def update_dirty_company_balances_job(
+def orchestrate_update_dirty_company_balances(
 	session: Session,
 	cfg: Config,
 	sendgrid_client: sendgrid_util.Client,
@@ -1074,7 +1078,7 @@ def reports_monthly_loan_summary_Non_LOC_generate(
 	return True, None
 
 @errors.return_error_tuple
-def reports_monthly_loan_summary_Non_LOC(
+def orchestrate_reports_monthly_loan_summary_Non_LOC(
 	session: Session,
 	cfg: Config,
 	sendgrid_client: sendgrid_util.Client,
@@ -1253,7 +1257,7 @@ def reports_monthly_loan_summary_LOC_generate(
 	return True, None
 
 @errors.return_error_tuple
-def reports_monthly_loan_summary_LOC(
+def orchestrate_reports_monthly_loan_summary_LOC(
 	session: Session,
 	cfg: Config,
 	sendgrid_client: sendgrid_util.Client,
@@ -1347,7 +1351,7 @@ def reports_monthly_loan_summary_LOC(
 	return True, None
 
 @errors.return_error_tuple
-def automatic_debit_courtesy_alerts_generate_job(
+def generate_automatic_debit_courtesy_alerts(
 	session: Session
 ) -> Tuple[bool, errors.Error]:
 	cfg = cast(Config, current_app.app_config)
@@ -1368,7 +1372,7 @@ def automatic_debit_courtesy_alerts_generate_job(
 	return True, None
 
 @errors.return_error_tuple
-def automatic_debit_courtesy_alerts_job(
+def orchestrate_automatic_debit_courtesy_alerts(
 	session: Session,
 	cfg: Config,
 	sendgrid_client: sendgrid_util.Client,
@@ -1474,7 +1478,7 @@ def generate_download_data_for_metrc_api_key_license_job_by_license_number(
 	return True, None
 
 @errors.return_error_tuple
-def run_download_data_for_metrc_api_key_license_job(
+def orchestrate_download_data_for_metrc_api_key_license(
 	session: Session,
 	cfg: Config,
 	sendgrid_client: sendgrid_util.Client,
@@ -1504,7 +1508,7 @@ def run_download_data_for_metrc_api_key_license_job(
 		return True, None
 
 @errors.return_error_tuple
-def generate_refresh_metrc_api_key_permissions_jobs(
+def generate_refresh_metrc_api_key_permissions(
 	session: Session,
 ) -> Tuple[bool, errors.Error]:
 	"""
@@ -1543,7 +1547,7 @@ def generate_refresh_metrc_api_key_permissions_jobs(
 	return True, None
 
 @errors.return_error_tuple
-def run_refresh_metrc_api_key_permissions_job(
+def orchestrate_refresh_metrc_api_key_permissions(
 	session: Session,
 	cfg: Config,
 	sendgrid_client: sendgrid_util.Client,
@@ -1563,7 +1567,7 @@ def run_refresh_metrc_api_key_permissions_job(
 	return True, None
 
 @errors.return_error_tuple
-def generate_reject_purchase_order_past_60_days_job(
+def generate_reject_purchase_order_past_60_days(
 	session: Session
 ) -> Tuple[bool, errors.Error]:
 	cfg = cast(Config, current_app.app_config)
@@ -1618,7 +1622,7 @@ def generate_reject_purchase_order_past_60_days_job(
 
 
 @errors.return_error_tuple
-def reject_purchase_order_past_60_days(
+def orchestrate_reject_purchase_order_past_60_days(
 	session: Session,
 	cfg: Config,
 	sendgrid_client: sendgrid_util.Client,
@@ -1807,9 +1811,8 @@ def generate_financial_reports_coming_due_alerts(
 
 	return True, None
 
-
 @errors.return_error_tuple
-def financial_reports_coming_due_alerts(
+def orchestrate_financial_reports_coming_due_alerts(
 	session: Session,
 	cfg: Config,
 	sendgrid_client: sendgrid_util.Client,
@@ -1958,31 +1961,90 @@ def financial_reports_coming_due_alerts(
 
 	return True, None
 
+@errors.return_error_tuple
+def generate_async_monitoring(
+	session: Session,
+) -> Tuple[bool, errors.Error]:
+	cfg = cast(Config, current_app.app_config)
+
+	add_job_to_queue(
+		session=session,
+		job_name=AsyncJobNameEnum.ASYNC_MONITORING,
+		submitted_by_user_id=cfg.BOT_USER_ID,
+		is_high_priority=True,
+		job_payload={}
+	)
+
+	return True, None
+
+@errors.return_error_tuple
+def orchestrate_async_monitoring(
+	session: Session,
+	cfg: Config,
+	sendgrid_client: sendgrid_util.Client,
+	job_payload: Dict[str, Any],
+) -> Tuple[bool, errors.Error]:
+
+	# gets all waiting jobs
+	queued_async_jobs = cast(
+		List[models.AsyncJob],
+		session.query(models.AsyncJob).filter(
+			models.AsyncJob.status == AsyncJobStatusEnum.QUEUED
+		).order_by(
+			models.AsyncJob.queued_at.asc()
+		).all())
+
+	slack_message_info: Dict[str, Any] = {}
+	slack_message_info["total_queued_async_jobs"] = len(queued_async_jobs)
+	slack_message_info["longest_waiting_queued_async_job"] = date_util.human_readable_datetime(queued_async_jobs[0].queued_at) if len(queued_async_jobs) > 0 else "N/A"
+	
+	async_job_name_to_async_jobs_lookup: Dict[str, List[models.AsyncJob]] = {}
+	for job in queued_async_jobs:
+		if job.name not in async_job_name_to_async_jobs_lookup:
+			async_job_name_to_async_jobs_lookup[job.name] = []	
+		async_job_name_to_async_jobs_lookup[job.name].append(job)
+	
+	late_jobs: Dict[str, Tuple[str, int]] = {}
+	for name, list_of_jobs in async_job_name_to_async_jobs_lookup.items():
+		most_delayed_job = list_of_jobs[0]
+		delay_tolerance_hours = (ASYNC_JOB_NAME_TO_CUSTOM_DELAY_TOLERANCE_HOURS[name] * -1) if name in ASYNC_JOB_NAME_TO_CUSTOM_DELAY_TOLERANCE_HOURS else -2
+		earliest_acceptable_delay_time = date_util.hours_from_today(delay_tolerance_hours)
+
+		if most_delayed_job.queued_at < earliest_acceptable_delay_time:
+			late_jobs[name] = (date_util.human_readable_datetime(most_delayed_job.queued_at), len(list_of_jobs))
+
+	slack_message_info['longest_waiting_queued_async_job_by_job_name'] = late_jobs
+	slack_util.send_async_monitor_status_message(cfg, slack_message_info)
+	return True, None
+
 ASYNC_JOB_GENERATION_LOOKUP = {
-	AsyncJobNameEnum.AUTOGENERATE_REPAYMENTS: autogenerate_repayment_customers,
-	AsyncJobNameEnum.AUTOGENERATE_REPAYMENT_ALERTS: autogenerate_repayment_alerts_customers,
-	AsyncJobNameEnum.AUTOMATIC_DEBIT_COURTESY_ALERTS: automatic_debit_courtesy_alerts_generate_job,
+	AsyncJobNameEnum.AUTOGENERATE_REPAYMENTS: generate_autogenerate_repayments,
+	AsyncJobNameEnum.AUTOGENERATE_REPAYMENT_ALERTS: generate_autogenerate_repayment_alerts,
+	AsyncJobNameEnum.AUTOMATIC_DEBIT_COURTESY_ALERTS: generate_automatic_debit_courtesy_alerts,
 	AsyncJobNameEnum.FINANCIAL_REPORTS_COMING_DUE_ALERTS: generate_financial_reports_coming_due_alerts,
-	AsyncJobNameEnum.LOANS_COMING_DUE: generate_companies_loans_coming_due_job,
-	AsyncJobNameEnum.LOANS_PAST_DUE: generate_companies_loans_past_due_job,
-	AsyncJobNameEnum.PURCHASE_ORDERS_PAST_DUE: generate_reject_purchase_order_past_60_days_job,
-	AsyncJobNameEnum.REFRESH_METRC_API_KEY_PERMISSIONS: generate_refresh_metrc_api_key_permissions_jobs,
+	AsyncJobNameEnum.LOANS_COMING_DUE: generate_companies_loans_coming_due,
+	AsyncJobNameEnum.LOANS_PAST_DUE: generate_companies_loans_past_due,
+	AsyncJobNameEnum.PURCHASE_ORDERS_PAST_DUE: generate_reject_purchase_order_past_60_days,
+	AsyncJobNameEnum.REFRESH_METRC_API_KEY_PERMISSIONS: generate_refresh_metrc_api_key_permissions,
 	AsyncJobNameEnum.DAILY_COMPANY_BALANCES_RUN: generate_daily_company_balances_run,
-	AsyncJobNameEnum.UPDATE_COMPANY_BALANCES: update_company_balances_job,
+	AsyncJobNameEnum.UPDATE_COMPANY_BALANCES: generate_update_company_balances,
+	AsyncJobNameEnum.ASYNC_MONITORING: generate_async_monitoring,
 }
 
 ASYNC_JOB_ORCHESTRATION_LOOKUP = {
-	AsyncJobNameEnum.AUTOGENERATE_REPAYMENTS: autogenerate_repayments,
-	AsyncJobNameEnum.AUTOGENERATE_REPAYMENT_ALERTS: autogenerate_repayment_alerts,
-	AsyncJobNameEnum.AUTOMATIC_DEBIT_COURTESY_ALERTS: automatic_debit_courtesy_alerts_job,
-	AsyncJobNameEnum.DOWNLOAD_DATA_FOR_METRC_API_KEY_LICENSE: run_download_data_for_metrc_api_key_license_job,
-	AsyncJobNameEnum.FINANCIAL_REPORTS_COMING_DUE_ALERTS: financial_reports_coming_due_alerts,
-	AsyncJobNameEnum.LOANS_COMING_DUE: loans_coming_due_job,
-	AsyncJobNameEnum.LOANS_PAST_DUE: loans_past_due_job,
-	AsyncJobNameEnum.LOC_MONTHLY_REPORT_SUMMARY: reports_monthly_loan_summary_LOC,
-	AsyncJobNameEnum.NON_LOC_MONTHLY_REPORT_SUMMARY: reports_monthly_loan_summary_Non_LOC,
-	AsyncJobNameEnum.PURCHASE_ORDERS_PAST_DUE: reject_purchase_order_past_60_days,
-	AsyncJobNameEnum.REFRESH_METRC_API_KEY_PERMISSIONS: run_refresh_metrc_api_key_permissions_job,
-	AsyncJobNameEnum.DAILY_COMPANY_BALANCES_RUN: update_dirty_company_balances_job,
-	AsyncJobNameEnum.UPDATE_COMPANY_BALANCES: update_dirty_company_balances_job,
+	AsyncJobNameEnum.AUTOGENERATE_REPAYMENTS: orchestrate_autogenerate_repayments,
+	AsyncJobNameEnum.AUTOGENERATE_REPAYMENT_ALERTS: orchestrate_autogenerate_repayment_alerts,
+	AsyncJobNameEnum.AUTOMATIC_DEBIT_COURTESY_ALERTS: orchestrate_automatic_debit_courtesy_alerts,
+	AsyncJobNameEnum.DOWNLOAD_DATA_FOR_METRC_API_KEY_LICENSE: orchestrate_download_data_for_metrc_api_key_license,
+	AsyncJobNameEnum.FINANCIAL_REPORTS_COMING_DUE_ALERTS: orchestrate_financial_reports_coming_due_alerts,
+	AsyncJobNameEnum.LOANS_COMING_DUE: orchestrate_loans_coming_due,
+	AsyncJobNameEnum.LOANS_PAST_DUE: orchestrate_loans_past_due,
+	AsyncJobNameEnum.LOC_MONTHLY_REPORT_SUMMARY: orchestrate_reports_monthly_loan_summary_LOC,
+	AsyncJobNameEnum.NON_LOC_MONTHLY_REPORT_SUMMARY: orchestrate_reports_monthly_loan_summary_Non_LOC,
+	AsyncJobNameEnum.PURCHASE_ORDERS_PAST_DUE: orchestrate_reject_purchase_order_past_60_days,
+	AsyncJobNameEnum.REFRESH_METRC_API_KEY_PERMISSIONS: orchestrate_refresh_metrc_api_key_permissions,
+	AsyncJobNameEnum.DAILY_COMPANY_BALANCES_RUN: orchestrate_update_dirty_company_balances,
+	AsyncJobNameEnum.UPDATE_COMPANY_BALANCES: orchestrate_update_dirty_company_balances,
+	AsyncJobNameEnum.ASYNC_MONITORING: orchestrate_async_monitoring,
+
 }

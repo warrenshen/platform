@@ -1287,6 +1287,7 @@ export enum AsyncJobNameEnum {
   RefreshMetrcApiKeyPermissions = "refresh_metrc_api_key_permissions",
   DailyCompanyBalancesRun = "daily_company_balances_run",
   UpdateCompanyBalances = "update_company_balances",
+  AsyncMonitoring = "async_monitoring",
 }
 
 export const AsyncJobNameEnumToLabel = {
@@ -1309,6 +1310,7 @@ export const AsyncJobNameEnumToLabel = {
     "Refresh Metrc API Key Permissions",
   [AsyncJobNameEnum.DailyCompanyBalancesRun]: "Daily Company Balances Run",
   [AsyncJobNameEnum.UpdateCompanyBalances]: "Update Company Balances",
+  [AsyncJobNameEnum.AsyncMonitoring]: "Async Monitoring",
 };
 
 export const AsyncJobNames = [
@@ -1325,6 +1327,7 @@ export const AsyncJobNames = [
   AsyncJobNameEnum.RefreshMetrcApiKeyPermissions,
   AsyncJobNameEnum.DailyCompanyBalancesRun,
   AsyncJobNameEnum.UpdateCompanyBalances,
+  AsyncJobNameEnum.AsyncMonitoring,
 ];
 
 export enum VendorChangeRequestsStatusEnum {

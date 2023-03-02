@@ -23,6 +23,15 @@
   headers:
     - name: x-api-key
       value_from_env: ASYNC_SERVER_API_KEY
+- name: async_monitoring
+  webhook: '{{ASYNC_SERVER_BASE_URL}}/async_jobs/generate_jobs'
+  schedule: 0 * * * *
+  include_in_metadata: true
+  payload:
+    job_name: async_monitoring
+  headers:
+    - name: x-api-key
+      value_from_env: ASYNC_SERVER_API_KEY
 - name: async_purchase_orders_past_due
   webhook: '{{ASYNC_SERVER_BASE_URL}}/async_jobs/generate_jobs'
   schedule: 0 12 * * *

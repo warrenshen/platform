@@ -6,7 +6,7 @@ from bespoke.date import date_util
 from bespoke.db import models
 from bespoke.db.db_constants import AsyncJobStatusEnum, AsyncJobNameEnum, AsyncJobNameEnumToLabel
 from server.config import Config
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Any
 
 def send_job_summary(
 	cfg: Config,
@@ -26,6 +26,7 @@ def send_job_summary(
 		AsyncJobNameEnum.DOWNLOAD_DATA_FOR_METRC_API_KEY_LICENSE,
 		AsyncJobNameEnum.REFRESH_METRC_API_KEY_PERMISSIONS,
 		AsyncJobNameEnum.UPDATE_COMPANY_BALANCES,
+		AsyncJobNameEnum.ASYNC_MONITORING,
 		]
 	
 	days_run = {
@@ -256,3 +257,85 @@ def create_failure_message(job: models.AsyncJob, is_dev: bool, is_prod: bool) ->
 			}
 		]
 	}
+
+def send_async_monitor_status_message(
+	cfg: Config,
+	slack_message_info: Dict, 
+) -> Tuple[ int, errors.Error ]:
+
+	headers = {'Content-Type': 'application/json'}
+
+	# todo(grace) in the future only send when it's backed up
+	# if len(slack_message_info["late_jobs"]) > 0:
+
+	payload = create_async_monitor_status_message(slack_message_info)
+	
+	if cfg.is_prod_env():
+		response = requests.post(
+			url = cfg.ASYNC_JOB_SLACK_URL, 
+			data = json.dumps(payload), 
+			headers = headers,
+		)
+
+		if response.status_code != 200:
+			return response.status_code, errors.Error(
+				'Request to slack returned an error %s, the response is:\n%s'
+				% (response.status_code, response.text))
+
+		return response.status_code, None
+	return None, None
+
+def create_async_monitor_status_message(slack_message_info: Dict) -> Dict:
+	total_jobs = slack_message_info["total_queued_async_jobs"]
+	longest_waiting_job = slack_message_info["longest_waiting_queued_async_job"]
+	late_jobs = slack_message_info['longest_waiting_queued_async_job_by_job_name']
+	summary_title =  "Async Monitoring Summary" if len(late_jobs) == 0 else "Async Monitoring Summary @here"
+	blocks = []
+	blocks.append(get_divider_bar_block())
+	summary_info = {
+				"type": "section",
+				"fields": [
+					{
+						"type": "mrkdwn",
+						"text": f"{summary_title}",
+					},
+					{
+						"type": "mrkdwn",
+						"text": "\n"
+					},
+					{
+						"type": "mrkdwn",
+						"text": f"Total jobs in queue: {total_jobs}"
+					},
+					{
+						"type": "mrkdwn",
+						"text": "\n"
+					},
+					{
+						"type": "mrkdwn",
+						"text": f"Longest waiting job was queued at {longest_waiting_job}",
+					}
+				]
+			}
+	blocks.append(summary_info)
+	if len(late_jobs) > 0:
+		blocks += create_late_block(late_jobs)
+	blocks.append(get_divider_bar_block())
+	return {"blocks" : blocks}
+
+def create_late_block(late_jobs: Dict[str, Tuple[str, int]]) -> List[Any]:
+	late_blocks = []
+	for name, details in late_jobs.items():
+		time = details[0]
+		number_of_jobs = details[1]
+		block = {
+				"type": "section",
+				"fields": [
+					{
+						"type": "plain_text",
+						"text": f"\n:children_crossing: {AsyncJobNameEnumToLabel[name]} \nWaiting jobs: {number_of_jobs} \nEarliest queued: {time}"
+					}
+				]
+			}
+		late_blocks.append(block)
+	return late_blocks
