@@ -13,10 +13,7 @@ import CreateRepaymentLineofCreditSection from "components/Repayment/CreateRepay
 import ExpectedDatePreview from "components/Repayment/ExpectedDatePreview";
 import CompanyBank from "components/Shared/BankToBankTransfer/CompanyBank";
 import DateInput from "components/Shared/FormInputs/DateInput";
-import {
-  CurrentUserContext,
-  isRoleBankUser,
-} from "contexts/CurrentUserContext";
+import { CurrentUserContext } from "contexts/CurrentUserContext";
 import {
   BankAccounts,
   FinancialSummaryFragment,
@@ -25,6 +22,7 @@ import {
 import { computeRequestedWithdrawCutoffDate } from "lib/date";
 import {
   AllRepaymentMethods,
+  PlatformModeEnum,
   ProductTypeEnum,
   RepaymentMethodEnum,
   RepaymentMethodToDropdownLabel,
@@ -51,9 +49,9 @@ export default function CreateRepaymentSelectLoans({
   accountFeeTotal,
 }: Props) {
   const {
-    user: { role },
+    user: { platformMode },
   } = useContext(CurrentUserContext);
-  const isBankUser = isRoleBankUser(role);
+  const isBankUser = platformMode === PlatformModeEnum.Bank;
 
   const isReverseDraftACH =
     payment.method === RepaymentMethodEnum.ReverseDraftACH;
