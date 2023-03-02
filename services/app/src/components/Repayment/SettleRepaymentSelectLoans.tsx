@@ -10,10 +10,12 @@ import {
   makeStyles,
 } from "@material-ui/core";
 import { GridValueFormatterParams } from "@material-ui/data-grid";
+import { Alert } from "@material-ui/lab";
 import LoansDataGrid from "components/Loans/LoansDataGrid";
 import RequestedRepaymentPreview from "components/Repayment/RequestedRepaymentPreview";
 import CurrencyInput from "components/Shared/FormInputs/CurrencyInput";
 import DateInput from "components/Shared/FormInputs/DateInput";
+import Text, { TextVariants } from "components/Shared/Text/Text";
 import {
   Companies,
   LoanTypeEnum,
@@ -22,8 +24,15 @@ import {
   PayorFragment,
   useGetClosedLimitedLoansByLoanIdsQuery,
   useGetOpenFundedLoansByCompanyAndLoanTypeQuery,
+  useGetSurveillanceResultByCompanyIdQuery,
 } from "generated/graphql";
-import { ProductTypeEnum, ProductTypeToLoanType } from "lib/enum";
+import {
+  ProductTypeEnum,
+  ProductTypeToLoanType,
+  SurveillanceStatusEnum,
+  SurveillanceStatusToLabel,
+} from "lib/enum";
+import { surveillanceStatusToAlertStatus } from "pages/Bank/Company/BankCompanyPage";
 import { useMemo } from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -63,6 +72,25 @@ export default function SettleRepaymentSelectLoans({
 }: Props) {
   const classes = useStyles();
   const productType = customer.contract?.product_type;
+
+  const { data: surveillanceResultData, error: surveillanceResultError } =
+    useGetSurveillanceResultByCompanyIdQuery({
+      fetchPolicy: "network-only",
+      variables: {
+        company_id: customer.id,
+      },
+    });
+
+  if (surveillanceResultError) {
+    console.error({ error: surveillanceResultError });
+    alert(
+      `Error in query (details in console): ${surveillanceResultError.message}`
+    );
+  }
+
+  const surveillanceStatus = surveillanceResultData
+    ?.customer_surveillance_results[0]
+    ?.surveillance_status as SurveillanceStatusEnum;
 
   const loanType =
     !!productType && productType in ProductTypeToLoanType
@@ -170,6 +198,23 @@ export default function SettleRepaymentSelectLoans({
     return null;
   }
 
+  const renderSurveillanceStatus = () => {
+    if (!surveillanceStatus) {
+      return null;
+    }
+    const { severity } = surveillanceStatusToAlertStatus[surveillanceStatus];
+
+    return (
+      <Box display="flex" ml={2}>
+        <Alert severity={severity}>
+          <Typography>
+            {SurveillanceStatusToLabel[surveillanceStatus]}
+          </Typography>
+        </Alert>
+      </Box>
+    );
+  };
+
   return (
     <Box>
       <Box display="flex" flexDirection="column">
@@ -179,6 +224,23 @@ export default function SettleRepaymentSelectLoans({
         <Box mt={1}>
           <RequestedRepaymentPreview payment={payment} />
         </Box>
+      </Box>
+      <Box display="flex" alignItems="center" mt={2}>
+        <Text textVariant={TextVariants.Paragraph} bottomMargin={0}>
+          Surveillance Status:
+        </Text>
+        {!!surveillanceStatus && renderSurveillanceStatus()}
+      </Box>
+      <Box>
+        <FormControl className={classes.inputField}>
+          <TextField
+            label="Bank Note"
+            value={payment.bank_note || ""}
+            onChange={({ target: { value } }) =>
+              setPayment({ ...payment, bank_note: value })
+            }
+          />
+        </FormControl>
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
         <Box mb={1}>
@@ -193,6 +255,26 @@ export default function SettleRepaymentSelectLoans({
             handleChange={(value) => setPayment({ ...payment, amount: value })}
           />
         </FormControl>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={shouldPayPrincipalFirst}
+              onChange={(event) =>
+                setShouldPayPrincipalFirst(event.target.checked)
+              }
+              color="primary"
+            />
+          }
+          label={
+            "Apply repayment to loans in the following non-standard order: principal, interest, fees?"
+          }
+        />
+        {shouldPayPrincipalFirst && (
+          <Text textVariant={TextVariants.Label} bottomMargin={0}>
+            Because this payment is being applied to principal first, the system
+            will automatically select the loans
+          </Text>
+        )}
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
         <Box mb={1}>
@@ -250,50 +332,52 @@ export default function SettleRepaymentSelectLoans({
           </Typography>
         </Box>
       </Box>
-      {isAmountToLoansChecked && productType !== ProductTypeEnum.LineOfCredit && (
-        <Box display="flex" flexDirection="column" mt={4}>
-          <Box mb={1}>
-            <Typography variant="body1">
-              Select loans to apply this payment towards.
-            </Typography>
-            <Typography variant="subtitle2" color="textSecondary">
-              {`If ${customer.name} selected loans during "Create Repayment", those loan will be pre-selected below.`}
-            </Typography>
+      {isAmountToLoansChecked &&
+        productType !== ProductTypeEnum.LineOfCredit &&
+        !shouldPayPrincipalFirst && (
+          <Box display="flex" flexDirection="column" mt={4}>
+            <Box mb={1}>
+              <Typography variant="body1">
+                Select loans to apply this payment towards.
+              </Typography>
+              <Typography variant="subtitle2" color="textSecondary">
+                {`If ${customer.name} selected loans during "Create Repayment", those loan will be pre-selected below.`}
+              </Typography>
+            </Box>
+            <Box mt={2}>
+              <Typography variant="subtitle1" color="textSecondary">
+                <strong>Selected loans</strong>
+              </Typography>
+              <LoansDataGrid
+                isArtifactVisible
+                isDaysPastDueVisible
+                isDisbursementIdentifierVisible
+                isExcelExport={false}
+                isMaturityVisible
+                isSortingDisabled
+                pager={false}
+                loans={[...selectedLoans, ...closedLoansCoveredByPayment]}
+                actionItems={selectedLoansActionItems}
+              />
+            </Box>
+            <Box mt={4}>
+              <Typography variant="subtitle1" color="textSecondary">
+                <strong>Not selected loans</strong>
+              </Typography>
+              <LoansDataGrid
+                isArtifactVisible
+                isDaysPastDueVisible
+                isDisbursementIdentifierVisible
+                isExcelExport={false}
+                isMaturityVisible
+                isSortingDisabled
+                pageSize={25}
+                loans={notSelectedLoans}
+                actionItems={notSelectedLoansActionItems}
+              />
+            </Box>
           </Box>
-          <Box mt={2}>
-            <Typography variant="subtitle1" color="textSecondary">
-              <strong>Selected loans</strong>
-            </Typography>
-            <LoansDataGrid
-              isArtifactVisible
-              isDaysPastDueVisible
-              isDisbursementIdentifierVisible
-              isExcelExport={false}
-              isMaturityVisible
-              isSortingDisabled
-              pager={false}
-              loans={[...selectedLoans, ...closedLoansCoveredByPayment]}
-              actionItems={selectedLoansActionItems}
-            />
-          </Box>
-          <Box mt={4}>
-            <Typography variant="subtitle1" color="textSecondary">
-              <strong>Not selected loans</strong>
-            </Typography>
-            <LoansDataGrid
-              isArtifactVisible
-              isDaysPastDueVisible
-              isDisbursementIdentifierVisible
-              isExcelExport={false}
-              isMaturityVisible
-              isSortingDisabled
-              pageSize={25}
-              loans={notSelectedLoans}
-              actionItems={notSelectedLoansActionItems}
-            />
-          </Box>
-        </Box>
-      )}
+        )}
       {isAmountToAccountFeesChecked && (
         <Box display="flex" flexDirection="column" mt={4}>
           <Box mb={1}>
@@ -365,20 +449,6 @@ export default function SettleRepaymentSelectLoans({
             />
           }
           label={"Apply portion of repayment to account-level fees?"}
-        />
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={shouldPayPrincipalFirst}
-              onChange={(event) =>
-                setShouldPayPrincipalFirst(event.target.checked)
-              }
-              color="primary"
-            />
-          }
-          label={
-            "Apply repayment to loans in the following non-standard order: principal, interest, fees?"
-          }
         />
         <Box display="flex" flexDirection="column" mt={2}>
           <TextField

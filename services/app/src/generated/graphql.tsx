@@ -39525,6 +39525,92 @@ export const GetOpenLoansByDebtFacilityStatusesDocument = gql`
   ${CompanyForOpenLoansByDebtFacilityStatusesFragmentDoc}
 `;
 
+export type GetSurveillanceResultByCompanyIdQueryVariables = Exact<{
+  company_id: Scalars["uuid"];
+}>;
+
+export type GetSurveillanceResultByCompanyIdQuery = {
+  customer_surveillance_results: Array<
+    Pick<CustomerSurveillanceResults, "id"> & CustomerSurveillanceResultFragment
+  >;
+};
+
+export const GetSurveillanceResultByCompanyIdDocument = gql`
+  query GetSurveillanceResultByCompanyId($company_id: uuid!) {
+    customer_surveillance_results(
+      where: {
+        _and: [
+          { company_id: { _eq: $company_id } }
+          {
+            _or: [
+              { is_deleted: { _is_null: true } }
+              { is_deleted: { _neq: false } }
+            ]
+          }
+          { _or: [{ deleted_at: { _is_null: true } }] }
+        ]
+      }
+      order_by: { qualifying_date: desc }
+      limit: 1
+    ) {
+      id
+      ...CustomerSurveillanceResult
+    }
+  }
+  ${CustomerSurveillanceResultFragmentDoc}
+`;
+
+/**
+ * __useGetSurveillanceResultByCompanyIdQuery__
+ *
+ * To run a query within a React component, call `useGetSurveillanceResultByCompanyIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSurveillanceResultByCompanyIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSurveillanceResultByCompanyIdQuery({
+ *   variables: {
+ *      company_id: // value for 'company_id'
+ *   },
+ * });
+ */
+export function useGetSurveillanceResultByCompanyIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetSurveillanceResultByCompanyIdQuery,
+    GetSurveillanceResultByCompanyIdQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetSurveillanceResultByCompanyIdQuery,
+    GetSurveillanceResultByCompanyIdQueryVariables
+  >(GetSurveillanceResultByCompanyIdDocument, options);
+}
+export function useGetSurveillanceResultByCompanyIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetSurveillanceResultByCompanyIdQuery,
+    GetSurveillanceResultByCompanyIdQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetSurveillanceResultByCompanyIdQuery,
+    GetSurveillanceResultByCompanyIdQueryVariables
+  >(GetSurveillanceResultByCompanyIdDocument, options);
+}
+export type GetSurveillanceResultByCompanyIdQueryHookResult = ReturnType<
+  typeof useGetSurveillanceResultByCompanyIdQuery
+>;
+export type GetSurveillanceResultByCompanyIdLazyQueryHookResult = ReturnType<
+  typeof useGetSurveillanceResultByCompanyIdLazyQuery
+>;
+export type GetSurveillanceResultByCompanyIdQueryResult = Apollo.QueryResult<
+  GetSurveillanceResultByCompanyIdQuery,
+  GetSurveillanceResultByCompanyIdQueryVariables
+>;
+
 /**
  * __useGetOpenLoansByDebtFacilityStatusesQuery__
  *

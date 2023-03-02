@@ -94,6 +94,7 @@ export default function CreateRepaymentModal({
       payment_option: null,
     },
     company_bank_account_id: null,
+    bank_note: null,
   });
   const [isPayAccountFeesVisible, setIsPayAccountFeesVisible] =
     useState<boolean>(false);
@@ -248,6 +249,7 @@ export default function CreateRepaymentModal({
           method: payment.method,
           requested_payment_date: payment.requested_payment_date,
           settlement_date: payment.settlement_date,
+          bank_note: payment.bank_note,
           items_covered: {
             loan_ids: payment.items_covered.loan_ids,
             requested_to_principal:

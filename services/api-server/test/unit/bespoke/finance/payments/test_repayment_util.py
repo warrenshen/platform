@@ -21,12 +21,15 @@ from dateutil import parser
 from bespoke.finance.types import payment_types
 
 INTEREST_RATE = 0.002 # 0.2%
+LATE_FEE_STRUCTURE_1_14 = 0.25
+LATE_FEE_STRUCTURE_15_29 = 0.50
+LATE_FEE_STRUCTURE_30_PLUS = 1.0
 
 def _get_late_fee_structure() -> str:
 	return json.dumps({
-		'1-14': 0.25,
-		'15-29': 0.50,
-		'30+': 1.0
+		'1-14': LATE_FEE_STRUCTURE_1_14,
+		'15-29': LATE_FEE_STRUCTURE_15_29,
+		'30+': LATE_FEE_STRUCTURE_30_PLUS,
 	})
 
 def _get_contract(company_id: str) -> models.Contract:
@@ -98,9 +101,10 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 				loans_not_selected_list = []
 				for j in range(len(test['loans_not_selected'])):
 					loan_not_selected = test['loans_not_selected'][j]
-					loan_not_selected.company_id = company_id
-					session.add(loan_not_selected)
-					session.flush()
+					if loan_not_selected.id is None:
+						loan_not_selected.company_id = company_id
+						session.add(loan_not_selected)
+						session.flush()
 					loan_ids_not_selected.append(str(loan_not_selected.id))
 					loans_not_selected_list.append(loan_not_selected)
 
@@ -121,7 +125,7 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 					'loan_ids': loan_ids,
 					'to_account_fees': test['to_account_fees'] if 'to_account_fees' in test else 0.0,
 				},
-				should_pay_principal_first=False,
+				should_pay_principal_first=test.get('should_pay_principal_first', False),
 			)
 			if test.get('in_err_msg'):
 				self.assertIsNotNone(err)
@@ -281,7 +285,7 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 				[{'type': 'advance', 'amount': 30.00, 'payment_date': '8/22/2020', 'effective_date': '8/22/2020'}]
 			],
 			'deposit_date': '8/24/2020',
-			'settlement_date': '8/28/2020', # late fees accrued on the 1st loan
+			'settlement_date': '8/28/2020',
 			'payment_option': 'custom_amount',
 			'payment_input_amount': 105.00,
 			'expected_amount_to_pay': 105.00,
@@ -300,7 +304,7 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 						amount=20.00,
 						outstanding_principal_balance=20.00,
 						outstanding_interest=9 * daily_interest1, # 9 days of interest accrued
-						outstanding_fees=0.0
+						outstanding_fees=0.0  # late fees not accrued on the 1st loan since deposit date is before the 1st loan's maturity date and principal is paid off
 					),
 					after_loan_balance=LoanBalanceDict(
 						amount=20.00,
@@ -781,6 +785,428 @@ class TestCalculateRepaymentEffect(db_unittest.TestCase):
 				)
 			],
 			'expected_past_due_but_not_selected_indices': []
+		}
+
+		self._run_test(test)
+
+	def test_custom_amount_multiple_loans_should_pay_principal_first_covers_principal_of_first_two(self) -> None:
+		daily_interest1 = 0.04 # INTEREST_RATE * 20.00 == daily_interest_rate_pct * principal_owed
+		daily_interest2 = 0.06 # INTEREST_RATE * 30.00 == daily_interest_rate_pct * principal_owed
+
+		test: Dict = {
+			'comment': 'The custom amount should pay off the principal of the first and second loans, third loan not shown',
+			'loans': [
+				models.Loan(
+					amount=decimal.Decimal(20.00),
+					origination_date=date_util.load_date_str('8/20/2020'),
+					adjusted_maturity_date=date_util.load_date_str('8/27/2020'),
+				),
+				models.Loan(
+					amount=decimal.Decimal(30.00),
+					origination_date=date_util.load_date_str('8/21/2020'),
+					adjusted_maturity_date=date_util.load_date_str('8/27/2020'),
+				),
+				models.Loan(
+					amount=decimal.Decimal(40.00),
+					origination_date=date_util.load_date_str('8/22/2020'),
+					adjusted_maturity_date=date_util.load_date_str('8/29/2020'),
+				),
+			],
+			'transaction_lists': [
+				# Transactions are parallel to the loans defined in the test.
+				# These will be advances or repayments made against their respective loans.
+				[{'type': 'advance', 'amount': 20.00, 'payment_date': '8/20/2020', 'effective_date': '8/20/2020'}],
+				[{'type': 'advance', 'amount': 30.00, 'payment_date': '8/21/2020', 'effective_date': '8/21/2020'}],
+				[{'type': 'advance', 'amount': 40.00, 'payment_date': '8/22/2020', 'effective_date': '8/22/2020'}]
+			],
+			'deposit_date': '8/24/2020',
+			'settlement_date': '8/28/2020',
+			'payment_option': 'custom_amount',
+			'payment_input_amount': 50,
+			'expected_amount_to_pay': 50,
+			'expected_amount_as_credit_to_user': 0,
+			'should_pay_principal_first': True,
+			'expected_loans_to_show': [
+				LoanToShowDict(
+					loan_id='filled in by test',
+					loan_identifier='filled in by test',
+					transaction=TransactionInputDict(
+						amount=20.00,
+						to_principal=20.00,
+						to_interest=0.0,
+						to_fees=0.0
+					),
+					before_loan_balance=LoanBalanceDict(
+						amount=20.00,
+						outstanding_principal_balance=20.00,
+						outstanding_interest=daily_interest1 * 9, # 9 days of interest accrued
+						outstanding_fees=0.0 # late fees not accrued on the 1st loan since deposit date is before the 1st loan's maturity date and principal is paid off
+					),
+					after_loan_balance=LoanBalanceDict(
+						amount=20.00,
+						outstanding_principal_balance=0.0,
+						outstanding_interest=daily_interest1 * 9,
+						outstanding_fees=0.0
+					)
+				),
+				LoanToShowDict(
+					loan_id='filled in by test',
+					loan_identifier='filled in by test',
+					transaction=TransactionInputDict(
+						amount=30.0,
+						to_principal=30.0,
+						to_interest=0.0,
+						to_fees=0.0
+					),
+					before_loan_balance=LoanBalanceDict(
+						amount=30.00,
+						outstanding_principal_balance=30.00,
+						outstanding_interest=daily_interest2 * 8, # 8 days of interest accrued
+						outstanding_fees=0.0
+					),
+					after_loan_balance=LoanBalanceDict(
+						amount=30.00,
+						outstanding_principal_balance=0.00,
+						outstanding_interest=daily_interest2 * 8,
+						outstanding_fees=0.0
+					)
+				)
+			],
+			'expected_past_due_but_not_selected_indices': []
+		}
+
+		self._run_test(test)
+
+	def test_custom_amount_multiple_loans_should_pay_principal_first_covers_some_principal_has_late_fees(self) -> None:
+		daily_interest1 = 0.04 # INTEREST_RATE * 20.00 == daily_interest_rate_pct * principal_owed
+		daily_interest2 = 0.06 # INTEREST_RATE * 30.00 == daily_interest_rate_pct * principal_owed
+		not_selected_loan_id = uuid.uuid4()
+
+		test: Dict = {
+			'comment': 'The custom amount should pay off the principal of the first loan and part of the 2nd. Late fees accrue on 2nd loan. Third loan is not selected (by should_pay_principal_first logic) but is past due so shows up in loans_past_due_but_not_selected',
+			'loans': [
+				models.Loan(
+					amount=decimal.Decimal(20.00),
+					origination_date=date_util.load_date_str('8/20/2020'),
+					adjusted_maturity_date=date_util.load_date_str('8/27/2020'),
+				),
+				models.Loan(
+					amount=decimal.Decimal(30.00),
+					origination_date=date_util.load_date_str('8/21/2020'),
+					adjusted_maturity_date=date_util.load_date_str('8/27/2020'),
+				),
+				models.Loan(
+					id=not_selected_loan_id,
+					amount=decimal.Decimal(40.00),
+					origination_date=date_util.load_date_str('8/22/2020'),
+					adjusted_maturity_date=date_util.load_date_str('8/29/2020'),
+				),
+			],
+			'transaction_lists': [
+				# Transactions are parallel to the loans defined in the test.
+				# These will be advances or repayments made against their respective loans.
+				[{'type': 'advance', 'amount': 20.00, 'payment_date': '8/20/2020', 'effective_date': '8/20/2020'}],
+				[{'type': 'advance', 'amount': 30.00, 'payment_date': '8/21/2020', 'effective_date': '8/21/2020'}],
+				[{'type': 'advance', 'amount': 40.00, 'payment_date': '8/22/2020', 'effective_date': '8/22/2020'}]
+			],
+			'loans_not_selected': [
+				models.Loan(
+					id=not_selected_loan_id,
+					amount=decimal.Decimal(40.00),
+					origination_date=date_util.load_date_str('8/22/2020'),
+					adjusted_maturity_date=date_util.load_date_str('8/29/2020'),
+					outstanding_principal_balance=decimal.Decimal(40.00),
+				),
+			],
+			'transaction_lists_for_not_selected': [], # loans_not_selected is already saved in the DB with parallel transaction in transaction_lists
+			'deposit_date': '8/24/2020',
+			'settlement_date': '8/30/2020',
+			'payment_option': 'custom_amount',
+			'payment_input_amount': 49,
+			'expected_amount_to_pay': 49,
+			'expected_amount_as_credit_to_user': 0,
+			'should_pay_principal_first': True,
+			'expected_loans_to_show': [
+				LoanToShowDict(
+					loan_id='filled in by test',
+					loan_identifier='filled in by test',
+					transaction=TransactionInputDict(
+						amount=20.00,
+						to_principal=20.00,
+						to_interest=0.0,
+						to_fees=0.0
+					),
+					before_loan_balance=LoanBalanceDict(
+						amount=20.00,
+						outstanding_principal_balance=20.00,
+						outstanding_interest=daily_interest1 * 11, # 11 days of interest accrued
+						outstanding_fees=0.0
+					),
+					after_loan_balance=LoanBalanceDict(
+						amount=20.00,
+						outstanding_principal_balance=0.0,
+						outstanding_interest=daily_interest1 * 11,
+						outstanding_fees=0.0
+					)
+				),
+				LoanToShowDict(
+					loan_id='filled in by test',
+					loan_identifier='filled in by test',
+					transaction=TransactionInputDict(
+						amount=29.0,
+						to_principal=29.0,
+						to_interest=0.0,
+						to_fees=0.0
+					),
+					before_loan_balance=LoanBalanceDict(
+						amount=30.00,
+						outstanding_principal_balance=30.00,
+						outstanding_interest=daily_interest2 * 10, # 10 days of interest accrued
+						outstanding_fees=number_util.round_currency(daily_interest2 * LATE_FEE_STRUCTURE_1_14 * 3) # late fees accrued on the 2nd loan since principal is not fully paid off before maturity date
+					),
+					after_loan_balance=LoanBalanceDict(
+						amount=30.00,
+						outstanding_principal_balance=1.00,
+						outstanding_interest=daily_interest2 * 10,
+						outstanding_fees=number_util.round_currency(daily_interest2 * LATE_FEE_STRUCTURE_1_14 * 3) # 2 days of late fees accrued
+					)
+				)
+			],
+			'expected_past_due_but_not_selected_indices': [0],
+			'expected_past_due_but_not_selected_amounts': [40.00],
+			'expected_past_due_but_not_selected_principal': [40.00] # shows we handle repayment that happened on that overdue loan
+		}
+
+		self._run_test(test)
+
+	def test_custom_amount_multiple_loans_should_pay_principal_first_covers_all_principal_with_surplus(self) -> None:
+		daily_interest1 = 0.04 # INTEREST_RATE * 20.00 == daily_interest_rate_pct * principal_owed
+		daily_interest2 = 0.06 # INTEREST_RATE * 30.00 == daily_interest_rate_pct * principal_owed
+		daily_interest3 = 0.08 # INTEREST_RATE * 40.00 == daily_interest_rate_pct * principal_owed
+		to_interest_third_loan = (91 - (20 + 30 + 40) - (daily_interest1 * 9) - (daily_interest2 * 8)) # total - total principal - interest paid on first 2 loans
+
+		test: Dict = {
+			'comment': 'The custom amount should pay off the principal all 3 loans and surplus start paying off interest of first two loans before the third',
+			'loans': [
+				models.Loan(
+					amount=decimal.Decimal(20.00),
+					origination_date=date_util.load_date_str('8/20/2020'),
+					adjusted_maturity_date=date_util.load_date_str('8/27/2020'),
+				),
+				models.Loan(
+					amount=decimal.Decimal(30.00),
+					origination_date=date_util.load_date_str('8/21/2020'),
+					adjusted_maturity_date=date_util.load_date_str('8/28/2020'),
+				),
+				models.Loan(
+					amount=decimal.Decimal(40.00),
+					origination_date=date_util.load_date_str('8/22/2020'),
+					adjusted_maturity_date=date_util.load_date_str('8/29/2020'),
+				),
+			],
+			'transaction_lists': [
+				# Transactions are parallel to the loans defined in the test.
+				# These will be advances or repayments made against their respective loans.
+				[{'type': 'advance', 'amount': 20.00, 'payment_date': '8/20/2020', 'effective_date': '8/20/2020'}],
+				[{'type': 'advance', 'amount': 30.00, 'payment_date': '8/21/2020', 'effective_date': '8/21/2020'}],
+				[{'type': 'advance', 'amount': 40.00, 'payment_date': '8/22/2020', 'effective_date': '8/22/2020'}]
+			],
+			'loans_not_selected': [],
+			'deposit_date': '8/24/2020',
+			'settlement_date': '8/28/2020',
+			'payment_option': 'custom_amount',
+			'payment_input_amount': 91,
+			'expected_amount_to_pay': 91,
+			'expected_amount_as_credit_to_user': 0,
+			'should_pay_principal_first': True,
+			'expected_loans_to_show': [
+				LoanToShowDict(
+					loan_id='filled in by test',
+					loan_identifier='filled in by test',
+					transaction=TransactionInputDict(
+						amount=20.00 + (daily_interest1 * 9),
+						to_principal=20.00,
+						to_interest=daily_interest1 * 9,
+						to_fees=0.0
+					),
+					before_loan_balance=LoanBalanceDict(
+						amount=20.00,
+						outstanding_principal_balance=20.00,
+						outstanding_interest=daily_interest1 * 9, # 9 days of interest accrued
+						outstanding_fees=0.0
+					),
+					after_loan_balance=LoanBalanceDict(
+						amount=20.00,
+						outstanding_principal_balance=0.0,
+						outstanding_interest=0.0,
+						outstanding_fees=0.0
+					)
+				),
+				LoanToShowDict(
+					loan_id='filled in by test',
+					loan_identifier='filled in by test',
+					transaction=TransactionInputDict(
+						amount=30.0 + daily_interest2 * 8,
+						to_principal=30.0,
+						to_interest=daily_interest2 * 8,
+						to_fees=0.0
+					),
+					before_loan_balance=LoanBalanceDict(
+						amount=30.00,
+						outstanding_principal_balance=30.00,
+						outstanding_interest=daily_interest2 * 8, # 8 days of interest accrued
+						outstanding_fees=0.0
+					),
+					after_loan_balance=LoanBalanceDict(
+						amount=30.00,
+						outstanding_principal_balance=0.00,
+						outstanding_interest=0.0,
+						outstanding_fees=0.0
+					)
+				),
+				LoanToShowDict(
+					loan_id='filled in by test',
+					loan_identifier='filled in by test',
+					transaction=TransactionInputDict(
+						amount=40.0 + to_interest_third_loan,
+						to_principal=40.0,
+						to_interest=to_interest_third_loan,
+						to_fees=0.0
+					),
+					before_loan_balance=LoanBalanceDict(
+						amount=40.00,
+						outstanding_principal_balance=40.00,
+						outstanding_interest=daily_interest3 * 7, # 7 days of interest accrued
+						outstanding_fees=0.0
+					),
+					after_loan_balance=LoanBalanceDict(
+						amount=40.00,
+						outstanding_principal_balance=0.00,
+						outstanding_interest=daily_interest3 * 7 - to_interest_third_loan,
+						outstanding_fees=0.0
+					)
+				),
+			],
+			'expected_past_due_but_not_selected_indices': [],
+		}
+
+		self._run_test(test)
+
+	def test_custom_amount_multiple_loans_should_pay_principal_first_covers_all_principal_pays_interest_and_fees_in_order_of_loans(self) -> None:
+		daily_interest1 = 0.04 # INTEREST_RATE * 20.00 == daily_interest_rate_pct * principal_owed
+		daily_interest2 = 0.06 # INTEREST_RATE * 30.00 == daily_interest_rate_pct * principal_owed
+		daily_interest3 = 0.08 # INTEREST_RATE * 40.00 == daily_interest_rate_pct * principal_owed
+		interest_amount_first_loan = (daily_interest1 * 9) # 9 days of interest accrued
+		interest_amount_second_loan = (daily_interest2 * 8) # 8 days of interest accrued
+		interest_amount_third_loan = (daily_interest3 * 7) # 7 days of interest accrued
+		fee_amount_first_loan = number_util.round_currency(daily_interest1 * LATE_FEE_STRUCTURE_1_14 * 5) # 5 days of late fees accrued
+		fee_amount_second_loan = number_util.round_currency(daily_interest2 * LATE_FEE_STRUCTURE_1_14 * 3) # 3 days of late fees accrued
+		fee_amount_third_loan = number_util.round_currency(daily_interest3 * LATE_FEE_STRUCTURE_1_14 * 2) # 2 days of late fees accrued
+		to_interest_third_loan = (91 - (20 + 30 + 40) - (interest_amount_first_loan + fee_amount_first_loan) - (interest_amount_second_loan + fee_amount_second_loan)) # total - total principal - interest paid on first 2 loans
+
+		test: Dict = {
+			'comment': 'The custom amount should pay off the principal all 3 loans and surplus start paying off interest and late fees first 2 loans before moving to the third.',
+			'loans': [
+				models.Loan(
+					amount=decimal.Decimal(20.00),
+					origination_date=date_util.load_date_str('8/20/2020'),
+					adjusted_maturity_date=date_util.load_date_str('8/23/2020'),
+				),
+				models.Loan(
+					amount=decimal.Decimal(30.00),
+					origination_date=date_util.load_date_str('8/21/2020'),
+					adjusted_maturity_date=date_util.load_date_str('8/25/2020'),
+				),
+				models.Loan(
+					amount=decimal.Decimal(40.00),
+					origination_date=date_util.load_date_str('8/22/2020'),
+					adjusted_maturity_date=date_util.load_date_str('8/26/2020'),
+				),
+			],
+			'transaction_lists': [
+				# Transactions are parallel to the loans defined in the test.
+				# These will be advances or repayments made against their respective loans.
+				[{'type': 'advance', 'amount': 20.00, 'payment_date': '8/20/2020', 'effective_date': '8/20/2020'}],
+				[{'type': 'advance', 'amount': 30.00, 'payment_date': '8/21/2020', 'effective_date': '8/21/2020'}],
+				[{'type': 'advance', 'amount': 40.00, 'payment_date': '8/22/2020', 'effective_date': '8/22/2020'}]
+			],
+			'loans_not_selected': [],
+			'deposit_date': '8/27/2020',
+			'settlement_date': '8/28/2020',
+			'payment_option': 'custom_amount',
+			'payment_input_amount': 91,
+			'expected_amount_to_pay': 91,
+			'expected_amount_as_credit_to_user': 0,
+			'should_pay_principal_first': True,
+			'expected_loans_to_show': [
+				LoanToShowDict(
+					loan_id='filled in by test',
+					loan_identifier='filled in by test',
+					transaction=TransactionInputDict(
+						amount=20.00 + interest_amount_first_loan + fee_amount_first_loan,
+						to_principal=20.00,
+						to_interest=interest_amount_first_loan,
+						to_fees=fee_amount_first_loan
+					),
+					before_loan_balance=LoanBalanceDict(
+						amount=20.00,
+						outstanding_principal_balance=20.00,
+						outstanding_interest=interest_amount_first_loan,
+						outstanding_fees=fee_amount_first_loan
+					),
+					after_loan_balance=LoanBalanceDict(
+						amount=20.00,
+						outstanding_principal_balance=0.0,
+						outstanding_interest=0.0,
+						outstanding_fees=0.0
+					)
+				),
+				LoanToShowDict(
+					loan_id='filled in by test',
+					loan_identifier='filled in by test',
+					transaction=TransactionInputDict(
+						amount=30.0 + interest_amount_second_loan + fee_amount_second_loan,
+						to_principal=30.0,
+						to_interest=interest_amount_second_loan,
+						to_fees=fee_amount_second_loan
+					),
+					before_loan_balance=LoanBalanceDict(
+						amount=30.00,
+						outstanding_principal_balance=30.00,
+						outstanding_interest=interest_amount_second_loan,
+						outstanding_fees=fee_amount_second_loan
+					),
+					after_loan_balance=LoanBalanceDict(
+						amount=30.00,
+						outstanding_principal_balance=0.00,
+						outstanding_interest=0.0,
+						outstanding_fees=0.0
+					)
+				),
+				LoanToShowDict(
+					loan_id='filled in by test',
+					loan_identifier='filled in by test',
+					transaction=TransactionInputDict(
+						amount=40.0 + to_interest_third_loan,
+						to_principal=40.0,
+						to_interest=to_interest_third_loan,
+						to_fees=0.0
+					),
+					before_loan_balance=LoanBalanceDict(
+						amount=40.00,
+						outstanding_principal_balance=40.00,
+						outstanding_interest=interest_amount_third_loan,
+						outstanding_fees=fee_amount_third_loan
+					),
+					after_loan_balance=LoanBalanceDict(
+						amount=40.00,
+						outstanding_principal_balance=0.00,
+						outstanding_interest=interest_amount_third_loan - to_interest_third_loan,
+						outstanding_fees=fee_amount_third_loan
+					)
+				),
+			],
+			'expected_past_due_but_not_selected_indices': [],
 		}
 
 		self._run_test(test)

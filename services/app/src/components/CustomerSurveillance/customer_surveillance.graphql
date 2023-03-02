@@ -41,3 +41,29 @@ query GetSurveillanceResultById($surveillance_result_id: uuid!) {
     }
   }
 }
+
+query GetSurveillanceResultByCompanyId($company_id: uuid!) {
+  customer_surveillance_results(
+    where: {
+      _and: [
+        { company_id: { _eq: $company_id } }
+        {
+          _or: [
+            { is_deleted: { _is_null: true } }
+            { is_deleted: { _neq: false } }
+          ]
+        }
+        {
+          _or: [
+            { deleted_at: { _is_null: true } }
+          ]
+        }
+      ]
+    }
+    order_by: { qualifying_date: desc }
+    limit: 1
+  ) {
+    id
+    ...CustomerSurveillanceResult
+  }
+}

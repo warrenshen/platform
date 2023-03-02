@@ -55,6 +55,7 @@ def create_repayment_payment(
 	payment.submitted_by_user_id = created_by_user_id
 	payment.requested_by_user_id = created_by_user_id
 	payment.customer_note = payment_input.get('customer_note', '')
+	payment.bank_note = payment_input.get('bank_note', None)
 
 	return payment
 

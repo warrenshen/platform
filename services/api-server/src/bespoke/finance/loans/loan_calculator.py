@@ -119,7 +119,8 @@ IncludedPaymentDict = TypedDict('IncludedPaymentDict', {
 	'custom_amount_split': CustomAmountSplitDict, # Takes precedence over 'custom_amount'. This is used when creating transactions for settling an LOC payment, or settling a non-LOC payment
 	'deposit_date': datetime.date,
 	'settlement_date': datetime.date,
-	'should_pay_principal_first': bool
+	'should_pay_principal_first': bool,
+	'amount_reserved_for_principal': float,
 })
 
 TransactionInputDict = TypedDict('TransactionInputDict', {
@@ -269,7 +270,10 @@ def _sum_transactions(t1: TransactionInputDict, t2: TransactionInputDict) -> Tra
 	)
 
 def _determine_transaction(
-	loan: models.LoanDict, cur_loan_state: LoanFinancialStateDict, payment_to_include: IncludedPaymentDict) -> TransactionInputDict:
+	loan: models.LoanDict,
+	cur_loan_state: LoanFinancialStateDict,
+	payment_to_include: IncludedPaymentDict
+) -> TransactionInputDict:
 	# loan_update is the current state of the loan at the time you can
 	# apply the user's desired payment
 
@@ -309,15 +313,19 @@ def _determine_transaction(
 		return _pay_in_full()
 	elif payment_option == payment_util.RepaymentOption.CUSTOM_AMOUNT:
 
-		amount_left = payment_to_include['custom_amount']
-
 		if should_pay_principal_first:
-			amount_left, amount_used_principal = _apply_to(cur_loan_state, 'principal', amount_left)
+			amount = payment_to_include['custom_amount']
+			amount_reserved_for_principal = payment_to_include['amount_reserved_for_principal']
+			amount_left_for_interest_and_fees = amount - amount_reserved_for_principal
 
-		amount_left, amount_used_interest = _apply_to(cur_loan_state, 'interest', amount_left)
-		amount_left, amount_used_fees = _apply_to(cur_loan_state, 'fees', amount_left)
+			amount_reserved_for_principal, amount_used_principal = _apply_to(cur_loan_state, 'principal', amount_reserved_for_principal)
+			amount_left_for_interest_and_fees, amount_used_interest = _apply_to(cur_loan_state, 'interest', amount_left_for_interest_and_fees)
+			amount_left_for_interest_and_fees, amount_used_fees = _apply_to(cur_loan_state, 'fees', amount_left_for_interest_and_fees)
 
 		if not should_pay_principal_first:
+			amount_left = payment_to_include['custom_amount']
+			amount_left, amount_used_interest = _apply_to(cur_loan_state, 'interest', amount_left)
+			amount_left, amount_used_fees = _apply_to(cur_loan_state, 'fees', amount_left)
 			amount_left, amount_used_principal = _apply_to(cur_loan_state, 'principal', amount_left)
 
 		return TransactionInputDict(
@@ -469,6 +477,8 @@ def _reduce_custom_amount_remaining(tx: TransactionInputDict, payment_to_include
 
 	if payment_to_include['option'] == payment_util.RepaymentOption.CUSTOM_AMOUNT:
 		payment_to_include['custom_amount'] -= tx['amount']
+		if payment_to_include['should_pay_principal_first']:
+			payment_to_include['amount_reserved_for_principal'] -= tx['to_principal']
 
 	elif payment_to_include['option'] == payment_util.RepaymentOption.CUSTOM_AMOUNT_FOR_SETTLING_LOC:
 		payment_to_include['custom_amount_split']['to_principal'] -= tx['to_principal']
@@ -1229,7 +1239,6 @@ class LoanCalculator(object):
 		success, err = _perform_daily_interest_and_fees_adjustment(self._fee_accumulator, txs_helper, date_to_result)
 		if err:
 			return None, [err]
-
 		return date_to_result[today], None
 
 	def calculate_loan_balance(

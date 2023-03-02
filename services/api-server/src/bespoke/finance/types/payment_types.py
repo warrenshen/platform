@@ -36,7 +36,8 @@ RepaymentPaymentInputDict = TypedDict('RepaymentPaymentInputDict', {
 	'payment_date': datetime.date,
 	'items_covered': PaymentItemsCoveredDict,
 	'company_bank_account_id': str,
-	'customer_note': str
+	'customer_note': str,
+	'bank_note': str
 })
 
 PaymentInsertInputDict = TypedDict('PaymentInsertInputDict', {

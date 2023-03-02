@@ -131,6 +131,101 @@ def _fetch_line_of_credit_payable_loans(
 	return loans
 
 @errors.return_error_tuple
+def get_loans_for_pay_principal_first(
+	session: Session,
+	amount: float,
+	company_id: str,
+	company_settings_dict: models.CompanySettingsDict,
+	contract_helper: contract_util.ContractHelper,
+	fee_accumulator: fee_util.FeeAccumulator,
+	payment_settlement_date: datetime.date,
+	threshold_info: loan_calculator.ThresholdInfoDict,
+) -> Tuple[List[models.Loan], float, errors.Error]:
+	# Get all inputs for LoanCalculator.calculate_loan_balance
+	open_loans = cast(
+		List[models.Loan],
+		session.query(models.Loan).filter(
+			cast(Callable, models.Loan.is_deleted.isnot)(True)
+		).filter(
+			models.Loan.company_id == company_id
+		).filter(
+			models.Loan.origination_date != None
+		).filter(
+			models.Loan.closed_at == None
+		).order_by(
+			models.Loan.adjusted_maturity_date.asc(),
+			models.Loan.origination_date.asc(),
+			models.Loan.created_at.asc(),
+			models.Loan.amount.asc()
+		) .all())
+
+	transactions = cast(
+		List[models.Transaction],
+		session.query(models.Transaction).filter(
+			models.Transaction.loan_id.in_([loan.id for loan in open_loans])
+		).filter(
+			cast(Callable, models.Transaction.is_deleted.isnot)(True)
+		).all())
+
+	invoices = cast(
+		List[models.Invoice],
+		session.query(models.Invoice).filter(
+			models.Invoice.id.in_([loan.artifact_id for loan in open_loans if loan.artifact_id])
+		).all()
+	)
+	artifact_id_to_invoice_dict = {}
+	if invoices:
+		for inv in invoices:
+			artifact_id_to_invoice_dict[str(inv.id)] = inv.as_dict()
+
+	all_transaction_dicts = []
+	all_payment_ids = []
+	if transactions:
+		for t in transactions:
+			all_transaction_dicts.append(t.as_dict())
+			all_payment_ids.append(str(t.payment_id))
+
+	existing_payments = cast(
+		List[models.Payment],
+		session.query(models.Payment).filter(
+			models.Payment.id.in_(all_payment_ids)
+		).all())
+
+	all_augmented_transactions, err = models_util.get_augmented_transactions(
+		all_transaction_dicts, [p.as_dict() for p in existing_payments]
+	)
+	if err:
+		return None, None, err
+
+	result_loans = []
+	amount_remaining = amount
+	for loan in open_loans:
+		calculator = loan_calculator.LoanCalculator(contract_helper, fee_accumulator)
+		transactions_for_loan = loan_calculator.get_transactions_for_loan(
+			str(loan.id), all_augmented_transactions)
+		invoice_dict = artifact_id_to_invoice_dict.get(str(loan.artifact_id))
+		calculate_result, errs = calculator.calculate_loan_balance(
+			threshold_info,
+			loan.as_dict(),
+			invoice_dict,
+			company_settings_dict,
+			transactions_for_loan,
+			payment_settlement_date,
+		)
+		if errs:
+			return None, None, errors.Error('\n'.join([err.msg for err in errs]))
+
+		amount_remaining -= calculate_result['loan_update']['outstanding_principal']
+		result_loans.append(loan)
+		if amount_remaining <= 0:
+			amount_remaining = 0
+			break
+
+	amount_reserved_for_principal = amount - amount_remaining
+	return result_loans, amount_reserved_for_principal, None
+
+
+@errors.return_error_tuple
 def calculate_repayment_effect(
 	session: Session,
 	company_id: str,
@@ -197,13 +292,49 @@ def calculate_repayment_effect(
 		if not loan_ids and not to_account_fees:
 			return None, errors.Error('Repayment must apply to loan(s) and / or account fees - please select loan(s) or specify amount to account fee')
 
+	# Contruct inputs for loan calculator
+	# Find the before balances for the loans
+	fee_accumulator = fee_util.FeeAccumulator()
+	financial_summary = financial_summary_util.get_latest_financial_summary(
+		session=session, company_id=company_id
+	)
+	if financial_summary:
+		threshold_info = loan_calculator.ThresholdInfoDict(
+			day_threshold_met=financial_summary.day_volume_threshold_met
+		)
+	else:
+		threshold_info = loan_calculator.ThresholdInfoDict(
+			day_threshold_met=None
+		)
+
+	company_settings, err = queries.get_company_settings_by_company_id(
+		session,
+		company_id,
+	)
+	if err:
+		return None, err
+	company_settings_dict = company_settings.as_dict()
+
 	# Figure out how much is due by a particular date
 	loan_dicts = []
 	artifact_id_to_invoice_dict = {}
 
 	loans = []
+	amount_reserved_for_principal = amount if should_pay_principal_first else 0
 	if product_type == ProductType.LINE_OF_CREDIT:
 		loans = _fetch_line_of_credit_payable_loans(company_id, payment_deposit_date, session)
+	elif product_type != ProductType.LINE_OF_CREDIT and should_pay_principal_first:
+		loans, amount_reserved_for_principal, err = get_loans_for_pay_principal_first(
+			session=session,
+			amount=amount,
+			company_id=company_id,
+			company_settings_dict=company_settings_dict,
+			contract_helper=contract_helper,
+			fee_accumulator=fee_accumulator,
+			payment_settlement_date=payment_settlement_date,
+			threshold_info=threshold_info,
+		)
+		loan_ids = [str(loan.id) for loan in loans]
 	else:
 		loans = cast(
 			List[models.Loan],
@@ -306,20 +437,6 @@ def calculate_repayment_effect(
 	report_date = payment_settlement_date
 	loan_dict_and_balance_list: List[LoanDictAndBalance] = []
 
-	# Find the before balances for the loans
-	fee_accumulator = fee_util.FeeAccumulator()
-	financial_summary = financial_summary_util.get_latest_financial_summary(
-		session=session, company_id=company_id
-	)
-	if financial_summary:
-		threshold_info = loan_calculator.ThresholdInfoDict(
-			day_threshold_met=financial_summary.day_volume_threshold_met
-		)
-	else:
-		threshold_info = loan_calculator.ThresholdInfoDict(
-			day_threshold_met=None
-		)
-
 	# Calculate old and new loan balances once the payment takes effect for each loan
 
 	# Apply in the order of earliest maturity date to latest maturity date
@@ -342,15 +459,8 @@ def calculate_repayment_effect(
 		deposit_date=payment_deposit_date,
 		settlement_date=payment_settlement_date,
 		should_pay_principal_first=should_pay_principal_first,
+		amount_reserved_for_principal=amount_reserved_for_principal,
 	)
-
-	company_settings, err = queries.get_company_settings_by_company_id(
-		session,
-		company_id,
-	)
-	if err:
-		return None, err
-	company_settings_dict = company_settings.as_dict()
 
 	for loan_dict in loan_dicts:
 		calculator = loan_calculator.LoanCalculator(contract_helper, fee_accumulator)
@@ -364,7 +474,7 @@ def calculate_repayment_effect(
 			company_settings_dict,
 			transactions_for_loan,
 			report_date,
-			payment_to_include=payment_to_include
+			payment_to_include=payment_to_include,
 		)
 		if errs:
 			return None, errors.Error('\n'.join([err.msg for err in errs]))
@@ -760,6 +870,7 @@ def calculate_repayment_effect_new(
 		deposit_date=payment_deposit_date,
 		settlement_date=payment_settlement_date,
 		should_pay_principal_first=should_pay_principal_first,
+		amount_reserved_for_principal=0.0,
 	)
 
 	company_settings, err = queries.get_company_settings_by_company_id(
@@ -1046,7 +1157,8 @@ def create_repayment(
 		payment_date=requested_payment_date if payment_method != PaymentMethodEnum.REVERSE_DRAFT_ACH else None,
 		items_covered=items_covered,
 		company_bank_account_id=company_bank_account_id,
-		customer_note=payment_insert_input.get('customer_note')
+		customer_note=payment_insert_input.get('customer_note'),
+		bank_note=payment_insert_input.get('bank_note', None)
 	)
 	payment = payment_util.create_repayment_payment(
 		company_id=company_id,
@@ -1509,7 +1621,8 @@ def settle_repayment(
 				},
 				deposit_date=deposit_date,
 				settlement_date=settlement_date,
-				should_pay_principal_first=False
+				should_pay_principal_first=False,
+				amount_reserved_for_principal=0.0,
 			)
 
 			for loan_dict in loan_dicts:
@@ -1605,7 +1718,8 @@ def settle_repayment(
 					},
 					deposit_date=deposit_date,
 					settlement_date=settlement_date,
-					should_pay_principal_first=False
+					should_pay_principal_first=False,
+					amount_reserved_for_principal=0.0
 				)
 				calculator = loan_calculator.LoanCalculator(contract_helper, fee_accumulator)
 				transactions_for_loan = loan_calculator.get_transactions_for_loan(

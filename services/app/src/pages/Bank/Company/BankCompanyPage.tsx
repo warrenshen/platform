@@ -101,7 +101,7 @@ type ClassName =
 
 type AlertStyle = { theme: ClassName; severity: Color };
 
-const surveillanceStatusToAlertStatus: {
+export const surveillanceStatusToAlertStatus: {
   [key in SurveillanceStatusEnum]: AlertStyle;
 } = {
   [SurveillanceStatusEnum.GoodStanding]: {

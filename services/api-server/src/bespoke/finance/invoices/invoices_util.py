@@ -582,7 +582,8 @@ def respond_to_payment_request(
 				invoice_ids=[str(invoice.id)]
 			),
 			company_bank_account_id=None,
-			customer_note=''
+			customer_note='',
+			bank_note=None
 		),
 		created_by_user_id=str(user.id))
 

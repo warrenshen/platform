@@ -5,6 +5,7 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  TextField,
   Typography,
 } from "@material-ui/core";
 import CreateRepaymentDefaultSection from "components/Repayment/CreateRepaymentDefaultSection";
@@ -12,6 +13,10 @@ import CreateRepaymentLineofCreditSection from "components/Repayment/CreateRepay
 import ExpectedDatePreview from "components/Repayment/ExpectedDatePreview";
 import CompanyBank from "components/Shared/BankToBankTransfer/CompanyBank";
 import DateInput from "components/Shared/FormInputs/DateInput";
+import {
+  CurrentUserContext,
+  isRoleBankUser,
+} from "contexts/CurrentUserContext";
 import {
   BankAccounts,
   FinancialSummaryFragment,
@@ -24,7 +29,7 @@ import {
   RepaymentMethodEnum,
   RepaymentMethodToDropdownLabel,
 } from "lib/enum";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useContext } from "react";
 
 interface Props {
   productType: ProductTypeEnum;
@@ -45,6 +50,11 @@ export default function CreateRepaymentSelectLoans({
   setIsPayAccountFeesVisible,
   accountFeeTotal,
 }: Props) {
+  const {
+    user: { role },
+  } = useContext(CurrentUserContext);
+  const isBankUser = isRoleBankUser(role);
+
   const isReverseDraftACH =
     payment.method === RepaymentMethodEnum.ReverseDraftACH;
   /**
@@ -194,6 +204,22 @@ export default function CreateRepaymentSelectLoans({
               }
             />
           </Box>
+        </Box>
+      )}
+      {isBankUser && (
+        <Box>
+          <Box my={3}>
+            <Divider light />
+          </Box>
+          <FormControl fullWidth>
+            <TextField
+              label="Bank Note"
+              value={payment.bank_note || ""}
+              onChange={({ target: { value } }) =>
+                setPayment({ ...payment, bank_note: value })
+              }
+            />
+          </FormControl>
         </Box>
       )}
     </Box>
