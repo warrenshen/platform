@@ -117,8 +117,8 @@ export default function RepaymentsDataGrid({
       },
       {
         visible: isReverseDraftACH || isOther,
-        dataField: "expected_deposit_date",
-        caption: "Expected Deposit Date",
+        dataField: "requested_payment_date",
+        caption: "Requested Deposit Date",
         format: "shortDate",
         width: ColumnWidths.Date,
         alignment: "right",
