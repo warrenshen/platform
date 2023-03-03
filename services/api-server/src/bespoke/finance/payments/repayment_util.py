@@ -1799,8 +1799,8 @@ def settle_repayment(
 			# 4. Loan(s) not covered create transaction input(s) that are equivalent to zero.
 			if to_principal == 0.0 and to_interest == 0.0 and to_fees == 0.0:
 				# Set payment status to None, otherwise it would be left as PaymentStatusEnum.PENDING.
-				# It could be that payment status is supposed to be PARTIALLY_PAID... ignore that case for now.
-				cur_loan.payment_status = None
+				if cur_loan.payment_status != PaymentStatusEnum.PARTIALLY_PAID:
+					cur_loan.payment_status = None
 				continue
 
 			t = models.Transaction()

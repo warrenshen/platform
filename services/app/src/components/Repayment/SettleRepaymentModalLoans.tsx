@@ -154,6 +154,16 @@ export default function SettleRepaymentModalLoans({
         })
       );
 
+      setPayment((payment) => ({
+        ...payment,
+        items_covered: {
+          ...payment.items_covered,
+          loan_ids: repaymentEffectData.loans_to_show.map(
+            (loanToShow: LoanToShow) => loanToShow.loan_id
+          ),
+        },
+      }));
+
       setIsOnSelectLoans(false);
     }
   };
