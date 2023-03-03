@@ -343,7 +343,7 @@ class UpdateBankFieldsView(MethodView):
 		}), 200)
 
 
-class CloseView(MethodView):
+class ArchiveView(MethodView):
 	decorators = [auth_util.login_required]
 
 	@handler_util.catch_bad_json_request
@@ -369,20 +369,13 @@ class CloseView(MethodView):
 			if not user_session.is_bank_or_this_company_admin(str(purchase_order.company_id)):
 				return handler_util.make_error_response('Access Denied')
 
-			purchase_order.closed_at = date_util.now()
-			purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.ARCHIVED
-
-			user = session.query(models.User) \
-				.filter(models.User.id == user_session.get_user_id()) \
-				.first()
-
-			purchase_orders_util.update_purchase_order_history(
+			_, err = purchase_orders_util.archive_purchase_order(
+				session = session,
 				purchase_order = purchase_order,
-				user_id = user_session.get_user_id(),
-				user_full_name = user.full_name,
-				action = "PO archived",
-				new_status = NewPurchaseOrderStatus.ARCHIVED
+				user_id = user_session.get_user_id()
 			)
+			if err:
+				raise err
 
 		return make_response(json.dumps({
 			'status': 'OK',
@@ -419,23 +412,13 @@ class ArchiveMultipleView(MethodView):
 				if not user_session.is_bank_or_this_company_admin(str(purchase_order.company_id)):
 					return handler_util.make_error_response('Access Denied')
 
-				purchase_order.closed_at = date_util.now()
-				purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.ARCHIVED
-
-				user, err = queries.get_user_by_id(
-					session,
-					user_id,
+				_, err = purchase_orders_util.archive_purchase_order(
+					session = session,
+					purchase_order = purchase_order,
+					user_id = user_session.get_user_id()
 				)
 				if err:
 					raise err
-
-				purchase_orders_util.update_purchase_order_history(
-					purchase_order = purchase_order,
-					user_id = user_id,
-					user_full_name = user.full_name,
-					action = "PO archived",
-					new_status = NewPurchaseOrderStatus.ARCHIVED
-				)
 
 		return make_response(json.dumps({
 			'status': 'OK',
@@ -443,7 +426,7 @@ class ArchiveMultipleView(MethodView):
 		}), 200)
 
 
-class ReopenView(MethodView):
+class UnarchiveView(MethodView):
 	decorators = [auth_util.login_required]
 
 	@handler_util.catch_bad_json_request
@@ -478,6 +461,14 @@ class ReopenView(MethodView):
 				raise err
 			new_status = None
 
+			loans = cast(
+				List[models.Loan],
+				session.query(models.Loan).filter(
+					models.Loan.artifact_id == str(purchase_order_id)
+				).filter(
+					cast(Callable, models.Loan.is_deleted.isnot)(True)
+				).all()
+			)
 			# If the PO has a working history (Created after new PO flow has launched)
 			# the most recent event (-1) will be ARCHIVE, hence we look at the previous event
 			# which will hold the status prior to it becoming archived
@@ -485,14 +476,6 @@ class ReopenView(MethodView):
 				new_status = purchase_order.history[-2]['new_purchase_order_status']
 			else:
 				if purchase_order.approved_at:
-					loans = cast(
-						List[models.Loan],
-						session.query(models.Loan).filter(
-							models.Loan.artifact_id == str(purchase_order_id)
-						).filter(
-							cast(Callable, models.Loan.is_deleted.isnot)(True)
-						).all()
-					)
 					amount_funded = float(purchase_order.amount_funded) if purchase_order.amount_funded else float(0)
 					all_loan_statuses = set([loan.status for loan in loans if loan.funded_at is None])
 					if number_util.float_eq(amount_funded, float(purchase_order.amount)):
@@ -525,6 +508,12 @@ class ReopenView(MethodView):
 				action = "PO unarchived",
 				new_status = new_status
 			)
+
+			# reset status of financing requests (loans) tied to this PO
+			for loan in loans:
+				loan.status = LoanStatusEnum.APPROVAL_REQUESTED
+				loan.approved_at = None
+				loan.approved_by_user_id = None
 
 		return make_response(json.dumps({
 			'status': 'OK',
@@ -812,8 +801,8 @@ handler.add_url_rule(
 )
 
 handler.add_url_rule(
-	'/close',
-	view_func=CloseView.as_view(name='close')
+	'/archive',
+	view_func=ArchiveView.as_view(name='close')
 )
 
 handler.add_url_rule(
@@ -822,8 +811,8 @@ handler.add_url_rule(
 )
 
 handler.add_url_rule(
-	'/reopen',
-	view_func=ReopenView.as_view(name='reopen')
+	'/unarchive',
+	view_func=UnarchiveView.as_view(name='unarchive')
 )
 
 handler.add_url_rule(

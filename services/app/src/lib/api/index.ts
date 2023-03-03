@@ -121,8 +121,8 @@ export const purchaseOrdersRoutes = {
   requestPurchaseOrderChanges:
     "/purchase_orders/request_purchase_order_changes",
   updateBankFields: "/purchase_orders/update_bank_fields",
-  close: "/purchase_orders/close",
-  reopen: "/purchase_orders/reopen",
+  archive: "/purchase_orders/archive",
+  unarchive: "/purchase_orders/unarchive",
   archiveMultiple: "/purchase_orders/archive_multiple",
 };
 

@@ -43,8 +43,7 @@ export enum Action {
   DeletePurchaseOrders = "purchase-orders:delete",
   FundPurchaseOrders = "purchase-orders:fund",
   ViewPurchaseOrdersActionMenu = "purchase-orders:view-action-menu",
-  ClosePurchaseOrders = "purchase-orders:close",
-  ReopenPurchaseOrders = "purchase-orders:reopen",
+  UnarchivePurchaseOrders = "purchase-orders:unarchive",
 
   // Purchase Order Loans
   AddPurchaseOrderLoan = "purchase-order-loan:add",
@@ -192,8 +191,8 @@ const COMPANY_ADMIN_STATIC_ACTIONS = [
   Action.EditPurchaseOrders,
   Action.DeletePurchaseOrders,
   Action.FundPurchaseOrders,
-  Action.ClosePurchaseOrders,
-  Action.ReopenPurchaseOrders,
+  Action.ArchivePurchaseOrders,
+  Action.UnarchivePurchaseOrders,
 
   Action.AddInvoices,
   Action.EditInvoices,
@@ -251,8 +250,8 @@ const rules: Rules = {
       Action.EditPurchaseOrders,
       Action.DeletePurchaseOrders,
       Action.FundPurchaseOrders,
-      Action.ClosePurchaseOrders,
-      Action.ReopenPurchaseOrders,
+      Action.ArchivePurchaseOrders,
+      Action.UnarchivePurchaseOrders,
 
       Action.AddInvoices,
       Action.ApproveInvoices,

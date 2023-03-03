@@ -12,8 +12,8 @@ import SecondaryButton from "components/Shared/Button/SecondaryButton";
 import ModalDialog from "components/Shared/Modal/ModalDialog";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
-import { closePurchaseOrderMutation } from "lib/api/purchaseOrders";
-import { reopenPurchaseOrderMutation } from "lib/api/purchaseOrders";
+import { archivePurchaseOrderMutation } from "lib/api/purchaseOrders";
+import { unarchivePurchaseOrderMutation } from "lib/api/purchaseOrders";
 import { Action } from "lib/auth/rbac-rules";
 import { getCompanyDisplayName } from "lib/companies";
 import { formatDateString } from "lib/date";
@@ -50,10 +50,10 @@ function ArchivePurchaseOrderModal({
   const classes = useStyles();
 
   const [archivePurchaseOrder, { loading: isArchivePurchaseOrderLoading }] =
-    useCustomMutation(closePurchaseOrderMutation);
+    useCustomMutation(archivePurchaseOrderMutation);
 
   const [unArchivePurchaseOrder, { loading: isUnArchivePurchaseOrderLoading }] =
-    useCustomMutation(reopenPurchaseOrderMutation);
+    useCustomMutation(unarchivePurchaseOrderMutation);
 
   const handleClickConfirm = async () => {
     let response;

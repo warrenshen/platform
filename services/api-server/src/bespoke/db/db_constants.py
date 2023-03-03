@@ -240,7 +240,6 @@ class PaymentStatusEnum(object):
 class LoanStatusEnum(object):
 	APPROVAL_REQUESTED = 'approval_requested'
 	APPROVED = 'approved'
-	CLOSED = 'closed'
 	DRAFTED = 'drafted'
 	REJECTED = 'rejected'
 	FUNDED = 'funded'

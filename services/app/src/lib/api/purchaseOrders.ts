@@ -118,17 +118,17 @@ export async function updateBankFieldsMutation(
     );
 }
 
-export type ClosePurchaseOrderReq = {
+export type ArchivePurchaseOrderReq = {
   variables: {
     purchase_order_id: PurchaseOrders["id"];
   };
 };
 
-export async function closePurchaseOrderMutation(
-  req: ClosePurchaseOrderReq
+export async function archivePurchaseOrderMutation(
+  req: ArchivePurchaseOrderReq
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(purchaseOrdersRoutes.close, req.variables)
+    .post(purchaseOrdersRoutes.archive, req.variables)
     .then((res) => res.data)
     .then(
       (res) => res,
@@ -136,20 +136,20 @@ export async function closePurchaseOrderMutation(
         console.error(error);
         return {
           status: "ERROR",
-          msg: "Could not close purchase order",
+          msg: "Could not archive purchase order",
         };
       }
     );
 }
 
-export type ClosePurchaseOrderMultipleReq = {
+export type ArchivePurchaseOrderMultipleReq = {
   variables: {
     purchase_order_ids: PurchaseOrders["id"][];
   };
 };
 
 export async function archivePurchaseOrderMultipleMutation(
-  req: ClosePurchaseOrderMultipleReq
+  req: ArchivePurchaseOrderMultipleReq
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
     .post(purchaseOrdersRoutes.archiveMultiple, req.variables)
@@ -160,23 +160,23 @@ export async function archivePurchaseOrderMultipleMutation(
         console.error(error);
         return {
           status: "ERROR",
-          msg: "Could not close purchase order",
+          msg: "Could not archive purchase order",
         };
       }
     );
 }
 
-export type ReopenPurchaseOrderReq = {
+export type UnarchivePurchaseOrderReq = {
   variables: {
     purchase_order_id: PurchaseOrders["id"];
   };
 };
 
-export async function reopenPurchaseOrderMutation(
-  req: ReopenPurchaseOrderReq
+export async function unarchivePurchaseOrderMutation(
+  req: UnarchivePurchaseOrderReq
 ): Promise<CustomMutationResponse> {
   return authenticatedApi
-    .post(purchaseOrdersRoutes.reopen, req.variables)
+    .post(purchaseOrdersRoutes.unarchive, req.variables)
     .then((res) => res.data)
     .then(
       (res) => res,
@@ -184,7 +184,7 @@ export async function reopenPurchaseOrderMutation(
         console.error(error);
         return {
           status: "ERROR",
-          msg: "Could not reopen purchase order",
+          msg: "Could not unarchive purchase order",
         };
       }
     );

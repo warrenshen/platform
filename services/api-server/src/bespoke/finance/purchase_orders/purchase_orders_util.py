@@ -1293,3 +1293,44 @@ def reactivate_loans_by_artifact_id(
 		loan.rejected_by_user_id = None
 
 	return loans, None
+
+
+def archive_purchase_order(
+	session: Session,
+	purchase_order: models.PurchaseOrder,
+	user_id: str
+) -> Tuple[bool, errors.Error]:
+	purchase_order.closed_at = date_util.now()
+	purchase_order.new_purchase_order_status = NewPurchaseOrderStatus.ARCHIVED
+
+	user, err = queries.get_user_by_id(
+		session,
+		user_id,
+	)
+	if err:
+		return False, err
+
+	purchase_orders_util.update_purchase_order_history(
+		purchase_order = purchase_order,
+		user_id = user_id,
+		user_full_name = user.full_name,
+		action = "PO archived",
+		new_status = NewPurchaseOrderStatus.ARCHIVED
+	)
+
+	# Can archive a loan up to the point that it's funded
+	loans = cast(
+		List[models.Loan],
+		session.query(models.Loan).filter(
+			models.Loan.artifact_id == purchase_order.id
+		).filter(
+			models.Loan.funded_at == None
+		).filter(
+			cast(Callable, models.Loan.is_deleted.isnot)(True)
+		).all()
+	)
+
+	for loan in loans:
+		loan.status = LoanStatusEnum.ARCHIVED
+
+	return True, None

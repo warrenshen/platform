@@ -77,7 +77,7 @@ export default function BankPurchaseOrdersReadyForFinancingTab() {
     <Box mt={3}>
       {isUnArchiveModalOpen && (
         <ArchivePurchaseOrderModal
-          action={Action.ReopenPurchaseOrders}
+          action={Action.UnarchivePurchaseOrders}
           purchaseOrder={selectedPurchaseOrder}
           handleClose={() => {
             setSelectedPurchaseOrderIds([]);
@@ -96,7 +96,7 @@ export default function BankPurchaseOrdersReadyForFinancingTab() {
           <Typography variant="h6">Archived</Typography>
         </Box>
         <Box display="flex" flexDirection="row-reverse">
-          <Can perform={Action.ReopenPurchaseOrders}>
+          <Can perform={Action.UnarchivePurchaseOrders}>
             <SecondaryButton
               isDisabled={!selectedPurchaseOrder}
               text={"Unarchive"}

@@ -82,7 +82,7 @@ export default function CustomerPurchaseOrdersArchivedTab({
     <Container>
       {isUnArchiveModalOpen && (
         <ArchivePurchaseOrderModal
-          action={Action.ReopenPurchaseOrders}
+          action={Action.UnarchivePurchaseOrders}
           purchaseOrder={selectedPurchaseOrder}
           handleClose={() => {
             setSelectedPurchaseOrderIds([]);
@@ -101,7 +101,7 @@ export default function CustomerPurchaseOrdersArchivedTab({
         <Box className={classes.section}>
           <Box my={2} display="flex" flexDirection="row-reverse">
             {selectedPurchaseOrderIds.length > 0 && (
-              <Can perform={Action.ReopenPurchaseOrders}>
+              <Can perform={Action.UnarchivePurchaseOrders}>
                 <Box mr={2}>
                   <SecondaryButton
                     isDisabled={!selectedPurchaseOrder || !isActiveContract}
