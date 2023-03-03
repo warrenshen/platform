@@ -47625,6 +47625,7 @@ export const GetLoansCountForBankDocument = gql`
           }
           { funded_at: { _is_null: true } }
           { closed_at: { _is_null: true } }
+          { status: { _neq: "archived" } }
         ]
       }
       order_by: { requested_payment_date: asc }
