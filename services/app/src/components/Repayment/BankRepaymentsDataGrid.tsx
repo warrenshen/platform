@@ -33,6 +33,7 @@ interface Props {
   isHoldingAccountVisible?: boolean;
   isAppliedToVisible?: boolean;
   isReversedDateShown?: boolean;
+  isRepaymentNumberVisible?: boolean;
   repaymentType?: RepaymentTypeEnum;
   payments: RepaymentForBankDataGridFragment[];
   selectedPaymentIds?: Payments["id"][];
@@ -49,6 +50,7 @@ export default function RepaymentsDataGrid({
   isMultiSelectEnabled = false,
   isAppliedToVisible = false,
   isReversedDateShown = false,
+  isRepaymentNumberVisible = false,
   repaymentType = RepaymentTypeEnum.Other,
   payments,
   selectedPaymentIds,
@@ -137,12 +139,30 @@ export default function RepaymentsDataGrid({
   const columns = useMemo(
     () => [
       {
+        visible: !isRepaymentNumberVisible,
         fixed: true,
         dataField: "id",
         caption: "Payment ID",
         width: 140,
         cellRender: (params: GridValueFormatterParams) => (
           <PaymentDrawerLauncher paymentId={params.row.data.id} showBankInfo />
+        ),
+      },
+      {
+        fixed: isRepaymentNumberVisible,
+        dataField: "payment.settlement_identifier",
+        caption: "Repayment #",
+        minWidth: ColumnWidths.MinWidth,
+        cellRender: (params: GridValueFormatterParams) => (
+          <PaymentDrawerLauncher
+            paymentId={params.row.data.id}
+            label={
+              isCompanyVisible
+                ? `${params.row.data.company.identifier}-R${params.row.data.settlement_identifier}`
+                : `R${params.row.data.settlement_identifier}`
+            }
+            showBankInfo
+          />
         ),
       },
       {

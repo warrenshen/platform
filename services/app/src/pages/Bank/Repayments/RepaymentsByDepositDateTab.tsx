@@ -190,6 +190,7 @@ export default function BankRepaymentsByDepositDateTab() {
           isCompanyVisible
           isAppliedToVisible
           isReversedDateShown
+          isRepaymentNumberVisible
           payments={payments}
           handleClickCustomer={(customerId) => {
             navigate(
