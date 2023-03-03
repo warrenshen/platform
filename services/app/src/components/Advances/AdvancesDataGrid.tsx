@@ -65,7 +65,7 @@ export default function AdvancesDataGrid({
         cellRender: (params: GridValueFormatterParams) => (
           <ClickableDataGridCell
             label={params.row.data.company.name}
-            onClick={() => handleClickCustomer(params.row.data.company.name)}
+            onClick={() => handleClickCustomer(params.row.data.company_id)}
           />
         ),
       },
