@@ -119,6 +119,9 @@ export default function RepaymentsDataGrid({
             ?.product_type
             ? payment.company.most_recent_financial_summary[0].product_type
             : null,
+          repayment_number: isCompanyVisible
+            ? `${payment.company.identifier}-R${payment.settlement_identifier}`
+            : `R${payment.settlement_identifier}`,
           requested_payment_date: !!payment.requested_payment_date
             ? parseDateStringServer(payment.requested_payment_date)
             : null,
@@ -134,7 +137,7 @@ export default function RepaymentsDataGrid({
           submitted_by_name: payment.submitted_by_user?.full_name,
         });
       }),
-    [isOther, payments]
+    [isCompanyVisible, isOther, payments]
   );
   const columns = useMemo(
     () => [
@@ -149,18 +152,15 @@ export default function RepaymentsDataGrid({
         ),
       },
       {
-        fixed: isRepaymentNumberVisible,
-        dataField: "payment.settlement_identifier",
+        visible: isRepaymentNumberVisible,
+        fixed: true,
+        dataField: "repayment_number",
         caption: "Repayment #",
         minWidth: ColumnWidths.MinWidth,
         cellRender: (params: GridValueFormatterParams) => (
           <PaymentDrawerLauncher
             paymentId={params.row.data.id}
-            label={
-              isCompanyVisible
-                ? `${params.row.data.company.identifier}-R${params.row.data.settlement_identifier}`
-                : `R${params.row.data.settlement_identifier}`
-            }
+            label={params.row.data.repayment_number}
             showBankInfo
           />
         ),
@@ -433,6 +433,7 @@ export default function RepaymentsDataGrid({
       handleClickCustomer,
       handleClickPaymentBankNote,
       isHoldingAccountVisible,
+      isRepaymentNumberVisible,
       isAppliedToVisible,
     ]
   );
