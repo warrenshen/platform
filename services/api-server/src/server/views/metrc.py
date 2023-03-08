@@ -1,14 +1,8 @@
-import logging
 import json
-from datetime import timedelta
 from typing import Any, cast
 
-from bespoke.date import date_util
-from bespoke.async_util.pipeline_constants import PipelineName, PipelineState
-from bespoke.db import models
 from bespoke.db.models import session_scope
-from bespoke.email import sendgrid_util
-from bespoke.metrc import metrc_api_keys_util, metrc_util
+from bespoke.metrc import metrc_api_keys_util, metrc_download_util
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 from server.config import Config
@@ -37,7 +31,7 @@ class RefreshMetrcApiKeyPermissions(MethodView):
 					'Missing key {} in request'.format(key))
 
 		with session_scope(current_app.session_maker) as session:
-			_, err = metrc_util.refresh_metrc_api_key_permissions(
+			_, err = metrc_download_util.refresh_metrc_api_key_permissions(
 				session=session,
 				config=cfg,
 				metrc_api_key_id=form['metrc_api_key_id'],

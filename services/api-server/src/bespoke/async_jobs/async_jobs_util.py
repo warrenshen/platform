@@ -19,7 +19,7 @@ from bespoke.finance.payments import autogenerate_repayment_util
 from bespoke.finance.payments.autogenerate_repayment_util import product_types_with_autogenerate
 from bespoke.finance.purchase_orders import purchase_orders_util
 from bespoke.finance.reports import loan_balances
-from bespoke.metrc import metrc_download_util, metrc_util
+from bespoke.metrc import metrc_download_util
 from bespoke.metrc.common import metrc_common_util
 from bespoke.metrc.common.metrc_common_util import chunker, chunker_dict
 from bespoke.reports import report_generation_util
@@ -1555,7 +1555,7 @@ def orchestrate_refresh_metrc_api_key_permissions(
 ) -> Tuple[bool, errors.Error]:
 	metrc_api_key_id = job_payload["metrc_api_key_id"]
 
-	success, err = metrc_util.refresh_metrc_api_key_permissions(
+	success, err = metrc_download_util.refresh_metrc_api_key_permissions(
 		session=session,
 		config=cfg,
 		metrc_api_key_id=metrc_api_key_id,

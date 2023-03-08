@@ -363,3 +363,51 @@ def download_data_for_metrc_api_key_license_in_date_range(
 		success=True,
 		nonblocking_download_errors=all_nonblocking_download_errors,
 	), None
+
+@errors.return_error_tuple
+def refresh_metrc_api_key_permissions(
+	session: Session,
+	config: Config,
+	metrc_api_key_id: str,
+	submitted_by_user_id: str,
+) -> Tuple[bool, errors.Error]:
+	metrc_api_key, err = queries.get_metrc_api_key_by_id(
+		session=session,
+		metrc_api_key_id=metrc_api_key_id,
+	)
+
+	if err:
+		return False, errors.Error('Metrc API key does not exist')
+
+	metrc_api_key_dict = metrc_api_key.as_dict()
+	security_cfg = config.get_security_config()
+
+	metrc_api_key_data_fetcher = metrc_common_util.MetrcApiKeyDataFetcher(
+		metrc_api_key_dict=metrc_api_key_dict,
+		security_cfg=security_cfg,
+	)
+
+	metrc_api_key_permissions = metrc_api_key_data_fetcher.get_metrc_api_key_permissions()
+
+	if not metrc_api_key_data_fetcher.facilities_json:
+		metrc_api_key.is_functioning = False
+		metrc_api_key.permissions_refreshed_at = date_util.now()
+		metrc_api_key.permissions_payload = None
+		return True, None
+
+	metrc_api_key.is_functioning = True
+	metrc_api_key.permissions_refreshed_at = date_util.now()
+	metrc_api_key.permissions_payload = metrc_api_key_permissions
+
+	success, err = async_jobs_util.generate_download_data_for_metrc_api_key_license_jobs_by_metrc_api_key_permissions(
+		session=session,
+		cfg=config,
+		submitted_by_user_id=submitted_by_user_id,
+		metrc_api_key_id=metrc_api_key_dict['id'],
+		metrc_api_key_permissions=metrc_api_key_permissions,
+	)
+
+	if err:
+		return False, err
+
+	return True, None
