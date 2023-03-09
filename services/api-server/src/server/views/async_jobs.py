@@ -1,6 +1,8 @@
 import json
 import logging
+import time
 from typing import Any, cast
+
 from flask import Blueprint, Response, current_app, make_response, request
 from flask.views import MethodView
 
@@ -16,7 +18,7 @@ class DeleteJobView(MethodView):
 
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
-		logging.info("Received async job deletion request")
+		logging.info("Received delete async job request")
 
 		form = json.loads(request.data)
 		if not form:
@@ -52,7 +54,7 @@ class ChangeJobPriorityView(MethodView):
 
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
-		logging.info("Received async job priorities change request")
+		logging.info("Received change async jobs priority request")
 
 		form = json.loads(request.data)
 		if not form:
@@ -90,7 +92,7 @@ class RetryJobView(MethodView):
 
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
-		logging.info("Received async job retry request")
+		logging.info("Received retry async job request")
 
 		form = json.loads(request.data)
 		if not form:
@@ -125,7 +127,7 @@ class GenerateJobsView(MethodView):
 
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
-		logging.info("Received async job generation request")
+		logging.info("Received generate async jobs request")
 
 		form = json.loads(request.data)
 		if not form:
@@ -160,8 +162,18 @@ class OrchestrationHandlerView(MethodView):
 
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
-		logging.info("Received async job kick off handler request")
 		cfg = cast(Config, current_app.app_config)
+
+		form = json.loads(request.data)
+		if not form:
+			return handler_util.make_error_response('No data provided')
+
+		form = form['payload']
+		delay_seconds = form['delay_seconds'] if 'delay_seconds' in form else 0
+		logging.info(f'Received orchestrate async jobs handler request (delay of {delay_seconds} seconds)')
+
+		if delay_seconds > 0:
+			time.sleep(delay_seconds)
 
 		in_progress_job_ids, err = async_jobs_util.orchestration_handler(
 			session_maker = current_app.session_maker,
@@ -170,8 +182,7 @@ class OrchestrationHandlerView(MethodView):
 		if err:
 			raise err
 
-		if len(in_progress_job_ids) != 0:
-			logging.info(f"Started Jobs with ids: {in_progress_job_ids}")
+		logging.info(f'Orchestrated {len(in_progress_job_ids)} async jobs after delay of {delay_seconds} seconds')
 
 		return make_response(json.dumps({
 			'status': 'OK'
@@ -182,7 +193,7 @@ class OrphanHandlerView(MethodView):
 
 	@handler_util.catch_bad_json_request
 	def post(self, **kwargs: Any) -> Response:
-		logging.info("Received request to remove orphaned initialized jobs")
+		logging.info("Received remove orphaned async jobs request")
 		cfg = cast(Config, current_app.app_config)
 
 		in_progress_job_ids, err = async_jobs_util.remove_orphaned_initialized_jobs(

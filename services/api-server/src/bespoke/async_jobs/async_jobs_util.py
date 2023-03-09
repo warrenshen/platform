@@ -148,8 +148,6 @@ def orchestration_handler(
 	session_maker: Callable,
 	available_job_number: int,
 ) -> Tuple[List[str], errors.Error]:
-
-	max_failed_attempts = 3
 	cfg = cast(Config, current_app.app_config)
 	sendgrid_client = cast(sendgrid_util.Client, current_app.sendgrid_client)
 
