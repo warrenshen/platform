@@ -44,11 +44,11 @@ def main(is_test_run: bool) -> None:
     engine = models.create_engine(statement_timeout=30000) # 30 seconds timeout
     session_maker = models.new_sessionmaker(engine)
 
-    with models.session_scope(session_maker) as session:
-        page = 1
-        deleted_jobs_count = 0
+    page = 1
+    deleted_jobs_count = 0
 
-        while True:
+    while True:
+        with models.session_scope(session_maker) as session:
             jobs_deleted = delete_failed_async_jobs(session, is_test_run)
             deleted_jobs_count += jobs_deleted
 
