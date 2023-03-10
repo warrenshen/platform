@@ -5,14 +5,16 @@ import { ParentCompanies } from "generated/graphql";
 import ManageParentCompanyUsersArea from "./ManageParentCompanyUsersArea";
 
 interface Props {
-  companyId: ParentCompanies["id"];
+  parentCompanyId: ParentCompanies["id"];
 }
 
-export default function BankParentCompanyUsersContent({ companyId }: Props) {
+export default function BankParentCompanyUsersContent({
+  parentCompanyId,
+}: Props) {
   return (
     <PageContent title={"Users"}>
       <Box mr={6}>
-        <ManageParentCompanyUsersArea parentCompanyId={companyId} />
+        <ManageParentCompanyUsersArea parentCompanyId={parentCompanyId} />
       </Box>
     </PageContent>
   );

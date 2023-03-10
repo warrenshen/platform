@@ -4,7 +4,7 @@ import {
   authenticatedApi,
   companySettingsRoutes,
 } from "lib/api";
-import { FeatureFlagEnum } from "lib/enum";
+import { CustomerEmailsEnum, FeatureFlagEnum } from "lib/enum";
 
 export type UpdateCustomerSettingsMutationReq = {
   variables: {
@@ -141,6 +141,31 @@ export async function updateParentAccountDummyStatusMutation(
         return {
           status: "ERROR",
           msg: "Could not update dummy account status",
+        };
+      }
+    );
+}
+
+export type UpdateParentCompanyEmailAlertSettingsReq = {
+  variables: {
+    parent_company_id: ParentCompanies["id"];
+    email_alerts: CustomerEmailsEnum[];
+  };
+};
+
+export async function updateParentCompanyEmailAlertSettingsMutation(
+  req: UpdateParentCompanyEmailAlertSettingsReq
+): Promise<CustomMutationResponse> {
+  return authenticatedApi
+    .post(companySettingsRoutes.updateEmailAlerts, req.variables)
+    .then((res) => res.data)
+    .then(
+      (response) => response,
+      (error) => {
+        console.error({ error });
+        return {
+          status: "ERROR",
+          msg: "Could not update emails",
         };
       }
     );

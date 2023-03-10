@@ -4,8 +4,10 @@ import BankParentCompanyCompanyDetailsContent from "pages/Customer/ParentCompany
 export default function BankParentCompaniesCompanyDetailsPage() {
   return (
     <BankParentCompanyPage>
-      {({ companyId }) => (
-        <BankParentCompanyCompanyDetailsContent parentCompanyId={companyId} />
+      {({ parentCompanyId }) => (
+        <BankParentCompanyCompanyDetailsContent
+          parentCompanyId={parentCompanyId}
+        />
       )}
     </BankParentCompanyPage>
   );

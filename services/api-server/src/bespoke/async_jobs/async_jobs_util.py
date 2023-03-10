@@ -10,7 +10,7 @@ import json
 
 from bespoke.date import date_util
 from bespoke.db import db_constants, models, models_util, queries
-from bespoke.db.db_constants import AsyncJobNameEnum, AsyncJobStatusEnum, ClientSurveillanceCategoryEnum, CustomerRoles, LoanTypeEnum, ProductType
+from bespoke.db.db_constants import AsyncJobNameEnum, AsyncJobStatusEnum, ClientSurveillanceCategoryEnum, CustomerRoles, LoanTypeEnum, ProductType, CustomerEmailsEnum
 from bespoke.db.models import session_scope
 from bespoke.email import sendgrid_util
 from bespoke.finance import number_util, contract_util
@@ -1819,6 +1819,16 @@ def orchestrate_financial_reports_coming_due_alerts(
 	company_id = job_payload["company_id"]
 	is_test_run = job_payload["is_test_run"]
 	test_email = job_payload["test_email"]
+
+	# if parent company has financial statement alerts turned off do nothing
+	parent_company, err = queries.get_parent_company_by_child_company_id(session, company_id)
+	if err:
+		return False, err
+
+	email_types_enabled = json.loads(json.dumps(parent_company.settings))['emails']
+	if CustomerEmailsEnum.FINANCIAL_STATEMENT_ALERTS not in email_types_enabled:
+		return True, None
+
 	# LOC needs borrowing base + financial summaries
 	contract, err = contract_util.get_active_contract_by_company_id(session, company_id)
 	if err:
@@ -1832,6 +1842,10 @@ def orchestrate_financial_reports_coming_due_alerts(
 	if err:
 		return False, err
 
+	# Dispensary financing clients should not be receiving these alerts
+	if contract_product_type == ProductType.DISPENSARY_FINANCING:
+		return True, None
+
 	get_last_month_due_date = date_util.get_previous_month_last_date(date_util.now_as_date())
 
 	financial_report, err = queries.get_most_recent_ebba_applications_by_company_id(
@@ -1844,6 +1858,12 @@ def orchestrate_financial_reports_coming_due_alerts(
 
 	if err:
 		return False, err
+
+	contract_start_date, err = contract.get_start_date()
+	if err:
+		return False, err
+
+	as_of_contract_start = f"as of {date_util.human_readable_monthyear(date_util.get_previous_month_last_date(contract_start_date))}"
 
 	missing_financial_report_months = []
 	missing_financial_report_months_as_string = ""
@@ -1859,7 +1879,7 @@ def orchestrate_financial_reports_coming_due_alerts(
 		missing_financial_report_months_as_string = ", ".join([str(x) for x in missing_financial_report_months])
 
 	else:
-		missing_financial_report_months_as_string = "as of contract start"
+		missing_financial_report_months_as_string = as_of_contract_start
 
 	dispensary_financing_with_no_metrc_key = True if contract_product_type == ProductType.DISPENSARY_FINANCING and company_settings.metrc_api_key_id == None else False
 
@@ -1899,7 +1919,7 @@ def orchestrate_financial_reports_coming_due_alerts(
 
 			missing_borrowing_base_months_as_string = ", ".join([str(x) for x in missing_borrowing_base_months])
 		else:
-			missing_borrowing_base_months_as_string = "as of contract start"
+			missing_borrowing_base_months_as_string = as_of_contract_start
 
 		if len(missing_borrowing_base_months) > 0 or len(missing_borrowing_base_months_as_string) > 0:
 			missing_information += f"<u><b>Create a Borrowing Base with supporting documents</b></u><br>" \
@@ -1936,7 +1956,6 @@ def orchestrate_financial_reports_coming_due_alerts(
 		recipients = [test_email]
 	else: 
 		recipients = customer_emails + sendgrid_client.get_bank_notify_email_addresses()
-
 	if len(missing_information) > 0:
 		if not (contract_product_type == ProductType.DISPENSARY_FINANCING and company_settings.metrc_api_key_id == None):
 			missing_information += f"<b>**Please note: if adjustments were made to any prior month's financial statements after they were provided to Bespoke, include these in the upload.</b><br>" 
@@ -1950,9 +1969,8 @@ def orchestrate_financial_reports_coming_due_alerts(
 			},
 			recipients = recipients,
 		)
-
-	if err:
-		return False, errors.Error(str(err))
+		if err:
+			return False, errors.Error(str(err))
 
 	session.commit()
 	logging.info(f"Company ID: {company_id} finished sending emails for missing financial reports.")

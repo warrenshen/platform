@@ -14,26 +14,27 @@ import { editParentCompany } from "lib/api/companies";
 import { useState } from "react";
 
 interface Props {
-  companyName: string;
-  companyId: string;
+  parentCompanyName: string;
+  parentCompanyId: string;
   handleClose: () => void;
 }
 
 export default function EditParentCompanyModal({
-  companyName,
-  companyId,
+  parentCompanyName,
+  parentCompanyId,
   handleClose,
 }: Props) {
   const snackbar = useSnackbar();
 
-  const [company, setCompany] = useState<ParentCompaniesInsertInput>({
-    id: companyId,
-    name: companyName,
-  });
+  const [parentCompany, setParentCompany] =
+    useState<ParentCompaniesInsertInput>({
+      id: parentCompanyId,
+      name: parentCompanyName,
+    });
 
   const handleClickCreate = async () => {
     const response = await editParentCompany({
-      company: company,
+      parentCompany,
     });
     if (response.status !== "OK") {
       snackbar.showError(`Could not edit company! Error: ${response.msg}`);
@@ -43,7 +44,7 @@ export default function EditParentCompanyModal({
     }
   };
 
-  const isSubmitDisabled = !company.name;
+  const isSubmitDisabled = !parentCompany.name;
 
   return (
     <ModalDialog
@@ -61,9 +62,9 @@ export default function EditParentCompanyModal({
             data-cy={"company-form-input-name"}
             autoFocus
             label="Company Name"
-            value={company.name}
+            value={parentCompany.name}
             onChange={({ target: { value } }) =>
-              setCompany({ ...company, name: value })
+              setParentCompany({ ...parentCompany, name: value })
             }
           />
         </Box>

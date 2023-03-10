@@ -494,3 +494,6 @@ class CompanyFacilityUnderwritingMode(object):
 	APPLICANT_INACTIVE = 'applicant_inactive' # Applicant is inactive, requires infrequent underwriting
 	BORROWER_ACTIVE = 'borrower_active' # Borrower is active, requires most frequent underwriting
 	BORROWER_INACTIVE = 'borrower_inactive' # Borrower is inactive, requires less frequent underwriting
+
+class CustomerEmailsEnum(object):
+	FINANCIAL_STATEMENT_ALERTS = 'financial_statement_alerts'

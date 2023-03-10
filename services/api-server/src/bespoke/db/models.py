@@ -125,6 +125,11 @@ class UserRole(Base):
 	value = Column(String, primary_key=True)
 	display_name = Column(String)
 
+
+SettingsDict = TypedDict('SettingsDict', {
+	'emails': List[str],
+})
+
 class ParentCompany(Base):
 	"""
 	A ParentCompany (entity run by a single operator) has many Companies
@@ -140,6 +145,7 @@ class ParentCompany(Base):
 	created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	updated_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 	name = Column(String, nullable=False, unique=True)
+	settings = cast(SettingsDict, Column(JSON))
 
 CompanyDict = TypedDict('CompanyDict', {
 	'id': str,

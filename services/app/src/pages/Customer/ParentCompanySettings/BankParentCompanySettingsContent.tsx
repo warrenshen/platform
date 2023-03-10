@@ -1,18 +1,37 @@
 import { Box } from "@material-ui/core";
 import PageContent from "components/Shared/Page/PageContent";
-import { ParentCompanies } from "generated/graphql";
+import {
+  ParentCompanies,
+  useGetParentCompanyWithSettingsQuery,
+} from "generated/graphql";
 
-import ManageParentCompanyUsersArea from "./ManageParentCompanySettingsArea";
+import ManageParentCompanyEmailSettings from "./ManageParentCompanyEmailSettings";
+import ManageParentCompanyUsersArea from "./ManageParentCompanyUsersArea";
 
 interface Props {
-  companyId: ParentCompanies["id"];
+  parentCompanyId: ParentCompanies["id"];
 }
 
-export default function BankParentCompanySettingsContent({ companyId }: Props) {
+export default function BankParentCompanySettingsContent({
+  parentCompanyId,
+}: Props) {
+  const { data, refetch } = useGetParentCompanyWithSettingsQuery({
+    variables: {
+      parent_company_id: parentCompanyId,
+    },
+  });
+  const parentCompany = data?.parent_companies_by_pk;
+  const emails = parentCompany?.settings?.emails || [];
+
   return (
     <PageContent title={"Settings"}>
       <Box mr={6}>
-        <ManageParentCompanyUsersArea parentCompanyId={companyId} />
+        <ManageParentCompanyUsersArea parentCompanyId={parentCompanyId} />
+        <ManageParentCompanyEmailSettings
+          parentCompanyId={parentCompanyId}
+          emailTypesEnabled={emails}
+          refetch={refetch}
+        />
       </Box>
     </PageContent>
   );

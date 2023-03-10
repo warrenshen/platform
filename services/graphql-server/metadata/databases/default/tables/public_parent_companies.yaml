@@ -20,18 +20,20 @@ select_permissions:
   - role: bank_admin
     permission:
       columns:
-        - id
         - created_at
-        - updated_at
+        - id
         - name
+        - settings
+        - updated_at
       filter: {}
   - role: bank_read_only
     permission:
       columns:
-        - name
         - created_at
-        - updated_at
         - id
+        - name
+        - settings
+        - updated_at
       filter: {}
   - role: bespoke_catalog_data_entry
     permission:

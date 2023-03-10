@@ -526,6 +526,29 @@ def get_parent_company_by_id(
 
     return parent_company, None
 
+def get_parent_company_by_child_company_id(
+    session: Session,
+    company_id: str,
+) -> Tuple[ models.ParentCompany, errors.Error ]:
+    filters = [
+        models.Company.id == company_id
+    ]
+
+    # fmt: off
+    parent_company = cast(
+        models.ParentCompany,
+        session.query(models.ParentCompany).join(# type: ignore
+            models.Company, models.Company.parent_company_id == models.ParentCompany.id
+        ).filter(
+            *filters
+        ).first())
+    # fmt: on
+
+    if not parent_company:
+        return None, errors.Error("No parent company with the specified id exists in the system")
+
+    return parent_company, None
+
 # ###############################
 # Payments
 # ###############################

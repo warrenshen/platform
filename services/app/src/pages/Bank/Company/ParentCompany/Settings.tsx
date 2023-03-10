@@ -4,8 +4,8 @@ import BankParentCompanySettingsContent from "pages/Customer/ParentCompanySettin
 export default function BankParentCompaniesSettingsPage() {
   return (
     <BankParentCompanyPage>
-      {({ companyId }) => (
-        <BankParentCompanySettingsContent companyId={companyId} />
+      {({ parentCompanyId }) => (
+        <BankParentCompanySettingsContent parentCompanyId={parentCompanyId} />
       )}
     </BankParentCompanyPage>
   );

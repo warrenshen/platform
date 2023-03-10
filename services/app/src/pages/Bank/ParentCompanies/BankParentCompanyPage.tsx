@@ -82,7 +82,11 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
-  children: ({ companyId }: { companyId: string }) => NonNullable<JSX.Element>;
+  children: ({
+    parentCompanyId,
+  }: {
+    parentCompanyId: string;
+  }) => NonNullable<JSX.Element>;
 }
 
 export default function BankParentCompanyPage({ children }: Props) {
@@ -90,7 +94,7 @@ export default function BankParentCompanyPage({ children }: Props) {
     user: { platformMode },
   } = useContext(CurrentUserContext);
   const isRoleBankUser = platformMode === PlatformModeEnum.Bank;
-  const { parentCompanyId: companyId } = useParams<{
+  const { parentCompanyId } = useParams<{
     parentCompanyId: ParentCompanies["id"];
   }>();
 
@@ -110,7 +114,7 @@ export default function BankParentCompanyPage({ children }: Props) {
 
   const { data } = useGetParentCompanyForBankParentCompanyPageQuery({
     variables: {
-      id: companyId,
+      id: parentCompanyId,
     },
   });
 
@@ -154,14 +158,14 @@ export default function BankParentCompanyPage({ children }: Props) {
                   component={Link}
                   disableRipple
                   to={getBankParentCompanyRoute(
-                    companyId,
+                    parentCompanyId,
                     BankParentCompanyRouteEnum.Details
                   )}
                   selected={Boolean(
                     matchPath(
                       location.pathname,
                       getBankParentCompanyRoute(
-                        companyId,
+                        parentCompanyId,
                         BankParentCompanyRouteEnum.Details
                       )
                     )
@@ -178,14 +182,14 @@ export default function BankParentCompanyPage({ children }: Props) {
                   component={Link}
                   disableRipple
                   to={getBankParentCompanyRoute(
-                    companyId,
+                    parentCompanyId,
                     BankParentCompanyRouteEnum.Users
                   )}
                   selected={Boolean(
                     matchPath(
                       location.pathname,
                       getBankParentCompanyRoute(
-                        companyId,
+                        parentCompanyId,
                         BankParentCompanyRouteEnum.Users
                       )
                     )
@@ -202,14 +206,14 @@ export default function BankParentCompanyPage({ children }: Props) {
                   component={Link}
                   disableRipple
                   to={getBankParentCompanyRoute(
-                    companyId,
+                    parentCompanyId,
                     BankParentCompanyRouteEnum.Settings
                   )}
                   selected={Boolean(
                     matchPath(
                       location.pathname,
                       getBankParentCompanyRoute(
-                        companyId,
+                        parentCompanyId,
                         BankParentCompanyRouteEnum.Settings
                       )
                     )
@@ -247,14 +251,14 @@ export default function BankParentCompanyPage({ children }: Props) {
                   component={Link}
                   disableRipple
                   to={getBankParentCompanyRoute(
-                    companyId,
+                    parentCompanyId,
                     BankParentCompanyRouteEnum.CompanyDetails
                   )}
                   selected={Boolean(
                     matchPath(
                       location.pathname,
                       getBankParentCompanyRoute(
-                        companyId,
+                        parentCompanyId,
                         BankParentCompanyRouteEnum.CompanyDetails
                       )
                     )
@@ -269,9 +273,9 @@ export default function BankParentCompanyPage({ children }: Props) {
           </List>
         </Box>
         <Box ml={2} className={classes.content}>
-          {!!companyId
+          {!!parentCompanyId
             ? children({
-                companyId,
+                parentCompanyId,
               })
             : null}
         </Box>

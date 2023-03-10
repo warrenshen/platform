@@ -1373,3 +1373,7 @@ export const CustomerUserBaseRoles = [
 ];
 
 export const VendorUserBaseRoles = [UserRolesEnum.VendorAdmin];
+
+export enum CustomerEmailsEnum {
+  FinancialStatementAlerts = "financial_statement_alerts",
+}

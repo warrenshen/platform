@@ -7,14 +7,14 @@ import ModalButton from "../Shared/Modal/ModalButton";
 import EditParentCompanyModal from "./EditParentCompanyModal";
 
 interface Props {
-  companyId: string;
-  companyName: string;
+  parentCompanyId: string;
+  parentCompanyName: string;
   refetch: () => void;
 }
 
 export default function ParentCompanyDetailsViewCard({
-  companyId,
-  companyName,
+  parentCompanyId,
+  parentCompanyName,
   refetch,
 }: Props) {
   return (
@@ -27,7 +27,7 @@ export default function ParentCompanyDetailsViewCard({
               textVariant={TextVariants.SubHeader}
               dataCy="parent-company-name"
             >
-              {`${companyName}`}
+              {`${parentCompanyName}`}
             </Text>
           </Box>
           <Box display="flex">
@@ -39,8 +39,8 @@ export default function ParentCompanyDetailsViewCard({
               variant={"text"}
               modal={({ handleClose }) => (
                 <EditParentCompanyModal
-                  companyId={companyId}
-                  companyName={companyName}
+                  parentCompanyId={parentCompanyId}
+                  parentCompanyName={parentCompanyName}
                   handleClose={() => {
                     refetch();
                     handleClose();

@@ -2777,12 +2777,10 @@ export type BigintComparisonExp = {
 export type BlazePreapprovals = {
   annual_interest_rate: Scalars["numeric"];
   created_at: Scalars["timestamptz"];
-  deleted_at?: Maybe<Scalars["timestamptz"]>;
   expiration_date: Scalars["date"];
   external_blaze_company_id: Scalars["String"];
   external_blaze_shop_id: Scalars["String"];
   id: Scalars["uuid"];
-  is_deleted?: Maybe<Scalars["Boolean"]>;
   max_credit_limit: Scalars["numeric"];
   updated_at: Scalars["timestamptz"];
 };
@@ -2827,12 +2825,10 @@ export type BlazePreapprovalsBoolExp = {
   _or?: Maybe<Array<BlazePreapprovalsBoolExp>>;
   annual_interest_rate?: Maybe<NumericComparisonExp>;
   created_at?: Maybe<TimestamptzComparisonExp>;
-  deleted_at?: Maybe<TimestamptzComparisonExp>;
   expiration_date?: Maybe<DateComparisonExp>;
   external_blaze_company_id?: Maybe<StringComparisonExp>;
   external_blaze_shop_id?: Maybe<StringComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
-  is_deleted?: Maybe<BooleanComparisonExp>;
   max_credit_limit?: Maybe<NumericComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
 };
@@ -2855,12 +2851,10 @@ export type BlazePreapprovalsIncInput = {
 export type BlazePreapprovalsInsertInput = {
   annual_interest_rate?: Maybe<Scalars["numeric"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
-  deleted_at?: Maybe<Scalars["timestamptz"]>;
   expiration_date?: Maybe<Scalars["date"]>;
   external_blaze_company_id?: Maybe<Scalars["String"]>;
   external_blaze_shop_id?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
-  is_deleted?: Maybe<Scalars["Boolean"]>;
   max_credit_limit?: Maybe<Scalars["numeric"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
@@ -2869,7 +2863,6 @@ export type BlazePreapprovalsInsertInput = {
 export type BlazePreapprovalsMaxFields = {
   annual_interest_rate?: Maybe<Scalars["numeric"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
-  deleted_at?: Maybe<Scalars["timestamptz"]>;
   expiration_date?: Maybe<Scalars["date"]>;
   external_blaze_company_id?: Maybe<Scalars["String"]>;
   external_blaze_shop_id?: Maybe<Scalars["String"]>;
@@ -2882,7 +2875,6 @@ export type BlazePreapprovalsMaxFields = {
 export type BlazePreapprovalsMinFields = {
   annual_interest_rate?: Maybe<Scalars["numeric"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
-  deleted_at?: Maybe<Scalars["timestamptz"]>;
   expiration_date?: Maybe<Scalars["date"]>;
   external_blaze_company_id?: Maybe<Scalars["String"]>;
   external_blaze_shop_id?: Maybe<Scalars["String"]>;
@@ -2910,12 +2902,10 @@ export type BlazePreapprovalsOnConflict = {
 export type BlazePreapprovalsOrderBy = {
   annual_interest_rate?: Maybe<OrderBy>;
   created_at?: Maybe<OrderBy>;
-  deleted_at?: Maybe<OrderBy>;
   expiration_date?: Maybe<OrderBy>;
   external_blaze_company_id?: Maybe<OrderBy>;
   external_blaze_shop_id?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
-  is_deleted?: Maybe<OrderBy>;
   max_credit_limit?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
 };
@@ -2932,8 +2922,6 @@ export enum BlazePreapprovalsSelectColumn {
   /** column name */
   CreatedAt = "created_at",
   /** column name */
-  DeletedAt = "deleted_at",
-  /** column name */
   ExpirationDate = "expiration_date",
   /** column name */
   ExternalBlazeCompanyId = "external_blaze_company_id",
@@ -2941,8 +2929,6 @@ export enum BlazePreapprovalsSelectColumn {
   ExternalBlazeShopId = "external_blaze_shop_id",
   /** column name */
   Id = "id",
-  /** column name */
-  IsDeleted = "is_deleted",
   /** column name */
   MaxCreditLimit = "max_credit_limit",
   /** column name */
@@ -2953,12 +2939,10 @@ export enum BlazePreapprovalsSelectColumn {
 export type BlazePreapprovalsSetInput = {
   annual_interest_rate?: Maybe<Scalars["numeric"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
-  deleted_at?: Maybe<Scalars["timestamptz"]>;
   expiration_date?: Maybe<Scalars["date"]>;
   external_blaze_company_id?: Maybe<Scalars["String"]>;
   external_blaze_shop_id?: Maybe<Scalars["String"]>;
   id?: Maybe<Scalars["uuid"]>;
-  is_deleted?: Maybe<Scalars["Boolean"]>;
   max_credit_limit?: Maybe<Scalars["numeric"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
@@ -2994,8 +2978,6 @@ export enum BlazePreapprovalsUpdateColumn {
   /** column name */
   CreatedAt = "created_at",
   /** column name */
-  DeletedAt = "deleted_at",
-  /** column name */
   ExpirationDate = "expiration_date",
   /** column name */
   ExternalBlazeCompanyId = "external_blaze_company_id",
@@ -3003,8 +2985,6 @@ export enum BlazePreapprovalsUpdateColumn {
   ExternalBlazeShopId = "external_blaze_shop_id",
   /** column name */
   Id = "id",
-  /** column name */
-  IsDeleted = "is_deleted",
   /** column name */
   MaxCreditLimit = "max_credit_limit",
   /** column name */
@@ -7426,7 +7406,7 @@ export type CompanyVendorContacts = {
   id: Scalars["uuid"];
   is_active?: Maybe<Scalars["Boolean"]>;
   partnership_id: Scalars["uuid"];
-  updated_at?: Maybe<Scalars["timestamptz"]>;
+  updated_at: Scalars["timestamptz"];
   /** An object relationship */
   user: Users;
   vendor_user_id: Scalars["uuid"];
@@ -8327,6 +8307,8 @@ export type CustomerSurveillanceResultsBoolExp = {
 
 /** unique or primary key constraints on table "customer_surveillance_results" */
 export enum CustomerSurveillanceResultsConstraint {
+  /** unique or primary key constraint */
+  CompanyProductQualificationsCompanyIdQualifyingDateKey = "company_product_qualifications_company_id_qualifying_date_key",
   /** unique or primary key constraint */
   CompanyProductQualificationsPkey = "company_product_qualifications_pkey",
 }
@@ -9405,7 +9387,7 @@ export type EbbaApplications = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["timestamp"]>;
   /** An object relationship */
   rejected_by_user?: Maybe<Users>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
@@ -9530,7 +9512,7 @@ export type EbbaApplicationsBoolExp = {
   monthly_accounts_receivable?: Maybe<NumericComparisonExp>;
   monthly_cash?: Maybe<NumericComparisonExp>;
   monthly_inventory?: Maybe<NumericComparisonExp>;
-  rejected_at?: Maybe<TimestamptzComparisonExp>;
+  rejected_at?: Maybe<TimestampComparisonExp>;
   rejected_by_user?: Maybe<UsersBoolExp>;
   rejected_by_user_id?: Maybe<UuidComparisonExp>;
   rejection_note?: Maybe<StringComparisonExp>;
@@ -9579,7 +9561,7 @@ export type EbbaApplicationsInsertInput = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["timestamp"]>;
   rejected_by_user?: Maybe<UsersObjRelInsertInput>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
@@ -9608,7 +9590,7 @@ export type EbbaApplicationsMaxFields = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["timestamp"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -9660,7 +9642,7 @@ export type EbbaApplicationsMinFields = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["timestamp"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -9825,7 +9807,7 @@ export type EbbaApplicationsSetInput = {
   monthly_accounts_receivable?: Maybe<Scalars["numeric"]>;
   monthly_cash?: Maybe<Scalars["numeric"]>;
   monthly_inventory?: Maybe<Scalars["numeric"]>;
-  rejected_at?: Maybe<Scalars["timestamptz"]>;
+  rejected_at?: Maybe<Scalars["timestamp"]>;
   rejected_by_user_id?: Maybe<Scalars["uuid"]>;
   rejection_note?: Maybe<Scalars["String"]>;
   requested_at?: Maybe<Scalars["timestamptz"]>;
@@ -14787,7 +14769,7 @@ export enum MetrcDeliveriesUpdateColumn {
 
 /** Structured results of how a download  */
 export type MetrcDownloadSummaries = {
-  company_id?: Maybe<Scalars["uuid"]>;
+  company_id: Scalars["uuid"];
   created_at: Scalars["timestamptz"];
   date: Scalars["date"];
   err_details: Scalars["json"];
@@ -17168,7 +17150,9 @@ export type MetrcToBespokeCatalogSkusBoolExp = {
 /** unique or primary key constraints on table "metrc_to_bespoke_catalog_skus" */
 export enum MetrcToBespokeCatalogSkusConstraint {
   /** unique or primary key constraint */
-  MetrcToBespokeCatalogSkusPkey1 = "metrc_to_bespoke_catalog_skus_pkey1",
+  MetrcToBespokeCatalogSkusPkey = "metrc_to_bespoke_catalog_skus_pkey",
+  /** unique or primary key constraint */
+  MetrcToBespokeCatalogSkusProductCategoryNameProductNam = "metrc_to_bespoke_catalog_skus_product_category_name_product_nam",
 }
 
 /** input type for incrementing numeric columns in table "metrc_to_bespoke_catalog_skus" */
@@ -21803,12 +21787,22 @@ export type MutationRootUpdateMonthlySummaryCalculationsByPkArgs = {
 
 /** mutation root */
 export type MutationRootUpdateParentCompaniesArgs = {
+  _append?: Maybe<ParentCompaniesAppendInput>;
+  _delete_at_path?: Maybe<ParentCompaniesDeleteAtPathInput>;
+  _delete_elem?: Maybe<ParentCompaniesDeleteElemInput>;
+  _delete_key?: Maybe<ParentCompaniesDeleteKeyInput>;
+  _prepend?: Maybe<ParentCompaniesPrependInput>;
   _set?: Maybe<ParentCompaniesSetInput>;
   where: ParentCompaniesBoolExp;
 };
 
 /** mutation root */
 export type MutationRootUpdateParentCompaniesByPkArgs = {
+  _append?: Maybe<ParentCompaniesAppendInput>;
+  _delete_at_path?: Maybe<ParentCompaniesDeleteAtPathInput>;
+  _delete_elem?: Maybe<ParentCompaniesDeleteElemInput>;
+  _delete_key?: Maybe<ParentCompaniesDeleteKeyInput>;
+  _prepend?: Maybe<ParentCompaniesPrependInput>;
   _set?: Maybe<ParentCompaniesSetInput>;
   pk_columns: ParentCompaniesPkColumnsInput;
 };
@@ -22047,6 +22041,7 @@ export type ParentCompanies = {
   created_at: Scalars["timestamptz"];
   id: Scalars["uuid"];
   name: Scalars["String"];
+  settings?: Maybe<Scalars["jsonb"]>;
   updated_at: Scalars["timestamptz"];
   /** An array relationship */
   users: Array<Users>;
@@ -22070,6 +22065,11 @@ export type ParentCompaniesCompaniesAggregateArgs = {
   offset?: Maybe<Scalars["Int"]>;
   order_by?: Maybe<Array<CompaniesOrderBy>>;
   where?: Maybe<CompaniesBoolExp>;
+};
+
+/** columns and relationships of "parent_companies" */
+export type ParentCompaniesSettingsArgs = {
+  path?: Maybe<Scalars["String"]>;
 };
 
 /** columns and relationships of "parent_companies" */
@@ -22109,6 +22109,11 @@ export type ParentCompaniesAggregateFieldsCountArgs = {
   distinct?: Maybe<Scalars["Boolean"]>;
 };
 
+/** append existing jsonb value of filtered columns with new jsonb value */
+export type ParentCompaniesAppendInput = {
+  settings?: Maybe<Scalars["jsonb"]>;
+};
+
 /** Boolean expression to filter rows from the table "parent_companies". All fields are combined with a logical 'AND'. */
 export type ParentCompaniesBoolExp = {
   _and?: Maybe<Array<ParentCompaniesBoolExp>>;
@@ -22118,6 +22123,7 @@ export type ParentCompaniesBoolExp = {
   created_at?: Maybe<TimestamptzComparisonExp>;
   id?: Maybe<UuidComparisonExp>;
   name?: Maybe<StringComparisonExp>;
+  settings?: Maybe<JsonbComparisonExp>;
   updated_at?: Maybe<TimestamptzComparisonExp>;
   users?: Maybe<UsersBoolExp>;
 };
@@ -22130,12 +22136,28 @@ export enum ParentCompaniesConstraint {
   ParentCompaniesPkey = "parent_companies_pkey",
 }
 
+/** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
+export type ParentCompaniesDeleteAtPathInput = {
+  settings?: Maybe<Array<Scalars["String"]>>;
+};
+
+/** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
+export type ParentCompaniesDeleteElemInput = {
+  settings?: Maybe<Scalars["Int"]>;
+};
+
+/** delete key/value pair or string element. key/value pairs are matched based on their key value */
+export type ParentCompaniesDeleteKeyInput = {
+  settings?: Maybe<Scalars["String"]>;
+};
+
 /** input type for inserting data into table "parent_companies" */
 export type ParentCompaniesInsertInput = {
   companies?: Maybe<CompaniesArrRelInsertInput>;
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   name?: Maybe<Scalars["String"]>;
+  settings?: Maybe<Scalars["jsonb"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
   users?: Maybe<UsersArrRelInsertInput>;
 };
@@ -22184,6 +22206,7 @@ export type ParentCompaniesOrderBy = {
   created_at?: Maybe<OrderBy>;
   id?: Maybe<OrderBy>;
   name?: Maybe<OrderBy>;
+  settings?: Maybe<OrderBy>;
   updated_at?: Maybe<OrderBy>;
   users_aggregate?: Maybe<UsersAggregateOrderBy>;
 };
@@ -22191,6 +22214,11 @@ export type ParentCompaniesOrderBy = {
 /** primary key columns input for table: parent_companies */
 export type ParentCompaniesPkColumnsInput = {
   id: Scalars["uuid"];
+};
+
+/** prepend existing jsonb value of filtered columns with new jsonb value */
+export type ParentCompaniesPrependInput = {
+  settings?: Maybe<Scalars["jsonb"]>;
 };
 
 /** select columns of table "parent_companies" */
@@ -22202,6 +22230,8 @@ export enum ParentCompaniesSelectColumn {
   /** column name */
   Name = "name",
   /** column name */
+  Settings = "settings",
+  /** column name */
   UpdatedAt = "updated_at",
 }
 
@@ -22210,6 +22240,7 @@ export type ParentCompaniesSetInput = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   id?: Maybe<Scalars["uuid"]>;
   name?: Maybe<Scalars["String"]>;
+  settings?: Maybe<Scalars["jsonb"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
 };
 
@@ -22221,6 +22252,8 @@ export enum ParentCompaniesUpdateColumn {
   Id = "id",
   /** column name */
   Name = "name",
+  /** column name */
+  Settings = "settings",
   /** column name */
   UpdatedAt = "updated_at",
 }
@@ -31149,6 +31182,16 @@ export type GetSurveillanceResultByIdQuery = {
   >;
 };
 
+export type GetSurveillanceResultByCompanyIdQueryVariables = Exact<{
+  company_id: Scalars["uuid"];
+}>;
+
+export type GetSurveillanceResultByCompanyIdQuery = {
+  customer_surveillance_results: Array<
+    Pick<CustomerSurveillanceResults, "id"> & CustomerSurveillanceResultFragment
+  >;
+};
+
 export type GetOpenLoansByDebtFacilityStatusesQueryVariables = Exact<{
   statuses?: Maybe<Array<Scalars["String"]> | Scalars["String"]>;
   target_date: Scalars["date"];
@@ -32553,6 +32596,16 @@ export type GetParentCompanyWithChildCompaniesQuery = {
         Pick<Companies, "id"> & CompanyWithSettingsFragment
       >;
     }
+  >;
+};
+
+export type GetParentCompanyWithSettingsQueryVariables = Exact<{
+  parent_company_id: Scalars["uuid"];
+}>;
+
+export type GetParentCompanyWithSettingsQuery = {
+  parent_companies_by_pk?: Maybe<
+    Pick<ParentCompanies, "id" | "name" | "settings">
   >;
 };
 
@@ -39500,41 +39553,6 @@ export type GetSurveillanceResultByIdQueryResult = Apollo.QueryResult<
   GetSurveillanceResultByIdQuery,
   GetSurveillanceResultByIdQueryVariables
 >;
-export const GetOpenLoansByDebtFacilityStatusesDocument = gql`
-  query GetOpenLoansByDebtFacilityStatuses(
-    $statuses: [String!]
-    $target_date: date!
-  ) {
-    companies(
-      where: {
-        _and: [
-          { is_customer: { _eq: true } }
-          {
-            _or: [
-              { settings: { is_dummy_account: { _is_null: true } } }
-              { settings: { is_dummy_account: { _eq: false } } }
-            ]
-          }
-        ]
-      }
-    ) {
-      id
-      ...CompanyForOpenLoansByDebtFacilityStatuses
-    }
-  }
-  ${CompanyForOpenLoansByDebtFacilityStatusesFragmentDoc}
-`;
-
-export type GetSurveillanceResultByCompanyIdQueryVariables = Exact<{
-  company_id: Scalars["uuid"];
-}>;
-
-export type GetSurveillanceResultByCompanyIdQuery = {
-  customer_surveillance_results: Array<
-    Pick<CustomerSurveillanceResults, "id"> & CustomerSurveillanceResultFragment
-  >;
-};
-
 export const GetSurveillanceResultByCompanyIdDocument = gql`
   query GetSurveillanceResultByCompanyId($company_id: uuid!) {
     customer_surveillance_results(
@@ -39610,6 +39628,30 @@ export type GetSurveillanceResultByCompanyIdQueryResult = Apollo.QueryResult<
   GetSurveillanceResultByCompanyIdQuery,
   GetSurveillanceResultByCompanyIdQueryVariables
 >;
+export const GetOpenLoansByDebtFacilityStatusesDocument = gql`
+  query GetOpenLoansByDebtFacilityStatuses(
+    $statuses: [String!]
+    $target_date: date!
+  ) {
+    companies(
+      where: {
+        _and: [
+          { is_customer: { _eq: true } }
+          {
+            _or: [
+              { settings: { is_dummy_account: { _is_null: true } } }
+              { settings: { is_dummy_account: { _eq: false } } }
+            ]
+          }
+        ]
+      }
+    ) {
+      id
+      ...CompanyForOpenLoansByDebtFacilityStatuses
+    }
+  }
+  ${CompanyForOpenLoansByDebtFacilityStatusesFragmentDoc}
+`;
 
 /**
  * __useGetOpenLoansByDebtFacilityStatusesQuery__
@@ -47447,6 +47489,66 @@ export type GetParentCompanyWithChildCompaniesLazyQueryHookResult = ReturnType<
 export type GetParentCompanyWithChildCompaniesQueryResult = Apollo.QueryResult<
   GetParentCompanyWithChildCompaniesQuery,
   GetParentCompanyWithChildCompaniesQueryVariables
+>;
+export const GetParentCompanyWithSettingsDocument = gql`
+  query GetParentCompanyWithSettings($parent_company_id: uuid!) {
+    parent_companies_by_pk(id: $parent_company_id) {
+      id
+      name
+      settings
+    }
+  }
+`;
+
+/**
+ * __useGetParentCompanyWithSettingsQuery__
+ *
+ * To run a query within a React component, call `useGetParentCompanyWithSettingsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetParentCompanyWithSettingsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetParentCompanyWithSettingsQuery({
+ *   variables: {
+ *      parent_company_id: // value for 'parent_company_id'
+ *   },
+ * });
+ */
+export function useGetParentCompanyWithSettingsQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetParentCompanyWithSettingsQuery,
+    GetParentCompanyWithSettingsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetParentCompanyWithSettingsQuery,
+    GetParentCompanyWithSettingsQueryVariables
+  >(GetParentCompanyWithSettingsDocument, options);
+}
+export function useGetParentCompanyWithSettingsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetParentCompanyWithSettingsQuery,
+    GetParentCompanyWithSettingsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetParentCompanyWithSettingsQuery,
+    GetParentCompanyWithSettingsQueryVariables
+  >(GetParentCompanyWithSettingsDocument, options);
+}
+export type GetParentCompanyWithSettingsQueryHookResult = ReturnType<
+  typeof useGetParentCompanyWithSettingsQuery
+>;
+export type GetParentCompanyWithSettingsLazyQueryHookResult = ReturnType<
+  typeof useGetParentCompanyWithSettingsLazyQuery
+>;
+export type GetParentCompanyWithSettingsQueryResult = Apollo.QueryResult<
+  GetParentCompanyWithSettingsQuery,
+  GetParentCompanyWithSettingsQueryVariables
 >;
 export const GetAllCompaniesWithMetadataDocument = gql`
   query GetAllCompaniesWithMetadata($date: date) {

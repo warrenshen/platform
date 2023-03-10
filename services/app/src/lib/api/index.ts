@@ -54,6 +54,7 @@ export const companySettingsRoutes = {
   upsertFeatureFlags: "/companies/upsert_feature_flags",
   upsertDealOwner: "/companies/upsert_deal_owner",
   updateDummyStatus: "/companies/update_dummy_account_settings",
+  updateEmailAlerts: "/companies/update_email_alerts",
 };
 
 export const companyFacilitiesRoutes = {

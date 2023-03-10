@@ -4,8 +4,8 @@ import BankParentCompanyUsersContent from "pages/Customer/ParentCompanyUsers/Ban
 export default function BankParentCompaniesUsersPage() {
   return (
     <BankParentCompanyPage>
-      {({ companyId }) => (
-        <BankParentCompanyUsersContent companyId={companyId} />
+      {({ parentCompanyId }) => (
+        <BankParentCompanyUsersContent parentCompanyId={parentCompanyId} />
       )}
     </BankParentCompanyPage>
   );

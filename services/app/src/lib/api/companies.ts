@@ -72,7 +72,7 @@ export async function createProspectiveCustomer(
 }
 
 export type EditParentCompanyReq = {
-  company: ParentCompaniesInsertInput;
+  parentCompany: ParentCompaniesInsertInput;
 };
 
 export async function editParentCompany(

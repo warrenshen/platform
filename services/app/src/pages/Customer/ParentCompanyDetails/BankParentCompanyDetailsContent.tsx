@@ -5,25 +5,27 @@ import { ParentCompanies } from "generated/graphql";
 import { useGetParentCompanyForBankParentCompanyPageQuery } from "generated/graphql";
 
 interface Props {
-  companyId: ParentCompanies["id"];
+  parentCompanyId: ParentCompanies["id"];
 }
 
-export default function BankParentCompanyDetailsContent({ companyId }: Props) {
+export default function BankParentCompanyDetailsContent({
+  parentCompanyId,
+}: Props) {
   const { data, refetch } = useGetParentCompanyForBankParentCompanyPageQuery({
     variables: {
-      id: companyId,
+      id: parentCompanyId,
     },
   });
 
-  const company = data?.parent_companies_by_pk || null;
-  const companyName = company?.name ? company.name : "";
+  const parentCompany = data?.parent_companies_by_pk || null;
+  const parentCompanyName = parentCompany?.name ? parentCompany.name : "";
 
   return (
     <PageContent title={"Details"}>
       <Box ml={12} mr={6}>
         <ParentCompanyDetailsViewCard
-          companyId={companyId}
-          companyName={companyName}
+          parentCompanyId={parentCompanyId}
+          parentCompanyName={parentCompanyName}
           refetch={refetch}
         />
       </Box>

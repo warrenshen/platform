@@ -10,7 +10,7 @@ from bespoke.companies import create_user_util
 from bespoke.date import date_util
 from bespoke.db import models, db_constants, models_util, queries
 from bespoke.db.db_constants import (CompanyDebtFacilityStatus, CompanySurveillanceStatus, 
-	CompanyType, TwoFactorMessageMethod, UserRoles, PartnershipRequestType)
+	CompanyType, TwoFactorMessageMethod, UserRoles, CustomerEmailsEnum)
 from bespoke.db.models import session_scope
 from bespoke.finance import contract_util
 from bespoke.metrc import metrc_api_keys_util
@@ -1699,5 +1699,21 @@ def edit_dummy_account_status(
 
 	for settings in child_company_settings:
 		settings.is_dummy_account = is_dummy_account
+
+	return True, None
+
+@errors.return_error_tuple
+def edit_email_alerts(
+	session: Session,
+	parent_company_id: str,
+	email_alerts: List[CustomerEmailsEnum],
+) -> Tuple[bool, errors.Error]:
+	parent_company, err = queries.get_parent_company_by_id(session, parent_company_id)
+	if err:
+		return None, errors.Error('No parent company found')
+
+	parent_company.settings
+	new_emails_payload = cast(models.SettingsDict, {"emails" : email_alerts })
+	parent_company.settings = new_emails_payload
 
 	return True, None
