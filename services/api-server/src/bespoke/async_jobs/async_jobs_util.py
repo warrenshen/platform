@@ -2006,6 +2006,8 @@ def orchestrate_async_monitoring(
 		List[models.AsyncJob],
 		session.query(models.AsyncJob).filter(
 			models.AsyncJob.status == AsyncJobStatusEnum.QUEUED
+		).filter(
+			models.AsyncJob.deleted_at == None
 		).order_by(
 			models.AsyncJob.queued_at.asc()
 		).all())
