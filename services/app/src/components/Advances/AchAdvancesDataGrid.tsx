@@ -107,6 +107,7 @@ export default function AchAdvancesDataGrid({
       exportFileName={exportFileName}
       dataSource={rows}
       columns={columns}
+      columnsToHideOnExport={["Additional Information"]}
     />
   );
 }

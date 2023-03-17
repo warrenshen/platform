@@ -45,6 +45,7 @@ interface DataGridProps {
   selectedRowKeys?: any[]; // can be controlled
   editing?: Record<any, any>;
   showColumnHeaders?: boolean;
+  columnsToHideOnExport?: string[];
   onSaved?: (e: any) => void;
   onInitNewRow?: (e: any) => void;
   onSelectionChanged?: (params: {}) => void; // callback
@@ -74,6 +75,7 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
       selectedRowKeys,
       editing = {},
       showColumnHeaders = true,
+      columnsToHideOnExport = [],
       onSaved,
       onInitNewRow,
       onSelectionChanged,
@@ -140,6 +142,9 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
       if (exportFileType === "csv") {
         const workbook = new Workbook();
         const worksheet = workbook.addWorksheet("Main sheet");
+        columnsToHideOnExport.forEach((column) => {
+          event.component.columnOption(column, "visible", false);
+        });
 
         exportDataGrid({
           topLeftCell: { row: 1, column: 1 },
@@ -156,6 +161,9 @@ const ControlledDataGrid = forwardRef<DataGrid, DataGridProps>(
               new Blob([buffer], { type: "application/octet-stream" }),
               `${exportFileName || "Report"}.${exportFileType}`
             );
+          });
+          columnsToHideOnExport.forEach((column) => {
+            event.component.columnOption(column, "visible", true);
           });
         });
 
