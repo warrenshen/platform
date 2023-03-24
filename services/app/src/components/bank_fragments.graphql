@@ -487,6 +487,20 @@ fragment Payment on payments {
   bank_note
   created_at
   ...PaymentLimited
+  company {
+    id
+    name
+    identifier
+    state
+    debt_facility_status
+    most_recent_financial_summary: financial_summaries(
+      order_by: { date: desc },
+      limit: 1
+    ) {
+      id
+      product_type
+    }
+  }
 }
 
 fragment PaymentWithTransactions on payments {

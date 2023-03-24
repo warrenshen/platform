@@ -22041,7 +22041,7 @@ export type ParentCompanies = {
   created_at: Scalars["timestamptz"];
   id: Scalars["uuid"];
   name: Scalars["String"];
-  settings?: Maybe<Scalars["jsonb"]>;
+  settings: Scalars["jsonb"];
   updated_at: Scalars["timestamptz"];
   /** An array relationship */
   users: Array<Users>;
@@ -33931,8 +33931,17 @@ export type PayorPartnershipFragment = Pick<CompanyPayorPartnerships, "id"> &
 export type PaymentFragment = Pick<
   Payments,
   "id" | "bank_note" | "created_at"
-> &
-  PaymentLimitedFragment;
+> & {
+  company: Pick<
+    Companies,
+    "id" | "name" | "identifier" | "state" | "debt_facility_status"
+  > & {
+    most_recent_financial_summary: Array<
+      Pick<FinancialSummaries, "id" | "product_type">
+    >;
+    contract?: Maybe<Pick<Contracts, "id" | "product_type">>;
+  };
+} & PaymentLimitedFragment;
 
 export type PaymentWithTransactionsFragment = Pick<Payments, "id"> & {
   transactions: Array<
@@ -36004,6 +36013,24 @@ export const PaymentFragmentDoc = gql`
     bank_note
     created_at
     ...PaymentLimited
+    company {
+      id
+      name
+      identifier
+      state
+      debt_facility_status
+      most_recent_financial_summary: financial_summaries(
+        order_by: { date: desc }
+        limit: 1
+      ) {
+        id
+        product_type
+      }
+      contract {
+        id
+        product_type
+      }
+    }
   }
   ${PaymentLimitedFragmentDoc}
 `;

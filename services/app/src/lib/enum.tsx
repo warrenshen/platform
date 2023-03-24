@@ -1377,3 +1377,24 @@ export const VendorUserBaseRoles = [UserRolesEnum.VendorAdmin];
 export enum CustomerEmailsEnum {
   FinancialStatementAlerts = "financial_statement_alerts",
 }
+
+export enum TPExportCategoryEnum {
+  Ineligible = "ineligible",
+  EligibleDispensary = "eligible_dispensary",
+  EligibleCore = "eligible_core",
+  All = "all",
+}
+
+export const TPExportCategoryEnums = [
+  TPExportCategoryEnum.Ineligible,
+  TPExportCategoryEnum.EligibleDispensary,
+  TPExportCategoryEnum.EligibleCore,
+  TPExportCategoryEnum.All,
+];
+
+export const TPExportCategoryEnumToLabel = {
+  [TPExportCategoryEnum.Ineligible]: "Ineligible",
+  [TPExportCategoryEnum.EligibleDispensary]: "Eligible Dispensary Financing",
+  [TPExportCategoryEnum.EligibleCore]: "Eligible Core",
+  [TPExportCategoryEnum.All]: "All",
+};
