@@ -27,9 +27,8 @@
   webhook: '{{ASYNC_SERVER_BASE_URL}}/async_jobs/orchestration-handler'
   schedule: '* * * * *'
   include_in_metadata: true
-  payload: {
+  payload:
     delay_seconds: 25
-  }
   headers:
     - name: x-api-key
       value_from_env: ASYNC_SERVER_API_KEY
@@ -48,15 +47,6 @@
   include_in_metadata: true
   payload:
     job_name: purchase_orders_past_due
-  headers:
-    - name: x-api-key
-      value_from_env: ASYNC_SERVER_API_KEY
-- name: async_refresh_metrc_api_keys
-  webhook: '{{ASYNC_SERVER_BASE_URL}}/async_jobs/generate_jobs'
-  schedule: 15 16 * * *
-  include_in_metadata: true
-  payload:
-    job_name: refresh_metrc_api_key_permissions
   headers:
     - name: x-api-key
       value_from_env: ASYNC_SERVER_API_KEY
