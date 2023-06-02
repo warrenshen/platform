@@ -18,30 +18,30 @@ from os import path
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../../src")))
 sys.path.append(path.realpath(path.join(path.dirname(__file__), "../")))
 
-from bespoke.db import models
+from bespoke.db import db_constants, models
 
 def main(
 	is_test_run: bool,
-	repayment_id: str,
+	payment_id: str,
 ) -> None:
 	logging.basicConfig(level=logging.INFO)
 
 	engine = models.create_engine()
 	session_maker = models.new_sessionmaker(engine)
 
-	# Delete repayment by repayment ID
+	# Delete payment by payment ID
 	with models.session_scope(session_maker) as session:
-		repayment = session.query(models.Payment).filter(
-			models.Payment.id == repayment_id
+		payment = session.query(models.Payment).filter(
+			models.Payment.id == payment_id
 		).first()
 
-		if not repayment:
-			print('ERROR! No repayment exists for given repayment id')
+		if not payment:
+			print('ERROR! No repayment exists for given payment id')
 			return
 
-		# Get transactions associated with repayment
+		# Get transactions associated with payment
 		transactions = session.query(models.Transaction).filter(
-			models.Transaction.payment_id == repayment_id
+			models.Transaction.payment_id == payment_id
 		).all()
 
 		# Delete transactions
@@ -57,23 +57,26 @@ def main(
 
 			logging.info(f'Deleting transaction {transaction.id}')
 			if not is_test_run:
+				print("deleting transaction")
 				session.delete(transaction)
+		session.commit()
 
-		company = session.query(models.Company).filter(
-			models.Company.id == repayment.company_id
-		).first()
-		logging.info(f'Decrementing company latest repayment identifier')
+		if payment.type == db_constants.PaymentType.REPAYMENT:
+			company = session.query(models.Company).filter(
+				models.Company.id == payment.company_id
+			).first()
+			logging.info(f'Decrementing company latest repayment identifier')
+			if not is_test_run:
+				company.latest_payment_identifier -= 1
+
+		logging.info(f'Deleting payment {payment.id}')
 		if not is_test_run:
-			company.latest_repayment_identifier -= 1
+			session.delete(payment)
 
-		logging.info(f'Deleting repayment {repayment.id}')
-		if not is_test_run:
-			session.delete(repayment)
-
-	logging.info(f"[SUCCESS] Successfully deleted repayment")
+	logging.info(f"[SUCCESS] Successfully deleted payment")
 
 parser = argparse.ArgumentParser()
-parser.add_argument('repayment_id', help='ID of repayment to delete')
+parser.add_argument('payment_id', help='ID of payment to delete')
 
 if __name__ == '__main__':
 	args = parser.parse_args()
@@ -92,5 +95,5 @@ if __name__ == '__main__':
 
 	main(
 		is_test_run=is_test_run,
-		repayment_id=args.repayment_id,
+		payment_id=args.payment_id,
 	)
