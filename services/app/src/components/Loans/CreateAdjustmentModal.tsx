@@ -8,6 +8,7 @@ import {
 } from "generated/graphql";
 import useCustomMutation from "hooks/useCustomMutation";
 import useSnackbar from "hooks/useSnackbar";
+import { todayAsDateStringServer } from "lib/date";
 import { PaymentTypeEnum } from "lib/enum";
 import { createAdjustmentMutation } from "lib/finance/payments/adjustment";
 import { useState } from "react";
@@ -27,8 +28,8 @@ export default function CreateAdjustmentModal({
   const [payment, setPayment] = useState<PaymentsInsertInput>({
     company_id: companyId,
     type: PaymentTypeEnum.Adjustment,
-    deposit_date: null,
-    settlement_date: null,
+    deposit_date: todayAsDateStringServer(),
+    settlement_date: todayAsDateStringServer(),
   });
 
   const [transaction, setTransaction] = useState<TransactionsInsertInput>({
@@ -75,6 +76,7 @@ export default function CreateAdjustmentModal({
   const isSubmitDisabled =
     !payment.deposit_date ||
     !payment.settlement_date ||
+    transaction.loan_id === null ||
     transaction.to_principal === null ||
     transaction.to_interest === null ||
     transaction.to_fees === null ||

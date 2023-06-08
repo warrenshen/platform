@@ -34,9 +34,23 @@ export default function AdjustmentForm({
     <Box display="flex" flexDirection="column">
       <Box mt={4}>
         <Typography>
-          You are creating an adjustment on a loan. Adjustment values may be
-          POSITIVE or NEGATIVE (ex. increase outstanding interest or decrease
-          outstanding interest).
+          <strong>IMPORTANT</strong>
+        </Typography>
+        <Typography>
+          - An adjustment applies to an individual loan (even for Line of
+          Credit).
+        </Typography>
+        <Typography>
+          - Adjustment values may be POSITIVE or NEGATIVE.
+        </Typography>
+        <Typography>- The deposit date defaults to be today.</Typography>
+        <Typography>
+          - The settlement date defaults to be the same as the deposit date.
+        </Typography>
+        <Typography>
+          - The adjustment defaults to be the inverse of the selected loan's
+          outstanding principal, interest, and late fees. This default is an
+          adjustment which closes out the loan completely.
         </Typography>
       </Box>
       <Box display="flex" flexDirection="column" mt={4}>
@@ -46,7 +60,10 @@ export default function AdjustmentForm({
           handleSelectLoan={(loan) => {
             setTransaction({
               ...transaction,
-              loan_id: loan?.id || null,
+              loan_id: loan.id,
+              to_principal: -loan.outstanding_principal_balance,
+              to_interest: -loan.outstanding_interest,
+              to_fees: -loan.outstanding_fees,
             });
           }}
         />
@@ -71,6 +88,7 @@ export default function AdjustmentForm({
             setPayment({
               ...payment,
               deposit_date: value,
+              settlement_date: value, // Default settlement date to be same as the deposit date.
             })
           }
         />
