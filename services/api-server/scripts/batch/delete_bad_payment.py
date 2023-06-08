@@ -2,10 +2,10 @@
 DATABASE_URL=postgres+psycopg2://postgres:postgrespassword@localhost:5432/postgres python scripts/batch/
 
 What:
-This script soft deletes failed async jobs.
+This script deletes a given payment.
 
 Why:
-You can run this script after a incident which creates a large amount of failed async jobs.
+You can run this script to delete a incorrect payment.
 """
 
 import argparse
