@@ -56,6 +56,7 @@ export default function AdjustmentForm({
       <Box display="flex" flexDirection="column" mt={4}>
         <SelectLoanAutocomplete
           isDisbursementIdentifierVisible
+          placeholder={"Select a loan to adjust"}
           optionLoans={loans}
           handleSelectLoan={(loan) => {
             setTransaction({

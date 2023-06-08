@@ -19,6 +19,7 @@ import { useState } from "react";
 
 interface Props {
   isDisbursementIdentifierVisible?: boolean;
+  placeholder?: string;
   optionLoans: (LoanLimitedFragment & LoanArtifactLimitedFragment)[];
   handleSelectLoan: (
     loan: LoanLimitedFragment & LoanArtifactLimitedFragment
@@ -27,6 +28,7 @@ interface Props {
 
 export default function SelectLoanAutocomplete({
   isDisbursementIdentifierVisible = false,
+  placeholder = "Add another loan",
   optionLoans,
   handleSelectLoan,
 }: Props) {
@@ -55,7 +57,7 @@ export default function SelectLoanAutocomplete({
           <TextField
             {...params}
             data-cy="make-repayment-loan-selector"
-            label="Add another loan"
+            label={placeholder}
             variant="outlined"
           />
         )}
